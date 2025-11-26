@@ -14,7 +14,7 @@ export default function Alexandria() {
   // Using a fixed test UUID until auth is implemented
   const TEST_USER_ID = '00000000-0000-0000-0000-000000000001';
   
-  const { messages, input, setInput, handleSubmit, isLoading, error } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
     api: '/api/chat',
     body: {
       userId: TEST_USER_ID,
@@ -86,7 +86,7 @@ export default function Alexandria() {
               <div ref={messagesEndRef} />
             </div>
             <form onSubmit={handleSubmit} className="relative mt-auto">
-              <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Speak to the Ghost..." className="w-full bg-white/70 backdrop-blur-xl h-14 pl-6 pr-14 rounded-full border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#0071E3] focus:outline-none transition-all" />
+              <input value={input} onChange={handleInputChange} placeholder="Speak to the Ghost..." className="w-full bg-white/70 backdrop-blur-xl h-14 pl-6 pr-14 rounded-full border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#0071E3] focus:outline-none transition-all" />
               <button type="submit" disabled={isLoading} className="absolute right-2 top-2 p-2.5 bg-[#0071E3] rounded-full text-white hover:bg-[#0077ED] transition-colors disabled:opacity-50"><ArrowUp size={20} /></button>
             </form>
           </div>
