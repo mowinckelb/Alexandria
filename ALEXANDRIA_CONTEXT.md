@@ -9,7 +9,39 @@ We are building a platform to immortalize human cognition. We transform raw huma
 
 ---
 
-## 2. The Bicameral Architecture (Technical Core)
+## 2. Development Philosophy: MVP-Terminal Optimal
+
+**The Line:** Every feature we build must lie on the direct path between MVP and Terminal State. No detours. No sideways features. No tech debt that requires rewrites.
+
+```
+MVP ────────●────────●────────●──────── Terminal State
+            ↑        ↑        ↑
+         Step 1   Step 2   Step 3
+         (now)    (okay)   (okay)
+         
+         ✗ Off-path feature (rejected)
+         ✗ "Nice to have" (rejected)
+         ✗ Premature optimization (rejected)
+```
+
+**Rules:**
+1. **Every feature must serve Terminal State.** If it doesn't contribute to "100% personality fidelity and factual accuracy," don't build it.
+2. **Build for evolution, not replacement.** Schemas should accommodate future needs without migration. Code should extend, not rewrite.
+3. **Step 2-3 is fine.** We don't have to be at Step 1. We can build ahead on the critical path if it prevents future rewrites.
+4. **Stealth collection is valid.** Collecting data now for future features (e.g., entities for GraphRAG) is on-path if it requires no extra user effort.
+
+**Examples:**
+| Decision | Verdict | Reasoning |
+|----------|---------|-----------|
+| Store training pairs with `export_id` for lineage tracking | ✅ On-path | Evolutionary training requires knowing which data trained which model |
+| Add `quality_score` column | ✅ On-path | Terminal state needs filtering at scale; column now, algorithm swappable |
+| Add `is_validated` for human review | ❌ Off-path | RLHF is handled by `feedback_logs`; this duplicates |
+| Build admin dashboard | ❌ Off-path | Not required for terminal state functionality |
+| Extract entities during ingestion | ✅ On-path (stealth) | GraphRAG needs them; collect now, use later |
+
+---
+
+## 3. The Bicameral Architecture (Technical Core)
 
 We use a **Bicameral RAG** approach to separate "Soul" from "Memory."
 
@@ -42,7 +74,7 @@ We use a **Bicameral RAG** approach to separate "Soul" from "Memory."
 
 ---
 
-## 3. Tech Stack & Constraints
+## 4. Tech Stack & Constraints
 
 ### Frontend
 * **Framework:** Next.js 14+ (App Router).
@@ -89,22 +121,25 @@ These patterns were discovered through testing with AI SDK v5.0.101:
 
 ---
 
-## 4. Database Schema (Supabase)
+## 5. Database Schema (Supabase)
 
 * **Migrations:** Located in `supabase/migrations/`. Run via Supabase SQL Editor.
 * **MVP Note:** Foreign key constraints to `auth.users` are **removed** for testing. Re-add when implementing authentication.
 * **Key Tables:**
     * `entries`: Raw text logs (Carbon input).
-    * `memory_fragments`: Vector chunks (768 dim) + `entities` JSONB column (for future GraphRAG).
-    * `twins`: Stores `model_id` (Together AI string), `training_job_id`, and training status.
-    * `chat_sessions`: Groups chat messages by session.
-    * `chat_messages`: Stores history for context injection.
-    * `feedback_logs`: Stores RLHF (Thumbs up/down) data for future DPO training.
-* **Key Function:** `match_memory(query_embedding, match_threshold, match_count, p_user_id)` - Vector similarity search.
+    * `memory_fragments`: Vector chunks (768 dim) + `entities` JSONB column (stealth GraphRAG prep).
+    * `twins`: Current model state (`model_id`, `training_job_id`, status).
+    * `training_pairs`: LoRA training data with `quality_score` and `export_id` for lineage.
+    * `training_exports`: Batch tracking for evolutionary fine-tuning (links pairs → training jobs → resulting models).
+    * `chat_sessions` / `chat_messages`: Conversation history.
+    * `feedback_logs`: RLHF data (thumbs up/down) for future DPO.
+* **Key Functions:**
+    * `match_memory(...)` - Vector similarity search.
+    * `get_active_model(p_user_id)` - Returns current model in evolution chain.
 
 ---
 
-## 5. Operational Workflow
+## 6. Operational Workflow
 We follow a strict **Gitflow-Lite** process:
 
 1.  **Main:** Production ready.
@@ -114,7 +149,7 @@ We follow a strict **Gitflow-Lite** process:
 
 ---
 
-## 6. Code Style Guidelines
+## 7. Code Style Guidelines
 * **Interfaces:** Use functional names, no "I" prefix. (e.g., `Refiner`, `Tuner`, `Indexer`).
 * **Modularity:** Use the **Factory Pattern** (`lib/factory.ts`) to instantiate logic modules. Never hardcode providers in API routes.
 * **Error Handling:** Serverless functions must return clean JSON errors, never crash. Use try/catch with detailed error logging.
@@ -122,7 +157,7 @@ We follow a strict **Gitflow-Lite** process:
 
 ---
 
-## 7. Environment Configuration
+## 8. Environment Configuration
 
 Required environment variables for `.env.local` (local) and Vercel (production):
 
@@ -140,21 +175,41 @@ SUPABASE_SERVICE_KEY="..." # Must be SERVICE_ROLE key for Vector Admin rights
 
 ---
 
-## 8. Summary of Current State (MVP)
+## 9. Current State
 
 **Status: ✅ OPERATIONAL** (as of Nov 2025)
 
-We are building the **Skeleton of the Giant**.
-* Input is text-only (for now).
-* Ingestion splits data into Vector (Facts) and LoRA training data (Style).
-* We are "Stealth Collecting" graph nodes in the `memory_fragments` table to enable GraphRAG later without migration.
-* Fine-tuning upload is **deferred** - training data is generated but not uploaded yet.
-* **Auth:** `userId` is currently a test UUID (`00000000-0000-0000-0000-000000000001`). **Next Priority:** Implement Supabase Auth.
+**Position on the Line:** Step 2 of MVP-Terminal path. Core ingestion works; training data accumulating; fine-tuning not yet triggered.
+
+### What's Built (On-Path):
+| Component | Status | Terminal State Purpose |
+|-----------|--------|------------------------|
+| Dual-path ingestion | ✅ Working | Facts + Style separation |
+| Vector storage + search | ✅ Working | Objective memory recall |
+| Training pair persistence | ✅ Working | LoRA fine-tuning input |
+| Export lineage tracking | ✅ Working | Evolutionary training |
+| Quality scoring | ✅ Working | Filtering at scale |
+| Entity extraction (stealth) | ✅ Collecting | Future GraphRAG |
+| Feedback logging | ✅ Schema ready | Future DPO |
+
+### What's Deferred (Still On-Path):
+* **Fine-tuning trigger** - Waiting for 500+ quality pairs
+* **Auth** - Using test UUID (`00000000-0000-0000-0000-000000000001`)
+* **GraphRAG** - Entities collected, graph not built yet
+* **DPO training** - Feedback collected, training not implemented
 
 ### Working Flow:
-1. **Carbon Input** → User enters text
-2. **Extraction** → Groq extracts atomic facts
-3. **Embedding** → Together AI generates 768-dim vectors
-4. **Storage** → Supabase stores facts with embeddings
-5. **Recall** → Vector similarity search finds relevant memories
-6. **Ghost Response** → Together AI generates response with memory context
+```
+Carbon Input → Dual Processing → Storage → Recall → Ghost Response
+                    ↓
+              ┌─────┴─────┐
+              ↓           ↓
+         Objective    Subjective
+         (facts →     (pairs →
+          vectors)     training_pairs)
+```
+
+### Training API:
+* `GET /api/training?userId=xxx` - Stats, readiness, active model
+* `POST /api/training` - Export JSONL (optionally create export batch)
+* `PATCH /api/training` - Update export status after training job

@@ -67,7 +67,7 @@ Always either ask questions OR save - never both.`
         // Generate training data
         await refiner.extractStyle(summary);
         
-        const confirmMessage = `Ok I have what I need; thanks. Feel free to share more anytime.`;
+        const confirmMessage = `Thank you for sharing that with me — I've saved it. I'm here whenever you'd like to share more.`;
         
         return new Response(
           `data: ${JSON.stringify({ type: 'text-delta', delta: confirmMessage })}\n\n`,

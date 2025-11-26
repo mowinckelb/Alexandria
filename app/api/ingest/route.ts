@@ -3,73 +3,63 @@ import { createClient } from '@supabase/supabase-js';
 import { getIngestionTools } from '@/lib/factory';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
-const { refiner, extractor, indexer, tuner } = getIngestionTools();
+const { refiner, extractor, indexer } = getIngestionTools();
 
 export async function POST(req: Request) {
   try {
     const { text, userId } = await req.json();
 
-    // Track what was processed
     const results = {
-      raw_saved: false,
-      facts_extracted: 0,
       facts_indexed: 0,
-      training_started: false,
+      training_pairs_saved: 0,
       errors: [] as string[]
     };
 
-    // 1. Save Raw Entry (skip FK constraint for MVP - will fail silently if user doesn't exist)
-    try {
-      await supabase.from('entries').insert({ user_id: userId, content: text });
-      results.raw_saved = true;
-    } catch (e) {
-      results.errors.push(`Raw save failed: ${e}`);
-    }
-    
-    // 2. Check existing twin state
-    const { data: twin } = await supabase.from('twins').select('model_id').eq('user_id', userId).single();
+    // 1. Save Raw Entry
+    let entryId: string | null = null;
+    const { data } = await supabase
+      .from('entries')
+      .insert({ user_id: userId, content: text })
+      .select('id')
+      .single();
+    entryId = data?.id || null;
 
-    // 3. Objective Path - Extract and index facts
+    // 2. Objective Path - Extract and index facts
     try {
       const structure = await extractor.structure(text);
-      results.facts_extracted = structure.facts.length;
-      
       for (const fact of structure.facts) {
-        try {
-          await indexer.ingest(fact, userId, { 
-            entities: structure.entities, 
-            importance: structure.importance 
-          });
-          results.facts_indexed++;
-        } catch (e) {
-          results.errors.push(`Indexing failed for fact: ${e}`);
-        }
+        await indexer.ingest(fact, userId, { 
+          entities: structure.entities, 
+          importance: structure.importance 
+        });
+        results.facts_indexed++;
       }
     } catch (e) {
-      results.errors.push(`Extraction failed: ${e}`);
+      results.errors.push(`Extraction: ${e}`);
     }
 
-    // 4. Subjective Path - Generate training data (MVP: log only, no actual training)
+    // 3. Subjective Path - Save training pairs
     try {
-      const jsonl = await refiner.extractStyle(text);
-      const fileId = await tuner.upload(jsonl);
-      const jobId = await tuner.train(fileId, userId, twin?.model_id);
-      
-      if (jobId) {
-        await supabase.from('twins').upsert({ 
-          user_id: userId, 
-          training_job_id: jobId, 
-          status: 'training' 
-        });
-        results.training_started = true;
+      const pairs = await refiner.extractStyle(text);
+      if (pairs.length > 0) {
+        const rows = pairs.map(p => ({
+          user_id: userId,
+          system_prompt: p.system_prompt,
+          user_content: p.user_content,
+          assistant_content: p.assistant_content,
+          quality_score: p.quality_score,
+          source_entry_id: entryId
+        }));
+        await supabase.from('training_pairs').insert(rows);
+        results.training_pairs_saved = pairs.length;
       }
     } catch (e) {
-      results.errors.push(`Training pipeline: ${e}`);
+      results.errors.push(`Training: ${e}`);
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: `Processed: ${results.facts_indexed}/${results.facts_extracted} facts indexed`,
+      message: `${results.facts_indexed} facts, ${results.training_pairs_saved} training pairs`,
       details: results
     });
   } catch (error) {

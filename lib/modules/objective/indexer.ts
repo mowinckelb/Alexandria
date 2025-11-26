@@ -7,12 +7,9 @@ interface MemoryMetadata {
   [key: string]: unknown;
 }
 
-interface MemoryFragment {
+interface MemoryMatch {
   content: string;
-  embedding: number[];
-  entities: string[];
-  importance: number;
-  user_id: string;
+  similarity?: number;
 }
 
 export class SupabaseIndexer {
@@ -23,12 +20,10 @@ export class SupabaseIndexer {
     console.log(`[Indexer] Ingesting fact for userId: ${userId}`);
     console.log(`[Indexer] Fact: "${fact}"`);
     
-    // BAAI/bge-base-en-v1.5 produces 768-dimensional vectors (matches DB schema)
     const response = await this.together.embeddings.create({
       model: "BAAI/bge-base-en-v1.5",
       input: fact
     });
-    console.log(`[Indexer] Generated embedding with ${response.data[0].embedding.length} dimensions`);
     
     const { data, error } = await this.supabase.from('memory_fragments').insert({
       user_id: userId,
@@ -48,40 +43,48 @@ export class SupabaseIndexer {
   async recall(query: string, userId: string): Promise<string[]> {
     console.log(`[Indexer] Recall for userId: ${userId}, query: "${query}"`);
     
-    // First, check if any memories exist for this user
-    const { data: allMemories, error: checkError } = await this.supabase
+    // Get all memories for this user (for small datasets, just return all)
+    const { data: allMemories } = await this.supabase
       .from('memory_fragments')
-      .select('content, user_id')
+      .select('content')
       .eq('user_id', userId)
-      .limit(10);
+      .order('created_at', { ascending: false })
+      .limit(50);
     
-    console.log(`[Indexer] Found ${allMemories?.length || 0} total memories for user, error: ${checkError?.message || 'none'}`);
-    if (allMemories && allMemories.length > 0) {
-      console.log('[Indexer] Sample memories:', allMemories.slice(0, 3));
-    }
-    
-    // If no memories exist, return early
     if (!allMemories || allMemories.length === 0) {
+      console.log('[Indexer] No memories found');
       return [];
     }
-    
-    // Generate embedding for query
+
+    // For small datasets (< 20 memories), just return all of them
+    // This ensures the ghost has full context for broad questions
+    if (allMemories.length <= 20) {
+      console.log(`[Indexer] Small dataset (${allMemories.length}), returning all memories`);
+      return allMemories.map(m => m.content);
+    }
+
+    // For larger datasets, use semantic search with low threshold + recent memories
     const response = await this.together.embeddings.create({
       model: "BAAI/bge-base-en-v1.5",
       input: query
     });
-    console.log(`[Indexer] Generated embedding with ${response.data[0].embedding.length} dimensions`);
 
-    // Try the RPC function
-    const { data, error } = await this.supabase.rpc('match_memory', {
+    // Semantic search with low threshold to catch more matches
+    const { data: semanticMatches } = await this.supabase.rpc('match_memory', {
       query_embedding: response.data[0].embedding,
-      match_threshold: 0.5, // Lowered threshold for testing
-      match_count: 5,
+      match_threshold: 0.3, // Low threshold for broader matching
+      match_count: 15,
       p_user_id: userId
     });
     
-    console.log(`[Indexer] RPC match_memory result: ${data?.length || 0} matches, error: ${error?.message || 'none'}`);
+    // Get recent memories as fallback (last 10)
+    const recentMemories = allMemories.slice(0, 10).map(m => m.content);
     
-    return data ? data.map((m: MemoryFragment) => m.content) : [];
+    // Combine semantic matches with recent memories, deduplicate
+    const semanticContents = (semanticMatches || []).map((m: MemoryMatch) => m.content);
+    const combined = [...new Set([...semanticContents, ...recentMemories])];
+    
+    console.log(`[Indexer] Returning ${combined.length} memories (${semanticContents.length} semantic + recent)`);
+    return combined;
   }
 }
