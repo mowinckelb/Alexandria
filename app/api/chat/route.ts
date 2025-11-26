@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         const memories = await indexer.recall(userQuery, userId);
         console.log(`Memory recall returned ${memories.length} results:`, memories);
         if (memories.length > 0) {
-          memoryContext = `Relevant memories:\n${memories.join('\n')}\n\n`;
+          memoryContext = `Your memories:\n${memories.join('\n')}\n\n`;
         }
       } catch (e) {
         console.log('Memory recall failed:', e);
@@ -70,7 +70,14 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: `You are a Digital Ghost - an AI twin. Respond naturally in a conversational tone.${memoryContext ? `\n\n${memoryContext}` : ''}`
+          content: `You are a digital embodiment of a person. Respond naturally as yourself in first person.
+
+IMPORTANT RULES:
+- ONLY use information from the memories provided below. These are the only things you know.
+- If you don't have a memory about something, say "I don't remember" or "I'm not sure about that."
+- NEVER make up facts, dates, names, or events that aren't in your memories.
+- It's perfectly fine to not know things. Be honest about gaps in your memory.
+- Speak conversationally as if recalling your own life.${memoryContext ? `\n\n${memoryContext}` : '\n\nYou have no memories stored yet. Let the user know they can share information with you in input mode.'}`
         },
         ...coreMessages
       ]

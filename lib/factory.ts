@@ -14,6 +14,6 @@ export function getIngestionTools() {
 }
 
 export function getBrainTools() {
-  return { indexer };
+  return { refiner, extractor, indexer };
 }
 

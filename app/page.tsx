@@ -1,7 +1,6 @@
 'use client';
-import { useState, useEffect, useRef, FormEvent } from 'react';
+import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { ArrowUp, BookOpen, Sparkles, Database } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -13,33 +12,182 @@ interface Message {
 const TEST_USER_ID = '00000000-0000-0000-0000-000000000001';
 
 export default function Alexandria() {
-  const [activeTab, setActiveTab] = useState<'input' | 'chat'>('input');
-  const [textInput, setTextInput] = useState('');
+  const [mode, setMode] = useState<'carbon' | 'ghost'>('carbon');
+  const [inputValue, setInputValue] = useState('');
   const [sessionId, setSessionId] = useState('');
-  const [chatInput, setChatInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [ghostMessages, setGhostMessages] = useState<Message[]>([]);
+  const [inputMessages, setInputMessages] = useState<Message[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [outputContent, setOutputContent] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { setSessionId(uuidv4()); }, []);
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+  useEffect(() => { 
+    setSessionId(uuidv4()); 
+    // Auto-focus input on load
+    setTimeout(() => inputRef.current?.focus(), 100);
+  }, []);
 
-  const handleChatSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim() || isLoading) return;
+  useEffect(() => { 
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); 
+  }, [ghostMessages.length, inputMessages.length, isProcessing, outputContent]);
 
-    const userMessage: Message = {
-      id: uuidv4(),
-      role: 'user',
-      content: chatInput
-    };
+  const showStatus = (message: string, isThinking = false) => {
+    if (isThinking) {
+      setStatusMessage('thinking');
+    } else {
+      setStatusMessage(message);
+    }
+  };
 
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setChatInput('');
-    setIsLoading(true);
+  const clearStatus = () => {
+    setTimeout(() => setStatusMessage(''), 2000);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setMode(mode === 'carbon' ? 'ghost' : 'carbon');
+    }
+  };
+
+  const shakeInput = () => {
+    const input = inputRef.current;
+    if (input) {
+      input.classList.add('animate-shake');
+      setTimeout(() => input.classList.remove('animate-shake'), 500);
+    }
+  };
+
+  const handleSubmit = async () => {
+    const text = inputValue.trim();
+    if (!text) return;
+
+    // Prevent double submission
+    if (isProcessing) {
+      shakeInput();
+      return;
+    }
+
+    setInputValue('');
+    setIsProcessing(true);
 
     try {
+      if (mode === 'carbon') {
+        await handleCarbon(text);
+      } else {
+        await handleGhost(text);
+      }
+    } finally {
+      setIsProcessing(false);
+      // Only refocus on desktop to avoid triggering mobile keyboard
+      if (typeof window !== 'undefined' && window.innerWidth > 768) {
+        inputRef.current?.focus();
+      }
+    }
+  };
+
+  const handleCarbon = async (text: string) => {
+    try {
+      setOutputContent('');
+      
+      // Delay thinking indicator slightly
+      setTimeout(() => {
+        if (isProcessing) showStatus('', true);
+      }, 500);
+
+      const userMessage: Message = {
+        id: uuidv4(),
+        role: 'user',
+        content: text
+      };
+
+      const newMessages = [...inputMessages, userMessage];
+      setInputMessages(newMessages);
+
+      const response = await fetch('/api/input-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          userId: TEST_USER_ID
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`http ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+      const assistantId = uuidv4();
+
+      // Clear status when streaming starts
+      setStatusMessage('');
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.type === 'text-delta' && data.delta) {
+                  assistantContent += data.delta;
+                  setOutputContent(assistantContent);
+                }
+              } catch {
+                // Ignore parse errors for non-JSON lines
+              }
+            }
+          }
+        }
+      }
+
+      // Add to input messages history
+      setInputMessages(prev => [...prev, { 
+        id: assistantId, 
+        role: 'assistant', 
+        content: assistantContent 
+      }]);
+      
+      // Clear output content to avoid duplicate display
+      setOutputContent('');
+
+    } catch (error) {
+      setStatusMessage('');
+      const errorMsg = error instanceof Error ? error.message : 'unknown error';
+      setOutputContent(`error: ${errorMsg.toLowerCase()}`);
+    }
+  };
+
+  const handleGhost = async (query: string) => {
+    try {
+      setOutputContent('');
+      
+      // Delay thinking indicator slightly
+      setTimeout(() => {
+        if (isProcessing) showStatus('', true);
+      }, 500);
+
+      const userMessage: Message = {
+        id: uuidv4(),
+        role: 'user',
+        content: query
+      };
+
+      const newMessages = [...ghostMessages, userMessage];
+      setGhostMessages(newMessages);
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,7 +199,7 @@ export default function Alexandria() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`http ${response.status}`);
       }
 
       const reader = response.body?.getReader();
@@ -59,8 +207,8 @@ export default function Alexandria() {
       let assistantContent = '';
       const assistantId = uuidv4();
 
-      // Add empty assistant message
-      setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '' }]);
+      // Clear status when streaming starts
+      setStatusMessage('');
 
       if (reader) {
         while (true) {
@@ -68,18 +216,14 @@ export default function Alexandria() {
           if (done) break;
           
           const chunk = decoder.decode(value, { stream: true });
-          // Parse SSE data from toUIMessageStreamResponse format
           const lines = chunk.split('\n');
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               try {
                 const data = JSON.parse(line.slice(6));
-                // Handle text deltas
                 if (data.type === 'text-delta' && data.delta) {
                   assistantContent += data.delta;
-                  setMessages(prev => 
-                    prev.map(m => m.id === assistantId ? { ...m, content: assistantContent } : m)
-                  );
+                  setOutputContent(assistantContent);
                 }
               } catch {
                 // Ignore parse errors for non-JSON lines
@@ -88,115 +232,199 @@ export default function Alexandria() {
           }
         }
       }
-    } catch (error) {
-      console.error('Chat error:', error);
-      setMessages(prev => [...prev, { 
-        id: uuidv4(), 
-        role: 'assistant', 
-        content: 'Sorry, something went wrong. Please try again.' 
-      }]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const handleIngest = async () => {
-    if (!textInput) return;
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/ingest', { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: textInput, userId: TEST_USER_ID }) 
-      });
-      const result = await response.json();
-      setTextInput('');
-      alert(result.message || "Carbon ingested. Ghost is evolving.");
+      // Add to ghost messages history
+      setGhostMessages(prev => [...prev, { 
+        id: assistantId, 
+        role: 'assistant', 
+        content: assistantContent 
+      }]);
+      
+      // Clear output content to avoid duplicate display
+      setOutputContent('');
+
     } catch (error) {
-      alert('Failed to ingest. Please try again.');
-    } finally {
-      setIsLoading(false);
+      setStatusMessage('');
+      const errorMsg = error instanceof Error ? error.message : 'unknown error';
+      setOutputContent(`error: ${errorMsg.toLowerCase()}`);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] font-sans">
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-white/80 backdrop-blur-md border border-white/20 shadow-sm rounded-full p-1 flex gap-1">
-        <button onClick={() => setActiveTab('input')} className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === 'input' ? 'bg-black text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}>
-          <BookOpen size={16} /> Carbon
-        </button>
-        <button onClick={() => setActiveTab('chat')} className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === 'chat' ? 'bg-black text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}>
-          <Sparkles size={16} /> Ghost
-        </button>
-      </nav>
+    <div className="h-screen flex flex-col overflow-hidden bg-[#fafafa] text-[#3a3a3a]">
+      {/* Header */}
+      <div className="fixed top-0 left-0 right-0 flex items-center justify-center p-6 opacity-55 text-[0.85rem] z-50 bg-[#fafafa]">
+        <div className="flex flex-col items-center gap-1">
+          <span>alexandria</span>
+          <span className="text-[0.75rem] italic opacity-80">immortalise the greats</span>
+        </div>
+      </div>
 
-      <main className="max-w-2xl mx-auto pt-32 px-6 pb-20">
-        {activeTab === 'input' && (
-          <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <h1 className="text-4xl font-semibold tracking-tight text-center mb-10 text-gray-900">Feed the Ghost.</h1>
-            <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-2">
-              <textarea 
-                value={textInput} 
-                onChange={(e) => setTextInput(e.target.value)} 
-                placeholder="Write your thoughts..." 
-                className="w-full h-80 p-6 bg-transparent border-none resize-none focus:ring-0 focus:outline-none text-lg leading-relaxed placeholder:text-gray-300 text-gray-800" 
+      {/* Output Area */}
+      <div className="flex-1 px-8 pt-24 pb-8 overflow-y-auto">
+        <div className="max-w-[700px] mx-auto space-y-6">
+          {(mode === 'ghost' ? ghostMessages : inputMessages).map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                  message.role === 'user'
+                    ? 'bg-[#3a3a3a] text-white'
+                    : 'bg-[#f4f4f4] text-[#4a4a4a]'
+                }`}
+              >
+                <div className="text-[0.8rem] leading-relaxed whitespace-pre-wrap">
+                  {message.content}
+                </div>
+              </div>
+            </div>
+          ))}
+          {/* Thinking indicator */}
+          {isProcessing && !outputContent && (
+            <div className="flex justify-start">
+              <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-[#f4f4f4] text-[#4a4a4a]">
+                <div className="text-[0.8rem] leading-relaxed flex items-center gap-1">
+                  <span className="animate-pulse">thinking</span>
+                  <span className="flex gap-[2px]">
+                    <span className="w-1 h-1 bg-[#999] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1 h-1 bg-[#999] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1 h-1 bg-[#999] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* Streaming content */}
+          {outputContent && (
+            <div className="flex justify-start">
+              <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-[#f4f4f4] text-[#4a4a4a]">
+                <div className="text-[0.8rem] leading-relaxed whitespace-pre-wrap">
+                  {outputContent}
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* Input Area */}
+      <div className="p-6 pb-8">
+        <div className="max-w-[700px] mx-auto">
+          {/* Mode Toggle */}
+          <div className="flex justify-between items-center mb-4 px-5">
+            <div className="relative bg-[#3a3a3a]/[0.06] rounded-xl p-[2px] inline-flex">
+              <button
+                onClick={() => setMode('carbon')}
+                className={`relative z-10 bg-transparent border-none px-4 py-1 text-[0.85rem] transition-colors cursor-pointer ${
+                  mode === 'carbon' ? 'text-[#3a3a3a]' : 'text-[#666]'
+                }`}
+              >
+                input
+              </button>
+              <button
+                onClick={() => setMode('ghost')}
+                className={`relative z-10 bg-transparent border-none px-4 py-1 text-[0.85rem] transition-colors cursor-pointer ${
+                  mode === 'ghost' ? 'text-[#3a3a3a]' : 'text-[#666]'
+                }`}
+              >
+                output
+              </button>
+              <div
+                className={`absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] bg-white/55 backdrop-blur-[10px] rounded-[10px] shadow-sm transition-transform duration-300 ease-out ${
+                  mode === 'ghost' ? 'translate-x-full' : ''
+                }`}
               />
             </div>
-            <div className="flex justify-center mt-8">
-              <button 
-                onClick={handleIngest} 
-                disabled={isLoading || !textInput}
-                className="bg-[#0071E3] hover:bg-[#0077ED] text-white px-8 py-3.5 rounded-full font-medium transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50"
-              >
-                {isLoading ? 'Processing...' : 'Sync Memory'}
-              </button>
-            </div>
           </div>
-        )}
 
-        {activeTab === 'chat' && (
-          <div className="flex flex-col h-[75vh]">
-            <div className="flex-1 overflow-y-auto space-y-6 pr-2 pb-6 scrollbar-hide">
-              {messages.length === 0 && (
-                <div className="text-center text-gray-400 mt-20">
-                  <Sparkles size={48} className="mx-auto mb-4 opacity-30" />
-                  <p>Start a conversation with your Ghost</p>
-                </div>
-              )}
-              {messages.map((m) => (
-                <div key={m.id} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
-                  <div className={`max-w-[85%] relative px-5 py-3 shadow-sm ${m.role === 'user' ? 'bg-[#0071E3] text-white rounded-2xl rounded-tr-sm' : 'bg-white text-gray-800 rounded-2xl rounded-tl-sm border border-gray-100'}`}>
-                    <p className="text-[17px] leading-relaxed whitespace-pre-wrap">{m.content || '...'}</p>
-                  </div>
-                </div>
-              ))}
-              {isLoading && messages[messages.length - 1]?.role === 'user' && (
-                <div className="flex justify-start">
-                  <div className="bg-gray-50 text-gray-400 text-xs px-3 py-1 rounded-full animate-pulse flex items-center gap-2">
-                    <Sparkles size={12} /> Ghost is thinking...
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-            <form onSubmit={handleChatSubmit} className="relative mt-auto">
-              <input 
-                value={chatInput} 
-                onChange={(e) => setChatInput(e.target.value)} 
-                placeholder="Speak to the Ghost..." 
-                className="w-full bg-white/70 backdrop-blur-xl h-14 pl-6 pr-14 rounded-full border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#0071E3] focus:outline-none transition-all" 
-              />
-              <button 
-                type="submit" 
-                disabled={isLoading || !chatInput.trim()} 
-                className="absolute right-2 top-2 p-2.5 bg-[#0071E3] rounded-full text-white hover:bg-[#0077ED] transition-colors disabled:opacity-50"
-              >
-                <ArrowUp size={20} />
-              </button>
-            </form>
+          {/* Input Container */}
+          <div className="relative">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder=""
+              autoComplete="off"
+              spellCheck="false"
+              className="w-full bg-[#f4f4f4] border-none rounded-2xl text-[#3a3a3a] text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md caret-[#3a3a3a]/40 focus:bg-[#efefef]"
+            />
+            <button
+              onClick={handleSubmit}
+              className="absolute right-4 top-1/2 -translate-y-1/2 scale-y-[0.8] bg-transparent border-none rounded-md text-[#ccc] text-[1.2rem] cursor-pointer px-2 py-1 transition-colors hover:text-[#999] focus:text-[#999] focus:shadow-[0_0_0_2px_rgba(58,58,58,0.1)]"
+            >
+              →
+            </button>
           </div>
-        )}
-      </main>
+
+          {/* Status Message */}
+          <div className="text-[0.75rem] mt-3 text-left pl-5 h-4 text-[#999]">
+            {statusMessage && (
+              <span className={statusMessage === 'thinking' ? 'inline-block animate-pulse' : ''}>
+                {statusMessage}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-2px); }
+          75% { transform: translateX(2px); }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-in;
+        }
+
+        .animate-shake {
+          animation: shake 0.2s ease-in-out;
+        }
+
+        ::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: rgba(58, 58, 58, 0.15);
+          border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: rgba(58, 58, 58, 0.25);
+        }
+
+        input::-webkit-input-placeholder {
+          color: #999;
+        }
+
+        @supports (caret-width: 2px) {
+          input {
+            caret-width: 2px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
