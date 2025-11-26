@@ -149,6 +149,8 @@ export default function Alexandria() {
     }
   };
 
+  const [isRegenerationFeedback, setIsRegenerationFeedback] = useState(false);
+
   const submitFeedback = async (rating: number, comment: string): Promise<boolean> => {
     if (!lastGhostMessage) return false;
     
@@ -163,7 +165,8 @@ export default function Alexandria() {
           feedback: rating,
           comment: comment.trim(),
           prompt: lastGhostMessage.prompt,
-          response: lastGhostMessage.response
+          response: lastGhostMessage.response,
+          isRegeneration: isRegenerationFeedback
         })
       });
       return res.ok;
@@ -259,6 +262,7 @@ export default function Alexandria() {
       
       // Update for next potential regeneration
       setLastGhostMessage({ prompt: promptToRegenerate, response: assistantContent, id: assistantId });
+      setIsRegenerationFeedback(true);  // This IS a regeneration - enables DPO pair detection
       
       // Wait for message to render, then clear streaming content and start feedback
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -501,6 +505,7 @@ export default function Alexandria() {
       
       // Enter feedback mode - user must provide feedback before next query
       setLastGhostMessage({ prompt: query, response: assistantContent, id: assistantId });
+      setIsRegenerationFeedback(false);  // First response, not a regeneration
       setTimeout(() => setFeedbackPhase('binary'), 300);
 
     } catch (error) {

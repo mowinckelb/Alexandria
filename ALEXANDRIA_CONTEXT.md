@@ -90,14 +90,33 @@ We use a **Bicameral RAG** approach to separate "Soul" from "Memory."
 | **RLAIF** | N/A | Use LLM to amplify feedback | Medium - synthetic preference generation |
 
 #### Recommended Strategy (MVP-Terminal):
-1. **Phase 1 (Now):** Collect feedback, inject high-rated responses into LoRA training.
+1. **Phase 1 (Now):** Collect feedback, auto-inject high-rated responses into LoRA training.
 2. **Phase 2 (100+ pairs):** Use DPO for direct preference alignment.
 3. **Phase 3 (Scale):** Consider RLAIF to amplify limited human feedback.
 
+#### Automatic Processing (Live):
+Every feedback submission automatically processes into three training pipelines:
+
+| Condition | LoRA | DPO | Reward |
+|-----------|------|-----|--------|
+| Initial +1 | ✓ (quality: 0.85) | - | ✓ |
+| Initial -1 | - | - | ✓ |
+| Regenerated +1 | ✓ (quality: 0.95) | ✓ if opposing exists | ✓ |
+| Regenerated -1 | - | ✓ if opposing exists | ✓ |
+
+* **LoRA:** Positive responses become training pairs. Regenerated positives get higher quality (A/B confirmed).
+* **DPO:** When regeneration has different rating than original → preference pair created (chosen/rejected).
+* **Reward:** ALL feedback normalized to -0.5 to 0.5 for future reward model training.
+
 #### API Endpoints:
-* `POST /api/feedback` - Save user rating + comment
+* `POST /api/feedback` - Save feedback + auto-process into training data
 * `GET /api/rlhf?userId=xxx` - Stats and training readiness
 * `POST /api/rlhf` - Actions: `export_dpo`, `export_reward`, `inject_lora`, `generate_pairs`
+
+#### 3-Phase Feedback Loop (UI):
+1. `good? y/n` - Binary rating (instant)
+2. `feedback:` - Optional comment (Enter to skip)
+3. `regenerate? y/n` - A/B comparison opportunity
 
 ---
 

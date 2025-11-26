@@ -13,9 +13,10 @@ const feedbackSchema = z.object({
   sessionId: z.string().uuid().optional(),
   feedback: z.number().int().min(-2).max(2),
   comment: z.string().optional(),
-  prompt: z.string(),      // The user's query
-  response: z.string(),    // The assistant's response
-  modelId: z.string().optional()
+  prompt: z.string(),
+  response: z.string(),
+  modelId: z.string().optional(),
+  isRegeneration: z.boolean().optional()  // True if this is A/B comparison
 });
 
 export async function POST(req: Request) {
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validated = feedbackSchema.parse(body);
 
+    // 1. Save to feedback_logs
     const { data, error } = await supabase
       .from('feedback_logs')
       .insert({
@@ -43,10 +45,86 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Failed to save feedback' }, { status: 500 });
     }
 
+    const feedbackId = data.id;
+    const enhancements: string[] = [];
+
+    // 2. AUTO: LoRA Enhancement - positive feedback → training_pairs
+    // Works for BOTH initial responses AND regenerations
+    if (validated.feedback === 1) {
+      // Regenerated + positive = "confirmed good" after A/B comparison = highest quality
+      const qualityScore = validated.isRegeneration ? 0.95 : 0.85;
+      
+      const { error: loraError } = await supabase
+        .from('training_pairs')
+        .insert({
+          user_id: validated.userId,
+          system_prompt: 'You are a digital ghost.',
+          user_content: validated.prompt,
+          assistant_content: validated.response,
+          quality_score: qualityScore
+        });
+      
+      if (!loraError) {
+        enhancements.push(validated.isRegeneration ? 'lora_pair_added_ab_confirmed' : 'lora_pair_added');
+      }
+    }
+
+    // 3. AUTO: DPO Pair Detection - find opposing rating for same prompt
+    if (validated.isRegeneration) {
+      // Look for a different rating on the same prompt in this session
+      const { data: opposingFeedback } = await supabase
+        .from('feedback_logs')
+        .select('id, response, feedback')
+        .eq('user_id', validated.userId)
+        .eq('prompt', validated.prompt)
+        .neq('id', feedbackId)
+        .neq('feedback', validated.feedback)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (opposingFeedback) {
+        // We have an A/B pair! Determine chosen vs rejected
+        const isCurrentChosen = validated.feedback > opposingFeedback.feedback;
+        
+        const { error: dpoError } = await supabase
+          .from('preference_pairs')
+          .insert({
+            user_id: validated.userId,
+            prompt: validated.prompt,
+            chosen_response: isCurrentChosen ? validated.response : opposingFeedback.response,
+            rejected_response: isCurrentChosen ? opposingFeedback.response : validated.response,
+            chosen_feedback_id: isCurrentChosen ? feedbackId : opposingFeedback.id,
+            rejected_feedback_id: isCurrentChosen ? opposingFeedback.id : feedbackId,
+            margin: Math.abs(validated.feedback - opposingFeedback.feedback)
+          });
+
+        if (!dpoError) {
+          enhancements.push('dpo_pair_created');
+        }
+      }
+    }
+
+    // 4. AUTO: Reward Model Data - ALL feedback (initial + regenerations) → normalized rewards
+    const { error: rewardError } = await supabase
+      .from('reward_training_data')
+      .insert({
+        user_id: validated.userId,
+        prompt: validated.prompt,
+        response: validated.response,
+        reward: validated.feedback / 2.0,  // Normalize: -1→-0.5, +1→0.5
+        feedback_id: feedbackId
+      });
+
+    if (!rewardError) {
+      enhancements.push(validated.isRegeneration ? 'reward_data_added_ab' : 'reward_data_added');
+    }
+
     return NextResponse.json({ 
       success: true, 
-      feedbackId: data.id,
-      message: 'Feedback recorded. Thank you for helping improve Ghost.'
+      feedbackId,
+      enhancements,
+      message: 'Feedback recorded and processed.'
     });
 
   } catch (error) {
