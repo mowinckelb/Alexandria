@@ -72,6 +72,33 @@ We use a **Bicameral RAG** approach to separate "Soul" from "Memory."
 * **Memory Retrieval:** Keyword-based trigger (`/remember|recall|when|who|where|meet|met/i`) → Vector search → Context injection.
 * **Future Enhancement:** Full Groq orchestrator with tool calling (requires `toolChoice: 'required'` for reliable tool use).
 
+### D. RLHF Pipeline (Feedback → Training Signal)
+* **Goal:** Convert user feedback into model improvements.
+* **Feedback Collection:** -2 to +2 scale + optional comments on Ghost responses.
+* **Data Tables:**
+    * `feedback_logs`: Raw user ratings with prompt/response pairs.
+    * `preference_pairs`: DPO training data (chosen/rejected for same prompt).
+    * `reward_training_data`: Normalized rewards for reward model training.
+
+#### RLHF Approaches (by readiness):
+
+| Approach | Min Data | Current State | Complexity |
+|----------|----------|---------------|------------|
+| **LoRA Enhancement** | 10 positive | Ready when feedback collected | Low - uses existing pipeline |
+| **DPO** | 100 pairs | Needs same-prompt A/B data | Medium - direct preference training |
+| **Reward Model + PPO** | 500 points | Full pipeline needed | High - train reward model then RL |
+| **RLAIF** | N/A | Use LLM to amplify feedback | Medium - synthetic preference generation |
+
+#### Recommended Strategy (MVP-Terminal):
+1. **Phase 1 (Now):** Collect feedback, inject high-rated responses into LoRA training.
+2. **Phase 2 (100+ pairs):** Use DPO for direct preference alignment.
+3. **Phase 3 (Scale):** Consider RLAIF to amplify limited human feedback.
+
+#### API Endpoints:
+* `POST /api/feedback` - Save user rating + comment
+* `GET /api/rlhf?userId=xxx` - Stats and training readiness
+* `POST /api/rlhf` - Actions: `export_dpo`, `export_reward`, `inject_lora`, `generate_pairs`
+
 ---
 
 ## 4. Tech Stack & Constraints
@@ -190,13 +217,15 @@ SUPABASE_SERVICE_KEY="..." # Must be SERVICE_ROLE key for Vector Admin rights
 | Export lineage tracking | ✅ Working | Evolutionary training |
 | Quality scoring | ✅ Working | Filtering at scale |
 | Entity extraction (stealth) | ✅ Collecting | Future GraphRAG |
-| Feedback logging | ✅ Schema ready | Future DPO |
+| RLHF feedback UI | ✅ Working | -2 to +2 rating + comments |
+| DPO preference pairs | ✅ Schema + API | Direct preference optimization |
+| LoRA enhancement from RLHF | ✅ Working | Inject high-rated responses |
 
 ### What's Deferred (Still On-Path):
 * **Fine-tuning trigger** - Waiting for 500+ quality pairs
 * **Auth** - Using test UUID (`00000000-0000-0000-0000-000000000001`)
 * **GraphRAG** - Entities collected, graph not built yet
-* **DPO training** - Feedback collected, training not implemented
+* **DPO training** - Feedback UI + conversion pipeline built, waiting for 100+ preference pairs
 
 ### Working Flow:
 ```

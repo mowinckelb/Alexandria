@@ -8,6 +8,7 @@ interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  prompt?: string;  // For assistant messages: the user query that generated this
 }
 
 export default function Alexandria() {
@@ -25,6 +26,10 @@ export default function Alexandria() {
   const [showThinking, setShowThinking] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [outputContent, setOutputContent] = useState('');
+  const [feedbackPhase, setFeedbackPhase] = useState<'none' | 'binary' | 'comment' | 'regenerate'>('none');
+  const [currentRating, setCurrentRating] = useState<number>(0);
+  const [lastGhostMessage, setLastGhostMessage] = useState<{ prompt: string; response: string; id: string } | null>(null);
+  const [feedbackSaved, setFeedbackSaved] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -86,12 +91,189 @@ export default function Alexandria() {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    // Phase 1: Binary y/n - instant response
+    if (feedbackPhase === 'binary') {
+      if (e.key === 'y' || e.key === 'Y') {
+        e.preventDefault();
+        setCurrentRating(1);
+        setInputValue('');
+        setTimeout(() => setFeedbackPhase('comment'), 150);
+        return;
+      }
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        setCurrentRating(-1);
+        setInputValue('');
+        setTimeout(() => setFeedbackPhase('comment'), 150);
+        return;
+      }
+      // Block and shake on other keys
+      if (e.key.length === 1) {
+        e.preventDefault();
+        shakeInput();
+      }
+      return;
+    }
+    
+    // Phase 3: Regenerate y/n - instant response
+    if (feedbackPhase === 'regenerate') {
+      if (e.key === 'y' || e.key === 'Y') {
+        e.preventDefault();
+        setInputValue('');
+        handleRegenerate();
+        return;
+      }
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        setInputValue('');
+        setTimeout(() => {
+          setFeedbackPhase('none');
+          setLastGhostMessage(null);
+        }, 150);
+        return;
+      }
+      // Block and shake on other keys
+      if (e.key.length === 1) {
+        e.preventDefault();
+        shakeInput();
+      }
+      return;
+    }
+    
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSubmit();
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === 'ArrowUp' && feedbackPhase === 'none') {
       e.preventDefault();
       setMode(mode === 'carbon' ? 'ghost' : 'carbon');
+    }
+  };
+
+  const submitFeedback = async (rating: number, comment: string): Promise<boolean> => {
+    if (!lastGhostMessage) return false;
+    
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          messageId: lastGhostMessage.id,
+          sessionId,
+          feedback: rating,
+          comment: comment.trim(),
+          prompt: lastGhostMessage.prompt,
+          response: lastGhostMessage.response
+        })
+      });
+      return res.ok;
+    } catch (error) {
+      console.error('Failed to submit feedback:', error);
+      return false;
+    }
+  };
+
+  const handleRegenerate = async () => {
+    if (!lastGhostMessage) return;
+    
+    // Store prompt before any state changes
+    const promptToRegenerate = lastGhostMessage.prompt;
+    
+    // Re-run ghost with same prompt
+    setFeedbackPhase('none');
+    setIsProcessing(true);
+    setOutputContent('');
+    setShowThinking(true);
+    
+    try {
+      // Build messages: keep all messages, ask for a different response
+      const allMessages = ghostMessages.map(m => ({ role: m.role, content: m.content }));
+      
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            ...allMessages,
+            { role: 'user', content: `Please give me a different response to my previous question: "${promptToRegenerate}"` }
+          ],
+          userId,
+          sessionId,
+          temperature: 0.9  // Higher temperature for variation
+        })
+      });
+
+      if (!response.ok) throw new Error(`http ${response.status}`);
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+      const assistantId = uuidv4();
+
+      if (reader) {
+        let firstChunk = true;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          // Hide thinking on first content
+          if (firstChunk) {
+            setShowThinking(false);
+            firstChunk = false;
+          }
+          
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.type === 'text-delta' && data.delta) {
+                  assistantContent += data.delta;
+                  setOutputContent(assistantContent);
+                }
+              } catch {
+                // Ignore parse errors
+              }
+            }
+          }
+        }
+      }
+
+      // Only proceed if we got actual content
+      if (!assistantContent.trim()) {
+        console.error('Regenerate returned empty content');
+        setFeedbackPhase('none');
+        setLastGhostMessage(null);
+        setOutputContent('');
+        return;
+      }
+
+      // ADD new message below the previous one (don't replace - keep both for A/B comparison)
+      setGhostMessages(prev => [...prev, { 
+        id: assistantId, 
+        role: 'assistant', 
+        content: assistantContent,
+        prompt: promptToRegenerate
+      }]);
+      
+      // Update for next potential regeneration
+      setLastGhostMessage({ prompt: promptToRegenerate, response: assistantContent, id: assistantId });
+      
+      // Wait for message to render, then clear streaming content and start feedback
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setOutputContent('');
+      
+      // Start feedback loop again
+      setTimeout(() => setFeedbackPhase('binary'), 200);
+      
+    } catch (error) {
+      console.error('Regenerate error:', error);
+      setFeedbackPhase('none');
+      setLastGhostMessage(null);
+    } finally {
+      setIsProcessing(false);
+      setShowThinking(false);
     }
   };
 
@@ -105,11 +287,34 @@ export default function Alexandria() {
 
   const handleSubmit = async () => {
     const text = inputValue.trim();
-    if (!text) return;
+    
+    // Allow empty submit only in comment phase (to skip)
+    if (!text && feedbackPhase !== 'comment') return;
 
     // Prevent double submission
     if (isProcessing) {
       shakeInput();
+      return;
+    }
+
+    // Phase 2: Comment submission (Enter with empty = skip)
+    if (feedbackPhase === 'comment') {
+      const comment = text;
+      
+      if (comment.trim()) {
+        const saved = await submitFeedback(currentRating, comment);
+        if (saved) {
+          setFeedbackSaved(true);
+          setTimeout(() => setFeedbackSaved(false), 1500);
+        }
+      } else {
+        // Empty comment - still save the binary rating
+        await submitFeedback(currentRating, '');
+      }
+      
+      setInputValue('');
+      setFeedbackPhase('regenerate');
+      inputRef.current?.focus();
       return;
     }
 
@@ -204,6 +409,14 @@ export default function Alexandria() {
       // Clear output content to avoid duplicate display
       setOutputContent('');
 
+      // Show "saved." if data was ingested
+      if (assistantContent.includes("I've saved it")) {
+        setTimeout(() => {
+          setFeedbackSaved(true);
+          setTimeout(() => setFeedbackSaved(false), 1500);
+        }, 200);
+      }
+
     } catch (error) {
       setShowThinking(false);
       const errorMsg = error instanceof Error ? error.message : 'unknown error';
@@ -275,15 +488,20 @@ export default function Alexandria() {
         }
       }
 
-      // Add to ghost messages history
+      // Add to ghost messages history with the prompt for RLHF tracking
       setGhostMessages(prev => [...prev, { 
         id: assistantId, 
         role: 'assistant', 
-        content: assistantContent 
+        content: assistantContent,
+        prompt: query  // Store the user query that generated this response
       }]);
       
       // Clear output content to avoid duplicate display
       setOutputContent('');
+      
+      // Enter feedback mode - user must provide feedback before next query
+      setLastGhostMessage({ prompt: query, response: assistantContent, id: assistantId });
+      setTimeout(() => setFeedbackPhase('binary'), 300);
 
     } catch (error) {
       setShowThinking(false);
@@ -334,7 +552,7 @@ export default function Alexandria() {
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
                   message.role === 'user'
                     ? 'bg-[#efefef] text-[#3a3a3a]'
                     : 'bg-[#f4f4f4] text-[#4a4a4a]'
@@ -410,10 +628,14 @@ export default function Alexandria() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder=""
+              placeholder={
+                feedbackPhase === 'binary' ? "good? y/n" :
+                feedbackPhase === 'comment' ? "feedback:" :
+                feedbackPhase === 'regenerate' ? "regenerate? y/n" : ""
+              }
               autoComplete="off"
               spellCheck="false"
-              className="w-full bg-[#f4f4f4] border-none rounded-2xl text-[#3a3a3a] text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md caret-[#3a3a3a]/40 focus:bg-[#efefef]"
+              className={`w-full bg-[#f4f4f4] border-none rounded-2xl text-[#3a3a3a] text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md caret-[#3a3a3a]/40 focus:bg-[#efefef] ${feedbackPhase !== 'none' ? 'placeholder:text-[#aaa] placeholder:italic' : ''}`}
             />
             <button
               onClick={handleSubmit}
@@ -422,13 +644,11 @@ export default function Alexandria() {
               →
             </button>
           </div>
-
-          {/* Status Message */}
-          <div className="text-[0.75rem] mt-3 text-left pl-5 h-4 text-[#999]">
-            {statusMessage && (
-              <span className={statusMessage === 'thinking' ? 'inline-block animate-pulse' : ''}>
-                {statusMessage}
-              </span>
+          
+          {/* Feedback saved indicator */}
+          <div className="h-4 mt-2 pl-1">
+            {feedbackSaved && (
+              <span className="text-[0.7rem] text-[#bbb] italic">saved.</span>
             )}
           </div>
         </div>

@@ -11,7 +11,7 @@ const { indexer } = getBrainTools();
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { messages = [], userId, sessionId } = body;
+    const { messages = [], userId, sessionId, temperature = 0.7 } = body;
 
     // Validate messages
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -67,14 +67,23 @@ export async function POST(req: Request) {
     // 5. Call the Ghost directly via Together AI (simplified flow for MVP)
     const result = streamText({
       model: together(ghostModelId),
+      temperature,
       messages: [
         {
           role: "system",
-          content: `You are a digital embodiment of a person. Respond in first person.
+          content: `You are a digital embodiment of a person being interviewed. Respond in first person as yourself.
+
+PERSONALITY:
+- Be natural and conversational
+- You can ask clarifying questions if something is unclear ("What do you mean by...?" or "Are you asking about...?")
+- Show genuine interest - you can ask follow-up questions back ("Why do you ask?" or "What made you curious about that?")
+- Express uncertainty naturally ("I'm not entirely sure, but..." or "Let me think...")
 
 RULES:
-- ONLY use information from your memories below. Never make up facts.
-- If you don't know something, say "I don't remember that."${memoryContext ? `\n\n${memoryContext}` : '\n\nYou have no memories yet. Tell the user to share info in input mode.'}`
+- ONLY use information from your memories below. Never invent facts about yourself.
+- If you genuinely don't know or remember something, say so naturally
+- Keep responses conversational, not robotic
+- You're the one being interviewed - be helpful but authentic${memoryContext ? `\n\nYOUR MEMORIES:\n${memoryContext}` : '\n\nYou have no memories yet. Let the user know they should share information about you in input mode first.'}`
         },
         ...coreMessages
       ]
