@@ -255,7 +255,7 @@ export default function Alexandria() {
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 flex items-center justify-center p-6 opacity-55 text-[0.85rem] z-50 bg-[#fafafa]">
         <div className="flex flex-col items-center gap-1">
-          <span>alexandria</span>
+          <span>alexandria.</span>
           <span className="text-[0.75rem] italic opacity-80">immortalise the greats</span>
         </div>
       </div>
@@ -271,7 +271,7 @@ export default function Alexandria() {
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                   message.role === 'user'
-                    ? 'bg-[#3a3a3a] text-white'
+                    ? 'bg-[#e8e8e8] text-[#3a3a3a]'
                     : 'bg-[#f4f4f4] text-[#4a4a4a]'
                 }`}
               >
@@ -285,13 +285,8 @@ export default function Alexandria() {
           {isProcessing && !outputContent && (
             <div className="flex justify-start">
               <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-[#f4f4f4] text-[#4a4a4a]">
-                <div className="text-[0.8rem] leading-relaxed flex items-center gap-1">
+                <div className="text-[0.8rem] leading-relaxed">
                   <span className="animate-pulse">thinking</span>
-                  <span className="flex gap-[2px]">
-                    <span className="w-1 h-1 bg-[#999] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-1 h-1 bg-[#999] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-1 h-1 bg-[#999] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </span>
                 </div>
               </div>
             </div>
@@ -314,26 +309,26 @@ export default function Alexandria() {
       <div className="p-6 pb-8">
         <div className="max-w-[700px] mx-auto">
           {/* Mode Toggle */}
-          <div className="flex justify-between items-center mb-4 px-5">
-            <div className="relative bg-[#3a3a3a]/[0.06] rounded-xl p-[2px] inline-flex">
+          <div className="flex justify-start items-center mb-3 px-2">
+            <div className="relative bg-[#3a3a3a]/[0.06] rounded-lg p-[2px] inline-flex">
               <button
                 onClick={() => setMode('carbon')}
-                className={`relative z-10 bg-transparent border-none px-4 py-1 text-[0.85rem] transition-colors cursor-pointer ${
-                  mode === 'carbon' ? 'text-[#3a3a3a]' : 'text-[#666]'
+                className={`relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer ${
+                  mode === 'carbon' ? 'text-[#3a3a3a]' : 'text-[#888]'
                 }`}
               >
                 input
               </button>
               <button
                 onClick={() => setMode('ghost')}
-                className={`relative z-10 bg-transparent border-none px-4 py-1 text-[0.85rem] transition-colors cursor-pointer ${
-                  mode === 'ghost' ? 'text-[#3a3a3a]' : 'text-[#666]'
+                className={`relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer ${
+                  mode === 'ghost' ? 'text-[#3a3a3a]' : 'text-[#888]'
                 }`}
               >
                 output
               </button>
               <div
-                className={`absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] bg-white/55 backdrop-blur-[10px] rounded-[10px] shadow-sm transition-transform duration-300 ease-out ${
+                className={`absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] bg-white/55 backdrop-blur-[10px] rounded-md shadow-sm transition-transform duration-300 ease-out ${
                   mode === 'ghost' ? 'translate-x-full' : ''
                 }`}
               />
