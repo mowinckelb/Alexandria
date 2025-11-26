@@ -46,8 +46,9 @@ export async function POST(req: Request) {
     const userQuery = lastMessage?.content || '';
     let memoryContext = '';
     
-    // Simple keyword check for memory-related queries
-    const needsMemory = /remember|recall|when|what happened|who|where|history|meet|met/i.test(userQuery);
+    // Always try to recall memories for relevant context (MVP approach)
+    // This ensures the Ghost has access to stored facts when answering
+    const needsMemory = true; // Always check memory for MVP
     console.log(`Memory check - Query: "${userQuery}", needsMemory: ${needsMemory}`);
     
     if (needsMemory) {
