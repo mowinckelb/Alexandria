@@ -1,0 +1,34 @@
+---
+description: Alexandria project architecture and conventions
+globs:
+alwaysApply: true
+---
+
+# Project Context
+
+Always read and follow the architecture defined in `ALEXANDRIA_CONTEXT.md` at the project root.
+
+## Key Rules
+
+1. **Before writing code:** Read `ALEXANDRIA_CONTEXT.md` to understand the architecture
+2. **AI SDK v5 patterns:** Use `inputSchema` (not `parameters`), `stopWhen: stepCountIs(n)` (not `maxSteps`), `toUIMessageStreamResponse()`
+3. **Factory pattern:** Use `lib/factory.ts` for module instantiation, never instantiate directly in routes
+4. **Model selection:**
+   - Refiner (subjective): `compound-mini` (speed/cost - uses generateText)
+   - Extractor (objective): `llama-3.3-70b-versatile` (reliability - uses generateObject with schema)
+   - Orchestrator: `llama-3.3-70b-versatile`
+5. **When architecture changes:** Update `ALEXANDRIA_CONTEXT.md` to reflect the new state
+
+## Updating the Context
+
+- **Direct updates:** Only update `ALEXANDRIA_CONTEXT.md` directly when explicitly asked by the user
+- **Suggestions:** If you identify potential improvements, patterns, or issues, add them to `ALEXANDRIA_SUGGESTIONS.md` using the format defined there
+- **Review suggestions:** When starting work, check `ALEXANDRIA_SUGGESTIONS.md` for pending items that might be relevant
+
+## Suggestion Format
+
+When adding to `ALEXANDRIA_SUGGESTIONS.md`, include:
+- Date and category
+- Your agent type (e.g., "Cursor Agent (Claude Opus)")
+- Which section of ALEXANDRIA_CONTEXT.md it affects
+- The suggestion and reasoning

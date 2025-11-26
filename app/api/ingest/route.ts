@@ -1,16 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { GroqRefiner } from '@/lib/modules/subjective/refiner';
-import { GroqExtractor } from '@/lib/modules/objective/extractor';
-import { SupabaseIndexer } from '@/lib/modules/objective/indexer';
-import { TogetherTuner } from '@/lib/modules/subjective/tuner';
+import { getIngestionTools } from '@/lib/factory';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
-// Singleton instantiation for MVP simplicity
-const refiner = new GroqRefiner();
-const extractor = new GroqExtractor();
-const indexer = new SupabaseIndexer();
-const tuner = new TogetherTuner();
+const { refiner, extractor, indexer, tuner } = getIngestionTools();
 
 export async function POST(req: Request) {
   const { text, userId } = await req.json();

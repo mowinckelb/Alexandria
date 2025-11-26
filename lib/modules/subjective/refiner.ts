@@ -10,7 +10,7 @@ export class GroqRefiner {
 
     for (const chunk of chunks) {
       const { text } = await generateText({
-        model: groq('llama-3.3-70b-versatile'), 
+        model: groq('compound-mini'), 
         prompt: `
           TASK: Create Fine-Tuning Data for a Digital Twin.
           GOAL: Extract the "Soul" of the author.

@@ -49,7 +49,16 @@ create table chat_messages (
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 
--- 5. Match Function
+-- 5. Feedback Logs (RLHF Data for DPO Training)
+create table feedback_logs (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  message_id uuid references chat_messages(id) on delete cascade,
+  feedback smallint not null check (feedback in (-1, 1)), -- -1 = thumbs down, 1 = thumbs up
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- 6. Match Function
 create or replace function match_memory (
   query_embedding vector(768),
   match_threshold float,

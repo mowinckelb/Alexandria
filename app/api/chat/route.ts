@@ -1,15 +1,15 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { createTogetherAI } from '@ai-sdk/togetherai';
-import { streamText, convertToCoreMessages, generateText, tool, stepCountIs } from 'ai';
+import { streamText, generateText, tool, stepCountIs } from 'ai';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
-import { SupabaseIndexer } from '@/lib/modules/objective/indexer';
+import { getBrainTools } from '@/lib/factory';
 
 // 1. Setup Clients
 const groq = createOpenAI({ baseURL: 'https://api.groq.com/openai/v1', apiKey: process.env.GROQ_API_KEY! });
 const together = createTogetherAI({ apiKey: process.env.TOGETHER_API_KEY! });
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
-const indexer = new SupabaseIndexer();
+const { indexer } = getBrainTools();
 
 export async function POST(req: Request) {
   try {
@@ -48,54 +48,54 @@ export async function POST(req: Request) {
     const result = streamText({
       model: groq('llama-3.3-70b-versatile'), 
       messages: coreMessages,
-    system: `You are the Orchestrator. 
-             If facts are needed, use 'recall_memory'.
-             ALWAYS use 'consult_ghost' to answer.`,
-    stopWhen: stepCountIs(3), // CRITICAL: Allows tool use -> return -> final answer
-    tools: {
-      recall_memory: tool({
-        description: "Search facts.",
-        inputSchema: z.object({ query: z.string() }),
-        execute: async ({ query }) => {
-          const results = await indexer.recall(query, userId);
-          return results.join('\n');
-        },
-      }),
-      consult_ghost: tool({
-        description: "Ask the Ghost to speak.",
-        inputSchema: z.object({ 
-          context: z.string().optional(), 
-          prompt: z.string() 
+      system: `You are the Orchestrator. 
+               If facts are needed, use 'recall_memory'.
+               ALWAYS use 'consult_ghost' to answer.`,
+      stopWhen: stepCountIs(3), // CRITICAL: Allows tool use -> return -> final answer
+      tools: {
+        recall_memory: tool({
+          description: "Search facts.",
+          inputSchema: z.object({ query: z.string() }),
+          execute: async ({ query }) => {
+            const results = await indexer.recall(query, userId);
+            return results.join('\n');
+          },
         }),
-        execute: async ({ context, prompt }) => {
-           // Call Together AI (Subjective Model)
-           const { text } = await generateText({
-             model: together(ghostModelId), 
-             messages: [
-               {
-                 role: "system",
-                 content: `You are the Digital Ghost. Speak in your fine-tuned voice. Context: ${context || "None"}`
-               },
-               {
-                 role: "user",
-                 content: prompt
-               }
-             ]
-           });
-           
-           // Save Ghost Response to History
-           if (sessionId) {
-             await supabase.from('chat_messages').insert({ 
-               session_id: sessionId, 
-               role: 'assistant', 
-               content: text as string
-             });
-           }
-           return text;
-        }
-      })
-    }
-  });
+        consult_ghost: tool({
+          description: "Ask the Ghost to speak.",
+          inputSchema: z.object({ 
+            context: z.string().optional(), 
+            prompt: z.string() 
+          }),
+          execute: async ({ context, prompt }) => {
+            // Call Together AI (Subjective Model)
+            const { text } = await generateText({
+              model: together(ghostModelId), 
+              messages: [
+                {
+                  role: "system",
+                  content: `You are the Digital Ghost. Speak in your fine-tuned voice. Context: ${context || "None"}`
+                },
+                {
+                  role: "user",
+                  content: prompt
+                }
+              ]
+            });
+            
+            // Save Ghost Response to History
+            if (sessionId) {
+              await supabase.from('chat_messages').insert({ 
+                session_id: sessionId, 
+                role: 'assistant', 
+                content: text as string
+              });
+            }
+            return text;
+          }
+        })
+      }
+    });
 
     return result.toUIMessageStreamResponse(); // CRITICAL: Enables frontend tool visualization
   } catch (error) {
