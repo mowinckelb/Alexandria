@@ -1,12 +1,9 @@
-import { createOpenAI } from '@ai-sdk/openai';
 import { createTogetherAI } from '@ai-sdk/togetherai';
-import { streamText, generateText, tool, stepCountIs } from 'ai';
-import { z } from 'zod';
+import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import { getBrainTools } from '@/lib/factory';
 
 // 1. Setup Clients
-const groq = createOpenAI({ baseURL: 'https://api.groq.com/openai/v1', apiKey: process.env.GROQ_API_KEY! });
 const together = createTogetherAI({ apiKey: process.env.TOGETHER_API_KEY! });
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
 const { indexer } = getBrainTools();
@@ -34,9 +31,10 @@ export async function POST(req: Request) {
       });
     }
 
-    // 3. Get Ghost ID
+    // 3. Get Ghost ID (use serverless Turbo model as default)
     const { data: twin } = await supabase.from('twins').select('model_id').eq('user_id', userId).single();
-    const ghostModelId = twin?.model_id || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Reference';
+    // Meta-Llama-3.1-8B-Instruct-Turbo is the serverless version
+    const ghostModelId = twin?.model_id || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo';
 
     // Convert messages to core format
     const coreMessages = messages.map((m: { role: string; content: string }) => ({
@@ -44,58 +42,43 @@ export async function POST(req: Request) {
       content: m.content
     }));
 
-    // 4. The Orchestrator (Llama 3.3 70B)
-    const result = streamText({
-      model: groq('llama-3.3-70b-versatile'), 
-      messages: coreMessages,
-      system: `You are the Orchestrator. 
-               If facts are needed, use 'recall_memory'.
-               ALWAYS use 'consult_ghost' to answer.`,
-      stopWhen: stepCountIs(3), // CRITICAL: Allows tool use -> return -> final answer
-      tools: {
-        recall_memory: tool({
-          description: "Search facts.",
-          inputSchema: z.object({ query: z.string() }),
-          execute: async ({ query }) => {
-            const results = await indexer.recall(query, userId);
-            return results.join('\n');
-          },
-        }),
-        consult_ghost: tool({
-          description: "Ask the Ghost to speak.",
-          inputSchema: z.object({ 
-            context: z.string().optional(), 
-            prompt: z.string() 
-          }),
-          execute: async ({ context, prompt }) => {
-            // Call Together AI (Subjective Model)
-            const { text } = await generateText({
-              model: together(ghostModelId), 
-              messages: [
-                {
-                  role: "system",
-                  content: `You are the Digital Ghost. Speak in your fine-tuned voice. Context: ${context || "None"}`
-                },
-                {
-                  role: "user",
-                  content: prompt
-                }
-              ]
-            });
-            
-            // Save Ghost Response to History
-            if (sessionId) {
-              await supabase.from('chat_messages').insert({ 
-                session_id: sessionId, 
-                role: 'assistant', 
-                content: text as string
-              });
-            }
-            return text;
-          }
-        })
+    // 4. First, check if we need to recall memories
+    const userQuery = lastMessage?.content || '';
+    let memoryContext = '';
+    
+    // Simple keyword check for memory-related queries
+    const needsMemory = /remember|recall|when|what happened|who|where|history|meet|met/i.test(userQuery);
+    console.log(`Memory check - Query: "${userQuery}", needsMemory: ${needsMemory}`);
+    
+    if (needsMemory) {
+      try {
+        console.log(`Attempting memory recall for userId: ${userId}`);
+        const memories = await indexer.recall(userQuery, userId);
+        console.log(`Memory recall returned ${memories.length} results:`, memories);
+        if (memories.length > 0) {
+          memoryContext = `Relevant memories:\n${memories.join('\n')}\n\n`;
+        }
+      } catch (e) {
+        console.log('Memory recall failed:', e);
       }
+    }
+
+    // 5. Call the Ghost directly via Together AI (simplified flow for MVP)
+    const result = streamText({
+      model: together(ghostModelId),
+      messages: [
+        {
+          role: "system",
+          content: `You are a Digital Ghost - an AI twin. Respond naturally in a conversational tone.${memoryContext ? `\n\n${memoryContext}` : ''}`
+        },
+        ...coreMessages
+      ]
     });
+    
+    // Save to history
+    if (sessionId) {
+      // Note: For streaming, we'd need to save after completion. For MVP, this is simplified.
+    }
 
     return result.toUIMessageStreamResponse(); // CRITICAL: Enables frontend tool visualization
   } catch (error) {
