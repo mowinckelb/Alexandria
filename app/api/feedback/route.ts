@@ -1,17 +1,22 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
+import { getDecisionEditor, SUGGESTED_DEFAULTS } from '@/lib/modules/core/decision-editor';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!, 
   process.env.SUPABASE_SERVICE_KEY!
 );
 
+const decisionEditor = getDecisionEditor();
+
 const feedbackSchema = z.object({
   userId: z.string().uuid(),
   messageId: z.string().uuid().optional(),
   sessionId: z.string().uuid().optional(),
-  feedback: z.number().int().min(-2).max(2),
+  feedback: z.number().int().refine(val => val === -1 || val === 1, {
+    message: 'Feedback must be binary: -1 (bad) or +1 (good)'
+  }),
   comment: z.string().optional(),
   prompt: z.string(),
   response: z.string(),
@@ -51,8 +56,18 @@ export async function POST(req: Request) {
     // 2. AUTO: LoRA Enhancement - positive feedback → training_pairs
     // Works for BOTH initial responses AND regenerations
     if (validated.feedback === 1) {
-      // Regenerated + positive = "confirmed good" after A/B comparison = highest quality
-      const qualityScore = validated.isRegeneration ? 0.95 : 0.85;
+      // Get existing pair count for context
+      const { count: existingPairs } = await supabase
+        .from('training_pairs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', validated.userId);
+
+      // Decision Editor determines quality score (suggested defaults provided as context)
+      const qualityScore = await decisionEditor.decideQualityScore({
+        isRegeneration: validated.isRegeneration || false,
+        feedbackValue: validated.feedback,
+        existingPairs: existingPairs || 0
+      });
       
       const { error: loraError } = await supabase
         .from('training_pairs')
@@ -112,7 +127,7 @@ export async function POST(req: Request) {
         user_id: validated.userId,
         prompt: validated.prompt,
         response: validated.response,
-        reward: validated.feedback / 2.0,  // Normalize: -1→-0.5, +1→0.5
+        reward: validated.feedback * 0.5,  // Binary: -1→-0.5, +1→+0.5
         feedback_id: feedbackId
       });
 
@@ -154,18 +169,17 @@ export async function GET(req: Request) {
 
     if (distError) throw distError;
 
-    // Calculate stats
-    const counts = { '-2': 0, '-1': 0, '0': 0, '1': 0, '2': 0 };
+    // Calculate stats (binary: -1 bad, +1 good)
+    const counts = { bad: 0, good: 0 };
     let total = 0;
-    let sum = 0;
 
     distribution?.forEach(row => {
-      counts[row.feedback.toString() as keyof typeof counts]++;
+      if (row.feedback === 1) counts.good++;
+      else if (row.feedback === -1) counts.bad++;
       total++;
-      sum += row.feedback;
     });
 
-    const avgRating = total > 0 ? sum / total : 0;
+    const positiveRate = total > 0 ? counts.good / total : 0;
 
     // Get count of preference pairs available for DPO
     const { count: pairCount } = await supabase
@@ -184,7 +198,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       totalFeedback: total,
       distribution: counts,
-      averageRating: avgRating.toFixed(2),
+      positiveRate: (positiveRate * 100).toFixed(0) + '%',
       preferencePairsAvailable: pairCount || 0,
       rewardDataAvailable: rewardCount || 0,
       dpoReady: (pairCount || 0) >= 100,  // Need ~100+ preference pairs for DPO

@@ -40,7 +40,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 interface FeedbackRow {
   id: string;
   user_id: string;
-  feedback: number;  // -2 to +2
+  feedback: number;  // Binary: -1 (bad) or +1 (good)
   comment?: string;
   prompt: string;
   response: string;
@@ -126,7 +126,7 @@ export class FeedbackProcessor {
 
   /**
    * Generate reward model training data from feedback.
-   * Normalizes -2 to +2 scale to -1 to 1 rewards.
+   * Binary feedback (-1/+1) normalized to -0.5/+0.5 rewards.
    */
   async generateRewardData(userId: string): Promise<RewardData[]> {
     // Call the database function
@@ -175,9 +175,8 @@ export class FeedbackProcessor {
       system_prompt: 'You are a digital ghost.',
       user_content: f.prompt,
       assistant_content: f.response,
-      // Higher rating = higher quality score
-      // +1 → 0.75, +2 → 1.0
-      quality_score: 0.5 + (f.feedback * 0.25),
+      // Binary: +1 (good) → high quality score
+      quality_score: 0.85,
       source: 'rlhf_positive' as const
     }));
   }
@@ -230,12 +229,16 @@ export class FeedbackProcessor {
       .eq('user_id', userId)
       .is('export_id', null);
 
-    const distribution = { '-2': 0, '-1': 0, '0': 0, '1': 0, '2': 0 };
+    const distribution = { bad: 0, good: 0 };
     let positiveCount = 0;
     
     (feedback || []).forEach(f => {
-      distribution[f.feedback.toString() as keyof typeof distribution]++;
-      if (f.feedback >= 1) positiveCount++;
+      if (f.feedback === 1) {
+        distribution.good++;
+        positiveCount++;
+      } else if (f.feedback === -1) {
+        distribution.bad++;
+      }
     });
 
     return {

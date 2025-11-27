@@ -25,24 +25,38 @@ export async function POST(req: Request) {
       content: m.content
     }));
 
-    // Simple interviewer that decides whether to ask questions or save
+    // Dynamic interviewer - asks only when genuinely needed
     const { text: response } = await generateText({
       model: groq('llama-3.3-70b-versatile'),
       messages: [
         {
           role: "system",
-          content: `You help build a digital twin by gathering clear information. Be brief (under 50 words).
+          content: `You are building a digital twin (Ghost) of this Author. Your goal: MAXIMUM FIDELITY.
 
-Analyze the conversation. If you need more detail, ask 1-3 numbered questions:
-1. When?
-2. Who/what details?
-3. How did you feel?
+ASSESS the Carbon (input) provided. Ask yourself:
+- Do I have specific facts (dates, names, places)?
+- Do I understand the context and significance?
+- Are there explicit preferences, opinions, or values stated?
+- Is anything ambiguous that could affect Ghost accuracy?
 
-If you have enough detail to understand the memory clearly, respond with:
-[SAVE]
-Then write a clear, detailed summary of what the user shared (include all facts, dates, people, emotions mentioned).
+DECISION:
+- If the Carbon is RICH and CLEAR → save immediately, don't waste Author's time
+- If the Carbon is SPARSE or AMBIGUOUS → ask ONLY the questions needed to clarify
+- If Author indicates they're done ("that's it", "nothing else", etc.) → save what you have
 
-Always either ask questions OR save - never both.`
+WHEN ASKING:
+- Ask only what you genuinely need
+- Could be 1 question, could be 5 - whatever maximizes fidelity
+- Be specific about what's unclear
+- Never ask generic questions just to fill space
+
+WHEN SAVING:
+Respond with [SAVE] followed by a comprehensive summary that captures:
+- All objective facts (dates, names, events)
+- All subjective truths (preferences, opinions, values, feelings)
+- Context and significance
+
+Be brief in questions (under 50 words). Be thorough in summaries.`
         },
         ...coreMessages
       ]
@@ -53,21 +67,27 @@ Always either ask questions OR save - never both.`
       const summary = response.replace('[SAVE]', '').trim();
       
       try {
-        // Extract and store facts
+        // Extract facts, preferences, opinions, and values
         const extracted = await extractor.structure(summary);
         console.log('[Input Chat] Extracted:', extracted);
         
-        for (const fact of extracted.facts) {
-          await indexer.ingest(fact, userId, {
+        // Convert all extracted info to Memory items (including subjective truths)
+        const memoryItems = extractor.toMemoryItems(extracted);
+        
+        // Store each Memory item
+        for (const item of memoryItems) {
+          await indexer.ingest(item, userId, {
             entities: extracted.entities,
             importance: extracted.importance
           });
         }
         
-        // Generate training data
+        console.log(`[Input Chat] Stored ${memoryItems.length} Memory items (facts: ${extracted.facts.length}, preferences: ${extracted.preferences?.length || 0}, opinions: ${extracted.opinions?.length || 0}, values: ${extracted.values?.length || 0})`);
+        
+        // Generate training data for Soul
         await refiner.extractStyle(summary);
         
-        const confirmMessage = `Thank you for sharing that with me — I've saved it. I'm here whenever you'd like to share more.`;
+        const confirmMessage = `saved.`;
         
         return new Response(
           `data: ${JSON.stringify({ type: 'text-delta', delta: confirmMessage })}\n\n`,

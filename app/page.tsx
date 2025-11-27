@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import AuthScreen from './components/AuthScreen';
-import TrainingProgress from './components/TrainingProgress';
 
 interface Message {
   id: string;
@@ -596,8 +595,8 @@ export default function Alexandria() {
       {/* Input Area */}
       <div className="p-6 pb-8">
         <div className="max-w-[700px] mx-auto">
-          {/* Mode Toggle + Training Progress */}
-          <div className="flex justify-between items-center mb-3 px-2">
+          {/* Mode Toggle */}
+          <div className="flex justify-start items-center mb-3 px-2">
             <div className="relative bg-[#3a3a3a]/[0.06] rounded-full p-[2px] inline-flex">
               <button
                 onClick={() => setMode('carbon')}
@@ -621,8 +620,6 @@ export default function Alexandria() {
                 }`}
               />
             </div>
-            
-            <TrainingProgress userId={userId} />
           </div>
 
           {/* Input Container */}
