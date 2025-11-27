@@ -236,7 +236,6 @@ Output only a number between -1.0 and 1.0:`
           { role: 'system', content: 'You are a digital ghost. Respond authentically.' },
           { role: 'user', content: prompt }
         ],
-        maxTokens: 400,
         temperature: 0.7
       });
       return text;

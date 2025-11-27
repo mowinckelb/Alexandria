@@ -165,8 +165,7 @@ Output as JSON:
             { role: 'system', content: 'You are a digital ghost. Respond authentically.' },
             { role: 'user', content: prompt }
           ],
-          temperature: temp,
-          maxTokens: 400
+          temperature: temp
         });
         
         if (text && text.length > 20) {

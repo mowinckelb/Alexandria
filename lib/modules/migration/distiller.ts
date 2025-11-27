@@ -87,7 +87,6 @@ export class Distiller {
             content: prompt.prompt
           }
         ],
-        maxTokens: 500, // Keep responses focused
         temperature: 0.8 // Allow some personality variance
       });
 
