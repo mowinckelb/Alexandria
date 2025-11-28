@@ -40,11 +40,12 @@ export default function Alexandria() {
   }>({ phase: 'collecting' });
   const [carbonLockYN, setCarbonLockYN] = useState(false);
   
-  // External carbon (attachments)
+  // External carbon (file uploads)
   const [showAttachModal, setShowAttachModal] = useState(false);
-  const [attachText, setAttachText] = useState('');
-  const [isIngesting, setIsIngesting] = useState(false);
-  const [ingestStatus, setIngestStatus] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -694,44 +695,46 @@ export default function Alexandria() {
     }
   };
 
-  // Handle external carbon (bulk text ingest)
-  const handleBulkIngest = async () => {
-    if (!attachText.trim()) return;
+  // Handle external carbon (file upload)
+  const handleFileUpload = async () => {
+    if (!selectedFile) return;
     
-    setIsIngesting(true);
-    setIngestStatus('processing...');
+    setIsUploading(true);
+    setUploadStatus('processing...');
     
     try {
-      const response = await fetch('/api/bulk-ingest', {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('userId', userId);
+      
+      const response = await fetch('/api/upload-carbon', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: attachText,
-          userId,
-          source: 'external-carbon-paste'
-        })
+        body: formData
       });
       
-      if (!response.ok) throw new Error('Ingest failed');
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Upload failed');
+      }
       
       const result = await response.json();
       const { summary } = result;
       
-      setIngestStatus(`done! ${summary.chunksProcessed} chunks, ${summary.extraction.facts} facts, ${summary.storage.memoryItems} memories`);
-      setAttachText('');
+      setUploadStatus(`done! ${summary.chunksProcessed} chunks, ${summary.factsExtracted} facts, ${summary.memoryItemsStored} memories`);
+      setSelectedFile(null);
       
       // Clear status after delay
       setTimeout(() => {
-        setIngestStatus(null);
+        setUploadStatus(null);
         setShowAttachModal(false);
       }, 3000);
       
     } catch (error) {
-      console.error('Bulk ingest error:', error);
-      setIngestStatus('error - try again');
-      setTimeout(() => setIngestStatus(null), 3000);
+      console.error('File upload error:', error);
+      setUploadStatus(error instanceof Error ? error.message : 'error - try again');
+      setTimeout(() => setUploadStatus(null), 5000);
     } finally {
-      setIsIngesting(false);
+      setIsUploading(false);
     }
   };
 
@@ -960,46 +963,64 @@ export default function Alexandria() {
         }
       `}</style>
 
-      {/* Attach Modal */}
+      {/* File Upload Modal */}
       {showAttachModal && (
         <div 
           className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
-          onClick={() => !isIngesting && setShowAttachModal(false)}
+          onClick={() => !isUploading && setShowAttachModal(false)}
         >
           <div 
-            className="bg-white rounded-2xl p-6 w-[90%] max-w-[600px] max-h-[80vh] flex flex-col shadow-xl"
+            className="bg-white rounded-2xl p-6 w-[90%] max-w-[400px] flex flex-col shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-[#3a3a3a] text-lg font-medium">paste external input</h2>
+              <h2 className="text-[#3a3a3a] text-lg font-medium">upload external input</h2>
               <button
-                onClick={() => !isIngesting && setShowAttachModal(false)}
-                className="text-[#999] hover:text-[#666] text-xl"
-                disabled={isIngesting}
+                onClick={() => !isUploading && setShowAttachModal(false)}
+                className="text-[#999] hover:text-[#666] text-xl cursor-pointer"
+                disabled={isUploading}
               >
                 ×
               </button>
             </div>
             
-            <textarea
-              value={attachText}
-              onChange={(e) => setAttachText(e.target.value)}
-              placeholder=""
-              className="flex-1 min-h-[200px] p-4 border border-[#eee] rounded-xl text-[#3a3a3a] text-sm resize-none focus:outline-none focus:border-[#ccc]"
-              disabled={isIngesting}
-              autoFocus
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="audio/*,.mp3,.m4a,.wav,.webm,.ogg,.flac,.txt,.md"
+              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+              className="hidden"
             />
+            
+            <div 
+              onClick={() => !isUploading && fileInputRef.current?.click()}
+              className={`border-2 border-dashed border-[#ddd] rounded-xl p-8 text-center cursor-pointer hover:border-[#bbb] transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {selectedFile ? (
+                <div>
+                  <div className="text-[#3a3a3a] font-medium">{selectedFile.name}</div>
+                  <div className="text-[#999] text-sm mt-1">
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="text-[#999] text-sm">click to select file</div>
+                  <div className="text-[#bbb] text-xs mt-2">audio or text files</div>
+                </div>
+              )}
+            </div>
             
             <div className="flex justify-between items-center mt-4">
               <span className="text-[0.75rem] text-[#999]">
-                {ingestStatus || (attachText.length > 0 ? `${attachText.length.toLocaleString()} characters` : '')}
+                {uploadStatus || ''}
               </span>
               <button
-                onClick={handleBulkIngest}
-                disabled={isIngesting || !attachText.trim()}
-                className="px-5 py-2 bg-[#3a3a3a] text-white rounded-xl text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#2a2a2a] transition-colors"
+                onClick={handleFileUpload}
+                disabled={isUploading || !selectedFile}
+                className="px-5 py-2 bg-[#3a3a3a] text-white rounded-xl text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#2a2a2a] transition-colors cursor-pointer"
               >
-                {isIngesting ? 'processing...' : 'input'}
+                {isUploading ? 'processing...' : 'upload'}
               </button>
             </div>
           </div>
