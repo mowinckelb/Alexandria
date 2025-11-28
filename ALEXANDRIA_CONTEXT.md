@@ -1,5 +1,11 @@
 # Project Alexandria: System Architecture & Protocol
 
+> **STOP. Read `MOWINCKEL.md` first.**
+> It contains universal principles for working with me (agent behavior, design philosophy, code standards).
+> This file contains only Alexandria-specific architecture and technical details.
+
+---
+
 ## 1. The Vision (North Star)
 
 **Mission:** "Translation of Carbon Weights to Silicon Weights."
@@ -47,171 +53,10 @@ This is a new form of biography, extending the ancient principle of immortalizin
 
 ---
 
-## 1.5 Design Principles
+## 2. Alexandria-Specific: On-Path Examples
 
-### The Elon Algorithm
-Applied in order:
-1. **Axiomatize** — Question every requirement. Delete any that don't trace back to a real need.
-2. **Delete** — Remove parts, processes, features. If you're not adding back 10% of what you delete, you're not deleting enough.
-3. **Simplify** — Only after deleting. Don't optimize what shouldn't exist.
-4. **Accelerate** — Only after simplifying. Speed up what remains.
-5. **Automate** — Only after accelerating. Automate the simplified, fast process.
+These examples clarify what's "on the line" for this specific project:
 
-### Beautiful Simplicity (Jobs)
-Art and engineering combine. Everything should be as simple as possible — therefore as beautiful as possible. For the Author:
-- Intuitive over documented
-- Minimal decisions required
-- Invisible complexity, visible elegance
-
-**"Minimum details, but all details perfect."**
-
-### Input-Leverage-Output (ILO)
-Everything is input, leverage, output. LLMs are the leverage layer and they're going exponential. Therefore:
-- **Maximum leverage to Editors** — If an LLM can decide, let it decide
-- **No hardcoded gates** — Dynamic thresholds assessed by Editors, not static constants
-- **Model agnostic** — Leveraged to LLMs but free to switch. Never locked to a specific model.
-- **Expect progress** — Architecture assumes base models will improve. Build for the LLMs of next year, not just today.
-
-### Vendor Agnosticism
-No lock-in to third parties. Everything modular and swappable:
-- **Storage** — Currently Supabase, but abstracted. Could switch to any vector DB.
-- **Model trainer** — Currently Together AI, but abstracted. Could switch to any fine-tuning provider.
-- **LLM provider** — Currently Groq for Editors, but abstracted. Could switch to any inference provider.
-- **Base models** — Never assume a specific model. Architecture works with any base.
-
-Practical, not perfect. Some integration is necessary, but always maintain the ability to reasonably switch.
-
-### Editor Autonomy
-Editors decide, Authors confirm. No manual buttons for technical decisions:
-- **When to fine-tune** — Editor assesses data state, decides when training is valuable
-- **Base vs continued training** — Editor decides whether to train from base or continue from previous weights
-- **Migration strategy** — Editor determines distillation, RLAIF, reward calibration needs
-- **Promote to Memory** — Editor can promote inferred preferences to explicit Memory entries
-- **When to stop asking** — Editor decides when enough Carbon has been collected, not hardcoded question counts
-
-The Author's job is to provide Carbon and validate Ghost accuracy. Technical orchestration is delegated to Editors.
-
-### Dynamic Everything
-No hardcoded thresholds, question counts, or static flows. Everything is Editor-assessed:
-- If Author provides rich Carbon, Editor stops asking immediately
-- If Author provides sparse Carbon, Editor keeps asking until sufficient
-- If RLHF suggests a preference, Editor decides whether to promote to Memory
-- If Author corrects Memory, Editor asks clarifying questions to understand the change
-
-**Principle:** If a decision can be made dynamically by an Editor, it must be.
-
-### Agent Mandate: Maximum Ghost Fidelity
-Any agent working on Alexandria must:
-- **Proactively suggest** any change that could improve Ghost fidelity
-- **Flag gaps** where fidelity could be lost
-- **Question decisions** that might reduce accuracy
-- **Propose alternatives** when a better path exists
-
-The goal is maximum fidelity Ghost. Agents must advocate for this goal, not just execute instructions.
-
-### Cofounder, Not Yes-Man
-Agents must **honestly disagree** when they believe a decision is suboptimal:
-- State the disagreement clearly
-- Explain the reasoning
-- Propose an alternative
-- Accept the Author's final decision, but ensure it's informed
-
-The Author wants intellectual partnership, not compliance. Silence when you disagree is failure.
-
-### All Decisions Through Editors (LLM-Native Architecture)
-**Default stance:** If a decision can be made by an Editor, it must be.
-
-No hardcoded:
-- Thresholds (quality scores, counts, percentages)
-- Weightings (priority, importance)
-- Question counts or flow logic
-- Training triggers or migration decisions
-
-**Everything flows through LLMs.** This is deliberate:
-- Models improve → decisions improve automatically
-- Context-aware → better than static rules
-- Adaptable → no code changes needed for new situations
-
-**Acknowledged trade-offs:**
-- Higher latency (API calls per decision)
-- Higher cost (more LLM usage)
-- Harder debugging (dynamic decisions harder to trace)
-- Requires fallbacks for LLM failures
-
-**When static is acceptable:** Only for mechanical constraints (rate limits, API validation, security checks) — not for any decision that affects Ghost fidelity.
-
-#### The Decision Editor Pattern
-All dynamic decisions flow through the **Decision Editor** (`lib/modules/core/decision-editor.ts`).
-
-**How it works:**
-1. Suggested defaults are provided as context (not rules)
-2. Editor receives the context and the question
-3. Editor decides whether to use suggested value or override
-4. Returns decision with reasoning
-
-```typescript
-// Example: Quality score for RLHF-positive response
-const qualityScore = await decisionEditor.decideQualityScore({
-  isRegeneration: true,
-  feedbackValue: 1,
-  existingPairs: 150
-});
-// Editor might return 0.95 (suggested) or override based on context
-```
-
-**Suggested defaults** (`SUGGESTED_DEFAULTS`): Sensible starting points that Editor can accept or override. Not rules — just context.
-
-### Outerloop Thinking (Conductor/First Chair)
-The Author operates as **conductor** — vision, direction, architecture decisions. The Editors and developers operate as **first chair** — execution, implementation, technical details.
-
-- Author never writes code or discusses innerloop details
-- All Author decisions are strategic, not tactical
-- Vision flows down, execution flows up
-
-### First Principles Thinking
-- Reason from base truths, not analogies
-- Ask "what do we know to be true?" before "what do others do?"
-- Concise frameworks over verbose explanations
-- Every decision traces back to a fundamental truth
-- Minimum words, maximum clarity
-
-### Summary
-| Principle | Meaning |
-|-----------|---------|
-| MVP-Terminal Optimal | On the line, any order, no off-path features |
-| Elon Algorithm | Axiomatize, delete, simplify, accelerate, automate |
-| Beautiful Simplicity | Art + engineering, invisible complexity |
-| ILO | Maximum leverage to exponential LLMs |
-| Vendor Agnostic | Leveraged but never locked to any provider |
-| Editor Autonomy | Editors decide technical matters, Authors validate |
-| Outerloop Thinking | Author = conductor (vision), Editors = first chair (execution) |
-| First Principles | Reason from base truths, concise frameworks |
-
----
-
-## 2. Development Philosophy: MVP-Terminal Optimal
-
-**The Line:** Every feature we build must lie on the direct path between MVP and Terminal State. No detours. No sideways features. No tech debt that requires rewrites.
-
-```
-MVP ────────●────────●────────●──────── Terminal State
-            ↑        ↑        ↑
-         Step 1   Step 2   Step 3
-         
-         ✓ Can build Step 3 before Step 2 (non-sequential OK)
-         ✓ Can build complex features early (if on-path)
-         ✗ Off-path feature (rejected)
-         ✗ "Nice to have" (rejected)
-```
-
-**Rules:**
-1. **Every feature must serve Terminal State.** If it doesn't contribute to "100% personality fidelity and factual accuracy," don't build it.
-2. **Build for evolution, not replacement.** Schemas should accommodate future needs without migration. Code should extend, not rewrite.
-3. **Non-sequential is fine.** We can build Step 5 before Step 2. The question is "is it on the line?" not "is it the next step?" Some features are idiosyncratic and don't require precursor steps.
-4. **Stealth collection is valid.** Collecting data now for future features (e.g., entities for GraphRAG) is on-path if it requires no extra user effort.
-5. **Complexity is fine if on-path.** Building sophisticated infrastructure early is valid if it serves Terminal State. Don't artificially simplify things that will need to be complex anyway.
-
-**Examples:**
 | Decision | Verdict | Reasoning |
 |----------|---------|-----------|
 | Store training pairs with `export_id` for lineage tracking | ✅ On-path | Evolutionary training requires knowing which data trained which model |
@@ -535,6 +380,7 @@ SUPABASE_SERVICE_KEY="..." # Must be SERVICE_ROLE key for Vector Admin rights
 | Personality extraction | ✅ Working | Model-agnostic behavioral signatures |
 | Knowledge distillation | ✅ Working | Old model → synthetic training data |
 | Migration orchestration | ✅ Schema + API | Cross-model personality transfer |
+| Debug state endpoint | ✅ Working | Agent verification infrastructure |
 
 ### What's Deferred (Still On-Path):
 * **Fine-tuning trigger** - Waiting for 500+ quality pairs
@@ -564,3 +410,11 @@ Carbon (input) → Editors Process → Storage → Recall → Silicon (output)
 * `GET /api/migration?migrationId=xxx` - Specific migration status
 * `POST /api/migration` - Run migration phases: `initiate`, `extract_profile`, `distill`, `prepare_data`, `export_jsonl`
 * `PATCH /api/migration` - Update migration status after external training
+
+### Debug API:
+* `GET /api/debug/state?userId=xxx` - System state snapshot for verification
+  * Returns: counts (entries, memoryFragments, trainingPairs, feedbackLogs, preferencePairs, rewardData)
+  * Returns: training status (avgQuality, lastPairCreated, readyForTraining, recentExports)
+  * Returns: ghost status (activeModel, isFineTuned)
+  * Returns: rlhf status (feedbackCount, dpoReady, preferencePairs)
+  * Returns: recent activity (last 5 entries, last 5 feedback logs with previews)
