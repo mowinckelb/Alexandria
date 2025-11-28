@@ -7,7 +7,7 @@
 
 ## Quick Status
 **Last updated:** 2024-11-28
-**Unpushed changes:** Yes - see Session Handoff Notes
+**Unpushed changes:** No
 **Blockers:** None
 
 ---
@@ -101,18 +101,11 @@ After feedback:
 - Added env var validation to login route
 - Removed debug logs from login route
 
-**Ready to push:**
-- AuthScreen.tsx (autofocus)
-- input-chat/route.ts (streaming fix)
-- login/route.ts (env validation, debug logs removed)
-- MOWINCKEL.md (CTO principles, CTO log requirement)
-- CTO_LOG.md (new file)
-- ALEXANDRIA_CONTEXT.md (debug endpoint docs)
+**Pushed:** c97def7
 
 **Known issues:**
 - None blocking
 
 **Suggested next actions:**
-1. Push current changes
-2. Test input-chat flow end-to-end
-3. Consider adding streaming for questions (medium priority)
+1. Test input-chat flow end-to-end
+2. Consider adding streaming for questions (medium priority)
