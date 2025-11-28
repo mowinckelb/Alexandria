@@ -7,7 +7,7 @@
 
 ## Quick Status
 **Last updated:** 2024-11-28
-**Unpushed changes:** No
+**Unpushed changes:** Yes - bulk-ingest endpoint
 **Blockers:** None
 
 ---
@@ -35,6 +35,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
+| Build bulk-ingest endpoint | 2024-11-28 | Chunks text, runs through extractor→indexer→refiner pipeline |
 | Add env var validation to login route | 2024-11-28 | Graceful error instead of crash |
 | Remove debug logs from login route | 2024-11-28 | Cleanup |
 | Fix input-chat streaming | 2024-11-28 | Changed from generateText to streamText with custom SSE |
@@ -72,6 +73,12 @@ After ingestion:
 - `counts.entries` should increase
 - `counts.memoryFragments` should increase
 - `counts.trainingPairs` should increase
+
+After bulk-ingest:
+- Response shows `summary.chunksProcessed` > 0
+- Response shows `summary.storage.memoryItems` > 0
+- Response shows `summary.storage.trainingPairs` > 0
+- Debug state should show increased counts for all of the above
 
 After feedback:
 - `counts.feedbackLogs` should increase

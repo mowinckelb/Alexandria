@@ -8,6 +8,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   prompt?: string;  // For assistant messages: the user query that generated this
+  version?: number; // For regenerated responses: which version (2, 3, etc.)
 }
 
 export default function Alexandria() {
@@ -25,10 +26,26 @@ export default function Alexandria() {
   const [showThinking, setShowThinking] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [outputContent, setOutputContent] = useState('');
-  const [feedbackPhase, setFeedbackPhase] = useState<'none' | 'binary' | 'comment' | 'regenerate'>('none');
+  const [feedbackPhase, setFeedbackPhase] = useState<'none' | 'binary' | 'comment' | 'regenerate' | 'wrap_up'>('none');
   const [currentRating, setCurrentRating] = useState<number>(0);
   const [lastGhostMessage, setLastGhostMessage] = useState<{ prompt: string; response: string; id: string } | null>(null);
   const [feedbackSaved, setFeedbackSaved] = useState(false);
+  const [regenerationVersion, setRegenerationVersion] = useState(1);
+  
+  // Carbon conversation state
+  const [carbonState, setCarbonState] = useState<{
+    phase: string;
+    currentQuestionId?: string;
+    currentTopic?: string;
+  }>({ phase: 'collecting' });
+  const [carbonLockYN, setCarbonLockYN] = useState(false);
+  
+  // External carbon (attachments)
+  const [showAttachModal, setShowAttachModal] = useState(false);
+  const [attachText, setAttachText] = useState('');
+  const [isIngesting, setIsIngesting] = useState(false);
+  const [ingestStatus, setIngestStatus] = useState<string | null>(null);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -90,6 +107,28 @@ export default function Alexandria() {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    // Carbon y/n lock (wrap_up, offer_questions, topic_continue phases)
+    if (carbonLockYN && mode === 'carbon') {
+      if (e.key === 'y' || e.key === 'Y') {
+        e.preventDefault();
+        setCarbonLockYN(false);
+        handleCarbonYN('y');
+        return;
+      }
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        setCarbonLockYN(false);
+        handleCarbonYN('n');
+        return;
+      }
+      // Block and shake on other keys
+      if (e.key.length === 1) {
+        e.preventDefault();
+        shakeInput();
+      }
+      return;
+    }
+
     // Phase 1: Binary y/n - instant response
     if (feedbackPhase === 'binary') {
       if (e.key === 'y' || e.key === 'Y') {
@@ -125,10 +164,45 @@ export default function Alexandria() {
       if (e.key === 'n' || e.key === 'N') {
         e.preventDefault();
         setInputValue('');
-        setTimeout(() => {
-          setFeedbackPhase('none');
-          setLastGhostMessage(null);
-        }, 150);
+        // Ask if there's anything else
+        const wrapUpMessage: Message = {
+          id: uuidv4(),
+          role: 'assistant',
+          content: "anything else?"
+        };
+        setGhostMessages(prev => [...prev, wrapUpMessage]);
+        setLastGhostMessage(null);
+        setTimeout(() => setFeedbackPhase('wrap_up'), 150);
+        return;
+      }
+      // Block and shake on other keys
+      if (e.key.length === 1) {
+        e.preventDefault();
+        shakeInput();
+      }
+      return;
+    }
+    
+    // Phase 4: Wrap up y/n - anything else?
+    if (feedbackPhase === 'wrap_up') {
+      if (e.key === 'y' || e.key === 'Y') {
+        e.preventDefault();
+        setInputValue('');
+        setFeedbackPhase('none');
+        inputRef.current?.focus();
+        return;
+      }
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        setInputValue('');
+        // Ghost says goodbye
+        const goodbyeMessage: Message = {
+          id: uuidv4(),
+          role: 'assistant',
+          content: "sounds good, bye for now!"
+        };
+        setGhostMessages(prev => [...prev, goodbyeMessage]);
+        setFeedbackPhase('none');
         return;
       }
       // Block and shake on other keys
@@ -180,11 +254,13 @@ export default function Alexandria() {
     
     // Store prompt before any state changes
     const promptToRegenerate = lastGhostMessage.prompt;
+    const nextVersion = regenerationVersion + 1;
     
     // Re-run ghost with same prompt
     setFeedbackPhase('none');
+    setRegenerationVersion(nextVersion);
     setIsProcessing(true);
-    setOutputContent('');
+    setOutputContent('');  // Clear immediately to prevent glitch
     setShowThinking(true);
     
     try {
@@ -256,7 +332,8 @@ export default function Alexandria() {
         id: assistantId, 
         role: 'assistant', 
         content: assistantContent,
-        prompt: promptToRegenerate
+        prompt: promptToRegenerate,
+        version: nextVersion
       }]);
       
       // Update for next potential regeneration
@@ -303,6 +380,8 @@ export default function Alexandria() {
     // Phase 2: Comment submission (Enter with empty = skip)
     if (feedbackPhase === 'comment') {
       const comment = text;
+      setInputValue('');
+      setShowThinking(true);
       
       if (comment.trim()) {
         const saved = await submitFeedback(currentRating, comment);
@@ -315,7 +394,7 @@ export default function Alexandria() {
         await submitFeedback(currentRating, '');
       }
       
-      setInputValue('');
+      setShowThinking(false);
       setFeedbackPhase('regenerate');
       inputRef.current?.focus();
       return;
@@ -339,10 +418,88 @@ export default function Alexandria() {
     }
   };
 
+  // Direct y/n handler for carbon mode (bypasses state update delay)
+  const handleCarbonYN = async (answer: 'y' | 'n') => {
+    setIsProcessing(true);
+    setShowThinking(true);
+    
+    const userMessage: Message = {
+      id: uuidv4(),
+      role: 'user',
+      content: answer
+    };
+    const newMessages = [...inputMessages, userMessage];
+    setInputMessages(newMessages);
+
+    try {
+      const response = await fetch('/api/input-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          userId,
+          state: carbonState
+        })
+      });
+
+      if (!response.ok) throw new Error(`http ${response.status}`);
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+      const assistantId = uuidv4();
+      let newState = carbonState;
+      let shouldLockYN = false;
+
+      setShowThinking(false);
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.type === 'text-delta' && data.delta) {
+                  assistantContent += data.delta;
+                  setOutputContent(assistantContent);
+                }
+                if (data.state) newState = data.state;
+                if (data.lockYN !== undefined) shouldLockYN = data.lockYN;
+              } catch { /* ignore */ }
+            }
+          }
+        }
+      }
+
+      setCarbonState(newState);
+      setCarbonLockYN(shouldLockYN);
+      setInputMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: assistantContent }]);
+      setOutputContent('');
+
+      if (newState.phase === 'goodbye') {
+        setTimeout(() => {
+          setCarbonState({ phase: 'collecting' });
+          setCarbonLockYN(false);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Carbon YN error:', error);
+      setShowThinking(false);
+    } finally {
+      setIsProcessing(false);
+      setShowThinking(false);
+    }
+  };
+
   const handleCarbon = async (text: string) => {
     try {
       setOutputContent('');
-      setShowThinking(false);
+      setShowThinking(true);
 
       const userMessage: Message = {
         id: uuidv4(),
@@ -360,7 +517,8 @@ export default function Alexandria() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
-          userId
+          userId,
+          state: carbonState
         })
       });
 
@@ -372,11 +530,19 @@ export default function Alexandria() {
       const decoder = new TextDecoder();
       let assistantContent = '';
       const assistantId = uuidv4();
+      let newState = carbonState;
+      let shouldLockYN = false;
 
       if (reader) {
+        let firstChunk = true;
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
+          
+          if (firstChunk) {
+            setShowThinking(false);
+            firstChunk = false;
+          }
           
           const chunk = decoder.decode(value, { stream: true });
           const lines = chunk.split('\n');
@@ -388,6 +554,13 @@ export default function Alexandria() {
                   assistantContent += data.delta;
                   setOutputContent(assistantContent);
                 }
+                // Handle state updates from server
+                if (data.state) {
+                  newState = data.state;
+                }
+                if (data.lockYN !== undefined) {
+                  shouldLockYN = data.lockYN;
+                }
               } catch {
                 // Ignore parse errors for non-JSON lines
               }
@@ -395,6 +568,10 @@ export default function Alexandria() {
           }
         }
       }
+
+      // Update conversation state
+      setCarbonState(newState);
+      setCarbonLockYN(shouldLockYN);
 
       // Add to input messages history
       setInputMessages(prev => [...prev, { 
@@ -405,6 +582,14 @@ export default function Alexandria() {
       
       // Clear output content to avoid duplicate display
       setOutputContent('');
+      
+      // Reset state if conversation ended
+      if (newState.phase === 'goodbye') {
+        setTimeout(() => {
+          setCarbonState({ phase: 'collecting' });
+          setCarbonLockYN(false);
+        }, 2000);
+      }
 
       // Show "saved." if data was ingested
       if (assistantContent.includes("I've saved it")) {
@@ -425,6 +610,7 @@ export default function Alexandria() {
     try {
       setOutputContent('');
       setShowThinking(false);
+      setRegenerationVersion(1);  // Reset version for new prompt
 
       const userMessage: Message = {
         id: uuidv4(),
@@ -508,6 +694,47 @@ export default function Alexandria() {
     }
   };
 
+  // Handle external carbon (bulk text ingest)
+  const handleBulkIngest = async () => {
+    if (!attachText.trim()) return;
+    
+    setIsIngesting(true);
+    setIngestStatus('processing...');
+    
+    try {
+      const response = await fetch('/api/bulk-ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: attachText,
+          userId,
+          source: 'external-carbon-paste'
+        })
+      });
+      
+      if (!response.ok) throw new Error('Ingest failed');
+      
+      const result = await response.json();
+      const { summary } = result;
+      
+      setIngestStatus(`done! ${summary.chunksProcessed} chunks, ${summary.extraction.facts} facts, ${summary.storage.memoryItems} memories`);
+      setAttachText('');
+      
+      // Clear status after delay
+      setTimeout(() => {
+        setIngestStatus(null);
+        setShowAttachModal(false);
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Bulk ingest error:', error);
+      setIngestStatus('error - try again');
+      setTimeout(() => setIngestStatus(null), 3000);
+    } finally {
+      setIsIngesting(false);
+    }
+  };
+
   // Show loading while checking auth
   if (isCheckingAuth) {
     return (
@@ -557,19 +784,18 @@ export default function Alexandria() {
                 }`}
               >
                 <div className="text-[0.8rem] leading-relaxed whitespace-pre-wrap">
+                  {message.version && message.version > 1 && (
+                    <span className="text-[0.7rem] text-[#999] mr-1">/{message.version}</span>
+                  )}
                   {message.content}
                 </div>
               </div>
             </div>
           ))}
-          {/* Thinking indicator */}
-          {showThinking && !outputContent && (
-            <div className="flex justify-start">
-              <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-[#f4f4f4] text-[#4a4a4a]">
-                <div className="text-[0.8rem] leading-relaxed">
-                  <span className="thinking-pulse">thinking</span>
-                </div>
-              </div>
+          {/* Thinking indicator (Carbon mode only - Ghost shows below input) */}
+          {showThinking && !outputContent && mode === 'carbon' && (
+            <div className="flex justify-start px-1">
+              <span className="text-[0.75rem] text-[#999] italic thinking-pulse">thinking</span>
             </div>
           )}
           {/* Streaming content */}
@@ -590,7 +816,11 @@ export default function Alexandria() {
       <div className="p-6 pb-8">
         <div className="max-w-[700px] mx-auto">
           {/* Mode Toggle */}
-          <div className="flex justify-start items-center mb-3 px-2">
+          <div className="flex justify-start items-center mb-3 gap-2">
+            {/* Spacer to align with + button */}
+            {feedbackPhase === 'none' && !carbonLockYN && (
+              <div className="w-10 flex-shrink-0" />
+            )}
             <div className="relative bg-[#3a3a3a]/[0.06] rounded-full p-[2px] inline-flex">
               <button
                 onClick={() => setMode('carbon')}
@@ -617,34 +847,51 @@ export default function Alexandria() {
           </div>
 
           {/* Input Container */}
-          <div className="relative">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                feedbackPhase === 'binary' ? "good? y/n" :
-                feedbackPhase === 'comment' ? "feedback:" :
-                feedbackPhase === 'regenerate' ? "regenerate? y/n" : ""
-              }
-              autoComplete="off"
-              spellCheck="false"
-              className={`w-full bg-[#f4f4f4] border-none rounded-2xl text-[#3a3a3a] text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md caret-[#3a3a3a]/40 focus:bg-[#efefef] ${feedbackPhase !== 'none' ? 'placeholder:text-[#aaa] placeholder:italic' : ''}`}
-            />
-            <button
-              onClick={handleSubmit}
-              className="absolute right-4 top-1/2 -translate-y-1/2 scale-y-[0.8] bg-transparent border-none rounded-md text-[#ccc] text-[1.2rem] cursor-pointer px-2 py-1 transition-colors hover:text-[#999] focus:text-[#999] focus:shadow-[0_0_0_2px_rgba(58,58,58,0.1)]"
-            >
-              →
-            </button>
+          <div className="relative flex items-center gap-2">
+            {/* Attach button (both modes - future: docs for ghost Q&A) */}
+            {feedbackPhase === 'none' && !carbonLockYN && (
+              <button
+                onClick={() => setShowAttachModal(true)}
+                className="flex-shrink-0 w-10 h-10 rounded-full bg-[#f4f4f4] text-[#999] text-lg flex items-center justify-center hover:bg-[#efefef] hover:text-[#666] transition-colors cursor-pointer"
+                title="Attach text"
+              >
+                +
+              </button>
+            )}
+            <div className="relative flex-1">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={
+                  carbonLockYN && mode === 'carbon' ? "y/n" :
+                  feedbackPhase === 'binary' ? "good? y/n" :
+                  feedbackPhase === 'comment' ? "feedback:" :
+                  feedbackPhase === 'regenerate' ? "regenerate? y/n" :
+                  feedbackPhase === 'wrap_up' ? "y/n" : ""
+                }
+                autoComplete="off"
+                spellCheck="false"
+                className={`w-full bg-[#f4f4f4] border-none rounded-2xl text-[#3a3a3a] text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md caret-[#3a3a3a]/40 focus:bg-[#efefef] ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder:text-[#aaa] placeholder:italic' : ''}`}
+              />
+              <button
+                onClick={handleSubmit}
+                className="absolute right-4 top-1/2 -translate-y-1/2 scale-y-[0.8] bg-transparent border-none rounded-md text-[#ccc] text-[1.2rem] cursor-pointer px-2 py-1 transition-colors hover:text-[#999] focus:text-[#999] focus:shadow-[0_0_0_2px_rgba(58,58,58,0.1)]"
+              >
+                →
+              </button>
+            </div>
           </div>
           
-          {/* Feedback saved indicator */}
+          {/* Status indicator below input */}
           <div className="h-4 mt-2 pl-1">
             {feedbackSaved && (
               <span className="text-[0.7rem] text-[#bbb] italic">saved.</span>
+            )}
+            {showThinking && mode === 'ghost' && !outputContent && (
+              <span className="text-[0.7rem] text-[#999] italic thinking-pulse">thinking</span>
             )}
           </div>
         </div>
@@ -712,6 +959,52 @@ export default function Alexandria() {
           }
         }
       `}</style>
+
+      {/* Attach Modal */}
+      {showAttachModal && (
+        <div 
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+          onClick={() => !isIngesting && setShowAttachModal(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl p-6 w-[90%] max-w-[600px] max-h-[80vh] flex flex-col shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-[#3a3a3a] text-lg font-medium">paste external input</h2>
+              <button
+                onClick={() => !isIngesting && setShowAttachModal(false)}
+                className="text-[#999] hover:text-[#666] text-xl"
+                disabled={isIngesting}
+              >
+                ×
+              </button>
+            </div>
+            
+            <textarea
+              value={attachText}
+              onChange={(e) => setAttachText(e.target.value)}
+              placeholder=""
+              className="flex-1 min-h-[200px] p-4 border border-[#eee] rounded-xl text-[#3a3a3a] text-sm resize-none focus:outline-none focus:border-[#ccc]"
+              disabled={isIngesting}
+              autoFocus
+            />
+            
+            <div className="flex justify-between items-center mt-4">
+              <span className="text-[0.75rem] text-[#999]">
+                {ingestStatus || (attachText.length > 0 ? `${attachText.length.toLocaleString()} characters` : '')}
+              </span>
+              <button
+                onClick={handleBulkIngest}
+                disabled={isIngesting || !attachText.trim()}
+                className="px-5 py-2 bg-[#3a3a3a] text-white rounded-xl text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#2a2a2a] transition-colors"
+              >
+                {isIngesting ? 'processing...' : 'input'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

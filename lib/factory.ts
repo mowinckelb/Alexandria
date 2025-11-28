@@ -12,6 +12,7 @@ import { RewardCalibrator } from './modules/migration/reward-calibrator';
 import { DynamicAssessor } from './modules/migration/dynamic-assessor';
 import { TrainingAssessor } from './modules/training/training-assessor';
 import { DecisionEditor } from './modules/core/decision-editor';
+import { EditorNotes } from './modules/core/editor-notes';
 
 // Singletons
 const refiner = new GroqRefiner();
@@ -28,6 +29,7 @@ const rewardCalibrator = new RewardCalibrator();
 const dynamicAssessor = new DynamicAssessor();
 const trainingAssessor = new TrainingAssessor();
 const decisionEditor = new DecisionEditor();
+const editorNotes = new EditorNotes();
 
 export function getIngestionTools() {
   return { refiner, extractor, tuner, indexer };
@@ -58,6 +60,10 @@ export function getTrainingTools() {
 }
 
 export function getCoreTools() {
-  return { decisionEditor };
+  return { decisionEditor, editorNotes };
+}
+
+export function getEditorTools() {
+  return { editorNotes };
 }
 

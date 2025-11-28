@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { getDecisionEditor, SUGGESTED_DEFAULTS } from '@/lib/modules/core/decision-editor';
+import { getEditorTools } from '@/lib/factory';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!, 
@@ -9,6 +10,7 @@ const supabase = createClient(
 );
 
 const decisionEditor = getDecisionEditor();
+const { editorNotes } = getEditorTools();
 
 const feedbackSchema = z.object({
   userId: z.string().uuid(),
@@ -133,6 +135,42 @@ export async function POST(req: Request) {
 
     if (!rewardError) {
       enhancements.push(validated.isRegeneration ? 'reward_data_added_ab' : 'reward_data_added');
+    }
+
+    // 5. AUTO: Editor Notes - extract preferences from feedback (especially negative with comments)
+    // This is high-signal data about user preferences
+    if (validated.comment && validated.comment.trim()) {
+      try {
+        // IMPORTANT: Author feedback uses both first person ("I don't like...") and second person ("you should...")
+        // Both refer to the AUTHOR's preferences for how their Ghost should behave - Ghost IS the Author
+        const feedbackContext = validated.feedback === -1
+          ? `Author REJECTED this Ghost response and commented: "${validated.comment}"\n\nThe rejected response was: "${validated.response.substring(0, 500)}..."\n\nNOTE: Whether the Author says "I don't like X" or "you shouldn't do X", both mean the AUTHOR prefers their Ghost to avoid X. The Ghost is a reflection of the Author.\n\nThis reveals what the Author DISLIKES about how they come across.`
+          : `Author APPROVED this Ghost response and commented: "${validated.comment}"\n\nThe approved response was: "${validated.response.substring(0, 500)}..."\n\nNOTE: Whether the Author says "I like X" or "you did X well", both mean the AUTHOR prefers their Ghost to do X. The Ghost is a reflection of the Author.\n\nThis reveals what the Author LIKES about how they come across.`;
+        
+        const notes = await editorNotes.analyzeAndGenerateNotes(feedbackContext, validated.userId);
+        if (notes.length > 0) {
+          enhancements.push(`editor_notes_from_feedback:${notes.length}`);
+        }
+      } catch (e) {
+        console.error('Editor notes from feedback failed:', e);
+      }
+    }
+    
+    // Also generate a direct observation for negative feedback (even without comment)
+    if (validated.feedback === -1) {
+      try {
+        await supabase.from('editor_notes').insert({
+          user_id: validated.userId,
+          type: 'observation',
+          content: `User rejected a response to: "${validated.prompt.substring(0, 100)}..."`,
+          context: validated.comment || 'No comment provided',
+          topic: 'response_preferences',
+          priority: validated.comment ? 'high' : 'low'
+        });
+        enhancements.push('rejection_observation_added');
+      } catch (e) {
+        console.error('Rejection observation failed:', e);
+      }
     }
 
     return NextResponse.json({ 

@@ -413,6 +413,13 @@ Carbon (input) → Editors Process → Storage → Recall → Silicon (output)
 * `POST /api/migration` - Run migration phases: `initiate`, `extract_profile`, `distill`, `prepare_data`, `export_jsonl`
 * `PATCH /api/migration` - Update migration status after external training
 
+### Bulk Ingest API:
+* `POST /api/bulk-ingest` - Process large text through full ingestion pipeline
+  * Body: `{ text: string, userId: string, source?: string }`
+  * Chunks text intelligently (by paragraphs, max 4000 chars each)
+  * Runs each chunk through: extractor → indexer → refiner
+  * Returns: summary of facts, preferences, opinions, values, entities, memory items, training pairs
+
 ### Debug API:
 * `GET /api/debug/state?userId=xxx` - System state snapshot for verification
   * Returns: counts (entries, memoryFragments, trainingPairs, feedbackLogs, preferencePairs, rewardData)
