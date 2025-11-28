@@ -1,8 +1,10 @@
 # Project Alexandria: System Architecture & Protocol
 
-> **STOP. Read `MOWINCKEL.md` first.**
-> It contains universal principles for working with me (agent behavior, design philosophy, code standards).
-> This file contains only Alexandria-specific architecture and technical details.
+> **STOP. Read these first:**
+> 1. `MOWINCKEL.md` - Universal principles for working with me
+> 2. `CTO_LOG.md` - Current technical state and tasks
+> 
+> This file contains Alexandria-specific architecture and technical details.
 
 ---
 

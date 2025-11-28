@@ -147,6 +147,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           placeholder={authMode === 'register' ? 'email' : ''}
           autoComplete="off"
           spellCheck="false"
+          autoFocus
           disabled={isLoading}
           className="w-full bg-[#f4f4f4] border-none rounded-2xl text-[#3a3a3a] text-[0.9rem] px-5 py-4 mb-3 outline-none transition-colors shadow-md caret-[#3a3a3a]/40 focus:bg-[#efefef] disabled:opacity-50 placeholder:text-[#999]"
         />

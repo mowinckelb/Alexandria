@@ -1,8 +1,7 @@
 import { createGroq } from '@ai-sdk/groq';
-import { generateText } from 'ai';
+import { streamText } from 'ai';
 import { getIngestionTools } from '@/lib/factory';
 
-// Setup Groq client
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY! });
 const { refiner, extractor, indexer } = getIngestionTools();
 
@@ -11,7 +10,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { messages = [], userId } = body;
 
-    // Validate
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: 'Messages array is required' }), { 
         status: 400,
@@ -19,14 +17,12 @@ export async function POST(req: Request) {
       });
     }
 
-    // Convert messages to core format
     const coreMessages = messages.map((m: { role: string; content: string }) => ({
       role: m.role as 'user' | 'assistant' | 'system',
       content: m.content
     }));
 
-    // Dynamic interviewer - asks only when genuinely needed
-    const { text: response } = await generateText({
+    const result = streamText({
       model: groq('llama-3.3-70b-versatile'),
       messages: [
         {
@@ -51,62 +47,79 @@ WHEN ASKING:
 - Never ask generic questions just to fill space
 
 WHEN SAVING:
-Respond with [SAVE] followed by a comprehensive summary that captures:
-- All objective facts (dates, names, events)
-- All subjective truths (preferences, opinions, values, feelings)
-- Context and significance
+Respond ONLY with the single word: SAVE
+Do not include anything else - just "SAVE". The system will handle confirmation.
 
-Be brief in questions (under 50 words). Be thorough in summaries.`
+Be brief in questions (under 50 words).`
         },
         ...coreMessages
       ]
     });
 
-    // Check if the model wants to save
-    if (response.includes('[SAVE]')) {
-      const summary = response.replace('[SAVE]', '').trim();
-      
-      try {
-        // Extract facts, preferences, opinions, and values
-        const extracted = await extractor.structure(summary);
-        console.log('[Input Chat] Extracted:', extracted);
-        
-        // Convert all extracted info to Memory items (including subjective truths)
-        const memoryItems = extractor.toMemoryItems(extracted);
-        
-        // Store each Memory item
-        for (const item of memoryItems) {
-          await indexer.ingest(item, userId, {
-            entities: extracted.entities,
-            importance: extracted.importance
-          });
+    // Create SSE stream in the format frontend expects
+    const encoder = new TextEncoder();
+    let fullText = '';
+    
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          // Collect full response first to check for SAVE
+          for await (const chunk of result.textStream) {
+            fullText += chunk;
+          }
+          
+          // Check if it's a SAVE response (be generous with matching)
+          const isSave = fullText.trim().toUpperCase().startsWith('SAVE') || fullText.includes('[SAVE]');
+          
+          if (isSave) {
+            // Send warm closing message instead of "SAVE"
+            const saveMsg = JSON.stringify({ type: 'text-delta', delta: "Got it, I've saved everything. Thanks for sharing." });
+            controller.enqueue(encoder.encode(`data: ${saveMsg}\n\n`));
+            
+            // Process the save in background
+            try {
+              const conversationContext = coreMessages
+                .map(m => `${m.role}: ${m.content}`)
+                .join('\n');
+              
+              const extracted = await extractor.structure(conversationContext);
+              console.log('[Input Chat] Extracted:', extracted);
+              
+              const memoryItems = extractor.toMemoryItems(extracted);
+              
+              for (const item of memoryItems) {
+                await indexer.ingest(item, userId, {
+                  entities: extracted.entities,
+                  importance: extracted.importance
+                });
+              }
+              
+              console.log(`[Input Chat] Stored ${memoryItems.length} Memory items`);
+              
+              const lastUserMessage = coreMessages.filter(m => m.role === 'user').pop();
+              if (lastUserMessage?.content) {
+                await refiner.extractStyle(lastUserMessage.content);
+              }
+            } catch (error) {
+              console.error('[Input Chat] Save error:', error);
+            }
+          } else {
+            // Not a save - send the response (clarifying questions)
+            const responseMsg = JSON.stringify({ type: 'text-delta', delta: fullText });
+            controller.enqueue(encoder.encode(`data: ${responseMsg}\n\n`));
+          }
+          
+          controller.close();
+        } catch (error) {
+          console.error('[Input Chat] Stream error:', error);
+          controller.error(error);
         }
-        
-        console.log(`[Input Chat] Stored ${memoryItems.length} Memory items (facts: ${extracted.facts.length}, preferences: ${extracted.preferences?.length || 0}, opinions: ${extracted.opinions?.length || 0}, values: ${extracted.values?.length || 0})`);
-        
-        // Generate training data for Soul
-        await refiner.extractStyle(summary);
-        
-        const confirmMessage = `saved.`;
-        
-        return new Response(
-          `data: ${JSON.stringify({ type: 'text-delta', delta: confirmMessage })}\n\n`,
-          { headers: { 'Content-Type': 'text/event-stream' } }
-        );
-      } catch (error) {
-        console.error('[Input Chat] Save error:', error);
-        return new Response(
-          `data: ${JSON.stringify({ type: 'text-delta', delta: 'error saving. try again.' })}\n\n`,
-          { headers: { 'Content-Type': 'text/event-stream' } }
-        );
       }
-    }
+    });
 
-    // Return the clarifying questions
-    return new Response(
-      `data: ${JSON.stringify({ type: 'text-delta', delta: response })}\n\n`,
-      { headers: { 'Content-Type': 'text/event-stream' } }
-    );
+    return new Response(stream, {
+      headers: { 'Content-Type': 'text/event-stream' }
+    });
 
   } catch (error) {
     console.error('Input Chat API Error:', error);

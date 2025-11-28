@@ -355,9 +355,6 @@ export default function Alexandria() {
       const newMessages = [...inputMessages, userMessage];
       setInputMessages(newMessages);
 
-      // Delay showing thinking indicator
-      setTimeout(() => setShowThinking(true), 700);
-
       const response = await fetch('/api/input-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -375,9 +372,6 @@ export default function Alexandria() {
       const decoder = new TextDecoder();
       let assistantContent = '';
       const assistantId = uuidv4();
-
-      // Hide thinking when streaming starts
-      setShowThinking(false);
 
       if (reader) {
         while (true) {
