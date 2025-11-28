@@ -128,10 +128,10 @@ export async function POST(req: Request) {
       
       extractedText = transcription;
     }
-    // Handle PDF files - temporarily disabled due to Next.js compatibility issues
+    // Handle PDF files - disabled due to Next.js bundling issues
     else if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
       return NextResponse.json({ 
-        error: 'PDF support coming soon. For now, please copy text from the PDF and save as .txt file.' 
+        error: 'PDF not yet supported. Please copy text from PDF and save as .txt file, or use an online PDF-to-text converter.' 
       }, { status: 400 });
     }
     // Handle text files

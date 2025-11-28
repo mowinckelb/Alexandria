@@ -700,7 +700,7 @@ export default function Alexandria() {
     if (!selectedFile) return;
     
     setIsUploading(true);
-    setUploadStatus('processing...');
+    setUploadStatus(null);
     
     try {
       const formData = new FormData();
