@@ -123,6 +123,7 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const file = formData.get('file') as File;
     const userId = formData.get('userId') as string;
+    const context = formData.get('context') as string | null;
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -135,6 +136,11 @@ export async function POST(req: Request) {
     const fileType = file.type;
     const fileName = file.name;
     let extractedText = '';
+    
+    console.log(`[Upload Carbon] File: ${fileName}, Context: ${context || 'none'}`);
+    
+    // Prepend context to extracted text if provided
+    const contextPrefix = context ? `[Context: ${context}]\n\n` : '';
 
     // Handle audio files
     if (fileType.startsWith('audio/') || fileName.match(/\.(mp3|m4a|wav|webm|ogg|flac)$/i)) {
@@ -315,7 +321,8 @@ export async function POST(req: Request) {
           fileType,
           fileSize: file.size,
           extractedLength: extractedText.length,
-          uploadedAt: new Date().toISOString()
+          uploadedAt: new Date().toISOString(),
+          context: context || null
         }
       });
       
@@ -331,8 +338,9 @@ export async function POST(req: Request) {
       rawCarbonError = 'Supabase not configured';
     }
 
-    // Process the extracted text
-    const results = await processText(extractedText, userId, `file:${fileName}`);
+    // Process the extracted text (with context prefix for better extraction)
+    const textToProcess = contextPrefix + extractedText;
+    const results = await processText(textToProcess, userId, `file:${fileName}`);
 
     return NextResponse.json({
       success: true,
@@ -340,7 +348,8 @@ export async function POST(req: Request) {
       textLength: extractedText.length,
       rawCarbonStored,
       rawCarbonError,
-      summary: results
+      summary: results,
+      hasNewQuestions: results.editorNotesGenerated > 0
     });
 
   } catch (error) {

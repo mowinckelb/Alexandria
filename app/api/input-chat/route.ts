@@ -18,6 +18,7 @@ type Phase =
   | 'offer_questions' // "can I ask you questions?" y/n
   | 'asking'          // Editor asking questions from notes
   | 'topic_continue'  // "can I ask about another topic?" y/n
+  | 'post_upload'     // After external carbon upload, ask clarifying questions
   | 'goodbye';        // Final farewell
 
 interface ConversationState {
@@ -62,6 +63,20 @@ export async function POST(req: Request) {
         headers: { 'Content-Type': 'text/event-stream' }
       });
     };
+
+    // Handle post-upload phase - ask clarifying questions about uploaded content
+    if (currentState.phase === 'post_upload') {
+      const question = await editorNotes.getNextQuestion(userId);
+      if (question) {
+        await editorNotes.markAsked(question.id);
+        return sendResponse(
+          question.content,
+          { phase: 'asking', currentQuestionId: question.id, currentTopic: question.topic || undefined, questionsAsked: 1 }
+        );
+      } else {
+        return sendResponse("i've processed your upload. anything else you'd like to share?", { phase: 'collecting' });
+      }
+    }
 
     // Handle y/n responses based on current phase
     if (currentState.phase === 'wrap_up') {

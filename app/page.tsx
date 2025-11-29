@@ -42,7 +42,8 @@ export default function Alexandria() {
   
   // External carbon (file uploads)
   const [showAttachModal, setShowAttachModal] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadContext, setUploadContext] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -699,37 +700,67 @@ export default function Alexandria() {
 
   // Handle external carbon (file upload)
   const handleFileUpload = async () => {
-    if (!selectedFile) return;
+    if (selectedFiles.length === 0) return;
     
     setIsUploading(true);
     setUploadStatus(null);
     
+    let totalChunks = 0, totalFacts = 0, totalMemories = 0;
+    let hasQuestions = false;
+    
     try {
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('userId', userId);
-      
-      const response = await fetch('/api/upload-carbon', {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'Upload failed');
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        setUploadStatus(`processing ${i + 1}/${selectedFiles.length}: ${file.name}`);
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('userId', userId);
+        if (uploadContext.trim()) {
+          formData.append('context', uploadContext.trim());
+        }
+        
+        const response = await fetch('/api/upload-carbon', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error || `Upload failed for ${file.name}`);
+        }
+        
+        const result = await response.json();
+        totalChunks += result.summary.chunksProcessed;
+        totalFacts += result.summary.factsExtracted;
+        totalMemories += result.summary.memoryItemsStored;
+        if (result.hasNewQuestions) hasQuestions = true;
       }
       
-      const result = await response.json();
-      const { summary } = result;
+      setUploadStatus(`done! ${totalChunks} chunks, ${totalFacts} facts, ${totalMemories} memories`);
+      setSelectedFiles([]);
+      setUploadContext('');
       
-      setUploadStatus(`done! ${summary.chunksProcessed} chunks, ${summary.factsExtracted} facts, ${summary.memoryItemsStored} memories`);
-      setSelectedFile(null);
-      
-      // Clear status after delay
-      setTimeout(() => {
-        setUploadStatus(null);
-        setShowAttachModal(false);
-      }, 3000);
+      // If editor has questions, transition to input mode for follow-up
+      if (hasQuestions) {
+        setTimeout(() => {
+          setUploadStatus(null);
+          setShowAttachModal(false);
+          setMode('carbon');
+          setCarbonState({ phase: 'post_upload' });
+          const uploadMsg: Message = {
+            id: uuidv4(),
+            role: 'assistant',
+            content: `i've processed your upload${uploadContext ? ` (${uploadContext})` : ''}. let me ask you about it...`
+          };
+          setInputMessages(prev => [...prev, uploadMsg]);
+        }, 1500);
+      } else {
+        setTimeout(() => {
+          setUploadStatus(null);
+          setShowAttachModal(false);
+        }, 3000);
+      }
       
     } catch (error) {
       console.error('File upload error:', error);
@@ -989,29 +1020,45 @@ export default function Alexandria() {
             <input
               ref={fileInputRef}
               type="file"
+              multiple
               accept="audio/*,.mp3,.m4a,.wav,.webm,.ogg,.flac,.pdf,.txt,.md,image/*,.png,.jpg,.jpeg"
-              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+              onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
               className="hidden"
             />
             
             <div 
               onClick={() => !isUploading && fileInputRef.current?.click()}
-              className={`border-2 border-dashed border-[#ddd] rounded-xl p-8 text-center cursor-pointer hover:border-[#bbb] transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`border-2 border-dashed border-[#ddd] rounded-xl p-6 text-center cursor-pointer hover:border-[#bbb] transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {selectedFile ? (
+              {selectedFiles.length > 0 ? (
                 <div>
-                  <div className="text-[#3a3a3a] font-medium">{selectedFile.name}</div>
-                  <div className="text-[#999] text-sm mt-1">
-                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                  <div className="text-[#3a3a3a] font-medium">
+                    {selectedFiles.length === 1 ? selectedFiles[0].name : `${selectedFiles.length} files selected`}
                   </div>
+                  <div className="text-[#999] text-sm mt-1">
+                    {(selectedFiles.reduce((sum, f) => sum + f.size, 0) / 1024 / 1024).toFixed(2)} MB total
+                  </div>
+                  {selectedFiles.length > 1 && (
+                    <div className="text-[#bbb] text-xs mt-2">
+                      {selectedFiles.map(f => f.name).join(', ')}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div>
-                  <div className="text-[#999] text-sm">click to select file</div>
-                  <div className="text-[#bbb] text-xs mt-2">audio, pdf, image, or text</div>
+                  <div className="text-[#999] text-sm">click to select files</div>
+                  <div className="text-[#bbb] text-xs mt-2">audio, pdf, image, or text (multiple ok)</div>
                 </div>
               )}
             </div>
+            
+            <textarea
+              value={uploadContext}
+              onChange={(e) => setUploadContext(e.target.value)}
+              placeholder="what is this? (optional context, e.g. 'my journal from 2020')"
+              disabled={isUploading}
+              className="mt-3 w-full bg-[#f8f8f8] border border-[#eee] rounded-xl text-[#3a3a3a] text-sm px-4 py-3 outline-none resize-none h-20 placeholder:text-[#aaa] disabled:opacity-50"
+            />
             
             <div className="flex justify-between items-center mt-4">
               <span className="text-[0.75rem] text-[#999]">
@@ -1019,7 +1066,7 @@ export default function Alexandria() {
               </span>
               <button
                 onClick={handleFileUpload}
-                disabled={isUploading || !selectedFile}
+                disabled={isUploading || selectedFiles.length === 0}
                 className="px-5 py-2 bg-[#3a3a3a] text-white rounded-xl text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#2a2a2a] transition-colors cursor-pointer"
               >
                 {isUploading ? 'processing...' : 'upload'}
