@@ -1079,7 +1079,18 @@ export default function Alexandria() {
               {selectedFiles.length > 0 ? (
                 <div className="text-[#3a3a3a] text-sm space-y-1">
                   {selectedFiles.map((f, i) => (
-                    <div key={i}>{f.name}</div>
+                    <div key={i} className="flex items-center justify-center gap-2">
+                      <span>{f.name}</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedFiles(prev => prev.filter((_, idx) => idx !== i));
+                        }}
+                        className="text-[#bbb] hover:text-[#888] text-xs"
+                      >
+                        ×
+                      </button>
+                    </div>
                   ))}
                 </div>
               ) : (
