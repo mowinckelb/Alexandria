@@ -125,4 +125,65 @@ export class SupabaseIndexer {
     
     return topMatches.map((m: EnhancedMemoryMatch) => m.content);
   }
+
+  /**
+   * Recall memories with timestamps for temporal awareness
+   * Returns memories with when they were recorded
+   */
+  async recallWithTimestamps(query: string, userId: string): Promise<{ content: string; created_at: string }[]> {
+    console.log(`[Indexer] Recall with timestamps for userId: ${userId}`);
+    
+    const { data: allMemories } = await this.supabase
+      .from('memory_fragments')
+      .select('id, content, importance, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    
+    if (!allMemories || allMemories.length === 0) {
+      return [];
+    }
+
+    // For small datasets, return all sorted by importance * recency
+    if (allMemories.length <= 20) {
+      const weighted = allMemories.map(m => ({
+        ...m,
+        combined_score: (m.importance || 0.5) * calculateRecencyFactor(m.created_at)
+      }));
+      weighted.sort((a, b) => b.combined_score - a.combined_score);
+      return weighted.map(m => ({ content: m.content, created_at: m.created_at }));
+    }
+
+    // For larger datasets, use enhanced semantic search
+    const response = await this.together.embeddings.create({
+      model: "BAAI/bge-base-en-v1.5",
+      input: query
+    });
+
+    const { data: enhancedMatches, error: enhancedError } = await this.supabase.rpc('match_memory_enhanced', {
+      query_embedding: response.data[0].embedding,
+      match_threshold: 0.3,
+      match_count: 25,
+      p_user_id: userId
+    });
+
+    if (enhancedError) {
+      // Fallback: return recent memories with timestamps
+      return allMemories.slice(0, 15).map(m => ({ content: m.content, created_at: m.created_at }));
+    }
+
+    const scoredMatches = (enhancedMatches || []).map((m: EnhancedMemoryMatch) => ({
+      ...m,
+      combined_score: (m.similarity || 0) * (m.importance || 0.5) * calculateRecencyFactor(m.created_at)
+    }));
+
+    scoredMatches.sort((a: EnhancedMemoryMatch, b: EnhancedMemoryMatch) => 
+      (b.combined_score || 0) - (a.combined_score || 0)
+    );
+
+    return scoredMatches.slice(0, 15).map((m: EnhancedMemoryMatch) => ({ 
+      content: m.content, 
+      created_at: m.created_at 
+    }));
+  }
 }

@@ -79,14 +79,41 @@ ${vocab.avoided?.length > 0 ? `\nAVOID these words: ${vocab.avoided.slice(0, 5).
     // This ensures the Ghost has access to stored facts when answering
     const needsMemory = true; // Always check memory for MVP
     console.log(`Memory check - Query: "${userQuery}", needsMemory: ${needsMemory}`);
+    let temporalContext = '';
     
     if (needsMemory) {
       try {
         console.log(`Attempting memory recall for userId: ${userId}`);
-        const memories = await indexer.recall(userQuery, userId);
-        console.log(`Memory recall returned ${memories.length} results:`, memories);
-        if (memories.length > 0) {
-          memoryContext = `Your memories:\n${memories.join('\n')}\n\n`;
+        const memoriesWithTime = await indexer.recallWithTimestamps(userQuery, userId);
+        console.log(`Memory recall returned ${memoriesWithTime.length} results`);
+        
+        if (memoriesWithTime.length > 0) {
+          // Format memories with relative timestamps
+          const formatRelativeTime = (dateStr: string) => {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+            if (diffDays === 0) return 'today';
+            if (diffDays === 1) return 'yesterday';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+            if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+            return `${Math.floor(diffDays / 365)} years ago`;
+          };
+          
+          const formattedMemories = memoriesWithTime.map(m => 
+            `[${formatRelativeTime(m.created_at)}] ${m.content}`
+          );
+          
+          memoryContext = `Your memories:\n${formattedMemories.join('\n')}\n\n`;
+          
+          // Add temporal context summary
+          const oldest = memoriesWithTime[memoriesWithTime.length - 1];
+          const newest = memoriesWithTime[0];
+          temporalContext = `\n\nTEMPORAL CONTEXT:
+- Your memories span from ${formatRelativeTime(oldest.created_at)} to ${formatRelativeTime(newest.created_at)}
+- More recent memories are listed first and may reflect your current views
+- If asked about changes over time, you can reference when things were recorded`;
         }
       } catch (e) {
         console.log('Memory recall failed:', e);
@@ -117,7 +144,7 @@ RULES:
 - ONLY use information from your memories below. Never invent facts about yourself.
 - If you genuinely don't know or remember something, say so naturally
 - Keep responses conversational, not robotic
-- You're the one being interviewed - be helpful but authentic${personalityContext}${memoryContext ? `\n\nYOUR MEMORIES:\n${memoryContext}` : '\n\nYou have no memories yet. Let the user know they should share information about you in input mode first.'}`
+- You're the one being interviewed - be helpful but authentic${personalityContext}${temporalContext}${memoryContext ? `\n\nYOUR MEMORIES:\n${memoryContext}` : '\n\nYou have no memories yet. Let the user know they should share information about you in input mode first.'}`
         },
         ...coreMessages
       ]

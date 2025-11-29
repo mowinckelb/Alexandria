@@ -19,7 +19,6 @@
 
 | Task | Context | Suggested Solution | Added |
 |------|---------|-------------------|-------|
-| Temporal awareness | Ghost treats all memories as current | Add timestamps to memories, weight by recency, detect belief changes | 2024-11-29 |
 | Constitutional layer | What would Author NEVER say? | Extract hard boundaries from feedback + explicit values, add as system constraints | 2024-11-29 |
 
 ### Medium Priority
@@ -37,6 +36,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
+| Temporal awareness | 2024-11-29 | Memories now include timestamps [X days ago]. Ghost gets temporal context (span, recency guidance). |
 | Behavioral patterns (Ghost uses profiles) | 2024-11-29 | Ghost now loads personality_profiles (style, rules, vocab). Extract via POST /api/migration {action: 'extract_profile'} |
 | Memory retrieval quality | 2024-11-29 | Added recency decay + importance weighting. Combined score = similarity * importance * recency_factor |
 | Preserve raw carbon (upload-carbon) | 2024-11-29 | Extracted text now stored to `entries` table with source type + metadata |
