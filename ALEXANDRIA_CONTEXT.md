@@ -114,10 +114,19 @@ The **Editors** (processing LLMs) work in two hemispheres to build the Ghost.
 **Ghost Package Contents (Current):**
 | Component | Purpose | Runtime Behavior |
 |-----------|---------|------------------|
-| **Fine-tuned Model** | Soul - personality, voice, style | Weights frozen after training |
+| **Fine-tuned Model (Soul)** | Implicit personality in weights - voice, style, patterns | Weights frozen after training |
+| **Personality Constitution** | Explicit behavioral rules - supplements Soul | Injected into system prompt |
 | **Memories** | Objective facts via RAG | Retrieved at inference time |
 | **Orchestrator** | Context assembly, query routing | Assembles prompt from components |
-| **Constitution** | Hard boundaries, principles | Static rules in system prompt |
+
+**Soul vs Constitution:**
+- **Soul (weights):** The PRIMARY personality. Learned from training pairs via fine-tuning. Implicit, embedded in model weights.
+- **Constitution (personality_profiles):** SUPPLEMENTARY explicit rules. Useful when:
+  - Pre-fine-tuning: Guides Ghost when custom weights don't exist yet
+  - Post-fine-tuning: Enforces hard boundaries, supplements implicit patterns
+  - Model migration: Transfers instantly while weights need re-training
+
+The Soul IS the personality. The Constitution is the written rules that guide/constrain it.
 
 **Potential Future Additions:**
 - Behavioral patterns config (pacing, tangents, humor style)

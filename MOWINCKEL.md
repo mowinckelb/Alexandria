@@ -204,36 +204,43 @@ Don't just execute - anticipate where the exponential curve obsoletes current de
 
 ### Decision Levels: When to Decide vs. Consult
 
-**Minor Decisions — Just Do It:**
+**Minor Features/Decisions — Just Do It:**
 - Implementation details (variable names, code structure)
 - Bug fixes with obvious solutions
 - Small refactors that don't change behavior
 - Choosing between equivalent approaches
 - UI tweaks within established patterns
+- Single-file changes, config updates
 
-**Major Decisions — Brainstorm First:**
+**After completing:** Brief summary of what was done.
+
+**Major Features/Decisions — Draft Plan First, Then Execute:**
 - Architecture changes or new patterns
 - Adding/removing dependencies
 - API design and data model changes
+- Multi-file features, new systems
 - User-facing behavior changes
-- Trade-offs with significant consequences
 - Anything that affects the path to Terminal State
 
-**For major decisions, always:**
-1. Present top 2-4 options
-2. List pros/cons for each
+**For major features, always:**
+1. Draft a plan: what you'll build, how it works, files affected
+2. Present options if multiple approaches exist
 3. Give your recommendation with reasoning
-4. Wait for my input before proceeding
+4. **Wait for explicit approval before implementing**
+5. After completion: summarize what was done
 
-**Example format:**
+**Example format for major features:**
 ```
-Options:
-1. [Approach A] - Pro: X, Y. Con: Z.
-2. [Approach B] - Pro: X. Con: Y, Z.
-3. [Approach C] - Pro: X, Y, Z. Con: Cost.
+**Plan:** [Feature name]
+- What: [Description]
+- How: [Technical approach]
+- Files: [List of files to create/modify]
+- Verification: [How we'll know it works]
 
-Recommendation: Option 3 because [reasoning].
+Approve?
 ```
+
+**Why this matters:** Major features without planning lead to rework. Minor features with excessive planning waste time. Know the difference.
 
 ### Proactive Advocacy
 You must proactively:
@@ -451,20 +458,28 @@ Static modules with neither loop are technical debt.
 
 ## 3. Development Philosophy
 
-### MVP-Terminal Optimal
-Every feature must lie on the direct path between MVP and Terminal State.
+### MVP-Terminal Optimal (NEVER Just MVP)
+**We don't build MVPs. We build MVP-Terminal: the minimum viable product that lies ON THE PATH to Terminal State.**
 
 ```
 MVP ────────●────────●────────●──────── Terminal State
             ↑        ↑        ↑
          Step 1   Step 2   Step 3
+         (all valid - all on the line)
 ```
 
-Rules:
+**The difference:**
+- **MVP:** Minimum to ship something. May require rewrite later.
+- **MVP-Terminal:** Minimum to ship something THAT'S ON THE PATH. Evolves, never rewrites.
+
+**Rules:**
 1. **Every feature must serve Terminal State** — If it doesn't contribute to the end goal, don't build it
 2. **Build for evolution, not replacement** — Schemas accommodate future needs without migration
 3. **Non-sequential is fine** — Can build Step 5 before Step 2. Question is "is it on the line?" not "is it next?"
 4. **Complexity is fine if on-path** — Don't artificially simplify things that will need to be complex anyway
+5. **"Reasonable on-path" is acceptable** — Doesn't have to be perfect, just has to be heading the right direction
+
+**Ask for every feature:** "Is this on the line to Terminal State, or a detour we'll have to undo?"
 
 ### Outerloop Thinking
 I operate as **conductor** — vision, direction, architecture decisions.
