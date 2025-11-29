@@ -50,17 +50,17 @@ Per Axiomatic vs Ephemeral principle - raw data is permanent, processing methods
 
 ### 2024-11-29 - Architecture
 **Suggested by:** Factory Agent (Claude)
-**Status:** Pending
+**Status:** Resolved (Clarified)
 **Affects:** Ghost Fidelity
 
 **Suggestion:**
-Close the feedback loop - positive feedback should reinforce patterns in Ghost responses, negative should suppress. Currently feedback is collected but doesn't influence Ghost behavior.
+Close the feedback loop - positive feedback should reinforce patterns in Ghost responses, negative should suppress.
 
-**Reasoning:**
-Feedback data is axiomatic (permanent user preference signal). Wasted learning signal. This is the highest-impact Ghost fidelity improvement because it creates a direct path from user correction to improved output.
+**Resolution:**
+Feedback loop IS closed via batch training, not runtime injection. Ghost is a deployable package - feedback improves it through training cycles, not real-time queries. This is correct architecture for a self-contained, API-deployable Ghost. Added "Ghost Package" section to ALEXANDRIA_CONTEXT.md to clarify.
 
 **Human Review:**
-(pending)
+Resolved 2024-11-29
 
 ---
 

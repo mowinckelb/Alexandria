@@ -107,7 +107,41 @@ The **Editors** (processing LLMs) work in two hemispheres to build the Ghost.
 * **Memory Retrieval:** Keyword-based trigger (`/remember|recall|when|who|where|meet|met/i`) → Vector search → Context injection.
 * **Future Enhancement:** Full Groq orchestrator with tool calling (requires `toolChoice: 'required'` for reliable tool use).
 
-### D. RLHF Pipeline (Feedback → Training Signal)
+### D. The Ghost Package (Deployable Output)
+
+**Ghost is the finished product** — a self-contained, deployable package that can operate independently (including as an external API).
+
+**Ghost Package Contents:**
+| Component | Purpose | Runtime Behavior |
+|-----------|---------|------------------|
+| **Fine-tuned Model** | Soul - personality, voice, style | Weights frozen after training |
+| **Memories** | Objective facts via RAG | Retrieved at inference time |
+| **Orchestrator** | Context assembly, query routing | Assembles prompt from components |
+| **Constitution** | Hard boundaries, principles | Static rules in system prompt |
+
+**What is NOT in the Ghost Package:**
+- Editor Notes (internal tooling for generating better training data)
+- Raw feedback logs (processed into training, then discarded from runtime)
+- Processing pipelines (used during Carbon ingestion, not Ghost inference)
+
+**The Feedback Loop (Training, not Runtime):**
+```
+Ghost Response → User Feedback → Training Data → Fine-tuned Ghost (batch)
+                      ↓
+              NOT injected at runtime
+```
+
+Feedback improves Ghost through **batch training cycles**, not real-time injection. This keeps Ghost self-contained and deployable.
+
+**Why this matters:**
+- Ghost can be called as external API without dependencies
+- No runtime database queries for feedback/notes
+- Personality lives in weights + memories, not in dynamic lookups
+- Clean separation: Carbon processing (internal) vs Ghost serving (external)
+
+---
+
+### E. RLHF Pipeline (Feedback → Training Signal)
 * **Goal:** Convert Author feedback into model improvements.
 * **Feedback Collection:** Binary (👍/👎) + optional comments on Ghost responses. Binary is optimal — cleaner signal, less friction, more feedback.
 * **Data Tables:**
@@ -155,7 +189,7 @@ Every feedback submission automatically processes into three training pipelines:
 
 **Design principle:** Force the Author to engage. Binary is non-negotiable — every response gets rated. This serves Ghost fidelity, not Author convenience.
 
-### E. Model-Agnostic Personalization (The Immortal Soul)
+### F. Model-Agnostic Personalization (The Immortal Soul)
 
 **Goal:** Ensure personality can transfer across base model upgrades. When Llama 4 releases, Authors must not lose their Ghost's personality.
 

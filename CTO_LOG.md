@@ -19,7 +19,6 @@
 
 | Task | Context | Suggested Solution | Added |
 |------|---------|-------------------|-------|
-| Close feedback loop | User ratings collected but don't improve Ghost | Positive feedback reinforces patterns, negative suppresses. Update Ghost context retrieval based on feedback. | 2024-11-29 |
 | Preserve raw carbon better | Currently store processed outputs more than raw inputs | Ensure original transcripts/text stored alongside extractions for re-processing | 2024-11-29 |
 | Memory retrieval quality | Embedding similarity may miss relevant context, no recency/importance weighting | Add recency decay, importance weighting, possibly hybrid search | 2024-11-29 |
 | Behavioral patterns | We capture WHAT author knows, not HOW they respond | Analyze response patterns (tangents, humor, pacing) from training pairs | 2024-11-29 |
@@ -41,6 +40,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
+| Clarify Ghost Package architecture | 2024-11-29 | Ghost = deployable package (model + memories + constitution). Feedback → training, not runtime. |
 | Add Soul training pairs to upload-carbon | 2024-11-29 | Was missing vs bulk-ingest - pipeline completeness fix |
 | PDF via OpenAI Assistants API | 2024-11-29 | Native multi-page PDF parsing for max fidelity |
 | External carbon file upload UI | 2024-11-29 | + button, modal, audio/pdf/text support |
