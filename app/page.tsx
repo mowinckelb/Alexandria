@@ -424,10 +424,12 @@ export default function Alexandria() {
     setIsProcessing(true);
     setShowThinking(true);
     
+    // Display "yes" or "no" in chat for nicer appearance
+    const displayText = answer === 'y' ? 'yes' : 'no';
     const userMessage: Message = {
       id: uuidv4(),
       role: 'user',
-      content: answer
+      content: displayText
     };
     const newMessages = [...inputMessages, userMessage];
     setInputMessages(newMessages);
