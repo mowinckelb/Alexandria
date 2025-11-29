@@ -1077,14 +1077,6 @@ export default function Alexandria() {
                   <div className="text-[#3a3a3a] font-medium">
                     {selectedFiles.length === 1 ? selectedFiles[0].name : `${selectedFiles.length} files selected`}
                   </div>
-                  <div className="text-[#999] text-sm mt-1">
-                    {(selectedFiles.reduce((sum, f) => sum + f.size, 0) / 1024 / 1024).toFixed(2)} MB total
-                  </div>
-                  {selectedFiles.length > 1 && (
-                    <div className="text-[#bbb] text-xs mt-2">
-                      {selectedFiles.map(f => f.name).join(', ')}
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="text-[#999] text-sm">input text/audio</div>
