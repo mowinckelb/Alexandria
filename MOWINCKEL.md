@@ -262,16 +262,26 @@ Before completing any task:
 4. Show the verification output to confirm it worked
 5. Only after verification passes, commit and move to next task
 
-**What counts as verification:**
+**What counts as PROPER verification:**
 - Debug endpoint that shows the new data/state
 - Console log that confirms the code path was hit
 - API response that includes the new field/behavior
-- Test that exercises the new functionality
+- Test that exercises THE SPECIFIC FEATURE, not just "endpoint works"
+- For UI changes: actually see the change
+- For data changes: query the database and confirm the data
+
+**Proper verification tests the SPECIFIC BEHAVIOR, not just that code runs:**
+- BAD: "Chat endpoint returns a response" (proves nothing about new feature)
+- GOOD: "Asked Ghost about timing, it correctly said 'today' based on timestamp"
+- BAD: "No errors" 
+- GOOD: "Verified entries count increased from 0 to 1, source shows 'upload:audio'"
 
 **What does NOT count:**
 - "TypeScript compiles" (that's syntax, not behavior)
 - "No errors in console" (absence of failure ≠ presence of success)
 - "Should work based on the code" (prove it)
+- "Endpoint returns 200" (doesn't verify the FEATURE works)
+- Generic success without testing specific new behavior
 
 **Example - raw carbon storage:**
 - BAD: "I added the code, it should store now"
