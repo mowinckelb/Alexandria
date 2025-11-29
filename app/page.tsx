@@ -1155,6 +1155,11 @@ export default function Alexandria() {
                 </button>
               )}
             </div>
+            {isUploading && (
+              <div className="mt-2 pl-1">
+                <span className="text-[0.75rem] text-[#999] italic thinking-pulse">thinking</span>
+              </div>
+            )}
           </div>
         </div>
       )}
