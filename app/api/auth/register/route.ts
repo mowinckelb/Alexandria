@@ -1,3 +1,5 @@
+// @CRITICAL: User registration - breaks = no new users can join
+// Verify: can create new account after ANY change to this file
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 

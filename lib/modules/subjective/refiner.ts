@@ -1,3 +1,5 @@
+// @CRITICAL: Soul training pairs - fine-tuning pipeline depends on this
+// Verify: training_pairs generated correctly with quality scores
 import { createGroq } from '@ai-sdk/groq';
 import { generateText } from 'ai';
 

@@ -1,3 +1,5 @@
+// @CRITICAL: Authentication - breaks = no one can use app
+// Verify: login/logout still works after ANY change to this file
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 

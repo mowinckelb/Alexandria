@@ -517,3 +517,26 @@ npx tsc --noEmit --project tsconfig.json
 ### API Testing
 - curl for endpoint verification
 - File-based JSON for complex payloads (PowerShell escaping workaround)
+
+---
+
+## 9. Critical Code Sections
+
+**These files are high-risk. Breaking them breaks the app. Extra caution required.**
+
+| File | Risk | Depends On | Verify After Change |
+|------|------|------------|---------------------|
+| `app/api/auth/login/route.ts` | Authentication | Everything | Can login/logout successfully |
+| `app/api/auth/register/route.ts` | User creation | Login flow | Can create new account |
+| `lib/modules/objective/indexer.ts` | Memory storage | All ingestion, Ghost recall | Data actually stored, recall works |
+| `lib/modules/subjective/refiner.ts` | Soul training pairs | Fine-tuning pipeline | Training pairs generated correctly |
+| `app/api/chat/route.ts` | Ghost responses | User-facing output | Ghost responds with memories |
+| `app/api/input-chat/route.ts` | Carbon collection | All data ingestion | Conversation flow works, data saved |
+| `supabase/migrations/*` | Schema changes | Database integrity | Migration runs, no data loss |
+| `lib/factory.ts` | Module initialization | All processing | Modules load without error |
+
+**Before modifying these files:**
+1. Understand what depends on them
+2. Have a verification plan
+3. Test specific critical behavior after changes
+4. If migration: consider rollback strategy

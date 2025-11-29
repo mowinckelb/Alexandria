@@ -1,3 +1,5 @@
+// @CRITICAL: Ghost responses - user-facing output, personality + memory retrieval
+// Verify: Ghost responds with memories, personality profile loads correctly
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';

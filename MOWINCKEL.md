@@ -353,6 +353,41 @@ Before completing any task:
 3. Flag any issues before taking new requests
 4. If major issues exist, address them first regardless of user's request
 
+### Critical Code Sections (CRITICAL)
+**Some code is high-risk. Breaking it ruins the entire app. Treat it with extra caution.**
+
+**What makes code critical:**
+- Authentication/authorization (breaks = no one can use app)
+- Data persistence (breaks = data loss/corruption)
+- Core business logic everything depends on
+- Database migrations (often irreversible)
+- Integration points (API keys, external services)
+
+**How critical code is marked:**
+1. **In-code marker:** `// @CRITICAL: [reason] - [what to verify after changes]`
+2. **Project docs:** Critical files listed in project context file (e.g., ALEXANDRIA_CONTEXT.md)
+
+**Before modifying @CRITICAL code:**
+1. Understand WHY it's marked critical
+2. Understand what depends on it
+3. Plan your change carefully
+4. Test the SPECIFIC critical behavior after changes
+5. If unsure, ask for approval before modifying
+
+**After modifying @CRITICAL code:**
+1. Verify the critical functionality still works (not just "no errors")
+2. Test edge cases and failure modes
+3. Document what you changed and why in commit message
+
+**Example markers:**
+```typescript
+// @CRITICAL: Authentication - verify login/logout still works after any change
+// @CRITICAL: Memory storage - all ingestion depends on this, test with actual data
+// @CRITICAL: Migration - irreversible schema change, backup data first
+```
+
+**If you break critical code:** STOP immediately. Do not proceed with other work. Fix it first.
+
 ### Git Discipline
 **Push after each feature. Don't accumulate unpushed changes.**
 

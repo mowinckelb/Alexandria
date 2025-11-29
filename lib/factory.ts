@@ -1,3 +1,5 @@
+// @CRITICAL: Module initialization - all processing depends on these modules loading
+// Verify: modules load without error, functions return expected types
 import { GroqRefiner } from './modules/subjective/refiner';
 import { GroqExtractor } from './modules/objective/extractor';
 import { TogetherTuner } from './modules/subjective/tuner';

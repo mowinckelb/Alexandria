@@ -1,3 +1,5 @@
+// @CRITICAL: Memory storage - all ingestion and Ghost recall depends on this
+// Verify: data actually stored in memory_fragments, recall returns results
 import { createClient } from '@supabase/supabase-js';
 import Together from 'together-ai';
 

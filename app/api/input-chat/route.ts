@@ -1,3 +1,5 @@
+// @CRITICAL: Carbon collection - all data ingestion flows through here
+// Verify: conversation works, data saved to entries/memories/training_pairs
 import { createGroq } from '@ai-sdk/groq';
 import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
