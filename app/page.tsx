@@ -1073,25 +1073,43 @@ export default function Alexandria() {
             />
             
             <div 
-              onClick={() => !isUploading && fileInputRef.current?.click()}
-              className={`border-2 border-dashed border-[#ddd] rounded-xl p-4 text-center cursor-pointer hover:border-[#bbb] transition-colors max-h-32 overflow-y-auto ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => !isUploading && selectedFiles.length === 0 && fileInputRef.current?.click()}
+              className={`border-2 border-dashed border-[#ddd] rounded-xl p-4 text-center hover:border-[#bbb] transition-colors max-h-32 overflow-y-auto ${isUploading ? 'opacity-50 cursor-not-allowed' : ''} ${selectedFiles.length === 0 ? 'cursor-pointer' : ''}`}
             >
               {selectedFiles.length > 0 ? (
-                <div className="text-[#3a3a3a] text-sm space-y-1">
+                <div className="text-[#3a3a3a] text-sm space-y-2">
                   {selectedFiles.map((f, i) => (
-                    <div key={i} className="flex items-center justify-center gap-2">
-                      <span>{f.name}</span>
+                    <div key={i} className="flex items-center justify-center gap-3">
+                      <span 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const url = URL.createObjectURL(f);
+                          window.open(url, '_blank');
+                        }}
+                        className="cursor-pointer hover:text-[#666]"
+                      >
+                        {f.name}
+                      </span>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedFiles(prev => prev.filter((_, idx) => idx !== i));
                         }}
-                        className="text-[#bbb] hover:text-[#888] text-xs"
+                        className="text-[#bbb] hover:text-[#666] text-base leading-none px-1"
                       >
                         ×
                       </button>
                     </div>
                   ))}
+                  <div 
+                    className="text-[#bbb] text-xs mt-2 hover:text-[#999] cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    + add more
+                  </div>
                 </div>
               ) : (
                 <div className="text-[#999] text-sm">input text/audio</div>
