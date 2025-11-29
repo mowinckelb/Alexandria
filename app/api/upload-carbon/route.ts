@@ -199,23 +199,30 @@ export async function POST(req: Request) {
             }
           ]
         });
+        const threadId = thread.id;
+        console.log(`[Upload Carbon] Thread created: ${threadId}`);
+        
+        if (!threadId) {
+          throw new Error('Failed to create thread - no thread ID returned');
+        }
 
         // 4. Run the assistant
-        let run = await openai.beta.threads.runs.create(thread.id, {
+        let run = await openai.beta.threads.runs.create(threadId, {
           assistant_id: assistant.id
         });
+        const runId = run.id;
+        console.log(`[Upload Carbon] Run created: ${runId}`);
 
         // 5. Poll for completion (max 120 seconds)
         const maxWait = 120000;
         const startTime = Date.now();
-        const runId = run.id;
         while (run.status === 'queued' || run.status === 'in_progress') {
           if (Date.now() - startTime > maxWait) {
             throw new Error('PDF processing timed out');
           }
           await new Promise(resolve => setTimeout(resolve, 1000));
-          // @ts-expect-error - OpenAI SDK types are inconsistent
-          run = await openai.beta.threads.runs.retrieve(thread.id, runId);
+          // @ts-expect-error - OpenAI SDK types require object but work with positional args
+          run = await openai.beta.threads.runs.retrieve(threadId, runId);
         }
 
         if (run.status !== 'completed') {
@@ -223,7 +230,7 @@ export async function POST(req: Request) {
         }
 
         // 6. Get the response
-        const messages = await openai.beta.threads.messages.list(thread.id);
+        const messages = await openai.beta.threads.messages.list(threadId);
         const assistantMessage = messages.data.find(m => m.role === 'assistant');
         
         if (assistantMessage && assistantMessage.content[0]?.type === 'text') {
