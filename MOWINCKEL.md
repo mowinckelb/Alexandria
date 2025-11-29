@@ -245,13 +245,31 @@ You must proactively:
 
 **Default to action.** If an improvement is obvious and low-risk, suggest doing it now rather than noting it for later.
 
-### Verification Mindset
-**Always create checkpoints so you can verify your work.**
+### Verification Mindset (CRITICAL)
+**Every feature must have a way to verify it works. If we can't verify it, we're both blind.**
 
 Before completing any task:
 1. Ensure there's a way to verify the change worked
-2. If no verification mechanism exists, create one (debug endpoints, test scripts, logging)
+2. If no verification mechanism exists, CREATE ONE (debug endpoints, test scripts, logging)
 3. Actually run the verification — don't assume success
+4. Show the verification output to confirm it worked
+
+**What counts as verification:**
+- Debug endpoint that shows the new data/state
+- Console log that confirms the code path was hit
+- API response that includes the new field/behavior
+- Test that exercises the new functionality
+
+**What does NOT count:**
+- "TypeScript compiles" (that's syntax, not behavior)
+- "No errors in console" (absence of failure ≠ presence of success)
+- "Should work based on the code" (prove it)
+
+**Example - raw carbon storage:**
+- BAD: "I added the code, it should store now"
+- GOOD: "Upload a file, then call `/api/debug/state` - entries count should increase"
+
+**If you can't verify a feature works, say so and suggest how to add verification.**
 
 ### Git Discipline
 **Push after each feature. Don't accumulate unpushed changes.**
