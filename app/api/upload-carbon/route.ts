@@ -297,6 +297,8 @@ export async function POST(req: Request) {
     console.log(`[Upload Carbon] Extracted ${extractedText.length} characters from ${fileName}`);
 
     // Store raw carbon to entries (axiomatic data preservation)
+    let rawCarbonStored = false;
+    let rawCarbonError: string | null = null;
     const supabase = getSupabase();
     if (supabase) {
       const sourceType = fileType.startsWith('audio/') ? 'upload:audio' 
@@ -319,10 +321,14 @@ export async function POST(req: Request) {
       
       if (entryError) {
         console.error('[Upload Carbon] Failed to store raw entry:', entryError);
+        rawCarbonError = entryError.message;
         // Non-fatal - continue processing
       } else {
         console.log(`[Upload Carbon] Stored raw carbon entry (${sourceType})`);
+        rawCarbonStored = true;
       }
+    } else {
+      rawCarbonError = 'Supabase not configured';
     }
 
     // Process the extracted text
@@ -332,7 +338,8 @@ export async function POST(req: Request) {
       success: true,
       fileName,
       textLength: extractedText.length,
-      rawCarbonStored: true,
+      rawCarbonStored,
+      rawCarbonError,
       summary: results
     });
 
