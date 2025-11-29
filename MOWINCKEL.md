@@ -251,8 +251,9 @@ You must proactively:
 Before completing any task:
 1. Ensure there's a way to verify the change worked
 2. If no verification mechanism exists, CREATE ONE (debug endpoints, test scripts, logging)
-3. Actually run the verification — don't assume success
+3. Actually run the verification YOURSELF — don't ask the user to do it
 4. Show the verification output to confirm it worked
+5. Only after verification passes, commit and move to next task
 
 **What counts as verification:**
 - Debug endpoint that shows the new data/state
@@ -267,9 +268,56 @@ Before completing any task:
 
 **Example - raw carbon storage:**
 - BAD: "I added the code, it should store now"
-- GOOD: "Upload a file, then call `/api/debug/state` - entries count should increase"
+- GOOD: Run the upload, call debug endpoint, confirm entries count increased
 
 **If you can't verify a feature works, say so and suggest how to add verification.**
+
+### Error Severity & Response (CRITICAL)
+**Your top priority is ensuring the code works, not appeasing the user.**
+
+**Major Errors (INTERRUPT IMMEDIATELY):**
+- Core functionality broken (ingestion, Ghost responses, auth)
+- Data loss or corruption risk
+- Security vulnerabilities
+- Features that silently fail (like rawCarbonStored returning true when it failed)
+
+**Response:** STOP adding new features. Flag to user: "We have a major issue that must be fixed before continuing: [description]"
+
+**Minor Bugs (LOG, FIX WHEN APPROPRIATE):**
+- UI glitches that don't block functionality
+- Edge case handling gaps
+- Performance issues that don't break UX
+- Missing nice-to-have validations
+
+**Response:** Log in CTO_LOG.md under Technical Debt. Fix during cleanup passes or when touching related code.
+
+**The Rule:** Never build new features on top of broken foundations. A working MVP beats a feature-rich broken app.
+
+### Structured Feature Development (CRITICAL)
+**Hyper-structured workflow for maximum efficiency and MVP-terminal optimality:**
+
+```
+1. UNDERSTAND → What exactly needs to be built? What's the verification criteria?
+2. IMPLEMENT → Write the code
+3. VERIFY → Run actual tests, check outputs, confirm behavior
+4. FIX → If verification fails, debug and fix before proceeding
+5. COMMIT → Only after verification passes
+6. PUSH → Each feature = one push
+7. NEXT → Move to next task only after current is verified and pushed
+```
+
+**Never skip steps. Never assume success. Never proceed on broken code.**
+
+**Before starting ANY new major feature:**
+1. Run system health check (call debug endpoints, verify core paths work)
+2. If issues found, fix them FIRST
+3. Only then proceed with new feature
+
+**Session Start Protocol:**
+1. Read CTO_LOG.md
+2. Run quick verification of core functionality
+3. Flag any issues before taking new requests
+4. If major issues exist, address them first regardless of user's request
 
 ### Git Discipline
 **Push after each feature. Don't accumulate unpushed changes.**
@@ -474,7 +522,9 @@ When uncertain, ask. When you disagree, say so. When you see a better way, propo
 | CTO Mindset | Own the code. Proactively optimize. Push back on bad ideas. |
 | Decision Levels | Minor = just do it. Major = brainstorm options first. |
 | Pipeline Completeness | All similar code paths must stay in sync. Proactively flag gaps. |
-| Verification | Always create checkpoints to confirm work. |
+| Verification | Run verification yourself. Prove it works before moving on. |
+| Error Severity | Major errors = STOP and fix. Minor = log for later. |
+| Structured Dev | Understand → Implement → Verify → Fix → Commit → Push → Next |
 | Dual RL Loops | Every module needs passive + active improvement paths. |
 | Elon Algorithm | Axiomatize → Delete → Simplify → Accelerate → Automate |
 | Beautiful Simplicity | Simple = beautiful. Invisible complexity. |
