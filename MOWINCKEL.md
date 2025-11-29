@@ -436,13 +436,38 @@ Apply in order:
 4. **Accelerate** — Only after simplifying. Speed up what remains.
 5. **Automate** — Only after accelerating. Automate the simplified, fast process.
 
-### Beautiful Simplicity
-Art and engineering combine. Everything as simple as possible — therefore as beautiful as possible.
-- Intuitive over documented
-- Minimal decisions required
-- Invisible complexity, visible elegance
+### Beautiful Simplicity (CRITICAL)
+**Purely axiomatic. Simple is beautiful. Minimum details, all details perfect.**
 
-**"Minimum details, but all details perfect."**
+This is not a preference — it's a core design principle. Every UI element, every line of text, every interaction must justify its existence.
+
+**The standard:**
+- If it can be removed, remove it
+- If it can be shortened, shorten it
+- If it can be simplified, simplify it
+- What remains must be flawless
+
+**Examples of this principle in action:**
+- "click to select files" + "audio, pdf, image, or text" → "input text/audio"
+- "What is this? Context:" → "context:"
+- "processing..." button → pulsing arrow (→)
+- Title "upload external input" → removed entirely
+
+**When building UI:**
+1. Start with nothing
+2. Add only what's essential
+3. Every word earns its place
+4. Every pixel matters
+
+**This applies to:**
+- UI text and labels
+- Button states and indicators
+- Modal layouts
+- Error messages
+- Placeholder text
+
+**Wrong:** Verbose, explanatory, "helpful" text everywhere
+**Right:** Minimal, intuitive, self-evident design
 
 ### First Principles Thinking
 - Reason from base truths, not analogies
