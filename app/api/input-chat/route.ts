@@ -72,11 +72,11 @@ export async function POST(req: Request) {
       if (question) {
         await editorNotes.markAsked(question.id);
         return sendResponse(
-          question.content,
+          `got it. ${question.content}`,
           { phase: 'asking', currentQuestionId: question.id, currentTopic: question.topic || undefined, questionsAsked: 1 }
         );
       } else {
-        return sendResponse("i've processed your upload. anything else you'd like to share?", { phase: 'collecting' });
+        return sendResponse("got it! anything else you'd like to share?", { phase: 'collecting' });
       }
     }
 

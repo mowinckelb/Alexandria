@@ -72,6 +72,62 @@ export default function Alexandria() {
     }
   }, [isAuthenticated]);
 
+  // Auto-trigger post_upload phase to ask questions about uploaded content
+  useEffect(() => {
+    if (carbonState.phase === 'post_upload' && userId) {
+      const triggerPostUpload = async () => {
+        setShowThinking(true);
+        try {
+          const response = await fetch('/api/input-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: [{ role: 'user', content: 'processed upload' }],
+              userId,
+              state: carbonState
+            })
+          });
+          
+          if (response.ok) {
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+            let assistantContent = '';
+            
+            if (reader) {
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
+                for (const line of lines) {
+                  if (line.startsWith('data: ')) {
+                    try {
+                      const data = JSON.parse(line.slice(6));
+                      if (data.delta) assistantContent += data.delta;
+                      if (data.state) setCarbonState(data.state);
+                    } catch {}
+                  }
+                }
+              }
+            }
+            
+            if (assistantContent) {
+              setInputMessages(prev => [...prev, {
+                id: uuidv4(),
+                role: 'assistant',
+                content: assistantContent
+              }]);
+            }
+          }
+        } catch (e) {
+          console.error('Post-upload trigger failed:', e);
+        }
+        setShowThinking(false);
+      };
+      triggerPostUpload();
+    }
+  }, [carbonState.phase, userId]);
+
   const handleAuthSuccess = (newUsername: string, token: string, newUserId: string) => {
     localStorage.setItem('alexandria_token', token);
     localStorage.setItem('alexandria_user_id', newUserId);
@@ -741,26 +797,13 @@ export default function Alexandria() {
       setSelectedFiles([]);
       setUploadContext('');
       
-      // If editor has questions, transition to input mode for follow-up
-      if (hasQuestions) {
-        setTimeout(() => {
-          setUploadStatus(null);
-          setShowAttachModal(false);
-          setMode('carbon');
-          setCarbonState({ phase: 'post_upload' });
-          const uploadMsg: Message = {
-            id: uuidv4(),
-            role: 'assistant',
-            content: `i've processed your upload${uploadContext ? ` (${uploadContext})` : ''}. let me ask you about it...`
-          };
-          setInputMessages(prev => [...prev, uploadMsg]);
-        }, 1500);
-      } else {
-        setTimeout(() => {
-          setUploadStatus(null);
-          setShowAttachModal(false);
-        }, 3000);
-      }
+      // Transition to input mode and auto-ask questions
+      setTimeout(() => {
+        setUploadStatus(null);
+        setShowAttachModal(false);
+        setMode('carbon');
+        setCarbonState({ phase: 'post_upload' });
+      }, 1000);
       
     } catch (error) {
       console.error('File upload error:', error);
@@ -1006,8 +1049,7 @@ export default function Alexandria() {
             className="bg-white rounded-2xl p-6 w-[90%] max-w-[400px] flex flex-col shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-[#3a3a3a] text-lg font-medium">upload external input</h2>
+            <div className="flex justify-end mb-2">
               <button
                 onClick={() => !isUploading && setShowAttachModal(false)}
                 className="text-[#999] hover:text-[#666] text-xl cursor-pointer"
@@ -1060,17 +1102,18 @@ export default function Alexandria() {
               className="mt-3 w-full bg-[#f8f8f8] border border-[#eee] rounded-xl text-[#3a3a3a] text-sm px-4 py-3 outline-none resize-none h-20 placeholder:text-[#aaa] disabled:opacity-50"
             />
             
-            <div className="flex justify-between items-center mt-4">
-              <span className="text-[0.75rem] text-[#999]">
-                {uploadStatus || ''}
-              </span>
-              <button
-                onClick={handleFileUpload}
-                disabled={isUploading || selectedFiles.length === 0}
-                className="px-5 py-2 bg-[#3a3a3a] text-white rounded-xl text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#2a2a2a] transition-colors cursor-pointer"
-              >
-                {isUploading ? 'processing...' : 'upload'}
-              </button>
+            <div className="flex justify-end items-center mt-4">
+              {isUploading ? (
+                <span className="text-[#999] text-lg thinking-pulse scale-y-[0.8]">→</span>
+              ) : (
+                <button
+                  onClick={handleFileUpload}
+                  disabled={selectedFiles.length === 0}
+                  className="text-[#ccc] text-lg scale-y-[0.8] disabled:opacity-40 disabled:cursor-not-allowed hover:text-[#999] transition-colors cursor-pointer"
+                >
+                  →
+                </button>
+              )}
             </div>
           </div>
         </div>
