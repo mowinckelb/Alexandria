@@ -480,3 +480,40 @@ Carbon (input) → Editors Process → Storage → Recall → Silicon (output)
   * Returns: ghost status (activeModel, isFineTuned)
   * Returns: rlhf status (feedbackCount, dpoReady, preferencePairs)
   * Returns: recent activity (last 5 entries, last 5 feedback logs with previews)
+
+---
+
+## 8. Developer Tooling (Autonomous Capabilities)
+
+These tools enable the CTO agent to work autonomously without manual intervention:
+
+### Database Migrations (Supabase CLI)
+```bash
+# Create new migration
+# File: supabase/migrations/00008_description.sql
+
+# Push migrations to remote database
+npx supabase db push
+
+# Check migration status
+npx supabase migration list
+
+# Repair migration history if needed
+npx supabase migration repair --status applied 00008
+```
+- Project ref: `ljgggklufnovqdsbwayy`
+- Linked via `npx supabase link`
+- No manual SQL copy-paste needed
+
+### Git Operations
+- Full commit/push autonomy via git CLI
+- Push after each feature (30 min rule)
+
+### TypeScript Verification
+```bash
+npx tsc --noEmit --project tsconfig.json
+```
+
+### API Testing
+- curl for endpoint verification
+- File-based JSON for complex payloads (PowerShell escaping workaround)
