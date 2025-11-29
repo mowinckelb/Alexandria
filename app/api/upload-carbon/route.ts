@@ -296,6 +296,35 @@ export async function POST(req: Request) {
 
     console.log(`[Upload Carbon] Extracted ${extractedText.length} characters from ${fileName}`);
 
+    // Store raw carbon to entries (axiomatic data preservation)
+    const supabase = getSupabase();
+    if (supabase) {
+      const sourceType = fileType.startsWith('audio/') ? 'upload:audio' 
+        : (fileType === 'application/pdf' || fileName.endsWith('.pdf')) ? 'upload:pdf'
+        : fileType.startsWith('image/') ? 'upload:image'
+        : 'upload:text';
+      
+      const { error: entryError } = await supabase.from('entries').insert({
+        user_id: userId,
+        content: extractedText.substring(0, 100000), // Store up to 100k chars
+        source: sourceType,
+        metadata: {
+          fileName,
+          fileType,
+          fileSize: file.size,
+          extractedLength: extractedText.length,
+          uploadedAt: new Date().toISOString()
+        }
+      });
+      
+      if (entryError) {
+        console.error('[Upload Carbon] Failed to store raw entry:', entryError);
+        // Non-fatal - continue processing
+      } else {
+        console.log(`[Upload Carbon] Stored raw carbon entry (${sourceType})`);
+      }
+    }
+
     // Process the extracted text
     const results = await processText(extractedText, userId, `file:${fileName}`);
 
@@ -303,6 +332,7 @@ export async function POST(req: Request) {
       success: true,
       fileName,
       textLength: extractedText.length,
+      rawCarbonStored: true,
       summary: results
     });
 

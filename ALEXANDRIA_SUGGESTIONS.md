@@ -34,17 +34,21 @@ This file contains architectural suggestions from AI agents. Human review is req
 
 ### 2024-11-29 - Architecture
 **Suggested by:** Factory Agent (Claude)
-**Status:** Pending
+**Status:** Implemented
 **Affects:** Data Pipeline
 
 **Suggestion:**
-Store raw carbon inputs (original transcripts, uploaded files) in addition to processed outputs. Currently we process and store extractions but don't preserve the original text for re-processing.
+Store raw carbon inputs (original transcripts, uploaded files) in addition to processed outputs.
 
-**Reasoning:**
-Per Axiomatic vs Ephemeral principle - raw data is permanent, processing methods are temporary. When better extraction methods arrive (better embeddings, better chunking), we'll want to re-process old data. Can't do that if we only kept the processed outputs.
+**Implementation:**
+- upload-carbon now stores extracted text to `entries` table
+- Source types: `upload:audio`, `upload:pdf`, `upload:image`, `upload:text`
+- Metadata includes: fileName, fileType, fileSize, extractedLength, uploadedAt
+- Note: Original binary files (audio/PDF) NOT preserved yet - only extracted text
+- Future enhancement: Add Supabase Storage for full file preservation
 
 **Human Review:**
-(pending)
+Implemented 2024-11-29
 
 ---
 
