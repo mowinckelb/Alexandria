@@ -1055,7 +1055,7 @@ export default function Alexandria() {
             <textarea
               value={uploadContext}
               onChange={(e) => setUploadContext(e.target.value)}
-              placeholder="what is this? (optional context, e.g. 'my journal from 2020')"
+              placeholder="What is this? Context:"
               disabled={isUploading}
               className="mt-3 w-full bg-[#f8f8f8] border border-[#eee] rounded-xl text-[#3a3a3a] text-sm px-4 py-3 outline-none resize-none h-20 placeholder:text-[#aaa] disabled:opacity-50"
             />
