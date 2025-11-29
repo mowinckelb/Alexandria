@@ -1087,9 +1087,8 @@ export default function Alexandria() {
               )}
             </div>
             
-            <div className="relative mt-3">
+            <div id="upload-context-container" className="relative mt-3">
               <input
-                id="upload-context-input"
                 type="text"
                 value={uploadContext}
                 onChange={(e) => setUploadContext(e.target.value)}
@@ -1099,9 +1098,9 @@ export default function Alexandria() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !isUploading) {
                     if (!uploadContext.trim()) {
-                      const input = document.getElementById('upload-context-input');
-                      input?.classList.add('animate-shake');
-                      setTimeout(() => input?.classList.remove('animate-shake'), 500);
+                      const container = document.getElementById('upload-context-container');
+                      container?.classList.add('animate-shake');
+                      setTimeout(() => container?.classList.remove('animate-shake'), 500);
                     } else if (selectedFiles.length > 0) {
                       handleFileUpload();
                     }
@@ -1114,9 +1113,9 @@ export default function Alexandria() {
                 <button
                   onClick={() => {
                     if (!uploadContext.trim()) {
-                      const input = document.getElementById('upload-context-input');
-                      input?.classList.add('animate-shake');
-                      setTimeout(() => input?.classList.remove('animate-shake'), 500);
+                      const container = document.getElementById('upload-context-container');
+                      container?.classList.add('animate-shake');
+                      setTimeout(() => container?.classList.remove('animate-shake'), 500);
                     } else if (selectedFiles.length > 0) {
                       handleFileUpload();
                     }
