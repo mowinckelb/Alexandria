@@ -1049,10 +1049,10 @@ export default function Alexandria() {
             className="bg-white rounded-2xl p-6 w-[90%] max-w-[400px] flex flex-col shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-end mb-2">
+            <div className="flex justify-end">
               <button
                 onClick={() => !isUploading && setShowAttachModal(false)}
-                className="text-[#999] hover:text-[#666] text-xl cursor-pointer"
+                className="text-[#999] hover:text-[#666] text-xl cursor-pointer -mt-1 -mr-1"
                 disabled={isUploading}
               >
                 ×
@@ -1094,22 +1094,41 @@ export default function Alexandria() {
               )}
             </div>
             
-            <textarea
-              value={uploadContext}
-              onChange={(e) => setUploadContext(e.target.value)}
-              placeholder="What is this? Context:"
-              disabled={isUploading}
-              className="mt-3 w-full bg-[#f8f8f8] border border-[#eee] rounded-xl text-[#3a3a3a] text-sm px-4 py-3 outline-none resize-none h-20 placeholder:text-[#aaa] disabled:opacity-50"
-            />
-            
-            <div className="flex justify-end items-center mt-4">
+            <div className="relative mt-3">
+              <input
+                id="upload-context-input"
+                type="text"
+                value={uploadContext}
+                onChange={(e) => setUploadContext(e.target.value)}
+                placeholder="What is this? Context:"
+                disabled={isUploading}
+                className="w-full bg-[#f8f8f8] border border-[#eee] rounded-xl text-[#3a3a3a] text-sm px-4 py-3 pr-12 outline-none placeholder:text-[#aaa] disabled:opacity-50"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !isUploading) {
+                    if (!uploadContext.trim()) {
+                      const input = document.getElementById('upload-context-input');
+                      input?.classList.add('animate-shake');
+                      setTimeout(() => input?.classList.remove('animate-shake'), 500);
+                    } else if (selectedFiles.length > 0) {
+                      handleFileUpload();
+                    }
+                  }
+                }}
+              />
               {isUploading ? (
-                <span className="text-[#999] text-lg thinking-pulse scale-y-[0.8]">→</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#666] text-lg thinking-pulse scale-y-[0.8]">→</span>
               ) : (
                 <button
-                  onClick={handleFileUpload}
-                  disabled={selectedFiles.length === 0}
-                  className="text-[#ccc] text-lg scale-y-[0.8] disabled:opacity-40 disabled:cursor-not-allowed hover:text-[#999] transition-colors cursor-pointer"
+                  onClick={() => {
+                    if (!uploadContext.trim()) {
+                      const input = document.getElementById('upload-context-input');
+                      input?.classList.add('animate-shake');
+                      setTimeout(() => input?.classList.remove('animate-shake'), 500);
+                    } else if (selectedFiles.length > 0) {
+                      handleFileUpload();
+                    }
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#999] text-lg scale-y-[0.8] hover:text-[#666] transition-colors cursor-pointer"
                 >
                   →
                 </button>
