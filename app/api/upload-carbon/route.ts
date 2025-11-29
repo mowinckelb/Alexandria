@@ -39,13 +39,15 @@ function chunkText(text: string, maxLength = 4000): string[] {
 }
 
 async function processText(text: string, userId: string, source: string) {
-  const { extractor, indexer } = getIngestionTools();
+  const { extractor, indexer, refiner } = getIngestionTools();
   const { editorNotes } = getEditorTools();
+  const supabase = getSupabase();
   
   const results = {
     chunksProcessed: 0,
     factsExtracted: 0,
     memoryItemsStored: 0,
+    trainingPairsGenerated: 0,
     editorNotesGenerated: 0,
     errors: [] as string[]
   };
@@ -56,6 +58,7 @@ async function processText(text: string, userId: string, source: string) {
     const chunk = chunks[i];
     
     try {
+      // 1. Extract structured information (Memory)
       const extracted = await extractor.structure(chunk);
       results.factsExtracted += extracted.facts.length;
 
@@ -72,6 +75,28 @@ async function processText(text: string, userId: string, source: string) {
         }
       }
 
+      // 2. Generate training pairs (Soul)
+      if (supabase) {
+        try {
+          const trainingPairs = await refiner.extractStyle(chunk);
+          for (const pair of trainingPairs) {
+            const { error: pairError } = await supabase.from('training_pairs').insert({
+              user_id: userId,
+              system_prompt: pair.system_prompt,
+              user_content: pair.user_content,
+              assistant_content: pair.assistant_content,
+              quality_score: pair.quality_score
+            });
+            if (!pairError) {
+              results.trainingPairsGenerated++;
+            }
+          }
+        } catch (e) {
+          results.errors.push(`Training pair generation failed: ${e instanceof Error ? e.message : 'Unknown'}`);
+        }
+      }
+
+      // 3. Generate editor notes (Questions, Observations, Gaps)
       try {
         const notes = await editorNotes.analyzeAndGenerateNotes(chunk, userId);
         results.editorNotesGenerated += notes.length;
@@ -128,11 +153,131 @@ export async function POST(req: Request) {
       
       extractedText = transcription;
     }
-    // Handle PDF files - disabled due to Next.js bundling issues
+    // Handle PDF via OpenAI Assistants API (native PDF parsing for max fidelity)
     else if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
-      return NextResponse.json({ 
-        error: 'PDF not yet supported. Please copy text from PDF and save as .txt file, or use an online PDF-to-text converter.' 
-      }, { status: 400 });
+      console.log(`[Upload Carbon] Processing PDF via Assistants API: ${fileName}`);
+      
+      const openai = getOpenAI();
+      if (!openai) {
+        return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 });
+      }
+
+      try {
+        // 1. Upload file to OpenAI
+        const uploadedFile = await openai.files.create({
+          file: file,
+          purpose: 'assistants'
+        });
+        console.log(`[Upload Carbon] File uploaded: ${uploadedFile.id}`);
+
+        // 2. Create assistant for text extraction
+        const assistant = await openai.beta.assistants.create({
+          name: 'PDF Text Extractor',
+          instructions: 'Extract ALL text from the uploaded PDF document. Return ONLY the extracted text, preserving the original structure and formatting as much as possible. Do not add any commentary, headers, or description. Just the raw text from the document.',
+          model: 'gpt-4o',
+          tools: [{ type: 'file_search' }]
+        });
+
+        // 3. Create thread with file
+        const thread = await openai.beta.threads.create({
+          messages: [
+            {
+              role: 'user',
+              content: 'Extract all text from this PDF document. Return only the text content, no commentary.',
+              attachments: [
+                {
+                  file_id: uploadedFile.id,
+                  tools: [{ type: 'file_search' }]
+                }
+              ]
+            }
+          ]
+        });
+
+        // 4. Run the assistant
+        let run = await openai.beta.threads.runs.create(thread.id, {
+          assistant_id: assistant.id
+        });
+
+        // 5. Poll for completion (max 120 seconds)
+        const maxWait = 120000;
+        const startTime = Date.now();
+        const runId = run.id;
+        while (run.status === 'queued' || run.status === 'in_progress') {
+          if (Date.now() - startTime > maxWait) {
+            throw new Error('PDF processing timed out');
+          }
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          // @ts-expect-error - OpenAI SDK types are inconsistent
+          run = await openai.beta.threads.runs.retrieve(thread.id, runId);
+        }
+
+        if (run.status !== 'completed') {
+          throw new Error(`Run failed with status: ${run.status}`);
+        }
+
+        // 6. Get the response
+        const messages = await openai.beta.threads.messages.list(thread.id);
+        const assistantMessage = messages.data.find(m => m.role === 'assistant');
+        
+        if (assistantMessage && assistantMessage.content[0]?.type === 'text') {
+          extractedText = assistantMessage.content[0].text.value;
+        }
+
+        // 7. Cleanup
+        await openai.beta.assistants.delete(assistant.id);
+        await openai.files.delete(uploadedFile.id);
+
+      } catch (pdfError) {
+        console.error('[Upload Carbon] Assistants API error:', pdfError);
+        return NextResponse.json({ 
+          error: `PDF processing failed: ${pdfError instanceof Error ? pdfError.message : 'Unknown error'}` 
+        }, { status: 400 });
+      }
+    }
+    // Handle images via Vision API
+    else if (fileType.startsWith('image/')) {
+      console.log(`[Upload Carbon] Processing image via Vision API: ${fileName}`);
+      
+      const openai = getOpenAI();
+      if (!openai) {
+        return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 });
+      }
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const base64 = buffer.toString('base64');
+      const mimeType = fileType || 'application/octet-stream';
+      
+      try {
+        const response = await openai.chat.completions.create({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: 'Extract ALL text from this image. Return ONLY the extracted text, preserving the original structure and formatting as much as possible. Do not add any commentary or description.'
+                },
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: `data:${mimeType};base64,${base64}`
+                  }
+                }
+              ]
+            }
+          ],
+          max_tokens: 4096
+        });
+        
+        extractedText = response.choices[0]?.message?.content || '';
+      } catch (visionError) {
+        console.error('[Upload Carbon] Vision API error:', visionError);
+        return NextResponse.json({ 
+          error: 'Failed to extract text from image. Try a clearer image or convert to text manually.' 
+        }, { status: 400 });
+      }
     }
     // Handle text files
     else if (fileType.startsWith('text/') || fileName.match(/\.(txt|md|json|csv)$/i)) {

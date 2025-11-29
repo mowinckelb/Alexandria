@@ -987,7 +987,7 @@ export default function Alexandria() {
             <input
               ref={fileInputRef}
               type="file"
-              accept="audio/*,.mp3,.m4a,.wav,.webm,.ogg,.flac,.txt,.md"
+              accept="audio/*,.mp3,.m4a,.wav,.webm,.ogg,.flac,.pdf,.txt,.md,image/*,.png,.jpg,.jpeg"
               onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
               className="hidden"
             />
@@ -1006,7 +1006,7 @@ export default function Alexandria() {
               ) : (
                 <div>
                   <div className="text-[#999] text-sm">click to select file</div>
-                  <div className="text-[#bbb] text-xs mt-2">audio or text files</div>
+                  <div className="text-[#bbb] text-xs mt-2">audio, pdf, image, or text</div>
                 </div>
               )}
             </div>
