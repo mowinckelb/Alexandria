@@ -786,9 +786,9 @@ export default function Alexandria() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[#fafafa] text-[#3a3a3a]">
+    <div className="h-screen flex flex-col overflow-hidden overflow-x-hidden bg-[#fafafa] text-[#3a3a3a]">
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 flex items-center justify-between p-6 text-[0.85rem] z-50 bg-[#fafafa]">
+      <div className="fixed top-0 left-0 right-0 flex items-center justify-between p-4 md:p-6 text-[0.85rem] z-50 bg-[#fafafa]">
         <button 
           onClick={handleLogout}
           className="bg-transparent border-none text-[#3a3a3a] text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
@@ -805,8 +805,8 @@ export default function Alexandria() {
       </div>
 
       {/* Output Area */}
-      <div className="flex-1 px-8 pt-24 pb-8 overflow-y-auto">
-        <div className="max-w-[700px] mx-auto space-y-6">
+      <div className="flex-1 px-4 md:px-8 pt-16 md:pt-24 pb-4 md:pb-8 overflow-y-auto">
+        <div className="max-w-[700px] mx-auto space-y-4 md:space-y-6">
           {(mode === 'ghost' ? ghostMessages : inputMessages).map((message) => (
             <div
               key={message.id}
@@ -849,7 +849,7 @@ export default function Alexandria() {
       </div>
 
       {/* Input Area */}
-      <div className="p-6 pb-8">
+      <div className="p-4 md:p-6 pb-6 md:pb-8">
         <div className="max-w-[700px] mx-auto">
           {/* Mode Toggle */}
           <div className="flex justify-start items-center mb-3 gap-2">
