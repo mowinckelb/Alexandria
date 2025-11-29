@@ -42,7 +42,36 @@ export async function POST(req: Request) {
       content: m.content
     }));
 
-    // 4. First, check if we need to recall memories
+    // 4. Get personality profile (behavioral patterns) if available
+    let personalityContext = '';
+    try {
+      const { data: profile } = await supabase
+        .from('personality_profiles')
+        .select('style_analysis, constitutional_rules, vocabulary_signature')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .single();
+      
+      if (profile) {
+        const rules = profile.constitutional_rules || [];
+        const style = profile.style_analysis?.voice || {};
+        const vocab = profile.vocabulary_signature || {};
+        
+        personalityContext = `\n\nBEHAVIORAL STYLE:
+- Humor: ${style.humor_style || 'natural'}
+- Formality: ${style.formality < 0.3 ? 'casual' : style.formality > 0.7 ? 'formal' : 'moderate'}
+${rules.length > 0 ? `\nVOICE RULES:\n${rules.slice(0, 10).map((r: string, i: number) => `${i + 1}. ${r}`).join('\n')}` : ''}
+${vocab.high_frequency?.length > 0 ? `\nCharacteristic phrases: ${vocab.high_frequency.slice(0, 5).join(', ')}` : ''}
+${vocab.avoided?.length > 0 ? `\nAVOID these words: ${vocab.avoided.slice(0, 5).join(', ')}` : ''}`;
+        
+        console.log('[Chat] Loaded personality profile with', rules.length, 'rules');
+      }
+    } catch (e) {
+      // No profile yet - that's fine for MVP
+      console.log('[Chat] No personality profile found');
+    }
+
+    // 5. Recall memories for relevant context
     const userQuery = lastMessage?.content || '';
     let memoryContext = '';
     
@@ -88,7 +117,7 @@ RULES:
 - ONLY use information from your memories below. Never invent facts about yourself.
 - If you genuinely don't know or remember something, say so naturally
 - Keep responses conversational, not robotic
-- You're the one being interviewed - be helpful but authentic${memoryContext ? `\n\nYOUR MEMORIES:\n${memoryContext}` : '\n\nYou have no memories yet. Let the user know they should share information about you in input mode first.'}`
+- You're the one being interviewed - be helpful but authentic${personalityContext}${memoryContext ? `\n\nYOUR MEMORIES:\n${memoryContext}` : '\n\nYou have no memories yet. Let the user know they should share information about you in input mode first.'}`
         },
         ...coreMessages
       ]

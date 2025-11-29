@@ -19,7 +19,6 @@
 
 | Task | Context | Suggested Solution | Added |
 |------|---------|-------------------|-------|
-| Behavioral patterns | We capture WHAT author knows, not HOW they respond | Analyze response patterns (tangents, humor, pacing) from training pairs | 2024-11-29 |
 | Temporal awareness | Ghost treats all memories as current | Add timestamps to memories, weight by recency, detect belief changes | 2024-11-29 |
 | Constitutional layer | What would Author NEVER say? | Extract hard boundaries from feedback + explicit values, add as system constraints | 2024-11-29 |
 
@@ -38,6 +37,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
+| Behavioral patterns (Ghost uses profiles) | 2024-11-29 | Ghost now loads personality_profiles (style, rules, vocab). Extract via POST /api/migration {action: 'extract_profile'} |
 | Memory retrieval quality | 2024-11-29 | Added recency decay + importance weighting. Combined score = similarity * importance * recency_factor |
 | Preserve raw carbon (upload-carbon) | 2024-11-29 | Extracted text now stored to `entries` table with source type + metadata |
 | Clarify Ghost Package architecture | 2024-11-29 | Ghost = deployable package (model + memories + constitution). Feedback → training, not runtime. |
