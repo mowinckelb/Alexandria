@@ -1095,7 +1095,7 @@ export default function Alexandria() {
                           e.stopPropagation();
                           setSelectedFiles(prev => prev.filter((_, idx) => idx !== i));
                         }}
-                        className="text-[#bbb] hover:text-[#666] text-base leading-none px-1"
+                        className="text-[#bbb] hover:text-[#666] text-base leading-none px-1 cursor-pointer"
                       >
                         ×
                       </button>
