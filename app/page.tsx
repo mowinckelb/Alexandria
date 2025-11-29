@@ -1064,19 +1064,23 @@ export default function Alexandria() {
               type="file"
               multiple
               accept="audio/*,.mp3,.m4a,.wav,.webm,.ogg,.flac,.pdf,.txt,.md,image/*,.png,.jpg,.jpeg"
-              onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
+              onChange={(e) => {
+                const newFiles = Array.from(e.target.files || []);
+                setSelectedFiles(prev => [...prev, ...newFiles]);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+              }}
               className="hidden"
             />
             
             <div 
               onClick={() => !isUploading && fileInputRef.current?.click()}
-              className={`border-2 border-dashed border-[#ddd] rounded-xl p-6 text-center cursor-pointer hover:border-[#bbb] transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`border-2 border-dashed border-[#ddd] rounded-xl p-4 text-center cursor-pointer hover:border-[#bbb] transition-colors max-h-32 overflow-y-auto ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {selectedFiles.length > 0 ? (
-                <div>
-                  <div className="text-[#3a3a3a] font-medium">
-                    {selectedFiles.length === 1 ? selectedFiles[0].name : `${selectedFiles.length} files selected`}
-                  </div>
+                <div className="text-[#3a3a3a] text-sm space-y-1">
+                  {selectedFiles.map((f, i) => (
+                    <div key={i}>{f.name}</div>
+                  ))}
                 </div>
               ) : (
                 <div className="text-[#999] text-sm">input text/audio</div>
