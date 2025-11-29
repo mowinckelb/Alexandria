@@ -19,7 +19,6 @@
 
 | Task | Context | Suggested Solution | Added |
 |------|---------|-------------------|-------|
-| Memory retrieval quality | Embedding similarity may miss relevant context, no recency/importance weighting | Add recency decay, importance weighting, possibly hybrid search | 2024-11-29 |
 | Behavioral patterns | We capture WHAT author knows, not HOW they respond | Analyze response patterns (tangents, humor, pacing) from training pairs | 2024-11-29 |
 | Temporal awareness | Ghost treats all memories as current | Add timestamps to memories, weight by recency, detect belief changes | 2024-11-29 |
 | Constitutional layer | What would Author NEVER say? | Extract hard boundaries from feedback + explicit values, add as system constraints | 2024-11-29 |
@@ -39,6 +38,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
+| Memory retrieval quality | 2024-11-29 | Added recency decay + importance weighting. Combined score = similarity * importance * recency_factor |
 | Preserve raw carbon (upload-carbon) | 2024-11-29 | Extracted text now stored to `entries` table with source type + metadata |
 | Clarify Ghost Package architecture | 2024-11-29 | Ghost = deployable package (model + memories + constitution). Feedback → training, not runtime. |
 | Add Soul training pairs to upload-carbon | 2024-11-29 | Was missing vs bulk-ingest - pipeline completeness fix |

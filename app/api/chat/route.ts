@@ -102,7 +102,14 @@ RULES:
     return result.toUIMessageStreamResponse(); // CRITICAL: Enables frontend tool visualization
   } catch (error) {
     console.error('Chat API Error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { 
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error('Error details:', errorMessage);
+    console.error('Stack:', errorStack);
+    return new Response(JSON.stringify({ 
+      error: 'Internal server error',
+      details: errorMessage 
+    }), { 
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
