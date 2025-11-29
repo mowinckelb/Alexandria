@@ -19,7 +19,6 @@
 
 | Task | Context | Suggested Solution | Added |
 |------|---------|-------------------|-------|
-| Constitutional layer | What would Author NEVER say? | Extract hard boundaries from feedback + explicit values, add as system constraints | 2024-11-29 |
 
 ### Medium Priority
 | Task | Context | Suggested Solution | Added |
@@ -29,6 +28,7 @@
 ### Low Priority
 | Task | Context | Suggested Solution | Added |
 |------|---------|-------------------|-------|
+| Constitutional layer (DEFERRED) | Hard boundaries for Ghost | Existing voice rules in personality_profiles sufficient for now. Revisit when Ghost is public-facing or fine-tuned. | 2024-11-29 |
 | Register route needs same env var validation | Currently uses `!` assertions | Copy pattern from login route | 2024-11-28 |
 
 ---
