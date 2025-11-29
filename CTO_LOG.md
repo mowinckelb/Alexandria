@@ -6,18 +6,25 @@
 ---
 
 ## Quick Status
-**Last updated:** 2024-11-28
-**Unpushed changes:** Yes - bulk-ingest endpoint
+**Last updated:** 2024-11-29
+**Unpushed changes:** Yes - MOWINCKEL updates, CTO_LOG update
 **Blockers:** None
 
 ---
 
 ## Active Tasks
 
-### High Priority
-*Address these first. Include solution approach.*
+### High Priority (Ghost Fidelity Improvements)
+*Address these in order. One at a time.*
 
-*(None currently)*
+| Task | Context | Suggested Solution | Added |
+|------|---------|-------------------|-------|
+| Close feedback loop | User ratings collected but don't improve Ghost | Positive feedback reinforces patterns, negative suppresses. Update Ghost context retrieval based on feedback. | 2024-11-29 |
+| Preserve raw carbon better | Currently store processed outputs more than raw inputs | Ensure original transcripts/text stored alongside extractions for re-processing | 2024-11-29 |
+| Memory retrieval quality | Embedding similarity may miss relevant context, no recency/importance weighting | Add recency decay, importance weighting, possibly hybrid search | 2024-11-29 |
+| Behavioral patterns | We capture WHAT author knows, not HOW they respond | Analyze response patterns (tangents, humor, pacing) from training pairs | 2024-11-29 |
+| Temporal awareness | Ghost treats all memories as current | Add timestamps to memories, weight by recency, detect belief changes | 2024-11-29 |
+| Constitutional layer | What would Author NEVER say? | Extract hard boundaries from feedback + explicit values, add as system constraints | 2024-11-29 |
 
 ### Medium Priority
 | Task | Context | Suggested Solution | Added |
@@ -27,7 +34,6 @@
 ### Low Priority
 | Task | Context | Suggested Solution | Added |
 |------|---------|-------------------|-------|
-| Consider removing "thinking" from Ghost mode | May be unnecessary if latency stays low | Test latency, if <500ms consistently, remove like we did for Carbon | 2024-11-28 |
 | Register route needs same env var validation | Currently uses `!` assertions | Copy pattern from login route | 2024-11-28 |
 
 ---
@@ -35,14 +41,17 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
-| Build bulk-ingest endpoint | 2024-11-28 | Chunks text, runs through extractor→indexer→refiner pipeline |
-| Add env var validation to login route | 2024-11-28 | Graceful error instead of crash |
-| Remove debug logs from login route | 2024-11-28 | Cleanup |
-| Fix input-chat streaming | 2024-11-28 | Changed from generateText to streamText with custom SSE |
-| Remove "thinking" indicator from Carbon flow | 2024-11-28 | Fast responses don't need loading state |
-| Add autofocus to AuthScreen | 2024-11-28 | Better UX on sign-in page |
-| Create /api/debug/state endpoint | 2024-11-28 | Agent verification infrastructure |
-| Create MOWINCKEL.md | 2024-11-28 | Universal agent principles |
+| Add Soul training pairs to upload-carbon | 2024-11-29 | Was missing vs bulk-ingest - pipeline completeness fix |
+| PDF via OpenAI Assistants API | 2024-11-29 | Native multi-page PDF parsing for max fidelity |
+| External carbon file upload UI | 2024-11-29 | + button, modal, audio/pdf/text support |
+| Add Axiomatic vs Ephemeral principle | 2024-11-29 | Future-proofing: preserve raw data, swap processing |
+| Add Pipeline Completeness principle | 2024-11-29 | All similar code paths must stay in sync |
+| Add Decision Levels principle | 2024-11-29 | Minor = just do, Major = brainstorm first |
+| Editor Notes system | 2024-11-29 | Questions, observations, gaps, mental models |
+| Conversation state machine | 2024-11-29 | y/n lock phases for input-chat flow |
+| Ghost wrap-up flow | 2024-11-29 | Matches input mode - "anything else?" + goodbye |
+| Ghost identity clarification | 2024-11-29 | System prompt clarifies Ghost = Author |
+| Feedback → Notes flow | 2024-11-29 | Extract preferences from feedback |
 
 ---
 
@@ -98,17 +107,21 @@ After feedback:
 ## Session Handoff Notes
 *Critical context for the next session/agent*
 
-**Last session:** 2024-11-28
+**Last session:** 2024-11-29
 
 **What was done:**
-- Fixed input-chat streaming (was showing "thinking" forever)
-- Removed thinking indicator from Carbon flow (not needed with fast responses)
-- Added CTO mindset principles to MOWINCKEL.md
-- Created this CTO_LOG.md for cross-session state
-- Added env var validation to login route
-- Removed debug logs from login route
+- External carbon file upload (audio via Whisper, PDF via Assistants API, images via Vision)
+- Editor Notes system (questions, observations, gaps, mental models)
+- Conversation state machine with y/n lock phases
+- Ghost wrap-up flow and identity clarification
+- Added Soul training pairs to upload-carbon (pipeline completeness fix)
+- Added key MOWINCKEL principles: Pipeline Completeness, Axiomatic vs Ephemeral, Decision Levels, Git Discipline
+- Updated CTO_LOG with Ghost fidelity task queue
 
-**Pushed:** c97def7
+**Pushed:** (pushing now)
+
+**Critical lesson learned:**
+CTO MUST actively maintain CTO_LOG.md and scan for pipeline inconsistencies. CEO cannot track all implementation details - that's the CTO's job.
 
 **Known issues:**
 - None blocking

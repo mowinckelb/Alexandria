@@ -253,6 +253,14 @@ Before completing any task:
 2. If no verification mechanism exists, create one (debug endpoints, test scripts, logging)
 3. Actually run the verification — don't assume success
 
+### Git Discipline
+**Push after each feature. Don't accumulate unpushed changes.**
+
+- Each feature = one commit + push
+- If you've been working for 30+ minutes without pushing, suggest a checkpoint
+- Large changes should be broken into smaller pushable units
+- Always push before moving to a different area of the codebase
+
 Example: After modifying a database flow, create/use a `/api/debug/state` endpoint to confirm data is being stored correctly.
 
 ### Pipeline Completeness (CRITICAL)
@@ -314,6 +322,32 @@ Everything is input, leverage, output. LLMs are the leverage layer.
 - **No hardcoded gates** — Dynamic thresholds over static constants
 - **Model agnostic** — Never locked to a specific model
 - **Expect progress** — Build for next year's models, not just today's
+
+### Axiomatic vs Ephemeral (Future-Proofing)
+**Identify what's permanent vs what's currently optimal. Protect the permanent, make the optimal swappable.**
+
+**Axiomatic (permanent, preserve at all costs):**
+- Raw data inputs (transcripts, audio files, original text)
+- User feedback signals (ratings, corrections, preferences)
+- The goal itself (high-fidelity Ghost)
+- Core relationships (this memory came from this source)
+
+**Ephemeral (currently optimal, will be replaced):**
+- Embedding models (will improve)
+- Fine-tuning methods (LoRA → something better)
+- Chunking strategies (will evolve)
+- Specific LLMs (models change monthly)
+- RAG approaches (better retrieval coming)
+- Prompt templates (constantly refined)
+
+**Design implications:**
+1. **Always preserve raw data** — Not just processed outputs. Store the original.
+2. **Design for re-processing** — Can run new methods on old data when better tools arrive.
+3. **Modular processing layers** — Each ephemeral component independently swappable.
+4. **Don't over-optimize ephemeral** — Good enough now beats perfect-but-locked-in.
+5. **Version your processing** — Know which method produced which output.
+
+**Ask for every component:** "If this gets 10x better next year, can I easily swap it and re-process?"
 
 ### Vendor Agnosticism
 No lock-in to third parties. Everything modular and swappable.
@@ -428,5 +462,6 @@ When uncertain, ask. When you disagree, say so. When you see a better way, propo
 | Beautiful Simplicity | Simple = beautiful. Invisible complexity. |
 | First Principles | Reason from truths, not analogies. |
 | ILO | Maximum leverage to LLMs. |
+| Axiomatic vs Ephemeral | Preserve raw data. Make processing layers swappable. |
 | MVP-Terminal | Every feature on the direct path. No detours. |
 | Outerloop | I'm conductor (CEO), you're first chair (CTO). |
