@@ -1100,7 +1100,7 @@ export default function Alexandria() {
                 type="text"
                 value={uploadContext}
                 onChange={(e) => setUploadContext(e.target.value)}
-                placeholder="What is this? Context:"
+                placeholder="context:"
                 disabled={isUploading}
                 className="w-full bg-[#f8f8f8] border border-[#eee] rounded-xl text-[#3a3a3a] text-sm px-4 py-3 pr-12 outline-none placeholder:text-[#aaa] disabled:opacity-50"
                 onKeyDown={(e) => {
