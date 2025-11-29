@@ -111,13 +111,23 @@ The **Editors** (processing LLMs) work in two hemispheres to build the Ghost.
 
 **Ghost is the finished product** — a self-contained, deployable package that can operate independently (including as an external API).
 
-**Ghost Package Contents:**
+**Ghost Package Contents (Current):**
 | Component | Purpose | Runtime Behavior |
 |-----------|---------|------------------|
 | **Fine-tuned Model** | Soul - personality, voice, style | Weights frozen after training |
 | **Memories** | Objective facts via RAG | Retrieved at inference time |
 | **Orchestrator** | Context assembly, query routing | Assembles prompt from components |
 | **Constitution** | Hard boundaries, principles | Static rules in system prompt |
+
+**Potential Future Additions:**
+- Behavioral patterns config (pacing, tangents, humor style)
+- Voice/embodiment settings (for voice/video Ghost)
+- Permissions layer (who can query, topic restrictions)
+- Temporal marker ("2024 version" context)
+- Confidence calibration (certainty by domain)
+- Response style preferences (length, formality)
+
+*This list will evolve. Core principle: Ghost must remain self-contained and deployable.*
 
 **What is NOT in the Ghost Package:**
 - Editor Notes (internal tooling for generating better training data)
