@@ -1087,10 +1087,7 @@ export default function Alexandria() {
                   )}
                 </div>
               ) : (
-                <div>
-                  <div className="text-[#999] text-sm">click to select files</div>
-                  <div className="text-[#bbb] text-xs mt-2">input audio and/or text</div>
-                </div>
+                <div className="text-[#999] text-sm">input text/audio</div>
               )}
             </div>
             
