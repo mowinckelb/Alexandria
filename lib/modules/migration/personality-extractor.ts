@@ -174,7 +174,7 @@ Look for UNIQUE patterns that distinguish this voice from generic AI output.`
     const style = profile.style_analysis;
     const vocab = profile.vocabulary_signature;
     
-    let prompt = `PERSONALITY CONSTITUTION:
+    const prompt = `PERSONALITY CONSTITUTION:
 You must embody the following voice characteristics:
 
 STYLE:
