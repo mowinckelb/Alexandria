@@ -3,6 +3,8 @@ import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import AuthScreen from './components/AuthScreen';
 
+const VERCEL_LIMIT = 4.5 * 1024 * 1024; // 4.5MB
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -770,10 +772,47 @@ export default function Alexandria() {
         setUploadStatus(`processing ${i + 1}/${selectedFiles.length}: ${file.name}`);
         
         const formData = new FormData();
-        formData.append('file', file);
         formData.append('userId', userId);
         if (uploadContext.trim()) {
           formData.append('context', uploadContext.trim());
+        }
+        
+        // Large files: upload to Supabase Storage first (bypasses Vercel 4.5MB limit)
+        if (file.size > VERCEL_LIMIT) {
+          setUploadStatus(`uploading ${file.name} to storage...`);
+          
+          // Get signed upload URL from API
+          const urlRes = await fetch('/api/get-upload-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, fileName: file.name, fileType: file.type })
+          });
+          
+          if (!urlRes.ok) {
+            const err = await urlRes.json();
+            throw new Error(`Failed to get upload URL: ${err.error}`);
+          }
+          
+          const { signedUrl, storagePath } = await urlRes.json();
+          
+          // Upload directly to signed URL
+          const uploadRes = await fetch(signedUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type },
+            body: file
+          });
+          
+          if (!uploadRes.ok) {
+            throw new Error(`Storage upload failed`);
+          }
+          
+          formData.append('storagePath', storagePath);
+          formData.append('fileName', file.name);
+          formData.append('fileType', file.type);
+          formData.append('fileSize', file.size.toString());
+          setUploadStatus(`processing ${file.name}...`);
+        } else {
+          formData.append('file', file);
         }
         
         const response = await fetch('/api/upload-carbon', {
@@ -1082,7 +1121,7 @@ export default function Alexandria() {
                   <div className="text-[#bbb] text-xs">
                     {(() => {
                       const totalMB = selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
-                      return `${totalMB.toFixed(1)}/4.5MB`;
+                      return `${totalMB.toFixed(1)}MB`;
                     })()}
                   </div>
                   {selectedFiles.map((f, i) => (
@@ -1133,12 +1172,7 @@ export default function Alexandria() {
                 className="w-full bg-[#f8f8f8] border border-[#eee] rounded-xl text-[#3a3a3a] text-sm px-4 py-3 pr-12 outline-none placeholder:text-[#aaa] disabled:opacity-50"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !isUploading) {
-                    const totalMB = selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
-                    if (totalMB > 4.5) {
-                      const container = document.getElementById('upload-file-container');
-                      container?.classList.add('animate-shake');
-                      setTimeout(() => container?.classList.remove('animate-shake'), 500);
-                    } else if (!uploadContext.trim()) {
+                    if (!uploadContext.trim()) {
                       const container = document.getElementById('upload-context-container');
                       container?.classList.add('animate-shake');
                       setTimeout(() => container?.classList.remove('animate-shake'), 500);
@@ -1153,12 +1187,7 @@ export default function Alexandria() {
               ) : (
                 <button
                   onClick={() => {
-                    const totalMB = selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
-                    if (totalMB > 4.5) {
-                      const container = document.getElementById('upload-file-container');
-                      container?.classList.add('animate-shake');
-                      setTimeout(() => container?.classList.remove('animate-shake'), 500);
-                    } else if (!uploadContext.trim()) {
+                    if (!uploadContext.trim()) {
                       const container = document.getElementById('upload-context-container');
                       container?.classList.add('animate-shake');
                       setTimeout(() => container?.classList.remove('animate-shake'), 500);

@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getIngestionTools, getEditorTools } from '@/lib/factory';
 import OpenAI from 'openai';
+import { needsChunking, chunkAudioBuffer, bufferToFile } from '@/lib/utils/audio-chunker';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+const WHISPER_MAX_SIZE = 24 * 1024 * 1024; // 24MB
 
 function getSupabase() {
   if (!supabaseUrl || !supabaseKey) return null;
@@ -15,6 +17,35 @@ function getOpenAI() {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return null;
   return new OpenAI({ apiKey });
+}
+
+async function transcribeWithChunking(buffer: Buffer, fileName: string, mimeType: string, openai: OpenAI): Promise<string> {
+  if (!needsChunking(buffer.length)) {
+    const file = bufferToFile(buffer, fileName, mimeType);
+    const transcription = await openai.audio.transcriptions.create({
+      file: file,
+      model: 'whisper-1',
+      response_format: 'text'
+    });
+    return transcription;
+  }
+
+  console.log(`[Upload Carbon] Large audio file (${(buffer.length / 1024 / 1024).toFixed(1)}MB), chunking for Whisper...`);
+  const chunks = chunkAudioBuffer(buffer, fileName);
+  const transcripts: string[] = [];
+
+  for (const chunk of chunks) {
+    console.log(`[Upload Carbon] Transcribing chunk ${chunk.index + 1}/${chunk.totalChunks}`);
+    const chunkFile = bufferToFile(chunk.buffer, `${fileName}_part${chunk.index}`, mimeType);
+    const transcription = await openai.audio.transcriptions.create({
+      file: chunkFile,
+      model: 'whisper-1',
+      response_format: 'text'
+    });
+    transcripts.push(transcription);
+  }
+
+  return transcripts.join(' ');
 }
 
 function chunkText(text: string, maxLength = 4000): string[] {
@@ -121,23 +152,59 @@ export async function POST(req: Request) {
 
   try {
     const formData = await req.formData();
-    const file = formData.get('file') as File;
+    const file = formData.get('file') as File | null;
+    const storagePath = formData.get('storagePath') as string | null;
     const userId = formData.get('userId') as string;
     const context = formData.get('context') as string | null;
+    const fileNameParam = formData.get('fileName') as string | null;
+    const fileTypeParam = formData.get('fileType') as string | null;
+    const fileSizeParam = formData.get('fileSize') as string | null;
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    if (!file && !storagePath) {
+      return NextResponse.json({ error: 'No file or storagePath provided' }, { status: 400 });
     }
 
     if (!userId) {
       return NextResponse.json({ error: 'userId required' }, { status: 400 });
     }
 
-    const fileType = file.type;
-    const fileName = file.name;
+    let fileBuffer: Buffer;
+    let fileType: string;
+    let fileName: string;
+    let fileSize: number;
+
+    // If storagePath provided, download from Supabase Storage
+    if (storagePath) {
+      console.log(`[Upload Carbon] Fetching from storage: ${storagePath}`);
+      const { data, error } = await supabase.storage
+        .from('carbon-uploads')
+        .download(storagePath);
+      
+      if (error || !data) {
+        console.error('[Upload Carbon] Storage download failed:', error);
+        return NextResponse.json({ error: 'Failed to download file from storage' }, { status: 400 });
+      }
+      
+      fileBuffer = Buffer.from(await data.arrayBuffer());
+      fileName = fileNameParam || storagePath.split('/').pop() || 'unknown';
+      fileType = fileTypeParam || 'application/octet-stream';
+      fileSize = fileSizeParam ? parseInt(fileSizeParam) : fileBuffer.length;
+      
+      // Clean up storage after download
+      await supabase.storage.from('carbon-uploads').remove([storagePath]);
+      console.log(`[Upload Carbon] Downloaded ${(fileBuffer.length / 1024 / 1024).toFixed(1)}MB from storage`);
+    } else if (file) {
+      fileBuffer = Buffer.from(await file.arrayBuffer());
+      fileType = file.type;
+      fileName = file.name;
+      fileSize = file.size;
+    } else {
+      return NextResponse.json({ error: 'No file data available' }, { status: 400 });
+    }
+
     let extractedText = '';
     
-    console.log(`[Upload Carbon] File: ${fileName}, Context: ${context || 'none'}`);
+    console.log(`[Upload Carbon] File: ${fileName}, Size: ${(fileSize / 1024 / 1024).toFixed(1)}MB, Context: ${context || 'none'}`);
     
     // Prepend context to extracted text if provided
     const contextPrefix = context ? `[Context: ${context}]\n\n` : '';
@@ -151,13 +218,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 });
       }
       
-      const transcription = await openai.audio.transcriptions.create({
-        file: file,
-        model: 'whisper-1',
-        response_format: 'text'
-      });
-      
-      extractedText = transcription;
+      extractedText = await transcribeWithChunking(fileBuffer, fileName, fileType, openai);
     }
     // Handle PDF via OpenAI Assistants API (native PDF parsing for max fidelity)
     else if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
@@ -170,8 +231,9 @@ export async function POST(req: Request) {
 
       try {
         // 1. Upload file to OpenAI
+        const pdfFile = bufferToFile(fileBuffer, fileName, 'application/pdf');
         const uploadedFile = await openai.files.create({
-          file: file,
+          file: pdfFile,
           purpose: 'assistants'
         });
         console.log(`[Upload Carbon] File uploaded: ${uploadedFile.id}`);
@@ -247,8 +309,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 });
       }
 
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const base64 = buffer.toString('base64');
+      const base64 = fileBuffer.toString('base64');
       const mimeType = fileType || 'application/octet-stream';
       
       try {
@@ -285,7 +346,7 @@ export async function POST(req: Request) {
     // Handle text files
     else if (fileType.startsWith('text/') || fileName.match(/\.(txt|md|json|csv)$/i)) {
       console.log(`[Upload Carbon] Reading text file: ${fileName}`);
-      extractedText = await file.text();
+      extractedText = fileBuffer.toString('utf-8');
     }
     else {
       return NextResponse.json({ 
@@ -302,21 +363,21 @@ export async function POST(req: Request) {
     // Store raw carbon to entries (axiomatic data preservation)
     let rawCarbonStored = false;
     let rawCarbonError: string | null = null;
-    const supabase = getSupabase();
-    if (supabase) {
+    const supabaseForEntry = getSupabase();
+    if (supabaseForEntry) {
       const sourceType = fileType.startsWith('audio/') ? 'upload:audio' 
         : (fileType === 'application/pdf' || fileName.endsWith('.pdf')) ? 'upload:pdf'
         : fileType.startsWith('image/') ? 'upload:image'
         : 'upload:text';
       
-      const { error: entryError } = await supabase.from('entries').insert({
+      const { error: entryError } = await supabaseForEntry.from('entries').insert({
         user_id: userId,
         content: extractedText.substring(0, 100000), // Store up to 100k chars
         source: sourceType,
         metadata: {
           fileName,
           fileType,
-          fileSize: file.size,
+          fileSize,
           extractedLength: extractedText.length,
           uploadedAt: new Date().toISOString(),
           context: context || null
