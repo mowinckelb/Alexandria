@@ -48,6 +48,7 @@ export default function Alexandria() {
   const [uploadContext, setUploadContext] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [pendingJobs, setPendingJobs] = useState<{ id: string; fileName: string; progress: number; status: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -764,24 +765,17 @@ export default function Alexandria() {
     setUploadStatus(null);
     
     let totalChunks = 0, totalFacts = 0, totalMemories = 0;
-    let hasQuestions = false;
+    let queuedJobs: { id: string; fileName: string; progress: number; status: string }[] = [];
     
     try {
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        setUploadStatus(`processing ${i + 1}/${selectedFiles.length}: ${file.name}`);
+        setUploadStatus(`${i + 1}/${selectedFiles.length}: ${file.name}`);
         
-        const formData = new FormData();
-        formData.append('userId', userId);
-        if (uploadContext.trim()) {
-          formData.append('context', uploadContext.trim());
-        }
-        
-        // Large files go through Supabase Storage
+        // Large files: upload to storage and queue for background processing
         if (file.size > STORAGE_THRESHOLD) {
-          setUploadStatus(`uploading ${file.name} to storage...`);
+          setUploadStatus(`uploading ${file.name}...`);
           
-          // Get signed upload URL from API
           const urlRes = await fetch('/api/get-upload-url', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -790,59 +784,81 @@ export default function Alexandria() {
           
           if (!urlRes.ok) {
             const err = await urlRes.json();
-            throw new Error(`Failed to get upload URL: ${err.error}`);
+            throw new Error(`Upload URL failed: ${err.error}`);
           }
           
           const { signedUrl, storagePath } = await urlRes.json();
           
-          // Upload directly to signed URL
           const uploadRes = await fetch(signedUrl, {
             method: 'PUT',
             headers: { 'Content-Type': file.type },
             body: file
           });
           
-          if (!uploadRes.ok) {
-            throw new Error(`Storage upload failed`);
+          if (!uploadRes.ok) throw new Error(`Storage upload failed`);
+          
+          // Create background job
+          const jobRes = await fetch('/api/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId,
+              storagePath,
+              fileName: file.name,
+              fileType: file.type,
+              fileSize: file.size,
+              context: uploadContext.trim() || null
+            })
+          });
+          
+          if (!jobRes.ok) throw new Error('Failed to create job');
+          
+          const { jobId } = await jobRes.json();
+          queuedJobs.push({ id: jobId, fileName: file.name, progress: 0, status: 'pending' });
+          
+        } else {
+          // Small files: process immediately
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('userId', userId);
+          if (uploadContext.trim()) formData.append('context', uploadContext.trim());
+          
+          const response = await fetch('/api/upload-carbon', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || `Upload failed for ${file.name}`);
           }
           
-          formData.append('storagePath', storagePath);
-          formData.append('fileName', file.name);
-          formData.append('fileType', file.type);
-          formData.append('fileSize', file.size.toString());
-          setUploadStatus(`processing ${file.name}...`);
-        } else {
-          formData.append('file', file);
+          const result = await response.json();
+          totalChunks += result.summary.chunksProcessed;
+          totalFacts += result.summary.factsExtracted;
+          totalMemories += result.summary.memoryItemsStored;
         }
-        
-        const response = await fetch('/api/upload-carbon', {
-          method: 'POST',
-          body: formData
-        });
-        
-        if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.error || `Upload failed for ${file.name}`);
-        }
-        
-        const result = await response.json();
-        totalChunks += result.summary.chunksProcessed;
-        totalFacts += result.summary.factsExtracted;
-        totalMemories += result.summary.memoryItemsStored;
-        if (result.hasNewQuestions) hasQuestions = true;
       }
       
-      setUploadStatus(`done! ${totalChunks} chunks, ${totalFacts} facts, ${totalMemories} memories`);
+      // Update pending jobs for tracking
+      if (queuedJobs.length > 0) {
+        setPendingJobs(prev => [...prev, ...queuedJobs]);
+        setUploadStatus(`${queuedJobs.length} file(s) queued for processing`);
+      } else {
+        setUploadStatus(`done! ${totalChunks} chunks, ${totalFacts} facts, ${totalMemories} memories`);
+      }
+      
       setSelectedFiles([]);
       setUploadContext('');
       
-      // Transition to input mode and auto-ask questions
       setTimeout(() => {
         setUploadStatus(null);
         setShowAttachModal(false);
         setMode('carbon');
-        setCarbonState({ phase: 'post_upload' });
-      }, 1000);
+        if (queuedJobs.length === 0) {
+          setCarbonState({ phase: 'post_upload' });
+        }
+      }, 1500);
       
     } catch (error) {
       console.error('File upload error:', error);
@@ -852,6 +868,42 @@ export default function Alexandria() {
       setIsUploading(false);
     }
   };
+
+  // Poll for job status updates
+  useEffect(() => {
+    if (pendingJobs.length === 0) return;
+    
+    const interval = setInterval(async () => {
+      const updatedJobs = await Promise.all(
+        pendingJobs.map(async (job) => {
+          if (job.status === 'completed' || job.status === 'failed') return job;
+          
+          const res = await fetch(`/api/jobs?jobId=${job.id}`);
+          if (!res.ok) return job;
+          
+          const data = await res.json();
+          return { ...job, progress: data.progress || 0, status: data.status };
+        })
+      );
+      
+      setPendingJobs(updatedJobs);
+      
+      // Check if all done
+      const allDone = updatedJobs.every(j => j.status === 'completed' || j.status === 'failed');
+      if (allDone) {
+        const completed = updatedJobs.filter(j => j.status === 'completed').length;
+        if (completed > 0) {
+          setCarbonState({ phase: 'post_upload' });
+        }
+        // Clear completed jobs after a delay
+        setTimeout(() => {
+          setPendingJobs(prev => prev.filter(j => j.status !== 'completed' && j.status !== 'failed'));
+        }, 3000);
+      }
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [pendingJobs]);
 
   // Show loading while checking auth
   if (isCheckingAuth) {
@@ -1077,6 +1129,29 @@ export default function Alexandria() {
           }
         }
       `}</style>
+
+      {/* Pending Jobs Indicator */}
+      {pendingJobs.length > 0 && (
+        <div className="fixed top-4 right-4 bg-white rounded-xl shadow-lg p-3 z-40 max-w-[250px]">
+          <div className="text-xs text-[#666] mb-2">Processing files...</div>
+          {pendingJobs.map(job => (
+            <div key={job.id} className="text-xs mb-1">
+              <div className="flex justify-between text-[#3a3a3a]">
+                <span className="truncate mr-2">{job.fileName}</span>
+                <span className={job.status === 'failed' ? 'text-red-500' : 'text-[#999]'}>
+                  {job.status === 'failed' ? 'failed' : `${job.progress}%`}
+                </span>
+              </div>
+              <div className="w-full h-1 bg-[#eee] rounded mt-1">
+                <div 
+                  className={`h-full rounded transition-all ${job.status === 'failed' ? 'bg-red-400' : 'bg-[#3a3a3a]'}`}
+                  style={{ width: `${job.progress}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* File Upload Modal */}
       {showAttachModal && (
