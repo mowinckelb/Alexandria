@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getIngestionTools, getEditorTools } from '@/lib/factory';
 import OpenAI from 'openai';
-import { needsChunking, chunkAudioBuffer, bufferToFile } from '@/lib/utils/audio-chunker';
+import { bufferToFile } from '@/lib/utils/audio-chunker';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,47 +32,35 @@ async function failJob(jobId: string, error: string) {
   }).eq('id', jobId);
 }
 
-async function transcribeWithChunking(buffer: Buffer, fileName: string, mimeType: string, jobId: string): Promise<string> {
-  const WHISPER_MAX_SIZE = 24 * 1024 * 1024;
-  
+async function transcribeAudio(buffer: Buffer, fileName: string, mimeType: string, jobId: string): Promise<string> {
   // Sanitize filename and ensure proper extension for Whisper
   const ext = fileName.match(/\.(mp3|m4a|wav|webm|ogg|flac|mp4|mpeg|mpga|oga)$/i)?.[0] || '.m4a';
   const safeFileName = `audio${ext}`;
   // Normalize mime type
   const safeMimeType = mimeType === 'audio/x-m4a' ? 'audio/mp4' : mimeType;
   
-  if (buffer.length <= WHISPER_MAX_SIZE) {
-    const uint8Array = new Uint8Array(buffer);
-    const blob = new Blob([uint8Array], { type: safeMimeType });
-    const file = new File([blob], safeFileName, { type: safeMimeType });
-    const transcription = await openai.audio.transcriptions.create({
-      file,
-      model: 'whisper-1',
-      response_format: 'text'
-    });
-    return transcription;
+  // Note: Whisper limit is 25MB. Container formats (m4a, mp4) can't be byte-split.
+  // For files over limit, we try anyway - Whisper sometimes accepts slightly larger files.
+  // If this fails, user needs to split audio manually or use files under 25MB.
+  const sizeMB = buffer.length / 1024 / 1024;
+  if (sizeMB > 25) {
+    console.log(`[ProcessQueue] Warning: ${fileName} is ${sizeMB.toFixed(1)}MB (over 25MB limit), attempting anyway...`);
   }
-
-  console.log(`[ProcessQueue] Chunking ${fileName} (${(buffer.length / 1024 / 1024).toFixed(1)}MB)`);
-  const chunks = chunkAudioBuffer(buffer, fileName);
-  const transcripts: string[] = [];
-
-  for (const chunk of chunks) {
-    console.log(`[ProcessQueue] Transcribing chunk ${chunk.index + 1}/${chunk.totalChunks}`);
-    const chunkFile = bufferToFile(chunk.buffer, `audio_part${chunk.index}${ext}`, safeMimeType);
-    const transcription = await openai.audio.transcriptions.create({
-      file: chunkFile,
-      model: 'whisper-1',
-      response_format: 'text'
-    });
-    transcripts.push(transcription);
-    
-    // Update progress (transcription is ~70% of work)
-    const progress = Math.floor(10 + (chunk.index + 1) / chunk.totalChunks * 60);
-    await updateJobProgress(jobId, progress);
-  }
-
-  return transcripts.join(' ');
+  
+  const uint8Array = new Uint8Array(buffer);
+  const blob = new Blob([uint8Array], { type: safeMimeType });
+  const file = new File([blob], safeFileName, { type: safeMimeType });
+  
+  await updateJobProgress(jobId, 20);
+  
+  const transcription = await openai.audio.transcriptions.create({
+    file,
+    model: 'whisper-1',
+    response_format: 'text'
+  });
+  
+  await updateJobProgress(jobId, 70);
+  return transcription;
 }
 
 function chunkText(text: string, maxLength = 4000): string[] {
@@ -202,7 +190,7 @@ export async function POST(req: Request) {
 
       // Handle audio files
       if (job.file_type.startsWith('audio/') || job.file_name.match(/\.(mp3|m4a|wav|webm|ogg|flac)$/i)) {
-        extractedText = await transcribeWithChunking(buffer, job.file_name, job.file_type, job.id);
+        extractedText = await transcribeAudio(buffer, job.file_name, job.file_type, job.id);
       }
       // Handle PDF
       else if (job.file_type === 'application/pdf' || job.file_name.endsWith('.pdf')) {
