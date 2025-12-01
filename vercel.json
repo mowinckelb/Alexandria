@@ -9,11 +9,5 @@
     "app/api/process-queue/route.ts": {
       "maxDuration": 300
     }
-  },
-  "crons": [
-    {
-      "path": "/api/process-queue",
-      "schedule": "* * * * *"
-    }
-  ]
+  }
 }
