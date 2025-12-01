@@ -1073,11 +1073,18 @@ export default function Alexandria() {
             />
             
             <div 
+              id="upload-file-container"
               onClick={() => !isUploading && selectedFiles.length === 0 && fileInputRef.current?.click()}
               className={`border-2 border-dashed border-[#ddd] rounded-xl p-4 text-center hover:border-[#bbb] transition-colors max-h-32 overflow-y-auto ${isUploading ? 'opacity-50 cursor-not-allowed' : ''} ${selectedFiles.length === 0 ? 'cursor-pointer' : ''}`}
             >
               {selectedFiles.length > 0 ? (
                 <div className="text-[#3a3a3a] text-sm space-y-2">
+                  <div className="text-[#bbb] text-xs">
+                    {(() => {
+                      const totalMB = selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
+                      return `${totalMB.toFixed(1)}/4.5MB`;
+                    })()}
+                  </div>
                   {selectedFiles.map((f, i) => (
                     <div key={i} className="flex items-center justify-center gap-3">
                       <span 
@@ -1110,17 +1117,6 @@ export default function Alexandria() {
                   >
                     + add more
                   </div>
-                  {(() => {
-                    const totalBytes = selectedFiles.reduce((sum, f) => sum + f.size, 0);
-                    const totalMB = totalBytes / (1024 * 1024);
-                    const isOverLimit = totalMB > 4.5;
-                    const sizeStr = totalMB >= 1 ? `${totalMB.toFixed(1)}MB` : `${(totalBytes / 1024).toFixed(0)}KB`;
-                    return (
-                      <div className={`text-xs mt-1 ${isOverLimit ? 'text-red-500' : 'text-[#bbb]'}`}>
-                        {sizeStr}{isOverLimit && ' (over 4.5MB limit)'}
-                      </div>
-                    );
-                  })()}
                 </div>
               ) : (
                 <div className="text-[#999] text-sm">input text/audio</div>
@@ -1137,8 +1133,13 @@ export default function Alexandria() {
                 className="w-full bg-[#f8f8f8] border border-[#eee] rounded-xl text-[#3a3a3a] text-sm px-4 py-3 pr-12 outline-none placeholder:text-[#aaa] disabled:opacity-50"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !isUploading) {
+                    const totalMB = selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
                     if (!uploadContext.trim()) {
                       const container = document.getElementById('upload-context-container');
+                      container?.classList.add('animate-shake');
+                      setTimeout(() => container?.classList.remove('animate-shake'), 500);
+                    } else if (totalMB > 4.5) {
+                      const container = document.getElementById('upload-file-container');
                       container?.classList.add('animate-shake');
                       setTimeout(() => container?.classList.remove('animate-shake'), 500);
                     } else if (selectedFiles.length > 0) {
@@ -1152,8 +1153,13 @@ export default function Alexandria() {
               ) : (
                 <button
                   onClick={() => {
+                    const totalMB = selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
                     if (!uploadContext.trim()) {
                       const container = document.getElementById('upload-context-container');
+                      container?.classList.add('animate-shake');
+                      setTimeout(() => container?.classList.remove('animate-shake'), 500);
+                    } else if (totalMB > 4.5) {
+                      const container = document.getElementById('upload-file-container');
                       container?.classList.add('animate-shake');
                       setTimeout(() => container?.classList.remove('animate-shake'), 500);
                     } else if (selectedFiles.length > 0) {
