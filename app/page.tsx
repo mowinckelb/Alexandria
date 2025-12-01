@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import AuthScreen from './components/AuthScreen';
 
-const VERCEL_LIMIT = 4.5 * 1024 * 1024; // 4.5MB
+const STORAGE_THRESHOLD = 4.5 * 1024 * 1024; // Use storage for files larger than this
 
 interface Message {
   id: string;
@@ -777,8 +777,8 @@ export default function Alexandria() {
           formData.append('context', uploadContext.trim());
         }
         
-        // Large files: upload to Supabase Storage first (bypasses Vercel 4.5MB limit)
-        if (file.size > VERCEL_LIMIT) {
+        // Large files go through Supabase Storage
+        if (file.size > STORAGE_THRESHOLD) {
           setUploadStatus(`uploading ${file.name} to storage...`);
           
           // Get signed upload URL from API
