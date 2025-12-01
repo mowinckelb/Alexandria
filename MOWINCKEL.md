@@ -621,8 +621,16 @@ Use consistent, paired terms throughout the codebase and UI. Every term should h
 
 **Examples of MECE term pairs:**
 - `input` / `output` (not "carbon" / "ghost" in UI, not "send" / "receive")
-- `inputting` / `inputted` (not "processing" / "saved" / "done")
+- `inputting` / `inputted.` (not "processing" / "saved" / "done")
 - `signin` / `signup` / `signout` (not "login" / "register" / "logout")
+- `critical` / `non_critical` (code/data classification)
+- `major` / `minor` (scope/impact)
+- `high` / `medium` / `low` (priority levels)
+
+**Full stop signals completion:**
+- Ongoing action: `inputting` (no punctuation)
+- Completed action: `inputted.` (full stop)
+- This applies to all status indicators: `thinking` vs `done.`
 
 **Why this matters:**
 - Reduces cognitive load — one term = one concept
