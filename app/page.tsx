@@ -1018,7 +1018,9 @@ export default function Alexandria() {
             {/* Job status indicator */}
             {pendingJobs.length > 0 && (
               <span className={`text-[0.7rem] text-[#999] italic ${pendingJobs.some(j => j.status === 'pending' || j.status === 'processing') ? 'thinking-pulse' : ''}`}>
-                {pendingJobs.some(j => j.status === 'failed') ? 'failed.' : pendingJobs.every(j => j.status === 'completed') ? 'inputted.' : 'inputting'}
+                {pendingJobs.some(j => j.status === 'failed') ? 'failed.' : 
+                 pendingJobs.every(j => j.status === 'completed') ? 'inputted.' : 
+                 `inputting · ${Math.round(pendingJobs.reduce((sum, j) => sum + j.progress, 0) / pendingJobs.length)}%`}
               </span>
             )}
           </div>
