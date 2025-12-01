@@ -454,6 +454,9 @@ export default function Alexandria() {
 
     setInputValue('');
     setIsProcessing(true);
+    
+    // Collapse keyboard on mobile
+    inputRef.current?.blur();
 
     try {
       if (mode === 'carbon') {
@@ -463,7 +466,7 @@ export default function Alexandria() {
       }
     } finally {
       setIsProcessing(false);
-      // Only refocus on desktop to avoid triggering mobile keyboard
+      // Only refocus on desktop
       if (typeof window !== 'undefined' && window.innerWidth > 768) {
         inputRef.current?.focus();
       }
@@ -1045,7 +1048,11 @@ export default function Alexandria() {
                   feedbackPhase === 'wrap_up' ? "y/n" : ""
                 }
                 autoComplete="off"
-                spellCheck="false"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                enterKeyHint="send"
+                data-form-type="other"
                 className={`w-full bg-[#f4f4f4] border-none rounded-2xl text-[#3a3a3a] text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md caret-[#3a3a3a]/40 focus:bg-[#efefef] ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder:text-[#aaa] placeholder:italic' : ''}`}
               />
               <button
