@@ -1134,12 +1134,12 @@ export default function Alexandria() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !isUploading) {
                     const totalMB = selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
-                    if (!uploadContext.trim()) {
-                      const container = document.getElementById('upload-context-container');
+                    if (totalMB > 4.5) {
+                      const container = document.getElementById('upload-file-container');
                       container?.classList.add('animate-shake');
                       setTimeout(() => container?.classList.remove('animate-shake'), 500);
-                    } else if (totalMB > 4.5) {
-                      const container = document.getElementById('upload-file-container');
+                    } else if (!uploadContext.trim()) {
+                      const container = document.getElementById('upload-context-container');
                       container?.classList.add('animate-shake');
                       setTimeout(() => container?.classList.remove('animate-shake'), 500);
                     } else if (selectedFiles.length > 0) {
@@ -1154,12 +1154,12 @@ export default function Alexandria() {
                 <button
                   onClick={() => {
                     const totalMB = selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
-                    if (!uploadContext.trim()) {
-                      const container = document.getElementById('upload-context-container');
+                    if (totalMB > 4.5) {
+                      const container = document.getElementById('upload-file-container');
                       container?.classList.add('animate-shake');
                       setTimeout(() => container?.classList.remove('animate-shake'), 500);
-                    } else if (totalMB > 4.5) {
-                      const container = document.getElementById('upload-file-container');
+                    } else if (!uploadContext.trim()) {
+                      const container = document.getElementById('upload-context-container');
                       container?.classList.add('animate-shake');
                       setTimeout(() => container?.classList.remove('animate-shake'), 500);
                     } else if (selectedFiles.length > 0) {
