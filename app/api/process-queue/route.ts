@@ -35,10 +35,16 @@ async function failJob(jobId: string, error: string) {
 async function transcribeWithChunking(buffer: Buffer, fileName: string, mimeType: string, jobId: string): Promise<string> {
   const WHISPER_MAX_SIZE = 24 * 1024 * 1024;
   
+  // Sanitize filename and ensure proper extension for Whisper
+  const ext = fileName.match(/\.(mp3|m4a|wav|webm|ogg|flac|mp4|mpeg|mpga|oga)$/i)?.[0] || '.m4a';
+  const safeFileName = `audio${ext}`;
+  // Normalize mime type
+  const safeMimeType = mimeType === 'audio/x-m4a' ? 'audio/mp4' : mimeType;
+  
   if (buffer.length <= WHISPER_MAX_SIZE) {
     const uint8Array = new Uint8Array(buffer);
-    const blob = new Blob([uint8Array], { type: mimeType });
-    const file = new File([blob], fileName, { type: mimeType });
+    const blob = new Blob([uint8Array], { type: safeMimeType });
+    const file = new File([blob], safeFileName, { type: safeMimeType });
     const transcription = await openai.audio.transcriptions.create({
       file,
       model: 'whisper-1',
@@ -53,7 +59,7 @@ async function transcribeWithChunking(buffer: Buffer, fileName: string, mimeType
 
   for (const chunk of chunks) {
     console.log(`[ProcessQueue] Transcribing chunk ${chunk.index + 1}/${chunk.totalChunks}`);
-    const chunkFile = bufferToFile(chunk.buffer, `${fileName}_part${chunk.index}`, mimeType);
+    const chunkFile = bufferToFile(chunk.buffer, `audio_part${chunk.index}${ext}`, safeMimeType);
     const transcription = await openai.audio.transcriptions.create({
       file: chunkFile,
       model: 'whisper-1',
