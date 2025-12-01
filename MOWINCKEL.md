@@ -646,6 +646,30 @@ Use consistent, paired terms throughout the codebase and UI. Every term should h
 
 ---
 
+## 6. Versioning Protocol
+
+**Semantic versioning: `vX.XX.YY`**
+
+| Segment | Meaning | Incremented |
+|---------|---------|-------------|
+| X | Major | On "bump major" command |
+| XX | Minor | On "bump minor" command (resets YY to 00) |
+| YY | Patch | Automatically on every push |
+
+**Agent workflow:**
+1. Every push: increment YY, tag, push tag
+2. "bump minor": increment XX, reset YY to 00
+3. "bump major": increment X, reset XX and YY to 00
+
+**Commands:**
+```bash
+git tag --sort=-v:refname | head -1  # get latest tag
+git tag vX.XX.YY                      # create tag
+git push origin vX.XX.YY              # push tag
+```
+
+---
+
 ## Summary
 
 | Principle | Meaning |
