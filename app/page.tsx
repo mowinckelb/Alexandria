@@ -1110,6 +1110,17 @@ export default function Alexandria() {
                   >
                     + add more
                   </div>
+                  {(() => {
+                    const totalBytes = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+                    const totalMB = totalBytes / (1024 * 1024);
+                    const isOverLimit = totalMB > 4.5;
+                    const sizeStr = totalMB >= 1 ? `${totalMB.toFixed(1)}MB` : `${(totalBytes / 1024).toFixed(0)}KB`;
+                    return (
+                      <div className={`text-xs mt-1 ${isOverLimit ? 'text-red-500' : 'text-[#bbb]'}`}>
+                        {sizeStr}{isOverLimit && ' (over 4.5MB limit)'}
+                      </div>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div className="text-[#999] text-sm">input text/audio</div>
