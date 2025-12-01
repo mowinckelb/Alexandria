@@ -863,7 +863,9 @@ export default function Alexandria() {
     const interval = setInterval(async () => {
       const updatedJobs = await Promise.all(
         pendingJobs.map(async (job) => {
+          // Skip temp/done jobs and already finished jobs
           if (job.status === 'completed' || job.status === 'failed') return job;
+          if (job.id.startsWith('temp-') || job.id.startsWith('done-') || job.id === 'error') return job;
           
           const res = await fetch(`/api/jobs?jobId=${job.id}`);
           if (!res.ok) return job;
