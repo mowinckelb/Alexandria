@@ -50,8 +50,6 @@ export default function Alexandria() {
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [pendingJobs, setPendingJobs] = useState<{ id: string; fileName: string; progress: number; status: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Check for existing session on load
@@ -151,9 +149,7 @@ export default function Alexandria() {
     setInputMessages([]);
   };
 
-  useEffect(() => { 
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); 
-  }, [ghostMessages.length, inputMessages.length, isProcessing, outputContent]);
+  // Don't auto-scroll - let user read from top
 
   const showStatus = (message: string, isThinking = false) => {
     if (isThinking) {
@@ -976,7 +972,6 @@ export default function Alexandria() {
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} />
         </div>
       </div>
 
@@ -986,10 +981,8 @@ export default function Alexandria() {
           {/* Mode Toggle */}
           <div className="flex justify-between items-center mb-3 gap-2">
             <div className="flex items-center gap-2">
-              {/* Spacer to align with + button */}
-              {feedbackPhase === 'none' && !carbonLockYN && (
-                <div className="w-10 flex-shrink-0" />
-              )}
+              {/* Spacer to align with + button - always present */}
+              <div className="w-10 flex-shrink-0" />
               <div className="relative bg-[#3a3a3a]/[0.06] rounded-full p-[2px] inline-flex">
               <button
                 onClick={() => setMode('carbon')}
@@ -1024,16 +1017,14 @@ export default function Alexandria() {
 
           {/* Input Container */}
           <div className="relative flex items-center gap-2">
-            {/* Attach button (both modes - future: docs for ghost Q&A) */}
-            {feedbackPhase === 'none' && !carbonLockYN && (
-              <button
-                onClick={() => setShowAttachModal(true)}
-                className="flex-shrink-0 w-10 h-10 rounded-full bg-[#f4f4f4] text-[#999] text-lg flex items-center justify-center hover:bg-[#efefef] hover:text-[#666] transition-colors cursor-pointer"
-                title="Attach text"
-              >
-                +
-              </button>
-            )}
+            {/* Attach button - always present for layout stability */}
+            <button
+              onClick={() => feedbackPhase === 'none' && !carbonLockYN && setShowAttachModal(true)}
+              className={`flex-shrink-0 w-10 h-10 rounded-full bg-[#f4f4f4] text-[#999] text-lg flex items-center justify-center transition-colors ${feedbackPhase === 'none' && !carbonLockYN ? 'hover:bg-[#efefef] hover:text-[#666] cursor-pointer' : 'opacity-0 cursor-default'}`}
+              title="Attach text"
+            >
+              +
+            </button>
             <div className="relative flex-1">
               <input
                 ref={inputRef}
