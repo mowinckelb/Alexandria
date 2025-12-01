@@ -1202,13 +1202,13 @@ export default function Alexandria() {
                     </div>
                   ))}
                   <div 
-                    className="text-[#bbb] text-xs mt-2 hover:text-[#999] cursor-pointer"
+                    className="text-[#bbb] text-base mt-2 hover:text-[#999] cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       fileInputRef.current?.click();
                     }}
                   >
-                    + add more
+                    +
                   </div>
                 </div>
               ) : (
