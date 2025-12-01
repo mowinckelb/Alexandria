@@ -442,22 +442,17 @@ export default function Alexandria() {
     if (feedbackPhase === 'comment') {
       const comment = text;
       setInputValue('');
-      setShowThinking(true);
+      setFeedbackPhase('regenerate');
+      inputRef.current?.focus();
       
-      if (comment.trim()) {
-        const saved = await submitFeedback(currentRating, comment);
-        if (saved) {
+      // Process feedback in background (don't block UI)
+      (async () => {
+        const saved = await submitFeedback(currentRating, comment.trim() || '');
+        if (saved && comment.trim()) {
           setFeedbackSaved(true);
           setTimeout(() => setFeedbackSaved(false), 1500);
         }
-      } else {
-        // Empty comment - still save the binary rating
-        await submitFeedback(currentRating, '');
-      }
-      
-      setShowThinking(false);
-      setFeedbackPhase('regenerate');
-      inputRef.current?.focus();
+      })();
       return;
     }
 
