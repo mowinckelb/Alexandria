@@ -1256,9 +1256,11 @@ export default function Alexandria() {
               )}
             </div>
             <div className="mt-2 pl-1 h-[1.125rem]">
-              {isUploading && (
-                <span className="text-[0.75rem] text-[#999] italic thinking-pulse">thinking</span>
-              )}
+              {uploadStatus ? (
+                <span className="text-[0.75rem] text-[#999] italic">{uploadStatus}</span>
+              ) : isUploading ? (
+                <span className="text-[0.75rem] text-[#999] italic thinking-pulse">uploading</span>
+              ) : null}
             </div>
           </div>
         </div>
