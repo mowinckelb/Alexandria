@@ -761,6 +761,11 @@ export default function Alexandria() {
     setShowAttachModal(false);
     setMode('carbon');
     
+    // Reset viewport on mobile
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    
     // Start with pending jobs to show "inputting"
     const tempJobs: { id: string; fileName: string; progress: number; status: 'pending' | 'processing' | 'completed' | 'failed' }[] = filesToUpload.map((f, i) => ({
       id: `temp-${i}`,

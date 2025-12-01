@@ -10,13 +10,28 @@
   --font-eb-garamond: 'EB Garamond', Georgia, 'Times New Roman', serif;
 }
 
-html, body {
+html {
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: none;
+}
+
+body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-eb-garamond);
   overflow: hidden;
   position: fixed;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   overscroll-behavior: none;
+  margin: 0;
+  padding: 0;
+}
+
+#__next {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
 }
