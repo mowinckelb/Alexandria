@@ -920,7 +920,7 @@ export default function Alexandria() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden overflow-x-hidden bg-[#fafafa] text-[#3a3a3a]">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#fafafa] text-[#3a3a3a]">
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 flex items-center justify-between p-4 md:p-6 text-[0.85rem] z-50 bg-[#fafafa]">
         <button 
