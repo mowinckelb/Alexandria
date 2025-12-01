@@ -905,6 +905,21 @@ export default function Alexandria() {
     return () => clearInterval(interval);
   }, [pendingJobs]);
 
+  // Client-side queue trigger (replaces Vercel cron on free tier)
+  // NOTE: Vercel Pro ($20/mo) would allow server-side cron for background processing
+  useEffect(() => {
+    const hasPending = pendingJobs.some(j => j.status === 'pending' || j.status === 'processing');
+    if (!hasPending) return;
+    
+    const trigger = setInterval(async () => {
+      try {
+        await fetch('/api/process-queue', { method: 'POST' });
+      } catch {}
+    }, 10000); // Trigger every 10s while jobs pending
+    
+    return () => clearInterval(trigger);
+  }, [pendingJobs]);
+
   // Show loading while checking auth
   if (isCheckingAuth) {
     return (

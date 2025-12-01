@@ -60,6 +60,7 @@
 
 | Issue | Impact | Effort | Suggested Fix |
 |-------|--------|--------|---------------|
+| Vercel free tier - no real cron | Queue processing requires browser open | Low ($20/mo) | Upgrade to Vercel Pro for server-side cron |
 | input-chat doesn't stream questions | Minor UX - text appears all at once | Medium | Buffer first word, stream rest if not SAVE |
 | Auth routes duplicate Supabase client setup | Code duplication | Low | Extract to shared lib/supabase.ts |
 
