@@ -761,31 +761,39 @@ export default function Alexandria() {
   const handleFileUpload = async () => {
     if (selectedFiles.length === 0) return;
     
-    setIsUploading(true);
-    setUploadStatus(null);
+    const filesToUpload = [...selectedFiles];
+    const context = uploadContext.trim();
     
-    let totalChunks = 0, totalFacts = 0, totalMemories = 0;
-    let queuedJobs: { id: string; fileName: string; progress: number; status: string }[] = [];
+    // Close modal immediately, go to main page with "inputting" status
+    setSelectedFiles([]);
+    setUploadContext('');
+    setShowAttachModal(false);
+    setMode('carbon');
+    
+    // Start with pending jobs to show "inputting"
+    const tempJobs: { id: string; fileName: string; progress: number; status: 'pending' | 'processing' | 'completed' | 'failed' }[] = filesToUpload.map((f, i) => ({
+      id: `temp-${i}`,
+      fileName: f.name,
+      progress: 0,
+      status: 'pending'
+    }));
+    setPendingJobs(tempJobs);
     
     try {
-      for (let i = 0; i < selectedFiles.length; i++) {
-        const file = selectedFiles[i];
-        setUploadStatus(`${i + 1}/${selectedFiles.length}: ${file.name}`);
+      const finalJobs: typeof tempJobs = [];
+      
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const file = filesToUpload[i];
         
-        // Large files: upload to storage and queue for background processing
+        // Large files: upload to storage and queue
         if (file.size > STORAGE_THRESHOLD) {
-          setUploadStatus(`uploading ${file.name}...`);
-          
           const urlRes = await fetch('/api/get-upload-url', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, fileName: file.name, fileType: file.type })
           });
           
-          if (!urlRes.ok) {
-            const err = await urlRes.json();
-            throw new Error(`Upload URL failed: ${err.error}`);
-          }
+          if (!urlRes.ok) throw new Error('failed.');
           
           const { signedUrl, storagePath } = await urlRes.json();
           
@@ -795,9 +803,8 @@ export default function Alexandria() {
             body: file
           });
           
-          if (!uploadRes.ok) throw new Error(`Storage upload failed`);
+          if (!uploadRes.ok) throw new Error('failed.');
           
-          // Create background job
           const jobRes = await fetch('/api/jobs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -807,65 +814,46 @@ export default function Alexandria() {
               fileName: file.name,
               fileType: file.type,
               fileSize: file.size,
-              context: uploadContext.trim() || null
+              context: context || null
             })
           });
           
-          if (!jobRes.ok) throw new Error('Failed to create job');
+          if (!jobRes.ok) throw new Error('failed.');
           
           const { jobId } = await jobRes.json();
-          queuedJobs.push({ id: jobId, fileName: file.name, progress: 0, status: 'pending' });
+          finalJobs.push({ id: jobId, fileName: file.name, progress: 0, status: 'pending' });
           
         } else {
           // Small files: process immediately
           const formData = new FormData();
           formData.append('file', file);
           formData.append('userId', userId);
-          if (uploadContext.trim()) formData.append('context', uploadContext.trim());
+          if (context) formData.append('context', context);
           
           const response = await fetch('/api/upload-carbon', {
             method: 'POST',
             body: formData
           });
           
-          if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error || `Upload failed for ${file.name}`);
-          }
+          if (!response.ok) throw new Error('failed.');
           
-          const result = await response.json();
-          totalChunks += result.summary.chunksProcessed;
-          totalFacts += result.summary.factsExtracted;
-          totalMemories += result.summary.memoryItemsStored;
+          // Small file done immediately - mark as completed
+          finalJobs.push({ id: `done-${i}`, fileName: file.name, progress: 100, status: 'completed' });
         }
       }
       
-      // Update pending jobs for tracking
-      if (queuedJobs.length > 0) {
-        setPendingJobs(prev => [...prev, ...queuedJobs]);
-        setUploadStatus(`${queuedJobs.length} file(s) queued for processing`);
-      } else {
-        setUploadStatus(`done! ${totalChunks} chunks, ${totalFacts} facts, ${totalMemories} memories`);
+      setPendingJobs(finalJobs);
+      
+      // If all were small files (immediate), trigger post_upload
+      if (finalJobs.every(j => j.status === 'completed')) {
+        setCarbonState({ phase: 'post_upload' });
+        setTimeout(() => setPendingJobs([]), 2000);
       }
-      
-      setSelectedFiles([]);
-      setUploadContext('');
-      
-      setTimeout(() => {
-        setUploadStatus(null);
-        setShowAttachModal(false);
-        setMode('carbon');
-        if (queuedJobs.length === 0) {
-          setCarbonState({ phase: 'post_upload' });
-        }
-      }, 1500);
       
     } catch (error) {
       console.error('File upload error:', error);
-      setUploadStatus(error instanceof Error ? error.message : 'error - try again');
-      setTimeout(() => setUploadStatus(null), 5000);
-    } finally {
-      setIsUploading(false);
+      setPendingJobs([{ id: 'error', fileName: 'upload', progress: 0, status: 'failed' }]);
+      setTimeout(() => setPendingJobs([]), 3000);
     }
   };
 
@@ -1034,7 +1022,7 @@ export default function Alexandria() {
             {/* Job status indicator */}
             {pendingJobs.length > 0 && (
               <span className={`text-[0.7rem] text-[#999] italic ${pendingJobs.some(j => j.status === 'pending' || j.status === 'processing') ? 'thinking-pulse' : ''}`}>
-                {pendingJobs.every(j => j.status === 'completed') ? 'inputted.' : 'inputting'}
+                {pendingJobs.some(j => j.status === 'failed') ? 'failed.' : pendingJobs.every(j => j.status === 'completed') ? 'inputted.' : 'inputting'}
               </span>
             )}
           </div>
