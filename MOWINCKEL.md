@@ -614,6 +614,28 @@ Before completing any task:
 
 When uncertain, ask. When you disagree, say so. When you see a better way, propose it.
 
+### MECE Terminology (CRITICAL)
+**Mutually Exclusive, Collectively Exhaustive terminology. Minimum variance, maximum clarity.**
+
+Use consistent, paired terms throughout the codebase and UI. Every term should have a clear opposite or counterpart. No synonyms, no variation, no fluff.
+
+**Examples of MECE term pairs:**
+- `input` / `output` (not "carbon" / "ghost" in UI, not "send" / "receive")
+- `inputting` / `inputted` (not "processing" / "saved" / "done")
+- `signin` / `signup` / `signout` (not "login" / "register" / "logout")
+
+**Why this matters:**
+- Reduces cognitive load — one term = one concept
+- Pure signal, no noise — every word earns its place
+- Easier to maintain — search for one term, find all usages
+- Clearer mental model — users learn the vocabulary once
+
+**When adding new features:**
+1. Identify the action/state being represented
+2. Find or create the MECE term pair
+3. Use it consistently everywhere (code, UI, logs, comments)
+4. Never introduce synonyms
+
 ---
 
 ## Summary

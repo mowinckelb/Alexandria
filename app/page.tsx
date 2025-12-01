@@ -986,12 +986,13 @@ export default function Alexandria() {
       <div className="p-4 md:p-6 pb-6 md:pb-8">
         <div className="max-w-[700px] mx-auto">
           {/* Mode Toggle */}
-          <div className="flex justify-start items-center mb-3 gap-2">
-            {/* Spacer to align with + button */}
-            {feedbackPhase === 'none' && !carbonLockYN && (
-              <div className="w-10 flex-shrink-0" />
-            )}
-            <div className="relative bg-[#3a3a3a]/[0.06] rounded-full p-[2px] inline-flex">
+          <div className="flex justify-between items-center mb-3 gap-2">
+            <div className="flex items-center gap-2">
+              {/* Spacer to align with + button */}
+              {feedbackPhase === 'none' && !carbonLockYN && (
+                <div className="w-10 flex-shrink-0" />
+              )}
+              <div className="relative bg-[#3a3a3a]/[0.06] rounded-full p-[2px] inline-flex">
               <button
                 onClick={() => setMode('carbon')}
                 className={`relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer ${
@@ -1013,7 +1014,14 @@ export default function Alexandria() {
                   mode === 'ghost' ? 'translate-x-full' : ''
                 }`}
               />
+              </div>
             </div>
+            {/* Job status indicator */}
+            {pendingJobs.length > 0 && (
+              <span className={`text-[0.7rem] text-[#999] italic ${pendingJobs.some(j => j.status === 'pending' || j.status === 'processing') ? 'thinking-pulse' : ''}`}>
+                {pendingJobs.every(j => j.status === 'completed') ? 'inputted.' : 'inputting'}
+              </span>
+            )}
           </div>
 
           {/* Input Container */}
@@ -1058,7 +1066,7 @@ export default function Alexandria() {
           {/* Status indicator below input */}
           <div className="h-4 mt-2 pl-1">
             {feedbackSaved && (
-              <span className="text-[0.7rem] text-[#bbb] italic">saved.</span>
+              <span className="text-[0.7rem] text-[#bbb] italic">inputted.</span>
             )}
             {showThinking && mode === 'ghost' && !outputContent && (
               <span className="text-[0.7rem] text-[#999] italic thinking-pulse">thinking</span>
@@ -1129,29 +1137,6 @@ export default function Alexandria() {
           }
         }
       `}</style>
-
-      {/* Pending Jobs Indicator */}
-      {pendingJobs.length > 0 && (
-        <div className="fixed top-4 right-4 bg-white rounded-xl shadow-lg p-3 z-40 max-w-[250px]">
-          <div className="text-xs text-[#666] mb-2">Processing files...</div>
-          {pendingJobs.map(job => (
-            <div key={job.id} className="text-xs mb-1">
-              <div className="flex justify-between text-[#3a3a3a]">
-                <span className="truncate mr-2">{job.fileName}</span>
-                <span className={job.status === 'failed' ? 'text-red-500' : 'text-[#999]'}>
-                  {job.status === 'failed' ? 'failed' : `${job.progress}%`}
-                </span>
-              </div>
-              <div className="w-full h-1 bg-[#eee] rounded mt-1">
-                <div 
-                  className={`h-full rounded transition-all ${job.status === 'failed' ? 'bg-red-400' : 'bg-[#3a3a3a]'}`}
-                  style={{ width: `${job.progress}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* File Upload Modal */}
       {showAttachModal && (
