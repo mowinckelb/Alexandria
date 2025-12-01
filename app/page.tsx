@@ -1178,12 +1178,6 @@ export default function Alexandria() {
             >
               {selectedFiles.length > 0 ? (
                 <div className="text-[#3a3a3a] text-sm space-y-2">
-                  <div className="text-[#bbb] text-xs">
-                    {(() => {
-                      const totalMB = selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
-                      return `${totalMB.toFixed(1)}MB`;
-                    })()}
-                  </div>
                   {selectedFiles.map((f, i) => (
                     <div key={i} className="flex items-center justify-center gap-3">
                       <span 
