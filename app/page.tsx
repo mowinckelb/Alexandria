@@ -934,9 +934,9 @@ export default function Alexandria() {
           sign out
         </button>
         
-        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-55">
+        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-55 pt-0.5">
           <span>alexandria.</span>
-          <span className="text-[0.75rem] italic opacity-80">immortalise the greats</span>
+          <span className="text-[0.75rem] italic opacity-80">mentes aeternae</span>
         </div>
         
         <span className="text-[0.75rem] opacity-40">{username}</span>

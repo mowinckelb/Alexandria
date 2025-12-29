@@ -5,7 +5,7 @@ import { getIngestionTools, getEditorTools } from '@/lib/factory';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
-const supabase = supabaseUrl && supabaseKey 
+const supabase = supabaseUrl && supabaseKey
   ? createClient(supabaseUrl, supabaseKey)
   : null;
 
@@ -35,11 +35,11 @@ function chunkText(text: string, maxChunkSize = 4000): string[] {
         chunks.push(currentChunk.trim());
         currentChunk = '';
       }
-      
+
       // Split long paragraph by sentences
       const sentences = paragraph.match(/[^.!?]+[.!?]+/g) || [paragraph];
       let sentenceChunk = '';
-      
+
       for (const sentence of sentences) {
         if ((sentenceChunk + sentence).length > maxChunkSize) {
           if (sentenceChunk.trim()) {
@@ -50,7 +50,7 @@ function chunkText(text: string, maxChunkSize = 4000): string[] {
           sentenceChunk += ' ' + sentence;
         }
       }
-      
+
       if (sentenceChunk.trim()) {
         currentChunk = sentenceChunk.trim();
       }
@@ -134,9 +134,9 @@ export async function POST(req: Request) {
       user_id: userId,
       content: text.substring(0, 50000), // Limit stored raw text
       source,
-      metadata: { 
+      metadata: {
         chunks: chunks.length,
-        originalLength: text.length 
+        originalLength: text.length
       }
     });
 
@@ -152,7 +152,7 @@ export async function POST(req: Request) {
       try {
         // 1. Extract structured information
         const extracted = await extractor.structure(chunk);
-        
+
         results.factsExtracted += extracted.facts.length;
         results.preferencesExtracted += (extracted.preferences?.length || 0);
         results.opinionsExtracted += (extracted.opinions?.length || 0);
@@ -161,7 +161,7 @@ export async function POST(req: Request) {
 
         // 2. Convert to memory items and store
         const memoryItems = extractor.toMemoryItems(extracted);
-        
+
         for (const item of memoryItems) {
           try {
             await indexer.ingest(item, userId, {
@@ -178,19 +178,23 @@ export async function POST(req: Request) {
         // 3. Generate training pairs for Soul
         try {
           const trainingPairs = await refiner.extractStyle(chunk);
-          
-          // Store training pairs in database
-          for (const pair of trainingPairs) {
-            const { error: pairError } = await supabase.from('training_pairs').insert({
+
+          if (trainingPairs.length > 0) {
+            // Batch store training pairs in database
+            const rows = trainingPairs.map(pair => ({
               user_id: userId,
               system_prompt: pair.system_prompt,
               user_content: pair.user_content,
               assistant_content: pair.assistant_content,
               quality_score: pair.quality_score
-            });
+            }));
+
+            const { error: pairError } = await supabase.from('training_pairs').insert(rows);
 
             if (!pairError) {
-              results.trainingPairsGenerated++;
+              results.trainingPairsGenerated += trainingPairs.length;
+            } else {
+              results.errors.push(`Training pair batch insert failed: ${pairError.message}`);
             }
           }
         } catch (e) {
