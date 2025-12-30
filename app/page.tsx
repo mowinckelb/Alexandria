@@ -931,6 +931,7 @@ export default function Alexandria() {
       <div className="fixed top-0 left-0 right-0 flex items-center justify-between p-4 md:p-6 text-[0.85rem] z-50" style={{ background: 'var(--bg-primary)' }}>
         <div className="flex items-center gap-3">
           <span className="text-[0.75rem] opacity-40">{username}</span>
+          <span className="text-[0.75rem] opacity-40">·</span>
           <button 
             onClick={handleLogout}
             className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
