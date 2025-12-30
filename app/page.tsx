@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import AuthScreen from './components/AuthScreen';
+import { useTheme } from './components/ThemeProvider';
 
 const STORAGE_THRESHOLD = 4.5 * 1024 * 1024; // Use storage for files larger than this
 
@@ -14,6 +15,7 @@ interface Message {
 }
 
 export default function Alexandria() {
+  const { theme, toggleTheme } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userId, setUserId] = useState('');
   const [username, setUsername] = useState('');
@@ -912,8 +914,8 @@ export default function Alexandria() {
   // Show loading while checking auth
   if (isCheckingAuth) {
     return (
-      <div className="h-screen flex items-center justify-center bg-[#fafafa]">
-        <span className="text-[#3a3a3a] opacity-50 animate-pulse">loading</span>
+      <div className="h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+        <span className="opacity-50 animate-pulse" style={{ color: 'var(--text-primary)' }}>loading</span>
       </div>
     );
   }
@@ -924,22 +926,47 @@ export default function Alexandria() {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#fafafa] text-[#3a3a3a]">
+    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 flex items-center justify-between p-4 md:p-6 text-[0.85rem] z-50 bg-[#fafafa]">
-        <button 
-          onClick={handleLogout}
-          className="bg-transparent border-none text-[#3a3a3a] text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
-        >
-          sign out
-        </button>
+      <div className="fixed top-0 left-0 right-0 flex items-center justify-between p-4 md:p-6 text-[0.85rem] z-50" style={{ background: 'var(--bg-primary)' }}>
+        <div className="flex items-center gap-3">
+          <span className="text-[0.75rem] opacity-40">{username}</span>
+          <button 
+            onClick={handleLogout}
+            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            sign out
+          </button>
+        </div>
         
         <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-55 pt-0.5">
           <span>alexandria.</span>
           <span className="text-[0.75rem] italic opacity-80">mentes aeternae</span>
         </div>
         
-        <span className="text-[0.75rem] opacity-40">{username}</span>
+        <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
+          <button
+            onClick={() => theme !== 'light' && toggleTheme()}
+            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
+            style={{ color: theme === 'light' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+          >
+            light
+          </button>
+          <button
+            onClick={() => theme !== 'dark' && toggleTheme()}
+            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
+            style={{ color: theme === 'dark' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+          >
+            dark
+          </button>
+          <div
+            className={`absolute top-[1px] left-[1px] w-[calc(50%-1px)] h-[calc(100%-2px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
+              theme === 'dark' ? 'translate-x-full' : ''
+            }`}
+            style={{ background: 'var(--toggle-pill)' }}
+          />
+        </div>
       </div>
 
       {/* Output Area */}
@@ -951,15 +978,15 @@ export default function Alexandria() {
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
-                  message.role === 'user'
-                    ? 'bg-[#efefef] text-[#3a3a3a]'
-                    : 'bg-[#f4f4f4] text-[#4a4a4a]'
-                }`}
+                className="max-w-[85%] rounded-2xl px-4 py-2.5"
+                style={{ 
+                  background: message.role === 'user' ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
+                  color: message.role === 'user' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
               >
                 <div className="text-[0.8rem] leading-relaxed whitespace-pre-wrap">
                   {message.version && message.version > 1 && (
-                    <span className="text-[0.7rem] text-[#999] mr-1">/{message.version}</span>
+                    <span className="text-[0.7rem] mr-1" style={{ color: 'var(--text-subtle)' }}>/{message.version}</span>
                   )}
                   {message.content}
                 </div>
@@ -969,13 +996,13 @@ export default function Alexandria() {
           {/* Thinking indicator (Carbon mode only - Ghost shows below input) */}
           {showThinking && !outputContent && mode === 'carbon' && (
             <div className="flex justify-start px-1">
-              <span className="text-[0.75rem] text-[#999] italic thinking-pulse">thinking</span>
+              <span className="text-[0.75rem] italic thinking-pulse" style={{ color: 'var(--text-subtle)' }}>thinking</span>
             </div>
           )}
           {/* Streaming content */}
           {outputContent && (
             <div className="flex justify-start">
-              <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-[#f4f4f4] text-[#4a4a4a]">
+              <div className="max-w-[85%] rounded-2xl px-4 py-3" style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
                 <div className="text-[0.8rem] leading-relaxed whitespace-pre-wrap">
                   {outputContent}
                 </div>
@@ -993,33 +1020,32 @@ export default function Alexandria() {
             <div className="flex items-center gap-2">
               {/* Spacer to align with + button - always present */}
               <div className="w-10 flex-shrink-0" />
-              <div className="relative bg-[#3a3a3a]/[0.06] rounded-full p-[2px] inline-flex">
+              <div className="relative rounded-full p-[2px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
               <button
                 onClick={() => setMode('carbon')}
-                className={`relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer ${
-                  mode === 'carbon' ? 'text-[#3a3a3a]' : 'text-[#888]'
-                }`}
+                className="relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer"
+                style={{ color: mode === 'carbon' ? 'var(--text-primary)' : 'var(--text-muted)' }}
               >
                 input
               </button>
               <button
                 onClick={() => setMode('ghost')}
-                className={`relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer ${
-                  mode === 'ghost' ? 'text-[#3a3a3a]' : 'text-[#888]'
-                }`}
+                className="relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer"
+                style={{ color: mode === 'ghost' ? 'var(--text-primary)' : 'var(--text-muted)' }}
               >
                 output
               </button>
               <div
-                className={`absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] bg-white/55 backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
+                className={`absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
                   mode === 'ghost' ? 'translate-x-full' : ''
                 }`}
+                style={{ background: 'var(--toggle-pill)' }}
               />
               </div>
             </div>
             {/* Job status indicator */}
             {pendingJobs.length > 0 && (
-              <span className={`text-[0.7rem] text-[#999] italic ${pendingJobs.some(j => j.status === 'pending' || j.status === 'processing') ? 'thinking-pulse' : ''}`}>
+              <span className={`text-[0.7rem] italic ${pendingJobs.some(j => j.status === 'pending' || j.status === 'processing') ? 'thinking-pulse' : ''}`} style={{ color: 'var(--text-subtle)' }}>
                 {pendingJobs.some(j => j.status === 'failed') ? 'failed.' : 
                  pendingJobs.every(j => j.status === 'completed') ? 'inputted.' : 
                  `inputting · ${Math.round(pendingJobs.reduce((sum, j) => sum + j.progress, 0) / pendingJobs.length)}%`}
@@ -1032,7 +1058,8 @@ export default function Alexandria() {
             {/* Attach button - always present for layout stability */}
             <button
               onClick={() => feedbackPhase === 'none' && !carbonLockYN && setShowAttachModal(true)}
-              className={`flex-shrink-0 w-10 h-10 rounded-full bg-[#f4f4f4] text-[#999] text-lg flex items-center justify-center transition-colors ${feedbackPhase === 'none' && !carbonLockYN ? 'hover:bg-[#efefef] hover:text-[#666] cursor-pointer' : 'opacity-0 cursor-default'}`}
+              className={`flex-shrink-0 w-10 h-10 rounded-full text-lg flex items-center justify-center transition-colors ${feedbackPhase === 'none' && !carbonLockYN ? 'cursor-pointer' : 'opacity-0 cursor-default'}`}
+              style={{ background: 'var(--bg-secondary)', color: 'var(--text-subtle)' }}
               title="Attach text"
             >
               +
@@ -1057,11 +1084,17 @@ export default function Alexandria() {
                 spellCheck={false}
                 enterKeyHint="send"
                 data-form-type="other"
-                className={`w-full bg-[#f4f4f4] border-none rounded-2xl text-[#3a3a3a] text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md caret-[#3a3a3a]/40 focus:bg-[#efefef] ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder:text-[#aaa] placeholder:italic' : ''}`}
+                className={`w-full border-none rounded-2xl text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder-italic' : ''}`}
+                style={{ 
+                  background: 'var(--bg-secondary)', 
+                  color: 'var(--text-primary)',
+                  caretColor: 'var(--caret-color)'
+                }}
               />
               <button
                 onClick={handleSubmit}
-                className="absolute right-4 top-1/2 -translate-y-1/2 scale-y-[0.8] bg-transparent border-none rounded-md text-[#ccc] text-[1.2rem] cursor-pointer px-2 py-1 transition-colors hover:text-[#999] focus:text-[#999] focus:shadow-[0_0_0_2px_rgba(58,58,58,0.1)]"
+                className="absolute right-4 top-1/2 -translate-y-1/2 scale-y-[0.8] bg-transparent border-none rounded-md text-[1.2rem] cursor-pointer px-2 py-1 transition-colors"
+                style={{ color: 'var(--text-whisper)' }}
               >
                 →
               </button>
@@ -1071,10 +1104,10 @@ export default function Alexandria() {
           {/* Status indicator below input */}
           <div className="h-4 mt-2 pl-1">
             {feedbackSaved && (
-              <span className="text-[0.7rem] text-[#bbb] italic">inputted.</span>
+              <span className="text-[0.7rem] italic" style={{ color: 'var(--text-ghost)' }}>inputted.</span>
             )}
             {showThinking && mode === 'ghost' && !outputContent && (
-              <span className="text-[0.7rem] text-[#999] italic thinking-pulse">thinking</span>
+              <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-subtle)' }}>thinking</span>
             )}
           </div>
         </div>
@@ -1124,16 +1157,29 @@ export default function Alexandria() {
         }
 
         ::-webkit-scrollbar-thumb {
-          background: rgba(58, 58, 58, 0.15);
+          background: var(--scrollbar-thumb);
           border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-          background: rgba(58, 58, 58, 0.25);
+          background: var(--scrollbar-thumb-hover);
         }
 
-        input::-webkit-input-placeholder {
-          color: #999;
+        input::placeholder {
+          color: var(--text-subtle);
+        }
+
+        .placeholder-italic::placeholder {
+          font-style: italic;
+          color: var(--text-faint);
+        }
+
+        input:focus {
+          background: var(--bg-tertiary) !important;
+        }
+
+        button:hover {
+          color: var(--text-muted) !important;
         }
 
         @supports (caret-width: 2px) {
@@ -1146,17 +1192,20 @@ export default function Alexandria() {
       {/* File Upload Modal */}
       {showAttachModal && (
         <div 
-          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+          className="fixed inset-0 flex items-center justify-center z-50"
+          style={{ background: 'var(--bg-overlay)' }}
           onClick={() => !isUploading && setShowAttachModal(false)}
         >
           <div 
-            className="bg-white rounded-2xl p-6 w-[90%] max-w-[400px] flex flex-col shadow-xl"
+            className="rounded-2xl p-6 w-[90%] max-w-[400px] flex flex-col shadow-xl"
+            style={{ background: 'var(--bg-modal)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-end">
               <button
                 onClick={() => !isUploading && setShowAttachModal(false)}
-                className="text-[#999] hover:text-[#666] text-xl cursor-pointer -mt-1 -mr-1"
+                className="text-xl cursor-pointer -mt-1 -mr-1 hover:opacity-70 transition-opacity"
+                style={{ color: 'var(--text-subtle)' }}
                 disabled={isUploading}
               >
                 ×
@@ -1179,10 +1228,11 @@ export default function Alexandria() {
             <div 
               id="upload-file-container"
               onClick={() => !isUploading && selectedFiles.length === 0 && fileInputRef.current?.click()}
-              className={`border-2 border-dashed border-[#ddd] rounded-xl p-4 text-center hover:border-[#bbb] transition-colors max-h-32 overflow-y-auto ${isUploading ? 'opacity-50 cursor-not-allowed' : ''} ${selectedFiles.length === 0 ? 'cursor-pointer' : ''}`}
+              className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors max-h-32 overflow-y-auto ${isUploading ? 'opacity-50 cursor-not-allowed' : ''} ${selectedFiles.length === 0 ? 'cursor-pointer' : ''}`}
+              style={{ borderColor: 'var(--border-dashed)' }}
             >
               {selectedFiles.length > 0 ? (
-                <div className="text-[#3a3a3a] text-sm space-y-2">
+                <div className="text-sm space-y-2" style={{ color: 'var(--text-primary)' }}>
                   {selectedFiles.map((f, i) => (
                     <div key={i} className="flex items-center justify-center gap-3">
                       <span 
@@ -1191,7 +1241,7 @@ export default function Alexandria() {
                           const url = URL.createObjectURL(f);
                           window.open(url, '_blank');
                         }}
-                        className="cursor-pointer hover:text-[#666]"
+                        className="cursor-pointer hover:opacity-70"
                       >
                         {f.name}
                       </span>
@@ -1200,14 +1250,16 @@ export default function Alexandria() {
                           e.stopPropagation();
                           setSelectedFiles(prev => prev.filter((_, idx) => idx !== i));
                         }}
-                        className="text-[#bbb] hover:text-[#666] text-base leading-none px-1 cursor-pointer"
+                        className="text-base leading-none px-1 cursor-pointer hover:opacity-70"
+                        style={{ color: 'var(--text-ghost)' }}
                       >
                         ×
                       </button>
                     </div>
                   ))}
                   <div 
-                    className="text-[#bbb] text-base mt-2 hover:text-[#999] cursor-pointer"
+                    className="text-base mt-2 cursor-pointer hover:opacity-70"
+                    style={{ color: 'var(--text-ghost)' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       fileInputRef.current?.click();
@@ -1217,7 +1269,7 @@ export default function Alexandria() {
                   </div>
                 </div>
               ) : (
-                <div className="text-[#999] text-sm">input text/audio</div>
+                <div className="text-sm" style={{ color: 'var(--text-subtle)' }}>input text/audio</div>
               )}
             </div>
             
@@ -1228,7 +1280,12 @@ export default function Alexandria() {
                 onChange={(e) => setUploadContext(e.target.value)}
                 placeholder="context:"
                 disabled={isUploading}
-                className="w-full bg-[#f8f8f8] border border-[#eee] rounded-xl text-[#3a3a3a] text-sm px-4 py-3 pr-12 outline-none placeholder:text-[#aaa] disabled:opacity-50"
+                className="w-full border rounded-xl text-sm px-4 py-3 pr-12 outline-none disabled:opacity-50"
+                style={{ 
+                  background: 'var(--bg-secondary)', 
+                  borderColor: 'var(--border-light)',
+                  color: 'var(--text-primary)'
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !isUploading) {
                     if (!uploadContext.trim()) {
@@ -1242,7 +1299,7 @@ export default function Alexandria() {
                 }}
               />
               {isUploading ? (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#666] text-lg thinking-pulse scale-y-[0.8]">→</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-lg thinking-pulse scale-y-[0.8]" style={{ color: 'var(--text-muted)' }}>→</span>
               ) : (
                 <button
                   onClick={() => {
@@ -1254,7 +1311,8 @@ export default function Alexandria() {
                       handleFileUpload();
                     }
                   }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#999] text-lg scale-y-[0.8] hover:text-[#666] transition-colors cursor-pointer"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-lg scale-y-[0.8] transition-colors cursor-pointer"
+                  style={{ color: 'var(--text-subtle)' }}
                 >
                   →
                 </button>
@@ -1262,9 +1320,9 @@ export default function Alexandria() {
             </div>
             <div className="mt-2 pl-1 h-[1.125rem]">
               {uploadStatus ? (
-                <span className="text-[0.75rem] text-[#999] italic">{uploadStatus}</span>
+                <span className="text-[0.75rem] italic" style={{ color: 'var(--text-subtle)' }}>{uploadStatus}</span>
               ) : isUploading ? (
-                <span className="text-[0.75rem] text-[#999] italic thinking-pulse">uploading</span>
+                <span className="text-[0.75rem] italic thinking-pulse" style={{ color: 'var(--text-subtle)' }}>uploading</span>
               ) : null}
             </div>
           </div>
