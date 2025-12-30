@@ -1,11 +1,13 @@
 'use client';
 import { useState, useRef, KeyboardEvent } from 'react';
+import { useTheme } from './ThemeProvider';
 
 interface AuthScreenProps {
   onAuthSuccess: (username: string, token: string, userId: string) => void;
 }
 
 export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
+  const { theme, toggleTheme } = useTheme();
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -100,39 +102,64 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center px-8 relative bg-[#fafafa] text-[#3a3a3a]">
+    <div className="h-screen flex flex-col items-center justify-center px-8 relative" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 p-6 text-center text-[0.85rem] opacity-55 z-50 bg-[#fafafa]">
+      <div className="fixed top-0 left-0 right-0 p-6 text-center text-[0.85rem] opacity-55 z-50" style={{ background: 'var(--bg-primary)' }}>
         <div className="flex flex-col items-center gap-1">
           <span>alexandria.</span>
           <span className="text-[0.75rem] italic opacity-80">immortalise the greats</span>
         </div>
       </div>
 
+      {/* Theme Toggle - subtle in corner */}
+      <div className="fixed top-6 right-6 z-50">
+        <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
+          <button
+            onClick={() => theme !== 'light' && toggleTheme()}
+            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
+            style={{ color: theme === 'light' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+          >
+            light
+          </button>
+          <button
+            onClick={() => theme !== 'dark' && toggleTheme()}
+            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
+            style={{ color: theme === 'dark' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+          >
+            dark
+          </button>
+          <div
+            className={`absolute top-[1px] left-[1px] w-[calc(50%-1px)] h-[calc(100%-2px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
+              theme === 'dark' ? 'translate-x-full' : ''
+            }`}
+            style={{ background: 'var(--toggle-pill)' }}
+          />
+        </div>
+      </div>
+
       {/* Auth Toggle */}
-      <div className="relative bg-[#3a3a3a]/[0.06] rounded-full p-[2px] inline-flex mb-6">
+      <div className="relative rounded-full p-[2px] inline-flex mb-6" style={{ background: 'var(--toggle-bg)' }}>
         <button
           onClick={() => setAuthMode('login')}
           disabled={isLoading}
-          className={`relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer ${
-            authMode === 'login' ? 'text-[#3a3a3a]' : 'text-[#888]'
-          }`}
+          className="relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer"
+          style={{ color: authMode === 'login' ? 'var(--text-primary)' : 'var(--text-muted)' }}
         >
           sign in
         </button>
         <button
           onClick={() => setAuthMode('register')}
           disabled={isLoading}
-          className={`relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer ${
-            authMode === 'register' ? 'text-[#3a3a3a]' : 'text-[#888]'
-          }`}
+          className="relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer"
+          style={{ color: authMode === 'register' ? 'var(--text-primary)' : 'var(--text-muted)' }}
         >
           sign up
         </button>
         <div
-          className={`absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] bg-white/55 backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
+          className={`absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
             authMode === 'register' ? 'translate-x-full' : ''
           }`}
+          style={{ background: 'var(--toggle-pill)' }}
         />
       </div>
 
@@ -149,7 +176,12 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           spellCheck="false"
           autoFocus
           disabled={isLoading}
-          className="w-full bg-[#f4f4f4] border-none rounded-2xl text-[#3a3a3a] text-[0.9rem] px-5 py-4 mb-3 outline-none transition-colors shadow-md caret-[#3a3a3a]/40 focus:bg-[#efefef] disabled:opacity-50 placeholder:text-[#999]"
+          className="w-full border-none rounded-2xl text-[0.9rem] px-5 py-4 mb-3 outline-none transition-colors shadow-md disabled:opacity-50"
+          style={{ 
+            background: 'var(--bg-secondary)', 
+            color: 'var(--text-primary)',
+            caretColor: 'var(--caret-color)'
+          }}
         />
         
         <div className="relative">
@@ -163,12 +195,18 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             autoComplete="off"
             spellCheck="false"
             disabled={isLoading}
-            className="w-full bg-[#f4f4f4] border-none rounded-2xl text-[#3a3a3a] text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md caret-[#3a3a3a]/40 focus:bg-[#efefef] disabled:opacity-50 placeholder:text-[#999]"
+            className="w-full border-none rounded-2xl text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md disabled:opacity-50"
+            style={{ 
+              background: 'var(--bg-secondary)', 
+              color: 'var(--text-primary)',
+              caretColor: 'var(--caret-color)'
+            }}
           />
           <button
             onClick={handleAuth}
             disabled={isLoading}
-            className="absolute right-4 top-1/2 -translate-y-1/2 scale-y-[0.8] bg-transparent border-none rounded-md text-[#ccc] text-[1.2rem] cursor-pointer px-2 py-1 transition-colors hover:text-[#999] focus:text-[#999] disabled:opacity-50"
+            className="absolute right-4 top-1/2 -translate-y-1/2 scale-y-[0.8] bg-transparent border-none rounded-md text-[1.2rem] cursor-pointer px-2 py-1 transition-colors disabled:opacity-50"
+            style={{ color: 'var(--text-whisper)' }}
           >
             →
           </button>
@@ -176,7 +214,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       </div>
 
       {/* Message */}
-      <div className="text-center mt-4 text-[0.8rem] text-[#888] min-h-6">
+      <div className="text-center mt-4 text-[0.8rem] min-h-6" style={{ color: 'var(--text-muted)' }}>
         {isLoading ? <span className="animate-pulse">thinking</span> : message}
       </div>
 
@@ -190,8 +228,19 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         .animate-shake {
           animation: shake 0.2s ease-in-out;
         }
+
+        input::placeholder {
+          color: var(--text-subtle);
+        }
+
+        input:focus {
+          background: var(--bg-tertiary) !important;
+        }
+
+        button:hover:not(:disabled) {
+          color: var(--text-muted) !important;
+        }
       `}</style>
     </div>
   );
 }
-
