@@ -8,17 +8,60 @@ interface LandingPageProps {
 export default function LandingPage({ onGetStarted }: LandingPageProps) {
   const { theme, toggleTheme } = useTheme();
 
+  const sections = [
+    {
+      title: 'Thesis',
+      points: [
+        'The human brain is a biological neural net with carbon weights; AI is a digital neural net with silicon weights',
+        'If trained on enough personal data, a digital neural net can approximate any specific biological neural net',
+        'If you translate your carbon weights into silicon weights; you can digitalise & optimise your cognition'
+      ]
+    },
+    {
+      title: 'Product',
+      points: [
+        'Once you digitalise your subjective/objective data, you create a high-fidelity Personal Language Model (PLM)',
+        'This PLM enables a transition from zero-sum to positive-sum attention as it can autonomously approximate your output and synthesise pre-processed inputs; a personal function approximator',
+        'There is a structural delta between general LLMs with personal context and a PLM; while leveraged to SOTA LLMs, PLMs are specifically fine-tuned for each individual on their unique data',
+        'If something is to represent you it must know you; personalised LLMs are valuable assistants, PLMs are extensions of your cognition'
+      ]
+    },
+    {
+      title: 'Market',
+      points: [
+        'Frontier labs won\'t build PLMs, but individuals who want to own, monetise, and optimise their data will',
+        'It\'s easier to be first than best – but if you build a personal data flywheel, you can be both'
+      ]
+    },
+    {
+      title: 'Execution',
+      points: [
+        'The bottleneck to high-fidelity PLMs is the digital transcription of explicit/implicit subjective data',
+        'Once the benefits are internalised, it becomes simply an agency/friction problem'
+      ]
+    },
+    {
+      title: 'Vision',
+      points: [
+        'AI enables infinite leverage on fixed attention – but what if that attention wasn\'t fixed?',
+        'In an age of leveraged abundance, the opportunity cost of zero-sum attention is infinite',
+        'Positive-sum attention is all you need.'
+      ],
+      isConclusion: true
+    }
+  ];
+
   return (
-    <div className="h-screen flex flex-col items-center justify-center px-8 relative overflow-hidden" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 p-6 text-center text-[0.85rem] opacity-55 z-50" style={{ background: 'var(--bg-primary)' }}>
-        <div className="flex flex-col items-center gap-1">
-          <span>alexandria.</span>
-          <span className="text-[0.75rem] italic opacity-80">mentes aeternae</span>
+        <div className="flex flex-col items-center gap-0.5">
+          <span className="tracking-wide">alexandria.</span>
+          <span className="text-[0.7rem] italic opacity-70">mentes aeternae</span>
         </div>
       </div>
 
-      {/* Theme Toggle - subtle in corner */}
+      {/* Theme Toggle */}
       <div className="fixed top-6 right-6 z-50">
         <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
           <button
@@ -45,90 +88,90 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center w-full pt-20 pb-8 px-6 md:px-8">
-        <div className="max-w-[600px] w-full flex flex-col h-full max-h-[70vh]">
+      <div className="flex-1 flex flex-col items-center pt-24 pb-6 px-6 overflow-hidden">
+        <div className="max-w-[520px] w-full flex flex-col flex-1 min-h-0">
+          
+          {/* Abstract Label */}
+          <div className="text-center mb-6">
+            <span className="text-[0.6rem] tracking-[0.25em] uppercase opacity-40" style={{ color: 'var(--text-muted)' }}>
+              abstract
+            </span>
+          </div>
+
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto pr-2 mb-6 scrollbar-thin" style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--scrollbar-thumb) transparent' }}>
-            <div className="text-[0.7rem] leading-relaxed space-y-5" style={{ color: 'var(--text-secondary)' }}>
-              <div>
-                <p className="text-[0.65rem] tracking-wider uppercase mb-4 opacity-60" style={{ color: 'var(--text-muted)' }}>abstract</p>
-              </div>
-              
-              <div>
-                <p className="text-[0.72rem] mb-2.5 font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>Thesis</p>
-                <div className="space-y-2">
-                  <p className="pl-0">The human brain is a biological neural net with carbon weights; AI is a digital neural net with silicon weights</p>
-                  <p className="pl-0">If trained on enough personal data, a digital neural net can approximate any specific biological neural net</p>
-                  <p className="pl-0">If you translate your carbon weights into silicon weights; you can digitalise & optimise your cognition</p>
+          <div 
+            className="flex-1 overflow-y-auto min-h-0 px-1"
+            style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--scrollbar-thumb) transparent' }}
+          >
+            <div className="space-y-6 pb-4">
+              {sections.map((section, idx) => (
+                <div key={section.title} className={section.isConclusion ? 'pt-2' : ''}>
+                  {/* Section header */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <span 
+                      className="text-[0.6rem] opacity-30 tabular-nums"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+                    <span 
+                      className={`text-[0.68rem] tracking-wide ${section.isConclusion ? 'italic' : ''}`}
+                      style={{ color: 'var(--text-primary)', opacity: section.isConclusion ? 0.9 : 0.8 }}
+                    >
+                      {section.title}
+                    </span>
+                    <div className="flex-1 h-px opacity-20" style={{ background: 'var(--text-muted)' }} />
+                  </div>
+                  
+                  {/* Section content */}
+                  <div className="space-y-2.5 pl-7">
+                    {section.points.map((point, pointIdx) => (
+                      <p 
+                        key={pointIdx}
+                        className={`text-[0.68rem] leading-[1.7] ${
+                          section.isConclusion && pointIdx === section.points.length - 1 
+                            ? 'font-medium opacity-90' 
+                            : 'opacity-65'
+                        }`}
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
+                        {point}
+                      </p>
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              <div>
-                <p className="text-[0.72rem] mb-2.5 font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>Product</p>
-                <div className="space-y-2">
-                  <p className="pl-0">Once you digitalise your subjective/objective data, you create a high-fidelity Personal Language Model (PLM)</p>
-                  <p className="pl-0">This PLM enables a transition from zero-sum to positive-sum attention as it can autonomously approximate your output and synthesise pre-processed inputs; a personal function approximator</p>
-                  <p className="pl-0">There is a structural delta between general LLMs with personal context and a PLM; while leveraged to SOTA LLMs, PLMs are specifically fine-tuned for each individual on their unique data</p>
-                  <p className="pl-0">If something is to represent you it must know you; personalised LLMs are valuable assistants, PLMs are extensions of your cognition</p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-[0.72rem] mb-2.5 font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>Market</p>
-                <div className="space-y-2">
-                  <p className="pl-0">Frontier labs won't build PLMs, but individuals who want to own, monetise, and optimise their data will</p>
-                  <p className="pl-0">It's easier to be first than best – but if you build a personal data flywheel, you can be both</p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-[0.72rem] mb-2.5 font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>Execution</p>
-                <div className="space-y-2">
-                  <p className="pl-0">The bottleneck to high-fidelity PLMs is the digital transcription of explicit/implicit subjective data</p>
-                  <p className="pl-0">Once the benefits are internalised, it becomes simply an agency/friction problem</p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-[0.72rem] mb-2.5 font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>Vision</p>
-                <div className="space-y-2">
-                  <p className="pl-0">AI enables infinite leverage on fixed attention – but what if that attention wasn't fixed?</p>
-                  <p className="pl-0">In an age of leveraged abundance, the opportunity cost of zero-sum attention is infinite</p>
-                  <p className="pl-0">Positive-sum attention is all you need.</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* CTA Button */}
-          <div className="text-center pt-4 border-t" style={{ borderColor: 'var(--border-light)' }}>
+          {/* CTA */}
+          <div className="pt-5 text-center">
             <button
               onClick={onGetStarted}
-              className="bg-transparent border-none text-[0.75rem] cursor-pointer transition-opacity hover:opacity-70 mt-4"
-              style={{ color: 'var(--text-primary)' }}
+              className="bg-transparent border-none text-[0.72rem] cursor-pointer transition-all hover:opacity-60 tracking-wide"
+              style={{ color: 'var(--text-primary)', opacity: 0.7 }}
             >
-              sign in / sign up
+              enter →
             </button>
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        .scrollbar-thin::-webkit-scrollbar {
-          width: 4px;
+        div::-webkit-scrollbar {
+          width: 3px;
         }
-        .scrollbar-thin::-webkit-scrollbar-track {
+        div::-webkit-scrollbar-track {
           background: transparent;
         }
-        .scrollbar-thin::-webkit-scrollbar-thumb {
+        div::-webkit-scrollbar-thumb {
           background: var(--scrollbar-thumb);
-          border-radius: 2px;
+          border-radius: 1.5px;
         }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        div::-webkit-scrollbar-thumb:hover {
           background: var(--scrollbar-thumb-hover);
         }
       `}</style>
     </div>
   );
 }
-
