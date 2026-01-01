@@ -1,18 +1,12 @@
 // @CRITICAL: Orchestrator - handles Ghost output to external users
-// Uses Groq compound-mini to orchestrate between Ghost, Memories, and Constitution
+// Uses Groq to orchestrate between Ghost, Memories, and Constitution
 // Verify: External users get responses that sound like the Author
 
 import { createClient } from '@supabase/supabase-js';
-import { createGroq } from '@ai-sdk/groq';
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import { generateText, streamText } from 'ai';
 import Together from 'together-ai';
-
-// Auto-updating Groq compound model for orchestration decisions
-const groq = createGroq({ 
-  apiKey: process.env.GROQ_API_KEY,
-  headers: { 'Groq-Model-Version': 'latest' }
-});
+import { getQualityModel } from '@/lib/models';
 
 // Together AI for Ghost model inference
 const togetherProvider = createTogetherAI({ apiKey: process.env.TOGETHER_API_KEY! });
@@ -338,7 +332,7 @@ BEHAVIOR:
     suggestedApproach: string;
   }> {
     const { text } = await generateText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: getQualityModel(),
       messages: [
         {
           role: 'system',

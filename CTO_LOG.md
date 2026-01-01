@@ -7,7 +7,7 @@
 
 ## Quick Status
 **Last updated:** 2025-01-01
-**Unpushed changes:** Yes - MOWINCKEL.md overhaul for agent compliance
+**Unpushed changes:** No
 **Blockers:** None
 
 ---
@@ -167,7 +167,7 @@ After feedback:
     - "Before Saying Done" checklist
 - **Previous session:** RLAIF Implementation (see Completed section)
 
-**Pushed:** Pending
+**Pushed:** Yes (2fbde60)
 
 **Critical lesson learned:**
 Agent compliance requires: (1) explicit violation examples, (2) concrete verification steps, (3) decision authority levels, (4) no room for interpretation on rules.
