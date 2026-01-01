@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import AuthScreen from './components/AuthScreen';
+import LandingPage from './components/LandingPage';
 import { useTheme } from './components/ThemeProvider';
 
 const STORAGE_THRESHOLD = 4.5 * 1024 * 1024; // Use storage for files larger than this
@@ -16,6 +17,7 @@ interface Message {
 
 export default function Alexandria() {
   const { theme, toggleTheme } = useTheme();
+  const [showLanding, setShowLanding] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userId, setUserId] = useState('');
   const [username, setUsername] = useState('');
@@ -53,6 +55,7 @@ export default function Alexandria() {
   const [pendingJobs, setPendingJobs] = useState<{ id: string; fileName: string; progress: number; status: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const outputScrollRef = useRef<HTMLDivElement>(null);
 
   // Check for existing session on load
   useEffect(() => {
@@ -64,6 +67,7 @@ export default function Alexandria() {
       setUserId(storedUserId);
       setUsername(storedUsername || storedUserId);
       setIsAuthenticated(true);
+      setShowLanding(false);
     }
     setIsCheckingAuth(false);
   }, []);
@@ -151,7 +155,28 @@ export default function Alexandria() {
     setInputMessages([]);
   };
 
-  // Don't auto-scroll - let user read from top
+  // Auto-scroll for ghost mode conversations
+  useEffect(() => {
+    if (mode === 'ghost' && outputScrollRef.current) {
+      // Small delay to ensure DOM has updated
+      setTimeout(() => {
+        outputScrollRef.current?.scrollTo({
+          top: outputScrollRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 100);
+    }
+  }, [ghostMessages, mode]);
+
+  // Auto-scroll during streaming in ghost mode
+  useEffect(() => {
+    if (mode === 'ghost' && outputContent && outputScrollRef.current) {
+      outputScrollRef.current.scrollTo({
+        top: outputScrollRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }, [outputContent, mode]);
 
   const showStatus = (message: string, isThinking = false) => {
     if (isThinking) {
@@ -920,9 +945,14 @@ export default function Alexandria() {
     );
   }
 
-  // Show auth screen if not authenticated
+  // Show landing page first if not authenticated
+  if (!isAuthenticated && showLanding) {
+    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
+  }
+
+  // Show auth screen if not authenticated and landing dismissed
   if (!isAuthenticated) {
-    return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
+    return <AuthScreen onAuthSuccess={handleAuthSuccess} onBack={() => setShowLanding(true)} />;
   }
 
   return (
@@ -971,7 +1001,7 @@ export default function Alexandria() {
       </div>
 
       {/* Output Area */}
-      <div className="flex-1 px-4 md:px-8 pt-16 md:pt-24 pb-4 md:pb-8 overflow-y-auto">
+      <div ref={outputScrollRef} className="flex-1 px-4 md:px-8 pt-16 md:pt-24 pb-4 md:pb-8 overflow-y-auto">
         <div className="max-w-[700px] mx-auto space-y-4 md:space-y-6">
           {(mode === 'ghost' ? ghostMessages : inputMessages).map((message) => (
             <div
@@ -1279,7 +1309,7 @@ export default function Alexandria() {
                 type="text"
                 value={uploadContext}
                 onChange={(e) => setUploadContext(e.target.value)}
-                placeholder="context:"
+                placeholder="context"
                 disabled={isUploading}
                 className="w-full border rounded-xl text-sm px-4 py-3 pr-12 outline-none disabled:opacity-50"
                 style={{ 
