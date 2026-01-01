@@ -45,14 +45,60 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[600px] mx-auto text-center space-y-8">
+      <div className="max-w-[700px] mx-auto text-left space-y-8 px-4">
         {/* Description */}
-        <div className="text-[0.9rem] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          <p>Translation of Carbon Weights to Silicon Weights. Immortalize your cognition—transform your thoughts, memories, and voice into a digital twin that preserves both your objective memory and subjective personality.</p>
+        <div className="text-[0.85rem] leading-relaxed space-y-6" style={{ color: 'var(--text-secondary)' }}>
+          <div>
+            <p className="font-medium mb-4" style={{ color: 'var(--text-primary)' }}>abstract</p>
+          </div>
+          
+          <div>
+            <p className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Thesis</p>
+            <ul className="space-y-1 ml-4 list-disc">
+              <li>The human brain is a biological neural net with carbon weights; AI is a digital neural net with silicon weights</li>
+              <li>If trained on enough personal data, a digital neural net can approximate any specific biological neural net</li>
+              <li>If you translate your carbon weights into silicon weights; you can digitalise & optimise your cognition</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Product</p>
+            <ul className="space-y-1 ml-4 list-disc">
+              <li>Once you digitalise your subjective/objective data, you create a high-fidelity Personal Language Model (PLM)</li>
+              <li>This PLM enables a transition from zero-sum to positive-sum attention as it can autonomously approximate your output and synthesise pre-processed inputs; a personal function approximator</li>
+              <li>There is a structural delta between general LLMs with personal context and a PLM; while leveraged to SOTA LLMs, PLMs are specifically fine-tuned for each individual on their unique data</li>
+              <li>If something is to represent you it must know you; personalised LLMs are valuable assistants, PLMs are extensions of your cognition</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Market</p>
+            <ul className="space-y-1 ml-4 list-disc">
+              <li>Frontier labs won't build PLMs, but individuals who want to own, monetise, and optimise their data will</li>
+              <li>It's easier to be first than best – but if you build a personal data flywheel, you can be both</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Execution</p>
+            <ul className="space-y-1 ml-4 list-disc">
+              <li>The bottleneck to high-fidelity PLMs is the digital transcription of explicit/implicit subjective data</li>
+              <li>Once the benefits are internalised, it becomes simply an agency/friction problem</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Vision</p>
+            <ul className="space-y-1 ml-4 list-disc">
+              <li>AI enables infinite leverage on fixed attention – but what if that attention wasn't fixed?</li>
+              <li>In an age of leveraged abundance, the opportunity cost of zero-sum attention is infinite</li>
+              <li>Positive-sum attention is all you need.</li>
+            </ul>
+          </div>
         </div>
 
         {/* CTA Button */}
-        <div className="pt-6">
+        <div className="pt-6 text-center">
           <button
             onClick={onGetStarted}
             className="bg-transparent border-none text-[0.85rem] cursor-pointer transition-opacity hover:opacity-70"
