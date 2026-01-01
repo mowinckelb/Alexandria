@@ -7,7 +7,7 @@
 
 ## Quick Status
 **Last updated:** 2025-01-01
-**Unpushed changes:** No
+**Unpushed changes:** Yes - MOWINCKEL.md overhaul for agent compliance
 **Blockers:** None
 
 ---
@@ -36,6 +36,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
+| MOWINCKEL.md overhaul | 2025-01-01 | Complete rewrite for agent compliance: non-negotiable rules, decision authority levels, mandatory session protocols, verification requirements, common mistakes table. |
 | RLAIF synthetic feedback | 2025-01-01 | Editor evaluates Ghost responses, generates synthetic good/bad ratings. Auto-approve high confidence, queue low for Author review. |
 | Temporal awareness | 2024-11-29 | Memories now include timestamps [X days ago]. Ghost gets temporal context (span, recency guidance). |
 | Behavioral patterns (Ghost uses profiles) | 2024-11-29 | Ghost now loads personality_profiles (style, rules, vocab). Extract via POST /api/migration {action: 'extract_profile'} |
@@ -155,24 +156,27 @@ After feedback:
 **Last session:** 2025-01-01
 
 **What was done:**
-- **RLAIF Implementation:** Full synthetic feedback loop.
-    - `generateSyntheticFeedback()` in Editor — creates prompts, gets Ghost responses, evaluates them
-    - `evaluateGhostResponse()` — uses notepad + feedback history + constitution to rate
-    - Confidence routing: high → auto-approve, low → queue as notepad question
-    - `synthetic_ratings` table tracks all synthetic evaluations
-    - `GET/POST /api/rlaif` — trigger generation, get stats, validate ratings
-- **Debug State Update:** `/api/debug/state` now includes `rlaif` and `editor` sections
-- **Documentation:** ALEXANDRIA_CONTEXT.md Section H covers RLAIF architecture
+- **MOWINCKEL.md Overhaul:** Complete rewrite for maximum agent compliance.
+    - Added "Non-Negotiable Rules" section at top with violation examples
+    - Explicit Decision Authority table (Minor/Medium/Major/Critical)
+    - Mandatory Session Start/End protocols with specific steps
+    - 4-phase workflow with checklists: UNDERSTAND → IMPLEMENT → VERIFY → COMMIT
+    - Critical Code table with specific pre-modification steps
+    - "Common Mistakes to Avoid" table with counter-patterns
+    - Communication Standards with required response formats
+    - "Before Saying Done" checklist
+- **Previous session:** RLAIF Implementation (see Completed section)
 
-**Pushed:** Yes (v0.00.20)
+**Pushed:** Pending
 
 **Critical lesson learned:**
-Different models (Editor = Groq compound-mini, Ghost = Together AI) prevents self-reinforcement in RLAIF. The scaling loop: Author feedback → Editor patterns → synthetic ratings → Ghost training → better Ghost → Author feedback now more valuable.
+Agent compliance requires: (1) explicit violation examples, (2) concrete verification steps, (3) decision authority levels, (4) no room for interpretation on rules.
 
 **Known issues:**
-- Ghost response generation in RLAIF currently uses compound-mini as placeholder (should use actual Together AI Ghost model once fine-tuned)
+- `compound-mini` doesn't exist in Groq API (UI-only feature). Fixed to use `llama-3.3-70b-versatile`.
+- Ghost response generation in RLAIF uses llama-3.3-70b as placeholder (should use actual Together AI Ghost model once fine-tuned)
 
 **Suggested next actions:**
-1. Test RLAIF with `POST /api/rlaif {action: 'generate', userId: 'xxx'}`
-2. Verify `GET /api/debug/state?userId=xxx` shows RLAIF stats
-3. DONE: Renamed `unified-editor.ts` to `editor.ts`
+1. Push MOWINCKEL.md changes
+2. Test RLAIF with `POST /api/rlaif {action: 'generate', userId: 'xxx'}`
+3. Verify `GET /api/debug/state?userId=xxx` shows RLAIF stats
