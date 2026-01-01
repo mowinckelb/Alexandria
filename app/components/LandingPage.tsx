@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import { useTheme } from './ThemeProvider';
 
 interface LandingPageProps {
@@ -7,6 +8,28 @@ interface LandingPageProps {
 
 export default function LandingPage({ onGetStarted }: LandingPageProps) {
   const { theme, toggleTheme } = useTheme();
+
+  // Enable scrolling on this page (override global fixed positioning)
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    
+    // Store original styles
+    const originalHtmlStyle = html.style.cssText;
+    const originalBodyStyle = body.style.cssText;
+    
+    // Enable scrolling
+    html.style.overflow = 'auto';
+    html.style.position = 'static';
+    body.style.overflow = 'auto';
+    body.style.position = 'static';
+    
+    // Cleanup on unmount
+    return () => {
+      html.style.cssText = originalHtmlStyle;
+      body.style.cssText = originalBodyStyle;
+    };
+  }, []);
 
   const sections = [
     {
@@ -53,17 +76,19 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
 
   return (
     <div 
-      className="min-h-screen overflow-y-auto"
+      className="min-h-screen"
       style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       {/* Header - Fixed */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-5" style={{ background: 'var(--bg-primary)' }}>
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2 opacity-60">
-            <span className="text-[0.9rem] tracking-wide">alexandria.</span>
-            <span className="text-[0.75rem] italic opacity-70">mentes aeternae</span>
-          </div>
-          
+      <header className="fixed top-0 left-0 right-0 z-50 p-6" style={{ background: 'var(--bg-primary)' }}>
+        {/* Centered logo */}
+        <div className="flex flex-col items-center gap-0.5 opacity-55">
+          <span className="text-[0.85rem] tracking-wide">alexandria.</span>
+          <span className="text-[0.7rem] italic opacity-70">mentes aeternae</span>
+        </div>
+        
+        {/* Theme toggle in corner */}
+        <div className="absolute top-6 right-6">
           <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
             <button
               onClick={() => theme !== 'light' && toggleTheme()}
@@ -150,12 +175,6 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
           </button>
         </div>
       </main>
-
-      <style jsx>{`
-        div::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </div>
   );
 }
