@@ -338,7 +338,7 @@ BEHAVIOR:
     suggestedApproach: string;
   }> {
     const { text } = await generateText({
-      model: groq('compound-mini'),
+      model: groq('llama-3.3-70b-versatile'),
       messages: [
         {
           role: 'system',
