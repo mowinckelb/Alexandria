@@ -1,17 +1,11 @@
 // @CRITICAL: Unified Editor - biographer that converses with Author to extract information
-// Consolidates: Extractor, Refiner, EditorNotes into one Groq compound-mini model
+// Consolidates: Extractor, Refiner, EditorNotes into one LLM
 // Verify: two-way conversation works, notepad updates, training pairs generated
 
 import { createClient } from '@supabase/supabase-js';
-import { createGroq } from '@ai-sdk/groq';
 import { generateText } from 'ai';
 import Together from 'together-ai';
-
-// Auto-updating Groq compound model
-const groq = createGroq({ 
-  apiKey: process.env.GROQ_API_KEY,
-  headers: { 'Groq-Model-Version': 'latest' }
-});
+import { getFastModel, getQualityModel } from '@/lib/models';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -174,7 +168,7 @@ export class Editor {
     
     // 4. Generate Editor response
     const { text: response } = await generateText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: getFastModel(),
       messages: [
         {
           role: 'system',
@@ -264,7 +258,7 @@ CRITICAL RULES:
     
     // Generate learning insights from feedback
     const { text: response } = await generateText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: getFastModel(),
       messages: [
         {
           role: 'system',
@@ -410,7 +404,7 @@ Return JSON:
     
     // Let the Editor decide
     const { text: response } = await generateText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: getQualityModel(),
       messages: [
         {
           role: 'system',
@@ -748,7 +742,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
     
     // Generate prompts based on gaps
     const { text: response } = await generateText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: getFastModel(),
       messages: [
         {
           role: 'system',
@@ -777,7 +771,15 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`
       const jsonMatch = response.match(/\[[\s\S]*\]/);
       if (!jsonMatch) return corpusPrompts.slice(0, maxPrompts);
       
-      const prompts = JSON.parse(jsonMatch[0]);
+      const parsed = JSON.parse(jsonMatch[0]);
+      
+      // Handle both string arrays and object arrays
+      const prompts = parsed.map((p: unknown) => {
+        if (typeof p === 'string') return p;
+        if (typeof p === 'object' && p !== null && 'prompt' in p) return String((p as { prompt: unknown }).prompt);
+        return String(p);
+      });
+      
       return prompts.slice(0, maxPrompts);
     } catch {
       return corpusPrompts.slice(0, maxPrompts);
@@ -815,7 +817,7 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`
     for (const prompt of prompts) {
       try {
         const { text } = await generateText({
-          model: groq('llama-3.3-70b-versatile'), // Use compound-mini to simulate Ghost for now
+          model: getQualityModel(), // Simulate Ghost with quality model
           messages: [
             {
               role: 'system',
@@ -877,7 +879,7 @@ Respond naturally, in first person, as the Author would.`
     const constitution = profile?.constitutional_rules?.join('\n') || 'No constitution yet.';
     
     const { text: evalResponse } = await generateText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: getFastModel(),
       messages: [
         {
           role: 'system',

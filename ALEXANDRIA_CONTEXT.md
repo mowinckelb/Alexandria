@@ -76,7 +76,7 @@ These examples clarify what's "on the line" for this specific project:
 
 We use a **Bicameral RAG** approach to separate **Soul** (subjective) from **Memory** (objective), processed by a single **Unified Editor**.
 
-### A. Editor (Groq `llama-3.3-70b-versatile`)
+### A. Editor (Groq — uses `GROQ_FAST_MODEL` env var)
 * **Role:** Active biographer that converses with Author to extract information
 * **Model:** Groq `compound-mini` with `Groq-Model-Version: latest` (auto-updates)
 * **Capabilities:**
@@ -92,7 +92,7 @@ We use a **Bicameral RAG** approach to separate **Soul** (subjective) from **Mem
     * `getNotepad(userId)` → Current notepad state
     * `assessTrainingReadiness(userId)` → Training decision
 
-### B. Orchestrator (Groq `llama-3.3-70b-versatile`)
+### B. Orchestrator (Groq — uses `GROQ_QUALITY_MODEL` env var)
 * **Role:** Handle Ghost output to external users
 * **Model:** Groq `compound-mini` with `Groq-Model-Version: latest`
 * **Capabilities:**
@@ -135,8 +135,18 @@ Editor learns:
 * **Ghost Training:** Together AI fine-tuning on Llama 3.1 8B
 
 ### E. Model Configuration (Bitter Lesson)
-* **Both Editor and Orchestrator use `compound-mini`** — auto-updating Groq model
-* **Why single model?** Bitter Lesson: lean into LLM capabilities, avoid hand-coded logic
+
+**Env-based model selection** — change models without touching code:
+```env
+GROQ_FAST_MODEL=llama-3.1-8b-instant       # Editor conversations, RLAIF (default)
+GROQ_QUALITY_MODEL=llama-3.3-70b-versatile # Orchestrator, extraction (default)
+```
+
+**Why env vars?** When Llama 4 drops on Groq, change one line → entire app updated.
+
+**Why Groq?** Cheapest + fastest. No auto-updating aliases exist in API (compound-mini is UI-only).
+
+* **Bitter Lesson:** Lean into LLM capabilities, avoid hand-coded logic
 * **Suggested thresholds are guidelines, not gates** — Editor LLM decides based on data quality
 
 ### F. The Ghost Package (Deployable Output)
