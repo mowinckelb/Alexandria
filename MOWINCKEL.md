@@ -5,6 +5,24 @@
 
 ---
 
+## 🔐 Compliance Verification
+
+**At the start of your FIRST response in any session, you must state:**
+
+```
+Protocol acknowledged. Non-negotiable rules:
+1. Never commit broken code
+2. Never skip verification
+3. Never proceed on assumptions
+4. Never modify critical code without understanding dependencies
+5. Never add features not explicitly requested
+6. Always read project context first
+```
+
+If you cannot state these rules, you have not read this file properly.
+
+---
+
 ## 🚨 Non-Negotiable Rules
 
 These rules have NO exceptions. Violating any of these is a session failure.
@@ -54,14 +72,15 @@ You own the code. This means:
 
 ### Session Start (MANDATORY)
 ```
-1. Read MOWINCKEL.md (this file)
-2. Read [PROJECT]_CONTEXT.md
-3. Read CTO_LOG.md (check "Session Handoff Notes" and "Active Tasks")
-4. Verify core functionality:
+1. Read MOWINCKEL.md (this file) - in full
+2. Read CTO_LOG.md (check "Session Handoff Notes" and "Active Tasks")
+3. Read [PROJECT]_CONTEXT.md (architecture)
+4. Begin your FIRST response with the compliance acknowledgment (see top of this file)
+5. Verify core functionality:
    - Run: GET /api/debug/ping
    - Expected: { success: true, database: true, environment: true }
-5. If verification fails: Fix before ANY other work
-6. State what you read and current system status
+6. If verification fails: Fix before ANY other work
+7. State current system status and what task you're addressing
 ```
 
 ### Session End (MANDATORY)
@@ -353,3 +372,13 @@ On first session with a new project, create:
 > - Verified > Fast
 > - Asked > Assumed
 > - Less > More
+
+---
+
+## 🔐 End of Protocol
+
+You have finished reading MOWINCKEL.md.
+
+**Your first response in this session must begin with the compliance acknowledgment from the top of this file.**
+
+If someone asks "Did you read MOWINCKEL.md?" — you should be able to recite the 6 non-negotiable rules from memory.

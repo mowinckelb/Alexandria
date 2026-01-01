@@ -1,34 +1,123 @@
 ---
-description: Alexandria project architecture and conventions
+description: MANDATORY agent protocol - READ FIRST
 globs:
 alwaysApply: true
 ---
 
-# Project Context
+# ⛔ STOP - MANDATORY READING ORDER
 
-Always read and follow the architecture defined in `ALEXANDRIA_CONTEXT.md` at the project root.
+**Before ANY action, you MUST read these files in order:**
 
-## Key Rules
+1. `MOWINCKEL.md` - Agent protocol (NON-NEGOTIABLE RULES)
+2. `CTO_LOG.md` - Current state, active tasks, handoff notes
+3. `ALEXANDRIA_CONTEXT.md` - Project architecture
 
-1. **Before writing code:** Read `ALEXANDRIA_CONTEXT.md` to understand the architecture
-2. **AI SDK v5 patterns:** Use `inputSchema` (not `parameters`), `stopWhen: stepCountIs(n)` (not `maxSteps`), `toUIMessageStreamResponse()`
-3. **Factory pattern:** Use `lib/factory.ts` for module instantiation, never instantiate directly in routes
-4. **Model selection:**
-   - Refiner (subjective): `compound-mini` (speed/cost - uses generateText)
-   - Extractor (objective): `llama-3.3-70b-versatile` (reliability - uses generateObject with schema)
-   - Orchestrator: `llama-3.3-70b-versatile`
-5. **When architecture changes:** Update `ALEXANDRIA_CONTEXT.md` to reflect the new state
+**Failure to follow MOWINCKEL.md = session failure.**
 
-## Updating the Context
+---
 
-- **Direct updates:** Only update `ALEXANDRIA_CONTEXT.md` directly when explicitly asked by the user
-- **Suggestions:** If you identify potential improvements, patterns, or issues, add them to `ALEXANDRIA_SUGGESTIONS.md` using the format defined there
-- **Review suggestions:** When starting work, check `ALEXANDRIA_SUGGESTIONS.md` for pending items that might be relevant
+# 🚨 Non-Negotiable Rules (from MOWINCKEL.md)
 
-## Suggestion Format
+These rules have NO exceptions. Violating any = session failure.
 
-When adding to `ALEXANDRIA_SUGGESTIONS.md`, include:
-- Date and category
-- Your agent type (e.g., "Cursor Agent (Claude Opus)")
-- Which section of ALEXANDRIA_CONTEXT.md it affects
-- The suggestion and reasoning
+| Rule | Correct Behavior |
+|------|------------------|
+| **Never commit broken code** | Run `npx tsc --noEmit` before commit |
+| **Never skip verification** | Show actual command output or API response as proof |
+| **Never proceed on assumptions** | Query database or read schema first |
+| **Never modify critical code without understanding** | `grep -r "from.*factory" lib/` before changing factory.ts |
+| **Never add features not requested** | Ask first: "Should I also add X?" |
+| **Always read project context first** | Read: MOWINCKEL.md → ALEXANDRIA_CONTEXT.md → CTO_LOG.md |
+
+---
+
+# Session Start Protocol (MANDATORY)
+
+```
+1. Read MOWINCKEL.md (full file)
+2. Read CTO_LOG.md (check "Session Handoff Notes" and "Active Tasks")
+3. Read ALEXANDRIA_CONTEXT.md (architecture)
+4. Verify core functionality:
+   - Run: GET /api/debug/ping
+   - Expected: { success: true, database: true, environment: true }
+5. If verification fails: Fix before ANY other work
+6. State what you read and current system status
+```
+
+---
+
+# Decision Authority
+
+| Type | Examples | Action |
+|------|----------|--------|
+| **Minor** | Fix typo, rename variable, refactor within pattern | Just do it |
+| **Medium** | New function, modify API response, add field | Do it, mention in response |
+| **Major** | New table, new route, new dependency, delete files | Propose plan, wait for approval |
+| **Critical** | Auth, migrations, files in Critical Code list | Explain impact, wait for explicit "yes" |
+
+**If uncertain:** Treat as one level higher.
+
+---
+
+# Technical Patterns (Alexandria-Specific)
+
+## AI SDK v5 (STRICT)
+- Use `inputSchema` (not `parameters`)
+- Use `stopWhen: stepCountIs(n)` (not `maxSteps`)
+- Use `toUIMessageStreamResponse()` for streaming
+- Import hooks from `@ai-sdk/react`
+
+## Code Patterns
+- **Modules:** Use factory pattern (`lib/factory.ts`) - never instantiate directly
+- **API inputs:** Validate with Zod schemas
+- **Errors:** Return clean JSON `{ error: string }`, never crash
+
+## Model Selection
+| Purpose | Model |
+|---------|-------|
+| Editor/Orchestrator | `llama-3.3-70b-versatile` |
+| Embeddings | `BAAI/bge-base-en-v1.5` |
+| Ghost Inference | `meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo` |
+
+---
+
+# Critical Code (Extra Caution Required)
+
+| File | Before Modifying |
+|------|------------------|
+| `lib/factory.ts` | `grep -r "from.*factory" lib/` |
+| `lib/modules/objective/indexer.ts` | Test memory storage + recall |
+| `lib/modules/subjective/refiner.ts` | Test training pair generation |
+| `app/api/chat/route.ts` | Test Ghost responses |
+| `app/api/input-chat/route.ts` | Test conversation flow |
+| `app/api/auth/*/route.ts` | Test login/register |
+| `supabase/migrations/*` | Never modify existing, only add new |
+
+---
+
+# Verification Commands
+
+```bash
+# Health check
+curl http://localhost:3000/api/debug/ping
+
+# Full state
+curl "http://localhost:3000/api/debug/state?userId=00000000-0000-0000-0000-000000000001"
+
+# TypeScript check
+npx tsc --noEmit
+```
+
+---
+
+# Updating Documentation
+
+- **ALEXANDRIA_CONTEXT.md:** Only update when explicitly asked
+- **ALEXANDRIA_SUGGESTIONS.md:** Add improvement suggestions here
+- **CTO_LOG.md:** Update at session end with what was done
+
+---
+
+# Remember
+
+> **Simple > Clever. Verified > Fast. Asked > Assumed. Less > More.**

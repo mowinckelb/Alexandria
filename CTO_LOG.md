@@ -1,7 +1,14 @@
 # CTO Log
 
-> **For AI agents:** Read this file at the start of every session. Update it as you work.
-> This is the persistent technical state across all sessions - the CTO's working memory.
+> ## ⛔ DID YOU READ MOWINCKEL.md FIRST?
+> 
+> **Required reading order:** `MOWINCKEL.md` → `CTO_LOG.md` (this file) → `ALEXANDRIA_CONTEXT.md`
+> 
+> If you skipped MOWINCKEL.md, go back and read it now. It contains non-negotiable rules.
+> 
+> ---
+> 
+> This is the CTO's working memory. Read at session start. Update at session end.
 
 ---
 

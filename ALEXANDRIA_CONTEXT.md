@@ -1,10 +1,17 @@
 # Project Alexandria: System Architecture & Protocol
 
-> **STOP. Read these first:**
-> 1. `MOWINCKEL.md` - Universal principles for working with me
-> 2. `CTO_LOG.md` - Current technical state and tasks
+> ## ⛔ MANDATORY: DID YOU READ MOWINCKEL.md?
 > 
-> This file contains Alexandria-specific architecture and technical details.
+> **If you have not read `MOWINCKEL.md` in full, STOP and read it now.**
+> 
+> That file contains the agent protocol. Violating it = session failure.
+> 
+> **Required reading order:**
+> 1. `MOWINCKEL.md` - Agent protocol (NON-NEGOTIABLE RULES)
+> 2. `CTO_LOG.md` - Current state and active tasks
+> 3. This file - Architecture details
+> 
+> **Compliance check:** You must be able to answer: "What are the 6 non-negotiable rules?"
 
 ---
 
