@@ -978,15 +978,15 @@ export default function Alexandria() {
         
         <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
           <button
-            onClick={() => theme !== 'light' && toggleTheme()}
-            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
+            onClick={toggleTheme}
+            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] cursor-pointer"
             style={{ color: theme === 'light' ? 'var(--text-primary)' : 'var(--text-muted)' }}
           >
             light
           </button>
           <button
-            onClick={() => theme !== 'dark' && toggleTheme()}
-            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
+            onClick={toggleTheme}
+            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] cursor-pointer"
             style={{ color: theme === 'dark' ? 'var(--text-primary)' : 'var(--text-muted)' }}
           >
             dark
@@ -1051,27 +1051,27 @@ export default function Alexandria() {
             <div className="flex items-center gap-2">
               {/* Spacer to align with + button - always present */}
               <div className="w-10 flex-shrink-0" />
-              <div className="relative rounded-full p-[2px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
-              <button
-                onClick={() => setMode('carbon')}
-                className="relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer"
-                style={{ color: mode === 'carbon' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-              >
-                input
-              </button>
-              <button
-                onClick={() => setMode('ghost')}
-                className="relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer"
-                style={{ color: mode === 'ghost' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-              >
-                output
-              </button>
-              <div
-                className={`absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
-                  mode === 'ghost' ? 'translate-x-full' : ''
-                }`}
-                style={{ background: 'var(--toggle-pill)' }}
-              />
+              <div className="relative rounded-full p-[1px] inline-flex w-[100px]" style={{ background: 'var(--toggle-bg)' }}>
+                <button
+                  onClick={() => setMode(mode === 'carbon' ? 'ghost' : 'carbon')}
+                  className="relative z-10 flex-1 bg-transparent border-none py-0.5 text-[0.65rem] cursor-pointer"
+                  style={{ color: mode === 'carbon' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                >
+                  first
+                </button>
+                <button
+                  onClick={() => setMode(mode === 'ghost' ? 'carbon' : 'ghost')}
+                  className="relative z-10 flex-1 bg-transparent border-none py-0.5 text-[0.65rem] cursor-pointer"
+                  style={{ color: mode === 'ghost' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                >
+                  second
+                </button>
+                <div
+                  className={`absolute top-[1px] left-[1px] w-[calc(50%-1px)] h-[calc(100%-2px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
+                    mode === 'ghost' ? 'translate-x-full' : ''
+                  }`}
+                  style={{ background: 'var(--toggle-pill)' }}
+                />
               </div>
             </div>
             {/* Job status indicator */}
@@ -1089,7 +1089,7 @@ export default function Alexandria() {
             {/* Attach button - always present for layout stability */}
             <button
               onClick={() => feedbackPhase === 'none' && !carbonLockYN && setShowAttachModal(true)}
-              className={`flex-shrink-0 w-10 h-10 rounded-full text-lg flex items-center justify-center transition-colors ${feedbackPhase === 'none' && !carbonLockYN ? 'cursor-pointer' : 'opacity-0 cursor-default'}`}
+              className={`flex-shrink-0 w-10 h-10 rounded-full text-lg flex items-center justify-center ${feedbackPhase === 'none' && !carbonLockYN ? 'cursor-pointer' : 'opacity-0 cursor-default'}`}
               style={{ background: 'var(--bg-secondary)', color: 'var(--text-subtle)' }}
               title="Attach text"
             >
@@ -1115,7 +1115,7 @@ export default function Alexandria() {
                 spellCheck={false}
                 enterKeyHint="send"
                 data-form-type="other"
-                className={`w-full border-none rounded-2xl text-[0.9rem] px-5 py-4 pr-[60px] outline-none transition-colors shadow-md ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder-italic' : ''}`}
+                className={`w-full border-none rounded-2xl text-[0.9rem] px-5 py-4 pr-[60px] outline-none shadow-md ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder-italic' : ''}`}
                 style={{ 
                   background: 'var(--bg-secondary)', 
                   color: 'var(--text-primary)',
@@ -1196,27 +1196,8 @@ export default function Alexandria() {
           background: var(--scrollbar-thumb-hover);
         }
 
-        input::placeholder {
-          color: var(--text-subtle);
-        }
-
-        .placeholder-italic::placeholder {
-          font-style: italic;
-          color: var(--text-faint);
-        }
-
-        input:focus {
-          background: var(--bg-tertiary) !important;
-        }
-
         button:hover {
           color: var(--text-muted) !important;
-        }
-
-        @supports (caret-width: 2px) {
-          input {
-            caret-width: 2px;
-          }
         }
       `}</style>
 

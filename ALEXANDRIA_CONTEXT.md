@@ -72,42 +72,74 @@ These examples clarify what's "on the line" for this specific project:
 
 ---
 
-## 3. The Bicameral Architecture (Technical Core)
+## 3. The Unified Editor + Orchestrator Architecture (Technical Core)
 
-We use a **Bicameral RAG** approach to separate **Soul** (subjective) from **Memory** (objective).
+We use a **Bicameral RAG** approach to separate **Soul** (subjective) from **Memory** (objective), processed by a single **Unified Editor**.
 
-The **Editors** (processing LLMs) work in two hemispheres to build the Ghost.
+### A. Editor (Groq `compound-mini`)
+* **Role:** Active biographer that converses with Author to extract information
+* **Model:** Groq `compound-mini` with `Groq-Model-Version: latest` (auto-updates)
+* **Capabilities:**
+    * Two-way conversation with Author (not passive processing)
+    * Focuses on **subjective information** — opinions, values, quirks, personality
+    * Extracts **objective information** — facts, dates, events → vector storage
+    * Generates **training pairs** — style capture for fine-tuning
+    * Maintains **notepad** — structured notes + freeform scratchpad
+    * **Decides when to train** — LLM makes the call (ILO principle)
+* **Key Methods:**
+    * `converse(authorInput, userId, history)` → EditorResponse (message + extraction + follow-ups)
+    * `learnFromFeedback(feedback, userId)` → Updates notepad and training pairs
+    * `getNotepad(userId)` → Current notepad state
+    * `assessTrainingReadiness(userId)` → Training decision
 
-### A. The Subjective Hemisphere (Soul)
-* **Goal:** Capture the Author's voice, tone, wit, and sentence structure.
-* **Engine:** **Together AI** (Fine-tuning Llama 3.1 8B).
-* **Inference Model:** `meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo` (serverless).
-* **Training Base Model:** `meta-llama/Meta-Llama-3.1-8B-Instruct-Reference` (for fine-tuning).
-* **Method:** **Evolutionary Chain (Continued Fine-Tuning).**
-    * **Genesis (First run):** Base model = `meta-llama/Meta-Llama-3.1-8B-Instruct-Reference`.
-    * **Evolution (Subsequent runs):** Base model = previous custom model ID from `twins.model_id`. We train on top of old weights to simulate neuroplasticity.
-    * **Decision maker:** Editor decides when to train, and whether to train from base or continue from previous weights.
-    * **Together AI supports this:** Continued fine-tuning from custom model checkpoints is supported.
-* **Preprocessing:** **Groq `llama-3.1-8b-instant`** (Editor: "The Refiner") converts Carbon into `User/Assistant` JSONL pairs. Uses `generateText` (no schema required), so speed/cost is prioritized.
+### B. Orchestrator (Groq `compound-mini`)
+* **Role:** Handle Ghost output to external users
+* **Model:** Groq `compound-mini` with `Groq-Model-Version: latest`
+* **Capabilities:**
+    * Retrieves relevant memories via vector search
+    * Loads personality constitution
+    * Calls Ghost model (Together AI fine-tuned or base)
+    * Returns responses as Author would answer
+* **Key Methods:**
+    * `handleQuery(messages, userId, options)` → Stream response
+    * `generateResponse(messages, userId, options)` → Non-streaming response
 
-### B. The Objective Hemisphere (Memory)
-* **Goal:** Capture the Author's dates, names, events, and specific facts.
-* **Engine:** **Supabase Vector** (pgvector).
-* **Embeddings:** **`BAAI/bge-base-en-v1.5`** (768 dimensions, via Together AI API).
-* **Extraction:** **Groq `llama-3.3-70b-versatile`** (Editor: "The Extractor") structures Carbon into facts/entities.
-    * **IMPORTANT:** Groq does NOT support `json_schema` response format. Use `generateText` with manual JSON parsing instead of `generateObject`.
-* **Scaling Strategy:**
-    * **Stage 1:** HNSW Indexing (Current MVP).
-    * **Stage 2:** Hybrid Search (Vector + Keyword).
-    * **Stage 3:** **Stealth Graph.** We extract `entities` (Graph Nodes) during ingestion *now*, so we can build a Knowledge Graph later without re-processing data.
+### C. Data Flow
 
-### C. The Orchestrator (The Brain) - MVP Simplified
-* **Goal:** Route queries and manage the conversation.
-* **Current MVP Implementation:** Direct call to Together AI Ghost model with memory context injection.
-* **Memory Retrieval:** Keyword-based trigger (`/remember|recall|when|who|where|meet|met/i`) → Vector search → Context injection.
-* **Future Enhancement:** Full Groq orchestrator with tool calling (requires `toolChoice: 'required'` for reliable tool use).
+```
+First Order Input (Carbon):
+Author ↔ Editor (two-way conversation)
+      ↓
+Editor extracts:
+├── Objective → Memory (vector DB)
+├── Subjective → Training Pairs
+└── Notes → Editor Notepad
 
-### D. The Ghost Package (Deployable Output)
+Second Order Input (Feedback):
+Author ↔ Ghost (training conversation)
+      ↓
+Author rates: good/bad
+      ↓
+Editor learns:
+├── Updates notepad
+├── Creates training pairs (if good)
+└── Assesses training readiness
+```
+
+### D. Storage Layer
+* **Memories:** Supabase Vector (pgvector), embeddings via `BAAI/bge-base-en-v1.5`
+* **Training Pairs:** `training_pairs` table with quality scores
+* **Editor Notepad:**
+    * `editor_notes` — structured observations, gaps, mental models
+    * `editor_scratchpad` — freeform working memory
+* **Ghost Training:** Together AI fine-tuning on Llama 3.1 8B
+
+### E. Model Configuration (Bitter Lesson)
+* **Both Editor and Orchestrator use `compound-mini`** — auto-updating Groq model
+* **Why single model?** Bitter Lesson: lean into LLM capabilities, avoid hand-coded logic
+* **Suggested thresholds are guidelines, not gates** — Editor LLM decides based on data quality
+
+### F. The Ghost Package (Deployable Output)
 
 **Ghost is the finished product** — a self-contained, deployable package that can operate independently (including as an external API).
 
@@ -160,9 +192,9 @@ Feedback improves Ghost through **batch training cycles**, not real-time injecti
 
 ---
 
-### E. RLHF Pipeline (Feedback → Training Signal)
+### G. RLHF Pipeline (Feedback → Training Signal)
 * **Goal:** Convert Author feedback into model improvements.
-* **Feedback Collection:** Binary (👍/👎) + optional comments on Ghost responses. Binary is optimal — cleaner signal, less friction, more feedback.
+* **Feedback Collection:** Binary (`good`/`bad`) + optional comments on Ghost responses. Binary is optimal — cleaner signal, less friction, more feedback.
 * **Data Tables:**
     * `feedback_logs`: Raw user ratings with prompt/response pairs.
     * `preference_pairs`: DPO training data (chosen/rejected for same prompt).
@@ -208,7 +240,56 @@ Every feedback submission automatically processes into three training pipelines:
 
 **Design principle:** Force the Author to engage. Binary is non-negotiable — every response gets rated. This serves Ghost fidelity, not Author convenience.
 
-### F. Model-Agnostic Personalization (The Immortal Soul)
+### H. RLAIF: Synthetic Feedback Multiplier
+
+**Goal:** Multiply limited Author feedback into abundant training data using Editor's understanding of Author patterns.
+
+**Key Insight:** Editor (Groq compound-mini) evaluates Ghost (Together AI) responses — different models, no self-reinforcement. As compound-mini improves, RLAIF quality improves automatically (ILO principle).
+
+#### The Scaling Loop:
+```
+Author feedback (expensive, limited)
+         ↓
+Editor learns patterns (notepad + history)
+         ↓
+Editor generates synthetic ratings (cheap, unlimited)
+         ↓
+Ghost trains on synthetic + real feedback
+         ↓
+Ghost improves → Author feedback now higher signal (edge cases)
+         ↓
+Editor learns better patterns
+         ↓
+... scales infinitely
+```
+
+#### How It Works:
+1. **Prompt Generation:** Editor creates prompts based on gaps in notepad
+2. **Ghost Response:** Ghost generates response to synthetic prompt
+3. **Editor Evaluation:** Editor rates good/bad using notepad + feedback history + constitution
+4. **Confidence Routing:**
+   - High confidence → Auto-add to training pairs
+   - Medium confidence → Add to training pairs (flagged)
+   - Low confidence → Queue as notepad question for Author review
+
+#### API:
+* `GET /api/rlaif?userId=xxx` - Stats and feedback multiplier
+* `POST /api/rlaif` - Actions:
+  * `generate` - Run synthetic feedback generation
+  * `stats` - Get RLAIF statistics
+  * `validate` - Author validates a synthetic rating
+  * `pending` - Get pending reviews count
+
+#### Database:
+* `synthetic_ratings` - Tracks all synthetic evaluations with confidence, status, Author validation
+
+#### Safeguards:
+* Confidence threshold prevents auto-approving uncertain ratings
+* Low-confidence items become notepad questions (Author validates naturally)
+* Author disagreement creates learning observation for Editor calibration
+* Different models (Editor ≠ Ghost) prevents self-reinforcement
+
+### I. Model-Agnostic Personalization (The Immortal Soul)
 
 **Goal:** Ensure personality can transfer across base model upgrades. When Llama 4 releases, Authors must not lose their Ghost's personality.
 
@@ -345,11 +426,19 @@ These patterns were discovered through testing with AI SDK v5.0.101:
 
 | Purpose | Provider | Model ID |
 |---------|----------|----------|
-| Refiner (JSONL generation) | Groq | `llama-3.1-8b-instant` |
-| Extractor (fact extraction) | Groq | `llama-3.3-70b-versatile` |
+| **Unified Editor** | Groq | `compound-mini` (auto-updates) |
+| **Orchestrator** | Groq | `compound-mini` (auto-updates) |
 | Embeddings | Together AI | `BAAI/bge-base-en-v1.5` (768 dim) |
 | Ghost Inference | Together AI | `meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo` |
 | Ghost Training Base | Together AI | `meta-llama/Meta-Llama-3.1-8B-Instruct-Reference` |
+
+**Auto-Update Configuration:**
+```typescript
+const groq = createGroq({ 
+  apiKey: process.env.GROQ_API_KEY,
+  headers: { 'Groq-Model-Version': 'latest' }
+});
+```
 
 ---
 

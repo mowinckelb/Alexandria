@@ -61,7 +61,19 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, [theme, mounted]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    // Apply theme class synchronously before state update to prevent flash
+    const root = document.documentElement;
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    
+    // Update DOM immediately
+    if (newTheme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    
+    // Then update state (this will trigger useEffect to persist)
+    setTheme(newTheme);
   };
 
   // Prevent flash of wrong theme

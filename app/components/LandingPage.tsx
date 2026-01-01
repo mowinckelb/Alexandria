@@ -91,15 +91,15 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
         <div className="absolute top-6 right-6">
           <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
             <button
-              onClick={() => theme !== 'light' && toggleTheme()}
-              className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
+              onClick={toggleTheme}
+              className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] cursor-pointer"
               style={{ color: theme === 'light' ? 'var(--text-primary)' : 'var(--text-muted)' }}
             >
               light
             </button>
             <button
-              onClick={() => theme !== 'dark' && toggleTheme()}
-              className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
+              onClick={toggleTheme}
+              className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] cursor-pointer"
               style={{ color: theme === 'dark' ? 'var(--text-primary)' : 'var(--text-muted)' }}
             >
               dark

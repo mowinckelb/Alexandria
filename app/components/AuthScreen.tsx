@@ -128,14 +128,14 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
       <div className="fixed top-6 right-6 z-50">
         <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
           <button
-            onClick={() => theme !== 'light' && toggleTheme()}
+            onClick={toggleTheme}
             className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
             style={{ color: theme === 'light' ? 'var(--text-primary)' : 'var(--text-muted)' }}
           >
             light
           </button>
           <button
-            onClick={() => theme !== 'dark' && toggleTheme()}
+            onClick={toggleTheme}
             className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
             style={{ color: theme === 'dark' ? 'var(--text-primary)' : 'var(--text-muted)' }}
           >
@@ -153,7 +153,7 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
       {/* Auth Toggle */}
       <div className="relative rounded-full p-[2px] inline-flex mb-6" style={{ background: 'var(--toggle-bg)' }}>
         <button
-          onClick={() => setAuthMode('login')}
+          onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
           disabled={isLoading}
           className="relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer"
           style={{ color: authMode === 'login' ? 'var(--text-primary)' : 'var(--text-muted)' }}
@@ -161,7 +161,7 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
           sign in
         </button>
         <button
-          onClick={() => setAuthMode('register')}
+          onClick={() => setAuthMode(authMode === 'register' ? 'login' : 'register')}
           disabled={isLoading}
           className="relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer"
           style={{ color: authMode === 'register' ? 'var(--text-primary)' : 'var(--text-muted)' }}

@@ -27,7 +27,11 @@ export async function GET(req: Request) {
     activeModelResult,
     recentExportsResult,
     recentEntriesResult,
-    recentFeedbackResult
+    recentFeedbackResult,
+    // RLAIF stats
+    syntheticRatingsResult,
+    editorNotesResult,
+    rlaifStatsResult
   ] = await Promise.all([
     // Counts
     supabase.from('entries').select('*', { count: 'exact', head: true }).eq('user_id', userId),
@@ -59,7 +63,16 @@ export async function GET(req: Request) {
       .select('id, feedback, comment, created_at')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-      .limit(5)
+      .limit(5),
+    
+    // RLAIF: Synthetic ratings
+    supabase.from('synthetic_ratings').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+    
+    // Editor notepad stats
+    supabase.rpc('get_editor_notes_stats', { p_user_id: userId }),
+    
+    // RLAIF stats
+    supabase.rpc('get_rlaif_stats', { p_user_id: userId })
   ]);
 
   // Calculate training pair stats
@@ -124,6 +137,37 @@ export async function GET(req: Request) {
       preferencePairs: preferencePairsResult.count || 0,
       rewardDataPoints: rewardDataResult.count || 0
     },
+    
+    // RLAIF synthetic feedback
+    rlaif: (() => {
+      const stats = rlaifStatsResult.data?.[0];
+      const feedbackCount = feedbackResult.count || 0;
+      const autoApproved = Number(stats?.auto_approved) || 0;
+      return {
+        syntheticRatings: syntheticRatingsResult.count || 0,
+        autoApproved,
+        queuedReview: Number(stats?.queued_review) || 0,
+        authorValidated: Number(stats?.author_validated) || 0,
+        agreementRate: stats?.author_agreement_rate || null,
+        feedbackMultiplier: feedbackCount > 0 
+          ? `${(autoApproved / feedbackCount).toFixed(1)}x` 
+          : 'N/A',
+        byConfidence: stats?.by_confidence || { high: 0, medium: 0, low: 0 }
+      };
+    })(),
+    
+    // Editor notepad
+    editor: (() => {
+      const stats = editorNotesResult.data?.[0];
+      return {
+        totalNotes: Number(stats?.total_notes) || 0,
+        pendingQuestions: Number(stats?.pending_questions) || 0,
+        pendingGaps: Number(stats?.pending_gaps) || 0,
+        observations: Number(stats?.observations) || 0,
+        mentalModels: Number(stats?.mental_models) || 0,
+        criticalPending: Number(stats?.critical_pending) || 0
+      };
+    })(),
     
     // Recent activity (for verification)
     recent: {

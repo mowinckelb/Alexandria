@@ -57,6 +57,8 @@ Every feature on the direct path. No detours. Ask: "Is this termium?"
 ### ILO
 LLMs transform inputs to outputs. Maximize LLM decisions. Dynamic over static. Model agnostic.
 
+**Bitter Lesson (Sutton):** General methods that leverage computation scale better than human-engineered features. As models improve exponentially, hand-coded logic becomes technical debt. Lean into LLM capabilities; resist the urge to encode domain knowledge that the model will soon surpass.
+
 ### Axiomatic vs Ephemeral
 Preserve raw data and feedback. Make processing layers swappable.
 

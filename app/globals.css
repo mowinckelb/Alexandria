@@ -80,11 +80,24 @@ body {
   overscroll-behavior: none;
   margin: 0;
   padding: 0;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #__next {
   position: fixed;
   inset: 0;
   overflow: hidden;
+}
+
+/* Input styles - in globals to avoid styled-jsx flash on theme toggle */
+input::placeholder {
+  color: var(--text-subtle);
+}
+
+input.placeholder-italic::placeholder {
+  font-style: italic;
+  color: var(--text-faint);
+}
+
+input:focus {
+  background: var(--bg-tertiary) !important;
 }

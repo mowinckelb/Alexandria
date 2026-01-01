@@ -1,35 +1,37 @@
+// @CRITICAL: Feedback processing - Author trains Ghost with good/bad ratings
+// Routes learning to UnifiedEditor for notepad updates and training pairs
+// Verify: feedback saved, Editor learns, training pairs created from good feedback
+
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
-import { getDecisionEditor, SUGGESTED_DEFAULTS } from '@/lib/modules/core/decision-editor';
-import { getEditorTools } from '@/lib/factory';
+import { getEditor } from '@/lib/factory';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!, 
   process.env.SUPABASE_SERVICE_KEY!
 );
 
-const decisionEditor = getDecisionEditor();
-const { editorNotes } = getEditorTools();
-
+// Feedback schema - good/bad terminology
 const feedbackSchema = z.object({
   userId: z.string().uuid(),
   messageId: z.string().uuid().optional(),
   sessionId: z.string().uuid().optional(),
-  feedback: z.number().int().refine(val => val === -1 || val === 1, {
-    message: 'Feedback must be binary: -1 (bad) or +1 (good)'
-  }),
+  rating: z.enum(['good', 'bad']),
   comment: z.string().optional(),
   prompt: z.string(),
   response: z.string(),
   modelId: z.string().optional(),
-  isRegeneration: z.boolean().optional()  // True if this is A/B comparison
+  isRegeneration: z.boolean().optional()
 });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const validated = feedbackSchema.parse(body);
+    
+    // Convert good/bad to numeric for DB storage
+    const numericFeedback = validated.rating === 'good' ? 1 : -1;
 
     // 1. Save to feedback_logs
     const { data, error } = await supabase
@@ -38,7 +40,7 @@ export async function POST(req: Request) {
         user_id: validated.userId,
         message_id: validated.messageId,
         session_id: validated.sessionId,
-        feedback: validated.feedback,
+        feedback: numericFeedback,
         comment: validated.comment,
         prompt: validated.prompt,
         response: validated.response,
@@ -55,54 +57,32 @@ export async function POST(req: Request) {
     const feedbackId = data.id;
     const enhancements: string[] = [];
 
-    // 2. AUTO: LoRA Enhancement - positive feedback → training_pairs
-    // Works for BOTH initial responses AND regenerations
-    if (validated.feedback === 1) {
-      // Get existing pair count for context
-      const { count: existingPairs } = await supabase
-        .from('training_pairs')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', validated.userId);
+    // 2. Route learning to UnifiedEditor
+    const editor = getEditor();
+    await editor.learnFromFeedback({
+      rating: validated.rating,
+      comment: validated.comment,
+      prompt: validated.prompt,
+      response: validated.response
+    }, validated.userId);
+    
+    enhancements.push('editor_learned');
 
-      // Decision Editor determines quality score (suggested defaults provided as context)
-      const qualityScore = await decisionEditor.decideQualityScore({
-        isRegeneration: validated.isRegeneration || false,
-        feedbackValue: validated.feedback,
-        existingPairs: existingPairs || 0
-      });
-      
-      const { error: loraError } = await supabase
-        .from('training_pairs')
-        .insert({
-          user_id: validated.userId,
-          system_prompt: 'You are a digital ghost.',
-          user_content: validated.prompt,
-          assistant_content: validated.response,
-          quality_score: qualityScore
-        });
-      
-      if (!loraError) {
-        enhancements.push(validated.isRegeneration ? 'lora_pair_added_ab_confirmed' : 'lora_pair_added');
-      }
-    }
-
-    // 3. AUTO: DPO Pair Detection - find opposing rating for same prompt
+    // 3. DPO Pair Detection - find opposing rating for same prompt
     if (validated.isRegeneration) {
-      // Look for a different rating on the same prompt in this session
       const { data: opposingFeedback } = await supabase
         .from('feedback_logs')
         .select('id, response, feedback')
         .eq('user_id', validated.userId)
         .eq('prompt', validated.prompt)
         .neq('id', feedbackId)
-        .neq('feedback', validated.feedback)
+        .neq('feedback', numericFeedback)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
 
       if (opposingFeedback) {
-        // We have an A/B pair! Determine chosen vs rejected
-        const isCurrentChosen = validated.feedback > opposingFeedback.feedback;
+        const isCurrentChosen = numericFeedback > opposingFeedback.feedback;
         
         const { error: dpoError } = await supabase
           .from('preference_pairs')
@@ -113,7 +93,7 @@ export async function POST(req: Request) {
             rejected_response: isCurrentChosen ? opposingFeedback.response : validated.response,
             chosen_feedback_id: isCurrentChosen ? feedbackId : opposingFeedback.id,
             rejected_feedback_id: isCurrentChosen ? opposingFeedback.id : feedbackId,
-            margin: Math.abs(validated.feedback - opposingFeedback.feedback)
+            margin: Math.abs(numericFeedback - opposingFeedback.feedback)
           });
 
         if (!dpoError) {
@@ -122,62 +102,43 @@ export async function POST(req: Request) {
       }
     }
 
-    // 4. AUTO: Reward Model Data - ALL feedback (initial + regenerations) → normalized rewards
+    // 4. Reward Model Data - ALL feedback → normalized rewards
     const { error: rewardError } = await supabase
       .from('reward_training_data')
       .insert({
         user_id: validated.userId,
         prompt: validated.prompt,
         response: validated.response,
-        reward: validated.feedback * 0.5,  // Binary: -1→-0.5, +1→+0.5
+        reward: numericFeedback * 0.5,
         feedback_id: feedbackId
       });
 
     if (!rewardError) {
-      enhancements.push(validated.isRegeneration ? 'reward_data_added_ab' : 'reward_data_added');
+      enhancements.push('reward_data_added');
     }
 
-    // 5. AUTO: Editor Notes - extract preferences from feedback (especially negative with comments)
-    // This is high-signal data about user preferences
-    if (validated.comment && validated.comment.trim()) {
-      try {
-        // IMPORTANT: Author feedback uses both first person ("I don't like...") and second person ("you should...")
-        // Both refer to the AUTHOR's preferences for how their Ghost should behave - Ghost IS the Author
-        const feedbackContext = validated.feedback === -1
-          ? `Author REJECTED this Ghost response and commented: "${validated.comment}"\n\nThe rejected response was: "${validated.response.substring(0, 500)}..."\n\nNOTE: Whether the Author says "I don't like X" or "you shouldn't do X", both mean the AUTHOR prefers their Ghost to avoid X. The Ghost is a reflection of the Author.\n\nThis reveals what the Author DISLIKES about how they come across.`
-          : `Author APPROVED this Ghost response and commented: "${validated.comment}"\n\nThe approved response was: "${validated.response.substring(0, 500)}..."\n\nNOTE: Whether the Author says "I like X" or "you did X well", both mean the AUTHOR prefers their Ghost to do X. The Ghost is a reflection of the Author.\n\nThis reveals what the Author LIKES about how they come across.`;
-        
-        const notes = await editorNotes.analyzeAndGenerateNotes(feedbackContext, validated.userId);
-        if (notes.length > 0) {
-          enhancements.push(`editor_notes_from_feedback:${notes.length}`);
-        }
-      } catch (e) {
-        console.error('Editor notes from feedback failed:', e);
-      }
+    // 5. Direct observation for bad feedback
+    if (validated.rating === 'bad') {
+      await supabase.from('editor_notes').insert({
+        user_id: validated.userId,
+        type: 'observation',
+        content: `Ghost response was marked BAD for: "${validated.prompt.substring(0, 100)}..."`,
+        context: validated.comment || 'No comment provided',
+        topic: 'response_preferences',
+        priority: validated.comment ? 'high' : 'low',
+        category: 'non_critical'
+      });
+      enhancements.push('rejection_observation_added');
     }
-    
-    // Also generate a direct observation for negative feedback (even without comment)
-    if (validated.feedback === -1) {
-      try {
-        await supabase.from('editor_notes').insert({
-          user_id: validated.userId,
-          type: 'observation',
-          content: `User rejected a response to: "${validated.prompt.substring(0, 100)}..."`,
-          context: validated.comment || 'No comment provided',
-          topic: 'response_preferences',
-          priority: validated.comment ? 'high' : 'low'
-        });
-        enhancements.push('rejection_observation_added');
-      } catch (e) {
-        console.error('Rejection observation failed:', e);
-      }
-    }
+
+    console.log(`[Feedback] Processed ${validated.rating} feedback: ${enhancements.join(', ')}`);
 
     return NextResponse.json({ 
       success: true, 
       feedbackId,
+      rating: validated.rating,
       enhancements,
-      message: 'Feedback recorded and processed.'
+      message: 'Feedback recorded. Editor is learning from this.'
     });
 
   } catch (error) {
@@ -233,14 +194,19 @@ export async function GET(req: Request) {
       .eq('user_id', userId)
       .is('export_id', null);
 
+    // Get training readiness from Editor
+    const editorInstance = getEditor();
+    const trainingDecision = await editorInstance.assessTrainingReadiness(userId);
+
     return NextResponse.json({
       totalFeedback: total,
       distribution: counts,
       positiveRate: (positiveRate * 100).toFixed(0) + '%',
       preferencePairsAvailable: pairCount || 0,
       rewardDataAvailable: rewardCount || 0,
-      dpoReady: (pairCount || 0) >= 100,  // Need ~100+ preference pairs for DPO
-      rewardModelReady: (rewardCount || 0) >= 500  // Need more data for reward model
+      dpoReady: (pairCount || 0) >= 100,
+      rewardModelReady: (rewardCount || 0) >= 500,
+      trainingRecommendation: trainingDecision
     });
 
   } catch (error) {
@@ -248,4 +214,3 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
