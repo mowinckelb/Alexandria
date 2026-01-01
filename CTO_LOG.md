@@ -43,6 +43,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
+| Agent compliance enforcement (all files) | 2025-01-01 | Added compliance verification requirement, updated .cursor/rules, added enforcement headers to ALEXANDRIA_CONTEXT.md and CTO_LOG.md, added tripwire acknowledgment requirement. |
 | MOWINCKEL.md overhaul | 2025-01-01 | Complete rewrite for agent compliance: non-negotiable rules, decision authority levels, mandatory session protocols, verification requirements, common mistakes table. |
 | RLAIF synthetic feedback | 2025-01-01 | Editor evaluates Ghost responses, generates synthetic good/bad ratings. Auto-approve high confidence, queue low for Author review. |
 | Temporal awareness | 2024-11-29 | Memories now include timestamps [X days ago]. Ghost gets temporal context (span, recency guidance). |
