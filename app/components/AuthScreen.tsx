@@ -4,9 +4,10 @@ import { useTheme } from './ThemeProvider';
 
 interface AuthScreenProps {
   onAuthSuccess: (username: string, token: string, userId: string) => void;
+  onBack?: () => void;
 }
 
-export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
+export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
   const { theme, toggleTheme } = useTheme();
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -107,9 +108,21 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       <div className="fixed top-0 left-0 right-0 p-6 text-center text-[0.85rem] opacity-55 z-50" style={{ background: 'var(--bg-primary)' }}>
         <div className="flex flex-col items-center gap-1">
           <span>alexandria.</span>
-          <span className="text-[0.75rem] italic opacity-80">immortalise the greats</span>
+          <span className="text-[0.75rem] italic opacity-80">mentes aeternae</span>
         </div>
       </div>
+
+      {/* Back Arrow */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="fixed top-6 left-6 z-50 bg-transparent border-none rounded-md text-[1.2rem] cursor-pointer px-2 py-1 transition-colors disabled:opacity-50 scale-y-[0.8]"
+          style={{ color: 'var(--text-whisper)' }}
+          disabled={isLoading}
+        >
+          ←
+        </button>
+      )}
 
       {/* Theme Toggle - subtle in corner */}
       <div className="fixed top-6 right-6 z-50">
