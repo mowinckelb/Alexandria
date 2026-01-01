@@ -7,7 +7,7 @@
 
 ## Quick Status
 **Last updated:** 2025-01-01
-**Unpushed changes:** Yes - RLAIF implementation
+**Unpushed changes:** No
 **Blockers:** None
 
 ---
@@ -164,7 +164,7 @@ After feedback:
 - **Debug State Update:** `/api/debug/state` now includes `rlaif` and `editor` sections
 - **Documentation:** ALEXANDRIA_CONTEXT.md Section H covers RLAIF architecture
 
-**Pushed:** Pending (will push after this update)
+**Pushed:** Yes (v0.00.20)
 
 **Critical lesson learned:**
 Different models (Editor = Groq compound-mini, Ghost = Together AI) prevents self-reinforcement in RLAIF. The scaling loop: Author feedback → Editor patterns → synthetic ratings → Ghost training → better Ghost → Author feedback now more valuable.

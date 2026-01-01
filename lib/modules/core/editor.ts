@@ -174,7 +174,7 @@ export class Editor {
     
     // 4. Generate Editor response
     const { text: response } = await generateText({
-      model: groq('compound-mini'),
+      model: groq('llama-3.3-70b-versatile'),
       messages: [
         {
           role: 'system',
@@ -264,7 +264,7 @@ CRITICAL RULES:
     
     // Generate learning insights from feedback
     const { text: response } = await generateText({
-      model: groq('compound-mini'),
+      model: groq('llama-3.3-70b-versatile'),
       messages: [
         {
           role: 'system',
@@ -410,7 +410,7 @@ Return JSON:
     
     // Let the Editor decide
     const { text: response } = await generateText({
-      model: groq('compound-mini'),
+      model: groq('llama-3.3-70b-versatile'),
       messages: [
         {
           role: 'system',
@@ -748,7 +748,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
     
     // Generate prompts based on gaps
     const { text: response } = await generateText({
-      model: groq('compound-mini'),
+      model: groq('llama-3.3-70b-versatile'),
       messages: [
         {
           role: 'system',
@@ -815,7 +815,7 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`
     for (const prompt of prompts) {
       try {
         const { text } = await generateText({
-          model: groq('compound-mini'), // Use compound-mini to simulate Ghost for now
+          model: groq('llama-3.3-70b-versatile'), // Use compound-mini to simulate Ghost for now
           messages: [
             {
               role: 'system',
@@ -877,7 +877,7 @@ Respond naturally, in first person, as the Author would.`
     const constitution = profile?.constitutional_rules?.join('\n') || 'No constitution yet.';
     
     const { text: evalResponse } = await generateText({
-      model: groq('compound-mini'),
+      model: groq('llama-3.3-70b-versatile'),
       messages: [
         {
           role: 'system',

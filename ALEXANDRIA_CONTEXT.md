@@ -76,7 +76,7 @@ These examples clarify what's "on the line" for this specific project:
 
 We use a **Bicameral RAG** approach to separate **Soul** (subjective) from **Memory** (objective), processed by a single **Unified Editor**.
 
-### A. Editor (Groq `compound-mini`)
+### A. Editor (Groq `llama-3.3-70b-versatile`)
 * **Role:** Active biographer that converses with Author to extract information
 * **Model:** Groq `compound-mini` with `Groq-Model-Version: latest` (auto-updates)
 * **Capabilities:**
@@ -92,7 +92,7 @@ We use a **Bicameral RAG** approach to separate **Soul** (subjective) from **Mem
     * `getNotepad(userId)` → Current notepad state
     * `assessTrainingReadiness(userId)` → Training decision
 
-### B. Orchestrator (Groq `compound-mini`)
+### B. Orchestrator (Groq `llama-3.3-70b-versatile`)
 * **Role:** Handle Ghost output to external users
 * **Model:** Groq `compound-mini` with `Groq-Model-Version: latest`
 * **Capabilities:**
@@ -244,7 +244,7 @@ Every feedback submission automatically processes into three training pipelines:
 
 **Goal:** Multiply limited Author feedback into abundant training data using Editor's understanding of Author patterns.
 
-**Key Insight:** Editor (Groq compound-mini) evaluates Ghost (Together AI) responses — different models, no self-reinforcement. As compound-mini improves, RLAIF quality improves automatically (ILO principle).
+**Key Insight:** Editor (Groq llama-3.3-70b) evaluates Ghost (Together AI) responses — different models, no self-reinforcement. As Groq models improve, RLAIF quality improves automatically (ILO principle).
 
 #### The Scaling Loop:
 ```
