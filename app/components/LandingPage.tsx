@@ -52,110 +52,104 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
   ];
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-      {/* Header */}
-      <div className="fixed top-0 left-0 right-0 p-6 text-center text-[0.85rem] opacity-55 z-50" style={{ background: 'var(--bg-primary)' }}>
-        <div className="flex flex-col items-center gap-0.5">
-          <span className="tracking-wide">alexandria.</span>
-          <span className="text-[0.7rem] italic opacity-70">mentes aeternae</span>
+    <div 
+      className="min-h-screen overflow-y-auto"
+      style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+    >
+      {/* Header - Fixed */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-5" style={{ background: 'var(--bg-primary)' }}>
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2 opacity-60">
+            <span className="text-[0.9rem] tracking-wide">alexandria.</span>
+            <span className="text-[0.75rem] italic opacity-70">mentes aeternae</span>
+          </div>
+          
+          <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
+            <button
+              onClick={() => theme !== 'light' && toggleTheme()}
+              className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
+              style={{ color: theme === 'light' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+            >
+              light
+            </button>
+            <button
+              onClick={() => theme !== 'dark' && toggleTheme()}
+              className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
+              style={{ color: theme === 'dark' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+            >
+              dark
+            </button>
+            <div
+              className={`absolute top-[1px] left-[1px] w-[calc(50%-1px)] h-[calc(100%-2px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
+                theme === 'dark' ? 'translate-x-full' : ''
+              }`}
+              style={{ background: 'var(--toggle-pill)' }}
+            />
+          </div>
         </div>
-      </div>
-
-      {/* Theme Toggle */}
-      <div className="fixed top-6 right-6 z-50">
-        <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
-          <button
-            onClick={() => theme !== 'light' && toggleTheme()}
-            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
-            style={{ color: theme === 'light' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-          >
-            light
-          </button>
-          <button
-            onClick={() => theme !== 'dark' && toggleTheme()}
-            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
-            style={{ color: theme === 'dark' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-          >
-            dark
-          </button>
-          <div
-            className={`absolute top-[1px] left-[1px] w-[calc(50%-1px)] h-[calc(100%-2px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
-              theme === 'dark' ? 'translate-x-full' : ''
-            }`}
-            style={{ background: 'var(--toggle-pill)' }}
-          />
-        </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center pt-24 pb-6 px-6 overflow-hidden">
-        <div className="max-w-[520px] w-full flex flex-col flex-1 min-h-0">
-          
-          {/* Abstract Label */}
-          <div className="text-center mb-6">
-            <span className="text-[0.6rem] tracking-[0.25em] uppercase opacity-40" style={{ color: 'var(--text-muted)' }}>
-              abstract
-            </span>
-          </div>
-
-          {/* Scrollable Content */}
-          <div 
-            className="flex-1 overflow-y-auto min-h-0 px-1"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            <div className="space-y-6 pb-4">
-              {sections.map((section, idx) => (
-                <div key={section.title} className={section.isConclusion ? 'pt-2' : ''}>
-                  {/* Section header */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <span 
-                      className="text-[0.6rem] opacity-30 tabular-nums"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      {String(idx + 1).padStart(2, '0')}
-                    </span>
-                    <span 
-                      className={`text-[0.68rem] tracking-wide ${section.isConclusion ? 'italic' : ''}`}
-                      style={{ color: 'var(--text-primary)', opacity: section.isConclusion ? 0.9 : 0.8 }}
-                    >
-                      {section.title}
-                    </span>
-                    <div className="flex-1 h-px opacity-20" style={{ background: 'var(--text-muted)' }} />
-                  </div>
-                  
-                  {/* Section content */}
-                  <div className="space-y-2.5 pl-7">
-                    {section.points.map((point, pointIdx) => (
-                      <p 
-                        key={pointIdx}
-                        className={`text-[0.68rem] leading-[1.7] ${
-                          section.isConclusion && pointIdx === section.points.length - 1 
-                            ? 'font-medium opacity-90' 
-                            : 'opacity-65'
-                        }`}
-                        style={{ color: 'var(--text-secondary)' }}
-                      >
-                        {point}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div className="pt-5 text-center">
-            <button
-              onClick={onGetStarted}
-              className="bg-transparent border-none text-[0.72rem] cursor-pointer transition-all hover:opacity-60 tracking-wide"
-              style={{ color: 'var(--text-primary)', opacity: 0.7 }}
-            >
-              enter →
-            </button>
-          </div>
+      <main className="max-w-2xl mx-auto px-6 pt-28 pb-20">
+        {/* Abstract Label */}
+        <div className="mb-12">
+          <span className="text-[0.65rem] tracking-[0.2em] uppercase opacity-40" style={{ color: 'var(--text-muted)' }}>
+            abstract
+          </span>
         </div>
-      </div>
+
+        {/* Sections */}
+        <div className="space-y-12">
+          {sections.map((section, idx) => (
+            <section key={section.title} className={section.isConclusion ? 'pt-4' : ''}>
+              {/* Section header */}
+              <div className="flex items-center gap-4 mb-5">
+                <span 
+                  className="text-[0.65rem] opacity-30 tabular-nums"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+                <span 
+                  className={`text-[0.8rem] tracking-wide ${section.isConclusion ? 'italic' : ''}`}
+                  style={{ color: 'var(--text-primary)', opacity: 0.85 }}
+                >
+                  {section.title}
+                </span>
+                <div className="flex-1 h-px opacity-15" style={{ background: 'var(--text-muted)' }} />
+              </div>
+              
+              {/* Section content */}
+              <div className="space-y-4 pl-10">
+                {section.points.map((point, pointIdx) => (
+                  <p 
+                    key={pointIdx}
+                    className={`text-[0.85rem] leading-[1.8] ${
+                      section.isConclusion && pointIdx === section.points.length - 1 
+                        ? 'font-medium opacity-85' 
+                        : 'opacity-60'
+                    }`}
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    {point}
+                  </p>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+
+        {/* CTA Section */}
+        <div className="mt-20 pt-10 border-t text-center" style={{ borderColor: 'var(--border-light)' }}>
+          <button
+            onClick={onGetStarted}
+            className="bg-transparent border-none text-[0.85rem] cursor-pointer transition-opacity hover:opacity-60 tracking-wide py-3 px-8"
+            style={{ color: 'var(--text-primary)', opacity: 0.8 }}
+          >
+            sign in / sign up
+          </button>
+        </div>
+      </main>
 
       <style jsx>{`
         div::-webkit-scrollbar {
