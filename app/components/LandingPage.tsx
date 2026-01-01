@@ -48,7 +48,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
       <div className="max-w-[600px] mx-auto text-center space-y-8">
         {/* Description */}
         <div className="text-[0.9rem] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          <p>[abstract]</p>
+          <p>Translation of Carbon Weights to Silicon Weights. Immortalize your cognition—transform your thoughts, memories, and voice into a digital twin that preserves both your objective memory and subjective personality.</p>
         </div>
 
         {/* CTA Button */}
