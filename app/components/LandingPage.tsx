@@ -101,7 +101,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
           {/* Scrollable Content */}
           <div 
             className="flex-1 overflow-y-auto min-h-0 px-1"
-            style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--scrollbar-thumb) transparent' }}
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             <div className="space-y-6 pb-4">
               {sections.map((section, idx) => (
@@ -159,17 +159,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
 
       <style jsx>{`
         div::-webkit-scrollbar {
-          width: 3px;
-        }
-        div::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        div::-webkit-scrollbar-thumb {
-          background: var(--scrollbar-thumb);
-          border-radius: 1.5px;
-        }
-        div::-webkit-scrollbar-thumb:hover {
-          background: var(--scrollbar-thumb-hover);
+          display: none;
         }
       `}</style>
     </div>
