@@ -21,7 +21,7 @@
 
 ## Active Tasks
 
-### High Priority (Ghost Fidelity Improvements)
+### High Priority (PLM Fidelity Improvements)
 *Address these in order. One at a time.*
 
 | Task | Context | Suggested Solution | Added |
@@ -36,7 +36,7 @@
 ### Low Priority
 | Task | Context | Suggested Solution | Added |
 |------|---------|-------------------|-------|
-| Constitutional layer (DEFERRED) | Hard boundaries for Ghost | Existing voice rules in personality_profiles sufficient for now. Revisit when Ghost is public-facing or fine-tuned. | 2024-11-29 |
+| Constitutional layer (DEFERRED) | Hard boundaries for PLM | Existing voice rules in personality_profiles sufficient for now. Revisit when PLM is public-facing or fine-tuned. | 2024-11-29 |
 | Register route needs same env var validation | Currently uses `!` assertions | Copy pattern from login route | 2024-11-28 |
 
 ---
@@ -44,15 +44,15 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
-| Together AI training pipeline | 2026-01-02 | ✅ COMPLETE. JSONL export → Python upload → LoRA fine-tune → model activation. Ghost now uses fine-tuned model with memories. Checkpoint training noted as future enhancement. |
+| Together AI training pipeline | 2026-01-02 | ✅ COMPLETE. JSONL export → Python upload → LoRA fine-tune → model activation. PLM now uses fine-tuned model with memories. Checkpoint training noted as future enhancement. |
 | Agent compliance enforcement (all files) | 2025-01-01 | Added compliance verification requirement, updated .cursor/rules, added enforcement headers to ALEXANDRIA_CONTEXT.md and CTO_LOG.md, added tripwire acknowledgment requirement. |
 | MOWINCKEL.md overhaul | 2025-01-01 | Complete rewrite for agent compliance: non-negotiable rules, decision authority levels, mandatory session protocols, verification requirements, common mistakes table. |
-| RLAIF synthetic feedback | 2025-01-01 | Editor evaluates Ghost responses, generates synthetic good/bad ratings. Auto-approve high confidence, queue low for Author review. |
-| Temporal awareness | 2024-11-29 | Memories now include timestamps [X days ago]. Ghost gets temporal context (span, recency guidance). |
-| Behavioral patterns (Ghost uses profiles) | 2024-11-29 | Ghost now loads personality_profiles (style, rules, vocab). Extract via POST /api/migration {action: 'extract_profile'} |
+| RLAIF synthetic feedback | 2025-01-01 | Editor evaluates PLM responses, generates synthetic good/bad ratings. Auto-approve high confidence, queue low for Author review. |
+| Temporal awareness | 2024-11-29 | Memories now include timestamps [X days ago]. PLM gets temporal context (span, recency guidance). |
+| Behavioral patterns (PLM uses profiles) | 2024-11-29 | PLM now loads personality_profiles (style, rules, vocab). Extract via POST /api/migration {action: 'extract_profile'} |
 | Memory retrieval quality | 2024-11-29 | Added recency decay + importance weighting. Combined score = similarity * importance * recency_factor |
 | Preserve raw carbon (upload-carbon) | 2024-11-29 | Extracted text now stored to `entries` table with source type + metadata |
-| Clarify Ghost Package architecture | 2024-11-29 | Ghost = deployable package (model + memories + constitution). Feedback → training, not runtime. |
+| Clarify PLM Package architecture | 2024-11-29 | PLM = deployable package (model + memories + constitution). Feedback → training, not runtime. |
 | Add Soul training pairs to upload-carbon | 2024-11-29 | Was missing vs bulk-ingest - pipeline completeness fix |
 | PDF via OpenAI Assistants API | 2024-11-29 | Native multi-page PDF parsing for max fidelity |
 | External carbon file upload UI | 2024-11-29 | + button, modal, audio/pdf/text support |
@@ -61,8 +61,8 @@
 | Add Decision Levels principle | 2024-11-29 | Minor = just do, Major = brainstorm first |
 | Editor Notes system | 2024-11-29 | Questions, observations, gaps, mental models |
 | Conversation state machine | 2024-11-29 | y/n lock phases for input-chat flow |
-| Ghost wrap-up flow | 2024-11-29 | Matches input mode - "anything else?" + goodbye |
-| Ghost identity clarification | 2024-11-29 | System prompt clarifies Ghost = Author |
+| PLM wrap-up flow | 2024-11-29 | Matches input mode - "anything else?" + goodbye |
+| PLM identity clarification | 2024-11-29 | System prompt clarifies PLM = Author |
 | Feedback → Notes flow | 2024-11-29 | Extract preferences from feedback |
 
 ---
@@ -173,7 +173,7 @@ After feedback:
     - `TogetherTuner.getJobStatus()`: Poll training progress
     - `POST /api/training { action: 'start' }`: Full pipeline - export → upload → start job
     - `GET /api/training/job?jobId=xxx`: Status polling endpoint
-    - `POST /api/training/job { action: 'activate' }`: Activate completed model as Ghost
+    - `POST /api/training/job { action: 'activate' }`: Activate completed model as PLM
     - Verified: File upload works, training job creation works, blocked only by insufficient credits
 
 **Pushed:** Yes (970b7d6)
@@ -186,7 +186,7 @@ After feedback:
 **Known issues:**
 - Together AI account needs credits to run actual training jobs
 - `compound-mini` doesn't exist in Groq API (UI-only feature). Fixed to use `llama-3.3-70b-versatile`.
-- Ghost response generation in RLAIF uses llama-3.3-70b as placeholder (should use actual Together AI Ghost model once fine-tuned)
+- PLM response generation in RLAIF uses llama-3.3-70b as placeholder (should use actual Together AI PLM model once fine-tuned)
 
 **Suggested next actions:**
 1. Add Together AI credits at https://api.together.ai/settings/billing
