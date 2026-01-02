@@ -14,8 +14,8 @@
 
 ## Quick Status
 **Last updated:** 2026-01-02
-**Unpushed changes:** No
-**Blockers:** Together AI credits (402 insufficient_balance - need to add credits to run training)
+**Unpushed changes:** Yes (training pipeline complete)
+**Blockers:** None - training pipeline fully working!
 
 ---
 
@@ -43,7 +43,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
-| Together AI training pipeline | 2026-01-02 | Full pipeline: JSONL export → file upload → fine-tune job → status polling → model activation. Verified working (file upload success, training blocked only by insufficient credits). |
+| Together AI training pipeline | 2026-01-02 | Full pipeline: JSONL export → file upload (via Python SDK) → fine-tune job → status polling → model activation. Verified end-to-end: job ID ft-dd018da7-13e3 started successfully with 208 training pairs. Note: JS SDK upload has bug, Python SDK wrapper required. |
 | Agent compliance enforcement (all files) | 2025-01-01 | Added compliance verification requirement, updated .cursor/rules, added enforcement headers to ALEXANDRIA_CONTEXT.md and CTO_LOG.md, added tripwire acknowledgment requirement. |
 | MOWINCKEL.md overhaul | 2025-01-01 | Complete rewrite for agent compliance: non-negotiable rules, decision authority levels, mandatory session protocols, verification requirements, common mistakes table. |
 | RLAIF synthetic feedback | 2025-01-01 | Editor evaluates Ghost responses, generates synthetic good/bad ratings. Auto-approve high confidence, queue low for Author review. |
@@ -71,6 +71,7 @@
 
 | Issue | Impact | Effort | Suggested Fix |
 |-------|--------|--------|---------------|
+| Together AI JS SDK file upload broken | Uploads to R2 but never processed | N/A | Using Python SDK wrapper as workaround. Monitor if JS SDK gets fixed. |
 | Vercel free tier - no real cron | Queue processing requires browser open | Low ($20/mo) | Upgrade to Vercel Pro for server-side cron |
 | input-chat doesn't stream questions | Minor UX - text appears all at once | Medium | Buffer first word, stream rest if not SAVE |
 | Auth routes duplicate Supabase client setup | Code duplication | Low | Extract to shared lib/supabase.ts |

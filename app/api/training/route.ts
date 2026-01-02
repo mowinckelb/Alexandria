@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getTrainingTools } from '@/lib/factory';
 
+// Force Node.js runtime for file system access
+export const runtime = 'nodejs';
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_KEY!
@@ -80,9 +83,56 @@ export async function POST(req: Request) {
   // Route to appropriate handler
   if (action === 'start') {
     return handleStartTraining(userId, body);
+  } else if (action === 'reset_failed') {
+    return handleResetFailed(userId);
   } else {
     return handleExport(userId, body);
   }
+}
+
+/**
+ * Handle 'reset_failed' action - reset pairs from failed exports
+ */
+async function handleResetFailed(userId: string) {
+  // Find failed exports for this user
+  const { data: failedExports, error: findError } = await supabase
+    .from('training_exports')
+    .select('id')
+    .eq('user_id', userId)
+    .in('status', ['upload_failed', 'training_failed']);
+
+  if (findError) {
+    return NextResponse.json({ error: findError.message }, { status: 500 });
+  }
+
+  if (!failedExports || failedExports.length === 0) {
+    return NextResponse.json({ message: 'No failed exports to reset', reset_count: 0 });
+  }
+
+  const exportIds = failedExports.map(e => e.id);
+
+  // Reset training pairs from these exports
+  const { error: resetError, count } = await supabase
+    .from('training_pairs')
+    .update({ export_id: null })
+    .in('export_id', exportIds);
+
+  if (resetError) {
+    return NextResponse.json({ error: resetError.message }, { status: 500 });
+  }
+
+  // Delete the failed export records
+  await supabase
+    .from('training_exports')
+    .delete()
+    .in('id', exportIds);
+
+  return NextResponse.json({
+    success: true,
+    reset_count: count || 0,
+    exports_deleted: exportIds.length,
+    message: `Reset ${count || 0} training pairs from ${exportIds.length} failed exports`
+  });
 }
 
 /**
