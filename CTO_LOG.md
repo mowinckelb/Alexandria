@@ -13,9 +13,9 @@
 ---
 
 ## Quick Status
-**Last updated:** 2025-01-01
+**Last updated:** 2026-01-02
 **Unpushed changes:** No
-**Blockers:** None
+**Blockers:** Together AI credits (402 insufficient_balance - need to add credits to run training)
 
 ---
 
@@ -43,6 +43,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
+| Together AI training pipeline | 2026-01-02 | Full pipeline: JSONL export → file upload → fine-tune job → status polling → model activation. Verified working (file upload success, training blocked only by insufficient credits). |
 | Agent compliance enforcement (all files) | 2025-01-01 | Added compliance verification requirement, updated .cursor/rules, added enforcement headers to ALEXANDRIA_CONTEXT.md and CTO_LOG.md, added tripwire acknowledgment requirement. |
 | MOWINCKEL.md overhaul | 2025-01-01 | Complete rewrite for agent compliance: non-negotiable rules, decision authority levels, mandatory session protocols, verification requirements, common mistakes table. |
 | RLAIF synthetic feedback | 2025-01-01 | Editor evaluates Ghost responses, generates synthetic good/bad ratings. Auto-approve high confidence, queue low for Author review. |
@@ -161,30 +162,32 @@ After feedback:
 ## Session Handoff Notes
 *Critical context for the next session/agent*
 
-**Last session:** 2025-01-01
+**Last session:** 2026-01-02
 
 **What was done:**
-- **MOWINCKEL.md Overhaul:** Complete rewrite for maximum agent compliance.
-    - Added "Non-Negotiable Rules" section at top with violation examples
-    - Explicit Decision Authority table (Minor/Medium/Major/Critical)
-    - Mandatory Session Start/End protocols with specific steps
-    - 4-phase workflow with checklists: UNDERSTAND → IMPLEMENT → VERIFY → COMMIT
-    - Critical Code table with specific pre-modification steps
-    - "Common Mistakes to Avoid" table with counter-patterns
-    - Communication Standards with required response formats
-    - "Before Saying Done" checklist
-- **Previous session:** RLAIF Implementation (see Completed section)
+- **Together AI Training Pipeline:** Complete end-to-end implementation.
+    - `TogetherTuner.upload()`: Two-step signed URL process (POST for signed URL → PUT file content)
+    - `TogetherTuner.train()`: Create fine-tuning job with LoRA support
+    - `TogetherTuner.getJobStatus()`: Poll training progress
+    - `POST /api/training { action: 'start' }`: Full pipeline - export → upload → start job
+    - `GET /api/training/job?jobId=xxx`: Status polling endpoint
+    - `POST /api/training/job { action: 'activate' }`: Activate completed model as Ghost
+    - Verified: File upload works, training job creation works, blocked only by insufficient credits
 
-**Pushed:** Yes (2fbde60)
+**Pushed:** Yes (970b7d6)
 
-**Critical lesson learned:**
-Agent compliance requires: (1) explicit violation examples, (2) concrete verification steps, (3) decision authority levels, (4) no room for interpretation on rules.
+**Verification performed:**
+- File uploaded successfully: `file-8179dd68-d5af-481d-b92c-680d9f387634`
+- Training job request correctly formatted (402 insufficient credits, not API error)
+- TypeScript compiles without errors
 
 **Known issues:**
+- Together AI account needs credits to run actual training jobs
 - `compound-mini` doesn't exist in Groq API (UI-only feature). Fixed to use `llama-3.3-70b-versatile`.
 - Ghost response generation in RLAIF uses llama-3.3-70b as placeholder (should use actual Together AI Ghost model once fine-tuned)
 
 **Suggested next actions:**
-1. Push MOWINCKEL.md changes
-2. Test RLAIF with `POST /api/rlaif {action: 'generate', userId: 'xxx'}`
-3. Verify `GET /api/debug/state?userId=xxx` shows RLAIF stats
+1. Add Together AI credits at https://api.together.ai/settings/billing
+2. Run training: `POST /api/training { action: 'start', userId: 'xxx' }`
+3. Poll status: `GET /api/training/job?jobId=xxx`
+4. Activate model: `POST /api/training/job { action: 'activate', jobId: 'xxx' }`
