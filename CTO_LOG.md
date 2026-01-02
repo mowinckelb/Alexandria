@@ -30,6 +30,7 @@
 ### Medium Priority
 | Task | Context | Suggested Solution | Added |
 |------|---------|-------------------|-------|
+| Add checkpoint/incremental training | Currently retrains on all data each time | Use Together AI's `from_checkpoint` parameter to continue from previous fine-tune. Saves cost and time. | 2026-01-02 |
 | Add streaming for input-chat questions | Currently waits for full response | Buffer first token, if "S" continue buffering to check for "SAVE", else stream normally | 2024-11-28 |
 
 ### Low Priority
@@ -43,7 +44,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
-| Together AI training pipeline | 2026-01-02 | Full pipeline: JSONL export → file upload (via Python SDK) → fine-tune job → status polling → model activation. Verified end-to-end: job ID ft-dd018da7-13e3 started successfully with 208 training pairs. Note: JS SDK upload has bug, Python SDK wrapper required. |
+| Together AI training pipeline | 2026-01-02 | ✅ COMPLETE. JSONL export → Python upload → LoRA fine-tune → model activation. Ghost now uses fine-tuned model with memories. Checkpoint training noted as future enhancement. |
 | Agent compliance enforcement (all files) | 2025-01-01 | Added compliance verification requirement, updated .cursor/rules, added enforcement headers to ALEXANDRIA_CONTEXT.md and CTO_LOG.md, added tripwire acknowledgment requirement. |
 | MOWINCKEL.md overhaul | 2025-01-01 | Complete rewrite for agent compliance: non-negotiable rules, decision authority levels, mandatory session protocols, verification requirements, common mistakes table. |
 | RLAIF synthetic feedback | 2025-01-01 | Editor evaluates Ghost responses, generates synthetic good/bad ratings. Auto-approve high confidence, queue low for Author review. |

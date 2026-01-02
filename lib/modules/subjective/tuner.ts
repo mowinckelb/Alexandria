@@ -306,15 +306,15 @@ export class TogetherTuner {
         status: job.status,
         model: job.model,
         training_file: job.training_file,
-        output_name: job.output_name,
+        output_name: job.model_output_name, // Together AI uses model_output_name
         created_at: job.created_at,
         updated_at: job.updated_at,
         finished_at: job.finished_at,
         error: job.error,
         epochs_completed: job.epochs_completed,
-        total_epochs: job.total_epochs,
+        total_epochs: job.n_epochs, // Together AI uses n_epochs
         steps_completed: job.steps_completed,
-        fine_tuned_model: job.fine_tuned_model || job.output_name
+        fine_tuned_model: job.model_output_name // This is the deployable model name
       };
     } catch (error) {
       console.error('[TogetherTuner] Get job status error:', error);
