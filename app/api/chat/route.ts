@@ -1,6 +1,6 @@
-// @CRITICAL: Ghost responses - external users query the Ghost
-// Uses Orchestrator to handle Ghost + Memories + Constitution
-// Verify: Ghost responds authentically with memories, personality loads correctly
+// @CRITICAL: PLM responses - Users query the PLM
+// Uses Orchestrator to handle PLM + Memories + Constitution
+// Verify: PLM responds authentically with memories, personality loads correctly
 
 import { createClient } from '@supabase/supabase-js';
 import { getOrchestrator } from '@/lib/factory';
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       { sessionId, temperature }
     );
 
-    console.log(`[Chat] Using model: ${context.ghostModelId}, memories: ${context.memories.length}`);
+    console.log(`[Chat] Using model: ${context.plmModelId}, memories: ${context.memories.length}`);
 
     return stream.toUIMessageStreamResponse();
     

@@ -194,6 +194,7 @@ export class TogetherTuner {
       lora?: boolean;
       loraR?: number;
       loraAlpha?: number;
+      fromCheckpoint?: string; // Previous job ID to continue from (e.g., "ft-xxx")
     } = {}
   ): Promise<TrainingJobResult | null> {
     if (!this.apiKey) {
@@ -231,6 +232,12 @@ export class TogetherTuner {
       n_checkpoints: 1, // Save at least one checkpoint at the end
       warmup_ratio: 0.1, // 10% warmup
     };
+
+    // Continue from previous checkpoint if provided (incremental training)
+    if (options.fromCheckpoint) {
+      requestBody.from_checkpoint = options.fromCheckpoint;
+      console.log(`[TogetherTuner] Continuing from checkpoint: ${options.fromCheckpoint}`);
+    }
 
     try {
       console.log(`[TogetherTuner] Starting fine-tune job with base model: ${baseModel}`);

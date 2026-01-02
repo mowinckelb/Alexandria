@@ -30,7 +30,7 @@
 ### Medium Priority
 | Task | Context | Suggested Solution | Added |
 |------|---------|-------------------|-------|
-| Add checkpoint/incremental training | Currently retrains on all data each time | Use Together AI's `from_checkpoint` parameter to continue from previous fine-tune. Saves cost and time. | 2026-01-02 |
+| ~~Add checkpoint/incremental training~~ | ~~Currently retrains on all data each time~~ | ✅ Already implemented! Uses `from_checkpoint` with previous job ID. | 2026-01-02 |
 | Add streaming for input-chat questions | Currently waits for full response | Buffer first token, if "S" continue buffering to check for "SAVE", else stream normally | 2024-11-28 |
 
 ### Low Priority

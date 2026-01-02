@@ -66,7 +66,7 @@ export async function POST(req: Request) {
         );
       } else {
         return sendResponse(
-          "thanks for sharing! your Ghost is learning from everything you've told me. bye for now!", 
+          "thanks for sharing! your PLM is learning from everything you've told me. bye for now!", 
           { phase: 'goodbye', messagesProcessed: currentState.messagesProcessed }
         );
       }

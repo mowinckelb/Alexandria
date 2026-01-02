@@ -82,7 +82,7 @@ export async function GET(req: Request) {
  * - 'cancel': Cancel a running job
  *   Body: { action: 'cancel', jobId }
  * 
- * - 'activate': Activate a completed fine-tuned model as the Ghost
+ * - 'activate': Activate a completed fine-tuned model as the PLM
  *   Body: { action: 'activate', jobId }
  * 
  * - 'sync': Force sync job status from Together AI to our database
@@ -161,7 +161,7 @@ export async function POST(req: Request) {
 
       return NextResponse.json({
         success: true,
-        message: 'Model activated as Ghost',
+        message: 'Model activated as PLM',
         model_id: status.fine_tuned_model,
         user_id: exportRecord.user_id
       });
@@ -230,7 +230,7 @@ async function syncJobStatus(jobId: string, status: {
 }
 
 /**
- * Activate a fine-tuned model as the user's Ghost
+ * Activate a fine-tuned model as the user's PLM
  */
 async function activateModel(
   userId: string, 
@@ -306,7 +306,7 @@ function getNextSteps(status: string, modelId: string | undefined, jobId: string
       return 'Training in progress. Poll this endpoint to check completion.';
     case 'completed':
       return modelId 
-        ? `Training complete! Run POST /api/training/job with { action: 'activate', jobId: '${jobId}' } to use this model as your Ghost.`
+        ? `Training complete! Run POST /api/training/job with { action: 'activate', jobId: '${jobId}' } to use this model as your PLM.`
         : 'Training complete but no model ID found. Check Together AI dashboard.';
     case 'failed':
       return 'Training failed. Check the error field for details.';

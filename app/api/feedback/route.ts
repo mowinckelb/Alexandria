@@ -1,4 +1,4 @@
-// @CRITICAL: Feedback processing - Author trains Ghost with good/bad ratings
+// @CRITICAL: Feedback processing - Author trains PLM with good/bad ratings
 // Routes learning to UnifiedEditor for notepad updates and training pairs
 // Verify: feedback saved, Editor learns, training pairs created from good feedback
 
@@ -122,7 +122,7 @@ export async function POST(req: Request) {
       await supabase.from('editor_notes').insert({
         user_id: validated.userId,
         type: 'observation',
-        content: `Ghost response was marked BAD for: "${validated.prompt.substring(0, 100)}..."`,
+        content: `PLM response was marked BAD for: "${validated.prompt.substring(0, 100)}..."`,
         context: validated.comment || 'No comment provided',
         topic: 'response_preferences',
         priority: validated.comment ? 'high' : 'low',

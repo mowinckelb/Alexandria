@@ -23,11 +23,12 @@ export default function Alexandria() {
   const [username, setUsername] = useState('');
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   
-  const [mode, setMode] = useState<'carbon' | 'ghost'>('carbon');
+  const [mode, setMode] = useState<'input' | 'training' | 'output'>('input');
   const [inputValue, setInputValue] = useState('');
   const [sessionId, setSessionId] = useState('');
-  const [ghostMessages, setGhostMessages] = useState<Message[]>([]);
+  const [trainingMessages, setTrainingMessages] = useState<Message[]>([]);
   const [inputMessages, setInputMessages] = useState<Message[]>([]);
+  const [outputMessages, setOutputMessages] = useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showThinking, setShowThinking] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
@@ -151,26 +152,27 @@ export default function Alexandria() {
     setUserId('');
     setUsername('');
     setIsAuthenticated(false);
-    setGhostMessages([]);
+    setTrainingMessages([]);
+    setOutputMessages([]);
     setInputMessages([]);
   };
 
-  // Auto-scroll for ghost mode conversations
+  // Auto-scroll for training and output mode conversations
   useEffect(() => {
-    if (mode === 'ghost' && outputScrollRef.current) {
+    if ((mode === 'training' || mode === 'output') && outputScrollRef.current) {
       // Small delay to ensure DOM has updated
       setTimeout(() => {
         outputScrollRef.current?.scrollTo({
           top: outputScrollRef.current.scrollHeight,
-          behavior: 'smooth'
-        });
-      }, 100);
-    }
-  }, [ghostMessages, mode]);
+        behavior: 'smooth'
+      });
+    }, 100);
+  }
+  }, [trainingMessages, outputMessages, mode]);
 
-  // Auto-scroll during streaming in ghost mode
+  // Auto-scroll during streaming in training/output mode
   useEffect(() => {
-    if (mode === 'ghost' && outputContent && outputScrollRef.current) {
+    if ((mode === 'training' || mode === 'output') && outputContent && outputScrollRef.current) {
       outputScrollRef.current.scrollTo({
         top: outputScrollRef.current.scrollHeight,
         behavior: 'smooth'
@@ -192,7 +194,7 @@ export default function Alexandria() {
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     // Carbon y/n lock (wrap_up, offer_questions, topic_continue phases)
-    if (carbonLockYN && mode === 'carbon') {
+    if (carbonLockYN && mode === 'input') {
       if (e.key === 'y' || e.key === 'Y') {
         e.preventDefault();
         setCarbonLockYN(false);
@@ -254,7 +256,7 @@ export default function Alexandria() {
           role: 'assistant',
           content: "anything else?"
         };
-        setGhostMessages(prev => [...prev, wrapUpMessage]);
+        setTrainingMessages(prev => [...prev, wrapUpMessage]);
         setLastGhostMessage(null);
         setTimeout(() => setFeedbackPhase('wrap_up'), 150);
         return;
@@ -285,7 +287,7 @@ export default function Alexandria() {
           role: 'assistant',
           content: "sounds good, bye for now!"
         };
-        setGhostMessages(prev => [...prev, goodbyeMessage]);
+        setTrainingMessages(prev => [...prev, goodbyeMessage]);
         setFeedbackPhase('none');
         return;
       }
@@ -302,7 +304,8 @@ export default function Alexandria() {
       handleSubmit();
     } else if (e.key === 'ArrowUp' && feedbackPhase === 'none') {
       e.preventDefault();
-      setMode(mode === 'carbon' ? 'ghost' : 'carbon');
+      // Cycle through modes: input -> training -> output -> input
+      setMode(mode === 'input' ? 'training' : mode === 'training' ? 'output' : 'input');
     }
   };
 
@@ -349,7 +352,7 @@ export default function Alexandria() {
     
     try {
       // Build messages: keep all messages, ask for a different response
-      const allMessages = ghostMessages.map(m => ({ role: m.role, content: m.content }));
+      const allMessages = trainingMessages.map(m => ({ role: m.role, content: m.content }));
       
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -412,7 +415,7 @@ export default function Alexandria() {
       }
 
       // ADD new message below the previous one (don't replace - keep both for A/B comparison)
-      setGhostMessages(prev => [...prev, { 
+      setTrainingMessages(prev => [...prev, { 
         id: assistantId, 
         role: 'assistant', 
         content: assistantContent,
@@ -486,10 +489,12 @@ export default function Alexandria() {
     inputRef.current?.blur();
 
     try {
-      if (mode === 'carbon') {
+      if (mode === 'input') {
         await handleCarbon(text);
+      } else if (mode === 'training') {
+        await handleTraining(text);
       } else {
-        await handleGhost(text);
+        await handleOutput(text);
       }
     } finally {
       setIsProcessing(false);
@@ -690,7 +695,7 @@ export default function Alexandria() {
     }
   };
 
-  const handleGhost = async (query: string) => {
+  const handleTraining = async (query: string) => {
     try {
       setOutputContent('');
       setShowThinking(false);
@@ -704,8 +709,8 @@ export default function Alexandria() {
 
       // Delay showing user message
       await new Promise(resolve => setTimeout(resolve, 300));
-      const newMessages = [...ghostMessages, userMessage];
-      setGhostMessages(newMessages);
+      const newMessages = [...trainingMessages, userMessage];
+      setTrainingMessages(newMessages);
 
       // Delay showing thinking indicator
       setTimeout(() => setShowThinking(true), 700);
@@ -755,8 +760,8 @@ export default function Alexandria() {
         }
       }
 
-      // Add to ghost messages history with the prompt for RLHF tracking
-      setGhostMessages(prev => [...prev, { 
+      // Add to training messages history with the prompt for RLHF tracking
+      setTrainingMessages(prev => [...prev, { 
         id: assistantId, 
         role: 'assistant', 
         content: assistantContent,
@@ -778,6 +783,89 @@ export default function Alexandria() {
     }
   };
 
+  const handleOutput = async (query: string) => {
+    try {
+      setOutputContent('');
+      setShowThinking(false);
+
+      const userMessage: Message = {
+        id: uuidv4(),
+        role: 'user',
+        content: query
+      };
+
+      // Delay showing user message
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const newMessages = [...outputMessages, userMessage];
+      setOutputMessages(newMessages);
+
+      // Delay showing thinking indicator
+      setTimeout(() => setShowThinking(true), 700);
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          userId,
+          sessionId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`http ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+      const assistantId = uuidv4();
+
+      // Hide thinking when streaming starts
+      setShowThinking(false);
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.type === 'text-delta' && data.delta) {
+                  assistantContent += data.delta;
+                  setOutputContent(assistantContent);
+                }
+              } catch {
+                // Ignore parse errors for non-JSON lines
+              }
+            }
+          }
+        }
+      }
+
+      // Add to output messages history (no RLHF tracking needed)
+      setOutputMessages(prev => [...prev, { 
+        id: assistantId, 
+        role: 'assistant', 
+        content: assistantContent
+      }]);
+      
+      // Clear output content to avoid duplicate display
+      setOutputContent('');
+      
+      // No feedback loop - pure conversation mode
+
+    } catch (error) {
+      setShowThinking(false);
+      const errorMsg = error instanceof Error ? error.message : 'unknown error';
+      setOutputContent(`error: ${errorMsg.toLowerCase()}`);
+    }
+  };
+
   // Handle external carbon (file upload)
   const handleFileUpload = async () => {
     if (selectedFiles.length === 0) return;
@@ -789,7 +877,7 @@ export default function Alexandria() {
     setSelectedFiles([]);
     setUploadContext('');
     setShowAttachModal(false);
-    setMode('carbon');
+    setMode('input');
     
     // Reset viewport on mobile
     window.scrollTo(0, 0);
@@ -1003,7 +1091,7 @@ export default function Alexandria() {
       {/* Output Area */}
       <div ref={outputScrollRef} className="flex-1 px-4 md:px-8 pt-16 md:pt-24 pb-4 md:pb-8 overflow-y-auto">
         <div className="max-w-[700px] mx-auto space-y-4 md:space-y-6">
-          {(mode === 'ghost' ? ghostMessages : inputMessages).map((message) => (
+          {(mode === 'input' ? inputMessages : mode === 'training' ? trainingMessages : outputMessages).map((message) => (
             <div
               key={message.id}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -1024,8 +1112,8 @@ export default function Alexandria() {
               </div>
             </div>
           ))}
-          {/* Thinking indicator (Carbon mode only - Ghost shows below input) */}
-          {showThinking && !outputContent && mode === 'carbon' && (
+          {/* Thinking indicator (Input mode only - Training/Output shows below input) */}
+          {showThinking && !outputContent && mode === 'input' && (
             <div className="flex justify-start px-1">
               <span className="text-[0.75rem] italic thinking-pulse" style={{ color: 'var(--text-subtle)' }}>thinking</span>
             </div>
@@ -1051,26 +1139,34 @@ export default function Alexandria() {
             <div className="flex items-center gap-2">
               {/* Spacer to align with + button - always present */}
               <div className="w-10 flex-shrink-0" />
-              <div className="relative rounded-full p-[1px] inline-flex w-[100px]" style={{ background: 'var(--toggle-bg)' }}>
+              <div className="relative rounded-full p-[1px] inline-flex w-[150px]" style={{ background: 'var(--toggle-bg)' }}>
                 <button
-                  onClick={() => setMode(mode === 'carbon' ? 'ghost' : 'carbon')}
+                  onClick={() => setMode('input')}
                   className="relative z-10 flex-1 bg-transparent border-none py-0.5 text-[0.65rem] cursor-pointer"
-                  style={{ color: mode === 'carbon' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                  style={{ color: mode === 'input' ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
-                  first
+                  input
                 </button>
                 <button
-                  onClick={() => setMode(mode === 'ghost' ? 'carbon' : 'ghost')}
+                  onClick={() => setMode('training')}
                   className="relative z-10 flex-1 bg-transparent border-none py-0.5 text-[0.65rem] cursor-pointer"
-                  style={{ color: mode === 'ghost' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                  style={{ color: mode === 'training' ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
-                  second
+                  training
+                </button>
+                <button
+                  onClick={() => setMode('output')}
+                  className="relative z-10 flex-1 bg-transparent border-none py-0.5 text-[0.65rem] cursor-pointer"
+                  style={{ color: mode === 'output' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                >
+                  output
                 </button>
                 <div
-                  className={`absolute top-[1px] left-[1px] w-[calc(50%-1px)] h-[calc(100%-2px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
-                    mode === 'ghost' ? 'translate-x-full' : ''
-                  }`}
-                  style={{ background: 'var(--toggle-pill)' }}
+                  className={`absolute top-[1px] left-[1px] w-[calc(33.33%-1px)] h-[calc(100%-2px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out`}
+                  style={{ 
+                    background: 'var(--toggle-pill)',
+                    transform: mode === 'input' ? 'translateX(0%)' : mode === 'training' ? 'translateX(100%)' : 'translateX(200%)'
+                  }}
                 />
               </div>
             </div>
@@ -1103,7 +1199,7 @@ export default function Alexandria() {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={
-                  carbonLockYN && mode === 'carbon' ? "y/n" :
+                  carbonLockYN && mode === 'input' ? "y/n" :
                   feedbackPhase === 'binary' ? "good? y/n" :
                   feedbackPhase === 'comment' ? "feedback:" :
                   feedbackPhase === 'regenerate' ? "regenerate? y/n" :
@@ -1137,7 +1233,7 @@ export default function Alexandria() {
             {feedbackSaved && (
               <span className="text-[0.7rem] italic" style={{ color: 'var(--text-ghost)' }}>inputted.</span>
             )}
-            {showThinking && mode === 'ghost' && !outputContent && (
+            {showThinking && (mode === 'training' || mode === 'output') && !outputContent && (
               <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-subtle)' }}>thinking</span>
             )}
           </div>

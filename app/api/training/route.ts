@@ -275,6 +275,18 @@ async function handleStartTraining(
     .rpc('get_active_model', { p_user_id: userId });
   const baseModelId = baseModel || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Reference';
 
+  // Step 3b: Find previous completed training job for checkpoint continuation
+  const { data: previousExport } = await supabase
+    .from('training_exports')
+    .select('training_job_id')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .order('completed_at', { ascending: false })
+    .limit(1)
+    .single();
+  
+  const fromCheckpoint = previousExport?.training_job_id || undefined;
+
   // Step 4: Create export record (status: 'uploading')
   const { data: exportRecord, error: exportError } = await supabase
     .from('training_exports')
@@ -328,6 +340,7 @@ async function handleStartTraining(
     .eq('id', exportId);
 
   // Step 6: Start fine-tuning job
+  // Use fromCheckpoint for incremental training (continues from previous job)
   const trainResult = await tuner.train(
     uploadResult.fileId,
     userId,
@@ -339,7 +352,8 @@ async function handleStartTraining(
       loraR,
       loraAlpha,
       learningRate,
-      batchSize
+      batchSize,
+      fromCheckpoint  // Continue from previous job if available
     }
   );
 
@@ -375,6 +389,7 @@ async function handleStartTraining(
     pairs_count: pairs.length,
     avg_quality: pairs.reduce((sum, p) => sum + p.quality_score, 0) / pairs.length,
     base_model: baseModelId,
+    from_checkpoint: fromCheckpoint || null,
     training_config: {
       epochs: nEpochs,
       lora,
