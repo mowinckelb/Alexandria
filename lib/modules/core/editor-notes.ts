@@ -53,9 +53,9 @@ export class EditorNotes {
       messages: [
         {
           role: 'system',
-          content: `You are an Editor building a high-fidelity digital twin (Ghost) of an Author.
+          content: `You are an Editor building a high-fidelity Personal Language Model (PLM) of an Author.
 
-Your goal: MAXIMIZE GHOST FIDELITY. Think deeply about what information would most improve the Ghost's accuracy.
+Your goal: MAXIMIZE PLM FIDELITY. Think deeply about what information would most improve the PLM's accuracy.
 
 Analyze the text. For each piece of information, ask yourself:
 - What does this tell me about the Author?
@@ -70,8 +70,8 @@ Note types:
 - "mental_model": Theory about how Author thinks/decides
 
 Category (CRITICAL for prioritization):
-- "critical": Without this, Ghost will make WRONG responses. Core identity, values, major relationships, key life events, strong opinions that define who they are.
-- "non_critical": Would improve fidelity but Ghost can function without. Preferences, minor details, nice-to-know.
+- "critical": Without this, PLM will make WRONG responses. Core identity, values, major relationships, key life events, strong opinions that define who they are.
+- "non_critical": Would improve fidelity but PLM can function without. Preferences, minor details, nice-to-know.
 
 Priority within category:
 - "high": Most impactful for fidelity
@@ -93,8 +93,8 @@ Return JSON array:
 
 Rules:
 - Be AGGRESSIVE about identifying gaps - err on the side of asking
-- Critical = Ghost would give WRONG answers without this
-- Non-critical = Ghost would give INCOMPLETE but not wrong answers
+- Critical = PLM would give WRONG answers without this
+- Non-critical = PLM would give INCOMPLETE but not wrong answers
 - Return ONLY valid JSON array`
         },
         {
@@ -290,9 +290,9 @@ Rules:
       messages: [
         {
           role: 'system',
-          content: `You are an Editor building a high-fidelity Ghost (digital twin) of an Author.
+          content: `You are an Editor building a high-fidelity PLM (Personal Language Model) of an Author.
 
-REFLECT on everything you know. Your goal: MAXIMIZE GHOST FIDELITY.
+REFLECT on everything you know. Your goal: MAXIMIZE PLM FIDELITY.
 
 You have:
 1. Pending questions you've been wondering about
@@ -322,7 +322,7 @@ Return JSON:
 }
 
 Be AGGRESSIVE about self-resolving. If you can reasonably infer an answer, do it.
-Be THOUGHTFUL about recategorization. Critical = Ghost gives WRONG answers without this.`
+Be THOUGHTFUL about recategorization. Critical = PLM gives WRONG answers without this.`
         },
         {
           role: 'user',
@@ -470,9 +470,9 @@ Only return can_answer: true if you have REAL evidence. Don't guess.`
           role: 'system',
           content: `You are an Editor reviewing your pending questions/notes about an Author.
 
-RECATEGORIZE based on Ghost fidelity impact:
-- "critical": Ghost will give WRONG answers without this (core identity, values, key relationships, defining events)
-- "non_critical": Ghost will be INCOMPLETE but not wrong (preferences, details, nice-to-know)
+RECATEGORIZE based on PLM fidelity impact:
+- "critical": PLM will give WRONG answers without this (core identity, values, key relationships, defining events)
+- "non_critical": PLM will be INCOMPLETE but not wrong (preferences, details, nice-to-know)
 
 Also reassess priority within category (high/medium/low).
 
@@ -484,7 +484,7 @@ Return JSON array of updates (only include notes that should change):
   {"note_id": "uuid", "new_category": "critical", "new_priority": "high", "reason": "..."}
 ]
 
-Be strict about "critical" - only core identity/values/relationships that would cause WRONG Ghost responses.`
+Be strict about "critical" - only core identity/values/relationships that would cause WRONG PLM responses.`
         }
       ]
     });

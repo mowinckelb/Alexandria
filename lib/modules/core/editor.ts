@@ -262,21 +262,21 @@ CRITICAL RULES:
       messages: [
         {
           role: 'system',
-          content: `You are analyzing feedback on a Ghost response to learn about the Author.
+          content: `You are analyzing feedback on a PLM response to learn about the Author.
 
 FEEDBACK:
 - Rating: ${feedback.rating}
 - Comment: ${feedback.comment || 'No comment provided'}
 - Original prompt: ${feedback.prompt}
-- Ghost response: ${feedback.response}
+- PLM response: ${feedback.response}
 
 YOUR NOTEPAD:
 ${this.formatNotepadContext(notepad)}
 
 ANALYZE:
 1. What does this feedback tell you about the Author?
-2. If "bad" — what did Ghost get WRONG about the Author's voice/personality?
-3. If "good" — what did Ghost get RIGHT?
+2. If "bad" — what did PLM get WRONG about the Author's voice/personality?
+3. If "good" — what did PLM get RIGHT?
 4. What observations, gaps, or mental models should you update?
 
 ${feedback.rating === 'good' ? 
@@ -670,15 +670,15 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
       return { generated: 0, autoApproved: 0, queuedForReview: 0, prompts: [] };
     }
     
-    // 2. Get Ghost responses for each prompt
-    const ghostResponses = await this.getGhostResponses(prompts, userId);
+    // 2. Get PLM responses for each prompt
+    const plmResponses = await this.getPLMResponses(prompts, userId);
     
     // 3. Evaluate each response
     let autoApproved = 0;
     let queuedForReview = 0;
     
-    for (const { prompt, response } of ghostResponses) {
-      const evaluation = await this.evaluateGhostResponse(prompt, response, userId);
+    for (const { prompt, response } of plmResponses) {
+      const evaluation = await this.evaluatePLMResponse(prompt, response, userId);
       
       // 4. Route based on confidence
       if (evaluation.confidence === 'high') {
@@ -795,14 +795,14 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`
   ): Promise<{ prompt: string; response: string }[]> {
     const results: { prompt: string; response: string }[] = [];
     
-    // Get Ghost model
+    // Get PLM model
     const { data: twin } = await supabase
       .from('twins')
       .select('model_id')
       .eq('user_id', userId)
       .single();
     
-    const ghostModelId = twin?.model_id || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo';
+    const plmModelId = twin?.model_id || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo';
     
     // Get memories for context
     const { data: memories } = await supabase
@@ -817,11 +817,11 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`
     for (const prompt of prompts) {
       try {
         const { text } = await generateText({
-          model: getQualityModel(), // Simulate Ghost with quality model
+          model: getQualityModel(), // Simulate PLM with quality model
           messages: [
             {
               role: 'system',
-              content: `You are a Ghost (digital twin) of an Author. Respond as them.
+              content: `You are a PLM (Personal Language Model) of an Author. Respond as them.
 
 YOUR MEMORIES:
 ${memoryContext}
@@ -834,7 +834,7 @@ Respond naturally, in first person, as the Author would.`
         
         results.push({ prompt, response: text });
       } catch (e) {
-        console.error('[RLAIF] Failed to get Ghost response:', e);
+        console.error('[RLAIF] Failed to get PLM response:', e);
       }
     }
     
@@ -842,9 +842,9 @@ Respond naturally, in first person, as the Author would.`
   }
   
   /**
-   * Evaluate a Ghost response using Author's patterns
+   * Evaluate a PLM response using Author's patterns
    */
-  async evaluateGhostResponse(
+  async evaluatePLMResponse(
     prompt: string,
     response: string,
     userId: string
@@ -883,7 +883,7 @@ Respond naturally, in first person, as the Author would.`
       messages: [
         {
           role: 'system',
-          content: `You are evaluating if a Ghost response sounds like the Author.
+          content: `You are evaluating if a PLM response sounds like the Author.
 
 AUTHOR CONTEXT:
 
@@ -945,7 +945,7 @@ Return JSON:
     response: string,
     evaluation: { rating: 'good' | 'bad'; reasoning: string }
   ): Promise<string | null> {
-    const question = `I evaluated a Ghost response and thought it was ${evaluation.rating}. ` +
+    const question = `I evaluated a PLM response and thought it was ${evaluation.rating}. ` +
       `The prompt was: "${prompt.substring(0, 100)}..." ` +
       `My reasoning: ${evaluation.reasoning}. ` +
       `Does this assessment seem right to you?`;
@@ -956,7 +956,7 @@ Return JSON:
         user_id: userId,
         type: 'question',
         content: question,
-        context: `Ghost response: "${response.substring(0, 200)}..."`,
+        context: `PLM response: "${response.substring(0, 200)}..."`,
         topic: 'rlaif_validation',
         priority: 'medium',
         category: 'non_critical',

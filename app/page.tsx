@@ -35,7 +35,7 @@ export default function Alexandria() {
   const [outputContent, setOutputContent] = useState('');
   const [feedbackPhase, setFeedbackPhase] = useState<'none' | 'binary' | 'comment' | 'regenerate' | 'wrap_up'>('none');
   const [currentRating, setCurrentRating] = useState<number>(0);
-  const [lastGhostMessage, setLastGhostMessage] = useState<{ prompt: string; response: string; id: string } | null>(null);
+  const [lastPLMMessage, setLastPLMMessage] = useState<{ prompt: string; response: string; id: string } | null>(null);
   const [feedbackSaved, setFeedbackSaved] = useState(false);
   const [regenerationVersion, setRegenerationVersion] = useState(1);
   
@@ -257,7 +257,7 @@ export default function Alexandria() {
           content: "anything else?"
         };
         setTrainingMessages(prev => [...prev, wrapUpMessage]);
-        setLastGhostMessage(null);
+        setLastPLMMessage(null);
         setTimeout(() => setFeedbackPhase('wrap_up'), 150);
         return;
       }
@@ -281,7 +281,7 @@ export default function Alexandria() {
       if (e.key === 'n' || e.key === 'N') {
         e.preventDefault();
         setInputValue('');
-        // Ghost says goodbye
+        // PLM says goodbye
         const goodbyeMessage: Message = {
           id: uuidv4(),
           role: 'assistant',
@@ -312,7 +312,7 @@ export default function Alexandria() {
   const [isRegenerationFeedback, setIsRegenerationFeedback] = useState(false);
 
   const submitFeedback = async (rating: number, comment: string): Promise<boolean> => {
-    if (!lastGhostMessage) return false;
+    if (!lastPLMMessage) return false;
     
     try {
       const res = await fetch('/api/feedback', {
@@ -320,12 +320,12 @@ export default function Alexandria() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId,
-          messageId: lastGhostMessage.id,
+          messageId: lastPLMMessage.id,
           sessionId,
           feedback: rating,
           comment: comment.trim(),
-          prompt: lastGhostMessage.prompt,
-          response: lastGhostMessage.response,
+          prompt: lastPLMMessage.prompt,
+          response: lastPLMMessage.response,
           isRegeneration: isRegenerationFeedback
         })
       });
@@ -337,10 +337,10 @@ export default function Alexandria() {
   };
 
   const handleRegenerate = async () => {
-    if (!lastGhostMessage) return;
+    if (!lastPLMMessage) return;
     
     // Store prompt before any state changes
-    const promptToRegenerate = lastGhostMessage.prompt;
+    const promptToRegenerate = lastPLMMessage.prompt;
     const nextVersion = regenerationVersion + 1;
     
     // Re-run ghost with same prompt
@@ -409,7 +409,7 @@ export default function Alexandria() {
       if (!assistantContent.trim()) {
         console.error('Regenerate returned empty content');
         setFeedbackPhase('none');
-        setLastGhostMessage(null);
+        setLastPLMMessage(null);
         setOutputContent('');
         return;
       }
@@ -424,7 +424,7 @@ export default function Alexandria() {
       }]);
       
       // Update for next potential regeneration
-      setLastGhostMessage({ prompt: promptToRegenerate, response: assistantContent, id: assistantId });
+      setLastPLMMessage({ prompt: promptToRegenerate, response: assistantContent, id: assistantId });
       setIsRegenerationFeedback(true);  // This IS a regeneration - enables DPO pair detection
       
       // Wait for message to render, then clear streaming content and start feedback
@@ -437,7 +437,7 @@ export default function Alexandria() {
     } catch (error) {
       console.error('Regenerate error:', error);
       setFeedbackPhase('none');
-      setLastGhostMessage(null);
+      setLastPLMMessage(null);
     } finally {
       setIsProcessing(false);
       setShowThinking(false);
@@ -772,7 +772,7 @@ export default function Alexandria() {
       setOutputContent('');
       
       // Enter feedback mode - user must provide feedback before next query
-      setLastGhostMessage({ prompt: query, response: assistantContent, id: assistantId });
+      setLastPLMMessage({ prompt: query, response: assistantContent, id: assistantId });
       setIsRegenerationFeedback(false);  // First response, not a regeneration
       setTimeout(() => setFeedbackPhase('binary'), 300);
 
@@ -1139,30 +1139,30 @@ export default function Alexandria() {
             <div className="flex items-center gap-2">
               {/* Spacer to align with + button - always present */}
               <div className="w-10 flex-shrink-0" />
-              <div className="relative rounded-full p-[1px] inline-flex w-[150px]" style={{ background: 'var(--toggle-bg)' }}>
+              <div className="relative rounded-full p-[2px] inline-flex w-[180px]" style={{ background: 'var(--toggle-bg)' }}>
                 <button
                   onClick={() => setMode('input')}
-                  className="relative z-10 flex-1 bg-transparent border-none py-0.5 text-[0.65rem] cursor-pointer"
+                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
                   style={{ color: mode === 'input' ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
                   input
                 </button>
                 <button
                   onClick={() => setMode('training')}
-                  className="relative z-10 flex-1 bg-transparent border-none py-0.5 text-[0.65rem] cursor-pointer"
+                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
                   style={{ color: mode === 'training' ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
                   training
                 </button>
                 <button
                   onClick={() => setMode('output')}
-                  className="relative z-10 flex-1 bg-transparent border-none py-0.5 text-[0.65rem] cursor-pointer"
+                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
                   style={{ color: mode === 'output' ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
                   output
                 </button>
                 <div
-                  className={`absolute top-[1px] left-[1px] w-[calc(33.33%-1px)] h-[calc(100%-2px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out`}
+                  className={`absolute top-[2px] left-[2px] w-[calc(33.33%-2px)] h-[calc(100%-4px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out`}
                   style={{ 
                     background: 'var(--toggle-pill)',
                     transform: mode === 'input' ? 'translateX(0%)' : mode === 'training' ? 'translateX(100%)' : 'translateX(200%)'

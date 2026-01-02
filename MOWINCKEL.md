@@ -238,7 +238,7 @@ Design: Always preserve axiomatic data. Make ephemeral layers swappable.
 | `lib/factory.ts` | 🔴 Critical | Check all imports: `grep -r "from.*factory" lib/` |
 | `lib/modules/objective/indexer.ts` | 🔴 Critical | Test memory storage + recall |
 | `lib/modules/subjective/refiner.ts` | 🔴 Critical | Test training pair generation |
-| `app/api/chat/route.ts` | 🔴 Critical | Test Ghost responses work |
+| `app/api/chat/route.ts` | 🔴 Critical | Test PLM responses work |
 | `app/api/input-chat/route.ts` | 🔴 Critical | Test conversation flow works |
 | `app/api/auth/*/route.ts` | 🔴 Critical | Test login/register still work |
 | `supabase/migrations/*` | 🔴 Critical | Never modify existing migrations, only add new ones |
