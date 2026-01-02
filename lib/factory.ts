@@ -49,8 +49,8 @@ export function getUnifiedEditor(): Editor {
 }
 
 /**
- * Get the Orchestrator (handles Ghost output to external users)
- * Combines: Ghost model + Memories + Constitution
+ * Get the Orchestrator (handles PLM output to Users)
+ * Combines: PLM model + Memories + Constitution
  */
 export function getOrchestrator(): Orchestrator {
   if (!orchestrator) {

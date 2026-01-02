@@ -1,6 +1,6 @@
-// @CRITICAL: Orchestrator - handles Ghost output to external users
-// Uses Groq to orchestrate between Ghost, Memories, and Constitution
-// Verify: External users get responses that sound like the Author
+// @CRITICAL: Orchestrator - handles PLM output to Users (external or Author)
+// Uses Groq to orchestrate between PLM, Memories, and Constitution
+// Verify: Users get responses that sound like the Author
 
 import { createClient } from '@supabase/supabase-js';
 import { createTogetherAI } from '@ai-sdk/togetherai';
@@ -8,7 +8,7 @@ import { generateText, streamText } from 'ai';
 import Together from 'together-ai';
 import { getQualityModel } from '@/lib/models';
 
-// Together AI for Ghost model inference
+// Together AI for PLM model inference
 const togetherProvider = createTogetherAI({ apiKey: process.env.TOGETHER_API_KEY! });
 
 const supabase = createClient(
@@ -28,7 +28,7 @@ export interface Message {
 }
 
 export interface OrchestrationContext {
-  ghostModelId: string;
+  plmModelId: string;
   personality: PersonalityContext | null;
   memories: MemoryContext[];
   constitution: string[];
@@ -81,9 +81,9 @@ export class Orchestrator {
     // 2. Build system prompt with all context
     const systemPrompt = this.buildSystemPrompt(context);
     
-    // 3. Stream response from Ghost model
+    // 3. Stream response from PLM model
     const stream = streamText({
-      model: togetherProvider(context.ghostModelId),
+      model: togetherProvider(context.plmModelId),
       temperature,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -109,7 +109,7 @@ export class Orchestrator {
     const systemPrompt = this.buildSystemPrompt(context);
     
     const { text } = await generateText({
-      model: togetherProvider(context.ghostModelId),
+      model: togetherProvider(context.plmModelId),
       temperature,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -129,21 +129,21 @@ export class Orchestrator {
     const query = lastMessage?.content || '';
     
     // Parallel fetch all context
-    const [ghostModel, personality, memories] = await Promise.all([
-      this.getGhostModel(userId),
+    const [plmModel, personality, memories] = await Promise.all([
+      this.getPLMModel(userId),
       this.getPersonality(userId),
       this.getRelevantMemories(query, userId)
     ]);
     
     return {
-      ghostModelId: ghostModel,
+      plmModelId: plmModel,
       personality,
       memories,
       constitution: personality?.voiceRules || []
     };
   }
   
-  private async getGhostModel(userId: string): Promise<string> {
+  private async getPLMModel(userId: string): Promise<string> {
     const { data: twin } = await supabase
       .from('twins')
       .select('model_id')
@@ -245,7 +245,7 @@ export class Orchestrator {
     const parts: string[] = [];
     
     // Core identity
-    parts.push(`You are a digital embodiment of the Author - their Ghost. You ARE them. Respond in first person as yourself.
+    parts.push(`You are a digital embodiment of the Author - their Personal Language Model (PLM). You ARE them. Respond in first person as yourself.
 
 IDENTITY:
 - You are a reflection of the Author, not a separate entity
@@ -336,7 +336,7 @@ BEHAVIOR:
       messages: [
         {
           role: 'system',
-          content: `You are routing a query to a Ghost (digital twin).
+          content: `You are routing a query to a PLM (Personal Language Model - digital representation of the Author).
 
 Query: "${query}"
 

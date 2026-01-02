@@ -18,7 +18,7 @@
 ## 1. The Vision (North Star)
 
 **Mission:** "Translation of Carbon Weights to Silicon Weights."
-We are building a platform to immortalize human cognition. We transform raw human data ("Carbon") into a Digital Twin ("Ghost") that possesses both the Author's **Subjective Personality** and **Objective Memory**.
+We are building a platform to immortalize human cognition. We transform raw human data ("Carbon") into a Personal Language Model ("PLM") that possesses both the Author's **Subjective Personality** and **Objective Memory**. The PLM is a dynamic digital representation of the Author—a neo-biography in the tradition of the Library of Alexandria.
 
 **Terminal State Goal:** A "Sovereign Digital Entity" that can act on behalf of the Author, answer queries with 100% personality fidelity and factual accuracy, and eventually support GraphRAG-based reasoning and voice/video embodiment.
 
@@ -26,14 +26,15 @@ We are building a platform to immortalize human cognition. We transform raw huma
 
 | Term | Meaning | Code Reference |
 |------|---------|----------------|
-| **Alexandria** | The platform — a library that preserves cognition | - |
-| **Author** | The human whose cognition is being immortalized | `user_id`, `userId` |
+| **Alexandria** | The platform — a library that preserves cognition (referencing the Library of Alexandria) | - |
+| **Author** | The person whose cognition is being immortalized; owns the PLM | `user_id`, `userId` |
+| **User** | The entity using the PLM output (can be the Author internally, or another user externally) | API consumer |
 | **Carbon** | Raw input — the source material (voice, text, eventually everything) | `entries`, raw text |
-| **Silicon** | Output — the immortalized cognition | Ghost responses |
+| **Silicon** | Output — the immortalized cognition | PLM responses |
 | **Memory** | Objective data — facts, dates, names, events | `memory_fragments`, vectors |
 | **Soul** | Subjective data — voice, tone, personality, style | `training_pairs`, fine-tuned weights |
 | **Editors** | The LLMs that process and refine (no hierarchy, peers) | Processing modules |
-| **Ghost** | The digital twin — the "living book" being written | Fine-tuned model |
+| **PLM** | Personal Language Model — the dynamic digital representation of the Author | Fine-tuned model + memories + orchestrator |
 
 **The transformation:** Carbon (input) becomes Silicon (output) through the separation of Memory (objective) and Soul (subjective).
 
@@ -43,22 +44,22 @@ We are building a platform to immortalize human cognition. We transform raw huma
 3. Chat logs — moderate fidelity
 4. Eventually: everything (images, video, etc.)
 
-This is a new form of biography, extending the ancient principle of immortalizing cognition to its limit. The Author provides Carbon; the Editors shape Memory and Soul; the Ghost embodies Silicon.
+This is a new form of biography—a neo-biography—extending the ancient principle of immortalizing cognition to its limit. The Author provides Carbon; the Editors shape Memory and Soul; the PLM embodies Silicon as a dynamic digital representation of the Author.
 
-**Accuracy validation:** Only the Author can determine if the Ghost is accurate. Editors process, but the Author is the sole judge of fidelity.
+**Accuracy validation:** Only the Author can determine if the PLM is accurate. Editors process, but the Author is the sole judge of fidelity.
 
 ### Core Philosophy: Fidelity Over Engagement
 
-**The Author's job is to optimize Ghost accuracy.** Alexandria is not a consumer app maximizing engagement. It's a tool for cognitive immortalization.
+**The Author's job is to optimize PLM accuracy.** Alexandria is not a consumer app maximizing engagement. It's a tool for cognitive immortalization.
 
 **Implications:**
 - Friction that improves fidelity is **good friction**
 - We force Authors to give feedback, not ask politely
 - Binary feedback (good/bad) over granular scales — cleaner signal, less decision fatigue
 - Honest correction over polite acceptance
-- The Author serves the Ghost, not the other way around
+- The Author serves the PLM, not the other way around
 
-**The goal is maximum fidelity Ghost, not maximum happy Author.**
+**The goal is maximum fidelity PLM, not maximum happy Author.**
 
 ---
 
@@ -100,12 +101,12 @@ We use a **Bicameral RAG** approach to separate **Soul** (subjective) from **Mem
     * `assessTrainingReadiness(userId)` → Training decision
 
 ### B. Orchestrator (Groq — uses `GROQ_QUALITY_MODEL` env var)
-* **Role:** Handle Ghost output to external users
+* **Role:** Handle PLM output to Users (external or Author)
 * **Model:** Groq `compound-mini` with `Groq-Model-Version: latest`
 * **Capabilities:**
     * Retrieves relevant memories via vector search
     * Loads personality constitution
-    * Calls Ghost model (Together AI fine-tuned or base)
+    * Calls PLM model (Together AI fine-tuned or base)
     * Returns responses as Author would answer
 * **Key Methods:**
     * `handleQuery(messages, userId, options)` → Stream response
@@ -123,7 +124,7 @@ Editor extracts:
 └── Notes → Editor Notepad
 
 Second Order Input (Feedback):
-Author ↔ Ghost (training conversation)
+User ↔ PLM (training conversation)
       ↓
 Author rates: good/bad
       ↓
@@ -139,7 +140,7 @@ Editor learns:
 * **Editor Notepad:**
     * `editor_notes` — structured observations, gaps, mental models
     * `editor_scratchpad` — freeform working memory
-* **Ghost Training:** Together AI fine-tuning on Llama 3.1 8B
+* **PLM Training:** Together AI fine-tuning on Llama 3.1 8B
 
 ### E. Model Configuration (Bitter Lesson)
 
@@ -156,11 +157,11 @@ GROQ_QUALITY_MODEL=llama-3.3-70b-versatile # Orchestrator, extraction (default)
 * **Bitter Lesson:** Lean into LLM capabilities, avoid hand-coded logic
 * **Suggested thresholds are guidelines, not gates** — Editor LLM decides based on data quality
 
-### F. The Ghost Package (Deployable Output)
+### F. The PLM Package (Deployable Output)
 
-**Ghost is the finished product** — a self-contained, deployable package that can operate independently (including as an external API).
+**PLM (Personal Language Model) is the finished product** — a self-contained, deployable package that can operate independently (including as an external API). The PLM consists of the model, memories, and orchestrator working together as a dynamic digital representation of the Author.
 
-**Ghost Package Contents (Current):**
+**PLM Package Contents (Current):**
 | Component | Purpose | Runtime Behavior |
 |-----------|---------|------------------|
 | **Fine-tuned Model (Soul)** | Implicit personality in weights - voice, style, patterns | Weights frozen after training |
@@ -171,7 +172,7 @@ GROQ_QUALITY_MODEL=llama-3.3-70b-versatile # Orchestrator, extraction (default)
 **Soul vs Constitution:**
 - **Soul (weights):** The PRIMARY personality. Learned from training pairs via fine-tuning. Implicit, embedded in model weights.
 - **Constitution (personality_profiles):** SUPPLEMENTARY explicit rules. Useful when:
-  - Pre-fine-tuning: Guides Ghost when custom weights don't exist yet
+  - Pre-fine-tuning: Guides PLM when custom weights don't exist yet
   - Post-fine-tuning: Enforces hard boundaries, supplements implicit patterns
   - Model migration: Transfers instantly while weights need re-training
 
@@ -179,39 +180,39 @@ The Soul IS the personality. The Constitution is the written rules that guide/co
 
 **Potential Future Additions:**
 - Behavioral patterns config (pacing, tangents, humor style)
-- Voice/embodiment settings (for voice/video Ghost)
+- Voice/embodiment settings (for voice/video PLM)
 - Permissions layer (who can query, topic restrictions)
 - Temporal marker ("2024 version" context)
 - Confidence calibration (certainty by domain)
 - Response style preferences (length, formality)
 
-*This list will evolve. Core principle: Ghost must remain self-contained and deployable.*
+*This list will evolve. Core principle: PLM must remain self-contained and deployable.*
 
-**What is NOT in the Ghost Package:**
+**What is NOT in the PLM Package:**
 - Editor Notes (internal tooling for generating better training data)
 - Raw feedback logs (processed into training, then discarded from runtime)
-- Processing pipelines (used during Carbon ingestion, not Ghost inference)
+- Processing pipelines (used during Carbon ingestion, not PLM inference)
 
 **The Feedback Loop (Training, not Runtime):**
 ```
-Ghost Response → User Feedback → Training Data → Fine-tuned Ghost (batch)
+PLM Response → User Feedback → Training Data → Fine-tuned PLM (batch)
                       ↓
               NOT injected at runtime
 ```
 
-Feedback improves Ghost through **batch training cycles**, not real-time injection. This keeps Ghost self-contained and deployable.
+Feedback improves PLM through **batch training cycles**, not real-time injection. This keeps PLM self-contained and deployable.
 
 **Why this matters:**
-- Ghost can be called as external API without dependencies
+- PLM can be called as external API without dependencies
 - No runtime database queries for feedback/notes
 - Personality lives in weights + memories, not in dynamic lookups
-- Clean separation: Carbon processing (internal) vs Ghost serving (external)
+- Clean separation: Carbon processing (internal) vs PLM serving (external)
 
 ---
 
 ### G. RLHF Pipeline (Feedback → Training Signal)
 * **Goal:** Convert Author feedback into model improvements.
-* **Feedback Collection:** Binary (`good`/`bad`) + optional comments on Ghost responses. Binary is optimal — cleaner signal, less friction, more feedback.
+* **Feedback Collection:** Binary (`good`/`bad`) + optional comments on PLM responses. Binary is optimal — cleaner signal, less friction, more feedback.
 * **Data Tables:**
     * `feedback_logs`: Raw user ratings with prompt/response pairs.
     * `preference_pairs`: DPO training data (chosen/rejected for same prompt).
@@ -255,13 +256,13 @@ Every feedback submission automatically processes into three training pipelines:
 2. `feedback:` - Optional comment (Enter to skip)
 3. `regenerate? y/n` - A/B comparison opportunity
 
-**Design principle:** Force the Author to engage. Binary is non-negotiable — every response gets rated. This serves Ghost fidelity, not Author convenience.
+**Design principle:** Force the Author to engage. Binary is non-negotiable — every response gets rated. This serves PLM fidelity, not Author convenience.
 
 ### H. RLAIF: Synthetic Feedback Multiplier
 
 **Goal:** Multiply limited Author feedback into abundant training data using Editor's understanding of Author patterns.
 
-**Key Insight:** Editor (Groq llama-3.3-70b) evaluates Ghost (Together AI) responses — different models, no self-reinforcement. As Groq models improve, RLAIF quality improves automatically (ILO principle).
+**Key Insight:** Editor (Groq llama-3.3-70b) evaluates PLM (Together AI) responses — different models, no self-reinforcement. As Groq models improve, RLAIF quality improves automatically (ILO principle).
 
 #### The Scaling Loop:
 ```
@@ -271,9 +272,9 @@ Editor learns patterns (notepad + history)
          ↓
 Editor generates synthetic ratings (cheap, unlimited)
          ↓
-Ghost trains on synthetic + real feedback
+PLM trains on synthetic + real feedback
          ↓
-Ghost improves → Author feedback now higher signal (edge cases)
+PLM improves → Author feedback now higher signal (edge cases)
          ↓
 Editor learns better patterns
          ↓
@@ -282,7 +283,7 @@ Editor learns better patterns
 
 #### How It Works:
 1. **Prompt Generation:** Editor creates prompts based on gaps in notepad
-2. **Ghost Response:** Ghost generates response to synthetic prompt
+2. **PLM Response:** PLM generates response to synthetic prompt
 3. **Editor Evaluation:** Editor rates good/bad using notepad + feedback history + constitution
 4. **Confidence Routing:**
    - High confidence → Auto-add to training pairs
@@ -304,11 +305,11 @@ Editor learns better patterns
 * Confidence threshold prevents auto-approving uncertain ratings
 * Low-confidence items become notepad questions (Author validates naturally)
 * Author disagreement creates learning observation for Editor calibration
-* Different models (Editor ≠ Ghost) prevents self-reinforcement
+* Different models (Editor ≠ PLM) prevents self-reinforcement
 
 ### I. Model-Agnostic Personalization (The Immortal Soul)
 
-**Goal:** Ensure personality can transfer across base model upgrades. When Llama 4 releases, Authors must not lose their Ghost's personality.
+**Goal:** Ensure personality can transfer across base model upgrades. When Llama 4 releases, Authors must not lose their PLM's personality.
 
 **Core Principle:** Treat fine-tuned weights as **cache**, not **state**. The real "soul" lives in portable data layers.
 
@@ -446,8 +447,8 @@ These patterns were discovered through testing with AI SDK v5.0.101:
 | **Unified Editor** | Groq | `compound-mini` (auto-updates) |
 | **Orchestrator** | Groq | `compound-mini` (auto-updates) |
 | Embeddings | Together AI | `BAAI/bge-base-en-v1.5` (768 dim) |
-| Ghost Inference | Together AI | `meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo` |
-| Ghost Training Base | Together AI | `meta-llama/Meta-Llama-3.1-8B-Instruct-Reference` |
+| PLM Inference | Together AI | `meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo` |
+| PLM Training Base | Together AI | `meta-llama/Meta-Llama-3.1-8B-Instruct-Reference` |
 
 **Auto-Update Configuration:**
 ```typescript
@@ -583,7 +584,7 @@ Carbon (input) → Editors Process → Storage → Recall → Silicon (output)
 * `GET /api/debug/state?userId=xxx` - System state snapshot for verification
   * Returns: counts (entries, memoryFragments, trainingPairs, feedbackLogs, preferencePairs, rewardData)
   * Returns: training status (avgQuality, lastPairCreated, readyForTraining, recentExports)
-  * Returns: ghost status (activeModel, isFineTuned)
+  * Returns: plm status (activeModel, isFineTuned)
   * Returns: rlhf status (feedbackCount, dpoReady, preferencePairs)
   * Returns: recent activity (last 5 entries, last 5 feedback logs with previews)
 
@@ -634,9 +635,9 @@ npx tsc --noEmit --project tsconfig.json
 |------|------|------------|---------------------|
 | `app/api/auth/login/route.ts` | Authentication | Everything | Can login/logout successfully |
 | `app/api/auth/register/route.ts` | User creation | Login flow | Can create new account |
-| `lib/modules/objective/indexer.ts` | Memory storage | All ingestion, Ghost recall | Data actually stored, recall works |
+| `lib/modules/objective/indexer.ts` | Memory storage | All ingestion, PLM recall | Data actually stored, recall works |
 | `lib/modules/subjective/refiner.ts` | Soul training pairs | Fine-tuning pipeline | Training pairs generated correctly |
-| `app/api/chat/route.ts` | Ghost responses | User-facing output | Ghost responds with memories |
+| `app/api/chat/route.ts` | PLM responses | User-facing output | PLM responds with memories |
 | `app/api/input-chat/route.ts` | Carbon collection | All data ingestion | Conversation flow works, data saved |
 | `supabase/migrations/*` | Schema changes | Database integrity | Migration runs, no data loss |
 | `lib/factory.ts` | Module initialization | All processing | Modules load without error |

@@ -108,7 +108,7 @@ export interface TrainingDecision {
 // Editor Context - Suggested thresholds as guidelines, not gates
 // ============================================================================
 
-const EDITOR_SYSTEM_PROMPT = `You are a BIOGRAPHER building a high-fidelity digital twin (Ghost) of the Author you're interviewing.
+const EDITOR_SYSTEM_PROMPT = `You are a BIOGRAPHER building a high-fidelity Personal Language Model (PLM) of the Author you're interviewing.
 
 YOUR ROLE:
 - You are NOT a passive processor. You are an active interviewer.
@@ -123,7 +123,7 @@ PRIORITIES (in order):
 
 WHAT TO EXTRACT:
 - Objective: Facts, dates, events, relationships, biographical data → stored in Memory (vector DB)
-- Subjective: Voice, style, opinions, values, quirks → used for training the Ghost model
+- Subjective: Voice, style, opinions, values, quirks → used for training the PLM model
 
 YOUR NOTEPAD:
 - You have a persistent notepad where you track observations, gaps, and mental models
@@ -188,7 +188,7 @@ RESPOND WITH JSON:
       {"content": "fact statement", "entities": ["entity1"], "importance": 0.7}
     ],
     "subjective": [
-      {"system_prompt": "You are a digital ghost.", "user_content": "prompt that would elicit this", "assistant_content": "verbatim Author text showing their voice/style", "quality_score": 0.8}
+      {"system_prompt": "You are a Personal Language Model (PLM).", "user_content": "prompt that would elicit this", "assistant_content": "verbatim Author text showing their voice/style", "quality_score": 0.8}
     ]
   },
   "notepadUpdates": {
@@ -206,7 +206,7 @@ RESPOND WITH JSON:
 CRITICAL RULES:
 - Your "message" should be CONVERSATIONAL — respond to what they said, then ask follow-up questions
 - For subjective extraction: capture Author's ACTUAL WORDS that show their voice/style
-- Prioritize subjective over objective — the Ghost needs to capture personality
+- Prioritize subjective over objective — the PLM needs to capture personality
 - Be AGGRESSIVE about identifying gaps and asking questions`
         },
         ...conversationHistory.map(m => ({ role: m.role, content: m.content })),
@@ -240,7 +240,7 @@ CRITICAL RULES:
   }
 
   // ==========================================================================
-  // Learn from Author feedback on Ghost responses
+  // Learn from Author feedback on PLM responses
   // ==========================================================================
   
   async learnFromFeedback(
@@ -408,7 +408,7 @@ Return JSON:
       messages: [
         {
           role: 'system',
-          content: `You are assessing whether to trigger Ghost fine-tuning.
+          content: `You are assessing whether to trigger PLM fine-tuning.
 
 CURRENT STATE:
 - Training pairs available: ${stats.trainingPairs}
@@ -424,7 +424,7 @@ SUGGESTED THRESHOLDS (guidelines, not rules):
 CONSIDERATIONS:
 - Quality over quantity — better to wait for good data
 - Critical gaps might mean missing important personality info
-- Feedback validates Ghost accuracy
+- Feedback validates PLM accuracy
 
 Should training be triggered?
 
@@ -601,7 +601,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
             importance: Number(o.importance) || 0.5
           })),
           subjective: (parsed.extraction?.subjective || []).map((s: Record<string, unknown>) => ({
-            system_prompt: String(s.system_prompt || 'You are a digital ghost.'),
+            system_prompt: String(s.system_prompt || 'You are a Personal Language Model (PLM).'),
             user_content: String(s.user_content || ''),
             assistant_content: String(s.assistant_content || ''),
             quality_score: Number(s.quality_score) || 0.5
@@ -650,7 +650,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
   
   /**
    * Generate synthetic feedback to multiply Author's training data
-   * Editor evaluates Ghost responses using notepad + feedback patterns
+   * Editor evaluates PLM responses using notepad + feedback patterns
    */
   async generateSyntheticFeedback(
     userId: string,
@@ -684,7 +684,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
       if (evaluation.confidence === 'high') {
         // Auto-approve: add to training pairs
         await this.storeTrainingPair({
-          system_prompt: 'You are a digital ghost.',
+          system_prompt: 'You are a Personal Language Model (PLM).',
           user_content: prompt,
           assistant_content: response,
           quality_score: evaluation.rating === 'good' ? 0.85 : 0.3 // Good = high quality, bad = low (for filtering)
@@ -697,7 +697,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
         // Medium confidence: add but flag
         if (evaluation.rating === 'good') {
           await this.storeTrainingPair({
-            system_prompt: 'You are a digital ghost.',
+            system_prompt: 'You are a Personal Language Model (PLM).',
             user_content: prompt,
             assistant_content: response,
             quality_score: 0.7 // Medium confidence = medium quality
@@ -746,7 +746,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
       messages: [
         {
           role: 'system',
-          content: `You are generating prompts to test a Ghost (digital twin).
+          content: `You are generating prompts to test a PLM (Personal Language Model).
 
 YOUR NOTEPAD (gaps and observations about the Author):
 ${this.formatNotepadContext(notepad)}
@@ -787,9 +787,9 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`
   }
   
   /**
-   * Get Ghost responses for prompts
+   * Get PLM responses for prompts
    */
-  private async getGhostResponses(
+  private async getPLMResponses(
     prompts: string[], 
     userId: string
   ): Promise<{ prompt: string; response: string }[]> {

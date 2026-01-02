@@ -124,8 +124,8 @@ export async function GET(req: Request) {
       }))
     },
     
-    // Ghost model
-    ghost: {
+    // PLM model
+    plm: {
       activeModel: activeModelResult.data || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
       isFineTuned: !!(activeModelResult.data && !activeModelResult.data.includes('Meta-Llama'))
     },
