@@ -1133,12 +1133,10 @@ export default function Alexandria() {
 
       {/* Input Area */}
       <div className="p-4 md:p-6 pb-6 md:pb-8">
-        <div className="max-w-[700px] mx-auto">
+        <div className="max-w-[700px] mx-auto relative">
           {/* Mode Toggle */}
           <div className="flex justify-between items-center mb-3 gap-2">
             <div className="flex items-center gap-2">
-              {/* Spacer to align with + button - always present */}
-              <div className="w-10 flex-shrink-0" />
               <div className="relative rounded-full p-[2px] inline-flex w-[180px]" style={{ background: 'var(--toggle-bg)' }}>
                 <button
                   onClick={() => setMode('input')}
@@ -1152,7 +1150,7 @@ export default function Alexandria() {
                   className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
                   style={{ color: mode === 'training' ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
-                  training
+                  process
                 </button>
                 <button
                   onClick={() => setMode('output')}
@@ -1181,17 +1179,19 @@ export default function Alexandria() {
           </div>
 
           {/* Input Container */}
-          <div className="relative flex items-center gap-2">
-            {/* Attach button - always present for layout stability */}
-            <button
-              onClick={() => feedbackPhase === 'none' && !carbonLockYN && setShowAttachModal(true)}
-              className={`flex-shrink-0 w-10 h-10 rounded-full text-lg flex items-center justify-center ${feedbackPhase === 'none' && !carbonLockYN ? 'cursor-pointer' : 'opacity-0 cursor-default'}`}
-              style={{ background: 'var(--bg-secondary)', color: 'var(--text-subtle)' }}
-              title="Attach text"
-            >
-              +
-            </button>
+          <div className="relative flex items-center">
             <div className="relative flex-1">
+              {/* Attach button - only in input mode, inside the input field */}
+              {mode === 'input' && (
+                <button
+                  onClick={() => feedbackPhase === 'none' && !carbonLockYN && setShowAttachModal(true)}
+                  className={`absolute left-5 text-lg flex items-center justify-center z-10 ${feedbackPhase === 'none' && !carbonLockYN ? 'cursor-pointer' : 'opacity-0 cursor-default'}`}
+                  style={{ color: 'var(--text-subtle)', top: '50%', transform: 'translateY(-50%)' }}
+                  title="Attach text"
+                >
+                  +
+                </button>
+              )}
               <input
                 ref={inputRef}
                 type="text"
@@ -1211,7 +1211,7 @@ export default function Alexandria() {
                 spellCheck={false}
                 enterKeyHint="send"
                 data-form-type="other"
-                className={`w-full border-none rounded-2xl text-[0.9rem] px-5 py-4 pr-[60px] outline-none shadow-md ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder-italic' : ''}`}
+                className={`w-full border-none rounded-2xl text-[0.9rem] py-4 pr-[60px] outline-none shadow-md ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder-italic' : ''} ${mode === 'input' ? 'pl-10' : 'px-5'}`}
                 style={{ 
                   background: 'var(--bg-secondary)', 
                   color: 'var(--text-primary)',
