@@ -5,6 +5,12 @@
 import { Editor } from './modules/core/editor';
 import { Orchestrator } from './modules/core/orchestrator';
 
+// PHASE 0: Voice Processing
+import { VoiceProcessor } from './modules/voice/processor';
+
+// PHASE 1: Constitution
+import { ConstitutionManager } from './modules/constitution/manager';
+
 // LEGACY: Keep for backward compatibility during transition
 import { GroqRefiner } from './modules/subjective/refiner';
 import { GroqExtractor } from './modules/objective/extractor';
@@ -29,6 +35,8 @@ import { EditorNotes } from './modules/core/editor-notes';
 // Singletons for new architecture
 let editor: Editor | null = null;
 let orchestrator: Orchestrator | null = null;
+let voiceProcessor: VoiceProcessor | null = null;
+let constitutionManager: ConstitutionManager | null = null;
 
 /**
  * Get the Editor (biographer that converses with Author)
@@ -57,6 +65,28 @@ export function getOrchestrator(): Orchestrator {
     orchestrator = new Orchestrator();
   }
   return orchestrator;
+}
+
+/**
+ * Get the VoiceProcessor (Phase 0: Voice Notes Bootstrap)
+ * Handles transcription and processing of voice notes
+ */
+export function getVoiceProcessor(): VoiceProcessor {
+  if (!voiceProcessor) {
+    voiceProcessor = new VoiceProcessor();
+  }
+  return voiceProcessor;
+}
+
+/**
+ * Get the ConstitutionManager (Phase 1: Formalize Constitution)
+ * Handles extraction, storage, and retrieval of Constitution documents
+ */
+export function getConstitutionManager(): ConstitutionManager {
+  if (!constitutionManager) {
+    constitutionManager = new ConstitutionManager();
+  }
+  return constitutionManager;
 }
 
 // ============================================================================

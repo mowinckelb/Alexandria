@@ -1,5 +1,6 @@
 // @CRITICAL: Orchestrator - handles PLM output to Users (external or Author)
 // Uses Groq to orchestrate between PLM, Memories, and Constitution
+// Phase 1: Now includes explicit Constitution document in context
 // Verify: Users get responses that sound like the Author
 
 import { createClient } from '@supabase/supabase-js';
@@ -7,6 +8,8 @@ import { createTogetherAI } from '@ai-sdk/togetherai';
 import { generateText, streamText } from 'ai';
 import Together from 'together-ai';
 import { getQualityModel } from '@/lib/models';
+import { ConstitutionManager } from '@/lib/modules/constitution/manager';
+import type { ConstitutionSections } from '@/lib/modules/constitution/types';
 
 // Together AI for PLM model inference
 const togetherProvider = createTogetherAI({ apiKey: process.env.TOGETHER_API_KEY! });
@@ -31,7 +34,16 @@ export interface OrchestrationContext {
   plmModelId: string;
   personality: PersonalityContext | null;
   memories: MemoryContext[];
-  constitution: string[];
+  constitution: string[];  // Legacy: voice rules from personality_profiles
+  constitutionDoc: ConstitutionDocument | null;  // Phase 1: Explicit Constitution
+}
+
+export interface ConstitutionDocument {
+  coreIdentity: string;
+  values: string[];
+  heuristics: string[];
+  boundaries: string[];
+  mentalModels: string[];
 }
 
 export interface PersonalityContext {
@@ -59,6 +71,11 @@ export interface OrchestratorResponse {
 // ============================================================================
 
 export class Orchestrator {
+  private constitutionManager: ConstitutionManager;
+  
+  constructor() {
+    this.constitutionManager = new ConstitutionManager();
+  }
   
   // ==========================================================================
   // Main: Handle external user query
@@ -128,19 +145,46 @@ export class Orchestrator {
     const lastMessage = messages[messages.length - 1];
     const query = lastMessage?.content || '';
     
-    // Parallel fetch all context
-    const [plmModel, personality, memories] = await Promise.all([
+    // Parallel fetch all context (including Constitution - Phase 1)
+    const [plmModel, personality, memories, constitutionDoc] = await Promise.all([
       this.getPLMModel(userId),
       this.getPersonality(userId),
-      this.getRelevantMemories(query, userId)
+      this.getRelevantMemories(query, userId),
+      this.getConstitution(userId)
     ]);
     
     return {
       plmModelId: plmModel,
       personality,
       memories,
-      constitution: personality?.voiceRules || []
+      constitution: personality?.voiceRules || [],
+      constitutionDoc
     };
+  }
+  
+  /**
+   * Get Constitution document (Phase 1)
+   */
+  private async getConstitution(userId: string): Promise<ConstitutionDocument | null> {
+    try {
+      const constitution = await this.constitutionManager.getConstitution(userId);
+      if (!constitution) return null;
+      
+      const sections = constitution.sections;
+      return {
+        coreIdentity: sections.coreIdentity || '',
+        values: [
+          ...(sections.values?.tier1?.map(v => `[CORE] ${v.name}: ${v.description}`) || []),
+          ...(sections.values?.tier2?.map(v => `${v.name}: ${v.description}`) || [])
+        ],
+        heuristics: sections.heuristics?.map(h => `${h.name}: ${h.rule}`) || [],
+        boundaries: sections.boundaries || [],
+        mentalModels: sections.mentalModels?.map(m => `${m.name}: ${m.howItWorks}`) || []
+      };
+    } catch (error) {
+      console.error('[Orchestrator] Failed to get constitution:', error);
+      return null;
+    }
   }
   
   private async getPLMModel(userId: string): Promise<string> {
@@ -264,8 +308,36 @@ ${context.personality.avoidedWords.length > 0 ?
   `- Words to AVOID: ${context.personality.avoidedWords.join(', ')}` : ''}`);
     }
     
-    // Constitution (voice rules)
-    if (context.constitution.length > 0) {
+    // Constitution document (Phase 1 - primary)
+    if (context.constitutionDoc) {
+      const doc = context.constitutionDoc;
+      parts.push(`
+YOUR CONSTITUTION (ground truth for who you are):`);
+      
+      if (doc.coreIdentity) {
+        parts.push(`
+IDENTITY: ${doc.coreIdentity}`);
+      }
+      
+      if (doc.values.length > 0) {
+        parts.push(`
+YOUR VALUES:
+${doc.values.slice(0, 8).map((v, i) => `${i + 1}. ${v}`).join('\n')}`);
+      }
+      
+      if (doc.heuristics.length > 0) {
+        parts.push(`
+YOUR DECISION RULES:
+${doc.heuristics.slice(0, 5).map((h, i) => `${i + 1}. ${h}`).join('\n')}`);
+      }
+      
+      if (doc.boundaries.length > 0) {
+        parts.push(`
+BOUNDARIES (things you WON'T do):
+${doc.boundaries.slice(0, 5).map(b => `- ${b}`).join('\n')}`);
+      }
+    } else if (context.constitution.length > 0) {
+      // Fallback to legacy voice rules
       parts.push(`
 VOICE RULES:
 ${context.constitution.slice(0, 10).map((r, i) => `${i + 1}. ${r}`).join('\n')}`);
