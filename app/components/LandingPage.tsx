@@ -44,7 +44,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
       title: 'Product',
       points: [
         'Once you digitalise your subjective/objective data, you create a high-fidelity Personal Language Model (PLM)',
-        'This PLM enables a transition from zero-sum to positive-sum attention as it can autonomously approximate your output and synthesise pre-processed inputs; a personal function approximator',
+        'This agentic PLM enables a transition from zero-sum to positive-sum attention as it can autonomously approximate your output and synthesise pre-processed inputs; a personal function approximator',
         'There is a structural delta between general LLMs with personal context and a PLM; while leveraged to SOTA LLMs, PLMs are specifically fine-tuned for each individual on their unique data',
         'If something is to represent you it must know you; personalised LLMs are valuable assistants, PLMs are extensions of your cognition'
       ]

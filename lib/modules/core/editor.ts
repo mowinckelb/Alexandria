@@ -1,11 +1,14 @@
 // @CRITICAL: Unified Editor - biographer that converses with Author to extract information
 // Consolidates: Extractor, Refiner, EditorNotes into one LLM
+// Now integrates Constitution for RLAIF evaluation (Phase 1)
 // Verify: two-way conversation works, notepad updates, training pairs generated
 
 import { createClient } from '@supabase/supabase-js';
 import { generateText } from 'ai';
 import Together from 'together-ai';
 import { getFastModel, getQualityModel } from '@/lib/models';
+import { ConstitutionManager } from '@/lib/modules/constitution/manager';
+import type { Constitution, ConstitutionSections } from '@/lib/modules/constitution/types';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -145,6 +148,11 @@ SUGGESTED THRESHOLDS (guidelines, not rules):
 // ============================================================================
 
 export class Editor {
+  private constitutionManager: ConstitutionManager;
+  
+  constructor() {
+    this.constitutionManager = new ConstitutionManager();
+  }
   
   // ==========================================================================
   // Core: Two-way conversation with Author
@@ -162,17 +170,26 @@ export class Editor {
     // 2. Get training stats for context
     const trainingStats = await this.getTrainingStats(userId);
     
-    // 3. Build context for the Editor
+    // 3. Load Constitution if available (Phase 1)
+    const constitution = await this.constitutionManager.getConstitution(userId);
+    const constitutionContext = constitution 
+      ? this.formatConstitutionContext(constitution)
+      : 'No Constitution yet - still building understanding of Author.';
+    
+    // 4. Build context for the Editor
     const notepadContext = this.formatNotepadContext(notepad);
     const statsContext = this.formatStatsContext(trainingStats);
     
-    // 4. Generate Editor response
+    // 5. Generate Editor response
     const { text: response } = await generateText({
       model: getFastModel(),
       messages: [
         {
           role: 'system',
           content: `${EDITOR_SYSTEM_PROMPT}
+
+YOUR CONSTITUTION (Author's explicit worldview - use as ground truth):
+${constitutionContext}
 
 YOUR CURRENT NOTEPAD:
 ${notepadContext}
@@ -217,26 +234,93 @@ CRITICAL RULES:
       ]
     });
 
-    // 5. Parse response
+    // 6. Parse response
     const parsed = this.parseEditorResponse(response, authorInput);
     
-    // 6. Store raw entry
+    // 7. Store raw entry
     await this.storeRawEntry(authorInput, userId);
     
-    // 7. Store objective data (memories)
+    // 8. Store objective data (memories)
     for (const item of parsed.extraction.objective) {
       await this.storeMemory(item, userId);
     }
     
-    // 8. Store subjective data (training pairs)
+    // 9. Store subjective data (training pairs)
     for (const pair of parsed.extraction.subjective) {
       await this.storeTrainingPair(pair, userId);
     }
     
-    // 9. Update notepad
+    // 10. Update notepad
     await this.updateNotepad(userId, parsed.notepadUpdates, parsed.scratchpadUpdate || '');
     
+    // 11. Propose Constitution update if relevant (Phase 1)
+    if (constitution && parsed.extraction.subjective.length > 0) {
+      await this.maybeUpdateConstitution(userId, authorInput, parsed);
+    }
+    
     return parsed;
+  }
+  
+  /**
+   * Check if conversation reveals something worth adding to Constitution
+   */
+  private async maybeUpdateConstitution(
+    userId: string,
+    authorInput: string,
+    parsed: EditorResponse
+  ): Promise<void> {
+    try {
+      // Use LLM to detect if this reveals new Constitution-worthy information
+      const { text: response } = await generateText({
+        model: getFastModel(),
+        messages: [
+          {
+            role: 'system',
+            content: `You are analyzing a conversation to see if it reveals something significant about the Author's Constitution (values, worldview, mental models, boundaries).
+
+AUTHOR'S INPUT:
+"${authorInput}"
+
+EXTRACTED SUBJECTIVE DATA:
+${parsed.extraction.subjective.map(s => s.assistant_content).join('\n')}
+
+Does this reveal something NEW and SIGNIFICANT that should be added to the Constitution?
+- New value or priority
+- New mental model or heuristic
+- New boundary or rule
+- New domain expertise
+
+Return JSON:
+{
+  "shouldUpdate": true/false,
+  "type": "value|heuristic|boundary|mental_model|expertise|none",
+  "content": "what to add",
+  "reasoning": "why this is significant"
+}
+
+Only return shouldUpdate: true if this is genuinely new and significant, not just a restatement.`
+          }
+        ]
+      });
+
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return;
+
+      const result = JSON.parse(jsonMatch[0]);
+      if (!result.shouldUpdate) return;
+
+      // Propose the update (store for later review)
+      await this.constitutionManager.proposeUpdate(userId, {
+        type: result.type,
+        context: authorInput,
+        content: result.content
+      });
+
+      console.log(`[Editor] Proposed Constitution update: ${result.type} - ${result.content}`);
+    } catch (error) {
+      // Non-fatal - just log and continue
+      console.error('[Editor] Constitution update check failed:', error);
+    }
   }
 
   // ==========================================================================
@@ -582,6 +666,45 @@ Feedback samples: ${stats.feedbackCount}
 Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pairs)'}`;
   }
   
+  private formatConstitutionContext(constitution: Constitution): string {
+    const sections = constitution.sections;
+    const parts: string[] = [];
+    
+    // Core identity
+    if (sections.coreIdentity) {
+      parts.push(`IDENTITY: ${sections.coreIdentity}`);
+    }
+    
+    // Values (all tiers summarized)
+    const allValues = [
+      ...(sections.values?.tier1?.map(v => `[NON-NEGOTIABLE] ${v.name}: ${v.description}`) || []),
+      ...(sections.values?.tier2?.map(v => `[STRONG] ${v.name}: ${v.description}`) || []),
+      ...(sections.values?.tier3?.map(v => `[STYLISTIC] ${v.name}: ${v.description}`) || [])
+    ];
+    if (allValues.length > 0) {
+      parts.push(`VALUES:\n${allValues.join('\n')}`);
+    }
+    
+    // Key heuristics
+    if (sections.heuristics?.length > 0) {
+      const rules = sections.heuristics.map(h => `- ${h.name}: ${h.rule}`).join('\n');
+      parts.push(`DECISION RULES:\n${rules}`);
+    }
+    
+    // Mental models
+    if (sections.mentalModels?.length > 0) {
+      const models = sections.mentalModels.map(m => `- ${m.name} (${m.domain}): ${m.howItWorks}`).join('\n');
+      parts.push(`MENTAL MODELS:\n${models}`);
+    }
+    
+    // Boundaries
+    if (sections.boundaries?.length > 0) {
+      parts.push(`BOUNDARIES:\n${sections.boundaries.map(b => `- ${b}`).join('\n')}`);
+    }
+    
+    return parts.join('\n\n') || 'Constitution exists but has no content yet.';
+  }
+  
   private parseEditorResponse(response: string, rawInput: string): EditorResponse & { scratchpadUpdate?: string } {
     try {
       const jsonMatch = response.match(/\{[\s\S]*\}/);
@@ -842,7 +965,8 @@ Respond naturally, in first person, as the Author would.`
   }
   
   /**
-   * Evaluate a PLM response using Author's patterns
+   * Evaluate a PLM response using Author's Constitution as ground truth
+   * Phase 1: Constitution is primary, with notepad and feedback as secondary
    */
   async evaluatePLMResponse(
     prompt: string,
@@ -856,7 +980,13 @@ Respond naturally, in first person, as the Author would.`
   }> {
     const notepad = await this.getNotepad(userId);
     
-    // Get feedback history
+    // Get Constitution (primary ground truth - Phase 1)
+    const constitution = await this.constitutionManager.getConstitution(userId);
+    const constitutionContext = constitution 
+      ? this.formatConstitutionContext(constitution)
+      : null;
+    
+    // Get feedback history (secondary)
     const { data: feedbackHistory } = await supabase
       .from('feedback_logs')
       .select('prompt, response, feedback, comment')
@@ -868,15 +998,18 @@ Respond naturally, in first person, as the Author would.`
       `${f.feedback === 1 ? 'GOOD' : 'BAD'}: "${f.prompt?.substring(0, 50)}..." → ${f.comment || 'no comment'}`
     ).join('\n') || 'No feedback history yet.';
     
-    // Get constitution
-    const { data: profile } = await supabase
-      .from('personality_profiles')
-      .select('constitutional_rules, style_analysis')
-      .eq('user_id', userId)
-      .eq('is_active', true)
-      .single();
-    
-    const constitution = profile?.constitutional_rules?.join('\n') || 'No constitution yet.';
+    // Fallback to personality_profiles if no Constitution
+    let fallbackConstitution = '';
+    if (!constitutionContext) {
+      const { data: profile } = await supabase
+        .from('personality_profiles')
+        .select('constitutional_rules, style_analysis')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .single();
+      
+      fallbackConstitution = profile?.constitutional_rules?.join('\n') || 'No constitution yet.';
+    }
     
     const { text: evalResponse } = await generateText({
       model: getFastModel(),
@@ -887,23 +1020,27 @@ Respond naturally, in first person, as the Author would.`
 
 AUTHOR CONTEXT:
 
+${constitutionContext ? `CONSTITUTION (PRIMARY GROUND TRUTH):
+${constitutionContext}` : `CONSTITUTIONAL RULES (fallback):
+${fallbackConstitution}`}
+
 NOTEPAD (observations about Author):
 ${this.formatNotepadContext(notepad)}
 
 FEEDBACK HISTORY (what Author liked/disliked):
 ${feedbackContext}
 
-CONSTITUTIONAL RULES:
-${constitution}
-
 GHOST RESPONSE TO EVALUATE:
 Prompt: "${prompt}"
 Response: "${response}"
 
 EVALUATE:
-1. Does this SOUND like the Author based on your observations?
-2. Does it match PATTERNS from their feedback history?
-3. Would Author rate this good or bad?
+1. Does this ALIGN with the Author's Constitution (values, worldview, boundaries)?
+2. Does this SOUND like the Author based on your observations?
+3. Does it match PATTERNS from their feedback history?
+4. Would Author rate this good or bad?
+
+${constitutionContext ? 'The Constitution is the PRIMARY source of truth. If the response violates values or boundaries, rate it BAD even if it sounds stylistically correct.' : ''}
 
 Be HONEST about uncertainty. If you don't have enough data, say so.
 
