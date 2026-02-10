@@ -67,22 +67,53 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
+    // Handle /test command - diagnostic
+    if (text === '/test') {
+      const diagnostics: string[] = ['🔧 Diagnostics:'];
+      
+      // Check env vars
+      diagnostics.push(`• TELEGRAM_BOT_TOKEN: ${token ? '✓' : '✗'}`);
+      diagnostics.push(`• GROQ_API_KEY: ${process.env.GROQ_API_KEY ? '✓' : '✗'}`);
+      diagnostics.push(`• SUPABASE_URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL ? '✓' : '✗'}`);
+      diagnostics.push(`• SUPABASE_SERVICE_KEY: ${process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓' : '✗'}`);
+      
+      // Try to get editor
+      try {
+        const editor = getEditor();
+        diagnostics.push(`• Editor: ✓ initialized`);
+      } catch (e) {
+        diagnostics.push(`• Editor: ✗ ${String(e).substring(0, 50)}`);
+      }
+      
+      await sendTelegramMessage(chatId, diagnostics.join('\n'));
+      return NextResponse.json({ ok: true });
+    }
+
     // Handle regular text messages - send to Editor
     if (text) {
+      // Send immediate acknowledgment
+      await sendTelegramMessage(chatId, '💭 Thinking...');
+      
       try {
         // Use a hardcoded test user ID for now (we'll fix user mapping later)
         const testUserId = '00000000-0000-0000-0000-000000000001';
         
+        console.log('[Webhook] Getting editor...');
         const editor = getEditor();
+        
         console.log('[Webhook] Calling editor.converse...');
+        const startTime = Date.now();
         
         const response = await editor.converse(text, testUserId, []);
-        console.log('[Webhook] Editor responded:', response.message?.substring(0, 50));
+        
+        const elapsed = Date.now() - startTime;
+        console.log(`[Webhook] Editor responded in ${elapsed}ms:`, response.message?.substring(0, 50));
         
         await sendTelegramMessage(chatId, response.message || 'I heard you, but I need to think about that.');
       } catch (editorError) {
-        console.error('[Webhook] Editor error:', editorError);
-        await sendTelegramMessage(chatId, `I had trouble processing that. Error: ${String(editorError).substring(0, 100)}`);
+        const errorMsg = editorError instanceof Error ? editorError.message : String(editorError);
+        console.error('[Webhook] Editor error:', errorMsg);
+        await sendTelegramMessage(chatId, `Error: ${errorMsg.substring(0, 200)}`);
       }
       return NextResponse.json({ ok: true });
     }
