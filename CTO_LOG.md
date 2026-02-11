@@ -44,6 +44,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
+| ALEXANDRIA_VISION.md | 2026-02-11 | ✅ Complete vision document created. Defines Phase 1 (Editor) and Phase 2 (Orchestrator), input/output nodes, architecture pattern (Suggested/Selected), immutable rules. This is now the source of truth. |
 | Telegram Code Removal | 2026-02-11 | ✅ Routes deleted, lib archived. Website is primary UI now, iOS app later. |
 | Constitution UI | 2026-02-11 | ✅ ConstitutionPanel component with view/history, extraction, version restore. Button in header. |
 | Backend Verification | 2026-02-11 | ✅ Health check, Constitution (extract/get/versions), debug state all working. |
