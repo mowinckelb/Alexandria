@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getIngestionTools, getEditorTools } from '@/lib/factory';
+import { getPipelineTools } from '@/lib/factory';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
@@ -9,8 +9,7 @@ const supabase = supabaseUrl && supabaseKey
   ? createClient(supabaseUrl, supabaseKey)
   : null;
 
-const { refiner, extractor, indexer } = getIngestionTools();
-const { editorNotes } = getEditorTools();
+const { refiner, extractor, indexer, editorNotes } = getPipelineTools();
 
 /**
  * Chunk text intelligently by paragraphs or max length

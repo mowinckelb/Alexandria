@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getIngestionTools, getEditorTools } from '@/lib/factory';
+import { getPipelineTools } from '@/lib/factory';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
-const { refiner, extractor, indexer } = getIngestionTools();
-const { editorNotes } = getEditorTools();
+const { refiner, extractor, indexer, editorNotes } = getPipelineTools();
 
 export async function POST(req: Request) {
   try {

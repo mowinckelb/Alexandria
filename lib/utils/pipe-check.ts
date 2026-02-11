@@ -1,4 +1,4 @@
-import { getIngestionTools, getEditorTools } from '../factory';
+import { getPipelineTools } from '../factory';
 
 /**
  * Verifies if all necessary ingestion tools are active and functional for a given input.
@@ -6,8 +6,7 @@ import { getIngestionTools, getEditorTools } from '../factory';
  * skip critical processing steps.
  */
 export async function verifyPipeline(text: string, userId: string) {
-    const { extractor, refiner, indexer } = getIngestionTools();
-    const { editorNotes } = getEditorTools();
+    const { extractor, refiner, indexer, editorNotes } = getPipelineTools();
 
     const verification = {
         timestamp: new Date().toISOString(),

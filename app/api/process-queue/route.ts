@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getIngestionTools, getEditorTools } from '@/lib/factory';
+import { getPipelineTools } from '@/lib/factory';
 import OpenAI from 'openai';
 import { bufferToFile } from '@/lib/utils/audio-chunker';
 
@@ -105,8 +105,7 @@ function chunkText(text: string, maxLength = 4000): string[] {
 }
 
 async function processText(text: string, userId: string, jobId: string) {
-  const { extractor, indexer, refiner } = getIngestionTools();
-  const { editorNotes } = getEditorTools();
+  const { extractor, indexer, refiner, editorNotes } = getPipelineTools();
   
   const results = {
     chunksProcessed: 0,

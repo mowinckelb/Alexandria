@@ -1,10 +1,10 @@
 # CTO Log
 
-> ## ⛔ DID YOU READ MOWINCKEL.md FIRST?
+> ## ⛔ READING ORDER
 > 
-> **Required reading order:** `MOWINCKEL.md` → `CTO_LOG.md` (this file) → `ALEXANDRIA_CONTEXT.md`
+> **Required:** `MOWINCKEL.md` → `ALEXANDRIA_VISION.md` (product spec) → `CTO_LOG.md` (this file) → `ALEXANDRIA_CONTEXT.md`
 > 
-> If you skipped MOWINCKEL.md, go back and read it now. It contains non-negotiable rules.
+> If you skipped MOWINCKEL.md or ALEXANDRIA_VISION.md, go back and read them now.
 > 
 > ---
 > 

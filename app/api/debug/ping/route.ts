@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getIngestionTools } from '@/lib/factory';
+import { getPipelineTools } from '@/lib/factory';
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,7 +9,7 @@ const supabase = createClient(
 
 /**
  * GET /api/debug/ping
- * Lightweight logic verification to ensure core systems are operational.
+ * Health check: database, environment, and logic modules.
  */
 export async function GET() {
     const status = {
@@ -21,7 +21,7 @@ export async function GET() {
 
     try {
         // 1. Check Database
-        const { data: dbData, error: dbError } = await supabase.from('entries').select('id').limit(1);
+        const { error: dbError } = await supabase.from('entries').select('id').limit(1);
         if (dbError) throw dbError;
         status.database = true;
 
@@ -30,8 +30,7 @@ export async function GET() {
         status.environment = requiredVars.every(v => !!process.env[v]);
 
         // 3. Check Logic (Refiner score test)
-        const { refiner } = getIngestionTools();
-        // Accessing private method for testing (casting to any)
+        const { refiner } = getPipelineTools();
         const score = (refiner as any).scoreQuality("This is a test string for quality scoring. It should be long enough.", "Test prompt");
         status.logic = score > 0;
 

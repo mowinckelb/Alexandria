@@ -1,21 +1,66 @@
 /**
- * Model Configuration
+ * Model & Provider Configuration
  * 
- * Centralized model selection via environment variables.
- * Change models without touching code.
+ * Centralized model selection and provider instances.
+ * All AI providers used across Alexandria are configured here.
+ * Modules should import from here rather than creating their own provider instances.
+ * 
+ * Providers:
+ *   Groq       - Editor, RLAIF, extraction, personality, all LLM text generation
+ *   Together   - Embeddings (BAAI/bge-base-en-v1.5), PLM inference, fine-tuning
+ *   OpenAI     - Whisper (audio transcription), Assistants (PDF), Vision (images)
  * 
  * Env vars:
- *   GROQ_FAST_MODEL   - Fast operations (Editor, RLAIF) - default: llama-3.1-8b-instant
- *   GROQ_QUALITY_MODEL - Quality operations (Orchestrator, extraction) - default: llama-3.3-70b-versatile
+ *   GROQ_API_KEY       - Required for all LLM operations
+ *   TOGETHER_API_KEY   - Required for embeddings and PLM
+ *   OPENAI_API_KEY     - Required for voice/file processing
+ *   GROQ_FAST_MODEL    - Override fast model (default: llama-3.1-8b-instant)
+ *   GROQ_QUALITY_MODEL - Override quality model (default: llama-3.3-70b-versatile)
  */
 
-import { groq } from '@ai-sdk/groq';
+import { createGroq } from '@ai-sdk/groq';
+import { createTogetherAI } from '@ai-sdk/togetherai';
+import Together from 'together-ai';
+import OpenAI from 'openai';
 
-// Defaults - update these when new models release
+// ============================================================================
+// Provider Instances (shared singletons)
+// ============================================================================
+
+/** Groq provider for AI SDK (text generation, structured output) */
+export const groqProvider = createGroq({
+  apiKey: process.env.GROQ_API_KEY,
+});
+
+/** Together AI provider for AI SDK (PLM inference) */
+export const togetherProvider = createTogetherAI({
+  apiKey: process.env.TOGETHER_API_KEY,
+});
+
+/** Together AI SDK client (embeddings, fine-tuning) */
+export const togetherClient = new Together({
+  apiKey: process.env.TOGETHER_API_KEY,
+});
+
+/** OpenAI SDK client (Whisper, Assistants, Vision) */
+export const openaiClient = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// ============================================================================
+// Model Defaults
+// ============================================================================
+
 const DEFAULTS = {
   fast: 'llama-3.1-8b-instant',
-  quality: 'llama-3.3-70b-versatile'
+  quality: 'llama-3.3-70b-versatile',
+  embeddings: 'BAAI/bge-base-en-v1.5',
+  plm: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
 } as const;
+
+// ============================================================================
+// Model Getters
+// ============================================================================
 
 /**
  * Get the fast model (Editor conversations, RLAIF evaluation)
@@ -23,7 +68,7 @@ const DEFAULTS = {
  */
 export function getFastModel() {
   const modelId = process.env.GROQ_FAST_MODEL || DEFAULTS.fast;
-  return groq(modelId);
+  return groqProvider(modelId);
 }
 
 /**
@@ -32,7 +77,7 @@ export function getFastModel() {
  */
 export function getQualityModel() {
   const modelId = process.env.GROQ_QUALITY_MODEL || DEFAULTS.quality;
-  return groq(modelId);
+  return groqProvider(modelId);
 }
 
 /**
@@ -41,10 +86,12 @@ export function getQualityModel() {
 export function getModelConfig() {
   return {
     fast: process.env.GROQ_FAST_MODEL || DEFAULTS.fast,
-    quality: process.env.GROQ_QUALITY_MODEL || DEFAULTS.quality
+    quality: process.env.GROQ_QUALITY_MODEL || DEFAULTS.quality,
+    embeddings: DEFAULTS.embeddings,
+    plm: DEFAULTS.plm,
   };
 }
 
-// Re-export for direct use if needed
-export { groq };
+// Legacy alias
+export const groq = groqProvider;
 

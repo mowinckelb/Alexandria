@@ -1,26 +1,26 @@
-# Project Alexandria: System Architecture & Protocol
+# Project Alexandria: Technical Implementation
 
-> ## ⛔ MANDATORY: DID YOU READ MOWINCKEL.md?
+> ## ⛔ MANDATORY READING ORDER
 > 
-> **If you have not read `MOWINCKEL.md` in full, STOP and read it now.**
-> 
-> That file contains the agent protocol. Violating it = session failure.
-> 
-> **Required reading order:**
 > 1. `MOWINCKEL.md` - Agent protocol (NON-NEGOTIABLE RULES)
-> 2. `CTO_LOG.md` - Current state and active tasks
-> 3. This file - Architecture details
+> 2. `ALEXANDRIA_VISION.md` - **Product spec** (what we're building)
+> 3. `CTO_LOG.md` - Current state, active tasks, handoff notes
+> 4. This file - **Technical implementation** details
 > 
-> **Compliance check:** You must be able to answer: "What are the 6 non-negotiable rules?"
+> **Read ALEXANDRIA_VISION.md first.** It describes the product we're building.
+> This file describes HOW the current codebase implements (parts of) that vision.
 
 ---
 
-## 1. The Vision (North Star)
+## 1. The Vision (Summary — see ALEXANDRIA_VISION.md for full spec)
 
-**Mission:** "Translation of Carbon Weights to Silicon Weights."
-We are building a platform to immortalize human cognition. We transform raw human data ("Carbon") into a Personal Language Model ("PLM") that possesses both the Author's **Subjective Personality** and **Objective Memory**. The PLM is a dynamic digital representation of the Author—a neo-biography in the tradition of the Library of Alexandria.
+**Mission:** Cognitive immortalization. Transform human data ("Carbon") into a Personal Language Model ("PLM") — a sovereign digital entity.
 
-**Terminal State Goal:** A "Sovereign Digital Entity" that can act on behalf of the Author, answer queries with 100% personality fidelity and factual accuracy, and eventually support GraphRAG-based reasoning and voice/video embodiment.
+**Full product vision** is in `ALEXANDRIA_VISION.md`. Key points:
+- **Phase 1 (Editor):** 3 input nodes → Editor agent → 4 output nodes (PLM, Constitution, Memories, Vault)
+- **Phase 2 (Orchestrator):** Takes Persona → deploys through 3 output nodes (Author, Tool, API)
+- Both phases use the Suggested/Selected architecture pattern
+- System is model-agnostic, future-proof, always preserves raw data
 
 ### Naming Convention (Library of Alexandria Metaphor)
 
@@ -523,9 +523,9 @@ SUPABASE_SERVICE_KEY="..." # Must be SERVICE_ROLE key for Vector Admin rights
 
 ## 9. Current State
 
-**Status: ✅ OPERATIONAL** (as of Nov 2025)
+**Status: ✅ OPERATIONAL** (as of Feb 2026)
 
-**Position on the Line:** Step 2 of MVP-Terminal path. Core ingestion works; training data accumulating; fine-tuning not yet triggered.
+**See `CTO_LOG.md` for latest status and `ALEXANDRIA_VISION.md` for what we're building toward.**
 
 ### What's Built (On-Path):
 | Component | Status | Terminal State Purpose |

@@ -90,16 +90,40 @@ export function getConstitutionManager(): ConstitutionManager {
 }
 
 // ============================================================================
-// LEGACY: Deprecated exports (kept for backward compatibility)
-// These will be removed after full transition to unified architecture
+// Pipeline Tools (for non-conversational data processing)
+// Used by upload-carbon, bulk-ingest, process-queue, etc.
+// Editor.converse() handles conversational extraction;
+// these handle raw file/text ingestion pipelines.
 // ============================================================================
 
-// Singletons for legacy modules
 const refiner = new GroqRefiner();
 const extractor = new GroqExtractor();
 const tuner = new TogetherTuner();
 const indexer = new SupabaseIndexer();
+const editorNotes = new EditorNotes();
 const feedbackProcessor = new FeedbackProcessor();
+const trainingAssessor = new TrainingAssessor();
+
+/**
+ * Get pipeline tools for raw data ingestion (files, bulk text)
+ * For conversational extraction, use getEditor().converse() instead.
+ */
+export function getPipelineTools() {
+  return { refiner, extractor, tuner, indexer, editorNotes };
+}
+
+export function getRLHFTools() {
+  return { feedbackProcessor };
+}
+
+export function getTrainingTools() {
+  return { trainingAssessor, tuner };
+}
+
+// ============================================================================
+// Migration Tools (model-to-model transfer)
+// ============================================================================
+
 const personalityExtractor = new PersonalityExtractor();
 const distiller = new Distiller();
 const migrationOrchestrator = new MigrationOrchestrator();
@@ -107,27 +131,7 @@ const adaptiveMigrationOrchestrator = new AdaptiveMigrationOrchestrator();
 const rlaifAmplifier = new RLAIFAmplifier();
 const rewardCalibrator = new RewardCalibrator();
 const dynamicAssessor = new DynamicAssessor();
-const trainingAssessor = new TrainingAssessor();
 const decisionEditor = new DecisionEditor();
-const editorNotes = new EditorNotes();
-
-/**
- * @deprecated Use getUnifiedEditor() instead
- */
-export function getIngestionTools() {
-  return { refiner, extractor, tuner, indexer };
-}
-
-/**
- * @deprecated Use getOrchestrator() instead
- */
-export function getBrainTools() {
-  return { refiner, extractor, indexer };
-}
-
-export function getRLHFTools() {
-  return { feedbackProcessor };
-}
 
 export function getMigrationTools() {
   return { 
@@ -141,27 +145,31 @@ export function getMigrationTools() {
   };
 }
 
-export function getTrainingTools() {
-  return { trainingAssessor, tuner };
+// ============================================================================
+// Deprecated aliases (will be removed — use getPipelineTools() instead)
+// ============================================================================
+
+/** @deprecated Use getPipelineTools() */
+export function getIngestionTools() {
+  return { refiner, extractor, tuner, indexer };
 }
 
-/**
- * @deprecated Use getUnifiedEditor() instead
- */
-export function getCoreTools() {
-  return { decisionEditor, editorNotes };
-}
-
-/**
- * @deprecated Use getUnifiedEditor() instead
- */
+/** @deprecated Use getPipelineTools() */
 export function getEditorTools() {
   return { editorNotes };
 }
 
-/**
- * @deprecated Use getUnifiedEditor() instead
- */
+/** @deprecated Use getPipelineTools() */
+export function getBrainTools() {
+  return { refiner, extractor, indexer };
+}
+
+/** @deprecated Use getEditor() */
+export function getCoreTools() {
+  return { decisionEditor, editorNotes };
+}
+
+/** @deprecated Use getEditor() */
 export function getDecisionEditor() {
   return decisionEditor;
 }
