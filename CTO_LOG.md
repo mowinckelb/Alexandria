@@ -14,30 +14,136 @@
 
 ## Quick Status
 **Last updated:** 2026-02-11
-**Unpushed changes:** Yes (pending commit)
+**Unpushed changes:** No (commit dca6cb2 pushed)
 **Blockers:** None
+**Vercel:** Pro tier (cron jobs + 300s function timeout available)
+
+---
+
+## Roles
+
+- **CEO (Benjamin):** Vision, north star, product direction, final authority on what to build
+- **CTO (AI agent):** Code ownership, architecture decisions, implementation, prioritization of technical work. You drive the code. CEO drives the vision.
+
+---
+
+## CTO Gap Analysis: Vision vs Current Codebase
+
+*This section maps what ALEXANDRIA_CONTEXT.md describes against what actually exists in code. Read this to understand where we are and what to build next.*
+
+### What EXISTS and works:
+| Component | Vision Term | Status | Notes |
+|-----------|------------|--------|-------|
+| `editor.converse()` | Editor (reactive) | ✅ Working | Handles Author input, extracts data, generates training pairs, maintains notepad |
+| `orchestrator.handleQuery()` | Orchestrator (reactive) | ✅ Working | Queries PLM + memories + personality profile, synthesizes response |
+| `memory_fragments` + pgvector | Memories (flat vectors) | ⚠️ Partial | Semantic search works. No graph structure, no entity relationships, no traversal queries |
+| `constitutions` + `active_constitutions` | Constitution | ✅ Working | Versioned storage, extraction, API endpoints, UI panel |
+| Supabase Storage (`carbon-uploads`) | Vault (partial) | ⚠️ Partial | File uploads work. Not append-only. No structured directory. No full export. |
+| `training_pairs` + JSONL export | PLM training pipeline | ✅ Working | Quality scoring, Together AI LoRA fine-tuning, checkpoint support |
+| `synthetic_ratings` + RLAIF | Constitutional RLAIF (basic) | ⚠️ Partial | Generates synthetic ratings. No gap identification, no targeted prompts, no iterative loop |
+| `personality_profiles` | Legacy (pre-Constitution) | ✅ Working | Keep for backward compat. Constitution is now primary. |
+| Voice processor + Whisper | Voice processing | ✅ Working | Chunking for large files, transcription, Vault storage |
+| Website UI | Author input (text) | ✅ Working | Chat interface, file upload modal, Constitution panel |
+| `.env.example`, `lib/models.ts` | Provider config | ✅ Clean | Centralized providers (Groq, Together, OpenAI), env-based model selection |
+
+### What DOES NOT exist yet:
+| Component | Vision Term | Priority | Why |
+|-----------|------------|----------|-----|
+| Continuous agent loop | Editor (proactive) | **Ad Terminum** | Editor must be always-alive, not request/response. Without this, no proactive questioning, no autonomous RLAIF, no gap detection. This is the core of the Machine. |
+| Blueprint / Engine separation | Three-layer architecture | **Ad Terminum** | No `system-config.json`, no `SYSTEM.md`, no Default/Selected pattern, no Fixed/Suggested rules. Currently all Editor behavior is hardcoded. |
+| Graph database for memories | Memories (graph) | **Ad Terminum** | Only flat vectors exist. No entities, relationships, traversal. Need `memory_entities` table + graph query API. |
+| Disaggregated PLM maturity | PLM maturity tracking | **Ad Terminum** | No `plm_maturity` table. Orchestrator can't do dynamic weighting without this. |
+| Dynamic Orchestrator weighting | Orchestrator (intelligent) | **Ad Terminum** | Currently fixed approach. Vision requires maturity-based + query-adaptive weighting. |
+| Constitutional RLAIF loop (full) | RLAIF flywheel | **Ad Terminum** | Current RLAIF is basic. Need: gap identification → targeted prompts → Constitutional evaluation → confidence routing → batch train → iterate. |
+| LLM input node (MCP bridge) | LLM input | **Ad Terminum** | No way to observe Author's Claude/ChatGPT conversations or query them about the Author. |
+| API input node | API input | **Ad Terminum** | No Google Drive, Gmail, calendar, biometric integrations. |
+| iOS app | Terminal form factor | **Ad Terminum** (deferred ~1 month) | Needs Mac + Xcode. Voice calls, text, voice memos, background agent. |
+| MCP server for LLM output | LLM output channel | **Ad Terminum** | No `query_persona` tool for Claude/ChatGPT to call. |
+| External API + Library | API output channel | **Ad Terminum** (later) | No api_keys, rate limiting, pricing, marketplace. |
+| Blueprint monitoring/revision | Blueprint Layer 2 | **Ad Terminum** (later) | No smart model reviewing Engine performance. |
+| Staging/production deploy mechanism | Editor→Orchestrator batches | **Substrate** | Editor and Orchestrator read same tables. No snapshot/version isolation. |
+| Vault directory structure | Vault (proper) | **Substrate** | Need structured `vault/{userId}/{category}/` layout. Current is flat bucket. |
+| Auth system | User management | **Substrate** | Still using test UUID. Need proper auth before multi-user. |
+| Voice notes bootstrap | Founder data ingest | **Ad Terminum** (IMMEDIATE) | 100 hours of voice memos ready to process. Highest-signal data available. |
+
+---
+
+## Prioritized Roadmap
+
+*Ordered by: what creates the most value toward Terminal with the least dependency. Use the Ad Terminum / Substrate / Neither framework.*
+
+### Phase A: Feed the Machine (IMMEDIATE — do this first)
+**Why:** The Machine is only as good as its data. 100 hours of founder voice memos is the highest-signal raw data we have. Processing this populates Constitution, Memories, and training pairs — making every subsequent feature more valuable.
+
+| # | Task | Effort | Depends On | Output |
+|---|------|--------|------------|--------|
+| A1 | **Voice notes bootstrap pipeline** | Medium | Voice processor (exists), Whisper (exists) | Batch-process founder's voice memos → Vault + entries + memories + training pairs |
+| A2 | **Constitution extraction from voice data** | Low | A1 | Run Constitution extraction on the full corpus. First real Constitution. |
+| A3 | **PLM training batch** | Low | A1, A2 | Push accumulated training pairs to Together AI. First real fine-tuned PLM. |
+
+### Phase B: Make the Editor Autonomous (HIGH PRIORITY)
+**Why:** The Editor being always-alive is what makes Alexandria a Machine, not just an app. Without this, the system only works when the Author is actively chatting. With Vercel Pro, we now have cron jobs (up to 300s timeout).
+
+| # | Task | Effort | Depends On | Output |
+|---|------|--------|------------|--------|
+| B1 | **Background worker (Vercel Cron)** | Medium | Vercel Pro (have it) | Cron endpoint that triggers Editor's autonomous cycle |
+| B2 | **Editor agent loop** | High | B1 | Check for new data → analyze state → decide action → act → sleep. Core loop from vision. |
+| B3 | **Proactive trigger system** | Medium | B2 | Constitution gap detection, contradiction finding, time-since-contact threshold |
+| B4 | **Message queue for proactive messages** | Medium | B2, B3 | Editor can queue messages for Author. Author sees them next time they open the app. |
+
+### Phase C: Complete the RLAIF Flywheel (HIGH PRIORITY)
+**Why:** This is the compounding engine. Each cycle produces higher quality training data. Without this, PLM improvement is manual and linear.
+
+| # | Task | Effort | Depends On | Output |
+|---|------|--------|------------|--------|
+| C1 | **Constitution gap identification** | Medium | Constitution (exists) | Analyze which sections have low training pair coverage |
+| C2 | **Targeted synthetic prompt generation** | Medium | C1 | Generate prompts specifically testing underrepresented Constitution areas |
+| C3 | **Constitutional evaluation scoring** | Medium | C2, Constitution | LLM evaluates PLM response against Constitution rubric (values, models, heuristics, style) |
+| C4 | **Confidence routing** | Low | C3 | High → auto-approve, Medium → Author review queue, Low → flag + ask Author |
+| C5 | **Automated batch training trigger** | Medium | C4, B2 | When enough high-quality pairs accumulate, auto-push to Together AI |
+
+### Phase D: Structured Data (MEDIUM PRIORITY)
+**Why:** Graph memories and proper Vault unlock the data model the vision requires.
+
+| # | Task | Effort | Depends On | Output |
+|---|------|--------|------------|--------|
+| D1 | **Memory entities table + extraction** | Medium | Migration | `memory_entities` table, Editor extracts entities during ingestion |
+| D2 | **Relationship inference** | High | D1 | Edges between entities (worked_with, attended, believes_in) |
+| D3 | **Graph query API** | Medium | D1, D2 | Traversal, temporal, semantic query patterns |
+| D4 | **PLM maturity tracking** | Medium | Migration | `plm_maturity` table, disaggregated domain scores |
+| D5 | **Dynamic Orchestrator weighting** | Medium | D4 | Maturity-based + query-adaptive response weighting |
+| D6 | **Vault directory structure** | Medium | — | Structured `vault/{userId}/{category}/` with proper export |
+
+### Phase E: External Connections (AFTER iOS APP)
+**Why:** These depend on the iOS app or external platform access.
+
+| # | Task | Effort | Depends On | Output |
+|---|------|--------|------------|--------|
+| E1 | **iOS app (core)** | High | Mac + Xcode (~1 month) | Chat, voice calls, voice memos, file sharing |
+| E2 | **MCP bridge (LLM input)** | High | MCP protocol understanding | Observe Author's Claude/ChatGPT, query LLMs about Author |
+| E3 | **MCP server (LLM output)** | Medium | Orchestrator | Expose `query_persona` tool for frontier models |
+| E4 | **API integrations (Google, health)** | High | Auth, OAuth | Calendar, email, Drive, biometric data feeds |
+
+### Phase F: Blueprint & Engine (LATER)
+**Why:** The most architecturally ambitious part. Requires a mature system to be meaningful — you need enough data and a working Machine before a Blueprint model can meaningfully evaluate and improve it.
+
+| # | Task | Effort | Depends On | Output |
+|---|------|--------|------------|--------|
+| F1 | **SystemConfig schema implementation** | Medium | — | `system-config.json` + `SYSTEM.md` in Vault |
+| F2 | **Default Blueprint** | High | F1, Phases B-D working | Alexandria's suggested architecture as data |
+| F3 | **Blueprint validation against Axioms** | Medium | F1 | Ensure any Blueprint stays within Axioms |
+| F4 | **Engine-to-Blueprint proposal valve** | Medium | F2 | Engine flags friction points upward |
+| F5 | **Blueprint monitoring and revision** | High | F2, F4 | Smart model reviews Engine, proposes refinements |
 
 ---
 
 ## Active Tasks
 
-### High Priority (PLM Fidelity Improvements)
-*Address these in order. One at a time.*
+*Current work. One at a time unless tasks are independent.*
 
-| Task | Context | Suggested Solution | Added |
-|------|---------|-------------------|-------|
-
-### Medium Priority
-| Task | Context | Suggested Solution | Added |
-|------|---------|-------------------|-------|
-| ~~Add checkpoint/incremental training~~ | ~~Currently retrains on all data each time~~ | ✅ Already implemented! Uses `from_checkpoint` with previous job ID. | 2026-01-02 |
-| Add streaming for input-chat questions | Currently waits for full response | Buffer first token, if "S" continue buffering to check for "SAVE", else stream normally | 2024-11-28 |
-
-### Low Priority
-| Task | Context | Suggested Solution | Added |
-|------|---------|-------------------|-------|
-| Constitutional layer (DEFERRED) | Hard boundaries for PLM | Existing voice rules in personality_profiles sufficient for now. Revisit when PLM is public-facing or fine-tuned. | 2024-11-29 |
-| Register route needs same env var validation | Currently uses `!` assertions | Copy pattern from login route | 2024-11-28 |
+| Task | Status | Context |
+|------|--------|---------|
+| Voice notes bootstrap (Phase A) | **NEXT UP** | 100 hours of founder voice memos. Process → Vault + entries + memories + training pairs → Constitution extraction → first PLM training batch. |
 
 ---
 
@@ -82,9 +188,12 @@
 | Issue | Impact | Effort | Suggested Fix |
 |-------|--------|--------|---------------|
 | Together AI JS SDK file upload broken | Uploads to R2 but never processed | N/A | Using Python SDK wrapper as workaround. Monitor if JS SDK gets fixed. |
-| Vercel free tier - no real cron | Queue processing requires browser open | Low ($20/mo) | Upgrade to Vercel Pro for server-side cron |
+| ~~Vercel free tier - no real cron~~ | ~~Queue processing requires browser open~~ | ✅ RESOLVED | Vercel Pro now active. Cron jobs available. |
 | input-chat doesn't stream questions | Minor UX - text appears all at once | Medium | Buffer first word, stream rest if not SAVE |
 | Auth routes duplicate Supabase client setup | Code duplication | Low | Extract to shared lib/supabase.ts |
+| Test UUID used everywhere | Can't do multi-user | Low | Add proper auth. Substrate — needed before public launch, not before. |
+| Legacy modules in factory.ts | Deprecated aliases still exported | Low | Remove deprecated `getIngestionTools` etc. after confirming no usage |
+| Telegram tables in DB schema | Migration 00015 created tables no longer used | None | Leave in place. Migrations are append-only. Tables are harmless. |
 
 ---
 
@@ -175,35 +284,27 @@ After feedback:
 
 **Last session:** 2026-02-11
 
-**What was done:**
-- **ALEXANDRIA_CONTEXT.md Complete Rewrite:** CEO provided comprehensive vision document covering everything — vision, architecture, terminology (Machine, Persona, Axioms, Blueprint, Engine, etc.), three-layer architecture (Axioms → Blueprint → Engine), Phase 1 (Input) and Phase 2 (Output), Constitutional RLAIF detailed mechanics, leverage mechanism, terminal form factor, Greek archetype portfolio, raw data philosophy, planning framework (Ad Terminum / Substrate / Neither), business context, and risks. Saved as raw text in `docs/alexandria-complete-context-raw.md`, formatted into `ALEXANDRIA_CONTEXT.md` with technical appendix. `ALEXANDRIA_VISION.md` marked as superseded.
-- **Reading order simplified:** Now just 3 files: MOWINCKEL.md → ALEXANDRIA_CONTEXT.md → CTO_LOG.md
-- **Codebase cleanup (previous commit):** Consolidated legacy `getIngestionTools()` → `getPipelineTools()`, centralized providers in `lib/models.ts`, created `.env.example`, updated all reading order references.
+**What was done this session:**
+1. Reviewed latest changes and verified backend systems working
+2. Codebase cleanup: consolidated legacy imports → `getPipelineTools()`, centralized providers in `lib/models.ts`, created `.env.example`
+3. CEO provided complete Alexandria vision document — saved raw and formatted as new `ALEXANDRIA_CONTEXT.md`
+4. CTO analyzed full gap between vision and codebase, wrote prioritized roadmap (see above)
+5. Simplified reading order to 3 files: MOWINCKEL.md → ALEXANDRIA_CONTEXT.md → CTO_LOG.md
 
-**Key new concepts from CEO:**
-- **Three-layer architecture:** Axioms (immutable) → Blueprint (living design doc, Default/Selected) → Engine (runtime models)
-- **Planning framework:** Ad Terminum (direct path to Terminal) vs Substrate (necessary precondition) vs Neither (noise, skip it)
-- **Constitutional RLAIF is iterated Constitutional SFT** — not RL technically, but same effect via iterative filtering
-- **Multiple Personas per Author** — Greek archetype portfolio (Pater, Mater, Sophia, Philia, Eros)
-- **Terminal form factor:** iOS app + laptop webpage. Agents feel like real people (calls, texts, voice memos).
+**Infrastructure change:** Vercel Pro now active. Cron jobs and 300s function timeouts available.
 
-**Files Changed:**
-- `ALEXANDRIA_CONTEXT.md` - REWRITTEN: single source of truth (vision + architecture + technical)
-- `ALEXANDRIA_VISION.md` - Marked as superseded (points to CONTEXT)
-- `docs/alexandria-complete-context-raw.md` - NEW: raw verbatim CEO vision text
-- `.cursor/rules/project-context.mdc` - Updated reading order (3 files, not 4)
-- `CTO_LOG.md` - Updated reading order and session notes
+**For the next session — start here:**
+1. Read MOWINCKEL.md → ALEXANDRIA_CONTEXT.md → this file (especially the Gap Analysis and Roadmap above)
+2. Run health check: `GET /api/debug/ping`
+3. Start on **Phase A: Voice Notes Bootstrap** — this is the immediate priority
+4. The roadmap above (Phases A through F) is the CTO's recommended build order. Follow it unless CEO redirects.
 
-**Pushed:** No (pending commit)
-
-**Strategic context:**
-- Website is primary UI for testing/debugging backend
-- iOS app to be built when Mac available (~1 month)
-- Voice notes bootstrap is immediate priority (100 hours of founder voice memos)
-- Use Ad Terminum / Substrate / Neither framework for all prioritization
-
-**Suggested next actions:**
-1. Commit and push documentation changes
-2. Start voice notes bootstrap pipeline (Ad Terminum)
-3. Formalize Constitution extraction from voice data
-4. Consider Vercel Pro for longer serverless function timeouts
+**Key files to know:**
+- `ALEXANDRIA_CONTEXT.md` — Single source of truth (vision + architecture + technical)
+- `lib/factory.ts` — Module instantiation (use `getPipelineTools()` for ingestion, `getEditor()` for conversations)
+- `lib/models.ts` — All provider instances centralized here
+- `lib/modules/core/editor.ts` — Editor agent (currently reactive only)
+- `lib/modules/core/orchestrator.ts` — Orchestrator agent
+- `app/api/upload-carbon/route.ts` — File upload pipeline (audio/PDF/image/text)
+- `app/api/process-queue/route.ts` — Background job processing
+- `.env.example` — All required environment variables documented
