@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import AuthScreen from './components/AuthScreen';
 import LandingPage from './components/LandingPage';
+import ConstitutionPanel from './components/ConstitutionPanel';
 import { useTheme } from './components/ThemeProvider';
 
 const STORAGE_THRESHOLD = 4.5 * 1024 * 1024; // Use storage for files larger than this
@@ -54,6 +55,7 @@ export default function Alexandria() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [pendingJobs, setPendingJobs] = useState<{ id: string; fileName: string; progress: number; status: string }[]>([]);
+  const [showConstitution, setShowConstitution] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const outputScrollRef = useRef<HTMLDivElement>(null);
@@ -1051,6 +1053,14 @@ export default function Alexandria() {
           <span className="text-[0.75rem] opacity-40">{username}</span>
           <span className="text-[0.75rem] opacity-40">·</span>
           <button 
+            onClick={() => setShowConstitution(true)}
+            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            constitution
+          </button>
+          <span className="text-[0.75rem] opacity-40">·</span>
+          <button 
             onClick={handleLogout}
             className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
             style={{ color: 'var(--text-primary)' }}
@@ -1296,6 +1306,13 @@ export default function Alexandria() {
           color: var(--text-muted) !important;
         }
       `}</style>
+
+      {/* Constitution Panel */}
+      <ConstitutionPanel 
+        userId={userId}
+        isOpen={showConstitution}
+        onClose={() => setShowConstitution(false)}
+      />
 
       {/* File Upload Modal */}
       {showAttachModal && (

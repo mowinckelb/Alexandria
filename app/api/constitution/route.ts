@@ -12,8 +12,11 @@ import { getConstitutionManager } from '@/lib/factory';
 // GET: Get current Constitution
 // ============================================================================
 
+// Use regex instead of .uuid() to accept test UUIDs like 00000000-0000-0000-0000-000000000001
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const GetQuerySchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().regex(uuidPattern, 'Invalid UUID format'),
   format: z.enum(['json', 'markdown']).optional().default('json')
 });
 
@@ -74,7 +77,7 @@ export async function GET(request: NextRequest) {
 // ============================================================================
 
 const PatchBodySchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().regex(uuidPattern, 'Invalid UUID format'),
   section: z.enum([
     'coreIdentity',
     'worldview',

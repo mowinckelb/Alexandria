@@ -11,8 +11,11 @@ import { getConstitutionManager } from '@/lib/factory';
 // POST: Extract Constitution from existing data
 // ============================================================================
 
+// Use regex instead of .uuid() to accept test UUIDs like 00000000-0000-0000-0000-000000000001
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const ExtractBodySchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().regex(uuidPattern, 'Invalid UUID format'),
   sourceData: z.enum(['training_pairs', 'personality_profiles', 'both']).optional().default('both'),
   includeEditorNotes: z.boolean().optional().default(true)
 });
