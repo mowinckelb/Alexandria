@@ -14,7 +14,7 @@
 
 ## Quick Status
 **Last updated:** 2026-02-11
-**Unpushed changes:** Yes (Telegram removal, Constitution UI, bug fixes)
+**Unpushed changes:** No (commit 5fcd465 pushed)
 **Blockers:** None - Backend verified working!
 
 ---
@@ -194,7 +194,7 @@ After feedback:
 - `app/api/telegram/` - DELETED (routes removed)
 - `_archive/telegram/lib/` - Telegram client/router archived here
 
-**Pushed:** No (commit pending)
+**Pushed:** Yes (5fcd465)
 
 **Strategic Decision (from user):**
 - Website is primary UI for testing/debugging backend
