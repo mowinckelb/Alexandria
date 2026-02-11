@@ -1,8 +1,13 @@
-# Alexandria: The Complete Vision
+# Alexandria: Product Vision & Specification
 
-> **This is the permanent source of truth for what Alexandria is and how to build it.**
+> **This is the product spec for what we are building.**
 > 
-> All future sessions, agents, and models must read this document first.
+> This document describes the Alexandria app — the product we (CEO + CTO) are creating together.
+> Read this to understand what we're building toward. All future work sessions should
+> reference this to stay aligned on the vision.
+> 
+> **This is NOT:** Instructions for AI coding assistants or meta-level architecture.
+> **This IS:** The product specification for the Alexandria application.
 > 
 > Last updated: 2026-02-11
 
@@ -283,7 +288,11 @@ This pattern appears in both Editor and Orchestrator:
 
 ---
 
-## Context for New Models
+## Context for Architecture Models (Product Feature)
+
+**Note:** This section describes a FEATURE of the Alexandria app. When a USER of Alexandria 
+plugs in a new AI model to redesign their Editor/Orchestrator architecture, that model 
+needs to understand the following. This is what the app will show to those models.
 
 When a new model is plugged in to design an architecture, it needs to understand:
 
@@ -440,7 +449,9 @@ This includes all raw discussion, questions, clarifications, and iterations. Fut
 
 ---
 
-## Next Steps (Current State)
+## Development Status (What We've Built So Far)
+
+**Note:** This section tracks our progress building the Alexandria app.
 
 ### What Exists (as of 2026-02-11)
 - ✅ Phase 1 output nodes (PLM, Constitution, Memories, Vault)
