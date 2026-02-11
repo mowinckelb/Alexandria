@@ -13,9 +13,9 @@
 ---
 
 ## Quick Status
-**Last updated:** 2026-01-02
-**Unpushed changes:** Yes (training pipeline complete)
-**Blockers:** None - training pipeline fully working!
+**Last updated:** 2026-02-11
+**Unpushed changes:** Yes (Telegram removal, Constitution UI, bug fixes)
+**Blockers:** None - Backend verified working!
 
 ---
 
@@ -44,6 +44,14 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
+| Telegram Code Removal | 2026-02-11 | ✅ Routes deleted, lib archived. Website is primary UI now, iOS app later. |
+| Constitution UI | 2026-02-11 | ✅ ConstitutionPanel component with view/history, extraction, version restore. Button in header. |
+| Backend Verification | 2026-02-11 | ✅ Health check, Constitution (extract/get/versions), debug state all working. |
+| Phase 0-2 Implementation | 2026-02-10 | ✅ COMPLETE. Voice processing, Constitution system, Telegram bot. 11,140 lines added across 40 files. |
+| Telegram Bot Integration | 2026-02-10 | ⚠️ DEPRECATED: Removed in favor of website-first approach. Code archived in `_archive/telegram/` |
+| Constitution System | 2026-02-10 | ✅ Extraction from training data, versioning, Vault sync, LLM-based update proposals |
+| Voice Processor | 2026-02-10 | ✅ Batch processing, Whisper transcription with chunking, Vault storage, Editor integration |
+| Migration Documentation | 2026-02-10 | ✅ ARCHITECTURE.md, COMPONENTS.md, DECISIONS.md, MIGRATION_PLAN.md |
 | Together AI training pipeline | 2026-01-02 | ✅ COMPLETE. JSONL export → Python upload → LoRA fine-tune → model activation. PLM now uses fine-tuned model with memories. Checkpoint training noted as future enhancement. |
 | Agent compliance enforcement (all files) | 2025-01-01 | Added compliance verification requirement, updated .cursor/rules, added enforcement headers to ALEXANDRIA_CONTEXT.md and CTO_LOG.md, added tripwire acknowledgment requirement. |
 | MOWINCKEL.md overhaul | 2025-01-01 | Complete rewrite for agent compliance: non-negotiable rules, decision authority levels, mandatory session protocols, verification requirements, common mistakes table. |
@@ -164,32 +172,38 @@ After feedback:
 ## Session Handoff Notes
 *Critical context for the next session/agent*
 
-**Last session:** 2026-01-02
+**Last session:** 2026-02-11
 
 **What was done:**
-- **Together AI Training Pipeline:** Complete end-to-end implementation.
-    - `TogetherTuner.upload()`: Two-step signed URL process (POST for signed URL → PUT file content)
-    - `TogetherTuner.train()`: Create fine-tuning job with LoRA support
-    - `TogetherTuner.getJobStatus()`: Poll training progress
-    - `POST /api/training { action: 'start' }`: Full pipeline - export → upload → start job
-    - `GET /api/training/job?jobId=xxx`: Status polling endpoint
-    - `POST /api/training/job { action: 'activate' }`: Activate completed model as PLM
-    - Verified: File upload works, training job creation works, blocked only by insufficient credits
+- **Telegram Code Removed:** Deleted API routes (`app/api/telegram/`), archived lib files to `_archive/telegram/`. User decision: website is primary UI for now, iOS app later.
+- **Constitution UI Added:** New `ConstitutionPanel.tsx` component with view/history tabs, extraction trigger, version restore. Button added to header.
+- **Backend Verification:** All systems verified working via API calls:
+  - Health check: ✅ database: true, environment: true
+  - Constitution extraction: ✅ 100% coverage, all sections extracted
+  - Constitution retrieval: ✅ Full constitution returned
+  - Constitution versions: ✅ Version history working
+  - Debug state: ✅ Shows 5 entries, 30 memories, 30 training pairs, 10 editor notes
+- **Bug Fixes:**
+  - Fixed `constitution/versions` endpoint null param handling (limit was null causing 400)
+  - Fixed TypeScript errors in ConstitutionPanel (optional chaining)
 
-**Pushed:** Yes (970b7d6)
+**Files Changed:**
+- `app/page.tsx` - Added Constitution button and panel integration
+- `app/components/ConstitutionPanel.tsx` - NEW: Full Constitution view/manage UI
+- `app/api/constitution/versions/route.ts` - Fixed null param handling
+- `app/api/telegram/` - DELETED (routes removed)
+- `_archive/telegram/lib/` - Telegram client/router archived here
 
-**Verification performed:**
-- File uploaded successfully: `file-8179dd68-d5af-481d-b92c-680d9f387634`
-- Training job request correctly formatted (402 insufficient credits, not API error)
-- TypeScript compiles without errors
+**Pushed:** No (commit pending)
 
-**Known issues:**
-- Together AI account needs credits to run actual training jobs
-- `compound-mini` doesn't exist in Groq API (UI-only feature). Fixed to use `llama-3.3-70b-versatile`.
-- PLM response generation in RLAIF uses llama-3.3-70b as placeholder (should use actual Together AI PLM model once fine-tuned)
+**Strategic Decision (from user):**
+- Website is primary UI for testing/debugging backend
+- Telegram abandoned as product interface
+- iOS app to be built when Mac available (~1 month)
+- File upload already works in website (audio, PDF, images, text via modal)
 
 **Suggested next actions:**
-1. Add Together AI credits at https://api.together.ai/settings/billing
-2. Run training: `POST /api/training { action: 'start', userId: 'xxx' }`
-3. Poll status: `GET /api/training/job?jobId=xxx`
-4. Activate model: `POST /api/training/job { action: 'activate', jobId: 'xxx' }`
+1. Commit and push changes
+2. Test Constitution UI in browser
+3. Test file upload for voice memos via website
+4. Consider Vercel Pro for longer serverless function timeouts

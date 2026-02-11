@@ -11,18 +11,22 @@ import { getConstitutionManager } from '@/lib/factory';
 // GET: Get version history
 // ============================================================================
 
+// Use regex instead of .uuid() to accept test UUIDs like 00000000-0000-0000-0000-000000000001
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const GetQuerySchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().regex(uuidPattern, 'Invalid UUID format'),
   limit: z.coerce.number().min(1).max(100).optional().default(20)
 });
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const params = {
-      userId: searchParams.get('userId'),
-      limit: searchParams.get('limit')
-    };
+    const params: Record<string, string> = {};
+    const userId = searchParams.get('userId');
+    const limit = searchParams.get('limit');
+    if (userId) params.userId = userId;
+    if (limit) params.limit = limit;
 
     const parsed = GetQuerySchema.safeParse(params);
     if (!parsed.success) {
@@ -62,7 +66,7 @@ export async function GET(request: NextRequest) {
 // ============================================================================
 
 const RestoreBodySchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().regex(uuidPattern, 'Invalid UUID format'),
   version: z.number().int().positive()
 });
 
