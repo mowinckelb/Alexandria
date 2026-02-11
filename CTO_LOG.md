@@ -197,6 +197,17 @@
 
 ---
 
+## Future RL Training Path
+*When ready to upgrade from iterative Constitutional SFT to actual RL:*
+
+**Current approach:** Together AI LoRA SFT. Constitutional evaluation filters training pairs. Iterative cycles improve quality. This is the right approach for bootstrapping.
+
+**Upgrade path:** Prime Intellect RFT (Reinforcement Fine-Tuning). Hosted RL training on A100/H100 clusters. Requires writing a custom verifier that scores PLM outputs against Constitution (LLM-as-judge). Not plug-and-play but technically feasible. Investigate when we have: (1) a mature Constitution with good coverage, (2) enough training data to justify RL over SFT, (3) budget for GPU reservations.
+
+**Why not now:** Bottleneck is data quality, not training methodology. Process voice memos → build Constitution → iterate SFT → only then does RL give meaningful uplift over curated SFT.
+
+---
+
 ## Architecture Decisions
 *Document WHY things are the way they are - helps future agents understand context*
 
