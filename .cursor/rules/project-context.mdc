@@ -9,9 +9,8 @@ alwaysApply: true
 **Before ANY action, you MUST read these files in order:**
 
 1. `MOWINCKEL.md` - Agent protocol (NON-NEGOTIABLE RULES)
-2. `ALEXANDRIA_VISION.md` - Product spec (what we're building)
+2. `ALEXANDRIA_CONTEXT.md` - **Single source of truth** (vision, architecture, terminology, technical details)
 3. `CTO_LOG.md` - Current state, active tasks, handoff notes
-4. `ALEXANDRIA_CONTEXT.md` - Technical implementation details
 
 **Failure to follow MOWINCKEL.md = session failure.**
 
@@ -28,7 +27,7 @@ These rules have NO exceptions. Violating any = session failure.
 | **Never proceed on assumptions** | Query database or read schema first |
 | **Never modify critical code without understanding** | `grep -r "from.*factory" lib/` before changing factory.ts |
 | **Never add features not requested** | Ask first: "Should I also add X?" |
-| **Always read project context first** | Read: MOWINCKEL.md → ALEXANDRIA_VISION.md (product spec) → CTO_LOG.md → ALEXANDRIA_CONTEXT.md |
+| **Always read project context first** | Read: MOWINCKEL.md → ALEXANDRIA_CONTEXT.md → CTO_LOG.md |
 
 ---
 
@@ -36,14 +35,13 @@ These rules have NO exceptions. Violating any = session failure.
 
 ```
 1. Read MOWINCKEL.md (full file - agent protocol)
-2. Read ALEXANDRIA_VISION.md (product spec - what we're building)
+2. Read ALEXANDRIA_CONTEXT.md (single source of truth - vision + architecture + technical details)
 3. Read CTO_LOG.md (check "Session Handoff Notes" and "Active Tasks")
-4. Read ALEXANDRIA_CONTEXT.md (technical implementation)
-5. Verify core functionality:
+4. Verify core functionality:
    - Run: GET /api/debug/ping
    - Expected: { success: true, database: true, environment: true }
-6. If verification fails: Fix before ANY other work
-7. State what you read and current system status
+5. If verification fails: Fix before ANY other work
+6. State what you read and current system status
 ```
 
 ---

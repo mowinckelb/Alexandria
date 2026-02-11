@@ -1,431 +1,635 @@
-# Project Alexandria: Technical Implementation
+# ALEXANDRIA — Complete Context Document
 
-> ## ⛔ MANDATORY READING ORDER
-> 
-> 1. `MOWINCKEL.md` - Agent protocol (NON-NEGOTIABLE RULES)
-> 2. `ALEXANDRIA_VISION.md` - **Product spec** (what we're building)
-> 3. `CTO_LOG.md` - Current state, active tasks, handoff notes
-> 4. This file - **Technical implementation** details
-> 
-> **Read ALEXANDRIA_VISION.md first.** It describes the product we're building.
-> This file describes HOW the current codebase implements (parts of) that vision.
-
----
-
-## 1. The Vision (Summary — see ALEXANDRIA_VISION.md for full spec)
-
-**Mission:** Cognitive immortalization. Transform human data ("Carbon") into a Personal Language Model ("PLM") — a sovereign digital entity.
-
-**Full product vision** is in `ALEXANDRIA_VISION.md`. Key points:
-- **Phase 1 (Editor):** 3 input nodes → Editor agent → 4 output nodes (PLM, Constitution, Memories, Vault)
-- **Phase 2 (Orchestrator):** Takes Persona → deploys through 3 output nodes (Author, Tool, API)
-- Both phases use the Suggested/Selected architecture pattern
-- System is model-agnostic, future-proof, always preserves raw data
-
-### Naming Convention (Library of Alexandria Metaphor)
-
-| Term | Meaning | Code Reference |
-|------|---------|----------------|
-| **Alexandria** | The platform — a library that preserves cognition (referencing the Library of Alexandria) | - |
-| **Author** | The person whose cognition is being immortalized; owns the PLM | `user_id`, `userId` |
-| **User** | The entity using the PLM output (can be the Author internally, or another user externally) | API consumer |
-| **Carbon** | Raw input — the source material (voice, text, eventually everything) | `entries`, raw text |
-| **Silicon** | Output — the immortalized cognition | PLM responses |
-| **Memory** | Objective data — facts, dates, names, events | `memory_fragments`, vectors |
-| **Soul** | Subjective data — voice, tone, personality, style | `training_pairs`, fine-tuned weights |
-| **Editors** | The LLMs that process and refine (no hierarchy, peers) | Processing modules |
-| **PLM** | Personal Language Model — the dynamic digital representation of the Author | Fine-tuned model + memories + orchestrator |
-
-**The transformation:** Carbon (input) becomes Silicon (output) through the separation of Memory (objective) and Soul (subjective).
-
-**Carbon forms** (by effectiveness):
-1. Voice notes / voice conversation — highest fidelity, most natural
-2. Written journals / text — good fidelity
-3. Chat logs — moderate fidelity
-4. Eventually: everything (images, video, etc.)
-
-This is a new form of biography—a neo-biography—extending the ancient principle of immortalizing cognition to its limit. The Author provides Carbon; the Editors shape Memory and Soul; the PLM embodies Silicon as a dynamic digital representation of the Author.
-
-**Accuracy validation:** Only the Author can determine if the PLM is accurate. Editors process, but the Author is the sole judge of fidelity.
-
-### Core Philosophy: Fidelity Over Engagement
-
-**The Author's job is to optimize PLM accuracy.** Alexandria is not a consumer app maximizing engagement. It's a tool for cognitive immortalization.
-
-**Implications:**
-- Friction that improves fidelity is **good friction**
-- We force Authors to give feedback, not ask politely
-- Binary feedback (good/bad) over granular scales — cleaner signal, less decision fatigue
-- Honest correction over polite acceptance
-- The Author serves the PLM, not the other way around
-
-**The goal is maximum fidelity PLM, not maximum happy Author.**
+> **This is the single source of truth for Alexandria.**
+>
+> It contains the full vision, architecture, terminology, technical implementation details,
+> and planning framework. Any AI agent reading this should have everything it needs to
+> understand what Alexandria is, how it works, and what to build next.
+>
+> **Reading order:** `MOWINCKEL.md` → This file → `CTO_LOG.md`
+>
+> Raw version preserved at: `docs/alexandria-complete-context-raw.md`
 
 ---
 
-## 2. Alexandria-Specific: On-Path Examples
+## 1. What Alexandria Is
 
-These examples clarify what's "on the line" for this specific project:
+Alexandria is a platform for mapping biological neural networks (carbon weights — human cognition, values, mental models, decision patterns) into user-owned silicon neural networks. The output is a **Persona**: a high-fidelity digital representation of how a human thinks, composed of four components the user fully owns and controls.
 
-| Decision | Verdict | Reasoning |
-|----------|---------|-----------|
-| Store training pairs with `export_id` for lineage tracking | ✅ On-path | Evolutionary training requires knowing which data trained which model |
-| Add `quality_score` column | ✅ On-path | Terminal state needs filtering at scale; column now, algorithm swappable |
-| Add `is_validated` for human review | ❌ Off-path | RLHF is handled by `feedback_logs`; this duplicates |
-| Build admin dashboard | ❌ Off-path | Not required for terminal state functionality |
-| Extract entities during ingestion | ✅ On-path (stealth) | GraphRAG needs them; collect now, use later |
-| Build RLAIF before having much feedback | ✅ On-path (non-sequential) | Serves Terminal State; don't need feedback first to build the system |
-| Build reward calibration before reward model | ✅ On-path (non-sequential) | Infrastructure ready when needed; no rewrite required |
-| Build migration system before first fine-tune | ✅ On-path (non-sequential) | Model agnosticism is Terminal State requirement |
+### Core Thesis
 
----
+When intelligence becomes abundant and replication costs approach zero, the only defensible assets are scarcity — frontier models, physical infrastructure, live data generation, and permissions. Everyone becomes valuable not for their labor but for their unique data. The question is who owns it, who can monetize it, and who controls access.
 
-## 3. The Unified Editor + Orchestrator Architecture (Technical Core)
+### The Problem
 
-We use a **Bicameral RAG** approach to separate **Soul** (subjective) from **Memory** (objective), processed by a single **Unified Editor**.
+Your attention remains fixed while AI leverage becomes infinite. You can only be in one conversation, make one decision, process one document at a time — zero-sum attention. Worse, frontier AI labs (Anthropic, OpenAI, Google) are building deep context about you through every interaction — your thinking patterns, preferences, mental models — that you don't own and can't extract. You're locked into their ecosystems, feeding their models, with no cognitive sovereignty.
 
-### A. Editor (Groq — uses `GROQ_FAST_MODEL` env var)
-* **Role:** Active biographer that converses with Author to extract information
-* **Model:** Groq `compound-mini` with `Groq-Model-Version: latest` (auto-updates)
-* **Capabilities:**
-    * Two-way conversation with Author (not passive processing)
-    * Focuses on **subjective information** — opinions, values, quirks, personality
-    * Extracts **objective information** — facts, dates, events → vector storage
-    * Generates **training pairs** — style capture for fine-tuning
-    * Maintains **notepad** — structured notes + freeform scratchpad
-    * **Decides when to train** — LLM makes the call (ILO principle)
-* **Key Methods:**
-    * `converse(authorInput, userId, history)` → EditorResponse (message + extraction + follow-ups)
-    * `learnFromFeedback(feedback, userId)` → Updates notepad and training pairs
-    * `getNotepad(userId)` → Current notepad state
-    * `assessTrainingReadiness(userId)` → Training decision
+### The Solution
 
-### B. Orchestrator (Groq — uses `GROQ_QUALITY_MODEL` env var)
-* **Role:** Handle PLM output to Users (external or Author)
-* **Model:** Groq `compound-mini` with `Groq-Model-Version: latest`
-* **Capabilities:**
-    * Retrieves relevant memories via vector search
-    * Loads personality constitution
-    * Calls PLM model (Together AI fine-tuned or base)
-    * Returns responses as Author would answer
-* **Key Methods:**
-    * `handleQuery(messages, userId, options)` → Stream response
-    * `generateResponse(messages, userId, options)` → Non-streaming response
+Alexandria digitizes your cognition into components you own, creating a Persona that operates independently while you maintain complete sovereignty. This enables **positive-sum attention** — your Persona represents you while you're not present, multiplying your effective attention without consuming your time. Others interact with your Persona and get authentic responses while you don't lose time. Both parties benefit.
 
-### C. Data Flow
+### Why Frontier Labs Won't Build This
 
-```
-First Order Input (Carbon):
-Author ↔ Editor (two-way conversation)
-      ↓
-Editor extracts:
-├── Objective → Memory (vector DB)
-├── Subjective → Training Pairs
-└── Notes → Editor Notepad
+Personal fine-tuning breaks their business model. Their revenue comes from API calls — if users download PLM weights and run locally, that's zero API revenue. Their incentive is to keep users on platform and maximize engagement. Strategic misalignment: they aggregate data for foundation models, not personalized fine-tuning. Data sovereignty destroys their lock-in moat. They optimize for engagement, not fidelity. Personal fine-tuning creates too many models to serve profitably.
 
-Second Order Input (Feedback):
-User ↔ PLM (training conversation)
-      ↓
-Author rates: good/bad
-      ↓
-Editor learns:
-├── Updates notepad
-├── Creates training pairs (if good)
-└── Assesses training readiness
-```
+They will build personalized memory and context (RAG-based behavioral adaptation and user preference learning) but won't let you fine-tune and own weights or give you a portable personal model independent of their API. This creates Alexandria's window — building what they can't build without destroying their economics. Timeline: 2-5 years before labs figure out how to offer personal fine-tuning without breaking their business model.
 
-### D. Storage Layer
-* **Memories:** Supabase Vector (pgvector), embeddings via `BAAI/bge-base-en-v1.5`
-* **Training Pairs:** `training_pairs` table with quality scores
-* **Editor Notepad:**
-    * `editor_notes` — structured observations, gaps, mental models
-    * `editor_scratchpad` — freeform working memory
-* **PLM Training:** Together AI fine-tuning on Llama 3.1 8B
+### Tagline
 
-### E. Model Configuration (Bitter Lesson)
-
-**Env-based model selection** — change models without touching code:
-```env
-GROQ_FAST_MODEL=llama-3.1-8b-instant       # Editor conversations, RLAIF (default)
-GROQ_QUALITY_MODEL=llama-3.3-70b-versatile # Orchestrator, extraction (default)
-```
-
-**Why env vars?** When Llama 4 drops on Groq, change one line → entire app updated.
-
-**Why Groq?** Cheapest + fastest. No auto-updating aliases exist in API (compound-mini is UI-only).
-
-* **Bitter Lesson:** Lean into LLM capabilities, avoid hand-coded logic
-* **Suggested thresholds are guidelines, not gates** — Editor LLM decides based on data quality
-
-### F. The PLM Package (Deployable Output)
-
-**PLM (Personal Language Model) is the finished product** — a self-contained, deployable package that can operate independently (including as an external API). The PLM consists of the model, memories, and orchestrator working together as a dynamic digital representation of the Author.
-
-**PLM Package Contents (Current):**
-| Component | Purpose | Runtime Behavior |
-|-----------|---------|------------------|
-| **Fine-tuned Model (Soul)** | Implicit personality in weights - voice, style, patterns | Weights frozen after training |
-| **Personality Constitution** | Explicit behavioral rules - supplements Soul | Injected into system prompt |
-| **Memories** | Objective facts via RAG | Retrieved at inference time |
-| **Orchestrator** | Context assembly, query routing | Assembles prompt from components |
-
-**Soul vs Constitution:**
-- **Soul (weights):** The PRIMARY personality. Learned from training pairs via fine-tuning. Implicit, embedded in model weights.
-- **Constitution (personality_profiles):** SUPPLEMENTARY explicit rules. Useful when:
-  - Pre-fine-tuning: Guides PLM when custom weights don't exist yet
-  - Post-fine-tuning: Enforces hard boundaries, supplements implicit patterns
-  - Model migration: Transfers instantly while weights need re-training
-
-The Soul IS the personality. The Constitution is the written rules that guide/constrain it.
-
-**Potential Future Additions:**
-- Behavioral patterns config (pacing, tangents, humor style)
-- Voice/embodiment settings (for voice/video PLM)
-- Permissions layer (who can query, topic restrictions)
-- Temporal marker ("2024 version" context)
-- Confidence calibration (certainty by domain)
-- Response style preferences (length, formality)
-
-*This list will evolve. Core principle: PLM must remain self-contained and deployable.*
-
-**What is NOT in the PLM Package:**
-- Editor Notes (internal tooling for generating better training data)
-- Raw feedback logs (processed into training, then discarded from runtime)
-- Processing pipelines (used during Carbon ingestion, not PLM inference)
-
-**The Feedback Loop (Training, not Runtime):**
-```
-PLM Response → User Feedback → Training Data → Fine-tuned PLM (batch)
-                      ↓
-              NOT injected at runtime
-```
-
-Feedback improves PLM through **batch training cycles**, not real-time injection. This keeps PLM self-contained and deployable.
-
-**Why this matters:**
-- PLM can be called as external API without dependencies
-- No runtime database queries for feedback/notes
-- Personality lives in weights + memories, not in dynamic lookups
-- Clean separation: Carbon processing (internal) vs PLM serving (external)
+**mentes aeternae** (Latin for "eternal minds"). The Library of Alexandria preserved what humanity's greatest minds wrote. Alexandria the platform preserves how humanity thinks — living, queryable, eternal minds that outlast their carbon forms.
 
 ---
 
-### G. RLHF Pipeline (Feedback → Training Signal)
-* **Goal:** Convert Author feedback into model improvements.
-* **Feedback Collection:** Binary (`good`/`bad`) + optional comments on PLM responses. Binary is optimal — cleaner signal, less friction, more feedback.
-* **Data Tables:**
-    * `feedback_logs`: Raw user ratings with prompt/response pairs.
-    * `preference_pairs`: DPO training data (chosen/rejected for same prompt).
-    * `reward_training_data`: Normalized rewards for reward model training.
+## 2. Complete Terminology
 
-#### RLHF Approaches (by readiness):
-
-| Approach | Min Data | Current State | Complexity |
-|----------|----------|---------------|------------|
-| **LoRA Enhancement** | 10 positive | Ready when feedback collected | Low - uses existing pipeline |
-| **DPO** | 100 pairs | Needs same-prompt A/B data | Medium - direct preference training |
-| **Reward Model + PPO** | 500 points | Full pipeline needed | High - train reward model then RL |
-| **RLAIF** | N/A | Use LLM to amplify feedback | Medium - synthetic preference generation |
-
-#### Recommended Strategy (MVP-Terminal):
-1. **Phase 1 (Now):** Collect feedback, auto-inject high-rated responses into LoRA training.
-2. **Phase 2 (100+ pairs):** Use DPO for direct preference alignment.
-3. **Phase 3 (Scale):** Consider RLAIF to amplify limited human feedback.
-
-#### Automatic Processing (Live):
-Every feedback submission automatically processes into three training pipelines:
-
-| Condition | LoRA | DPO | Reward |
-|-----------|------|-----|--------|
-| Initial +1 | ✓ (quality: 0.85) | - | ✓ |
-| Initial -1 | - | - | ✓ |
-| Regenerated +1 | ✓ (quality: 0.95) | ✓ if opposing exists | ✓ |
-| Regenerated -1 | - | ✓ if opposing exists | ✓ |
-
-* **LoRA:** Positive responses become training pairs. Regenerated positives get higher quality (A/B confirmed).
-* **DPO:** When regeneration has different rating than original → preference pair created (chosen/rejected).
-* **Reward:** ALL feedback normalized to -0.5 to 0.5 for future reward model training.
-
-#### API Endpoints:
-* `POST /api/feedback` - Save feedback + auto-process into training data
-* `GET /api/rlhf?userId=xxx` - Stats and training readiness
-* `POST /api/rlhf` - Actions: `export_dpo`, `export_reward`, `inject_lora`, `generate_pairs`
-
-#### 3-Phase Feedback Loop (UI):
-1. `good? y/n` - Binary rating (instant, required)
-2. `feedback:` - Optional comment (Enter to skip)
-3. `regenerate? y/n` - A/B comparison opportunity
-
-**Design principle:** Force the Author to engage. Binary is non-negotiable — every response gets rated. This serves PLM fidelity, not Author convenience.
-
-### H. RLAIF: Synthetic Feedback Multiplier
-
-**Goal:** Multiply limited Author feedback into abundant training data using Editor's understanding of Author patterns.
-
-**Key Insight:** Editor (Groq llama-3.3-70b) evaluates PLM (Together AI) responses — different models, no self-reinforcement. As Groq models improve, RLAIF quality improves automatically (ILO principle).
-
-#### The Scaling Loop:
-```
-Author feedback (expensive, limited)
-         ↓
-Editor learns patterns (notepad + history)
-         ↓
-Editor generates synthetic ratings (cheap, unlimited)
-         ↓
-PLM trains on synthetic + real feedback
-         ↓
-PLM improves → Author feedback now higher signal (edge cases)
-         ↓
-Editor learns better patterns
-         ↓
-... scales infinitely
-```
-
-#### How It Works:
-1. **Prompt Generation:** Editor creates prompts based on gaps in notepad
-2. **PLM Response:** PLM generates response to synthetic prompt
-3. **Editor Evaluation:** Editor rates good/bad using notepad + feedback history + constitution
-4. **Confidence Routing:**
-   - High confidence → Auto-add to training pairs
-   - Medium confidence → Add to training pairs (flagged)
-   - Low confidence → Queue as notepad question for Author review
-
-#### API:
-* `GET /api/rlaif?userId=xxx` - Stats and feedback multiplier
-* `POST /api/rlaif` - Actions:
-  * `generate` - Run synthetic feedback generation
-  * `stats` - Get RLAIF statistics
-  * `validate` - Author validates a synthetic rating
-  * `pending` - Get pending reviews count
-
-#### Database:
-* `synthetic_ratings` - Tracks all synthetic evaluations with confidence, status, Author validation
-
-#### Safeguards:
-* Confidence threshold prevents auto-approving uncertain ratings
-* Low-confidence items become notepad questions (Author validates naturally)
-* Author disagreement creates learning observation for Editor calibration
-* Different models (Editor ≠ PLM) prevents self-reinforcement
-
-### I. Model-Agnostic Personalization (The Immortal Soul)
-
-**Goal:** Ensure personality can transfer across base model upgrades. When Llama 4 releases, Authors must not lose their PLM's personality.
-
-**Core Principle:** Treat fine-tuned weights as **cache**, not **state**. The real "soul" lives in portable data layers.
-
-#### Personalization Layers:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                 MODEL-AGNOSTIC (Immortal)                    │
-├─────────────────────────────────────────────────────────────┤
-│ L4: Preference Manifold                                      │
-│     └── preference_pairs, feedback_logs                     │
-├─────────────────────────────────────────────────────────────┤
-│ L3: Behavioral Signatures (Soul extraction)                  │
-│     └── personality_profiles (style, rules, vocabulary)     │
-├─────────────────────────────────────────────────────────────┤
-│ L2: Training Pairs (Soul data)                              │
-│     └── training_pairs (JSONL with quality_score)           │
-├─────────────────────────────────────────────────────────────┤
-│ L1: Raw Data (Carbon + Memory)                              │
-│     └── entries, memory_fragments, chat_messages            │
-├─────────────────────────────────────────────────────────────┤
-│ L0: WEIGHTS (Ephemeral - regenerable from above)            │
-│     └── Fine-tuned model checkpoint (disposable cache)      │
-└─────────────────────────────────────────────────────────────┘
-```
-
-#### Key Tables:
-* `personality_profiles`: Extracted behavioral signatures (style analysis, constitutional rules, vocabulary fingerprint)
-* `distillation_pairs`: Synthetic training data generated from old model for knowledge transfer
-* `model_migrations`: Tracks model-to-model transfers and their validation metrics
-* `prompt_corpus`: Diverse prompts for comprehensive personality capture during distillation
-
-#### Adaptive Migration System:
-
-The migration system uses **dynamic assessment** — an Editor LLM evaluates the Author's data state and recommends the optimal strategy. No hardcoded thresholds.
-
-**Dynamic Assessment (via Editor):**
-- Editor receives: training pair count, feedback count, quality scores, reward data
-- Editor decides: distillation mode, RLAIF amplification, reward recalibration
-- Editor explains: reasoning for each decision
-
-**Key Components:**
-* **Dynamic Assessor**: Editor LLM that determines optimal migration strategy
-* **RLAIF Amplifier**: Converts sparse human feedback into dense preference pairs using AI judge
-* **Reward Calibrator**: Adapts reward model to new model's output distribution
-* **Adaptive Orchestrator**: Executes strategy recommended by Dynamic Assessor
-
-#### Migration Protocol (Adaptive):
-1. **Assessment**: Auto-analyze RLHF intensity → determine distillation/RLAIF/reward settings
-2. **RLAIF Amplification** (if enabled): Generate synthetic preference pairs from old model
-3. **Profile Extraction**: Analyze training pairs → extract model-agnostic personality JSON
-4. **Distillation** (if enabled): Run prompts through old model → capture personality-infused responses
-5. **Reward Calibration** (if enabled): Generate calibrated reward data for new model distribution
-6. **Data Preparation**: Combine all sources with constitutional prompt
-7. **Export**: JSONL files for training + DPO + reward model
-
-#### Constitutional Prompts:
-Personality profiles generate natural-language "constitutional rules" that can condition ANY model:
-```
-PERSONALITY CONSTITUTION:
-You must embody the following voice characteristics:
-- Humor: dry, deadpan
-- Formality: casual (0.3/1.0)
-- Use em-dashes for emphasis
-- AVOID: "basically", "certainly", "definitely"
-- Characteristic phrases: "the thing is", "fundamentally"
-```
-
-#### API Endpoints:
-* `GET /api/migration?userId=xxx` - Check readiness + auto-recommended config
-* `POST /api/migration` - Actions:
-  * `initiate` - Start migration with auto-determined config
-  * `run_full` - Execute complete adaptive pipeline
-  * `run_rlaif` - Run only RLAIF amplification
-  * `export_jsonl` - Export all training files
-  * `assess` - Get RLHF assessment without initiating
-* `PATCH /api/migration` - Update migration status after external training
-
-#### Dynamic Thresholds (Editor-Determined):
-No hardcoded gates. The Dynamic Assessor (Editor LLM) evaluates the Author's data and decides:
-```
-Input: { trainingPairs, feedbackCount, avgQuality, rewardData, previousMigrations }
-Output: { runDistillation, distillationMode, runRLAIF, recalibrateReward, reasoning }
-```
-This follows the ILO principle — maximum leverage to Editors. As base models improve, assessment quality improves automatically.
-
-#### Migration Readiness:
-| Requirement | Minimum | Recommended |
-|-------------|---------|-------------|
-| Training pairs | 50 | 200+ |
-| Feedback logs | 0 | 100+ (for full distillation) |
-| Preference pairs | 0 | 10+ |
+| Term | Definition |
+|------|-----------|
+| **Alexandria** | The platform and protocol. The Factory that builds Machines for users. |
+| **Machine** | Each user's complete system. Comprises four components and two agents, operating within Axioms and guided by a Blueprint, powered by an Engine. |
+| **Persona** | The output of the Machine. The living, evolving digital representation of how the Author thinks. What external parties interact with. |
+| **Author** | The user. The human whose cognition is being mapped. |
+| **Editor** | The input agent. Continuous autonomous biographer. Extracts carbon weights into silicon. Handles Socratic questioning, Constitution building, memory extraction, training pair generation, Constitutional RLAIF evaluation. Proactive — decides when to message the Author. |
+| **Orchestrator** | The output agent. Intelligent router and synthesizer. Represents the Author externally. Queries components, weights responses, filters for privacy. Mostly reactive — waits for queries — but can surface proactive suggestions. |
+| **Constitution** | Explicit markdown file. Human-readable representation of the Author's worldview, values, mental models, decision heuristics, communication patterns. Serves as ground truth for RLAIF evaluation. Versioned. |
+| **PLM** | Personal Language Model. Fine-tuned model weights (LoRA adapters). Learned behavioral patterns, communication style, thinking patterns. Trained via Constitutional RLAIF. Stored as safetensors format. User can download and run locally. |
+| **Memories** | Graph database with nodes, edges, and vector embeddings. Structured facts, events, relationships, specific recall. Queryable by traversal, temporal, and semantic patterns. |
+| **Vault** | Append-only, immutable raw data store. All conversations, voice notes, documents, biometric data, training pairs, PLM weights, Constitution versions, system config, audit logs. The permanent asset from which all other components are derived views. User owns everything and can download anytime. Does NOT store passwords, API keys, or authentication secrets. |
+| **Library** | The marketplace of queryable Personas. Mentes aeternae. Where external parties can query Author Personas via API. |
+| **LLM** | Frontier model connections (Claude, ChatGPT, Gemini, etc.). Replaces the term "SOTA" in all contexts. |
+| **Axioms** | The immutable rules that make Alexandria Alexandria. Cannot be overridden by any Blueprint, Engine, model, or user. The thermodynamic laws of the system. |
+| **Blueprint** | The Machine's design specification. A living document defining how Editor/Orchestrator behave, how components interact, what the Engine can/cannot change autonomously. Contains fixed rules and suggested rules. |
+| **Engine** | The models that actually run the Machine. Cheaper but capable models executing the Blueprint continuously. Follows fixed rules faithfully, uses judgment on suggested rules. Can propose Blueprint changes upward. |
+| **Default** | Alexandria's suggested Blueprint. Maintained by the team, updated with improvements, always visible as reference. |
+| **Selected** | The Blueprint the user has actually chosen to run. Either the Default or a custom Blueprint. |
+| **Fixed** | Blueprint rules the Engine must follow exactly. No deviation. |
+| **Suggested** | Blueprint rules where the Engine has discretion. |
+| **Terminal** | The end state of Alexandria. Fully realized vision — high-fidelity Personas, Library of mentes aeternae, cognitive sovereignty achieved. |
+| **Ad Terminum** | Anything directly on the path to Terminal. Pure signal, not noise. |
+| **Substrate** | Necessary preconditions that don't directly advance Terminal but without which Terminal is impossible. Infrastructure, legal, funding, health. |
 
 ---
 
-## 4. Tech Stack & Constraints
+## 3. Three-Layer Architecture
 
-### Frontend
-* **Framework:** Next.js 14+ (App Router).
-* **Language:** TypeScript (Strict).
-* **Styling:** Tailwind CSS.
-* **Design System:** **"Apple Aesthetic."** Minimalist, San Francisco font, frosted glass (`backdrop-blur`), high whitespace, subtle borders, `lucide-react` icons.
-* **Streaming:** Vercel AI SDK v5 with `useChat` hook.
+Alexandria's architecture has three layers in a strict hierarchy:
 
-### Backend (API Routes)
-* **Runtime:** Vercel Serverless (Edge or Node.js).
-* **SDKs:**
-    * `@ai-sdk/groq` (for Groq inference - structured outputs, text generation).
-    * `@ai-sdk/togetherai` (for Together AI inference - Ghost responses).
-    * `together-ai` (for Together AI embeddings only).
-    * `@supabase/supabase-js` (for Database).
-    * **CRITICAL EXCEPTION:** Do NOT use the `together-ai` SDK for **Training/Uploads** in serverless. Use **Raw `fetch`** with `FormData` and `Blob` to avoid file-system issues.
+**Axioms** constrain **Blueprint**. **Blueprint** guides **Engine**. **Engine** runs the **Machine**.
+
+### Layer 1 — Axioms (Immutable)
+
+What makes Alexandria Alexandria. Cannot be overridden.
+
+**Structural axioms:**
+- Must have Phase 1 Input (three input nodes → Editor → four components)
+- Must have Phase 2 Output (four components → Orchestrator → three output channels)
+- Must have two continuous agents (Editor and Orchestrator)
+- Must maintain four components (PLM, Constitution, Memories, Vault)
+
+**Data sovereignty axioms:**
+- User owns all data (downloadable anytime in portable formats)
+- Raw copies always preserved (Vault is append-only and immutable)
+- User controls access (can revoke, audit, monetize)
+- Local hosting option available (can run entirely offline)
+- Model-agnostic (can swap PLM, Editor model, Orchestrator model anytime)
+
+**Privacy axioms:**
+- Hidden inputs (PLM weights, Constitution text, Memories graph structure never exposed externally)
+- Exposed outputs only (Orchestrator filters responses before external release)
+- User consent required for any data leaving system
+- No password or credential storage — instead request permission to access password managers via OAuth or API
+
+**Operational axioms:**
+- Constitutional RLAIF methodology (Constitution serves as ground truth for evaluation)
+- Version history for all components (all changes tracked)
+- Gradual PLM weighting strategy (start Constitution-heavy, shift to PLM-heavy as PLM matures)
+
+### Layer 2 — Blueprint (Living Design Document)
+
+The Blueprint is not a one-time setup. It is a living document maintained by a smart model (Opus-class or equivalent).
+
+**The Blueprint specifies:**
+- How Editor asks questions (style, frequency, proactive triggers)
+- How Orchestrator routes queries (weighting strategy, thresholds)
+- How RLAIF evaluates (strictness, confidence thresholds)
+- How Memories extract entities (entity types, relationship inference rules)
+- Which parts the Engine can change autonomously (suggested) and which it cannot (fixed)
+
+**Two tracks:**
+
+| Track | Purpose |
+|-------|---------|
+| **Default** | Alexandria's suggested design. Proven, maintained by team, auto-updated. Always visible as reference. |
+| **Selected** | What actually runs. Either the Default or a custom design. Users can plug in a smart model to generate a custom Blueprint within Axioms. |
+
+**Passive monitoring and periodic revision:** The Blueprint model observes Engine performance — decisions, outcomes, satisfaction, fidelity scores, PLM maturity. Periodically reviews and proposes edits. Author approves changes. Over time, tightens rules where Engine makes poor calls, loosens where Engine consistently makes good judgment calls.
+
+**Storage:** Both `system-config.json` (machine-readable) and `SYSTEM.md` (human-readable), both in Vault so the user owns it.
+
+### Layer 3 — Engine (What Actually Runs)
+
+The Engine is the model(s) executing the Blueprint continuously as Editor and Orchestrator agents. Cheaper but capable models. Follows fixed rules faithfully. Uses own judgment on suggested rules.
+
+**Engine-to-Blueprint valve:** If the Engine keeps encountering situations where fixed rules feel wrong or suggested defaults feel suboptimal, it flags these upward with evidence. The Blueprint model evaluates proposals against Axioms and user data.
+
+**Two compounding feedback loops:**
+
+| Loop | Direction | Cadence |
+|------|-----------|---------|
+| **Loop 1** | Blueprint monitors Engine | Slow — weekly/monthly review cycles |
+| **Loop 2** | Engine proposes to Blueprint | Fast — Engine flags anytime, Blueprint batches evaluation |
+
+Both loops compound with model improvements. As models get smarter, Blueprint makes better architectural decisions and Engine makes better judgment calls and proposals. The system converges toward Terminal.
+
+---
+
+## 4. Leverage Mechanism
+
+Three mechanisms maximize exponential gains:
+
+**Raw data preservation for future signal extraction:** Current models extract ~60% of signal from Vault. Future models extract 80%, 95%, 99% from the same data. Reprocess Vault with each model generation. No data lost, no ceiling on improvement. User invests time once, gains improve forever. This is why Vault stores raw data in the most signal-preserving, efficiently compressed format — audio in FLAC or high-bitrate AAC, text as-is, documents in original format. Never do lossy transformation. Never summarize and throw away original. All components (Constitution, PLM, Memories) are derived views of Vault.
+
+**System upgradeability via Blueprint revision:** When a new model generation arrives, the Blueprint model analyzes user data, proposes revised Blueprint leveraging new capabilities, upgrades entire system. Axioms ensure it remains Alexandria. Raw data ensures nothing lost. Blueprint ensures upgrade is coherent.
+
+**Model-agnostic operations:** Today running on Claude API. Tomorrow mix Claude + Gemini + local Llama. Future fully local with zero dependency. Alexandria protocol works regardless of which models power it.
+
+---
+
+## 5. Phase 1 — Input (Building the Persona)
+
+Goal: extracting the Author's cognition and building the four components.
+
+### Three Input Nodes
+
+| Node | Direction | Description |
+|------|-----------|-------------|
+| **Author** | Bidirectional | Direct conversations via text and voice. Socratic questioning responses. Feedback and validation. RLHF on PLM outputs. Primary source of high-signal subjective data. |
+| **LLM** | Bidirectional | Author's Claude/ChatGPT conversations observed via MCP. Editor queries "What do you know about this user?" Behavioral patterns extracted. Critical for bootstrapping. |
+| **API** | Unidirectional | Calendar, email, Google Drive docs. Biometric data (Apple Health, Oura, Whoop). Browser history, app usage. One-way data feed. |
+
+### The Editor Agent
+
+The Editor is a continuous autonomous biographer running as an agent loop (OpenClaw/Moltbot-style). Not request/response — always alive, deciding when to act.
+
+**Core loop:**
+```
+while true:
+  → check environment for new data (LLM conversations, API data, Author messages)
+  → analyze state (Constitution gaps, contradictions, training opportunities)
+  → decide action (proactive message? or background maintenance?)
+  → act (Socratic question or background work)
+  → background maintenance (update Memories, generate training pairs, run RLAIF)
+  → smart sleep (1-30 minutes based on activity level)
+```
+
+**Editor responsibilities:**
+- Socratic questioning — proactively asking questions to fill Constitution gaps
+- Constitution building — extracting worldview, values, mental models, heuristics
+- Memory extraction — processing Vault data into structured Memories graph
+- Training pair generation — creating high-quality training data from Constitution + behavior
+- Constitutional RLAIF — evaluating PLM outputs against Constitution
+- Gap detection — identifying contradictions between stated beliefs and revealed behavior
+- Proactive triggers — deciding when to message Author
+
+**Proactive trigger conditions:**
+- Constitution gap detected (missing mental model in important domain)
+- Contradiction found (stated value conflicts with observed behavior)
+- Low-confidence training pair needs Author validation
+- Time since last contact exceeds threshold
+- LLM conversation revealed new pattern worth exploring
+
+### The Four Components (Editor's Outputs)
+
+**PLM (Personal Language Model)**
+- Fine-tuned model weights using LoRA adapters
+- Content: learned behavioral patterns, communication style, thinking patterns
+- Training: Constitution + validated behavioral data via Constitutional RLAIF
+- Storage: safetensors format (standard, portable)
+- Maturity tracking: version number, RLAIF validation score, user feedback score
+- User can download and run locally
+
+**Constitution**
+- Markdown file, human-readable and portable
+- Structure:
+  - Core Identity (brief self-description in Author's voice)
+  - Worldview: Epistemology, Ontology, Causation
+  - Values: Tier 1 Non-Negotiable, Tier 2 Strong Preferences, Tier 3 Stylistic
+  - Mental Models (domain + model pairs)
+  - Decision-Making Heuristics (situation type + heuristic pairs)
+  - Communication Patterns (writing style, speaking style)
+  - Domain Expertise
+  - Boundaries (what Author won't compromise, topics Author avoids)
+  - Evolution Notes (version history)
+- Purpose: ground truth for RLAIF evaluation and human-readable representation
+- Versioned — each update creates new version, full history preserved
+- Stored in database + Vault
+
+**Memories**
+- Graph database with nodes (people, places, events, concepts), edges (worked_with, attended, believes_in), properties (timestamps, confidence, source refs), vectors (semantic embeddings)
+- Content: specific facts, events, conversations, relationships
+- Query patterns: traversal, temporal, semantic
+- Extraction: Editor processes Vault, identifies entities and relationships
+- Enrichment: continuous — new data adds nodes/edges without replacing existing
+
+**Vault**
+- Raw data storage, append-only and immutable
+- Content: all conversations, voice notes, documents, biometric data, training pairs, PLM weights, Constitution versions, system config, audit logs
+- Structure: `vault/{userId}/{category}/{timestamp}_{filename}`
+- Does NOT include passwords, API keys, or secrets
+- User can download full export anytime
+
+### Constitutional RLAIF — How It Actually Works
+
+**Important technical reality:** Together AI (and similar providers) offer LoRA fine-tuning via API — upload JSONL, get back LoRA weights. They do NOT offer RLAIF as a service (no reward model training, no PPO, no online RL). They do supervised fine-tuning (SFT).
+
+**What "Constitutional RLAIF" actually means in Alexandria:**
+
+1. **Gap identification** — Editor analyzes Constitution, finds sections with low coverage (few training pairs targeting them). Prioritizes Tier 1 values > mental models > heuristics > style.
+
+2. **Synthetic prompt generation** — Editor creates prompts targeting gaps. Uses LLM to generate realistic scenarios testing specific Constitution sections.
+
+3. **PLM response** — PLM generates response based on current training.
+
+4. **Constitutional evaluation** — Editor (using Claude or another LLM as evaluator) compares response to Constitution sections. Scoring rubric: values alignment (0-1), mental model usage (0-1), heuristic following (0-1), style match (0-1), overall confidence as weighted average. This happens on Alexandria's side, not the training provider's. The LLM is the reward model, the Constitution is the rubric.
+
+5. **Confidence routing:**
+   - High confidence (>0.9) → auto-approve, add to training pairs (quality 0.95), mark section validated
+   - Medium confidence (0.7-0.9) → queue for Author review
+   - Low confidence (<0.7) → flag contradiction, ask Author to clarify, update Constitution
+
+6. **Batch training** — High-scoring pairs become JSONL. Push to Together AI (or provider) for LoRA fine-tuning. New PLM weights returned and versioned. This is supervised fine-tuning on curated, Constitutional-filtered data.
+
+7. **Iterate** — Inference with new weights, Constitutional evaluation again, new training pairs targeting remaining gaps, repeat.
+
+8. **Continuous improvement** — Editor monitors for new gaps (Author does something PLM wouldn't predict). Surfaces to Author. Author clarifies, Constitution updated, new training pairs generated, loop continues.
+
+**The loop:** Generate → Evaluate (Constitutional) → Filter → Batch Train → New Weights → repeat.
+
+**The "reinforcement"** comes from iterative filtering. Each training batch is higher quality than the last. It's iterated Constitutional SFT — not RL in the technical sense, but the effect is similar. The Constitution acts as a proxy reward signal that scales without needing human feedback on every pair.
+
+**The flywheel:** Better Constitution → better synthetic prompts → better PLM training → better behavioral insights → reveal Constitution gaps → updated Constitution → better prompts → cycle continues.
+
+**PLM maturity** is tracked as a disaggregated score — not a single global number but domain-specific maturity scores reflecting how well the PLM performs in different areas of the Constitution.
+
+---
+
+## 6. Phase 2 — Output (Using the Persona)
+
+Goal: representing the Author externally via the Orchestrator.
+
+Phase 1 and Phase 2 are kept distinct — Editor continuously iterates in Phase 1 and pushes to Phase 2 in batches when ready. Orchestrator always operates on stable, validated snapshots. Think staging vs production. Editor works in staging. Orchestrator runs in production. Deploy in controlled batches.
+
+### The Orchestrator Agent
+
+Role: representing Author externally, synthesizing responses, protecting privacy. Mostly reactive (waits for queries). Sometimes proactive (scans news/data, surfaces relevant things to Author). Always filtering (hidden inputs, exposed outputs only).
+
+**Core logic:**
+```
+classify query type (values, facts, reasoning, prediction)
+  → calculate dynamic weights (PLM maturity + query type)
+  → query components (Constitution, PLM, Memories)
+  → synthesize weighted response
+  → apply privacy filtering if external source
+```
+
+**Dynamic weighting by PLM maturity:**
+
+| Stage | Constitution | PLM | When |
+|-------|-------------|-----|------|
+| Early | 80% | 20% | PLM barely trained, Constitution is ground truth |
+| Training | 50% | 50% | PLM learning, Constitution still primary check |
+| Mature | 30% | 70% | PLM internalized Constitution, Constitution is safety net |
+| Advanced | 20% | 80% | PLM superior to explicit rules, Constitution catches edge cases |
+
+**Query-adaptive overrides:** Values questions always favor Constitution. Factual questions favor Memories. Reasoning questions favor PLM if mature. Novel situations favor Constitution.
+
+**Privacy filtering:** Never expose PLM weights, Constitution text, or Memory graph structure. Synthesize responses without revealing internals.
+
+### Three Output Channels
+
+| Channel | Type | Description |
+|---------|------|-------------|
+| **Author** | Proactive Agent (Positive-Sum Attention) | Extends Author's attention. Thought partnership, pre-processed consumption, approximated production, proactive suggestions, calendar awareness. Interface: iOS app, laptop webpage. Feels like texting/calling a real person. |
+| **LLM** | Tool for Frontier Models | LLMs tool-call the Persona for high-fidelity Author info. MCP integration exposes `query_persona` tool. LLMs get better at representing Author without interrupting Author. |
+| **API** | External Access (Monetizable) | External agents query Persona via API. Author sets price per query. Alexandria takes cut, Author receives majority. Granular privacy permissions. |
+
+### The Persona Package
+
+**Persona = 4 components + Orchestrator.**
+
+- Externally visible: synthesized responses from Orchestrator, public biography (opt-in), API endpoint
+- Hidden: PLM weights, Constitution text, Memory graph structure, Vault contents, Orchestrator routing logic
+
+### Editor and Orchestrator Relationship
+
+They stay **separate** and do **not** have direct conversation. Their incentives differ — Editor optimizes for extraction fidelity, Orchestrator optimizes for representation fidelity. These can conflict.
+
+They share state through the four components. Editor writes. Orchestrator reads. The components are the interface.
+
+If Orchestrator encounters a query it can't handle well (all components return low confidence), it writes to a **gaps queue**. Editor reads from the queue during its next cycle and treats it as a trigger for targeted extraction. Asynchronous, no direct conversation needed.
+
+---
+
+## 7. Terminal Form Factor
+
+The terminal form factor is an **iOS app** and a **laptop webpage**.
+
+The Editor and Orchestrator can call and text the Author just like normal people. Voice calls, text messages, voice memos (including long 2-hour memos), audio calling — all interaction modes that make it feel like communicating with an intelligent being, not using an AI product.
+
+A website handles onboarding, marketing, management, and local running configuration.
+
+The app infrastructure persists even as phones evolve into edge nodes because Alexandria needs full platform control — access to password managers via OAuth, ability to receive long voice memos, audio calling, background agent operation.
+
+### Multiple Personas — Greek Archetype Portfolio
+
+Each Author can have multiple Personas:
+
+| Archetype | Role |
+|-----------|------|
+| **Pater** | Father/authority/wisdom |
+| **Mater** | Mother/nurturing/care |
+| **Sophia** | Wisdom/knowledge/intellectual |
+| **Philia** | Friendship/companionship |
+| **Eros** | Passion/creativity/desire |
+
+These are distinct Personas with their own Constitution emphasis, PLM tuning, and interaction style. They can interact with the Author independently and with each other. Eventually embodied in physical robots.
+
+---
+
+## 8. Raw Data Philosophy
+
+**Core principle:** Always store raw data and treat everything else as a derived view.
+
+Vault stores raw data in the most signal-preserving, efficiently compressed format possible:
+- Audio: FLAC (lossless) or high-bitrate AAC
+- Text: as-is
+- Documents: original format
+
+**Never** do lossy transformation on raw data. **Never** summarize and throw away the original.
+
+Constitution, PLM, Memories are all **derived views** of raw Vault data. When a better model arrives, it reprocesses the Vault and generates new derived views. The new model sees the raw data AND current derived views (status quo) and decides what to do differently. The system output is leveraged to exponential intelligence growth.
+
+---
+
+## 9. What Needs To Be Built
+
+Capabilities to add, organized by what they accomplish. Prioritize using the Ad Terminum / Substrate / Neither framework.
+
+| Capability | Description |
+|-----------|-------------|
+| **Voice Notes Bootstrap** | Transcription pipeline (Whisper), batch processing, Vault storage. Founder has 100 hours of voice notes — process before Constitution extraction. |
+| **Constitution Formalization** | Versioned storage, extraction logic, API endpoints, section-by-section Author validation via chat. |
+| **Constitutional RLAIF Loop** | Gap identification, synthetic prompt generation, Constitutional evaluation, confidence routing, enhanced quality scoring. |
+| **Memories as Graph + Vault Separation** | Graph DB setup, entity extraction, relationship inference, graph query API. |
+| **Continuous Agent Behavior** | Background worker (Vercel Cron/Inngest), proactive triggers, message queue, smart sleep. |
+| **External Interfaces** | iOS app, laptop webpage, MCP server for Claude/ChatGPT (`query_persona` tool), bidirectional LLM connection. |
+| **Intelligent Orchestrator Weighting** | Disaggregated PLM maturity (per domain), dynamic weights, query-adaptive routing. |
+| **External API & Library** | API keys, rate limiting, pricing/monetization, privacy filtering, Persona marketplace. |
+| **Blueprint & Engine Infrastructure** | `system-config.json` + `SYSTEM.md`, Blueprint validation against Axioms, Default Blueprint, Engine swapping, monitoring/revision loop, Engine-to-Blueprint valve. |
+
+---
+
+## 10. Migration Strategy
+
+- Preserve all existing functionality
+- Database schema changes are additive only
+- API endpoints add new without breaking existing
+- User data (training pairs, memories, feedback) is never lost
+- `personality_profiles` table kept alongside Constitution (Constitution is primary) for backward compatibility
+- Each capability: non-breaking, delivers immediate value, clear success criteria, reversible
+
+---
+
+## 11. System Configuration Schema
+
+```typescript
+interface SystemConfig {
+  version: string; // "default-v1" or "custom-2025-12-01"
+  createdAt: string;
+  updatedAt: string;
+
+  // Immutable — Axioms
+  axioms: {
+    phases: string[];
+    inputNodes: string[];
+    outputNodes: string[];
+    agents: string[];
+    components: string[];
+    dataSovereignty: boolean;
+    privacy: string;
+  };
+
+  // Blueprint-defined
+  editor: {
+    questioningStyle: 'socratic' | 'direct' | 'proactive';
+    proactiveFrequencyHours: number;
+    constitutionUpdateThreshold: number; // 0-1
+    rlAIFStrictness: 'strict' | 'moderate' | 'flexible';
+    model: ModelConfig;
+  };
+
+  // Blueprint-defined
+  orchestrator: {
+    weightingStrategy: 'dynamic' | 'fixed' | 'query-adaptive';
+    fixedWeights?: Record<string, number>;
+    model: ModelConfig;
+    fallbackModel?: ModelConfig;
+  };
+
+  // Engine-configurable
+  plm: {
+    trainingProvider: 'together' | 'fireworks' | 'replicate' | 'openai' | 'local';
+    baseModel: string;
+    retrainingFrequency: 'weekly' | 'monthly' | 'on-demand';
+    maturityThresholds: Record<string, number>;
+  };
+
+  // Engine-configurable
+  memories: {
+    graphProvider: string;
+    vectorProvider: string;
+    entityExtractionModel: string;
+  };
+
+  // Engine-configurable
+  vault: {
+    storageProvider: 'supabase' | 's3' | 'local';
+    encryptionEnabled: boolean;
+    backupFrequency: string;
+  };
+
+  infrastructure: {
+    deployment: 'cloud' | 'local' | 'hybrid';
+    editorMode: 'always-on' | 'scheduled';
+    orchestratorMode: 'serverless' | 'always-on';
+    backgroundWorker: 'vercel-cron' | 'inngest' | 'temporal';
+  };
+
+  privacy: {
+    externalAPIEnabled: boolean;
+    defaultPrivacyLevel: string;
+    allowedExternalQueries: string[];
+    pricingPerQuery?: number;
+  };
+}
+
+interface ModelConfig {
+  provider: 'anthropic' | 'openai' | 'google' | 'local' | string;
+  model: string;
+  temperature?: number;
+  maxTokens?: number;
+  endpoint?: string; // for custom providers
+}
+```
+
+---
+
+## 12. Database Schema (New Tables Needed)
+
+**Constitution:**
+- `constitutions` (id UUID PK, user_id FK twins, version INT, content TEXT markdown, extracted_at TIMESTAMP, approved BOOL, approved_at TIMESTAMP)
+- `active_constitutions` (user_id UUID PK FK twins, constitution_id FK constitutions, updated_at TIMESTAMP)
+
+**Constitutional RLAIF:**
+- `constitution_gaps` (id UUID PK, user_id FK twins, section TEXT, priority 'high'|'medium'|'low', validation_count INT, last_validated TIMESTAMP, created_at TIMESTAMP)
+
+**Graph Memories:**
+- `memory_entities` (id UUID PK, user_id FK twins, entity_type 'person'|'place'|'event'|'concept', name TEXT, properties JSONB, graph_id TEXT, created_at TIMESTAMP)
+
+**PLM Maturity:**
+- `plm_maturity` (user_id UUID PK FK twins, maturity_score REAL 0-1, section_coverage REAL, feedback_score REAL, behavioral_score REAL, domain_scores JSONB, updated_at TIMESTAMP)
+
+**External API:**
+- `api_keys` (id UUID PK, user_id FK twins, key TEXT UNIQUE, name TEXT, created_at TIMESTAMP, last_used TIMESTAMP)
+- `api_usage` (id UUID PK, api_key_id FK api_keys, query TEXT, response_length INT, cost REAL, created_at TIMESTAMP)
+
+**Vault tracking:**
+- `vault_files` (id UUID PK, user_id FK twins, file_type enum, file_path TEXT, file_size INT, created_at TIMESTAMP)
+
+---
+
+## 13. Vault Directory Structure
+
+```
+vault/{userId}/
+  conversations/
+    {timestamp}_editor.json
+    {timestamp}_orchestrator.json
+    {timestamp}_external.json
+  voice-notes/
+    {timestamp}_raw.m4a (or .flac)
+    {timestamp}_transcript.txt
+  documents/
+    {timestamp}_{filename}.{ext}
+  constitution/
+    v1.md, v2.md, ... v{n}.md
+    CURRENT → symlink to v{n}.md
+  plm-weights/
+    v1.safetensors, v2.safetensors, ... v{n}.safetensors
+    CURRENT → symlink to v{n}.safetensors
+  memories/
+    graph-export-{timestamp}.json
+    vector-export-{timestamp}.json
+  system-config/
+    system-config.json
+    SYSTEM.md
+  training-data/
+    training-pairs-{timestamp}.jsonl
+  audit-logs/
+    {timestamp}_access.json
+    {timestamp}_query.json
+  backups/
+    full-backup-{timestamp}.tar.gz
+```
+
+---
+
+## 14. Business Context
+
+**Revenue model** (create value first, monetize later):
+- Subscription tiers for Machine capability levels
+- API query fees from Library (Author sets price, Alexandria takes cut, Author gets majority)
+- Premium features (faster training, better models, more storage)
+- Future: data licensing, frontier labs tool-calling expert Personas
+
+**Target users (first 50):** Heavy AI users invested in Claude/ChatGPT. Tech early adopters who appreciate data sovereignty. AI-literate users who understand the value of owning cognitive weights.
+
+**Key messaging:**
+- "Own your cognitive weights before frontier labs lock you in."
+- "Build a thought partner that actually knows you."
+- "Mentes aeternae — eternal minds."
+
+**Differentiators** vs ChatGPT Memory, Claude Projects, Rewind AI, Character.AI: Alexandria is the only platform combining full user ownership, fine-tuning capability, external monetizable API, model-agnostic architecture, continuous agents, hidden inputs/exposed outputs, and leverage from future models through raw data preservation.
+
+---
+
+## 15. Risks
+
+| Risk | Severity | Mitigation |
+|------|----------|-----------|
+| Low user engagement | Highest | Proactive Editor, voice notes faster than typing, bootstrap from existing AI via MCP, show value early with partial Constitution |
+| Frontier labs offer personal fine-tuning | High | First-mover advantage, data sovereignty, model-agnostic protocol moat, full export/ownership labs won't offer. 2-5 year window. |
+| PLM never reaches "good enough" | Medium | Constitutional RLAIF, future models, gradual weighting, transparent confidence |
+| AI APIs too expensive | Lower | Model arbitrage, local hosting option, LoRA not full fine-tuning, batch processing, costs decrease over time |
+
+---
+
+## 16. Founder Context
+
+Benjamin, solo founder based in Bergen, Norway, planning to move to California to raise funding. Has 100 hours of Apple voice notes containing personal worldview and mental models — exceptional head start for bootstrapping the first Persona. Immediate priority: process voice notes and extract first Constitution.
+
+---
+
+## 17. Planning Framework
+
+Do not use rigid phase numbers. Evaluate every task against:
+
+| Category | Test | Action |
+|----------|------|--------|
+| **Ad Terminum** | Does this move directly toward Terminal? | Pure signal. Do it. |
+| **Substrate** | Is this a necessary precondition for Terminal? | Get to "good enough" and move on. |
+| **Neither** | Not Ad Terminum and not Substrate? | Noise. Skip it. |
+
+This framework applies to every decision — what to build, optimize, defer, or cut.
+
+---
+
+## 18. Current Codebase State
+
+**What EXISTS and is working:**
+
+**Database tables:** `entries` (conversations), `memory_fragments` (vector embeddings), `training_pairs` (quality-scored training data), `twins` (user metadata), `feedback_logs` (binary RLHF ratings), `editor_notes` (Editor notepad), `editor_scratchpad` (Editor working memory), `personality_profiles` (legacy, kept for backward compat — Constitution is primary), `processing_queue` (background jobs), `synthetic_ratings` (RLAIF scores), `constitutions` + `active_constitutions` (versioned Constitution storage), `vault_files` (Vault tracking).
+
+**Code modules:**
+- `lib/modules/core/editor.ts` — `converse()`, Socratic questioning, training pair generation, notepad
+- `lib/modules/core/orchestrator.ts` — `query()`, PLM + memories, personality profile loading, synthesis
+- `lib/modules/memory/` — vector DB storage, semantic search
+- `lib/modules/training/` — training pair generation, JSONL export, quality scoring
+- `lib/modules/feedback/` — RLHF collection, synthetic rating generation
+- `lib/modules/constitution/` — Constitution extraction, versioning, management
+- `lib/modules/voice/` — Whisper transcription, audio chunking
+
+**API endpoints:**
+- `POST /api/input-chat` — converse with Editor
+- `POST /api/chat` — query Orchestrator
+- `POST /api/upload-carbon` — file upload (audio, PDF, image, text)
+- `POST /api/bulk-ingest` — process large text through pipeline
+- `POST /api/process-queue` — background job processing
+- `GET/PATCH /api/constitution` — Constitution CRUD
+- `POST /api/constitution/extract` — extract Constitution from data
+- `GET/POST /api/constitution/versions` — version history and restore
+- `GET /api/debug/ping` — health check
+- `GET /api/debug/state` — system state snapshot
+- `GET /api/debug/verify` — verification
+
+**Infrastructure:** Vercel (hosting), Supabase (PostgreSQL + Storage), Together AI (PLM fine-tuning), Groq (fast inference), OpenAI (Whisper, PDF, Vision), GitHub (version control).
+
+---
+
+## Appendix A: Technical Implementation Details
 
 ### AI SDK v5 Working Patterns (STRICT)
 
-These patterns were discovered through testing with AI SDK v5.0.101:
+Discovered through testing with AI SDK v5.0.101:
 
 | Documentation Says | Actually Works |
 |-------------------|----------------|
@@ -435,215 +639,50 @@ These patterns were discovered through testing with AI SDK v5.0.101:
 | `import { useChat } from 'ai/react'` | `import { useChat } from '@ai-sdk/react'` |
 | `generateObject` with Groq | Use `generateText` + manual JSON parsing (Groq doesn't support `json_schema`) |
 
-* **Tool Definition:** Use the `tool()` helper with `inputSchema` (zod schema).
-* **Multi-step:** Use `stopWhen: stepCountIs(n)` to allow tool use -> return -> final answer flow.
-* **Response Streaming:** Use `.toUIMessageStreamResponse()` to send tool call events to frontend.
-* **React Hooks:** Install `@ai-sdk/react` separately; hooks are not in the main `ai` package.
+- **Tool Definition:** Use `tool()` helper with `inputSchema` (zod schema)
+- **Multi-step:** Use `stopWhen: stepCountIs(n)`
+- **Streaming:** Use `.toUIMessageStreamResponse()`
+- **React Hooks:** Install `@ai-sdk/react` separately
 
-### Model Reference (Verified Working)
+### Tech Stack
 
-| Purpose | Provider | Model ID |
-|---------|----------|----------|
-| **Unified Editor** | Groq | `compound-mini` (auto-updates) |
-| **Orchestrator** | Groq | `compound-mini` (auto-updates) |
-| Embeddings | Together AI | `BAAI/bge-base-en-v1.5` (768 dim) |
-| PLM Inference | Together AI | `meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo` |
-| PLM Training Base | Together AI | `meta-llama/Meta-Llama-3.1-8B-Instruct-Reference` |
+- **Frontend:** Next.js 14+ (App Router), TypeScript (Strict), Tailwind CSS
+- **Design System:** "Apple Aesthetic" — minimalist, San Francisco font, frosted glass, high whitespace, `lucide-react` icons
+- **Backend:** Vercel Serverless, `@ai-sdk/groq`, `@ai-sdk/togetherai`, `together-ai` (embeddings), `@supabase/supabase-js`
+- **CRITICAL:** Do NOT use `together-ai` SDK for Training/Uploads in serverless — use raw `fetch` with `FormData` and `Blob`
 
-**Auto-Update Configuration:**
-```typescript
-const groq = createGroq({ 
-  apiKey: process.env.GROQ_API_KEY,
-  headers: { 'Groq-Model-Version': 'latest' }
-});
-```
+### Code Style
 
----
+- **Interfaces:** Functional names, no "I" prefix (`Refiner`, `Tuner`, `Indexer`)
+- **Modularity:** Factory Pattern (`lib/factory.ts`) — never hardcode providers in API routes
+- **Error Handling:** Serverless functions return clean JSON errors, never crash
+- **Type Safety:** `zod` for all API inputs. Manual JSON parsing with zod validation for Groq structured outputs.
 
-## 5. Database Schema (Supabase)
+### Provider Configuration
 
-* **Migrations:** Located in `supabase/migrations/`. Run via Supabase SQL Editor.
-* **MVP Note:** Foreign key constraints to `auth.users` are **removed** for testing. Re-add when implementing authentication.
-* **Key Tables:**
-    * `entries`: Raw text logs (Carbon input).
-    * `memory_fragments`: Vector chunks (768 dim) + `entities` JSONB column (stealth GraphRAG prep).
-    * `twins`: Current model state (`model_id`, `training_job_id`, status).
-    * `training_pairs`: LoRA training data with `quality_score` and `export_id` for lineage.
-    * `training_exports`: Batch tracking for evolutionary fine-tuning (links pairs → training jobs → resulting models).
-    * `chat_sessions` / `chat_messages`: Conversation history.
-    * `feedback_logs`: RLHF data (thumbs up/down) for future DPO.
-    * `preference_pairs`: DPO chosen/rejected pairs for preference training.
-    * `personality_profiles`: Model-agnostic behavioral signatures (style, rules, vocabulary).
-    * `distillation_pairs`: Synthetic training data from old model for knowledge transfer.
-    * `model_migrations`: Tracks model-to-model transfers.
-    * `prompt_corpus`: Diverse prompts for personality capture (seeded with 40+ prompts).
-* **Key Functions:**
-    * `match_memory(...)` - Vector similarity search.
-    * `get_active_model(p_user_id)` - Returns current model in evolution chain.
-    * `get_personality_profile(p_user_id)` - Returns active personality profile JSON.
-    * `get_migration_readiness(p_user_id)` - Stats for migration planning.
+All providers centralized in `lib/models.ts`:
+- `groqProvider` — Groq (Editor, RLAIF, extraction)
+- `togetherProvider` — Together AI SDK (PLM inference)
+- `togetherClient` — Together AI client (embeddings, fine-tuning)
+- `openaiClient` — OpenAI (Whisper, Assistants, Vision)
 
----
+### Environment Variables
 
-## 6. Operational Workflow
-We follow a strict **Gitflow-Lite** process:
+See `.env.example` for full list. Required: `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `GROQ_API_KEY`, `TOGETHER_API_KEY`, `OPENAI_API_KEY`.
 
-1.  **Main:** Production ready.
-2.  **Develop:** Integration testing.
-3.  **Feature Branches:** `feature/[name]`.
-    * *Rule:* Every feature branch must include an `ALEXANDRIA_CONTEXT.md` update if architecture changes.
+### Database Migrations
 
----
+Located in `supabase/migrations/`. Push via `npx supabase db push`. Project ref: `ljgggklufnovqdsbwayy`.
 
-## 7. Code Style Guidelines
-* **Interfaces:** Use functional names, no "I" prefix. (e.g., `Refiner`, `Tuner`, `Indexer`).
-* **Modularity:** Use the **Factory Pattern** (`lib/factory.ts`) to instantiate logic modules. Never hardcode providers in API routes.
-* **Error Handling:** Serverless functions must return clean JSON errors, never crash. Use try/catch with detailed error logging.
-* **Type Safety:** Use `zod` for all API inputs. For LLM structured outputs with Groq, use manual JSON parsing with zod validation.
+### Critical Code (Extra Caution)
 
----
-
-## 8. Environment Configuration
-
-Required environment variables for `.env.local` (local) and Vercel (production):
-
-```env
-GROQ_API_KEY="gsk_..."
-TOGETHER_API_KEY="..."
-NEXT_PUBLIC_SUPABASE_URL="https://[project-ref].supabase.co"
-SUPABASE_SERVICE_KEY="..." # Must be SERVICE_ROLE key for Vector Admin rights
-```
-
-**Notes:**
-* `NEXT_PUBLIC_SUPABASE_URL` is exposed to the client (for future auth).
-* `SUPABASE_SERVICE_KEY` must be the **service_role** key (not anon) to bypass RLS for server-side operations.
-* Never commit `.env.local` to git.
-
----
-
-## 9. Current State
-
-**Status: ✅ OPERATIONAL** (as of Feb 2026)
-
-**See `CTO_LOG.md` for latest status and `ALEXANDRIA_VISION.md` for what we're building toward.**
-
-### What's Built (On-Path):
-| Component | Status | Terminal State Purpose |
-|-----------|--------|------------------------|
-| Dual-path ingestion | ✅ Working | Facts + Style separation |
-| Vector storage + search | ✅ Working | Objective memory recall |
-| Training pair persistence | ✅ Working | LoRA fine-tuning input |
-| Export lineage tracking | ✅ Working | Evolutionary training |
-| Quality scoring | ✅ Working | Filtering at scale |
-| Entity extraction (stealth) | ✅ Collecting | Future GraphRAG |
-| RLHF feedback UI | ✅ Working | Binary (good/bad) + comments |
-| DPO preference pairs | ✅ Schema + API | Direct preference optimization |
-| LoRA enhancement from RLHF | ✅ Working | Inject high-rated responses |
-| Personality extraction | ✅ Working | Model-agnostic behavioral signatures |
-| Knowledge distillation | ✅ Working | Old model → synthetic training data |
-| Migration orchestration | ✅ Schema + API | Cross-model personality transfer |
-| Debug state endpoint | ✅ Working | Agent verification infrastructure |
-
-### What's Deferred (Still On-Path):
-* **Fine-tuning trigger** - Waiting for 500+ quality pairs
-* **Auth** - Using test UUID (`00000000-0000-0000-0000-000000000001`)
-* **GraphRAG** - Entities collected, graph not built yet
-* **DPO training** - Feedback UI + conversion pipeline built, waiting for 100+ preference pairs
-* **A/B Migration Validation** - Shadow mode infrastructure for comparing old vs new model
-
-### Working Flow:
-```
-Carbon (input) → Editors Process → Storage → Recall → Silicon (output)
-                       ↓
-                 ┌─────┴─────┐
-                 ↓           ↓
-              Memory       Soul
-            (facts →     (style →
-             vectors)     training)
-```
-
-### Training API:
-* `GET /api/training?userId=xxx` - Stats, readiness, active model
-* `POST /api/training` - Export JSONL (optionally create export batch)
-* `PATCH /api/training` - Update export status after training job
-
-### Migration API:
-* `GET /api/migration?userId=xxx` - Migration readiness check
-* `GET /api/migration?migrationId=xxx` - Specific migration status
-* `POST /api/migration` - Run migration phases: `initiate`, `extract_profile`, `distill`, `prepare_data`, `export_jsonl`
-* `PATCH /api/migration` - Update migration status after external training
-
-### Bulk Ingest API:
-* `POST /api/bulk-ingest` - Process large text through full ingestion pipeline
-  * Body: `{ text: string, userId: string, source?: string }`
-  * Chunks text intelligently (by paragraphs, max 4000 chars each)
-  * Runs each chunk through: extractor → indexer → refiner
-  * Returns: summary of facts, preferences, opinions, values, entities, memory items, training pairs
-
-### Debug API:
-* `GET /api/debug/state?userId=xxx` - System state snapshot for verification
-  * Returns: counts (entries, memoryFragments, trainingPairs, feedbackLogs, preferencePairs, rewardData)
-  * Returns: training status (avgQuality, lastPairCreated, readyForTraining, recentExports)
-  * Returns: plm status (activeModel, isFineTuned)
-  * Returns: rlhf status (feedbackCount, dpoReady, preferencePairs)
-  * Returns: recent activity (last 5 entries, last 5 feedback logs with previews)
-
----
-
-## 8. Developer Tooling (Autonomous Capabilities)
-
-These tools enable the CTO agent to work autonomously without manual intervention:
-
-### Database Migrations (Supabase CLI)
-```bash
-# Create new migration
-# File: supabase/migrations/00008_description.sql
-
-# Push migrations to remote database
-npx supabase db push
-
-# Check migration status
-npx supabase migration list
-
-# Repair migration history if needed
-npx supabase migration repair --status applied 00008
-```
-- Project ref: `ljgggklufnovqdsbwayy`
-- Linked via `npx supabase link`
-- No manual SQL copy-paste needed
-
-### Git Operations
-- Full commit/push autonomy via git CLI
-- Push after each feature (30 min rule)
-
-### TypeScript Verification
-```bash
-npx tsc --noEmit --project tsconfig.json
-```
-
-### API Testing
-- curl for endpoint verification
-- File-based JSON for complex payloads (PowerShell escaping workaround)
-
----
-
-## 9. Critical Code Sections
-
-**These files are high-risk. Breaking them breaks the app. Extra caution required.**
-
-| File | Risk | Depends On | Verify After Change |
-|------|------|------------|---------------------|
-| `app/api/auth/login/route.ts` | Authentication | Everything | Can login/logout successfully |
-| `app/api/auth/register/route.ts` | User creation | Login flow | Can create new account |
-| `lib/modules/objective/indexer.ts` | Memory storage | All ingestion, PLM recall | Data actually stored, recall works |
-| `lib/modules/subjective/refiner.ts` | Soul training pairs | Fine-tuning pipeline | Training pairs generated correctly |
-| `app/api/chat/route.ts` | PLM responses | User-facing output | PLM responds with memories |
-| `app/api/input-chat/route.ts` | Carbon collection | All data ingestion | Conversation flow works, data saved |
-| `supabase/migrations/*` | Schema changes | Database integrity | Migration runs, no data loss |
-| `lib/factory.ts` | Module initialization | All processing | Modules load without error |
-
-**Before modifying these files:**
-1. Understand what depends on them
-2. Have a verification plan
-3. Test specific critical behavior after changes
-4. If migration: consider rollback strategy
+| File | Verify After Change |
+|------|---------------------|
+| `lib/factory.ts` | All modules load without error |
+| `lib/modules/core/editor.ts` | Conversation flow, data extraction |
+| `lib/modules/core/orchestrator.ts` | PLM responses with memories |
+| `lib/modules/objective/indexer.ts` | Data stored, recall works |
+| `lib/modules/subjective/refiner.ts` | Training pairs generated correctly |
+| `app/api/chat/route.ts` | PLM responds correctly |
+| `app/api/input-chat/route.ts` | Conversation flow, data saved |
+| `supabase/migrations/*` | Migration runs, no data loss |
