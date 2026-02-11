@@ -2,9 +2,9 @@
 
 > ## ⛔ READING ORDER
 > 
-> **Required:** `MOWINCKEL.md` → `ALEXANDRIA_VISION.md` (product spec) → `CTO_LOG.md` (this file) → `ALEXANDRIA_CONTEXT.md`
+> **Required:** `MOWINCKEL.md` → `ALEXANDRIA_CONTEXT.md` (single source of truth) → `CTO_LOG.md` (this file)
 > 
-> If you skipped MOWINCKEL.md or ALEXANDRIA_VISION.md, go back and read them now.
+> If you skipped MOWINCKEL.md or ALEXANDRIA_CONTEXT.md, go back and read them now.
 > 
 > ---
 > 
@@ -14,8 +14,8 @@
 
 ## Quick Status
 **Last updated:** 2026-02-11
-**Unpushed changes:** No (commit 5fcd465 pushed)
-**Blockers:** None - Backend verified working!
+**Unpushed changes:** Yes (pending commit)
+**Blockers:** None
 
 ---
 
@@ -44,7 +44,7 @@
 ## Completed (Recent)
 | Task | Completed | Notes |
 |------|-----------|-------|
-| ALEXANDRIA_VISION.md | 2026-02-11 | ✅ Complete vision document created. Defines Phase 1 (Editor) and Phase 2 (Orchestrator), input/output nodes, architecture pattern (Suggested/Selected), immutable rules. This is now the source of truth. |
+| ALEXANDRIA_CONTEXT.md rewrite | 2026-02-11 | ✅ Complete context document rewritten as single source of truth. Vision, architecture, terminology, technical details, planning framework all in one place. ALEXANDRIA_VISION.md superseded. |
 | Telegram Code Removal | 2026-02-11 | ✅ Routes deleted, lib archived. Website is primary UI now, iOS app later. |
 | Constitution UI | 2026-02-11 | ✅ ConstitutionPanel component with view/history, extraction, version restore. Button in header. |
 | Backend Verification | 2026-02-11 | ✅ Health check, Constitution (extract/get/versions), debug state all working. |
@@ -176,35 +176,34 @@ After feedback:
 **Last session:** 2026-02-11
 
 **What was done:**
-- **Telegram Code Removed:** Deleted API routes (`app/api/telegram/`), archived lib files to `_archive/telegram/`. User decision: website is primary UI for now, iOS app later.
-- **Constitution UI Added:** New `ConstitutionPanel.tsx` component with view/history tabs, extraction trigger, version restore. Button added to header.
-- **Backend Verification:** All systems verified working via API calls:
-  - Health check: ✅ database: true, environment: true
-  - Constitution extraction: ✅ 100% coverage, all sections extracted
-  - Constitution retrieval: ✅ Full constitution returned
-  - Constitution versions: ✅ Version history working
-  - Debug state: ✅ Shows 5 entries, 30 memories, 30 training pairs, 10 editor notes
-- **Bug Fixes:**
-  - Fixed `constitution/versions` endpoint null param handling (limit was null causing 400)
-  - Fixed TypeScript errors in ConstitutionPanel (optional chaining)
+- **ALEXANDRIA_CONTEXT.md Complete Rewrite:** CEO provided comprehensive vision document covering everything — vision, architecture, terminology (Machine, Persona, Axioms, Blueprint, Engine, etc.), three-layer architecture (Axioms → Blueprint → Engine), Phase 1 (Input) and Phase 2 (Output), Constitutional RLAIF detailed mechanics, leverage mechanism, terminal form factor, Greek archetype portfolio, raw data philosophy, planning framework (Ad Terminum / Substrate / Neither), business context, and risks. Saved as raw text in `docs/alexandria-complete-context-raw.md`, formatted into `ALEXANDRIA_CONTEXT.md` with technical appendix. `ALEXANDRIA_VISION.md` marked as superseded.
+- **Reading order simplified:** Now just 3 files: MOWINCKEL.md → ALEXANDRIA_CONTEXT.md → CTO_LOG.md
+- **Codebase cleanup (previous commit):** Consolidated legacy `getIngestionTools()` → `getPipelineTools()`, centralized providers in `lib/models.ts`, created `.env.example`, updated all reading order references.
+
+**Key new concepts from CEO:**
+- **Three-layer architecture:** Axioms (immutable) → Blueprint (living design doc, Default/Selected) → Engine (runtime models)
+- **Planning framework:** Ad Terminum (direct path to Terminal) vs Substrate (necessary precondition) vs Neither (noise, skip it)
+- **Constitutional RLAIF is iterated Constitutional SFT** — not RL technically, but same effect via iterative filtering
+- **Multiple Personas per Author** — Greek archetype portfolio (Pater, Mater, Sophia, Philia, Eros)
+- **Terminal form factor:** iOS app + laptop webpage. Agents feel like real people (calls, texts, voice memos).
 
 **Files Changed:**
-- `app/page.tsx` - Added Constitution button and panel integration
-- `app/components/ConstitutionPanel.tsx` - NEW: Full Constitution view/manage UI
-- `app/api/constitution/versions/route.ts` - Fixed null param handling
-- `app/api/telegram/` - DELETED (routes removed)
-- `_archive/telegram/lib/` - Telegram client/router archived here
+- `ALEXANDRIA_CONTEXT.md` - REWRITTEN: single source of truth (vision + architecture + technical)
+- `ALEXANDRIA_VISION.md` - Marked as superseded (points to CONTEXT)
+- `docs/alexandria-complete-context-raw.md` - NEW: raw verbatim CEO vision text
+- `.cursor/rules/project-context.mdc` - Updated reading order (3 files, not 4)
+- `CTO_LOG.md` - Updated reading order and session notes
 
-**Pushed:** Yes (5fcd465)
+**Pushed:** No (pending commit)
 
-**Strategic Decision (from user):**
+**Strategic context:**
 - Website is primary UI for testing/debugging backend
-- Telegram abandoned as product interface
 - iOS app to be built when Mac available (~1 month)
-- File upload already works in website (audio, PDF, images, text via modal)
+- Voice notes bootstrap is immediate priority (100 hours of founder voice memos)
+- Use Ad Terminum / Substrate / Neither framework for all prioritization
 
 **Suggested next actions:**
-1. Commit and push changes
-2. Test Constitution UI in browser
-3. Test file upload for voice memos via website
+1. Commit and push documentation changes
+2. Start voice notes bootstrap pipeline (Ad Terminum)
+3. Formalize Constitution extraction from voice data
 4. Consider Vercel Pro for longer serverless function timeouts
