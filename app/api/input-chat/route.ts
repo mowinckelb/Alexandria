@@ -40,6 +40,18 @@ export async function POST(req: Request) {
 
     const currentState: ConversationState = state || { phase: 'conversing', messagesProcessed: 0 };
     const lastMessage = messages[messages.length - 1]?.content?.trim().toLowerCase();
+    const nowIso = new Date().toISOString();
+
+    // Track latest author contact time for autonomous editor scheduling.
+    if (userId) {
+      await supabase
+        .from('editor_state')
+        .upsert({
+          user_id: userId,
+          last_contact_at: nowIso,
+          updated_at: nowIso
+        }, { onConflict: 'user_id' });
+    }
     
     const encoder = new TextEncoder();
     const editor = getEditor();

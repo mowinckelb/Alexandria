@@ -8,6 +8,26 @@
     },
     "app/api/process-queue/route.ts": {
       "maxDuration": 300
+    },
+    "app/api/cron/editor-cycle/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/cron/channel-retry/route.ts": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/process-queue",
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/cron/editor-cycle",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/channel-retry",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }

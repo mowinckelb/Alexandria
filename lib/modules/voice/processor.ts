@@ -111,7 +111,7 @@ export class VoiceProcessor {
       try {
         console.log(`[VoiceProcessor] Processing file ${i + 1}/${files.length}: ${file.fileName}`);
         
-        const result = await this.processSingleFile(file, userId);
+        const result = await this.processSingleFile(file, userId, jobId);
         results.push(result);
         
         // Update stats
@@ -160,6 +160,15 @@ export class VoiceProcessor {
       errors,
       stats
     });
+
+    await this.logActivity(userId, 'voice_bootstrap_completed', `Voice bootstrap ${status}: ${results.length}/${files.length} files processed`, {
+      jobId,
+      status,
+      totalFiles: files.length,
+      processedFiles: results.length,
+      failedFiles: errors.length,
+      stats
+    });
     
     return {
       jobId,
@@ -178,7 +187,8 @@ export class VoiceProcessor {
    */
   async processSingleFile(
     file: AudioFile,
-    userId: string
+    userId: string,
+    jobId?: string
   ): Promise<ProcessingResult> {
     // 1. Download from storage
     const buffer = await this.downloadFromStorage(file.storagePath);
@@ -195,6 +205,8 @@ export class VoiceProcessor {
     await saveToVault(userId, audioPath, buffer, 'audio', {
       originalName: file.fileName,
       metadata: {
+        sourceStoragePath: file.storagePath,
+        jobId,
         context: file.context,
         transcribedAt: new Date().toISOString()
       }
@@ -205,10 +217,16 @@ export class VoiceProcessor {
     await saveToVault(userId, transcriptPath, transcript, 'transcript', {
       originalName: `${baseName}.txt`,
       metadata: {
+        sourceStoragePath: file.storagePath,
+        jobId,
+        context: file.context,
         sourceAudio: file.fileName,
         wordCount: transcript.split(/\s+/).length
       }
     });
+
+    // Store transcript as raw entry for downstream indexing and auditing.
+    await this.storeTranscriptEntry(userId, transcript, file, jobId);
     
     // 6. Process transcript through Editor for high-quality extraction
     const extractionResult = await this.processTranscript(transcript, userId, file.context);
@@ -488,5 +506,49 @@ export class VoiceProcessor {
     }
     
     return chunks.length > 0 ? chunks : [text];
+  }
+
+  private async storeTranscriptEntry(
+    userId: string,
+    transcript: string,
+    file: AudioFile,
+    jobId?: string
+  ): Promise<void> {
+    const { error } = await this.supabase
+      .from('entries')
+      .insert({
+        user_id: userId,
+        content: transcript.substring(0, 100000),
+        source: 'voice_bootstrap',
+        metadata: {
+          fileName: file.fileName,
+          storagePath: file.storagePath,
+          context: file.context || null,
+          jobId: jobId || null
+        }
+      });
+
+    if (error) {
+      throw new Error(`Failed to store transcript entry: ${error.message}`);
+    }
+  }
+
+  private async logActivity(
+    userId: string,
+    actionType: string,
+    summary: string,
+    details: Record<string, unknown>
+  ): Promise<void> {
+    try {
+      await this.supabase.from('persona_activity').insert({
+        user_id: userId,
+        action_type: actionType,
+        summary,
+        details,
+        requires_attention: false
+      });
+    } catch {
+      // Non-blocking telemetry write.
+    }
   }
 }

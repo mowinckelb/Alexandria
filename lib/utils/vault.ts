@@ -26,6 +26,7 @@ export interface VaultFile {
 export interface SaveToVaultOptions {
   originalName?: string;
   metadata?: Record<string, unknown>;
+  allowOverwrite?: boolean;
 }
 
 // ============================================================================
@@ -77,12 +78,14 @@ export async function saveToVault(
   // Determine content type
   const contentType = getContentType(path, fileType);
   
+  const allowOverwrite = options.allowOverwrite ?? false;
+
   // Upload to Supabase Storage
   const { error: uploadError } = await supabase.storage
     .from(VAULT_BUCKET)
     .upload(fullPath, buffer, {
       contentType,
-      upsert: true // Allow overwriting
+      upsert: allowOverwrite
     });
   
   if (uploadError) {
@@ -90,19 +93,18 @@ export async function saveToVault(
     throw new Error(`Vault upload failed: ${uploadError.message}`);
   }
   
-  // Track in vault_files table (upsert)
-  const { error: dbError } = await supabase
-    .from('vault_files')
-    .upsert({
-      user_id: userId,
-      path,
-      file_type: fileType,
-      original_name: options.originalName || null,
-      size_bytes: buffer.length,
-      metadata: options.metadata || {}
-    }, {
-      onConflict: 'user_id,path'
-    });
+  // Track in vault_files table.
+  const trackingPayload = {
+    user_id: userId,
+    path,
+    file_type: fileType,
+    original_name: options.originalName || null,
+    size_bytes: buffer.length,
+    metadata: options.metadata || {}
+  };
+  const { error: dbError } = allowOverwrite
+    ? await supabase.from('vault_files').upsert(trackingPayload, { onConflict: 'user_id,path' })
+    : await supabase.from('vault_files').insert(trackingPayload);
   
   if (dbError) {
     console.error('[Vault] Database tracking failed:', dbError);
@@ -322,6 +324,7 @@ export async function saveConstitutionToVault(
   // Update current.md pointer
   const currentPath = 'constitution/current.md';
   await saveToVault(userId, currentPath, markdown, 'constitution', {
+    allowOverwrite: true,
     metadata: { ...metadata, version, type: 'current' }
   });
   

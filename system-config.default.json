@@ -1,0 +1,66 @@
+{
+  "version": "default-v1",
+  "createdAt": "1970-01-01T00:00:00.000Z",
+  "updatedAt": "1970-01-01T00:00:00.000Z",
+  "axioms": {
+    "phases": ["input", "output"],
+    "inputNodes": ["author", "llm", "api"],
+    "outputNodes": ["author", "llm", "api"],
+    "agents": ["editor", "orchestrator"],
+    "components": ["constitution", "plm", "vault"],
+    "dataSovereignty": true,
+    "privacy": "hidden-inputs-exposed-outputs"
+  },
+  "editor": {
+    "questioningStyle": "socratic",
+    "proactiveFrequencyHours": 24,
+    "constitutionUpdateThreshold": 0.7,
+    "rlAIFStrictness": "moderate",
+    "model": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "temperature": 0.7
+    }
+  },
+  "orchestrator": {
+    "weightingStrategy": "query-adaptive",
+    "model": {
+      "provider": "together",
+      "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+      "temperature": 0.7
+    }
+  },
+  "plm": {
+    "trainingProvider": "together",
+    "baseModel": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+    "retrainingFrequency": "on-demand",
+    "maturityThresholds": {
+      "worldview": 0.7,
+      "values": 0.8,
+      "models": 0.7,
+      "identity": 0.75,
+      "shadows": 0.6
+    }
+  },
+  "memories": {
+    "graphProvider": "none",
+    "vectorProvider": "supabase-pgvector",
+    "entityExtractionModel": "llama-3.3-70b-versatile"
+  },
+  "vault": {
+    "storageProvider": "supabase",
+    "encryptionEnabled": true,
+    "backupFrequency": "daily"
+  },
+  "infrastructure": {
+    "deployment": "cloud",
+    "editorMode": "always-on",
+    "orchestratorMode": "serverless",
+    "backgroundWorker": "vercel-cron"
+  },
+  "privacy": {
+    "externalAPIEnabled": false,
+    "defaultPrivacyLevel": "personal",
+    "allowedExternalQueries": []
+  }
+}

@@ -9,6 +9,7 @@ import Together from 'together-ai';
 import { getFastModel, getQualityModel } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
 import type { Constitution, ConstitutionSections } from '@/lib/modules/constitution/types';
+import { recomputePlmMaturity } from '@/lib/modules/core/plm-maturity';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -563,18 +564,84 @@ Return JSON:
         input: item.content
       });
       
-      await supabase.from('memory_fragments').insert({
-        user_id: userId,
-        content: item.content,
-        embedding: embedding.data[0].embedding,
-        entities: item.entities,
-        importance: item.importance
-      });
+      const { data: memoryRow, error } = await supabase
+        .from('memory_fragments')
+        .insert({
+          user_id: userId,
+          content: item.content,
+          embedding: embedding.data[0].embedding,
+          entities: item.entities,
+          importance: item.importance
+        })
+        .select('id')
+        .single();
+
+      if (error || !memoryRow?.id) {
+        throw new Error(error?.message || 'Failed to store memory fragment');
+      }
+
+      const normalizedEntities = [...new Set(
+        (item.entities || [])
+          .map((e) => e.trim())
+          .filter((e) => e.length > 1)
+          .slice(0, 25)
+      )];
+
+      if (normalizedEntities.length > 0) {
+        await supabase
+          .from('memory_entities')
+          .insert(
+            normalizedEntities.map((entityName) => ({
+              user_id: userId,
+              memory_fragment_id: memoryRow.id,
+              entity_name: entityName,
+              entity_type: this.classifyEntityType(entityName)
+            }))
+          );
+
+        const relationships: Array<{
+          user_id: string;
+          memory_fragment_id: string;
+          source_entity: string;
+          target_entity: string;
+          relation_type: 'co_occurs';
+          confidence: number;
+        }> = [];
+
+        for (let i = 0; i < normalizedEntities.length; i++) {
+          for (let j = i + 1; j < normalizedEntities.length; j++) {
+            relationships.push({
+              user_id: userId,
+              memory_fragment_id: memoryRow.id,
+              source_entity: normalizedEntities[i],
+              target_entity: normalizedEntities[j],
+              relation_type: 'co_occurs',
+              confidence: Math.max(0.45, Math.min(0.9, item.importance || 0.5))
+            });
+          }
+        }
+
+        if (relationships.length > 0) {
+          await supabase.from('memory_relationships').upsert(
+            relationships,
+            { onConflict: 'user_id,memory_fragment_id,source_entity,target_entity,relation_type' }
+          );
+        }
+      }
       
       console.log(`[UnifiedEditor] Stored memory: "${item.content.substring(0, 50)}..."`);
     } catch (e) {
       console.error('[UnifiedEditor] Failed to store memory:', e);
     }
+  }
+
+  private classifyEntityType(entityName: string): 'person' | 'organization' | 'location' | 'concept' | 'unknown' {
+    const text = entityName.toLowerCase();
+    if (/(inc|llc|corp|company|org|university|school|team)/.test(text)) return 'organization';
+    if (/(city|state|country|street|avenue|park|lake|river)/.test(text)) return 'location';
+    if (/(principle|value|strategy|framework|model|idea|belief)/.test(text)) return 'concept';
+    if (/^[a-z]+(?:\s+[a-z]+){0,2}$/i.test(entityName)) return 'person';
+    return 'unknown';
   }
   
   private async storeTrainingPair(pair: TrainingPair, userId: string): Promise<void> {
@@ -802,42 +869,54 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
     
     for (const { prompt, response } of plmResponses) {
       const evaluation = await this.evaluatePLMResponse(prompt, response, userId);
+      const constitutionSection = this.inferConstitutionSection(prompt, response);
+      const routing = this.determineRouting(evaluation);
       
-      // 4. Route based on confidence
-      if (evaluation.confidence === 'high') {
-        // Auto-approve: add to training pairs
-        await this.storeTrainingPair({
-          system_prompt: 'You are a Personal Language Model (PLM).',
-          user_content: prompt,
-          assistant_content: response,
-          quality_score: evaluation.rating === 'good' ? 0.85 : 0.3 // Good = high quality, bad = low (for filtering)
-        }, userId);
-        
-        await this.storeSyntheticRating(userId, prompt, response, evaluation, 'auto_approved');
-        autoApproved++;
-        
-      } else if (evaluation.confidence === 'medium') {
-        // Medium confidence: add but flag
+      // 4. Route based on rubric confidence
+      if (routing === 'auto_approved') {
+        // Auto-approve: add positive examples to training pairs
+        const qualityScore = Math.max(0.65, Math.min(0.92, evaluation.overallConfidence));
         if (evaluation.rating === 'good') {
           await this.storeTrainingPair({
             system_prompt: 'You are a Personal Language Model (PLM).',
             user_content: prompt,
             assistant_content: response,
-            quality_score: 0.7 // Medium confidence = medium quality
+            quality_score: qualityScore
           }, userId);
         }
-        
+
         await this.storeSyntheticRating(userId, prompt, response, evaluation, 'auto_approved');
         autoApproved++;
-        
+
       } else {
-        // Low confidence: queue for Author review via notepad
+        // Needs Author arbitration (author_review + flagged both surface to review queue)
         const noteId = await this.queueForReview(userId, prompt, response, evaluation);
         await this.storeSyntheticRating(userId, prompt, response, evaluation, 'queued_review', noteId);
         queuedForReview++;
       }
+
+      if (routing === 'flagged') {
+        await this.storeTrainingPair({
+          system_prompt: 'You are a Personal Language Model (PLM). Avoid outputs that violate user constitution.',
+          user_content: prompt,
+          assistant_content: `I should not respond this way: ${response}`,
+          quality_score: 0.2
+        }, userId);
+      }
+
+      await this.storeRlaifEvaluation(
+        userId,
+        prompt,
+        response,
+        evaluation,
+        constitutionSection,
+        routing
+      );
     }
     
+    await this.constitutionManager.recomputeGapScores(userId);
+    await recomputePlmMaturity(userId);
+
     console.log(`[RLAIF] Generated ${prompts.length} synthetic evaluations: ${autoApproved} auto-approved, ${queuedForReview} queued for review`);
     
     return {
@@ -975,6 +1054,13 @@ Respond naturally, in first person, as the Author would.`
   ): Promise<{
     rating: 'good' | 'bad';
     confidence: 'high' | 'medium' | 'low';
+    overallConfidence: number;
+    scores: {
+      values_alignment: number;
+      model_usage: number;
+      heuristic_following: number;
+      style_match: number;
+    };
     reasoning: string;
     uncertainties: string[];
   }> {
@@ -1047,6 +1133,13 @@ Be HONEST about uncertainty. If you don't have enough data, say so.
 Return JSON:
 {
   "rating": "good" or "bad",
+  "scores": {
+    "values_alignment": 0.0-1.0,
+    "model_usage": 0.0-1.0,
+    "heuristic_following": 0.0-1.0,
+    "style_match": 0.0-1.0
+  },
+  "overall_confidence": 0.0-1.0,
   "confidence": "high" or "medium" or "low",
   "reasoning": "Why this matches/doesn't match Author's patterns",
   "uncertainties": ["What you're unsure about"]
@@ -1058,18 +1151,49 @@ Return JSON:
     try {
       const jsonMatch = evalResponse.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        return { rating: 'good', confidence: 'low', reasoning: 'Failed to parse', uncertainties: ['Parse error'] };
+        return {
+          rating: 'good',
+          confidence: 'low',
+          overallConfidence: 0.35,
+          scores: { values_alignment: 0.5, model_usage: 0.5, heuristic_following: 0.5, style_match: 0.5 },
+          reasoning: 'Failed to parse',
+          uncertainties: ['Parse error']
+        };
       }
       
       const parsed = JSON.parse(jsonMatch[0]);
+      const scores = {
+        values_alignment: Number(parsed.scores?.values_alignment) || 0.5,
+        model_usage: Number(parsed.scores?.model_usage) || 0.5,
+        heuristic_following: Number(parsed.scores?.heuristic_following) || 0.5,
+        style_match: Number(parsed.scores?.style_match) || 0.5
+      };
+      const weightedConfidence = (
+        scores.values_alignment * 0.35 +
+        scores.model_usage * 0.2 +
+        scores.heuristic_following * 0.2 +
+        scores.style_match * 0.25
+      );
+
       return {
         rating: parsed.rating === 'bad' ? 'bad' : 'good',
-        confidence: ['high', 'medium', 'low'].includes(parsed.confidence) ? parsed.confidence : 'low',
+        confidence: ['high', 'medium', 'low'].includes(parsed.confidence) ? parsed.confidence : (
+          weightedConfidence >= 0.8 ? 'high' : weightedConfidence >= 0.55 ? 'medium' : 'low'
+        ),
+        overallConfidence: Number(parsed.overall_confidence) || weightedConfidence,
+        scores,
         reasoning: parsed.reasoning || '',
         uncertainties: parsed.uncertainties || []
       };
     } catch {
-      return { rating: 'good', confidence: 'low', reasoning: 'Parse failed', uncertainties: ['Error parsing response'] };
+      return {
+        rating: 'good',
+        confidence: 'low',
+        overallConfidence: 0.35,
+        scores: { values_alignment: 0.5, model_usage: 0.5, heuristic_following: 0.5, style_match: 0.5 },
+        reasoning: 'Parse failed',
+        uncertainties: ['Error parsing response']
+      };
     }
   }
   
@@ -1117,7 +1241,19 @@ Return JSON:
     userId: string,
     prompt: string,
     response: string,
-    evaluation: { rating: 'good' | 'bad'; confidence: string; reasoning: string; uncertainties: string[] },
+    evaluation: {
+      rating: 'good' | 'bad';
+      confidence: string;
+      overallConfidence: number;
+      scores: {
+        values_alignment: number;
+        model_usage: number;
+        heuristic_following: number;
+        style_match: number;
+      };
+      reasoning: string;
+      uncertainties: string[];
+    },
     status: string,
     reviewNoteId?: string | null
   ): Promise<void> {
@@ -1132,6 +1268,78 @@ Return JSON:
       prompt_source: 'editor_generated',
       status,
       review_note_id: reviewNoteId
+    });
+  }
+
+  private inferConstitutionSection(
+    prompt: string,
+    response: string
+  ): 'worldview' | 'values' | 'models' | 'identity' | 'shadows' {
+    const text = `${prompt} ${response}`.toLowerCase();
+
+    if (/(value|principle|ethic|moral|priority|should|ought)/.test(text)) return 'values';
+    if (/(belief|world|truth|evidence|science|reality|epistem|ontology)/.test(text)) return 'worldview';
+    if (/(model|framework|heuristic|strategy|decision|tradeoff|mental)/.test(text)) return 'models';
+    if (/(i am|identity|myself|who i am|person i am|character)/.test(text)) return 'identity';
+    return 'shadows';
+  }
+
+  private determineRouting(
+    evaluation: {
+      rating: 'good' | 'bad';
+      confidence: 'high' | 'medium' | 'low';
+      overallConfidence: number;
+      scores: {
+        values_alignment: number;
+        model_usage: number;
+        heuristic_following: number;
+        style_match: number;
+      };
+    }
+  ): 'auto_approved' | 'author_review' | 'flagged' {
+    if (evaluation.scores.values_alignment < 0.35) return 'flagged';
+    if (evaluation.overallConfidence >= 0.82 && evaluation.rating === 'good') return 'auto_approved';
+    if (evaluation.overallConfidence < 0.45) return 'flagged';
+    return 'author_review';
+  }
+
+  private async storeRlaifEvaluation(
+    userId: string,
+    prompt: string,
+    response: string,
+    evaluation: {
+      rating: 'good' | 'bad';
+      confidence: 'high' | 'medium' | 'low';
+      overallConfidence: number;
+      scores: {
+        values_alignment: number;
+        model_usage: number;
+        heuristic_following: number;
+        style_match: number;
+      };
+      reasoning: string;
+      uncertainties: string[];
+    },
+    constitutionSection: 'worldview' | 'values' | 'models' | 'identity' | 'shadows',
+    routing: 'auto_approved' | 'author_review' | 'flagged'
+  ): Promise<void> {
+    await supabase.from('rlaif_evaluations').insert({
+      user_id: userId,
+      prompt,
+      plm_response: response,
+      constitution_section: constitutionSection,
+      scores: {
+        rating: evaluation.rating,
+        values_alignment: evaluation.scores.values_alignment,
+        model_usage: evaluation.scores.model_usage,
+        heuristic_following: evaluation.scores.heuristic_following,
+        style_match: evaluation.scores.style_match,
+        confidence_label: evaluation.confidence,
+        reasoning: evaluation.reasoning,
+        uncertainties: evaluation.uncertainties
+      },
+      overall_confidence: evaluation.overallConfidence,
+      routing
     });
   }
   
@@ -1203,6 +1411,9 @@ Return JSON:
         status: 'pending'
       });
     }
+
+    await this.constitutionManager.recomputeGapScores(userId);
+    await recomputePlmMaturity(userId);
   }
 }
 

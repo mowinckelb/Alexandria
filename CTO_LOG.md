@@ -293,29 +293,140 @@ After feedback:
 ## Session Handoff Notes
 *Critical context for the next session/agent*
 
-**Last session:** 2026-02-11
+**Last session:** 2026-02-21
 
 **What was done this session:**
-1. Reviewed latest changes and verified backend systems working
-2. Codebase cleanup: consolidated legacy imports → `getPipelineTools()`, centralized providers in `lib/models.ts`, created `.env.example`
-3. CEO provided complete Alexandria vision document — saved raw and formatted as new `ALEXANDRIA_CONTEXT.md`
-4. CTO analyzed full gap between vision and codebase, wrote prioritized roadmap (see above)
-5. Simplified reading order to 3 files: MOWINCKEL.md → ALEXANDRIA_CONTEXT.md → CTO_LOG.md
+1. **Documentation consolidation (COMPLETE):**
+   - Moved new `ALEXANDRIA.md` (886 lines, complete vision) from Downloads to project root
+   - Archived old files: `ALEXANDRIA_CONTEXT.md`, `ALEXANDRIA_VISION.md`, `docs/alexandria-complete-context-raw.md` → `_archive/`
+   - Updated `.cursor/rules/project-context.mdc` to reference `ALEXANDRIA.md` as single source of truth
+   - **ALEXANDRIA.md is now read-only** - founder's vision document, treat as immutable
 
-**Infrastructure change:** Vercel Pro now active. Cron jobs and 300s function timeouts available.
+2. **Major architectural shifts in new vision (Opus MUST read full ALEXANDRIA.md):**
+   - **Protocol vs Platform:** Open protocol (Axioms + validation suite), proprietary platform (Library + Blueprint)
+   - **Blueprint model has full code editing capability:** Can modify entire codebase within Axiom constraints, not just config
+   - **Vault is "just files":** Local folder spec (iCloud/Files), not hosted infrastructure. "Everything is just files."
+   - **iMessage-first, no app:** Editor and Orchestrator are iMessage contacts, web dashboard for management only
+   - **Library mandatory (Axiom):** Every Persona must be in Library, privacy controls access not presence
+   - **Neo-Biography:** Multimedia canvas (essays, film, poetry, music) + curated influences + interactive Persona API
+   - **Editor personality critical:** Engagement optimization (humor, price haggling, retention games) part of extraction mandate
+
+3. **Execution started (Tier 1 foundations implemented):**
+   - **Phase A voice bootstrap:** `app/api/voice-bootstrap/route.ts` now supports `files`, `storagePaths`, and `storagePrefix` with `dryRun` preview + deduplication; UI now has `voice bootstrap` trigger and live `VoiceBootstrapProgress` polling.
+   - **Vault append-only hardening:** `lib/utils/vault.ts` defaults to no overwrite (`allowOverwrite: false`), with explicit overwrite only for `constitution/current.md`.
+   - **Transcript persistence:** `lib/modules/voice/processor.ts` now always stores transcript entries to `entries` with job/source metadata.
+   - **Phase B infra:** added migrations `00016_editor_state.sql`, `00017_editor_messages.sql`; new endpoints `app/api/cron/editor-cycle/route.ts` and `app/api/editor-messages/route.ts`; input UI now polls and surfaces proactive Editor messages; `input-chat` updates `editor_state.last_contact_at`.
+   - **Cron wiring:** `vercel.json` now schedules `/api/process-queue` every 2 min and `/api/cron/editor-cycle` every 5 min.
+   - **Phase C infra:** added migrations `00018_constitution_gaps.sql`, `00019_plm_maturity.sql`, `00020_rlaif_evaluations.sql`; new review API `app/api/rlaif/review/route.ts`.
+   - **Phase D infra:** added migrations `00021_privacy_settings.sql`, `00022_persona_activity.sql`; new API `app/api/privacy/route.ts`.
+   - **Phase F infra:** added migration `00023_api_access.sql`; new APIs `app/api/keys/route.ts`, `app/api/persona/query/route.ts`; Library scaffolds `app/library/page.tsx`, `app/persona/[id]/page.tsx`.
+   - **Additional integration pass:** added `app/components/RlaifReviewPanel.tsx` and wired it into main UI; added activity API `app/api/activity/route.ts`; replaced Library/Persona scaffolds with data-backed endpoints `app/api/library/route.ts` and `app/api/library/[id]/route.ts`; added Phase G defaults `lib/types/system-config.ts`, `system-config.default.json`, `SYSTEM.default.md`; added Phase H billing migration/API/UI (`00024_billing_ledger.sql`, `app/api/billing/route.ts`, `app/billing/page.tsx`); header links now include `library` and `billing`.
+   - **Health check note:** `GET /api/debug/ping` currently fails locally because no dev server is running (`Unable to connect to localhost:3000`).
 
 **For the next session — start here:**
-1. Read MOWINCKEL.md → ALEXANDRIA_CONTEXT.md → this file (especially the Gap Analysis and Roadmap above)
+1. Read MOWINCKEL.md → ALEXANDRIA.md → CTO_LOG.md (this file) → ALEXANDRIA_EXECUTION.md
 2. Run health check: `GET /api/debug/ping`
-3. Start on **Phase A: Voice Notes Bootstrap** — this is the immediate priority
-4. The roadmap above (Phases A through F) is the CTO's recommended build order. Follow it unless CEO redirects.
+3. ✅ Applied new migrations (`00016` through `00023`) to Supabase via `npx supabase db push`.
+4. ✅ Verified runtime endpoints with dev server up:
+   - `GET /api/debug/ping` → `{ success: true, database: true, environment: true, logic: true }`
+   - `POST /api/cron/editor-cycle` → success with processed users
+   - `POST/GET /api/editor-messages` enqueue + ack flow works
+   - `GET/PATCH /api/privacy` works
+   - `GET /api/rlaif/review` works
+   - `POST/GET/DELETE /api/keys` works
+   - `POST /api/persona/query` with valid API key streams responses successfully
+   - `GET /api/library` and `GET /api/library/{id}` return data-backed responses
+   - `GET /api/activity` returns persona activity timeline
+   - `GET /api/billing` returns expense/income ledger summary
+5. Continue with remaining Tier 1 integration/UI wiring from `ALEXANDRIA_EXECUTION.md`, then escalate Tier 2 architecture items.
 
 **Key files to know:**
-- `ALEXANDRIA_CONTEXT.md` — Single source of truth (vision + architecture + technical)
-- `lib/factory.ts` — Module instantiation (use `getPipelineTools()` for ingestion, `getEditor()` for conversations)
-- `lib/models.ts` — All provider instances centralized here
-- `lib/modules/core/editor.ts` — Editor agent (currently reactive only)
-- `lib/modules/core/orchestrator.ts` — Orchestrator agent
-- `app/api/upload-carbon/route.ts` — File upload pipeline (audio/PDF/image/text)
-- `app/api/process-queue/route.ts` — Background job processing
-- `.env.example` — All required environment variables documented
+- **`ALEXANDRIA.md`** — Complete vision (886 lines, read-only, single source of truth)
+- **`ALEXANDRIA_EXECUTION.md`** — Tiered execution plan with task breakdown
+- `MOWINCKEL.md` — Agent protocol (non-negotiable rules)
+- `CTO_LOG.md` — This file (current state, roadmap, gap analysis)
+- `lib/factory.ts` — Module instantiation
+- `lib/models.ts` — All provider instances centralized
+- `.env.example` — All required environment variables
+
+**Architecture change (CRITICAL):** The new ALEXANDRIA.md has 3 persistent components (Constitution, PLM, Vault), NOT 4. Memories is gone as a separate component. `memory_fragments` is now a search index over Vault data. The graph database plans (old Phase D) are deprioritized. See ALEXANDRIA_EXECUTION.md "Architecture Reconciliation" for details.
+
+---
+
+## Session Update (2026-02-21, ongoing)
+
+- Upgraded `app/api/cron/editor-cycle/route.ts` from schedule-only to a decision loop:
+  - collects measured signals (`entriesLast24h`, pending editor messages, pending RLAIF reviews, hours since contact)
+  - derives activity level (`low|medium|high`) and action (`message|maintenance`)
+  - logs cycle evidence in `editor_state.metadata` and `persona_activity`
+- Added activity/system surfaces:
+  - `app/activity/page.tsx` + nav link
+  - `app/system/page.tsx` + nav link
+  - `app/api/system-config/route.ts` for config read/write
+- Fixed system config consistency (immediate read-after-write):
+  - migration `00025_system_configs.sql`
+  - API now writes DB + Vault and reads DB first (Vault fallback)
+- Implemented Phase C Tier 2 gap scoring core:
+  - `lib/modules/constitution/manager.ts` now has `recomputeGapScores()` and `getGapSummary()`
+  - migration `00026_constitution_gap_scores.sql` adds `gap_score` + `evidence_count` to `constitution_gaps`
+  - new endpoint `app/api/rlaif/gaps/route.ts` (`GET ?userId=&refresh=1`)
+  - `app/api/rlaif/route.ts` now supports `action: 'gaps'` and includes `constitutionGaps` in `GET`
+  - `app/api/rlaif/review/route.ts` recomputes gap scores after verdict submission
+  - `lib/modules/core/editor.ts` now persists `rlaif_evaluations` records during synthetic generation and recomputes gaps
+- Implemented Phase C Tier 2 evaluator/routing consistency:
+  - `lib/modules/core/editor.ts` now computes rubric scores (`values_alignment`, `model_usage`, `heuristic_following`, `style_match`) plus weighted `overallConfidence`
+  - routing now consistently maps to `auto_approved` / `author_review` / `flagged`
+  - `app/api/rlaif/review/route.ts` now surfaces both `author_review` and `flagged` items
+  - `app/components/RlaifReviewPanel.tsx` now displays routing + rubric breakdown
+- Implemented Phase D Tier 2 orchestrator intelligence:
+  - `lib/modules/core/orchestrator.ts` now does query classification, maturity-based dynamic weights, privacy-mode resolution, and redaction filtering
+  - `app/api/chat/route.ts` now accepts `privacyMode` + `contactId` and logs orchestrator activity signals
+  - `app/api/persona/query/route.ts` forces professional mode for external API calls
+  - `app/page.tsx` now includes a privacy mode toggle (`private/personal/prof`) wired to `/api/privacy`
+  - Added `app/api/plm-maturity/route.ts` for maturity inspection
+- Started Phase D1 structured memory entities:
+  - migration `00027_memory_entities.sql`
+  - `lib/modules/core/editor.ts` now stores extracted entities into `memory_entities` whenever a memory fragment is created
+  - added `app/api/memory-entities/route.ts` summary endpoint
+- Started Phase D2 relationship inference foundation:
+  - migration `00028_memory_relationships.sql`
+  - `lib/modules/core/editor.ts` now infers `co_occurs` relationships from same-memory entity co-occurrence
+  - added `app/api/memory-relationships/route.ts` endpoint for relationship inspection
+- Added Phase D3 graph-style query endpoint:
+  - `app/api/memory-graph/route.ts` with breadth-limited traversal (`seed`, `depth`, `limit`)
+  - returns neighborhood nodes/edges for relationship-aware memory inspection
+- Additional orchestration hardening:
+  - `lib/modules/core/orchestrator.ts` now augments memory retrieval with entity/relationship graph signals (`memory_entities`, `memory_relationships`)
+  - added `previewContext()` to inspect orchestration decisions without full inference
+  - added `app/api/orchestrator/debug/route.ts` for context/weights/privacy prompt preview
+- Billing and maturity operational hardening:
+  - consolidated PLM maturity recomputation in `lib/modules/core/plm-maturity.ts`
+  - added `app/api/plm-maturity/recompute/route.ts` and `app/maturity/page.tsx`
+  - improved billing summary precision/category breakdown and usage exposure in `app/api/billing/route.ts`
+  - wired estimated cost/revenue telemetry in `app/api/chat/route.ts` and `app/api/persona/query/route.ts`
+  - upgraded billing UI `app/billing/page.tsx` to show breakdown + usage estimates
+- iMessage bridge Stage 1 adapter scaffold:
+  - `lib/channels/types.ts`, `lib/channels/web-adapter.ts`, `lib/channels/index.ts`
+  - `app/api/channels/debug/route.ts` to expose supported channels
+- iMessage bridge Stage 1 route integration:
+  - `app/api/channels/dispatch/route.ts` for adapter-driven outbound dispatch + activity logging
+  - `app/api/channels/inbound/route.ts` for normalized inbound ingest into queue + activity logging
+  - external inbound path now optionally auto-routes through Orchestrator and dispatches a channel reply (`audience: external`)
+- Bridge durability layer:
+  - migration `00029_channel_messages.sql` adds stateful channel message lifecycle table
+  - dispatch/inbound routes now persist status transitions (`queued/processing/sent/failed/acked`)
+  - added `app/api/channels/messages/route.ts` for inspecting durable channel message state
+  - added retry worker `app/api/cron/channel-retry/route.ts` + Vercel cron schedule (`*/5 * * * *`) for failed outbound message retries
+  - inbound idempotency hardening: duplicate inbound messages now return existing row (`duplicate: true`) without reprocessing
+  - added operations UI `app/channels/page.tsx` and header link for channel lifecycle visibility
+  - added optional shared-secret auth guard (`CHANNEL_SHARED_SECRET`) on channel dispatch/inbound/messages endpoints
+  - added `app/api/channels/flush-editor/route.ts` to flush pending proactive Editor messages through channel adapters and mark queue delivery
+- Verification run:
+  - `npx supabase db push` succeeded for `00025` and `00026`
+  - `npx tsc --noEmit` passed
+  - Smoke checks passed for:
+    - `PATCH/GET /api/system-config`
+    - `POST /api/cron/editor-cycle`
+    - `POST /api/rlaif { action: 'gaps' }`
+    - `GET /api/rlaif/gaps?userId=...&refresh=1`
+    - `GET /api/rlaif?userId=...`

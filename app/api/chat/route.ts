@@ -10,10 +10,19 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY!
 );
 
+const ESTIMATED_LLM_INPUT_COST_PER_CHAR_USD = 0.0000008;
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { messages = [], userId, sessionId, temperature = 0.7 } = body;
+    const {
+      messages = [],
+      userId,
+      sessionId,
+      temperature = 0.7,
+      privacyMode,
+      contactId
+    } = body;
 
     // Validate messages
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -44,8 +53,42 @@ export async function POST(req: Request) {
     const { stream, context } = await orchestrator.handleQuery(
       coreMessages,
       userId,
-      { sessionId, temperature }
+      { sessionId, temperature, privacyMode, contactId, audience: 'author' }
     );
+
+    try {
+      await supabase.from('persona_activity').insert({
+        user_id: userId,
+        action_type: 'orchestrator_query_served',
+        summary: `Served ${context.queryProfile.intent} query in ${context.privacyMode} mode`,
+        details: {
+          memoryCount: context.memories.length,
+          domains: context.queryProfile.domains,
+          weights: context.weights
+        },
+        requires_attention: false
+      });
+    } catch {
+      // Non-blocking activity telemetry.
+    }
+
+    try {
+      const inputChars = messages.reduce((sum: number, m: { content?: string }) => sum + (m.content?.length || 0), 0);
+      const estimatedExpenseUsd = Number((inputChars * ESTIMATED_LLM_INPUT_COST_PER_CHAR_USD).toFixed(6));
+      await supabase.from('user_expense_ledger').insert({
+        user_id: userId,
+        category: 'llm_api',
+        amount_usd: estimatedExpenseUsd,
+        source_ref: sessionId || null,
+        details: {
+          source: 'chat_route',
+          estimated: true,
+          inputChars
+        }
+      });
+    } catch {
+      // Non-blocking billing telemetry.
+    }
 
     console.log(`[Chat] Using model: ${context.plmModelId}, memories: ${context.memories.length}`);
 

@@ -4,10 +4,19 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getEditor } from '@/lib/factory';
+import { ConstitutionManager } from '@/lib/modules/constitution/manager';
+import { createClient } from '@supabase/supabase-js';
+
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) throw new Error('Supabase configuration missing');
+  return createClient(url, key);
+}
 
 const actionSchema = z.object({
   userId: z.string().uuid(),
-  action: z.enum(['generate', 'stats', 'validate', 'pending']),
+  action: z.enum(['generate', 'stats', 'validate', 'pending', 'gaps']),
   // For generate action
   maxPrompts: z.number().optional(),
   // For validate action
@@ -21,6 +30,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validated = actionSchema.parse(body);
     const editor = getEditor();
+    const constitutionManager = new ConstitutionManager();
 
     switch (validated.action) {
       case 'generate': {
@@ -29,10 +39,12 @@ export async function POST(req: Request) {
           validated.userId,
           { maxPrompts: validated.maxPrompts || 5 }
         );
+        const gaps = await constitutionManager.getGapSummary(validated.userId);
         
         return NextResponse.json({
           success: true,
           ...result,
+          topGap: gaps[0]?.section || null,
           message: `Generated ${result.generated} synthetic evaluations. ${result.autoApproved} auto-approved, ${result.queuedForReview} queued for your review.`
         });
       }
@@ -40,10 +52,21 @@ export async function POST(req: Request) {
       case 'stats': {
         // Get RLAIF statistics
         const stats = await editor.getRLAIFStats(validated.userId);
+        const supabase = getSupabase();
+        const { data: maturity } = await supabase
+          .from('plm_maturity')
+          .select('overall_score, domain_scores, updated_at')
+          .eq('user_id', validated.userId)
+          .maybeSingle();
         
         return NextResponse.json({
           success: true,
           stats,
+          maturity: maturity ? {
+            overallScore: maturity.overall_score,
+            domainScores: maturity.domain_scores || {},
+            updatedAt: maturity.updated_at
+          } : null,
           message: stats.totalSynthetic > 0 
             ? `${stats.totalSynthetic} synthetic ratings generated. ${stats.agreementRate !== null ? `${stats.agreementRate}% agreement rate.` : ''}`
             : 'No synthetic ratings yet. Run "generate" to create some.'
@@ -87,6 +110,17 @@ export async function POST(req: Request) {
             : 'No pending reviews.'
         });
       }
+
+      case 'gaps': {
+        const gaps = await constitutionManager.getGapSummary(validated.userId, { recompute: true });
+        return NextResponse.json({
+          success: true,
+          gaps,
+          message: gaps.length > 0
+            ? `Top gap: ${gaps[0].section} (${gaps[0].priority})`
+            : 'No constitution gaps recorded yet.'
+        });
+      }
       
       default:
         return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
@@ -111,13 +145,16 @@ export async function GET(req: Request) {
     }
 
     const editor = getEditor();
+    const constitutionManager = new ConstitutionManager();
     const stats = await editor.getRLAIFStats(userId);
+    const gaps = await constitutionManager.getGapSummary(userId);
     
     // Get training stats for context
     const trainingDecision = await editor.assessTrainingReadiness(userId);
 
     return NextResponse.json({
       rlaif: stats,
+      constitutionGaps: gaps,
       training: trainingDecision.stats,
       trainingRecommendation: trainingDecision,
       feedbackMultiplier: stats.totalSynthetic > 0 && trainingDecision.stats.feedbackCount > 0

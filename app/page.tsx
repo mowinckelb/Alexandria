@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import AuthScreen from './components/AuthScreen';
 import LandingPage from './components/LandingPage';
 import ConstitutionPanel from './components/ConstitutionPanel';
+import RlaifReviewPanel from './components/RlaifReviewPanel';
+import VoiceBootstrapProgress from './components/VoiceBootstrapProgress';
 import { useTheme } from './components/ThemeProvider';
 
 const STORAGE_THRESHOLD = 4.5 * 1024 * 1024; // Use storage for files larger than this
@@ -39,6 +41,7 @@ export default function Alexandria() {
   const [lastPLMMessage, setLastPLMMessage] = useState<{ prompt: string; response: string; id: string } | null>(null);
   const [feedbackSaved, setFeedbackSaved] = useState(false);
   const [regenerationVersion, setRegenerationVersion] = useState(1);
+  const [privacyMode, setPrivacyMode] = useState<'private' | 'personal' | 'professional'>('personal');
   
   // Carbon conversation state
   const [carbonState, setCarbonState] = useState<{
@@ -56,6 +59,11 @@ export default function Alexandria() {
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [pendingJobs, setPendingJobs] = useState<{ id: string; fileName: string; progress: number; status: string }[]>([]);
   const [showConstitution, setShowConstitution] = useState(false);
+  const [showRlaifReview, setShowRlaifReview] = useState(false);
+  const [isStartingVoiceBootstrap, setIsStartingVoiceBootstrap] = useState(false);
+  const [voiceBootstrapStatus, setVoiceBootstrapStatus] = useState<string | null>(null);
+  const [rlaifReviewCount, setRlaifReviewCount] = useState(0);
+  const seenEditorMessageIds = useRef<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const outputScrollRef = useRef<HTMLDivElement>(null);
@@ -81,6 +89,23 @@ export default function Alexandria() {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !userId) return;
+    const loadPrivacyMode = async () => {
+      try {
+        const res = await fetch(`/api/privacy?userId=${userId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.defaultMode && ['private', 'personal', 'professional'].includes(data.defaultMode)) {
+          setPrivacyMode(data.defaultMode);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    void loadPrivacyMode();
+  }, [isAuthenticated, userId]);
 
   // Auto-trigger post_upload phase to ask questions about uploaded content
   useEffect(() => {
@@ -157,7 +182,149 @@ export default function Alexandria() {
     setTrainingMessages([]);
     setOutputMessages([]);
     setInputMessages([]);
+    setPrivacyMode('personal');
+    seenEditorMessageIds.current.clear();
   };
+
+  const updatePrivacyMode = async (nextMode: 'private' | 'personal' | 'professional') => {
+    setPrivacyMode(nextMode);
+    if (!userId) return;
+    try {
+      await fetch('/api/privacy', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, defaultMode: nextMode })
+      });
+    } catch {
+      // keep local mode even if persistence fails
+    }
+  };
+
+  const startVoiceBootstrap = async () => {
+    if (!userId || isStartingVoiceBootstrap) return;
+    setIsStartingVoiceBootstrap(true);
+    setVoiceBootstrapStatus('starting');
+    try {
+      const previewRes = await fetch('/api/voice-bootstrap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          storagePrefix: userId,
+          dryRun: true
+        })
+      });
+
+      const preview = await previewRes.json();
+      if (!previewRes.ok) {
+        setVoiceBootstrapStatus(preview.error || 'failed');
+        return;
+      }
+
+      if (!preview.totalFiles || preview.totalFiles < 1) {
+        setVoiceBootstrapStatus('no files found');
+        return;
+      }
+
+      if (preview.totalFiles > 100) {
+        const confirmed = window.confirm(
+          `Voice bootstrap matched ${preview.totalFiles} files. Start processing now?`
+        );
+        if (!confirmed) {
+          setVoiceBootstrapStatus('cancelled');
+          return;
+        }
+      }
+
+      const res = await fetch('/api/voice-bootstrap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          storagePrefix: userId
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setVoiceBootstrapStatus(data.error || 'failed');
+      } else {
+        setVoiceBootstrapStatus(`started (${data.totalFiles || preview.totalFiles} files)`);
+      }
+    } catch {
+      setVoiceBootstrapStatus('failed');
+    } finally {
+      setIsStartingVoiceBootstrap(false);
+      setTimeout(() => setVoiceBootstrapStatus(null), 3000);
+    }
+  };
+
+  // Poll proactive Editor messages and surface them in Input chat.
+  useEffect(() => {
+    if (!isAuthenticated || !userId) return;
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/editor-messages?userId=${userId}&limit=20`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const messages: Array<{ id: string; content: string; priority: string; created_at: string }> = data.messages || [];
+        if (!messages.length) return;
+
+        const fresh = messages.filter((m) => !seenEditorMessageIds.current.has(m.id));
+        if (!fresh.length) return;
+
+        setInputMessages((prev) => [
+          ...prev,
+          ...fresh
+            .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+            .map((m) => ({
+              id: `editor-${m.id}`,
+              role: 'assistant' as const,
+              content: `[editor${m.priority === 'high' ? ' !' : ''}] ${m.content}`
+            }))
+        ]);
+
+        for (const m of fresh) {
+          seenEditorMessageIds.current.add(m.id);
+        }
+
+        await fetch('/api/editor-messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'ack',
+            userId,
+            ids: fresh.map((m) => m.id)
+          })
+        });
+      } catch {
+        // ignore polling errors
+      }
+    };
+
+    poll();
+    const interval = setInterval(poll, 10000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, userId]);
+
+  const refreshRlaifReviewCount = async () => {
+    try {
+      const res = await fetch(`/api/rlaif/review?userId=${userId}&limit=1`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setRlaifReviewCount(data.count || 0);
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated || !userId) return;
+    refreshRlaifReviewCount();
+    const interval = setInterval(refreshRlaifReviewCount, 15000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, userId]);
 
   // Auto-scroll for training and output mode conversations
   useEffect(() => {
@@ -723,7 +890,8 @@ export default function Alexandria() {
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           userId,
-          sessionId
+          sessionId,
+          privacyMode
         })
       });
 
@@ -810,7 +978,8 @@ export default function Alexandria() {
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           userId,
-          sessionId
+          sessionId,
+          privacyMode
         })
       });
 
@@ -1060,6 +1229,84 @@ export default function Alexandria() {
             constitution
           </button>
           <span className="text-[0.75rem] opacity-40">·</span>
+          <button
+            onClick={() => setShowRlaifReview(true)}
+            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            rlaif
+          </button>
+          {rlaifReviewCount > 0 && (
+            <span className="text-[0.7rem] opacity-50" style={{ color: 'var(--text-subtle)' }}>
+              ({rlaifReviewCount})
+            </span>
+          )}
+          <span className="text-[0.75rem] opacity-40">·</span>
+          <a
+            href="/library"
+            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            library
+          </a>
+          <span className="text-[0.75rem] opacity-40">·</span>
+          <a
+            href="/billing"
+            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            billing
+          </a>
+          <span className="text-[0.75rem] opacity-40">·</span>
+          <a
+            href="/activity"
+            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            activity
+          </a>
+          <span className="text-[0.75rem] opacity-40">·</span>
+          <a
+            href="/system"
+            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            system
+          </a>
+          <span className="text-[0.75rem] opacity-40">·</span>
+          <a
+            href="/graph"
+            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            graph
+          </a>
+          <span className="text-[0.75rem] opacity-40">·</span>
+          <a
+            href="/maturity"
+            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            maturity
+          </a>
+          <span className="text-[0.75rem] opacity-40">·</span>
+          <a
+            href="/channels"
+            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            channels
+          </a>
+          <span className="text-[0.75rem] opacity-40">·</span>
+          <button
+            onClick={startVoiceBootstrap}
+            disabled={isStartingVoiceBootstrap}
+            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity disabled:opacity-30"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            voice bootstrap
+          </button>
+          <span className="text-[0.75rem] opacity-40">·</span>
           <button 
             onClick={handleLogout}
             className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
@@ -1068,6 +1315,21 @@ export default function Alexandria() {
             sign out
           </button>
         </div>
+        {voiceBootstrapStatus && (
+          <span className="text-[0.7rem] italic opacity-50" style={{ color: 'var(--text-subtle)' }}>
+            {voiceBootstrapStatus === 'starting'
+              ? 'starting voice bootstrap'
+              : voiceBootstrapStatus === 'cancelled'
+                ? 'voice bootstrap cancelled'
+                : voiceBootstrapStatus === 'no files found'
+                  ? 'voice bootstrap: no audio files found'
+                  : voiceBootstrapStatus === 'failed'
+                    ? 'voice bootstrap failed'
+                    : voiceBootstrapStatus.startsWith('started')
+                      ? `voice bootstrap ${voiceBootstrapStatus}`
+                      : voiceBootstrapStatus}
+          </span>
+        )}
         
         <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-55 pt-0.5">
           <span>alexandria.</span>
@@ -1177,6 +1439,41 @@ export default function Alexandria() {
                   }}
                 />
               </div>
+              <div className="relative rounded-full p-[2px] inline-flex w-[150px]" style={{ background: 'var(--toggle-bg)' }}>
+                <button
+                  onClick={() => updatePrivacyMode('private')}
+                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.65rem] cursor-pointer"
+                  style={{ color: privacyMode === 'private' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                >
+                  private
+                </button>
+                <button
+                  onClick={() => updatePrivacyMode('personal')}
+                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.65rem] cursor-pointer"
+                  style={{ color: privacyMode === 'personal' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                >
+                  personal
+                </button>
+                <button
+                  onClick={() => updatePrivacyMode('professional')}
+                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.65rem] cursor-pointer"
+                  style={{ color: privacyMode === 'professional' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                >
+                  prof
+                </button>
+                <div
+                  className="absolute top-[2px] left-[2px] w-[calc(33.33%-2px)] h-[calc(100%-4px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out"
+                  style={{
+                    background: 'var(--toggle-pill)',
+                    transform:
+                      privacyMode === 'private'
+                        ? 'translateX(0%)'
+                        : privacyMode === 'personal'
+                          ? 'translateX(100%)'
+                          : 'translateX(200%)'
+                  }}
+                />
+              </div>
             </div>
             {/* Job status indicator */}
             {pendingJobs.length > 0 && (
@@ -1187,6 +1484,7 @@ export default function Alexandria() {
               </span>
             )}
           </div>
+          <VoiceBootstrapProgress userId={userId} />
 
           {/* Input Container */}
           <div className="relative flex items-center">
@@ -1312,6 +1610,13 @@ export default function Alexandria() {
         userId={userId}
         isOpen={showConstitution}
         onClose={() => setShowConstitution(false)}
+      />
+
+      <RlaifReviewPanel
+        userId={userId}
+        isOpen={showRlaifReview}
+        onClose={() => setShowRlaifReview(false)}
+        onReviewed={refreshRlaifReviewCount}
       />
 
       {/* File Upload Modal */}

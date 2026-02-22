@@ -655,6 +655,154 @@ If YES update needed, return:
   }
 
   // ==========================================================================
+  // Constitution Gap Scoring (Phase C Tier 2)
+  // ==========================================================================
+
+  async recomputeGapScores(userId: string): Promise<Array<{
+    section: 'worldview' | 'values' | 'models' | 'identity' | 'shadows';
+    gapScore: number;
+    priority: 'high' | 'medium' | 'low';
+    trainingPairCount: number;
+    avgQualityScore: number | null;
+    evidenceCount: number;
+  }>> {
+    const nowIso = new Date().toISOString();
+    const constitution = await this.getConstitution(userId);
+
+    const sectionCoverage = {
+      worldview: !!constitution && (
+        (constitution.sections.worldview.epistemology?.length || 0) > 0 ||
+        (constitution.sections.worldview.ontology?.length || 0) > 0
+      ),
+      values: !!constitution && (
+        (constitution.sections.values.tier1?.length || 0) > 0 ||
+        (constitution.sections.values.tier2?.length || 0) > 0 ||
+        (constitution.sections.values.tier3?.length || 0) > 0
+      ),
+      models: !!constitution && (
+        (constitution.sections.mentalModels?.length || 0) > 0 ||
+        (constitution.sections.heuristics?.length || 0) > 0
+      ),
+      identity: !!constitution && (constitution.sections.coreIdentity?.trim().length || 0) > 0,
+      shadows: !!constitution && (
+        (constitution.sections.boundaries?.length || 0) > 0 ||
+        (constitution.sections.evolutionNotes?.length || 0) > 0
+      )
+    } satisfies Record<'worldview' | 'values' | 'models' | 'identity' | 'shadows', boolean>;
+
+    const [{ data: evaluations }, { data: trainingPairs }] = await Promise.all([
+      supabase
+        .from('rlaif_evaluations')
+        .select('constitution_section, overall_confidence')
+        .eq('user_id', userId),
+      supabase
+        .from('training_pairs')
+        .select('quality_score')
+        .eq('user_id', userId)
+        .limit(500)
+    ]);
+
+    const evalBySection: Record<'worldview' | 'values' | 'models' | 'identity' | 'shadows', { count: number; avgConfidence: number }> = {
+      worldview: { count: 0, avgConfidence: 0 },
+      values: { count: 0, avgConfidence: 0 },
+      models: { count: 0, avgConfidence: 0 },
+      identity: { count: 0, avgConfidence: 0 },
+      shadows: { count: 0, avgConfidence: 0 }
+    };
+
+    for (const row of evaluations || []) {
+      const section = row.constitution_section as keyof typeof evalBySection;
+      if (!evalBySection[section]) continue;
+      evalBySection[section].count += 1;
+      evalBySection[section].avgConfidence += Number(row.overall_confidence) || 0;
+    }
+    for (const key of Object.keys(evalBySection) as Array<keyof typeof evalBySection>) {
+      const bucket = evalBySection[key];
+      if (bucket.count > 0) bucket.avgConfidence = bucket.avgConfidence / bucket.count;
+    }
+
+    const trainingPairCount = (trainingPairs || []).length;
+    const avgQualityScore = trainingPairCount > 0
+      ? (trainingPairs || []).reduce((sum, pair) => sum + (Number(pair.quality_score) || 0), 0) / trainingPairCount
+      : null;
+
+    const rows = (['values', 'models', 'identity', 'worldview', 'shadows'] as const).map((section) => {
+      const evidence = evalBySection[section];
+      const missingPenalty = sectionCoverage[section] ? 0.05 : 0.45;
+      const evidencePenalty = evidence.count < 3 ? 0.35 : evidence.count < 10 ? 0.2 : 0.05;
+      const confidencePenalty = evidence.avgConfidence < 0.55 ? 0.25 : evidence.avgConfidence < 0.75 ? 0.15 : 0.05;
+
+      const gapScore = Math.min(1, Number((missingPenalty + evidencePenalty + confidencePenalty).toFixed(4)));
+      const priority: 'high' | 'medium' | 'low' = gapScore >= 0.7 ? 'high' : gapScore >= 0.4 ? 'medium' : 'low';
+
+      return {
+        user_id: userId,
+        section,
+        subsection: null,
+        priority,
+        training_pair_count: trainingPairCount,
+        avg_quality_score: avgQualityScore,
+        gap_score: gapScore,
+        evidence_count: evidence.count,
+        last_evaluated: nowIso
+      };
+    });
+
+    await supabase.from('constitution_gaps').delete().eq('user_id', userId);
+    await supabase.from('constitution_gaps').insert(rows);
+
+    return rows.map((r) => ({
+      section: r.section,
+      gapScore: r.gap_score,
+      priority: r.priority,
+      trainingPairCount: r.training_pair_count,
+      avgQualityScore: r.avg_quality_score,
+      evidenceCount: r.evidence_count
+    }));
+  }
+
+  async getGapSummary(
+    userId: string,
+    options: { recompute?: boolean } = {}
+  ): Promise<Array<{
+    section: 'worldview' | 'values' | 'models' | 'identity' | 'shadows';
+    gapScore: number;
+    priority: 'high' | 'medium' | 'low';
+    trainingPairCount: number;
+    avgQualityScore: number | null;
+    evidenceCount: number;
+    lastEvaluated: string | null;
+  }>> {
+    if (options.recompute) {
+      const recomputed = await this.recomputeGapScores(userId);
+      return recomputed.map((r) => ({
+        ...r,
+        lastEvaluated: new Date().toISOString()
+      }));
+    }
+
+    const { data } = await supabase
+      .from('constitution_gaps')
+      .select('section, priority, training_pair_count, avg_quality_score, gap_score, evidence_count, last_evaluated')
+      .eq('user_id', userId)
+      .order('gap_score', { ascending: false });
+
+    if (!data || data.length === 0) {
+      return this.getGapSummary(userId, { recompute: true });
+    }
+
+    return data.map((row) => ({
+      section: row.section as 'worldview' | 'values' | 'models' | 'identity' | 'shadows',
+      gapScore: Number(row.gap_score) || 0,
+      priority: row.priority as 'high' | 'medium' | 'low',
+      trainingPairCount: row.training_pair_count || 0,
+      avgQualityScore: row.avg_quality_score,
+      evidenceCount: row.evidence_count || 0,
+      lastEvaluated: row.last_evaluated || null
+    }));
+  }
+
+  // ==========================================================================
   // Helpers
   // ==========================================================================
 

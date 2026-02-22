@@ -23,7 +23,19 @@ const AudioFileSchema = z.object({
 
 const StartJobSchema = z.object({
   userId: z.string().uuid(),
-  files: z.array(AudioFileSchema).min(1).max(500)
+  files: z.array(AudioFileSchema).min(1).max(500).optional(),
+  storagePaths: z.array(z.string().min(1)).min(1).max(500).optional(),
+  storagePrefix: z.string().min(1).optional(),
+  context: z.string().optional(),
+  dryRun: z.boolean().optional()
+}).refine((data) => {
+  return Boolean(
+    (data.files && data.files.length > 0) ||
+    (data.storagePaths && data.storagePaths.length > 0) ||
+    data.storagePrefix
+  );
+}, {
+  message: 'Provide files, storagePaths, or storagePrefix'
 });
 
 // ============================================================================
@@ -58,10 +70,43 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const { userId, files } = parseResult.data;
+    const { userId, storagePaths, storagePrefix, context, dryRun } = parseResult.data;
+    const supabase = getSupabase();
+
+    const filesFromPrefix = storagePrefix
+      ? await listAudioFilesFromPrefix(supabase, storagePrefix, context)
+      : [];
+
+    const files =
+      parseResult.data.files ??
+      (storagePaths || []).map((path) => ({
+        storagePath: path,
+        fileName: path.split('/').pop() || path,
+        context
+      }));
+
+    const deduped = new Map<string, { storagePath: string; fileName: string; context?: string }>();
+    for (const file of [...files, ...filesFromPrefix]) {
+      deduped.set(file.storagePath, file);
+    }
+    const finalFiles = [...deduped.values()];
+    if (finalFiles.length === 0) {
+      return NextResponse.json(
+        { error: 'No audio files found for processing' },
+        { status: 400 }
+      );
+    }
+
+    if (dryRun) {
+      return NextResponse.json({
+        success: true,
+        dryRun: true,
+        totalFiles: finalFiles.length,
+        sample: finalFiles.slice(0, 10)
+      });
+    }
     
     // Check for existing running job
-    const supabase = getSupabase();
     const { data: existingJob } = await supabase
       .from('processing_jobs')
       .select('id, status')
@@ -84,19 +129,28 @@ export async function POST(request: NextRequest) {
     const voiceProcessor = getVoiceProcessor();
     
     // Create job record
-    const jobId = await voiceProcessor.createJob(userId, 'voice_bootstrap', files.length);
+    const jobId = await voiceProcessor.createJob(userId, 'voice_bootstrap', finalFiles.length);
     
-    console.log(`[VoiceBootstrap] Starting job ${jobId} with ${files.length} files`);
+    console.log(`[VoiceBootstrap] Starting job ${jobId} with ${finalFiles.length} files`);
+
+    await supabase.from('persona_activity').insert({
+      user_id: userId,
+      action_type: 'voice_bootstrap_started',
+      summary: `Started voice bootstrap for ${finalFiles.length} files`,
+      details: { jobId, totalFiles: finalFiles.length },
+      requires_attention: false
+    });
     
     // Start processing in background (non-blocking)
     // Note: In production, this should be a queue job (Vercel Functions timeout at 10s-60s)
     // For now, we process synchronously but return immediately with job ID
-    processInBackground(voiceProcessor, files, userId, jobId);
+    processInBackground(voiceProcessor, finalFiles, userId, jobId);
     
     return NextResponse.json({
       success: true,
       jobId,
-      message: `Processing ${files.length} voice files`,
+      message: `Processing ${finalFiles.length} voice files`,
+      totalFiles: finalFiles.length,
       checkStatusUrl: `/api/jobs/${jobId}`
     });
     
@@ -107,6 +161,62 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+async function listAudioFilesFromPrefix(
+  supabase: ReturnType<typeof getSupabase>,
+  storagePrefix: string,
+  context?: string
+) {
+  const normalizedPrefix = storagePrefix.replace(/\/+$/, '');
+  const isAudioFile = (name: string) => /\.(mp3|m4a|wav|webm|ogg|flac)$/i.test(name);
+  const files: Array<{ storagePath: string; fileName: string; context?: string }> = [];
+
+  // 1) Treat prefix as a folder path first (common case: "<userId>")
+  const folderList = await supabase.storage
+    .from('carbon-uploads')
+    .list(normalizedPrefix, {
+      limit: 1000,
+      sortBy: { column: 'name', order: 'asc' }
+    });
+
+  if (!folderList.error) {
+    for (const item of folderList.data || []) {
+      if (isAudioFile(item.name)) {
+        files.push({
+          storagePath: `${normalizedPrefix}/${item.name}`,
+          fileName: item.name,
+          context
+        });
+      }
+    }
+  }
+
+  if (files.length > 0) return files;
+
+  // 2) Fallback: treat prefix as "path prefix"
+  const pathParts = normalizedPrefix.split('/');
+  const folder = pathParts.slice(0, -1).join('/');
+  const searchPrefix = pathParts[pathParts.length - 1];
+
+  const { data, error } = await supabase.storage
+    .from('carbon-uploads')
+    .list(folder || '', {
+      limit: 1000,
+      sortBy: { column: 'name', order: 'asc' }
+    });
+
+  if (error) {
+    throw new Error(`Failed to list files for prefix: ${error.message}`);
+  }
+
+  return (data || [])
+    .filter((item) => item.name.startsWith(searchPrefix) && isAudioFile(item.name))
+    .map((item) => ({
+      storagePath: folder ? `${folder}/${item.name}` : item.name,
+      fileName: item.name,
+      context
+    }));
 }
 
 // ============================================================================
