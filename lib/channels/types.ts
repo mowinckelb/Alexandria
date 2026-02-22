@@ -23,6 +23,12 @@ export interface ChannelDeliveryResult {
   providerMessageId?: string;
   deliveredAt?: string;
   error?: string;
+  diagnostics?: {
+    provider: string;
+    statusCode?: number;
+    latencyMs?: number;
+    responsePreview?: string;
+  };
 }
 
 export interface ChannelAdapter {

@@ -99,6 +99,17 @@ export async function PATCH(request: NextRequest) {
 
     const supabase = getSupabase();
     await supabase
+      .from('system_config_checkpoints')
+      .insert({
+        user_id: userId,
+        version_label: `${mergedConfig.version || 'custom'}-${nowIso}`,
+        config: mergedConfig,
+        metadata: {
+          source: 'auto_patch'
+        }
+      });
+
+    await supabase
       .from('system_configs')
       .upsert({
         user_id: userId,

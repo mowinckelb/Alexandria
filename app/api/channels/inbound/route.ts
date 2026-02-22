@@ -3,14 +3,15 @@ import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { getOrchestrator } from '@/lib/factory';
 import { getChannelAdapter } from '@/lib/channels';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 const InboundSchema = z.object({
   channel: z.string().min(1),
-  userId: z.string().uuid(),
+  userId: z.string().uuid().optional(),
   externalContactId: z.string().min(1),
   messageId: z.string().min(1),
   text: z.string().min(1),
-  audience: z.enum(['author', 'external']).default('author')
+  audience: z.enum(['author', 'external']).optional()
 });
 
 function getSupabase() {
@@ -30,33 +31,79 @@ function authorizeChannelRequest(request: NextRequest): boolean {
   return false;
 }
 
+function verifyIncomingSignature(request: NextRequest, rawBody: string): boolean {
+  const signingSecret = process.env.CHANNEL_WEBHOOK_SIGNING_SECRET;
+  if (!signingSecret) return true;
+
+  const provider = request.headers.get('x-channel-provider');
+  if (!provider || (provider !== 'webhook' && provider !== 'sms_bridge')) return true;
+
+  const timestamp = request.headers.get('x-channel-timestamp');
+  const signature = request.headers.get('x-channel-signature');
+  if (!timestamp || !signature) return false;
+
+  const expected = createHmac('sha256', signingSecret).update(`${timestamp}.${rawBody}`).digest('hex');
+  const a = Buffer.from(expected, 'utf8');
+  const b = Buffer.from(signature, 'utf8');
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
 export async function POST(request: NextRequest) {
   try {
     if (!authorizeChannelRequest(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const rawBody = await request.text();
+    if (!verifyIncomingSignature(request, rawBody)) {
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    }
+
+    let body: unknown;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
     const parsed = InboundSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: 'Invalid request', details: parsed.error.issues }, { status: 400 });
     }
 
-    const { channel, userId, externalContactId, messageId, text, audience } = parsed.data;
+    const { channel, userId, externalContactId, messageId, text } = parsed.data;
     const supabase = getSupabase();
     const nowIso = new Date().toISOString();
+
+    const { data: binding } = await supabase
+      .from('channel_bindings')
+      .select('user_id, privacy_mode, audience, is_active')
+      .eq('channel', channel)
+      .eq('external_contact_id', externalContactId)
+      .maybeSingle();
+
+    const resolvedUserId = userId || (binding?.is_active ? binding.user_id : null);
+    if (!resolvedUserId) {
+      return NextResponse.json(
+        { error: 'Unable to resolve user. Provide userId or create an active channel binding.' },
+        { status: 400 }
+      );
+    }
+
+    const resolvedAudience = parsed.data.audience || (binding?.audience as 'author' | 'external' | undefined) || 'author';
+    const resolvedPrivacyMode = (binding?.privacy_mode as 'private' | 'personal' | 'professional' | undefined) || 'professional';
 
     let inboundRow: { id: string } | null = null;
     const { data: insertedInbound, error: inboundError } = await supabase
       .from('channel_messages')
       .insert({
-        user_id: userId,
+        user_id: resolvedUserId,
         channel,
         direction: 'inbound',
         external_contact_id: externalContactId,
         external_message_id: messageId,
         content: text,
-        audience,
+        audience: resolvedAudience,
         status: 'processing',
         updated_at: nowIso
       })
@@ -73,7 +120,7 @@ export async function POST(request: NextRequest) {
       const { data: existingRow, error: existingError } = await supabase
         .from('channel_messages')
         .select('id, status')
-        .eq('user_id', userId)
+        .eq('user_id', resolvedUserId)
         .eq('channel', channel)
         .eq('direction', 'inbound')
         .eq('external_contact_id', externalContactId)
@@ -101,16 +148,16 @@ export async function POST(request: NextRequest) {
     const { data: queueRow, error: queueError } = await supabase
       .from('editor_messages')
       .insert({
-        user_id: userId,
+        user_id: resolvedUserId,
         content: text,
         message_type: 'system_note',
-        priority: audience === 'author' ? 'medium' : 'low',
+        priority: resolvedAudience === 'author' ? 'medium' : 'low',
         metadata: {
           inbound: true,
           channel,
           externalContactId,
           messageId,
-          audience
+          audience: resolvedAudience
         }
       })
       .select('id')
@@ -118,17 +165,28 @@ export async function POST(request: NextRequest) {
 
     if (queueError) return NextResponse.json({ error: queueError.message }, { status: 500 });
 
-    let autoReply: { sent: boolean; preview: string; error?: string } | null = null;
+    let autoReply: {
+      sent: boolean;
+      preview: string;
+      error?: string;
+      diagnostics?: {
+        provider: string;
+        statusCode?: number;
+        latencyMs?: number;
+        responsePreview?: string;
+      };
+    } | null = null;
 
-    if (audience === 'external') {
+    if (resolvedAudience === 'external') {
       try {
+        const pendingOutboundId = `pending-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
         const orchestrator = getOrchestrator();
         const { response } = await orchestrator.generateResponse(
           [{ role: 'user', content: text }],
-          userId,
+          resolvedUserId,
           {
             temperature: 0.7,
-            privacyMode: 'professional',
+            privacyMode: resolvedPrivacyMode,
             contactId: externalContactId,
             audience: 'external'
           }
@@ -138,31 +196,33 @@ export async function POST(request: NextRequest) {
         const delivery = await adapter.send({
           channel,
           externalContactId,
-          userId,
+          userId: resolvedUserId,
           text: response,
-          audience
+          audience: resolvedAudience
         });
 
         autoReply = {
           sent: delivery.success,
           preview: response.slice(0, 200),
-          error: delivery.error
+          error: delivery.error,
+          diagnostics: delivery.diagnostics
         };
 
         await supabase
           .from('channel_messages')
           .insert({
-            user_id: userId,
+            user_id: resolvedUserId,
             channel,
             direction: 'outbound',
             external_contact_id: externalContactId,
-            external_message_id: delivery.providerMessageId || null,
+            external_message_id: delivery.providerMessageId || pendingOutboundId,
             content: response,
-            audience,
+            audience: resolvedAudience,
             status: delivery.success ? 'sent' : 'failed',
             error: delivery.error || null,
             metadata: {
-              sourceInboundId: inboundRow.id
+              sourceInboundId: inboundRow.id,
+              diagnostics: delivery.diagnostics || null
             },
             updated_at: new Date().toISOString()
           });
@@ -188,13 +248,15 @@ export async function POST(request: NextRequest) {
       .eq('id', inboundRow.id);
 
     await supabase.from('persona_activity').insert({
-      user_id: userId,
+      user_id: resolvedUserId,
       action_type: 'channel_message_ingested',
-      summary: `Ingested ${channel} inbound message (${audience})`,
+      summary: `Ingested ${channel} inbound message (${resolvedAudience})`,
       details: {
         channel,
         externalContactId,
         messageId,
+        bindingResolved: !!binding,
+        privacyMode: resolvedPrivacyMode,
         queueId: queueRow.id,
         autoReply,
         channelMessageId: inboundRow.id

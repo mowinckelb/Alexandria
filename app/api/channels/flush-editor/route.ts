@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getChannelAdapter } from '@/lib/channels';
 
 const FlushSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().uuid().optional(),
   channel: z.string().min(1),
   externalContactId: z.string().min(1),
   audience: z.enum(['author', 'external']).default('author'),
@@ -42,12 +42,34 @@ export async function POST(request: NextRequest) {
 
     const { userId, channel, externalContactId, audience, limit } = parsed.data;
     const supabase = getSupabase();
-    const adapter = getChannelAdapter(channel);
+    let adapter;
+    try {
+      adapter = getChannelAdapter(channel);
+    } catch (adapterError) {
+      return NextResponse.json(
+        { error: adapterError instanceof Error ? adapterError.message : 'Unsupported channel' },
+        { status: 400 }
+      );
+    }
+
+    const { data: binding } = await supabase
+      .from('channel_bindings')
+      .select('user_id, is_active')
+      .eq('channel', channel)
+      .eq('external_contact_id', externalContactId)
+      .maybeSingle();
+    const resolvedUserId = userId || (binding?.is_active ? binding.user_id : null);
+    if (!resolvedUserId) {
+      return NextResponse.json(
+        { error: 'Unable to resolve user. Provide userId or create an active channel binding.' },
+        { status: 400 }
+      );
+    }
 
     const { data: pending, error } = await supabase
       .from('editor_messages')
       .select('id, content')
-      .eq('user_id', userId)
+      .eq('user_id', resolvedUserId)
       .eq('delivered', false)
       .order('created_at', { ascending: true })
       .limit(limit || 20);
@@ -59,25 +81,30 @@ export async function POST(request: NextRequest) {
 
     for (const row of pending || []) {
       try {
+        const pendingOutboundId = `pending-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
         const delivery = await adapter.send({
           channel,
-          userId,
+          userId: resolvedUserId,
           externalContactId,
           text: row.content,
           audience
         });
 
         await supabase.from('channel_messages').insert({
-          user_id: userId,
+          user_id: resolvedUserId,
           channel,
           direction: 'outbound',
           external_contact_id: externalContactId,
-          external_message_id: delivery.providerMessageId || null,
+          external_message_id: delivery.providerMessageId || pendingOutboundId,
           content: row.content,
           audience,
           status: delivery.success ? 'sent' : 'failed',
           error: delivery.error || null,
-          metadata: { source: 'flush-editor', editorMessageId: row.id },
+          metadata: {
+            source: 'flush-editor',
+            editorMessageId: row.id,
+            diagnostics: delivery.diagnostics || null
+          },
           updated_at: new Date().toISOString()
         });
 
@@ -99,12 +126,12 @@ export async function POST(request: NextRequest) {
           delivered: true,
           delivered_at: new Date().toISOString()
         })
-        .eq('user_id', userId)
+        .eq('user_id', resolvedUserId)
         .in('id', deliveredIds);
     }
 
     await supabase.from('persona_activity').insert({
-      user_id: userId,
+      user_id: resolvedUserId,
       action_type: 'editor_messages_flushed_to_channel',
       summary: `Flushed ${sent} editor messages to ${channel}`,
       details: {

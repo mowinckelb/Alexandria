@@ -14,6 +14,12 @@
     },
     "app/api/cron/channel-retry/route.ts": {
       "maxDuration": 60
+    },
+    "app/api/cron/channel-flush/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/cron/auto-train/route.ts": {
+      "maxDuration": 120
     }
   },
   "crons": [
@@ -28,6 +34,14 @@
     {
       "path": "/api/cron/channel-retry",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/channel-flush",
+      "schedule": "*/3 * * * *"
+    },
+    {
+      "path": "/api/cron/auto-train",
+      "schedule": "0 */12 * * *"
     }
   ]
 }

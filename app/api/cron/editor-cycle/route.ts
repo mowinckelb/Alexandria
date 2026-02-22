@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { generateText } from 'ai';
+import { getQualityModel } from '@/lib/models';
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -36,6 +38,14 @@ interface CycleDecision {
   messageType?: 'proactive_question' | 'feedback_request';
   messageContent?: string;
   reason: string;
+}
+
+interface ContextualMessageResult {
+  content: string;
+  context: {
+    recentEntries: Array<{ created_at: string; content: string }>;
+    recentDeliveredMessages: Array<{ created_at: string; content: string }>;
+  } | null;
 }
 
 async function getActiveUsers() {
@@ -140,6 +150,71 @@ async function collectSignals(userId: string, now: Date): Promise<CycleSignals> 
   };
 }
 
+async function buildContextualProactiveMessage(userId: string): Promise<ContextualMessageResult> {
+  const supabase = getSupabase();
+  const fallback = 'quick check-in: any new thoughts, voice notes, or decisions worth capturing today?';
+
+  try {
+    const [{ data: entries }, { data: deliveredMessages }] = await Promise.all([
+      supabase
+        .from('entries')
+        .select('content, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(3),
+      supabase
+        .from('editor_messages')
+        .select('content, created_at')
+        .eq('user_id', userId)
+        .eq('delivered', true)
+        .order('created_at', { ascending: false })
+        .limit(3)
+    ]);
+
+    const recentEntries = (entries || []).map((entry) => ({
+      created_at: entry.created_at,
+      content: String(entry.content || '').slice(0, 280)
+    }));
+    const recentDeliveredMessages = (deliveredMessages || []).map((item) => ({
+      created_at: item.created_at,
+      content: String(item.content || '').slice(0, 200)
+    }));
+
+    if (recentEntries.length === 0) {
+      return { content: fallback, context: null };
+    }
+
+    const { text } = await generateText({
+      model: getQualityModel(),
+      system: `You are Alexandria Editor. Write one short proactive message to the Author.
+- Use lowercase style.
+- 1-2 short sentences max.
+- Be concrete and reference a recent topic.
+- Ask one useful follow-up question.
+- No emojis.
+- No markdown.`,
+      prompt: `Recent entries:
+${recentEntries.map((entry, idx) => `${idx + 1}. ${entry.created_at}: ${entry.content}`).join('\n')}
+
+Recent delivered editor messages:
+${recentDeliveredMessages.length > 0 ? recentDeliveredMessages.map((msg, idx) => `${idx + 1}. ${msg.created_at}: ${msg.content}`).join('\n') : 'none'}
+
+Write the next proactive message now.`
+    });
+
+    const cleaned = text.trim().replace(/\s+/g, ' ').slice(0, 280);
+    return {
+      content: cleaned || fallback,
+      context: {
+        recentEntries,
+        recentDeliveredMessages
+      }
+    };
+  } catch {
+    return { content: fallback, context: null };
+  }
+}
+
 async function runCycle() {
   const supabase = getSupabase();
   const userIds = await getActiveUsers();
@@ -176,16 +251,26 @@ async function runCycle() {
       }, { onConflict: 'user_id' });
 
     if (decision.action === 'message' && decision.messageType && decision.messageContent) {
+      let content = decision.messageContent;
+      let contextualSource: ContextualMessageResult['context'] = null;
+
+      if (decision.messageType === 'proactive_question') {
+        const contextual = await buildContextualProactiveMessage(userId);
+        content = contextual.content;
+        contextualSource = contextual.context;
+      }
+
       await supabase.from('editor_messages').insert({
         user_id: userId,
-        content: decision.messageContent,
+        content,
         message_type: decision.messageType,
         priority: decision.messageType === 'feedback_request' ? 'medium' : 'low',
         metadata: {
           source: 'cron-editor-cycle',
           reason: decision.reason,
           generatedAt: now.toISOString(),
-          signals
+          signals,
+          context: contextualSource
         }
       });
     }

@@ -18,10 +18,30 @@ interface BillingResponse {
   income: Array<{ id: string; category: string; amount_usd: number; created_at: string }>;
 }
 
+interface GuardrailResponse {
+  limits: {
+    dailyApiKeySpendLimitUsd: number | null;
+  };
+  keys: Array<{
+    id: string;
+    name: string;
+    spend24hUsd: number;
+    lastUsed: string | null;
+    utilizationPct: number | null;
+  }>;
+  alerts: Array<{
+    severity: 'high' | 'medium';
+    message: string;
+    apiKeyId: string;
+  }>;
+}
+
 export default function BillingPage() {
   const [userId, setUserId] = useState<string>('');
   const [data, setData] = useState<BillingResponse | null>(null);
+  const [guardrails, setGuardrails] = useState<GuardrailResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [disablingKeyIds, setDisablingKeyIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const id = localStorage.getItem('alexandria_user_id') || '';
@@ -34,14 +54,44 @@ export default function BillingPage() {
       try {
         const res = await fetch(`/api/billing?userId=${userId}&limit=50`);
         if (!res.ok) return;
-        const json = await res.json();
-        setData(json);
+        const [billingJson, guardrailsRes] = await Promise.all([
+          res.json(),
+          fetch(`/api/billing/guardrails?userId=${userId}`)
+        ]);
+        setData(billingJson);
+        if (guardrailsRes.ok) {
+          setGuardrails(await guardrailsRes.json());
+        }
       } finally {
         setLoading(false);
       }
     };
     void load();
   }, [userId]);
+
+  const disableKey = async (id: string) => {
+    if (!userId) return;
+    setDisablingKeyIds((prev) => new Set(prev).add(id));
+    try {
+      await fetch('/api/keys', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, id })
+      });
+      const [billingRes, guardrailsRes] = await Promise.all([
+        fetch(`/api/billing?userId=${userId}&limit=50`),
+        fetch(`/api/billing/guardrails?userId=${userId}`)
+      ]);
+      if (billingRes.ok) setData(await billingRes.json());
+      if (guardrailsRes.ok) setGuardrails(await guardrailsRes.json());
+    } finally {
+      setDisablingKeyIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
 
   return (
     <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
@@ -100,6 +150,43 @@ export default function BillingPage() {
                 </div>
               </div>
             </div>
+
+            {guardrails && (
+              <div className="rounded-xl p-4 space-y-2" style={{ background: 'var(--bg-secondary)' }}>
+                <div className="text-sm mb-1">Guardrails</div>
+                <div className="text-xs opacity-70">
+                  daily API key spend limit: {guardrails.limits.dailyApiKeySpendLimitUsd !== null ? `$${guardrails.limits.dailyApiKeySpendLimitUsd.toFixed(6)}` : 'disabled'}
+                </div>
+                {guardrails.alerts.length > 0 && (
+                  <div className="space-y-1 text-xs">
+                    {guardrails.alerts.map((alert, idx) => (
+                      <div key={`${alert.apiKeyId}-${idx}`} className={alert.severity === 'high' ? 'text-red-400' : 'text-yellow-400'}>
+                        {alert.severity.toUpperCase()}: {alert.message}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="space-y-1 text-xs opacity-80 max-h-[220px] overflow-y-auto">
+                  {guardrails.keys.map((row) => (
+                    <div key={row.id} className="flex items-center justify-between gap-3">
+                      <span>{row.name}</span>
+                      <span className="flex items-center gap-2">
+                        <span>${row.spend24hUsd.toFixed(6)}{row.utilizationPct !== null ? ` (${row.utilizationPct.toFixed(2)}%)` : ''}</span>
+                        <button
+                          onClick={() => disableKey(row.id)}
+                          disabled={disablingKeyIds.has(row.id)}
+                          className="rounded px-2 py-0.5 disabled:opacity-50"
+                          style={{ background: 'var(--bg-primary)', color: 'var(--text-subtle)' }}
+                        >
+                          {disablingKeyIds.has(row.id) ? 'disabling...' : 'disable'}
+                        </button>
+                      </span>
+                    </div>
+                  ))}
+                  {guardrails.keys.length === 0 && <div className="opacity-60">no api keys</div>}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>

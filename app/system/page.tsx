@@ -8,6 +8,10 @@ export default function SystemPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [checkpoints, setCheckpoints] = useState<Array<{ id: string; version_label: string; created_at: string }>>([]);
+  const [creatingCheckpoint, setCreatingCheckpoint] = useState(false);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
+  const [activity, setActivity] = useState<Array<{ id: string; action_type: string; summary: string; created_at: string }>>([]);
 
   useEffect(() => {
     const id = localStorage.getItem('alexandria_user_id') || '';
@@ -18,10 +22,23 @@ export default function SystemPage() {
     const load = async () => {
       if (!userId) return;
       try {
-        const res = await fetch(`/api/system-config?userId=${userId}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        setConfigText(JSON.stringify(data.config, null, 2));
+        const [res, checkpointsRes] = await Promise.all([
+          fetch(`/api/system-config?userId=${userId}`),
+          fetch(`/api/system-config/checkpoints?userId=${userId}&limit=20`)
+        ]);
+        const activityRes = await fetch(`/api/system-config/activity?userId=${userId}&limit=15`);
+        if (res.ok) {
+          const data = await res.json();
+          setConfigText(JSON.stringify(data.config, null, 2));
+        }
+        if (checkpointsRes.ok) {
+          const data = await checkpointsRes.json();
+          setCheckpoints(data.items || []);
+        }
+        if (activityRes.ok) {
+          const data = await activityRes.json();
+          setActivity(data.items || []);
+        }
       } finally {
         setLoading(false);
       }
@@ -46,10 +63,89 @@ export default function SystemPage() {
         return;
       }
       setStatus('saved');
+      const checkpointsRes = await fetch(`/api/system-config/checkpoints?userId=${userId}&limit=20`);
+      const activityRes = await fetch(`/api/system-config/activity?userId=${userId}&limit=15`);
+      if (checkpointsRes.ok) {
+        const data = await checkpointsRes.json();
+        setCheckpoints(data.items || []);
+      }
+      if (activityRes.ok) {
+        const data = await activityRes.json();
+        setActivity(data.items || []);
+      }
     } catch {
       setStatus('invalid JSON');
     } finally {
       setSaving(false);
+      setTimeout(() => setStatus(null), 2500);
+    }
+  };
+
+  const createCheckpoint = async () => {
+    if (!userId) return;
+    setCreatingCheckpoint(true);
+    try {
+      const res = await fetch('/api/system-config/checkpoints', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setStatus(data.error || 'checkpoint failed');
+        return;
+      }
+      setStatus('checkpoint created');
+      const checkpointsRes = await fetch(`/api/system-config/checkpoints?userId=${userId}&limit=20`);
+      const activityRes = await fetch(`/api/system-config/activity?userId=${userId}&limit=15`);
+      if (checkpointsRes.ok) {
+        const data = await checkpointsRes.json();
+        setCheckpoints(data.items || []);
+      }
+      if (activityRes.ok) {
+        const data = await activityRes.json();
+        setActivity(data.items || []);
+      }
+    } finally {
+      setCreatingCheckpoint(false);
+      setTimeout(() => setStatus(null), 2500);
+    }
+  };
+
+  const restoreCheckpoint = async (checkpointId: string) => {
+    if (!userId) return;
+    setRestoringId(checkpointId);
+    try {
+      const res = await fetch('/api/system-config/checkpoints', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, checkpointId })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setStatus(data.error || 'restore failed');
+        return;
+      }
+      setStatus('restored');
+      const [configRes, checkpointsRes] = await Promise.all([
+        fetch(`/api/system-config?userId=${userId}`),
+        fetch(`/api/system-config/checkpoints?userId=${userId}&limit=20`)
+      ]);
+      const activityRes = await fetch(`/api/system-config/activity?userId=${userId}&limit=15`);
+      if (configRes.ok) {
+        const data = await configRes.json();
+        setConfigText(JSON.stringify(data.config, null, 2));
+      }
+      if (checkpointsRes.ok) {
+        const data = await checkpointsRes.json();
+        setCheckpoints(data.items || []);
+      }
+      if (activityRes.ok) {
+        const data = await activityRes.json();
+        setActivity(data.items || []);
+      }
+    } finally {
+      setRestoringId(null);
       setTimeout(() => setStatus(null), 2500);
     }
   };
@@ -81,7 +177,41 @@ export default function SystemPage() {
               >
                 save
               </button>
+              <button
+                onClick={createCheckpoint}
+                disabled={creatingCheckpoint}
+                className="px-4 py-2 rounded-lg text-sm disabled:opacity-50"
+                style={{ background: 'var(--bg-primary)', color: 'var(--text-subtle)' }}
+              >
+                {creatingCheckpoint ? 'creating checkpoint...' : 'create checkpoint'}
+              </button>
               {status && <span className="text-sm opacity-70">{status}</span>}
+            </div>
+            <div className="rounded-xl p-4 space-y-2" style={{ background: 'var(--bg-secondary)' }}>
+              <div className="text-sm">checkpoints</div>
+              {checkpoints.length === 0 && <div className="text-xs opacity-60">none yet</div>}
+              {checkpoints.map((row) => (
+                <div key={row.id} className="text-xs flex items-center justify-between gap-3">
+                  <span>{new Date(row.created_at).toLocaleString()} · {row.version_label}</span>
+                  <button
+                    onClick={() => restoreCheckpoint(row.id)}
+                    disabled={restoringId === row.id}
+                    className="rounded px-2 py-1 disabled:opacity-50"
+                    style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+                  >
+                    {restoringId === row.id ? 'restoring...' : 'restore'}
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-xl p-4 space-y-2" style={{ background: 'var(--bg-secondary)' }}>
+              <div className="text-sm">system activity</div>
+              {activity.length === 0 && <div className="text-xs opacity-60">none yet</div>}
+              {activity.map((row) => (
+                <div key={row.id} className="text-xs">
+                  {new Date(row.created_at).toLocaleString()} · {row.action_type} · {row.summary}
+                </div>
+              ))}
             </div>
           </>
         )}

@@ -40,7 +40,23 @@ export async function POST(request: NextRequest) {
     for (const row of failedRows || []) {
       const metadata = (row.metadata || {}) as Record<string, unknown>;
       const attempts = Number(metadata.retryAttempts || 0);
+      const nextMetadata = {
+        ...metadata,
+        retryAttempts: attempts + 1,
+        lastRetryAt: new Date().toISOString()
+      };
       if (attempts >= 3) {
+        await supabase
+          .from('channel_messages')
+          .update({
+            metadata: {
+              ...metadata,
+              deadLetter: true,
+              deadLetterAt: new Date().toISOString()
+            },
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', row.id);
         skipped += 1;
         continue;
       }
@@ -50,11 +66,7 @@ export async function POST(request: NextRequest) {
         .from('channel_messages')
         .update({
           status: 'processing',
-          metadata: {
-            ...metadata,
-            retryAttempts: attempts + 1,
-            lastRetryAt: new Date().toISOString()
-          },
+          metadata: nextMetadata,
           updated_at: new Date().toISOString()
         })
         .eq('id', row.id);
@@ -75,6 +87,12 @@ export async function POST(request: NextRequest) {
             status: result.success ? 'sent' : 'failed',
             external_message_id: result.providerMessageId || row.external_message_id,
             error: result.error || null,
+            metadata: {
+              ...nextMetadata,
+              deadLetter: !result.success && attempts + 1 >= 3,
+              deadLetterAt: !result.success && attempts + 1 >= 3 ? new Date().toISOString() : null,
+              diagnostics: result.diagnostics || null
+            },
             updated_at: new Date().toISOString()
           })
           .eq('id', row.id);

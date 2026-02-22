@@ -293,63 +293,44 @@ After feedback:
 ## Session Handoff Notes
 *Critical context for the next session/agent*
 
-**Last session:** 2026-02-21
+**Last session:** 2026-02-22
 
-**What was done this session:**
-1. **Documentation consolidation (COMPLETE):**
-   - Moved new `ALEXANDRIA.md` (886 lines, complete vision) from Downloads to project root
-   - Archived old files: `ALEXANDRIA_CONTEXT.md`, `ALEXANDRIA_VISION.md`, `docs/alexandria-complete-context-raw.md` → `_archive/`
-   - Updated `.cursor/rules/project-context.mdc` to reference `ALEXANDRIA.md` as single source of truth
-   - **ALEXANDRIA.md is now read-only** - founder's vision document, treat as immutable
-
-2. **Major architectural shifts in new vision (Opus MUST read full ALEXANDRIA.md):**
-   - **Protocol vs Platform:** Open protocol (Axioms + validation suite), proprietary platform (Library + Blueprint)
-   - **Blueprint model has full code editing capability:** Can modify entire codebase within Axiom constraints, not just config
-   - **Vault is "just files":** Local folder spec (iCloud/Files), not hosted infrastructure. "Everything is just files."
-   - **iMessage-first, no app:** Editor and Orchestrator are iMessage contacts, web dashboard for management only
-   - **Library mandatory (Axiom):** Every Persona must be in Library, privacy controls access not presence
-   - **Neo-Biography:** Multimedia canvas (essays, film, poetry, music) + curated influences + interactive Persona API
-   - **Editor personality critical:** Engagement optimization (humor, price haggling, retention games) part of extraction mandate
-
-3. **Execution started (Tier 1 foundations implemented):**
-   - **Phase A voice bootstrap:** `app/api/voice-bootstrap/route.ts` now supports `files`, `storagePaths`, and `storagePrefix` with `dryRun` preview + deduplication; UI now has `voice bootstrap` trigger and live `VoiceBootstrapProgress` polling.
-   - **Vault append-only hardening:** `lib/utils/vault.ts` defaults to no overwrite (`allowOverwrite: false`), with explicit overwrite only for `constitution/current.md`.
-   - **Transcript persistence:** `lib/modules/voice/processor.ts` now always stores transcript entries to `entries` with job/source metadata.
-   - **Phase B infra:** added migrations `00016_editor_state.sql`, `00017_editor_messages.sql`; new endpoints `app/api/cron/editor-cycle/route.ts` and `app/api/editor-messages/route.ts`; input UI now polls and surfaces proactive Editor messages; `input-chat` updates `editor_state.last_contact_at`.
-   - **Cron wiring:** `vercel.json` now schedules `/api/process-queue` every 2 min and `/api/cron/editor-cycle` every 5 min.
-   - **Phase C infra:** added migrations `00018_constitution_gaps.sql`, `00019_plm_maturity.sql`, `00020_rlaif_evaluations.sql`; new review API `app/api/rlaif/review/route.ts`.
-   - **Phase D infra:** added migrations `00021_privacy_settings.sql`, `00022_persona_activity.sql`; new API `app/api/privacy/route.ts`.
-   - **Phase F infra:** added migration `00023_api_access.sql`; new APIs `app/api/keys/route.ts`, `app/api/persona/query/route.ts`; Library scaffolds `app/library/page.tsx`, `app/persona/[id]/page.tsx`.
-   - **Additional integration pass:** added `app/components/RlaifReviewPanel.tsx` and wired it into main UI; added activity API `app/api/activity/route.ts`; replaced Library/Persona scaffolds with data-backed endpoints `app/api/library/route.ts` and `app/api/library/[id]/route.ts`; added Phase G defaults `lib/types/system-config.ts`, `system-config.default.json`, `SYSTEM.default.md`; added Phase H billing migration/API/UI (`00024_billing_ledger.sql`, `app/api/billing/route.ts`, `app/billing/page.tsx`); header links now include `library` and `billing`.
-   - **Health check note:** `GET /api/debug/ping` currently fails locally because no dev server is running (`Unable to connect to localhost:3000`).
+**What was done this session (Opus CTO pivot):**
+1. **Strategic re-evaluation:** Audited entire codebase. Found that extensive operational scaffolding was built (channels, moderation, billing guardrails, dead-letter queues, SLA tracking, memory graph) but the core data loop was open — training pairs 51 days old, no auto-training, no daily-use UX. Pivot to Data Loop MVP.
+2. **Created `ALEXANDRIA_EXECUTION_V2.md`** — New execution plan focused on closing the data loop for daily founder use. Replaces `ALEXANDRIA_EXECUTION.md` as the active plan.
+3. **Created `app/api/cron/auto-train/route.ts`** — Auto-training cron that checks every 12h for 50+ unexported quality pairs and triggers `POST /api/training { action: 'start' }`. Verified working (correctly skipped with 11 available pairs).
+4. **Updated `vercel.json`** — Added `auto-train` function config (maxDuration: 120). Cron schedule entry still needs adding (Task 1 in execution plan).
 
 **For the next session — start here:**
-1. Read MOWINCKEL.md → ALEXANDRIA.md → CTO_LOG.md (this file) → ALEXANDRIA_EXECUTION.md
+1. Read `MOWINCKEL.md` → `ALEXANDRIA.md` → `CTO_LOG.md` → **`ALEXANDRIA_EXECUTION_V2.md`** (the active plan)
 2. Run health check: `GET /api/debug/ping`
-3. ✅ Applied new migrations (`00016` through `00023`) to Supabase via `npx supabase db push`.
-4. ✅ Verified runtime endpoints with dev server up:
-   - `GET /api/debug/ping` → `{ success: true, database: true, environment: true, logic: true }`
-   - `POST /api/cron/editor-cycle` → success with processed users
-   - `POST/GET /api/editor-messages` enqueue + ack flow works
-   - `GET/PATCH /api/privacy` works
-   - `GET /api/rlaif/review` works
-   - `POST/GET/DELETE /api/keys` works
-   - `POST /api/persona/query` with valid API key streams responses successfully
-   - `GET /api/library` and `GET /api/library/{id}` return data-backed responses
-   - `GET /api/activity` returns persona activity timeline
-   - `GET /api/billing` returns expense/income ledger summary
-5. Continue with remaining Tier 1 integration/UI wiring from `ALEXANDRIA_EXECUTION.md`, then escalate Tier 2 architecture items.
+3. Execute tasks from `ALEXANDRIA_EXECUTION_V2.md` in order (Tasks 1-7)
+4. **IMPORTANT:** Execution will likely be done by Codex (cheaper model). Tasks are written to be self-contained and mechanically executable.
+
+**Key context for the executing model:**
+- **Single user.** The founder is the only user. Don't build for multi-user.
+- **100hrs of voice note transcription .md files** are ready to upload. This is the real data, not the existing test data.
+- **Existing test data (520 memories, 218 pairs) is irrelevant.** Don't worry about preserving it.
+- **Build for terminal, bridge backwards.** Web is the bridge for now. Mac arrives in ~2 months.
+- **The founder will use this daily for ~1 month** while credits are depleted. It must work without code changes.
 
 **Key files to know:**
+- **`ALEXANDRIA_EXECUTION_V2.md`** — THE active execution plan. Follow this, not V1.
 - **`ALEXANDRIA.md`** — Complete vision (886 lines, read-only, single source of truth)
-- **`ALEXANDRIA_EXECUTION.md`** — Tiered execution plan with task breakdown
-- `MOWINCKEL.md` — Agent protocol (non-negotiable rules)
-- `CTO_LOG.md` — This file (current state, roadmap, gap analysis)
+- `MOWINCKEL.md` — Agent protocol
+- `CTO_LOG.md` — This file
 - `lib/factory.ts` — Module instantiation
 - `lib/models.ts` — All provider instances centralized
-- `.env.example` — All required environment variables
+- `app/api/bulk-ingest/route.ts` — Batch text ingestion (used by batch upload page)
+- `app/api/training/route.ts` — Training pipeline (export + Together AI fine-tune)
+- `app/api/cron/auto-train/route.ts` — Auto-training cron (NEW)
 
-**Architecture change (CRITICAL):** The new ALEXANDRIA.md has 3 persistent components (Constitution, PLM, Vault), NOT 4. Memories is gone as a separate component. `memory_fragments` is now a search index over Vault data. The graph database plans (old Phase D) are deprioritized. See ALEXANDRIA_EXECUTION.md "Architecture Reconciliation" for details.
+**System state (verified 2026-02-22):**
+- `GET /api/debug/ping` → `{ success: true, database: true, environment: true, logic: true }`
+- `POST /api/cron/auto-train` → `200 { success, results: [{ action: 'skipped', reason: 'insufficient_pairs', available: 11 }] }`
+- `npx tsc --noEmit` → 0 errors
+- Real user: 520 memory fragments, 218 training pairs (test data), 11 unexported pairs
+- All 10 dashboard pages render (200 OK)
 
 ---
 
@@ -421,6 +402,32 @@ After feedback:
   - added operations UI `app/channels/page.tsx` and header link for channel lifecycle visibility
   - added optional shared-secret auth guard (`CHANNEL_SHARED_SECRET`) on channel dispatch/inbound/messages endpoints
   - added `app/api/channels/flush-editor/route.ts` to flush pending proactive Editor messages through channel adapters and mark queue delivery
+  - added contact binding model `supabase/migrations/00030_channel_bindings.sql` + API `app/api/channels/bindings/route.ts`
+  - inbound/flush routes now resolve `user_id` via active binding (`channel + external_contact_id`) when payload omits userId
+- dispatch route now also resolves `user_id` via binding when userId is omitted
+- channels operations page now supports binding add/activate/deactivate/delete and manual retry trigger
+- retry worker now marks exhausted failures as dead-letter via message metadata
+- channel stats/page now surface dead-letter counts for operational triage
+- fixed retry-attempt persistence bug in `channel-retry` so dead-letter transitions now trigger correctly after max attempts
+- added `app/api/channels/requeue/route.ts` and channels UI controls to requeue failed/dead-letter messages for retry
+- provider runtime diagnostics now propagate through adapter results into `channel_messages.metadata.diagnostics`
+- channel stats now include per-channel sent/failed totals and latency aggregates; channels UI surfaces by-channel diagnostics
+- implemented signed inbound verification for provider channels on `/api/channels/inbound` when `CHANNEL_WEBHOOK_SIGNING_SECRET` is configured
+- added channels security posture endpoint (`/api/channels/security`) and surfaced posture status in channels UI
+- added runbook `docs/channel-security-playbook.md` for secret rotation and bridge security operations
+- added bridge automation worker `app/api/cron/channel-flush/route.ts` + Vercel schedule (`*/3 * * * *`) to flush editor messages across active bindings
+- added binding-level production controls (`max_messages_per_flush`, `min_interval_seconds`, `paused_until`) and wired cron flush enforcement
+- added channel audit endpoint (`/api/channels/audit`) and channels UI audit feed for bridge operation tracing
+- stability hardening: unsupported channel dispatch now fails cleanly (`400`) and records failed message state instead of leaving processing rows
+- added system config checkpoint history (`system_config_checkpoints`) with APIs for list/create/restore and UI controls on `/system`
+- billing hardening: added `/api/billing/guardrails` + billing UI guardrail panel (24h API-key spend visibility + alerts)
+- billing recovery ops: billing UI can now disable hot API keys directly via `/api/keys` delete flow for immediate containment
+- external persona API now enforces optional rolling 24h per-key spend limit (`BILLING_DAILY_API_KEY_LIMIT_USD`) with `429` guardrail block + activity log
+- onboarding ops visibility: added `/api/onboarding/ops` and `/onboarding` dashboard with readiness checklist, blockers, and recommended actions
+- library ops moderation baseline: added report endpoint (`/api/library/report`), moderation inbox API (`/api/library/moderation`), report UI on persona page, and moderation dashboard (`/library-moderation`)
+- library quality signals: `readinessScore` + `trustBadges` added to `/api/library` and `/api/library/{id}` and surfaced in Library/persona UIs
+- library growth telemetry/ranking: added `/api/library/telemetry` (view/interaction events), 7d growth signals, and `rankingScore` across Library APIs and UI
+- moderation SLA controls: unresolved report aging now emits warning/critical severities, alert summaries in moderation API/UI, and overdue badges/signals in Library ranking outputs
 - Verification run:
   - `npx supabase db push` succeeded for `00025` and `00026`
   - `npx tsc --noEmit` passed

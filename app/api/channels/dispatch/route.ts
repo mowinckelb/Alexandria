@@ -5,10 +5,10 @@ import { createClient } from '@supabase/supabase-js';
 
 const DispatchSchema = z.object({
   channel: z.string().min(1),
-  userId: z.string().uuid(),
+  userId: z.string().uuid().optional(),
   externalContactId: z.string().min(1),
   text: z.string().min(1),
-  audience: z.enum(['author', 'external']).default('author')
+  audience: z.enum(['author', 'external']).optional()
 });
 
 function getSupabase() {
@@ -40,17 +40,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid request', details: parsed.error.issues }, { status: 400 });
     }
 
-    const { channel, userId, externalContactId, text, audience } = parsed.data;
+    const { channel, userId, externalContactId, text } = parsed.data;
     const supabase = getSupabase();
+    const { data: binding } = await supabase
+      .from('channel_bindings')
+      .select('user_id, audience, is_active')
+      .eq('channel', channel)
+      .eq('external_contact_id', externalContactId)
+      .maybeSingle();
+
+    const resolvedUserId = userId || (binding?.is_active ? binding.user_id : null);
+    if (!resolvedUserId) {
+      return NextResponse.json(
+        { error: 'Unable to resolve user. Provide userId or create an active channel binding.' },
+        { status: 400 }
+      );
+    }
+    const resolvedAudience = parsed.data.audience || (binding?.audience as 'author' | 'external' | undefined) || 'author';
+    const pendingOutboundId = `pending-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
     const { data: row, error: insertError } = await supabase
       .from('channel_messages')
       .insert({
-        user_id: userId,
+        user_id: resolvedUserId,
         channel,
         direction: 'outbound',
         external_contact_id: externalContactId,
+        external_message_id: pendingOutboundId,
         content: text,
-        audience,
+        audience: resolvedAudience,
         status: 'processing'
       })
       .select('id')
@@ -59,13 +77,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: insertError?.message || 'Failed to create channel message row' }, { status: 500 });
     }
 
-    const adapter = getChannelAdapter(channel);
+    let adapter;
+    try {
+      adapter = getChannelAdapter(channel);
+    } catch (adapterError) {
+      await supabase
+        .from('channel_messages')
+        .update({
+          status: 'failed',
+          error: adapterError instanceof Error ? adapterError.message : 'Unsupported channel',
+          metadata: {
+            source: 'dispatch',
+            bindingResolved: !!binding,
+            diagnostics: null
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', row.id);
+      return NextResponse.json(
+        { error: adapterError instanceof Error ? adapterError.message : 'Unsupported channel' },
+        { status: 400 }
+      );
+    }
+
     const result = await adapter.send({
       channel,
-      userId,
+      userId: resolvedUserId,
       externalContactId,
       text,
-      audience
+      audience: resolvedAudience
     });
 
     await supabase
@@ -74,19 +114,26 @@ export async function POST(request: NextRequest) {
         status: result.success ? 'sent' : 'failed',
         external_message_id: result.providerMessageId || null,
         error: result.error || null,
+        metadata: {
+          source: 'dispatch',
+          bindingResolved: !!binding,
+          diagnostics: result.diagnostics || null
+        },
         updated_at: new Date().toISOString()
       })
       .eq('id', row.id);
 
     await supabase.from('persona_activity').insert({
-      user_id: userId,
+      user_id: resolvedUserId,
       action_type: 'channel_message_dispatched',
-      summary: `Dispatched ${channel} outbound message (${audience})`,
+      summary: `Dispatched ${channel} outbound message (${resolvedAudience})`,
       details: {
         channel,
         externalContactId,
+        bindingResolved: !!binding,
         success: result.success,
         providerMessageId: result.providerMessageId || null,
+        diagnostics: result.diagnostics || null,
         channelMessageId: row.id
       },
       requires_attention: !result.success
@@ -98,6 +145,7 @@ export async function POST(request: NextRequest) {
       channel,
       providerMessageId: result.providerMessageId || null,
       deliveredAt: result.deliveredAt || null,
+      diagnostics: result.diagnostics || null,
       error: result.error || null
     });
   } catch (error) {

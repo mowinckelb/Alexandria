@@ -11,6 +11,7 @@ const BodySchema = z.object({
 
 const ESTIMATED_LLM_INPUT_COST_PER_CHAR_USD = 0.0000008;
 const ESTIMATED_PERSONA_QUERY_REVENUE_USD = 0.0025;
+const DAILY_API_KEY_SPEND_LIMIT_USD = Number(process.env.BILLING_DAILY_API_KEY_LIMIT_USD || '0');
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -55,6 +56,50 @@ export async function POST(request: NextRequest) {
     const { query, sessionId, temperature } = parsed.data;
     const estimatedExpenseUsd = Number((query.length * ESTIMATED_LLM_INPUT_COST_PER_CHAR_USD).toFixed(6));
     const estimatedIncomeUsd = ESTIMATED_PERSONA_QUERY_REVENUE_USD;
+
+    if (DAILY_API_KEY_SPEND_LIMIT_USD > 0) {
+      const sinceIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: usageRows, error: usageWindowError } = await supabase
+        .from('api_usage')
+        .select('cost')
+        .eq('api_key_id', keyRecord.id)
+        .gte('created_at', sinceIso)
+        .order('created_at', { ascending: false })
+        .limit(5000);
+      if (usageWindowError) {
+        return NextResponse.json({ error: usageWindowError.message }, { status: 500 });
+      }
+      const current24hSpend = (usageRows || []).reduce((sum, row) => sum + Number(row.cost || 0), 0);
+      const projectedSpend = Number((current24hSpend + estimatedExpenseUsd).toFixed(6));
+      if (projectedSpend > DAILY_API_KEY_SPEND_LIMIT_USD) {
+        await supabase.from('persona_activity').insert({
+          user_id: keyRecord.user_id,
+          action_type: 'billing_guardrail_blocked_query',
+          summary: `Blocked external query for API key due to daily spend limit`,
+          details: {
+            apiKeyId: keyRecord.id,
+            current24hSpend: Number(current24hSpend.toFixed(6)),
+            estimatedExpenseUsd,
+            projectedSpend,
+            dailyLimitUsd: DAILY_API_KEY_SPEND_LIMIT_USD
+          },
+          requires_attention: true
+        });
+        return NextResponse.json(
+          {
+            error: 'Daily spend limit exceeded for this API key',
+            guardrail: {
+              current24hSpendUsd: Number(current24hSpend.toFixed(6)),
+              estimatedNextQueryUsd: estimatedExpenseUsd,
+              projected24hSpendUsd: projectedSpend,
+              dailyLimitUsd: DAILY_API_KEY_SPEND_LIMIT_USD
+            }
+          },
+          { status: 429 }
+        );
+      }
+    }
+
     const orchestrator = getOrchestrator();
     const { stream } = await orchestrator.handleQuery(
       [{ role: 'user', content: query }],

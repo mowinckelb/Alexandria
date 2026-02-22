@@ -13,7 +13,11 @@ export class WebAdapter implements ChannelAdapter {
       success: true,
       providerMessageId: `web-${Date.now()}`,
       deliveredAt: new Date().toISOString(),
-      error: message.text.trim() ? undefined : 'Empty message payload'
+      error: message.text.trim() ? undefined : 'Empty message payload',
+      diagnostics: {
+        provider: 'web-adapter',
+        statusCode: 200
+      }
     };
   }
 }

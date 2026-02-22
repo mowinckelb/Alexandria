@@ -60,8 +60,7 @@ export default function Alexandria() {
   const [pendingJobs, setPendingJobs] = useState<{ id: string; fileName: string; progress: number; status: string }[]>([]);
   const [showConstitution, setShowConstitution] = useState(false);
   const [showRlaifReview, setShowRlaifReview] = useState(false);
-  const [isStartingVoiceBootstrap, setIsStartingVoiceBootstrap] = useState(false);
-  const [voiceBootstrapStatus, setVoiceBootstrapStatus] = useState<string | null>(null);
+  const [showMoreNav, setShowMoreNav] = useState(false);
   const [rlaifReviewCount, setRlaifReviewCount] = useState(0);
   const seenEditorMessageIds = useRef<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -197,65 +196,6 @@ export default function Alexandria() {
       });
     } catch {
       // keep local mode even if persistence fails
-    }
-  };
-
-  const startVoiceBootstrap = async () => {
-    if (!userId || isStartingVoiceBootstrap) return;
-    setIsStartingVoiceBootstrap(true);
-    setVoiceBootstrapStatus('starting');
-    try {
-      const previewRes = await fetch('/api/voice-bootstrap', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          storagePrefix: userId,
-          dryRun: true
-        })
-      });
-
-      const preview = await previewRes.json();
-      if (!previewRes.ok) {
-        setVoiceBootstrapStatus(preview.error || 'failed');
-        return;
-      }
-
-      if (!preview.totalFiles || preview.totalFiles < 1) {
-        setVoiceBootstrapStatus('no files found');
-        return;
-      }
-
-      if (preview.totalFiles > 100) {
-        const confirmed = window.confirm(
-          `Voice bootstrap matched ${preview.totalFiles} files. Start processing now?`
-        );
-        if (!confirmed) {
-          setVoiceBootstrapStatus('cancelled');
-          return;
-        }
-      }
-
-      const res = await fetch('/api/voice-bootstrap', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          storagePrefix: userId
-        })
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setVoiceBootstrapStatus(data.error || 'failed');
-      } else {
-        setVoiceBootstrapStatus(`started (${data.totalFiles || preview.totalFiles} files)`);
-      }
-    } catch {
-      setVoiceBootstrapStatus('failed');
-    } finally {
-      setIsStartingVoiceBootstrap(false);
-      setTimeout(() => setVoiceBootstrapStatus(null), 3000);
     }
   };
 
@@ -1218,10 +1158,10 @@ export default function Alexandria() {
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 flex items-center justify-between p-4 md:p-6 text-[0.85rem] z-50" style={{ background: 'var(--bg-primary)' }}>
-        <div className="flex items-center gap-3">
+        <div className="relative flex items-center gap-3">
           <span className="text-[0.75rem] opacity-40">{username}</span>
           <span className="text-[0.75rem] opacity-40">·</span>
-          <button 
+          <button
             onClick={() => setShowConstitution(true)}
             className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
             style={{ color: 'var(--text-primary)' }}
@@ -1234,108 +1174,49 @@ export default function Alexandria() {
             className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
             style={{ color: 'var(--text-primary)' }}
           >
-            rlaif
+            rlaif{rlaifReviewCount > 0 ? ` (${rlaifReviewCount})` : ''}
           </button>
-          {rlaifReviewCount > 0 && (
-            <span className="text-[0.7rem] opacity-50" style={{ color: 'var(--text-subtle)' }}>
-              ({rlaifReviewCount})
-            </span>
-          )}
           <span className="text-[0.75rem] opacity-40">·</span>
-          <a
-            href="/library"
-            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            library
+          <a href="/training" className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
+            training
           </a>
           <span className="text-[0.75rem] opacity-40">·</span>
-          <a
-            href="/billing"
-            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            billing
-          </a>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <a
-            href="/activity"
-            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            activity
-          </a>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <a
-            href="/system"
-            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            system
-          </a>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <a
-            href="/graph"
-            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            graph
-          </a>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <a
-            href="/maturity"
-            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            maturity
-          </a>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <a
-            href="/channels"
-            className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            channels
+          <a href="/batch-upload" className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
+            upload
           </a>
           <span className="text-[0.75rem] opacity-40">·</span>
           <button
-            onClick={startVoiceBootstrap}
-            disabled={isStartingVoiceBootstrap}
-            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity disabled:opacity-30"
+            onClick={() => setShowMoreNav((prev) => !prev)}
+            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
             style={{ color: 'var(--text-primary)' }}
           >
-            voice bootstrap
+            more
           </button>
           <span className="text-[0.75rem] opacity-40">·</span>
-          <button 
+          <button
             onClick={handleLogout}
             className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
             style={{ color: 'var(--text-primary)' }}
           >
             sign out
           </button>
+          {showMoreNav && (
+            <div className="absolute top-8 left-0 rounded-xl p-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[0.72rem]" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}>
+              <a href="/activity" className="opacity-80 hover:opacity-100">activity</a>
+              <a href="/system" className="opacity-80 hover:opacity-100">system</a>
+              <a href="/library" className="opacity-80 hover:opacity-100">library</a>
+              <a href="/maturity" className="opacity-80 hover:opacity-100">maturity</a>
+              <a href="/channels" className="opacity-80 hover:opacity-100">channels</a>
+              <a href="/billing" className="opacity-80 hover:opacity-100">billing</a>
+            </div>
+          )}
         </div>
-        {voiceBootstrapStatus && (
-          <span className="text-[0.7rem] italic opacity-50" style={{ color: 'var(--text-subtle)' }}>
-            {voiceBootstrapStatus === 'starting'
-              ? 'starting voice bootstrap'
-              : voiceBootstrapStatus === 'cancelled'
-                ? 'voice bootstrap cancelled'
-                : voiceBootstrapStatus === 'no files found'
-                  ? 'voice bootstrap: no audio files found'
-                  : voiceBootstrapStatus === 'failed'
-                    ? 'voice bootstrap failed'
-                    : voiceBootstrapStatus.startsWith('started')
-                      ? `voice bootstrap ${voiceBootstrapStatus}`
-                      : voiceBootstrapStatus}
-          </span>
-        )}
-        
+
         <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-55 pt-0.5">
           <span>alexandria.</span>
           <span className="text-[0.75rem] italic opacity-80">mentes aeternae</span>
         </div>
-        
+
         <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
           <button
             onClick={toggleTheme}
@@ -1359,6 +1240,21 @@ export default function Alexandria() {
           />
         </div>
       </div>
+
+      {rlaifReviewCount > 0 && (
+        <div className="fixed top-[58px] left-0 right-0 z-40 px-4">
+          <div className="mx-auto max-w-[700px] rounded-lg px-3 py-1.5 flex items-center justify-between text-[0.72rem]" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}>
+            <span>{rlaifReviewCount} items need your review</span>
+            <button
+              onClick={() => setShowRlaifReview(true)}
+              className="bg-transparent border-none cursor-pointer opacity-80 hover:opacity-100"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              open review
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Output Area */}
       <div ref={outputScrollRef} className="flex-1 px-4 md:px-8 pt-16 md:pt-24 pb-4 md:pb-8 overflow-y-auto">

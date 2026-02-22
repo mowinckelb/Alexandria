@@ -75,3 +75,5 @@ Stage 1 foundations are now in place:
 - Optional bridge auth guard:
   - `CHANNEL_SHARED_SECRET` enables shared-secret auth on channel endpoints
   - supported headers: `x-channel-secret: <secret>` or `Authorization: Bearer <secret>`
+- Security runbook:
+  - `docs/channel-security-playbook.md`
