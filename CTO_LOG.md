@@ -293,44 +293,27 @@ After feedback:
 ## Session Handoff Notes
 *Critical context for the next session/agent*
 
-**Last session:** 2026-02-22
+**Last session:** 2026-02-22 (Codex + auto model)
 
-**What was done this session (Opus CTO pivot):**
-1. **Strategic re-evaluation:** Audited entire codebase. Found that extensive operational scaffolding was built (channels, moderation, billing guardrails, dead-letter queues, SLA tracking, memory graph) but the core data loop was open — training pairs 51 days old, no auto-training, no daily-use UX. Pivot to Data Loop MVP.
-2. **Created `ALEXANDRIA_EXECUTION_V2.md`** — New execution plan focused on closing the data loop for daily founder use. Replaces `ALEXANDRIA_EXECUTION.md` as the active plan.
-3. **Created `app/api/cron/auto-train/route.ts`** — Auto-training cron that checks every 12h for 50+ unexported quality pairs and triggers `POST /api/training { action: 'start' }`. Verified working (correctly skipped with 11 available pairs).
-4. **Updated `vercel.json`** — Added `auto-train` function config (maxDuration: 120). Cron schedule entry still needs adding (Task 1 in execution plan).
+**V2 Data Loop MVP — code complete.** All 7 tasks in `ALEXANDRIA_EXECUTION_V2.md` are implemented:
+- TASK 1: Auto-train cron wired in `vercel.json` (every 12h).
+- TASK 2: `app/batch-upload/page.tsx` — multi-file .md/.txt upload → `/api/bulk-ingest`.
+- TASK 3: `app/training/page.tsx` — pair counts, Train Now, job polling, Activate model.
+- TASK 4: Main nav simplified (constitution · rlaif · training · upload · more · sign out); "more" has activity, system, library, maturity, channels, billing.
+- TASK 5: **Manual only** — founder deploys, uploads transcriptions at `/batch-upload`, extracts constitution, runs training, tests Persona.
+- TASK 6: RLAIF banner when pending reviews ("X items need your review" + open review).
+- TASK 7: Editor cron generates contextual proactive messages from recent entries + LLM.
 
-**For the next session — start here:**
-1. Read `MOWINCKEL.md` → `ALEXANDRIA.md` → `CTO_LOG.md` → **`ALEXANDRIA_EXECUTION_V2.md`** (the active plan)
-2. Run health check: `GET /api/debug/ping`
-3. Execute tasks from `ALEXANDRIA_EXECUTION_V2.md` in order (Tasks 1-7)
-4. **IMPORTANT:** Execution will likely be done by Codex (cheaper model). Tasks are written to be self-contained and mechanically executable.
+**For the next session (when Opus/Codex returns):**
+1. Read `MOWINCKEL.md` → `ALEXANDRIA.md` → `CTO_LOG.md` → **`ALEXANDRIA_EXECUTION_V2.md`** (see "Completion status" at top).
+2. Run health check: `GET /api/debug/ping`.
+3. No remaining V2 code work. Options: (a) Verify production deploy and that auto-train cron runs on Vercel; (b) Prioritize Track B (see ALEXANDRIA_EXECUTION_V2.md — voice-first, iMessage bridge, External API + Library, Blueprint, etc.); (c) Address technical debt in CTO_LOG (e.g. auth Supabase dedup, legacy factory aliases).
 
-**Key context for the executing model:**
-- **Single user.** The founder is the only user. Don't build for multi-user.
-- **100hrs of voice note transcription .md files** are ready to upload. This is the real data, not the existing test data.
-- **Existing test data (520 memories, 218 pairs) is irrelevant.** Don't worry about preserving it.
-- **Build for terminal, bridge backwards.** Web is the bridge for now. Mac arrives in ~2 months.
-- **The founder will use this daily for ~1 month** while credits are depleted. It must work without code changes.
+**Key context:**
+- Single founder user. 100hrs transcription .md files ready; load via `/batch-upload`. Build for terminal, bridge backwards; Mac in ~2 months.
+- **`ALEXANDRIA_EXECUTION_V2.md`** — active plan; completion table at top is source of truth.
 
-**Key files to know:**
-- **`ALEXANDRIA_EXECUTION_V2.md`** — THE active execution plan. Follow this, not V1.
-- **`ALEXANDRIA.md`** — Complete vision (886 lines, read-only, single source of truth)
-- `MOWINCKEL.md` — Agent protocol
-- `CTO_LOG.md` — This file
-- `lib/factory.ts` — Module instantiation
-- `lib/models.ts` — All provider instances centralized
-- `app/api/bulk-ingest/route.ts` — Batch text ingestion (used by batch upload page)
-- `app/api/training/route.ts` — Training pipeline (export + Together AI fine-tune)
-- `app/api/cron/auto-train/route.ts` — Auto-training cron (NEW)
-
-**System state (verified 2026-02-22):**
-- `GET /api/debug/ping` → `{ success: true, database: true, environment: true, logic: true }`
-- `POST /api/cron/auto-train` → `200 { success, results: [{ action: 'skipped', reason: 'insufficient_pairs', available: 11 }] }`
-- `npx tsc --noEmit` → 0 errors
-- Real user: 520 memory fragments, 218 training pairs (test data), 11 unexported pairs
-- All 10 dashboard pages render (200 OK)
+**Key files:** `lib/factory.ts`, `lib/models.ts`, `app/api/bulk-ingest/route.ts`, `app/api/training/route.ts`, `app/api/cron/auto-train/route.ts`, `app/batch-upload/page.tsx`, `app/training/page.tsx`, `app/page.tsx` (nav + RLAIF banner).
 
 ---
 

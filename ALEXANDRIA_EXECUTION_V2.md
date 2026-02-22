@@ -6,6 +6,22 @@
 
 ---
 
+## Completion status (as of last update)
+
+| Task | Status | Notes |
+|------|--------|-------|
+| TASK 1 — Wire auto-train cron | ✅ Done | `vercel.json` has `/api/cron/auto-train` on `0 */12 * * *` |
+| TASK 2 — Batch upload page | ✅ Done | `app/batch-upload/page.tsx` |
+| TASK 3 — Training dashboard | ✅ Done | `app/training/page.tsx` |
+| TASK 4 — Simplify nav | ✅ Done | Primary: constitution · rlaif · training · upload · more · sign out; "more" dropdown for rest |
+| TASK 5 — Deploy and run data load | ⏳ Manual | Founder: deploy, `/batch-upload`, upload .md files, extract constitution, train, test Persona |
+| TASK 6 — RLAIF banner | ✅ Done | Banner when pending reviews: "X items need your review" + open review |
+| TASK 7 — Contextual Editor messages | ✅ Done | `editor-cycle` uses LLM + recent entries to generate proactive questions |
+
+**All code tasks for the Data Loop MVP are complete.** Only TASK 5 (your manual data load) remains. When Opus/Codex returns: verify production deploy and cron, then consider Track B (see below) or technical debt from CTO_LOG.
+
+---
+
 ## What Already Works (don't touch)
 
 | Component | Status | Notes |
@@ -22,7 +38,7 @@
 | Constitution panel UI | Working | View, version history, extract button |
 | RLAIF review panel UI | Working | `app/components/RlaifReviewPanel.tsx` |
 | Editor cron cycle | Working | `app/api/cron/editor-cycle/route.ts` → proactive questions/nudges |
-| Auto-training cron | **CREATED** | `app/api/cron/auto-train/route.ts` (needs vercel.json wiring) |
+| Auto-training cron | ✅ Working | `app/api/cron/auto-train/route.ts` + scheduled in `vercel.json` every 12h |
 | Privacy modes | Working | private/personal/professional toggle |
 
 ## What Needs Building (ordered by priority)
@@ -239,24 +255,26 @@ This is a single line, same minimal style, that auto-hides when count is 0.
 
 ---
 
-## Files Created by Opus (this session)
+## Files created for Data Loop MVP
 
 | File | Status |
 |------|--------|
 | `ALEXANDRIA_EXECUTION_V2.md` | This file (the plan) |
-| `app/api/cron/auto-train/route.ts` | Created, ready to use |
-| `vercel.json` | Modified: added `auto-train` function config (cron entry still needs adding) |
+| `app/api/cron/auto-train/route.ts` | Done; scheduled in vercel.json |
+| `app/batch-upload/page.tsx` | Done |
+| `app/training/page.tsx` | Done |
+| `app/page.tsx` | Updated: simplified nav, RLAIF banner, voice bootstrap removed |
+| `vercel.json` | Updated: auto-train cron + function config |
+| `app/api/cron/editor-cycle/route.ts` | Updated: contextual proactive messages via LLM |
 
 ---
 
-## Execution Order for Codex
+## Execution order (reference; all code steps done)
 
-1. **TASK 1** — Wire auto-train cron (2 min, one line in vercel.json)
-2. **TASK 2** — Batch upload page (30-45 min, new file)
-3. **TASK 3** — Training dashboard (30-45 min, new file)
-4. **TASK 4** — Simplify navigation (20 min, edit app/page.tsx)
-5. **TASK 6** — RLAIF banner (10 min, edit app/page.tsx, do alongside Task 4)
-6. Run `npx tsc --noEmit` and fix any errors
-7. Commit and push
-8. **TASK 5** — Deploy and run initial data load (manual)
-9. **TASK 7** — Editor message quality (if credits remain)
+1. ~~TASK 1 — Wire auto-train cron~~ ✅
+2. ~~TASK 2 — Batch upload page~~ ✅
+3. ~~TASK 3 — Training dashboard~~ ✅
+4. ~~TASK 4 — Simplify navigation~~ ✅
+5. ~~TASK 6 — RLAIF banner~~ ✅
+6. ~~TASK 7 — Editor message quality~~ ✅
+7. **TASK 5 — Deploy and run initial data load** (manual, founder)
