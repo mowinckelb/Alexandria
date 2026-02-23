@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface BulkIngestSummary {
   chunksProcessed: number;
@@ -28,11 +28,60 @@ interface UploadItem {
   error?: string;
 }
 
+function normalizeSummary(data: unknown): BulkIngestSummary {
+  const payload = data as {
+    summary?: {
+      chunksProcessed?: number;
+      totalChunks?: number;
+      extraction?: {
+        facts?: number;
+        preferences?: number;
+        opinions?: number;
+        values?: number;
+        entities?: number;
+      };
+      storage?: {
+        memoryItems?: number;
+        trainingPairs?: number;
+        editorNotes?: number;
+      };
+      factsExtracted?: number;
+      memoryItemsStored?: number;
+      trainingPairsGenerated?: number;
+      editorNotesGenerated?: number;
+      errors?: string[];
+    };
+  };
+  const summary = payload.summary || {};
+  return {
+    chunksProcessed: summary.chunksProcessed || 0,
+    totalChunks: summary.totalChunks || summary.chunksProcessed || 0,
+    extraction: {
+      facts: summary.extraction?.facts || summary.factsExtracted || 0,
+      preferences: summary.extraction?.preferences || 0,
+      opinions: summary.extraction?.opinions || 0,
+      values: summary.extraction?.values || 0,
+      entities: summary.extraction?.entities || 0
+    },
+    storage: {
+      memoryItems: summary.storage?.memoryItems || summary.memoryItemsStored || 0,
+      trainingPairs: summary.storage?.trainingPairs || summary.trainingPairsGenerated || 0,
+      editorNotes: summary.storage?.editorNotes || summary.editorNotesGenerated || 0
+    },
+    errors: summary.errors
+  };
+}
+
 export default function BatchUploadPage() {
+  const [userId, setUserId] = useState<string>('');
   const [items, setItems] = useState<UploadItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [message, setMessage] = useState<string>('');
+
+  useEffect(() => {
+    setUserId(localStorage.getItem('alexandria_user_id') || '');
+  }, []);
 
   const totals = useMemo(() => {
     return items.reduce(
@@ -77,11 +126,50 @@ export default function BatchUploadPage() {
     return file.text();
   };
 
+  const processViaBulkIngest = async (file: File, userId: string): Promise<BulkIngestSummary> => {
+    const text = await readText(file);
+    if (!text.trim()) {
+      throw new Error('file is empty');
+    }
+
+    const res = await fetch('/api/bulk-ingest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text,
+        userId,
+        source: `voice-transcript:${file.name}`
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data?.success) {
+      throw new Error(data?.error || `bulk ingest failed (${res.status})`);
+    }
+    return normalizeSummary(data);
+  };
+
+  const processViaUploadCarbon = async (file: File, userId: string): Promise<BulkIngestSummary> => {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('userId', userId);
+    form.append('context', `voice-transcript:${file.name}`);
+
+    const res = await fetch('/api/upload-carbon', {
+      method: 'POST',
+      body: form
+    });
+    const data = await res.json();
+    if (!res.ok || !data?.success) {
+      throw new Error(data?.error || `upload fallback failed (${res.status})`);
+    }
+    return normalizeSummary(data);
+  };
+
   const processAll = async () => {
     if (isProcessing || items.length === 0) return;
     const userId = localStorage.getItem('alexandria_user_id') || '';
     if (!userId) {
-      setMessage('not authenticated. sign in first.');
+      setMessage('Not signed in on this device. Open the app, sign in, then come back to this page.');
       return;
     }
 
@@ -92,24 +180,13 @@ export default function BatchUploadPage() {
     for (const item of queue) {
       setItems((prev) => prev.map((p) => (p.id === item.id ? { ...p, status: 'processing', error: undefined } : p)));
       try {
-        const text = await readText(item.file);
-        if (!text.trim()) {
-          throw new Error('file is empty');
-        }
-
-        const res = await fetch('/api/bulk-ingest', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text,
-            userId,
-            source: `voice-transcript:${item.file.name}`
-          })
-        });
-
-        const data = await res.json();
-        if (!res.ok || !data?.success) {
-          throw new Error(data?.error || `request failed (${res.status})`);
+        let summary: BulkIngestSummary;
+        try {
+          summary = await processViaBulkIngest(item.file, userId);
+        } catch (bulkError) {
+          // Fallback for mobile/body-size/network edge cases.
+          summary = await processViaUploadCarbon(item.file, userId);
+          setMessage(`fallback used for ${item.file.name} (${bulkError instanceof Error ? bulkError.message : 'bulk ingest failed'})`);
         }
 
         setItems((prev) =>
@@ -118,7 +195,7 @@ export default function BatchUploadPage() {
               ? {
                   ...p,
                   status: 'done',
-                  summary: data.summary
+                  summary
                 }
               : p
           )
@@ -147,6 +224,15 @@ export default function BatchUploadPage() {
       <div className="mx-auto max-w-4xl space-y-4">
         <h1 className="text-2xl">Batch Upload</h1>
         <p className="text-sm opacity-70">process many transcript files through bulk ingest.</p>
+        <p className="text-xs opacity-60">
+          On phone: sign in on this device first. For 100+ files use desktop; on phone try a few at a time.
+        </p>
+
+        {!userId && (
+          <div className="rounded-xl p-3 text-sm" style={{ background: 'var(--bg-secondary)' }}>
+            Sign in on this device first — <a href="/" className="underline">open app and sign in</a>, then return here.
+          </div>
+        )}
 
         <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
           <div
@@ -170,7 +256,7 @@ export default function BatchUploadPage() {
               <input
                 type="file"
                 multiple
-                accept=".md,.txt,text/markdown,text/plain"
+                accept=".md,.txt,text/markdown,text/plain,*/*"
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files) addFiles(e.target.files);

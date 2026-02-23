@@ -23,11 +23,16 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = getSupabase();
-    const { data: bindings, error: bindingsError } = await supabase
+    const scopedUserId = request.nextUrl.searchParams.get('userId');
+    let bindingsQuery = supabase
       .from('channel_bindings')
       .select('user_id, channel, external_contact_id, audience, max_messages_per_flush, min_interval_seconds, paused_until')
       .eq('is_active', true)
       .limit(200);
+    if (scopedUserId) {
+      bindingsQuery = bindingsQuery.eq('user_id', scopedUserId);
+    }
+    const { data: bindings, error: bindingsError } = await bindingsQuery;
     if (bindingsError) return NextResponse.json({ error: bindingsError.message }, { status: 500 });
 
     let attempted = 0;

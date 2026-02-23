@@ -1204,6 +1204,8 @@ export default function Alexandria() {
             <div className="absolute top-8 left-0 rounded-xl p-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[0.72rem]" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}>
               <a href="/activity" className="opacity-80 hover:opacity-100">activity</a>
               <a href="/system" className="opacity-80 hover:opacity-100">system</a>
+              <a href="/machine" className="opacity-80 hover:opacity-100">machine</a>
+              <a href="/blueprint" className="opacity-80 hover:opacity-100">blueprint</a>
               <a href="/library" className="opacity-80 hover:opacity-100">library</a>
               <a href="/maturity" className="opacity-80 hover:opacity-100">maturity</a>
               <a href="/channels" className="opacity-80 hover:opacity-100">channels</a>
