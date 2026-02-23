@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
       queuedBlueprintProposalsRes,
       highImpactBlueprintRes,
       activeBindingsRes,
+      pausedBindingsRes,
       failedOutboundRes,
       deadLetterOutboundRes,
       systemConfigRes,
@@ -113,6 +114,12 @@ export async function GET(request: NextRequest) {
         .eq('user_id', userId)
         .eq('is_active', true),
       supabase
+        .from('channel_bindings')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .gt('paused_until', now.toISOString()),
+      supabase
         .from('channel_messages')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
@@ -180,6 +187,7 @@ export async function GET(request: NextRequest) {
 
     const queuedHighImpact = highImpactBlueprintRes.count || 0;
     const activeBindings = activeBindingsRes.count || 0;
+    const pausedBindings = pausedBindingsRes.count || 0;
     const failedOutbound = failedOutboundRes.count || 0;
     const deadLetterOutbound = deadLetterOutboundRes.count || 0;
     const nextActions: string[] = [];
@@ -212,6 +220,9 @@ export async function GET(request: NextRequest) {
     }
     if (deadLetterOutbound > 0) {
       nextActions.push(`Requeue dead-letter channel messages (${deadLetterOutbound}).`);
+    }
+    if (pausedBindings > 0) {
+      nextActions.push(`Review paused channel bindings (${pausedBindings}).`);
     }
     if ((undeliveredMessagesRes.count || 0) > 0 && activeBindings === 0) {
       nextActions.push('Create an active channel binding or use drain to clear undelivered editor messages.');
@@ -286,6 +297,7 @@ export async function GET(request: NextRequest) {
         },
         channelLoop: {
           activeBindings,
+          pausedBindings,
           failedOutbound,
           deadLetterOutbound
         },

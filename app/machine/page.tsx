@@ -62,6 +62,7 @@ interface MachineStatusPayload {
     };
     channelLoop?: {
       activeBindings: number;
+      pausedBindings?: number;
       failedOutbound: number;
       deadLetterOutbound: number;
     };
@@ -479,6 +480,9 @@ export default function MachinePage() {
             <div className="text-xs opacity-60">channel loop</div>
             <div className="text-sm">
               active bindings {machine?.channelLoop?.activeBindings || 0}
+            </div>
+            <div className="text-xs opacity-60">
+              paused {machine?.channelLoop?.pausedBindings || 0} ·
             </div>
             <div className="text-xs opacity-60">
               failed {machine?.channelLoop?.failedOutbound || 0} · dead-letter {machine?.channelLoop?.deadLetterOutbound || 0}
