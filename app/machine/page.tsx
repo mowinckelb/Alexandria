@@ -81,6 +81,7 @@ export default function MachinePage() {
   const [resolvingBlueprint, setResolvingBlueprint] = useState(false);
   const [drainingEditorMessages, setDrainingEditorMessages] = useState(false);
   const [recoveringChannels, setRecoveringChannels] = useState(false);
+  const [resolvingBlockers, setResolvingBlockers] = useState(false);
   const [includeChannels, setIncludeChannels] = useState(false);
   const [runResult, setRunResult] = useState<string>('');
 
@@ -269,6 +270,25 @@ export default function MachinePage() {
     }
   };
 
+  const resolveBlockers = async () => {
+    setResolvingBlockers(true);
+    setRunResult('');
+    try {
+      const res = await fetch('/api/machine/resolve-blockers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+      const data = await res.json();
+      setRunResult(res.ok && data?.success ? 'blocker resolution pass complete' : (data?.error || 'blocker resolution failed'));
+      await loadStatus(userId);
+    } catch {
+      setRunResult('blocker resolution failed');
+    } finally {
+      setResolvingBlockers(false);
+    }
+  };
+
   if (!userId) {
     return (
       <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
@@ -353,6 +373,14 @@ export default function MachinePage() {
             style={{ background: 'var(--bg-secondary)' }}
           >
             {recoveringChannels ? 'recovering...' : 'recover channels'}
+          </button>
+          <button
+            onClick={resolveBlockers}
+            disabled={resolvingBlockers}
+            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+            style={{ background: 'var(--bg-secondary)' }}
+          >
+            {resolvingBlockers ? 'resolving blockers...' : 'resolve blockers'}
           </button>
           <a href="/" className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bg-secondary)' }}>
             back to app
