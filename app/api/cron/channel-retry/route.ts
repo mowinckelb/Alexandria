@@ -45,11 +45,31 @@ export async function POST(request: NextRequest) {
     let retried = 0;
     let succeeded = 0;
     let skipped = 0;
+    let pausedSkipped = 0;
     let autoPausedBindings = 0;
     const touchedBindings = new Set<string>();
+    const pauseMemo = new Map<string, boolean>();
 
     for (const row of failedRows || []) {
       touchedBindings.add(`${row.user_id}::${row.channel}::${row.external_contact_id}`);
+      const bindingKey = `${row.user_id}::${row.channel}::${row.external_contact_id}`;
+      if (!pauseMemo.has(bindingKey)) {
+        const { data: binding } = await supabase
+          .from('channel_bindings')
+          .select('paused_until')
+          .eq('user_id', row.user_id)
+          .eq('channel', row.channel)
+          .eq('external_contact_id', row.external_contact_id)
+          .eq('is_active', true)
+          .maybeSingle();
+        const paused = Boolean(binding?.paused_until) && new Date(binding?.paused_until).getTime() > Date.now();
+        pauseMemo.set(bindingKey, paused);
+      }
+      if (pauseMemo.get(bindingKey)) {
+        pausedSkipped += 1;
+        continue;
+      }
+
       const metadata = (row.metadata || {}) as Record<string, unknown>;
       const attempts = Number(metadata.retryAttempts || 0);
       const nextMetadata = {
@@ -178,6 +198,7 @@ export async function POST(request: NextRequest) {
       retried,
       succeeded,
       skipped,
+      pausedSkipped,
       autoPausedBindings
     });
   } catch (error) {
