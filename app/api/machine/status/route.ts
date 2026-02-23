@@ -3,6 +3,10 @@ import { createClient } from '@supabase/supabase-js';
 import { buildMergedSystemConfig, validateSystemConfigAxioms } from '@/lib/system/axioms';
 
 export const dynamic = 'force-dynamic';
+const MIN_QUALITY = 0.4;
+const MIN_PAIRS_FOR_INITIAL_CONSTITUTION = 20;
+const MIN_NEW_PAIRS_FOR_REFRESH = 25;
+const CONSTITUTION_REFRESH_COOLDOWN_HOURS = 24;
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -28,12 +32,14 @@ export async function GET(request: NextRequest) {
       pendingReviewsRes,
       undeliveredMessagesRes,
       pendingTrainPairsRes,
+      qualityPairsAllRes,
       lastTrainRes,
       queuedBlueprintProposalsRes,
       highImpactBlueprintRes,
       systemConfigRes,
       twinRes,
-      activeModelRes
+      activeModelRes,
+      activeConstitutionRes
     ] = await Promise.all([
       supabase
         .from('editor_state')
@@ -66,7 +72,12 @@ export async function GET(request: NextRequest) {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .eq('used_for_export', false)
-        .gte('quality_score', 0.4),
+        .gte('quality_score', MIN_QUALITY),
+      supabase
+        .from('training_pairs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('quality_score', MIN_QUALITY),
       supabase
         .from('training_exports')
         .select('id,status,created_at,completed_at')
@@ -97,6 +108,9 @@ export async function GET(request: NextRequest) {
         .maybeSingle(),
       supabase
         .rpc('get_active_model', { p_user_id: userId })
+      ,
+      supabase
+        .rpc('get_active_constitution', { p_user_id: userId })
     ]);
 
     const pendingQueue = pendingQueueRes.count || 0;
@@ -111,8 +125,30 @@ export async function GET(request: NextRequest) {
     const editorStale = lastCycleMs ? (now.getTime() - lastCycleMs > staleCutoffMs) : false;
     const editorHealthy = Boolean(nextCycleAtRaw) && !editorStale;
     const readyPairs = pendingTrainPairsRes.count || 0;
+    const qualityPairsAll = qualityPairsAllRes.count || 0;
     const mergedConfig = buildMergedSystemConfig((systemConfigRes.data?.config as Record<string, unknown> | undefined) || {});
     const axiomResult = validateSystemConfigAxioms(mergedConfig);
+    const activeConstitution = Array.isArray(activeConstitutionRes.data) && activeConstitutionRes.data.length > 0
+      ? activeConstitutionRes.data[0]
+      : null;
+    const constitutionCreatedAt = activeConstitution?.created_at ? new Date(activeConstitution.created_at) : null;
+    const constitutionAgeHours = constitutionCreatedAt
+      ? (now.getTime() - constitutionCreatedAt.getTime()) / (1000 * 60 * 60)
+      : null;
+    const constitutionCooldownPassed = constitutionAgeHours === null || constitutionAgeHours >= CONSTITUTION_REFRESH_COOLDOWN_HOURS;
+
+    const newPairsSinceConstitutionRes = constitutionCreatedAt
+      ? await supabase
+          .from('training_pairs')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .gte('quality_score', MIN_QUALITY)
+          .gt('created_at', constitutionCreatedAt.toISOString())
+      : null;
+    const newPairsSinceConstitution = newPairsSinceConstitutionRes?.count || 0;
+    const constitutionRefreshReady = activeConstitution
+      ? constitutionCooldownPassed && newPairsSinceConstitution >= MIN_NEW_PAIRS_FOR_REFRESH
+      : qualityPairsAll >= MIN_PAIRS_FOR_INITIAL_CONSTITUTION;
 
     const queuedHighImpact = highImpactBlueprintRes.count || 0;
     const nextActions: string[] = [];
@@ -126,6 +162,13 @@ export async function GET(request: NextRequest) {
       nextActions.push(`Ingest more data to reach 50 quality pairs (currently ${readyPairs}).`);
     } else if (!lastTrainRes.data) {
       nextActions.push('Trigger training to activate the first fine-tuned model.');
+    }
+    if (!activeConstitution && qualityPairsAll >= MIN_PAIRS_FOR_INITIAL_CONSTITUTION) {
+      nextActions.push('Run constitution refresh to initialize the first Constitution.');
+    } else if (!activeConstitution) {
+      nextActions.push(`Collect more quality pairs to initialize Constitution (need ${MIN_PAIRS_FOR_INITIAL_CONSTITUTION}, have ${qualityPairsAll}).`);
+    } else if (constitutionRefreshReady) {
+      nextActions.push('Run constitution refresh to capture newly learned patterns.');
     }
     if ((pendingReviewsRes.count || 0) > 0) {
       nextActions.push(`Review pending RLAIF items (${pendingReviewsRes.count}).`);
@@ -168,6 +211,15 @@ export async function GET(request: NextRequest) {
         rlaifLoop: {
           pendingAuthorReview: pendingReviewsRes.count || 0,
           undeliveredEditorMessages: undeliveredMessagesRes.count || 0
+        },
+        constitutionLoop: {
+          hasConstitution: Boolean(activeConstitution),
+          version: activeConstitution?.version || null,
+          lastUpdatedAt: activeConstitution?.created_at || null,
+          ageHours: constitutionAgeHours !== null ? Math.round(constitutionAgeHours) : null,
+          qualityPairsAll,
+          newPairsSinceLast: activeConstitution ? newPairsSinceConstitution : null,
+          refreshReady: constitutionRefreshReady
         },
         trainingLoop: {
           readyPairs,
