@@ -13,45 +13,41 @@ function getBaseUrl(request: NextRequest): string {
   return request.nextUrl.origin;
 }
 
-async function postJson(url: string, payload: Record<string, unknown>) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  let body: unknown = null;
+async function requestJson(
+  method: 'GET' | 'POST' | 'PATCH',
+  url: string,
+  payload?: Record<string, unknown>,
+  timeoutMs = 15000
+) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const startedAt = Date.now();
   try {
-    body = await res.json();
-  } catch {
-    body = null;
+    const res = await fetch(url, {
+      method,
+      headers: method === 'GET' ? undefined : { 'Content-Type': 'application/json' },
+      body: payload ? JSON.stringify(payload) : undefined,
+      signal: controller.signal
+    });
+    let body: unknown = null;
+    try {
+      body = await res.json();
+    } catch {
+      body = null;
+    }
+    return { ok: res.ok, status: res.status, body, elapsedMs: Date.now() - startedAt, timedOut: false };
+  } catch (error) {
+    const timedOut = error instanceof Error && error.name === 'AbortError';
+    return {
+      ok: false,
+      status: timedOut ? 408 : 500,
+      body: { error: timedOut ? `Timed out after ${timeoutMs}ms` : (error instanceof Error ? error.message : 'Unknown error') },
+      elapsedMs: Date.now() - startedAt,
+      timedOut
+    };
+  } finally {
+    clearTimeout(timeout);
   }
-  return { ok: res.ok, status: res.status, body };
-}
-
-async function patchJson(url: string, payload: Record<string, unknown>) {
-  const res = await fetch(url, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  let body: unknown = null;
-  try {
-    body = await res.json();
-  } catch {
-    body = null;
-  }
-  return { ok: res.ok, status: res.status, body };
-}
-
-async function getJson(url: string) {
-  const res = await fetch(url);
-  let body: unknown = null;
-  try {
-    body = await res.json();
-  } catch {
-    body = null;
-  }
-  return { ok: res.ok, status: res.status, body };
 }
 
 export async function POST(request: NextRequest) {
@@ -65,32 +61,39 @@ export async function POST(request: NextRequest) {
     const baseUrl = getBaseUrl(request);
     const startedAt = Date.now();
 
-    const actions = {
-      rlaifBulkApprove: await postJson(`${baseUrl}/api/rlaif/review`, {
+    const [rlaifBulkApprove, resolveHighImpact, drainEditorMessages, recoverChannels] = await Promise.all([
+      requestJson('POST', `${baseUrl}/api/rlaif/review`, {
         action: 'bulk_approve',
         userId,
         limit: 100,
         includeFlagged: false
       }),
-      resolveHighImpact: await patchJson(`${baseUrl}/api/blueprint/proposals`, {
+      requestJson('PATCH', `${baseUrl}/api/blueprint/proposals`, {
         action: 'bulk_resolve_high_impact',
         userId,
         status: 'rejected',
         reviewNotes: 'bulk resolved from machine blocker resolver'
       }),
-      drainEditorMessages: await postJson(`${baseUrl}/api/machine/drain-editor-messages`, {
+      requestJson('POST', `${baseUrl}/api/machine/drain-editor-messages`, {
         userId,
         markStaleIfNoBindings: true,
         staleHours: 72
       }),
-      recoverChannels: await postJson(`${baseUrl}/api/machine/recover-channels`, {
+      requestJson('POST', `${baseUrl}/api/machine/recover-channels`, {
         userId,
         requeueDeadLetters: true,
         deadLetterLimit: 50
       })
+    ]);
+
+    const actions = {
+      rlaifBulkApprove,
+      resolveHighImpact,
+      drainEditorMessages,
+      recoverChannels
     };
 
-    const status = await getJson(`${baseUrl}/api/machine/status?userId=${encodeURIComponent(userId)}`);
+    const status = await requestJson('GET', `${baseUrl}/api/machine/status?userId=${encodeURIComponent(userId)}`, undefined, 12000);
     const ok = Object.values(actions).every((step) => step.ok) && status.ok;
 
     return NextResponse.json({

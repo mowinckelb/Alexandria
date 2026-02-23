@@ -15,30 +15,41 @@ function getBaseUrl(request: NextRequest): string {
   return request.nextUrl.origin;
 }
 
-async function postJson(url: string, payload: Record<string, unknown>) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  let data: unknown = null;
+async function requestJson(
+  method: 'GET' | 'POST',
+  url: string,
+  payload?: Record<string, unknown>,
+  timeoutMs = 20000
+) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const startedAt = Date.now();
   try {
-    data = await res.json();
-  } catch {
-    data = null;
+    const res = await fetch(url, {
+      method,
+      headers: method === 'GET' ? undefined : { 'Content-Type': 'application/json' },
+      body: payload ? JSON.stringify(payload) : undefined,
+      signal: controller.signal
+    });
+    let data: unknown = null;
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
+    return { ok: res.ok, status: res.status, data, elapsedMs: Date.now() - startedAt, timedOut: false };
+  } catch (error) {
+    const timedOut = error instanceof Error && error.name === 'AbortError';
+    return {
+      ok: false,
+      status: timedOut ? 408 : 500,
+      data: { error: timedOut ? `Timed out after ${timeoutMs}ms` : (error instanceof Error ? error.message : 'Unknown error') },
+      elapsedMs: Date.now() - startedAt,
+      timedOut
+    };
+  } finally {
+    clearTimeout(timeout);
   }
-  return { ok: res.ok, status: res.status, data };
-}
-
-async function getJson(url: string) {
-  const res = await fetch(url);
-  let data: unknown = null;
-  try {
-    data = await res.json();
-  } catch {
-    data = null;
-  }
-  return { ok: res.ok, status: res.status, data };
 }
 
 export async function POST(request: NextRequest) {
@@ -53,15 +64,17 @@ export async function POST(request: NextRequest) {
     const baseUrl = getBaseUrl(request);
     const startedAt = Date.now();
 
-    const bootstrap = await postJson(`${baseUrl}/api/machine/bootstrap`, { userId });
-    const cycle = await postJson(
+    const bootstrap = await requestJson('POST', `${baseUrl}/api/machine/bootstrap`, { userId }, 12000);
+    const cycle = await requestJson(
+      'POST',
       `${baseUrl}/api/cron/machine-cycle?userId=${encodeURIComponent(userId)}${includeChannels ? '&includeChannels=1' : ''}`,
-      {}
+      {},
+      35000
     );
     const blockers = resolveBlockers
-      ? await postJson(`${baseUrl}/api/machine/resolve-blockers`, { userId })
+      ? await requestJson('POST', `${baseUrl}/api/machine/resolve-blockers`, { userId }, 30000)
       : null;
-    const status = await getJson(`${baseUrl}/api/machine/status?userId=${encodeURIComponent(userId)}`);
+    const status = await requestJson('GET', `${baseUrl}/api/machine/status?userId=${encodeURIComponent(userId)}`, undefined, 12000);
     const cycleBody = (cycle.data as { success?: boolean } | null) || null;
     const statusBody = (status.data as { success?: boolean } | null) || null;
     const blockersOk = blockers ? blockers.ok : true;
