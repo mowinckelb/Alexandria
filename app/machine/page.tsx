@@ -85,6 +85,7 @@ export default function MachinePage() {
   const [resolvingBlockers, setResolvingBlockers] = useState(false);
   const [unpausingBindings, setUnpausingBindings] = useState(false);
   const [includeChannels, setIncludeChannels] = useState(false);
+  const [autoResolveBlockers, setAutoResolveBlockers] = useState(false);
   const [runResult, setRunResult] = useState<string>('');
 
   const loadStatus = async (id: string) => {
@@ -162,7 +163,7 @@ export default function MachinePage() {
       const res = await fetch('/api/machine/stabilize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, includeChannels })
+        body: JSON.stringify({ userId, includeChannels, resolveBlockers: autoResolveBlockers })
       });
       const data = await res.json();
       setRunResult(res.ok && data?.success ? `stabilized in ${data?.elapsedMs || 0}ms` : (data?.error || 'stabilize failed'));
@@ -425,6 +426,14 @@ export default function MachinePage() {
             onChange={(e) => setIncludeChannels(e.target.checked)}
           />
           include channels in run/stabilize
+        </label>
+        <label className="inline-flex items-center gap-2 text-xs opacity-80 ml-3">
+          <input
+            type="checkbox"
+            checked={autoResolveBlockers}
+            onChange={(e) => setAutoResolveBlockers(e.target.checked)}
+          />
+          auto-resolve blockers in stabilize
         </label>
 
         {runResult && <div className="text-xs opacity-70">{runResult}</div>}

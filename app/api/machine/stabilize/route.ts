@@ -3,7 +3,8 @@ import { z } from 'zod';
 
 const BodySchema = z.object({
   userId: z.string().uuid(),
-  includeChannels: z.boolean().optional().default(false)
+  includeChannels: z.boolean().optional().default(false),
+  resolveBlockers: z.boolean().optional().default(false)
 });
 
 function getBaseUrl(request: NextRequest): string {
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid request', details: parsed.error.issues }, { status: 400 });
     }
 
-    const { userId, includeChannels } = parsed.data;
+    const { userId, includeChannels, resolveBlockers } = parsed.data;
     const baseUrl = getBaseUrl(request);
     const startedAt = Date.now();
 
@@ -57,10 +58,14 @@ export async function POST(request: NextRequest) {
       `${baseUrl}/api/cron/machine-cycle?userId=${encodeURIComponent(userId)}${includeChannels ? '&includeChannels=1' : ''}`,
       {}
     );
+    const blockers = resolveBlockers
+      ? await postJson(`${baseUrl}/api/machine/resolve-blockers`, { userId })
+      : null;
     const status = await getJson(`${baseUrl}/api/machine/status?userId=${encodeURIComponent(userId)}`);
     const cycleBody = (cycle.data as { success?: boolean } | null) || null;
     const statusBody = (status.data as { success?: boolean } | null) || null;
-    const success = bootstrap.ok && cycle.ok && status.ok && cycleBody?.success !== false && statusBody?.success !== false;
+    const blockersOk = blockers ? blockers.ok : true;
+    const success = bootstrap.ok && cycle.ok && blockersOk && status.ok && cycleBody?.success !== false && statusBody?.success !== false;
 
     return NextResponse.json({
       success,
@@ -68,6 +73,7 @@ export async function POST(request: NextRequest) {
       steps: {
         bootstrap,
         cycle,
+        blockers,
         status
       }
     });
