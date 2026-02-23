@@ -32,6 +32,7 @@ interface MachineStatusPayload {
     rlaifLoop: {
       pendingAuthorReview: number;
       undeliveredEditorMessages: number;
+      staleUndeliveredEditorMessages?: number;
     };
     constitutionLoop?: {
       hasConstitution: boolean;
@@ -73,6 +74,7 @@ export default function MachinePage() {
   const [stabilizing, setStabilizing] = useState(false);
   const [bulkReviewing, setBulkReviewing] = useState(false);
   const [resolvingBlueprint, setResolvingBlueprint] = useState(false);
+  const [drainingEditorMessages, setDrainingEditorMessages] = useState(false);
   const [runResult, setRunResult] = useState<string>('');
 
   const loadStatus = async (id: string) => {
@@ -207,6 +209,33 @@ export default function MachinePage() {
     }
   };
 
+  const drainEditorMessages = async () => {
+    setDrainingEditorMessages(true);
+    setRunResult('');
+    try {
+      const res = await fetch('/api/machine/drain-editor-messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          markStaleIfNoBindings: true,
+          staleHours: 72
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data?.success) {
+        setRunResult(`drained editor messages: ${data?.undeliveredBefore || 0} -> ${data?.undeliveredAfter || 0}`);
+      } else {
+        setRunResult(data?.error || 'drain failed');
+      }
+      await loadStatus(userId);
+    } catch {
+      setRunResult('drain failed');
+    } finally {
+      setDrainingEditorMessages(false);
+    }
+  };
+
   if (!userId) {
     return (
       <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
@@ -276,6 +305,14 @@ export default function MachinePage() {
           >
             {resolvingBlueprint ? 'resolving...' : 'resolve high-impact'}
           </button>
+          <button
+            onClick={drainEditorMessages}
+            disabled={drainingEditorMessages}
+            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+            style={{ background: 'var(--bg-secondary)' }}
+          >
+            {drainingEditorMessages ? 'draining...' : 'drain editor msgs'}
+          </button>
           <a href="/" className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bg-secondary)' }}>
             back to app
           </a>
@@ -325,6 +362,9 @@ export default function MachinePage() {
             <div className="text-xs opacity-60">rlaif loop</div>
             <div className="text-sm">
               review queue {machine?.rlaifLoop?.pendingAuthorReview || 0} · editor msgs {machine?.rlaifLoop?.undeliveredEditorMessages || 0}
+            </div>
+            <div className="text-xs opacity-60">
+              stale editor msgs {machine?.rlaifLoop?.staleUndeliveredEditorMessages || 0}
             </div>
           </div>
           <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>

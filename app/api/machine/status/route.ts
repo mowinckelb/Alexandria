@@ -7,6 +7,7 @@ const MIN_QUALITY = 0.4;
 const MIN_PAIRS_FOR_INITIAL_CONSTITUTION = 20;
 const MIN_NEW_PAIRS_FOR_REFRESH = 25;
 const CONSTITUTION_REFRESH_COOLDOWN_HOURS = 24;
+const STALE_EDITOR_MESSAGE_HOURS = 24;
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
       runningQueueRes,
       pendingReviewsRes,
       undeliveredMessagesRes,
+      staleUndeliveredMessagesRes,
       pendingTrainPairsRes,
       qualityPairsAllRes,
       lastTrainRes,
@@ -67,6 +69,12 @@ export async function GET(request: NextRequest) {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .eq('delivered', false),
+      supabase
+        .from('editor_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('delivered', false)
+        .lt('created_at', new Date(Date.now() - STALE_EDITOR_MESSAGE_HOURS * 60 * 60 * 1000).toISOString()),
       supabase
         .from('training_pairs')
         .select('*', { count: 'exact', head: true })
@@ -173,6 +181,9 @@ export async function GET(request: NextRequest) {
     if ((pendingReviewsRes.count || 0) > 0) {
       nextActions.push(`Review pending RLAIF items (${pendingReviewsRes.count}).`);
     }
+    if ((staleUndeliveredMessagesRes.count || 0) > 0) {
+      nextActions.push(`Drain stale editor messages (${staleUndeliveredMessagesRes.count}).`);
+    }
     if (queuedHighImpact > 0) {
       nextActions.push(`Resolve high-impact blueprint proposals (${queuedHighImpact}).`);
     }
@@ -210,7 +221,8 @@ export async function GET(request: NextRequest) {
         },
         rlaifLoop: {
           pendingAuthorReview: pendingReviewsRes.count || 0,
-          undeliveredEditorMessages: undeliveredMessagesRes.count || 0
+          undeliveredEditorMessages: undeliveredMessagesRes.count || 0,
+          staleUndeliveredEditorMessages: staleUndeliveredMessagesRes.count || 0
         },
         constitutionLoop: {
           hasConstitution: Boolean(activeConstitution),
