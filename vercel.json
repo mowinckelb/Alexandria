@@ -12,6 +12,9 @@
     "app/api/cron/editor-cycle/route.ts": {
       "maxDuration": 60
     },
+    "app/api/cron/constitution-refresh/route.ts": {
+      "maxDuration": 120
+    },
     "app/api/cron/channel-retry/route.ts": {
       "maxDuration": 60
     },

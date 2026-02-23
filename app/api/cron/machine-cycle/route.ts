@@ -56,7 +56,15 @@ function hasStepFailure(step: { ok: boolean; body: unknown }): boolean {
   const body = step.body as { success?: boolean; failed?: number; results?: Array<{ action?: string }> };
   if (body.success === false) return true;
   if (typeof body.failed === 'number' && body.failed > 0) return true;
-  if (Array.isArray(body.results) && body.results.some((item) => item.action === 'training_failed' || item.action === 'training_error')) {
+  if (
+    Array.isArray(body.results) &&
+    body.results.some(
+      (item) =>
+        item.action === 'training_failed' ||
+        item.action === 'training_error' ||
+        item.action === 'constitution_failed'
+    )
+  ) {
     return true;
   }
 
@@ -128,6 +136,7 @@ export async function POST(request: NextRequest) {
     const coreSteps = [
       scoped('/api/process-queue'),
       scoped('/api/cron/editor-cycle'),
+      scoped('/api/cron/constitution-refresh'),
       scoped('/api/cron/auto-train')
     ];
     const channelSteps = [
