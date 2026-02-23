@@ -58,9 +58,12 @@ export async function POST(request: NextRequest) {
       {}
     );
     const status = await getJson(`${baseUrl}/api/machine/status?userId=${encodeURIComponent(userId)}`);
+    const cycleBody = (cycle.data as { success?: boolean } | null) || null;
+    const statusBody = (status.data as { success?: boolean } | null) || null;
+    const success = bootstrap.ok && cycle.ok && status.ok && cycleBody?.success !== false && statusBody?.success !== false;
 
     return NextResponse.json({
-      success: bootstrap.ok && cycle.ok && status.ok,
+      success,
       elapsedMs: Date.now() - startedAt,
       steps: {
         bootstrap,

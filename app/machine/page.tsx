@@ -81,6 +81,7 @@ export default function MachinePage() {
   const [resolvingBlueprint, setResolvingBlueprint] = useState(false);
   const [drainingEditorMessages, setDrainingEditorMessages] = useState(false);
   const [recoveringChannels, setRecoveringChannels] = useState(false);
+  const [includeChannels, setIncludeChannels] = useState(false);
   const [runResult, setRunResult] = useState<string>('');
 
   const loadStatus = async (id: string) => {
@@ -114,7 +115,10 @@ export default function MachinePage() {
     setRunning(true);
     setRunResult('');
     try {
-      const res = await fetch(`/api/cron/machine-cycle?userId=${encodeURIComponent(userId)}`, { method: 'POST' });
+      const res = await fetch(
+        `/api/cron/machine-cycle?userId=${encodeURIComponent(userId)}${includeChannels ? '&includeChannels=1' : ''}`,
+        { method: 'POST' }
+      );
       const data = await res.json();
       const ok = Boolean(data?.success);
       const proposalNote = data?.proposalId ? ` · blueprint proposal queued (${data.proposalId})` : '';
@@ -155,7 +159,7 @@ export default function MachinePage() {
       const res = await fetch('/api/machine/stabilize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
+        body: JSON.stringify({ userId, includeChannels })
       });
       const data = await res.json();
       setRunResult(res.ok && data?.success ? `stabilized in ${data?.elapsedMs || 0}ms` : (data?.error || 'stabilize failed'));
@@ -357,6 +361,14 @@ export default function MachinePage() {
             blueprint
           </a>
         </div>
+        <label className="inline-flex items-center gap-2 text-xs opacity-80">
+          <input
+            type="checkbox"
+            checked={includeChannels}
+            onChange={(e) => setIncludeChannels(e.target.checked)}
+          />
+          include channels in run/stabilize
+        </label>
 
         {runResult && <div className="text-xs opacity-70">{runResult}</div>}
 
