@@ -241,7 +241,14 @@ export default function BatchUploadPage() {
   };
 
   return (
-    <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <main
+      className="fixed inset-0 overflow-y-auto px-6 pt-10 pb-28"
+      style={{
+        background: 'var(--bg-primary)',
+        color: 'var(--text-primary)',
+        WebkitOverflowScrolling: 'touch'
+      }}
+    >
       <div className="mx-auto max-w-4xl space-y-4">
         <h1 className="text-2xl">Batch Upload</h1>
         <p className="text-sm opacity-70">process many transcript files through bulk ingest.</p>
@@ -287,7 +294,10 @@ export default function BatchUploadPage() {
             </label>
           </div>
 
-          <div className="flex gap-2">
+          <div
+            className="sticky bottom-0 z-10 flex gap-2 py-2"
+            style={{ background: 'var(--bg-secondary)' }}
+          >
             <button
               onClick={processAll}
               disabled={isProcessing || items.length === 0}
