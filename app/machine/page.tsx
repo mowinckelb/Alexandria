@@ -33,6 +33,15 @@ interface MachineStatusPayload {
       pendingAuthorReview: number;
       undeliveredEditorMessages: number;
     };
+    constitutionLoop?: {
+      hasConstitution: boolean;
+      version: number | null;
+      lastUpdatedAt: string | null;
+      ageHours: number | null;
+      qualityPairsAll: number;
+      newPairsSinceLast: number | null;
+      refreshReady: boolean;
+    };
     trainingLoop: {
       readyPairs: number;
       readyForAutoTrain: boolean;
@@ -61,6 +70,7 @@ export default function MachinePage() {
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
   const [bootstrapping, setBootstrapping] = useState(false);
+  const [stabilizing, setStabilizing] = useState(false);
   const [runResult, setRunResult] = useState<string>('');
 
   const loadStatus = async (id: string) => {
@@ -128,6 +138,25 @@ export default function MachinePage() {
     }
   };
 
+  const stabilizeMachine = async () => {
+    setStabilizing(true);
+    setRunResult('');
+    try {
+      const res = await fetch('/api/machine/stabilize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+      const data = await res.json();
+      setRunResult(res.ok && data?.success ? `stabilized in ${data?.elapsedMs || 0}ms` : (data?.error || 'stabilize failed'));
+      await loadStatus(userId);
+    } catch {
+      setRunResult('stabilize failed');
+    } finally {
+      setStabilizing(false);
+    }
+  };
+
   if (!userId) {
     return (
       <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
@@ -172,6 +201,14 @@ export default function MachinePage() {
             style={{ background: 'var(--bg-secondary)' }}
           >
             {bootstrapping ? 'bootstrapping...' : 'bootstrap machine'}
+          </button>
+          <button
+            onClick={stabilizeMachine}
+            disabled={stabilizing}
+            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+            style={{ background: 'var(--bg-secondary)' }}
+          >
+            {stabilizing ? 'stabilizing...' : 'stabilize machine'}
           </button>
           <a href="/" className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bg-secondary)' }}>
             back to app
@@ -222,6 +259,15 @@ export default function MachinePage() {
             <div className="text-xs opacity-60">rlaif loop</div>
             <div className="text-sm">
               review queue {machine?.rlaifLoop?.pendingAuthorReview || 0} · editor msgs {machine?.rlaifLoop?.undeliveredEditorMessages || 0}
+            </div>
+          </div>
+          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
+            <div className="text-xs opacity-60">constitution loop</div>
+            <div className="text-sm">
+              {machine?.constitutionLoop?.hasConstitution ? `v${machine?.constitutionLoop?.version}` : 'missing'} · ready {machine?.constitutionLoop?.refreshReady ? 'yes' : 'no'}
+            </div>
+            <div className="text-xs opacity-60">
+              pairs {machine?.constitutionLoop?.qualityPairsAll || 0} · new {machine?.constitutionLoop?.newPairsSinceLast ?? '-'}
             </div>
           </div>
           <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
