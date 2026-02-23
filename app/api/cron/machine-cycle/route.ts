@@ -75,6 +75,9 @@ async function maybeQueueBlueprintProposal(userId: string | null, results: Array
   if (!userId) return null;
   const failed = results.filter((step) => hasStepFailure(step));
   if (failed.length === 0) return null;
+  const nonChannelFailed = failed.filter((step) => !step.path.startsWith('/api/cron/channel-'));
+  // Channel transport failures are common operational noise and should be handled by channel recovery flows.
+  if (nonChannelFailed.length === 0) return null;
   const supabase = getSupabase();
   if (!supabase) return null;
 
@@ -93,7 +96,7 @@ async function maybeQueueBlueprintProposal(userId: string | null, results: Array
     user_id: userId,
     source: 'machine-cycle',
     proposal_type: 'policy',
-    title: `machine cycle failures (${failed.length} step${failed.length > 1 ? 's' : ''})`,
+    title: `machine cycle failures (${nonChannelFailed.length} step${nonChannelFailed.length > 1 ? 's' : ''})`,
     rationale: 'At least one loop step failed or returned success:false. Review evidence and adjust blueprint policy/config.',
     evidence: {
       failedSteps: failed,
