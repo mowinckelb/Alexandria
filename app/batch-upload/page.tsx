@@ -78,6 +78,8 @@ export default function BatchUploadPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [message, setMessage] = useState<string>('');
+  const [pasteName, setPasteName] = useState<string>('');
+  const [pasteText, setPasteText] = useState<string>('');
 
   useEffect(() => {
     setUserId(localStorage.getItem('alexandria_user_id') || '');
@@ -124,6 +126,25 @@ export default function BatchUploadPage() {
 
   const readText = async (file: File): Promise<string> => {
     return file.text();
+  };
+
+  const addPastedTranscript = () => {
+    const text = pasteText.trim();
+    if (!text) {
+      setMessage('paste some transcript text first.');
+      return;
+    }
+
+    const safeBase = (pasteName.trim() || `pasted-transcript-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}`)
+      .replace(/[^a-zA-Z0-9-_ ]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .toLowerCase();
+    const filename = `${safeBase || 'pasted-transcript'}.md`;
+    const file = new File([text], filename, { type: 'text/markdown' });
+    addFiles([file]);
+    setPasteName('');
+    setPasteText('');
   };
 
   const processViaBulkIngest = async (file: File, userId: string): Promise<BulkIngestSummary> => {
@@ -289,6 +310,37 @@ export default function BatchUploadPage() {
           </div>
 
           {message && <div className="text-xs opacity-70">{message}</div>}
+        </div>
+
+        <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
+          <div className="text-sm">paste transcript (phone fallback)</div>
+          <div className="text-xs opacity-60">
+            If file upload is flaky on mobile, paste transcript content here and add it to the queue.
+          </div>
+          <input
+            value={pasteName}
+            onChange={(e) => setPasteName(e.target.value)}
+            placeholder="optional name (e.g. meeting-jan-14)"
+            className="w-full rounded-lg px-3 py-2 text-sm"
+            style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+          />
+          <textarea
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+            placeholder="paste transcript markdown/text here..."
+            className="w-full min-h-[160px] rounded-lg px-3 py-2 text-sm"
+            style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={addPastedTranscript}
+              disabled={isProcessing || !pasteText.trim()}
+              className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+              style={{ background: 'var(--bg-primary)' }}
+            >
+              add pasted transcript
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
