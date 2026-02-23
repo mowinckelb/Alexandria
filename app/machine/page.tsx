@@ -72,6 +72,7 @@ export default function MachinePage() {
   const [bootstrapping, setBootstrapping] = useState(false);
   const [stabilizing, setStabilizing] = useState(false);
   const [bulkReviewing, setBulkReviewing] = useState(false);
+  const [resolvingBlueprint, setResolvingBlueprint] = useState(false);
   const [runResult, setRunResult] = useState<string>('');
 
   const loadStatus = async (id: string) => {
@@ -182,6 +183,30 @@ export default function MachinePage() {
     }
   };
 
+  const resolveHighImpactBlueprint = async () => {
+    setResolvingBlueprint(true);
+    setRunResult('');
+    try {
+      const res = await fetch('/api/blueprint/proposals', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'bulk_resolve_high_impact',
+          userId,
+          status: 'rejected',
+          reviewNotes: 'bulk resolved from machine dashboard'
+        })
+      });
+      const data = await res.json();
+      setRunResult(res.ok && data?.success ? `resolved ${data?.updated || 0} high-impact proposals` : (data?.error || 'resolve failed'));
+      await loadStatus(userId);
+    } catch {
+      setRunResult('resolve failed');
+    } finally {
+      setResolvingBlueprint(false);
+    }
+  };
+
   if (!userId) {
     return (
       <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
@@ -242,6 +267,14 @@ export default function MachinePage() {
             style={{ background: 'var(--bg-secondary)' }}
           >
             {bulkReviewing ? 'approving...' : 'bulk approve rlaif'}
+          </button>
+          <button
+            onClick={resolveHighImpactBlueprint}
+            disabled={resolvingBlueprint}
+            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+            style={{ background: 'var(--bg-secondary)' }}
+          >
+            {resolvingBlueprint ? 'resolving...' : 'resolve high-impact'}
           </button>
           <a href="/" className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bg-secondary)' }}>
             back to app

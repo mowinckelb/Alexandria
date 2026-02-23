@@ -31,6 +31,14 @@ const UpdateSchema = z.object({
   reviewedBy: z.string().max(120).optional()
 });
 
+const BulkResolveSchema = z.object({
+  action: z.literal('bulk_resolve_high_impact'),
+  userId: z.string().uuid(),
+  status: z.enum(['reviewing', 'accepted', 'rejected']).optional().default('rejected'),
+  reviewNotes: z.string().max(4000).optional().default('bulk-resolved by machine operator'),
+  limit: z.number().int().min(1).max(200).optional().default(50)
+});
+
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_KEY;
@@ -151,6 +159,61 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
+    if (body?.action === 'bulk_resolve_high_impact') {
+      const parsedBulk = BulkResolveSchema.safeParse(body);
+      if (!parsedBulk.success) {
+        return NextResponse.json({ error: 'Invalid bulk request', details: parsedBulk.error.issues }, { status: 400 });
+      }
+
+      const supabase = getSupabase();
+      const nowIso = new Date().toISOString();
+      const payload = parsedBulk.data;
+      const { data: queued, error: queuedError } = await supabase
+        .from('blueprint_proposals')
+        .select('id')
+        .eq('user_id', payload.userId)
+        .eq('impact_level', 'high')
+        .in('status', ['queued', 'reviewing'])
+        .order('created_at', { ascending: true })
+        .limit(payload.limit);
+      if (queuedError) {
+        return NextResponse.json({ error: queuedError.message }, { status: 500 });
+      }
+
+      const ids = (queued || []).map((row) => row.id);
+      if (ids.length === 0) {
+        return NextResponse.json({ success: true, updated: 0 });
+      }
+
+      const { error: updateError } = await supabase
+        .from('blueprint_proposals')
+        .update({
+          status: payload.status,
+          review_notes: payload.reviewNotes,
+          reviewed_by: 'machine-dashboard',
+          reviewed_at: nowIso,
+          updated_at: nowIso
+        })
+        .in('id', ids)
+        .eq('user_id', payload.userId);
+      if (updateError) {
+        return NextResponse.json({ error: updateError.message }, { status: 500 });
+      }
+
+      await supabase.from('persona_activity').insert({
+        user_id: payload.userId,
+        action_type: 'blueprint_bulk_resolved',
+        summary: `Bulk resolved ${ids.length} high-impact blueprint proposals`,
+        details: {
+          status: payload.status,
+          count: ids.length
+        },
+        requires_attention: false
+      });
+
+      return NextResponse.json({ success: true, updated: ids.length });
+    }
+
     const parsed = UpdateSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: 'Invalid request', details: parsed.error.issues }, { status: 400 });
