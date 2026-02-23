@@ -60,6 +60,11 @@ interface MachineStatusPayload {
       queuedProposals: number;
       queuedHighImpact?: number;
     };
+    channelLoop?: {
+      activeBindings: number;
+      failedOutbound: number;
+      deadLetterOutbound: number;
+    };
     nextActions?: string[];
   };
   error?: string;
@@ -75,6 +80,7 @@ export default function MachinePage() {
   const [bulkReviewing, setBulkReviewing] = useState(false);
   const [resolvingBlueprint, setResolvingBlueprint] = useState(false);
   const [drainingEditorMessages, setDrainingEditorMessages] = useState(false);
+  const [recoveringChannels, setRecoveringChannels] = useState(false);
   const [runResult, setRunResult] = useState<string>('');
 
   const loadStatus = async (id: string) => {
@@ -236,6 +242,29 @@ export default function MachinePage() {
     }
   };
 
+  const recoverChannels = async () => {
+    setRecoveringChannels(true);
+    setRunResult('');
+    try {
+      const res = await fetch('/api/machine/recover-channels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, requeueDeadLetters: true, deadLetterLimit: 50 })
+      });
+      const data = await res.json();
+      if (res.ok && data?.success) {
+        setRunResult(`channels recovered · failed ${data?.failedOutboundAfter || 0} · dead-letter ${data?.deadLetterAfter || 0}`);
+      } else {
+        setRunResult(data?.error || 'channel recover failed');
+      }
+      await loadStatus(userId);
+    } catch {
+      setRunResult('channel recover failed');
+    } finally {
+      setRecoveringChannels(false);
+    }
+  };
+
   if (!userId) {
     return (
       <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
@@ -312,6 +341,14 @@ export default function MachinePage() {
             style={{ background: 'var(--bg-secondary)' }}
           >
             {drainingEditorMessages ? 'draining...' : 'drain editor msgs'}
+          </button>
+          <button
+            onClick={recoverChannels}
+            disabled={recoveringChannels}
+            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+            style={{ background: 'var(--bg-secondary)' }}
+          >
+            {recoveringChannels ? 'recovering...' : 'recover channels'}
           </button>
           <a href="/" className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bg-secondary)' }}>
             back to app
@@ -396,6 +433,15 @@ export default function MachinePage() {
             </div>
             <div className="text-xs opacity-60">
               high impact {machine?.blueprintLoop?.queuedHighImpact || 0}
+            </div>
+          </div>
+          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
+            <div className="text-xs opacity-60">channel loop</div>
+            <div className="text-sm">
+              active bindings {machine?.channelLoop?.activeBindings || 0}
+            </div>
+            <div className="text-xs opacity-60">
+              failed {machine?.channelLoop?.failedOutbound || 0} · dead-letter {machine?.channelLoop?.deadLetterOutbound || 0}
             </div>
           </div>
         </div>

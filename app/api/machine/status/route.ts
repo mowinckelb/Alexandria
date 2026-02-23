@@ -38,6 +38,9 @@ export async function GET(request: NextRequest) {
       lastTrainRes,
       queuedBlueprintProposalsRes,
       highImpactBlueprintRes,
+      activeBindingsRes,
+      failedOutboundRes,
+      deadLetterOutboundRes,
       systemConfigRes,
       twinRes,
       activeModelRes,
@@ -105,6 +108,23 @@ export async function GET(request: NextRequest) {
         .eq('impact_level', 'high')
         .in('status', ['queued', 'reviewing']),
       supabase
+        .from('channel_bindings')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('is_active', true),
+      supabase
+        .from('channel_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('direction', 'outbound')
+        .eq('status', 'failed'),
+      supabase
+        .from('channel_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('direction', 'outbound')
+        .contains('metadata', { deadLetter: true }),
+      supabase
         .from('system_configs')
         .select('config')
         .eq('user_id', userId)
@@ -159,6 +179,9 @@ export async function GET(request: NextRequest) {
       : qualityPairsAll >= MIN_PAIRS_FOR_INITIAL_CONSTITUTION;
 
     const queuedHighImpact = highImpactBlueprintRes.count || 0;
+    const activeBindings = activeBindingsRes.count || 0;
+    const failedOutbound = failedOutboundRes.count || 0;
+    const deadLetterOutbound = deadLetterOutboundRes.count || 0;
     const nextActions: string[] = [];
     if (!axiomResult.valid) {
       nextActions.push('Fix axiom violations in system config before further iteration.');
@@ -183,6 +206,15 @@ export async function GET(request: NextRequest) {
     }
     if ((staleUndeliveredMessagesRes.count || 0) > 0) {
       nextActions.push(`Drain stale editor messages (${staleUndeliveredMessagesRes.count}).`);
+    }
+    if (failedOutbound > 0) {
+      nextActions.push(`Retry failed channel messages (${failedOutbound}).`);
+    }
+    if (deadLetterOutbound > 0) {
+      nextActions.push(`Requeue dead-letter channel messages (${deadLetterOutbound}).`);
+    }
+    if ((undeliveredMessagesRes.count || 0) > 0 && activeBindings === 0) {
+      nextActions.push('Create an active channel binding or use drain to clear undelivered editor messages.');
     }
     if (queuedHighImpact > 0) {
       nextActions.push(`Resolve high-impact blueprint proposals (${queuedHighImpact}).`);
@@ -251,6 +283,11 @@ export async function GET(request: NextRequest) {
         blueprintLoop: {
           queuedProposals: queuedBlueprintProposalsRes.count || 0,
           queuedHighImpact
+        },
+        channelLoop: {
+          activeBindings,
+          failedOutbound,
+          deadLetterOutbound
         },
         nextActions
       }
