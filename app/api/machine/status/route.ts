@@ -190,6 +190,7 @@ export async function GET(request: NextRequest) {
     const pausedBindings = pausedBindingsRes.count || 0;
     const failedOutbound = failedOutboundRes.count || 0;
     const deadLetterOutbound = deadLetterOutboundRes.count || 0;
+    const localOnlyMode = activeBindings === 0;
     const nextActions: string[] = [];
     if (!axiomResult.valid) {
       nextActions.push('Fix axiom violations in system config before further iteration.');
@@ -215,16 +216,16 @@ export async function GET(request: NextRequest) {
     if ((staleUndeliveredMessagesRes.count || 0) > 0) {
       nextActions.push(`Drain stale editor messages (${staleUndeliveredMessagesRes.count}).`);
     }
-    if (failedOutbound > 0) {
+    if (!localOnlyMode && failedOutbound > 0) {
       nextActions.push(`Retry failed channel messages (${failedOutbound}).`);
     }
-    if (deadLetterOutbound > 0) {
+    if (!localOnlyMode && deadLetterOutbound > 0) {
       nextActions.push(`Requeue dead-letter channel messages (${deadLetterOutbound}).`);
     }
-    if (pausedBindings > 0) {
+    if (!localOnlyMode && pausedBindings > 0) {
       nextActions.push(`Review paused channel bindings (${pausedBindings}).`);
     }
-    if ((undeliveredMessagesRes.count || 0) > 0 && activeBindings === 0) {
+    if (!localOnlyMode && (undeliveredMessagesRes.count || 0) > 0 && activeBindings === 0) {
       nextActions.push('Create an active channel binding or use drain to clear undelivered editor messages.');
     }
     if (queuedHighImpact > 0) {
@@ -299,7 +300,8 @@ export async function GET(request: NextRequest) {
           activeBindings,
           pausedBindings,
           failedOutbound,
-          deadLetterOutbound
+          deadLetterOutbound,
+          localOnlyMode
         },
         nextActions
       }

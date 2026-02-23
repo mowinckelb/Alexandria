@@ -65,6 +65,7 @@ interface MachineStatusPayload {
       pausedBindings?: number;
       failedOutbound: number;
       deadLetterOutbound: number;
+      localOnlyMode?: boolean;
     };
     nextActions?: string[];
   };
@@ -84,6 +85,7 @@ export default function MachinePage() {
   const [recoveringChannels, setRecoveringChannels] = useState(false);
   const [resolvingBlockers, setResolvingBlockers] = useState(false);
   const [unpausingBindings, setUnpausingBindings] = useState(false);
+  const [switchingLocalMode, setSwitchingLocalMode] = useState(false);
   const [includeChannels, setIncludeChannels] = useState(false);
   const [autoResolveBlockers, setAutoResolveBlockers] = useState(false);
   const [runResult, setRunResult] = useState<string>('');
@@ -311,6 +313,29 @@ export default function MachinePage() {
     }
   };
 
+  const setLocalMode = async (enabled: boolean) => {
+    setSwitchingLocalMode(true);
+    setRunResult('');
+    try {
+      const res = await fetch('/api/machine/local-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, enabled })
+      });
+      const data = await res.json();
+      setRunResult(
+        res.ok && data?.success
+          ? (enabled ? 'local-only mode enabled' : 'channel mode enabled')
+          : (data?.error || 'mode switch failed')
+      );
+      await loadStatus(userId);
+    } catch {
+      setRunResult('mode switch failed');
+    } finally {
+      setSwitchingLocalMode(false);
+    }
+  };
+
   if (!userId) {
     return (
       <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
@@ -411,6 +436,22 @@ export default function MachinePage() {
             style={{ background: 'var(--bg-secondary)' }}
           >
             {unpausingBindings ? 'unpausing...' : 'unpause bindings'}
+          </button>
+          <button
+            onClick={() => setLocalMode(true)}
+            disabled={switchingLocalMode}
+            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+            style={{ background: 'var(--bg-secondary)' }}
+          >
+            {switchingLocalMode ? 'switching...' : 'enable local-only'}
+          </button>
+          <button
+            onClick={() => setLocalMode(false)}
+            disabled={switchingLocalMode}
+            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+            style={{ background: 'var(--bg-secondary)' }}
+          >
+            {switchingLocalMode ? 'switching...' : 'enable channel mode'}
           </button>
           <a href="/" className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bg-secondary)' }}>
             back to app
@@ -517,6 +558,9 @@ export default function MachinePage() {
             <div className="text-xs opacity-60">channel loop</div>
             <div className="text-sm">
               active bindings {machine?.channelLoop?.activeBindings || 0}
+            </div>
+            <div className="text-xs opacity-60">
+              mode {machine?.channelLoop?.localOnlyMode ? 'local-only' : 'channel'}
             </div>
             <div className="text-xs opacity-60">
               paused {machine?.channelLoop?.pausedBindings || 0} ·
