@@ -51,6 +51,44 @@ export class TogetherTuner {
   private apiKey = process.env.TOGETHER_API_KEY;
   private baseUrl = 'https://api.together.xyz/v1';
 
+  private uploadViaApi = async (jsonl: string, filename: string, fileSize: number): Promise<UploadResult | null> => {
+    try {
+      const form = new FormData();
+      form.append('purpose', 'fine-tune');
+      form.append('file', new Blob([jsonl], { type: 'application/jsonl' }), filename);
+
+      const response = await fetch(`${this.baseUrl}/files`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`
+        },
+        body: form
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[TogetherTuner] REST upload failed: ${response.status} - ${errorText}`);
+        return null;
+      }
+
+      const output = await response.json() as { id?: string; filename?: string; bytes?: number };
+      if (!output.id) {
+        console.error('[TogetherTuner] REST upload missing file id');
+        return null;
+      }
+
+      console.log(`[TogetherTuner] REST upload successful: ${output.id} (${output.bytes || fileSize} bytes)`);
+      return {
+        fileId: output.id,
+        filename: output.filename || filename,
+        bytes: output.bytes || fileSize
+      };
+    } catch (error) {
+      console.error('[TogetherTuner] REST upload error:', error);
+      return null;
+    }
+  };
+
   /**
    * Upload JSONL training data to Together AI
    * 
@@ -77,30 +115,41 @@ export class TogetherTuner {
       fs.writeFileSync(tempPath, jsonl, 'utf8');
       console.log(`[TogetherTuner] Wrote temp file: ${tempPath}`);
 
-      // Call Python helper script
+      // Call Python helper script when available; fallback to REST upload if Python is unavailable.
       const scriptPath = path.join(process.cwd(), 'scripts', 'together-upload.py');
-      const result = execSync(`python "${scriptPath}" "${tempPath}"`, {
-        encoding: 'utf8',
-        env: { ...process.env, TOGETHER_API_KEY: this.apiKey, TOGETHER_NO_BANNER: '1' },
-        stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: 120000, // 2 minute timeout
-      });
+      const pythonCommands = ['python3', 'python'];
+      for (const pythonCmd of pythonCommands) {
+        try {
+          const result = execSync(`${pythonCmd} "${scriptPath}" "${tempPath}"`, {
+            encoding: 'utf8',
+            env: { ...process.env, TOGETHER_API_KEY: this.apiKey, TOGETHER_NO_BANNER: '1' },
+            stdio: ['pipe', 'pipe', 'pipe'],
+            timeout: 120000 // 2 minute timeout
+          });
 
-      // Parse JSON output
-      const output = JSON.parse(result.trim());
-      
-      if (output.error) {
-        console.error(`[TogetherTuner] Python upload failed:`, output.error);
-        throw new Error(output.error);
-      }
+          const output = JSON.parse(result.trim()) as { id?: string; filename?: string; bytes?: number; error?: string };
+          if (output.error) {
+            console.error(`[TogetherTuner] ${pythonCmd} upload failed:`, output.error);
+            break;
+          }
+          if (!output.id) {
+            console.error(`[TogetherTuner] ${pythonCmd} upload returned no file id`);
+            break;
+          }
 
-      console.log(`[TogetherTuner] Upload successful: ${output.id} (${output.bytes} bytes)`);
-
-      return {
-        fileId: output.id,
-        filename: output.filename || finalFilename,
-        bytes: output.bytes || fileSize
+          console.log(`[TogetherTuner] Upload successful via ${pythonCmd}: ${output.id} (${output.bytes} bytes)`);
+          return {
+            fileId: output.id,
+            filename: output.filename || finalFilename,
+            bytes: output.bytes || fileSize
+          };
+        } catch (pythonError) {
+          console.warn(`[TogetherTuner] ${pythonCmd} unavailable or failed, trying fallback`, pythonError);
+        }
       };
+
+      console.log('[TogetherTuner] Falling back to REST upload');
+      return await this.uploadViaApi(jsonl, finalFilename, fileSize);
     } catch (error) {
       console.error('[TogetherTuner] Upload error:', error);
       return null;
