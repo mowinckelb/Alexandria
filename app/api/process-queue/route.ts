@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getPipelineTools } from '@/lib/factory';
 import OpenAI from 'openai';
 import { bufferToFile } from '@/lib/utils/audio-chunker';
+import { saveToVault } from '@/lib/utils/vault';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,7 +20,7 @@ async function completeJob(jobId: string, result: Record<string, unknown>) {
   await supabase.from('processing_jobs').update({
     status: 'completed',
     progress: 100,
-    result,
+    results: result,
     completed_at: new Date().toISOString()
   }).eq('id', jobId);
 }
@@ -263,6 +264,31 @@ export async function POST(req: Request) {
         throw new Error('No text extracted');
       }
 
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const baseName = job.file_name.replace(/\.[^.]+$/, '');
+
+      // Save raw input and transcript to Vault for append-only preservation.
+      const audioPath = `raw/voice/${timestamp}-${job.file_name}`;
+      await saveToVault(job.user_id, audioPath, buffer, 'audio', {
+        originalName: job.file_name,
+        metadata: {
+          sourceStoragePath: job.storage_path,
+          jobId: job.id,
+          context: job.context || null
+        }
+      });
+      const transcriptPath = `transcripts/${timestamp}-${baseName}.txt`;
+      await saveToVault(job.user_id, transcriptPath, extractedText, 'transcript', {
+        originalName: `${baseName}.txt`,
+        metadata: {
+          sourceStoragePath: job.storage_path,
+          sourceFileName: job.file_name,
+          jobId: job.id,
+          context: job.context || null,
+          wordCount: extractedText.split(/\s+/).filter(Boolean).length
+        }
+      });
+
       // Store raw entry
       await supabase.from('entries').insert({
         user_id: job.user_id,
@@ -274,7 +300,11 @@ export async function POST(req: Request) {
           fileType: job.file_type,
           fileSize: job.file_size,
           jobId: job.id,
-          context: job.context
+          context: job.context,
+          vault: {
+            audioPath,
+            transcriptPath
+          }
         }
       });
 
@@ -287,6 +317,10 @@ export async function POST(req: Request) {
       // Complete job
       await completeJob(job.id, {
         textLength: extractedText.length,
+        vault: {
+          audioPath,
+          transcriptPath
+        },
         ...results
       });
 

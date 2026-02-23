@@ -3,6 +3,9 @@ import { z } from 'zod';
 import { DEFAULT_SYSTEM_CONFIG } from '@/lib/types/system-config';
 import { getFromVault, saveToVault } from '@/lib/utils/vault';
 import { createClient } from '@supabase/supabase-js';
+import { buildMergedSystemConfig, validateSystemConfigAxioms } from '@/lib/system/axioms';
+
+export const dynamic = 'force-dynamic';
 
 const QuerySchema = z.object({
   userId: z.string().optional()
@@ -42,9 +45,10 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     if (dbConfig?.config) {
+      const mergedDbConfig = buildMergedSystemConfig(dbConfig.config as Record<string, unknown>);
       return NextResponse.json({
         version: dbConfig.version || 'custom',
-        config: dbConfig.config,
+        config: mergedDbConfig,
         source: 'database',
         updatedAt: dbConfig.updated_at
       });
@@ -57,7 +61,11 @@ export async function GET(request: NextRequest) {
 
     try {
       const parsedConfig = JSON.parse(raw.toString('utf-8'));
-      return NextResponse.json({ version: parsedConfig.version || 'custom', config: parsedConfig, source: 'vault' });
+      return NextResponse.json({
+        version: parsedConfig.version || 'custom',
+        config: buildMergedSystemConfig(parsedConfig as Record<string, unknown>),
+        source: 'vault'
+      });
     } catch {
       return NextResponse.json({ version: 'default-v1', config: DEFAULT_SYSTEM_CONFIG, source: 'default' });
     }
@@ -80,10 +88,19 @@ export async function PATCH(request: NextRequest) {
     const { userId, config } = parsed.data;
     const nowIso = new Date().toISOString();
     const mergedConfig = {
-      ...DEFAULT_SYSTEM_CONFIG,
-      ...config,
+      ...buildMergedSystemConfig(config),
       updatedAt: nowIso
     };
+    const axiomCheck = validateSystemConfigAxioms(mergedConfig);
+    if (!axiomCheck.valid) {
+      return NextResponse.json(
+        {
+          error: 'Axiom validation failed',
+          violations: axiomCheck.violations
+        },
+        { status: 400 }
+      );
+    }
 
     await saveToVault(
       userId,

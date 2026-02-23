@@ -50,25 +50,28 @@ interface ContextualMessageResult {
 
 async function getActiveUsers() {
   const supabase = getSupabase();
-
-  const { data: twins } = await supabase
-    .from('twins')
-    .select('user_id')
-    .limit(50);
-
-  const twinIds = (twins || []).map((t) => t.user_id).filter(Boolean);
-  if (twinIds.length > 0) return twinIds;
-
-  const { data: entries } = await supabase
-    .from('entries')
-    .select('user_id')
-    .order('created_at', { ascending: false })
-    .limit(200);
-
   const deduped = new Set<string>();
-  for (const row of entries || []) {
-    if (row.user_id && deduped.size < 50) deduped.add(row.user_id);
+
+  const [twins, editorState, systemConfigs, entries] = await Promise.all([
+    supabase.from('twins').select('user_id').limit(100),
+    supabase.from('editor_state').select('user_id').order('updated_at', { ascending: false }).limit(100),
+    supabase.from('system_configs').select('user_id').order('updated_at', { ascending: false }).limit(100),
+    supabase.from('entries').select('user_id').order('created_at', { ascending: false }).limit(200)
+  ]);
+
+  for (const row of twins.data || []) {
+    if (row.user_id && deduped.size < 100) deduped.add(row.user_id);
   }
+  for (const row of editorState.data || []) {
+    if (row.user_id && deduped.size < 100) deduped.add(row.user_id);
+  }
+  for (const row of systemConfigs.data || []) {
+    if (row.user_id && deduped.size < 100) deduped.add(row.user_id);
+  }
+  for (const row of entries.data || []) {
+    if (row.user_id && deduped.size < 100) deduped.add(row.user_id);
+  }
+
   return [...deduped];
 }
 
@@ -215,9 +218,9 @@ Write the next proactive message now.`
   }
 }
 
-async function runCycle() {
+async function runCycle(targetUserId?: string) {
   const supabase = getSupabase();
-  const userIds = await getActiveUsers();
+  const userIds = targetUserId ? [targetUserId] : await getActiveUsers();
   const now = new Date();
 
   let processed = 0;
@@ -312,7 +315,8 @@ export async function POST(request: NextRequest) {
     if (!authorizeCron(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const result = await runCycle();
+    const targetUserId = request.nextUrl.searchParams.get('userId') || undefined;
+    const result = await runCycle(targetUserId);
     return NextResponse.json({ success: true, ...result });
   } catch (error) {
     return NextResponse.json(

@@ -23,13 +23,18 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = getSupabase();
-    const { data: failedRows, error } = await supabase
+    const scopedUserId = request.nextUrl.searchParams.get('userId');
+    let failedQuery = supabase
       .from('channel_messages')
       .select('*')
       .eq('direction', 'outbound')
       .eq('status', 'failed')
       .order('updated_at', { ascending: true })
       .limit(25);
+    if (scopedUserId) {
+      failedQuery = failedQuery.eq('user_id', scopedUserId);
+    }
+    const { data: failedRows, error } = await failedQuery;
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
