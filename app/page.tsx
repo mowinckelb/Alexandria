@@ -61,6 +61,7 @@ export default function Alexandria() {
   const [showConstitution, setShowConstitution] = useState(false);
   const [showRlaifReview, setShowRlaifReview] = useState(false);
   const [showMoreNav, setShowMoreNav] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [rlaifReviewCount, setRlaifReviewCount] = useState(0);
   const seenEditorMessageIds = useRef<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -85,9 +86,23 @@ export default function Alexandria() {
   useEffect(() => { 
     if (isAuthenticated) {
       setSessionId(uuidv4()); 
+      setMode('output');
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const detailsParam = params.get('details');
+    if (detailsParam === '1') {
+      setShowDetails(true);
+      localStorage.setItem('alexandria_show_details', '1');
+      return;
+    }
+    const stored = localStorage.getItem('alexandria_show_details');
+    setShowDetails(stored === '1');
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated || !userId) return;
@@ -413,8 +428,13 @@ export default function Alexandria() {
       handleSubmit();
     } else if (e.key === 'ArrowUp' && feedbackPhase === 'none') {
       e.preventDefault();
-      // Cycle through modes: input -> training -> output -> input
-      setMode(mode === 'input' ? 'training' : mode === 'training' ? 'output' : 'input');
+      if (showDetails) {
+        // Cycle through modes: input -> training -> output -> input
+        setMode(mode === 'input' ? 'training' : mode === 'training' ? 'output' : 'input');
+      } else {
+        // Simple mode: editor <-> persona
+        setMode(mode === 'input' ? 'output' : 'input');
+      }
     }
   };
 
@@ -1159,6 +1179,40 @@ export default function Alexandria() {
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 flex items-center justify-between p-4 md:p-6 text-[0.85rem] z-50" style={{ background: 'var(--bg-primary)' }}>
         <div className="relative flex items-center gap-3">
+          {!showDetails && (
+            <>
+              <span className="text-[0.75rem] opacity-40">{username}</span>
+              <span className="text-[0.75rem] opacity-40">·</span>
+              <a href="/batch-upload" className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
+                upload
+              </a>
+              <span className="text-[0.75rem] opacity-40">·</span>
+              <a href="/machine" className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
+                machine
+              </a>
+              <span className="text-[0.75rem] opacity-40">·</span>
+              <button
+                onClick={() => {
+                  setShowDetails(true);
+                  localStorage.setItem('alexandria_show_details', '1');
+                }}
+                className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                details
+              </button>
+              <span className="text-[0.75rem] opacity-40">·</span>
+              <button
+                onClick={handleLogout}
+                className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                sign out
+              </button>
+            </>
+          )}
+          {showDetails && (
+            <>
           <span className="text-[0.75rem] opacity-40">{username}</span>
           <span className="text-[0.75rem] opacity-40">·</span>
           <button
@@ -1194,6 +1248,17 @@ export default function Alexandria() {
           </button>
           <span className="text-[0.75rem] opacity-40">·</span>
           <button
+            onClick={() => {
+              setShowDetails(false);
+              localStorage.setItem('alexandria_show_details', '0');
+            }}
+            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            simple
+          </button>
+          <span className="text-[0.75rem] opacity-40">·</span>
+          <button
             onClick={handleLogout}
             className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
             style={{ color: 'var(--text-primary)' }}
@@ -1211,6 +1276,8 @@ export default function Alexandria() {
               <a href="/channels" className="opacity-80 hover:opacity-100">channels</a>
               <a href="/billing" className="opacity-80 hover:opacity-100">billing</a>
             </div>
+          )}
+            </>
           )}
         </div>
 
@@ -1243,7 +1310,7 @@ export default function Alexandria() {
         </div>
       </div>
 
-      {rlaifReviewCount > 0 && (
+      {showDetails && rlaifReviewCount > 0 && (
         <div className="fixed top-[58px] left-0 right-0 z-40 px-4">
           <div className="mx-auto max-w-[700px] rounded-lg px-3 py-1.5 flex items-center justify-between text-[0.72rem]" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}>
             <span>{rlaifReviewCount} items need your review</span>
@@ -1261,6 +1328,13 @@ export default function Alexandria() {
       {/* Output Area */}
       <div ref={outputScrollRef} className="flex-1 px-4 md:px-8 pt-16 md:pt-24 pb-4 md:pb-8 overflow-y-auto">
         <div className="max-w-[700px] mx-auto space-y-4 md:space-y-6">
+          {!showDetails && (
+            <div className="rounded-xl p-3 text-[0.78rem] opacity-80" style={{ background: 'var(--bg-secondary)' }}>
+              {mode === 'input'
+                ? 'editor mode: answer clarifying questions and add context.'
+                : 'persona mode: chat with orchestrator using your constitution + vault + plm.'}
+            </div>
+          )}
           {(mode === 'input' ? inputMessages : mode === 'training' ? trainingMessages : outputMessages).map((message) => (
             <div
               key={message.id}
@@ -1307,6 +1381,32 @@ export default function Alexandria() {
           {/* Mode Toggle */}
           <div className="flex justify-between items-center mb-3 gap-2">
             <div className="flex items-center gap-2">
+              {!showDetails && (
+                <div className="relative rounded-full p-[2px] inline-flex w-[140px]" style={{ background: 'var(--toggle-bg)' }}>
+                  <button
+                    onClick={() => setMode('input')}
+                    className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
+                    style={{ color: mode === 'input' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                  >
+                    editor
+                  </button>
+                  <button
+                    onClick={() => setMode('output')}
+                    className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
+                    style={{ color: mode === 'output' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                  >
+                    persona
+                  </button>
+                  <div
+                    className="absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out"
+                    style={{
+                      background: 'var(--toggle-pill)',
+                      transform: mode === 'input' ? 'translateX(0%)' : 'translateX(100%)'
+                    }}
+                  />
+                </div>
+              )}
+              {showDetails && (
               <div className="relative rounded-full p-[2px] inline-flex w-[180px]" style={{ background: 'var(--toggle-bg)' }}>
                 <button
                   onClick={() => setMode('input')}
@@ -1337,6 +1437,8 @@ export default function Alexandria() {
                   }}
                 />
               </div>
+              )}
+              {showDetails && (
               <div className="relative rounded-full p-[2px] inline-flex w-[150px]" style={{ background: 'var(--toggle-bg)' }}>
                 <button
                   onClick={() => updatePrivacyMode('private')}
@@ -1372,6 +1474,7 @@ export default function Alexandria() {
                   }}
                 />
               </div>
+              )}
             </div>
             {/* Job status indicator */}
             {pendingJobs.length > 0 && (
