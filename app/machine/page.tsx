@@ -580,6 +580,36 @@ export default function MachinePage() {
             </div>
           ))}
         </div>
+
+        <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
+          <div className="text-sm">daily use loop</div>
+          <div className="text-xs opacity-70">
+            Run this loop daily to improve the machine without external bridges.
+          </div>
+          <div className="text-xs opacity-80">
+            1) ingest transcripts ({machine?.constitutionLoop?.qualityPairsAll || 0} quality pairs)
+          </div>
+          <div className="text-xs opacity-80">
+            2) stabilize machine (with blocker resolution)
+          </div>
+          <div className="text-xs opacity-80">
+            3) check training readiness ({machine?.trainingLoop?.readyPairs || 0}/50)
+          </div>
+          <div className="text-xs opacity-80">
+            4) chat in-app and repeat
+          </div>
+          <div className="flex gap-2">
+            <a href="/batch-upload" className="rounded-lg px-3 py-2 text-xs" style={{ background: 'var(--bg-primary)' }}>
+              open batch upload
+            </a>
+            <a href="/training" className="rounded-lg px-3 py-2 text-xs" style={{ background: 'var(--bg-primary)' }}>
+              open training
+            </a>
+            <a href="/" className="rounded-lg px-3 py-2 text-xs" style={{ background: 'var(--bg-primary)' }}>
+              open chat
+            </a>
+          </div>
+        </div>
       </div>
     </main>
   );
