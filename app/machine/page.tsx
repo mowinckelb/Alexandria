@@ -71,6 +71,7 @@ export default function MachinePage() {
   const [running, setRunning] = useState(false);
   const [bootstrapping, setBootstrapping] = useState(false);
   const [stabilizing, setStabilizing] = useState(false);
+  const [bulkReviewing, setBulkReviewing] = useState(false);
   const [runResult, setRunResult] = useState<string>('');
 
   const loadStatus = async (id: string) => {
@@ -157,6 +158,30 @@ export default function MachinePage() {
     }
   };
 
+  const bulkApproveRlaif = async () => {
+    setBulkReviewing(true);
+    setRunResult('');
+    try {
+      const res = await fetch('/api/rlaif/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'bulk_approve',
+          userId,
+          limit: 100,
+          includeFlagged: false
+        })
+      });
+      const data = await res.json();
+      setRunResult(res.ok && data?.success ? `bulk approved ${data?.updated || 0} rlaif items` : (data?.error || 'bulk approve failed'));
+      await loadStatus(userId);
+    } catch {
+      setRunResult('bulk approve failed');
+    } finally {
+      setBulkReviewing(false);
+    }
+  };
+
   if (!userId) {
     return (
       <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
@@ -209,6 +234,14 @@ export default function MachinePage() {
             style={{ background: 'var(--bg-secondary)' }}
           >
             {stabilizing ? 'stabilizing...' : 'stabilize machine'}
+          </button>
+          <button
+            onClick={bulkApproveRlaif}
+            disabled={bulkReviewing}
+            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+            style={{ background: 'var(--bg-secondary)' }}
+          >
+            {bulkReviewing ? 'approving...' : 'bulk approve rlaif'}
           </button>
           <a href="/" className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bg-secondary)' }}>
             back to app

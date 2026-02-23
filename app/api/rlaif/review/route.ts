@@ -17,6 +17,13 @@ const ReviewSchema = z.object({
   comment: z.string().optional()
 });
 
+const BulkApproveSchema = z.object({
+  action: z.literal('bulk_approve'),
+  userId: z.string().uuid(),
+  limit: z.number().int().min(1).max(200).optional().default(50),
+  includeFlagged: z.boolean().optional().default(false)
+});
+
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_KEY;
@@ -65,6 +72,62 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    if (body?.action === 'bulk_approve') {
+      const parsedBulk = BulkApproveSchema.safeParse(body);
+      if (!parsedBulk.success) {
+        return NextResponse.json({ error: 'Invalid bulk request', details: parsedBulk.error.issues }, { status: 400 });
+      }
+
+      const { userId, limit, includeFlagged } = parsedBulk.data;
+      const supabase = getSupabase();
+      const constitutionManager = new ConstitutionManager();
+      const routings = includeFlagged ? ['author_review', 'flagged'] : ['author_review'];
+
+      const { data: pending, error: fetchError } = await supabase
+        .from('rlaif_evaluations')
+        .select('id')
+        .eq('user_id', userId)
+        .in('routing', routings)
+        .is('author_verdict', null)
+        .order('created_at', { ascending: true })
+        .limit(limit);
+
+      if (fetchError) {
+        return NextResponse.json({ error: fetchError.message }, { status: 500 });
+      }
+      const ids = (pending || []).map((row) => row.id);
+      if (ids.length === 0) {
+        return NextResponse.json({ success: true, updated: 0 });
+      }
+
+      const nowIso = new Date().toISOString();
+      const { error: updateError } = await supabase
+        .from('rlaif_evaluations')
+        .update({
+          author_verdict: 'approved',
+          reviewer_comment: 'bulk-approved by machine operator',
+          reviewed_at: nowIso
+        })
+        .in('id', ids)
+        .eq('user_id', userId);
+      if (updateError) {
+        return NextResponse.json({ error: updateError.message }, { status: 500 });
+      }
+
+      await supabase.from('persona_activity').insert({
+        user_id: userId,
+        action_type: 'rlaif_bulk_approved',
+        summary: `Bulk approved ${ids.length} RLAIF evaluations`,
+        details: { count: ids.length, includeFlagged },
+        requires_attention: false
+      });
+
+      await constitutionManager.recomputeGapScores(userId);
+      await recomputePlmMaturity(userId);
+
+      return NextResponse.json({ success: true, updated: ids.length });
+    }
+
     const parsed = ReviewSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: 'Invalid request', details: parsed.error.issues }, { status: 400 });
