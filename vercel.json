@@ -32,6 +32,18 @@
     {
       "path": "/api/cron/machine-cycle",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/editor-cycle",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/auto-train",
+      "schedule": "0 */12 * * *"
+    },
+    {
+      "path": "/api/cron/constitution-refresh",
+      "schedule": "0 */6 * * *"
     }
   ]
 }
