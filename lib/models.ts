@@ -42,7 +42,7 @@ const anthropicProvider = process.env.ANTHROPIC_API_KEY
  */
 export function getQualityModel(): LanguageModel {
   if (anthropicProvider) {
-    return anthropicProvider('claude-sonnet-4-6') as unknown as LanguageModel;
+    return anthropicProvider('claude-sonnet-4-6') as LanguageModel;
   }
   const modelId = process.env.GROQ_QUALITY_MODEL || 'llama-3.3-70b-versatile';
   return groqProvider(modelId) as LanguageModel;
@@ -54,7 +54,7 @@ export function getQualityModel(): LanguageModel {
  */
 export function getFastModel(): LanguageModel {
   if (anthropicProvider) {
-    return anthropicProvider('claude-sonnet-4-6') as unknown as LanguageModel;
+    return anthropicProvider('claude-sonnet-4-6') as LanguageModel;
   }
   const modelId = process.env.GROQ_FAST_MODEL || 'llama-3.1-8b-instant';
   return groqProvider(modelId) as LanguageModel;
@@ -65,7 +65,7 @@ export function getFastModel(): LanguageModel {
  */
 export function getFallbackQualityModel(): LanguageModel {
   if (anthropicProvider) {
-    return anthropicProvider('claude-sonnet-4-6') as unknown as LanguageModel;
+    return anthropicProvider('claude-sonnet-4-6') as LanguageModel;
   }
   return togetherProvider('meta-llama/Llama-3.3-70B-Instruct-Turbo') as LanguageModel;
 }

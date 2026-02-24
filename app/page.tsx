@@ -131,63 +131,6 @@ function VaultSection({ userId }: { userId: string }) {
       <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Vault</h2>
       <p className="text-xs" style={{ color: 'var(--text-subtle)' }}>upload data. the editor processes it gradually in the background.</p>
 
-      {/* Editor processing status */}
-      {status && (
-        <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
-          <div className="flex items-center justify-between">
-            <div className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>editor progress</div>
-            <div className="text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
-              {status.model.provider} · {status.model.quality}
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div>
-            <div className="flex justify-between text-[0.65rem] mb-1" style={{ color: 'var(--text-subtle)' }}>
-              <span>{status.processed} / {status.total} entries</span>
-              <span>{status.percentComplete}%</span>
-            </div>
-            <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
-              <div
-                className="h-full rounded-full transition-all duration-700"
-                style={{
-                  width: `${status.percentComplete}%`,
-                  background: status.remaining > 0 ? 'var(--text-subtle)' : 'var(--text-primary)',
-                  opacity: status.remaining > 0 ? 0.5 : 0.3,
-                }}
-              />
-            </div>
-            {status.remaining > 0 && (
-              <div className="text-[0.6rem] mt-1 thinking-pulse" style={{ color: 'var(--text-subtle)' }}>
-                {status.remaining} remaining — processing ~1 per cycle
-              </div>
-            )}
-          </div>
-
-          {/* Cycle info */}
-          <div className="flex gap-4 text-[0.6rem]" style={{ color: 'var(--text-subtle)' }}>
-            {status.editor.lastCycleAt && (
-              <span>last cycle: {timeAgo(status.editor.lastCycleAt)}</span>
-            )}
-            <span>cycle #{status.editor.cycleCount}</span>
-            <span>activity: {status.editor.activityLevel}</span>
-          </div>
-
-          {/* Recent processing log */}
-          {status.recentLogs.length > 0 && (
-            <div className="space-y-1 pt-2 border-t" style={{ borderColor: 'var(--border-light)' }}>
-              <div className="text-[0.6rem] font-medium" style={{ color: 'var(--text-subtle)' }}>recent activity</div>
-              {status.recentLogs.map((log, i) => (
-                <div key={i} className="text-[0.6rem] flex justify-between" style={{ color: 'var(--text-subtle)', opacity: 0.7 }}>
-                  <span className="truncate mr-2">{log.summary}</span>
-                  <span className="whitespace-nowrap flex-shrink-0">{timeAgo(log.time)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       <div
         className="rounded-xl border-2 border-dashed p-6 text-center"
         style={{ borderColor: 'var(--border-light)' }}
@@ -227,14 +170,62 @@ function VaultSection({ userId }: { userId: string }) {
         )}
       </div>
 
-      <div className="pt-3 border-t" style={{ borderColor: 'var(--border-light)' }}>
-        <div className="text-xs mb-2" style={{ color: 'var(--text-subtle)' }}>re-process all data — useful when models improve</div>
-        <button onClick={reprocess} disabled={reprocessing} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-          {reprocessing ? 'resetting...' : 're-process everything'}
-        </button>
-      </div>
-
       {message && <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
+
+      {/* Editor processing status */}
+      {status && (
+        <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>editor progress</div>
+            <div className="text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
+              {status.model.provider} · {status.model.quality}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex justify-between text-[0.65rem] mb-1" style={{ color: 'var(--text-subtle)' }}>
+              <span>{status.processed} / {status.total} entries</span>
+              <span>{status.percentComplete}%</span>
+            </div>
+            <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${status.percentComplete}%`,
+                  background: status.remaining > 0 ? 'var(--text-subtle)' : 'var(--text-primary)',
+                  opacity: status.remaining > 0 ? 0.5 : 0.3,
+                }}
+              />
+            </div>
+            {status.remaining > 0 && (
+              <div className="text-[0.6rem] mt-1 thinking-pulse" style={{ color: 'var(--text-subtle)' }}>
+                {status.remaining} remaining
+              </div>
+            )}
+          </div>
+
+          {status.editor.lastCycleAt && (
+            <div className="text-[0.6rem]" style={{ color: 'var(--text-subtle)' }}>
+              last ran {timeAgo(status.editor.lastCycleAt)}
+            </div>
+          )}
+
+          {status.recentLogs.length > 0 && (
+            <div className="space-y-1 pt-2 border-t" style={{ borderColor: 'var(--border-light)' }}>
+              {status.recentLogs.slice(0, 4).map((log, i) => (
+                <div key={i} className="text-[0.6rem] flex justify-between" style={{ color: 'var(--text-subtle)', opacity: 0.7 }}>
+                  <span className="truncate mr-2">{log.summary}</span>
+                  <span className="whitespace-nowrap flex-shrink-0">{timeAgo(log.time)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button onClick={reprocess} disabled={reprocessing} className="rounded-lg px-3 py-1.5 text-[0.65rem] disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-primary)', color: 'var(--text-subtle)' }}>
+            {reprocessing ? 'resetting...' : 're-process everything'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -320,52 +311,191 @@ function PLMSection({ userId }: { userId: string }) {
   );
 }
 
-type LibraryTab = 'profile' | 'works' | 'influences';
-
-interface AuthoredWork { id: string; title: string; medium: string; summary?: string; published_at: string; }
+interface AuthoredWork { id: string; title: string; medium: string; content?: string; summary?: string; published_at: string; }
 interface CuratedInfluence { id: string; title: string; medium: string; annotation?: string; url?: string; }
-interface AuthorProfile { display_name?: string; handle?: string; bio?: string; }
+interface AuthorProfile { user_id?: string; display_name?: string; handle?: string; bio?: string; works_count?: number; influences_count?: number; }
+
+const MEDIUMS_WORK = ['essay', 'poetry', 'note', 'letter', 'reflection', 'speech', 'other'] as const;
+const MEDIUMS_INFLUENCE = ['book', 'film', 'music', 'playlist', 'video', 'podcast', 'essay', 'art', 'lecture', 'person', 'place', 'other'] as const;
+
+function PersonaCard({ persona, isYou, onClick }: { persona: AuthorProfile; isYou: boolean; onClick: () => void }) {
+  const name = persona.display_name || persona.handle || 'unnamed';
+  const initial = name.charAt(0).toUpperCase();
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left rounded-2xl p-5 border-none cursor-pointer transition-all duration-300 hover:scale-[1.01]"
+      style={{ background: 'var(--bg-secondary)' }}
+    >
+      <div className="flex items-start gap-4">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-light"
+          style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', opacity: 0.7 }}
+        >
+          {initial}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline gap-2">
+            <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{name}</span>
+            {isYou && <span className="text-[0.6rem] italic" style={{ color: 'var(--text-subtle)' }}>you</span>}
+          </div>
+          {persona.handle && <div className="text-[0.7rem] mt-0.5" style={{ color: 'var(--text-subtle)' }}>@{persona.handle}</div>}
+          {persona.bio && (
+            <div className="text-xs mt-2 leading-relaxed line-clamp-2" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>
+              {persona.bio}
+            </div>
+          )}
+          <div className="flex gap-4 mt-3 text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
+            {(persona.works_count || 0) > 0 && <span>{persona.works_count} work{persona.works_count !== 1 ? 's' : ''}</span>}
+            {(persona.influences_count || 0) > 0 && <span>{persona.influences_count} curated</span>}
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function WorkCard({ work, expanded, onToggle }: { work: AuthoredWork; expanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)' }}>
+      <button
+        onClick={onToggle}
+        className="w-full text-left p-5 border-none bg-transparent cursor-pointer"
+      >
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="text-sm font-medium italic" style={{ color: 'var(--text-primary)' }}>{work.title}</div>
+            <div className="text-[0.65rem] mt-1 tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>{work.medium}</div>
+          </div>
+          <div className="text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
+            {new Date(work.published_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+          </div>
+        </div>
+        {!expanded && work.summary && (
+          <div className="text-xs mt-3 leading-relaxed line-clamp-2" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
+            {work.summary}
+          </div>
+        )}
+      </button>
+      {expanded && work.content && (
+        <div className="px-5 pb-5">
+          <div className="pt-3 border-t" style={{ borderColor: 'var(--border-light)' }}>
+            <div className="text-[0.82rem] leading-[1.9] whitespace-pre-wrap" style={{ color: 'var(--text-primary)', opacity: 0.75 }}>
+              {work.content}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InfluenceCard({ influence }: { influence: CuratedInfluence }) {
+  const isLink = !!influence.url;
+  const Wrapper = isLink ? 'a' : 'div';
+  const linkProps = isLink ? { href: influence.url, target: '_blank' as const, rel: 'noopener noreferrer' } : {};
+
+  return (
+    <Wrapper
+      {...linkProps}
+      className={`block rounded-2xl p-4 no-underline transition-all duration-200 ${isLink ? 'hover:scale-[1.01] cursor-pointer' : ''}`}
+      style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-sm" style={{ color: 'var(--text-primary)' }}>{influence.title}</div>
+          <div className="text-[0.65rem] mt-0.5 tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>{influence.medium}</div>
+        </div>
+        {isLink && (
+          <span className="text-[0.6rem] flex-shrink-0 mt-1" style={{ color: 'var(--text-subtle)' }}>↗</span>
+        )}
+      </div>
+      {influence.annotation && (
+        <div className="text-xs mt-2 leading-relaxed italic" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
+          {influence.annotation}
+        </div>
+      )}
+    </Wrapper>
+  );
+}
+
+type LibraryView = 'browse' | 'persona' | 'edit';
 
 function LibrarySection({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<LibraryTab>('profile');
-  const [profile, setProfile] = useState<AuthorProfile>({});
-  const [works, setWorks] = useState<AuthoredWork[]>([]);
-  const [influences, setInfluences] = useState<CuratedInfluence[]>([]);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
+  const [view, setView] = useState<LibraryView>('browse');
+  const [personas, setPersonas] = useState<AuthorProfile[]>([]);
+  const [viewingUserId, setViewingUserId] = useState<string | null>(null);
+  const [viewProfile, setViewProfile] = useState<AuthorProfile>({});
+  const [viewWorks, setViewWorks] = useState<AuthoredWork[]>([]);
+  const [viewInfluences, setViewInfluences] = useState<CuratedInfluence[]>([]);
+  const [expandedWork, setExpandedWork] = useState<string | null>(null);
+  const [loadingPersona, setLoadingPersona] = useState(false);
 
-  // Form states
+  // Edit states
   const [editName, setEditName] = useState('');
   const [editHandle, setEditHandle] = useState('');
   const [editBio, setEditBio] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const [editTab, setEditTab] = useState<'profile' | 'work' | 'curation'>('profile');
   const [workTitle, setWorkTitle] = useState('');
-  const [workMedium, setWorkMedium] = useState('essay');
+  const [workMedium, setWorkMedium] = useState<string>('essay');
   const [workContent, setWorkContent] = useState('');
   const [infTitle, setInfTitle] = useState('');
-  const [infMedium, setInfMedium] = useState('book');
+  const [infMedium, setInfMedium] = useState<string>('book');
   const [infAnnotation, setInfAnnotation] = useState('');
   const [infUrl, setInfUrl] = useState('');
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch(`/api/neo-biography?userId=${userId}`);
+        const res = await fetch('/api/neo-biography?browse=true');
         if (res.ok) {
           const data = await res.json();
-          const p = data.profile || {};
-          setProfile(p);
-          setEditName(p.display_name || '');
-          setEditHandle(p.handle || '');
-          setEditBio(p.bio || '');
-          setWorks(data.works || []);
-          setInfluences(data.influences || []);
+          setPersonas(data.personas || []);
         }
       } catch {}
       setLoading(false);
     };
     load();
   }, [userId]);
+
+  const openPersona = async (targetId: string) => {
+    setLoadingPersona(true);
+    setViewingUserId(targetId);
+    setView('persona');
+    setExpandedWork(null);
+    try {
+      const res = await fetch(`/api/neo-biography?userId=${targetId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setViewProfile(data.profile || {});
+        setViewWorks(data.works || []);
+        setViewInfluences(data.influences || []);
+      }
+    } catch {}
+    setLoadingPersona(false);
+  };
+
+  const openEdit = async () => {
+    setView('edit');
+    setMessage('');
+    setEditTab('profile');
+    try {
+      const res = await fetch(`/api/neo-biography?userId=${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        const p = data.profile || {};
+        setEditName(p.display_name || '');
+        setEditHandle(p.handle || '');
+        setEditBio(p.bio || '');
+        setViewWorks(data.works || []);
+        setViewInfluences(data.influences || []);
+      }
+    } catch {}
+  };
 
   const saveProfile = async () => {
     setSaving(true); setMessage('');
@@ -374,7 +504,14 @@ function LibrarySection({ userId }: { userId: string }) {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update_profile', userId, displayName: editName, handle: editHandle, bio: editBio })
       });
-      if (res.ok) { setMessage('saved.'); setProfile({ display_name: editName, handle: editHandle, bio: editBio }); }
+      if (res.ok) {
+        setMessage('saved.');
+        setPersonas(prev => {
+          const exists = prev.find(p => p.user_id === userId);
+          if (exists) return prev.map(p => p.user_id === userId ? { ...p, display_name: editName, handle: editHandle, bio: editBio } : p);
+          return [{ user_id: userId, display_name: editName, handle: editHandle, bio: editBio, works_count: 0, influences_count: 0 }, ...prev];
+        });
+      }
     } catch {} setSaving(false);
   };
 
@@ -388,8 +525,9 @@ function LibrarySection({ userId }: { userId: string }) {
       });
       if (res.ok) {
         const data = await res.json();
-        setWorks(prev => [data.work, ...prev]);
+        setViewWorks(prev => [data.work, ...prev]);
         setWorkTitle(''); setWorkContent(''); setMessage('published.');
+        setPersonas(prev => prev.map(p => p.user_id === userId ? { ...p, works_count: (p.works_count || 0) + 1 } : p));
       }
     } catch {} setSaving(false);
   };
@@ -404,120 +542,238 @@ function LibrarySection({ userId }: { userId: string }) {
       });
       if (res.ok) {
         const data = await res.json();
-        setInfluences(prev => [data.influence, ...prev]);
+        setViewInfluences(prev => [data.influence, ...prev]);
         setInfTitle(''); setInfAnnotation(''); setInfUrl(''); setMessage('added.');
+        setPersonas(prev => prev.map(p => p.user_id === userId ? { ...p, influences_count: (p.influences_count || 0) + 1 } : p));
       }
     } catch {} setSaving(false);
   };
 
-  if (loading) return <div className="py-12 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>;
-
-  const tabs: { id: LibraryTab; label: string }[] = [
-    { id: 'profile', label: 'profile' },
-    { id: 'works', label: `works (${works.length})` },
-    { id: 'influences', label: `influences (${influences.length})` },
-  ];
+  if (loading) return <div className="py-16 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>;
 
   const inputStyle = { background: 'var(--bg-secondary)', color: 'var(--text-primary)' };
-  const btnStyle = { background: 'var(--bg-secondary)', color: 'var(--text-primary)' };
+
+  // ── Browse view: gallery of all personas ──
+  if (view === 'browse') {
+    return (
+      <div className="space-y-6">
+        <div className="pt-2">
+          <h2 className="text-lg font-extralight tracking-wide" style={{ color: 'var(--text-primary)' }}>Library</h2>
+          <p className="text-xs mt-1 italic" style={{ color: 'var(--text-subtle)' }}>every mind, a world</p>
+        </div>
+
+        <button
+          onClick={openEdit}
+          className="w-full text-left rounded-2xl p-5 border-2 border-dashed cursor-pointer transition-all duration-300 hover:scale-[1.01] bg-transparent"
+          style={{ borderColor: 'var(--border-light)', color: 'var(--text-primary)' }}
+        >
+          <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>your biography</div>
+          <div className="text-sm mt-1 font-light">write, curate, publish</div>
+        </button>
+
+        {personas.length > 0 ? (
+          <div className="space-y-3">
+            {personas.map(p => (
+              <PersonaCard
+                key={p.user_id}
+                persona={p}
+                isYou={p.user_id === userId}
+                onClick={() => openPersona(p.user_id!)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="py-8 text-center">
+            <div className="text-xs italic" style={{ color: 'var(--text-subtle)' }}>no biographies yet — be the first</div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Persona view: reading someone's biography ──
+  if (view === 'persona') {
+    const name = viewProfile.display_name || viewProfile.handle || 'unnamed';
+    const isYou = viewingUserId === userId;
+
+    if (loadingPersona) return <div className="py-16 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>;
+
+    return (
+      <div className="space-y-6">
+        <button
+          onClick={() => setView('browse')}
+          className="text-[0.7rem] bg-transparent border-none cursor-pointer"
+          style={{ color: 'var(--text-subtle)' }}
+        >
+          ← library
+        </button>
+
+        {/* Header */}
+        <div className="pt-2 pb-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
+          <h2 className="text-xl font-extralight" style={{ color: 'var(--text-primary)' }}>{name}</h2>
+          {viewProfile.handle && (
+            <div className="text-xs mt-1" style={{ color: 'var(--text-subtle)' }}>@{viewProfile.handle}</div>
+          )}
+          {viewProfile.bio && (
+            <div className="text-sm mt-4 leading-relaxed font-light" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
+              {viewProfile.bio}
+            </div>
+          )}
+          {isYou && (
+            <button
+              onClick={openEdit}
+              className="mt-4 text-[0.65rem] bg-transparent border-none cursor-pointer underline"
+              style={{ color: 'var(--text-subtle)' }}
+            >
+              edit your biography
+            </button>
+          )}
+        </div>
+
+        {/* Works */}
+        {viewWorks.length > 0 && (
+          <div className="space-y-3">
+            <div className="text-[0.7rem] tracking-wider uppercase font-medium" style={{ color: 'var(--text-subtle)' }}>Works</div>
+            {viewWorks.map(w => (
+              <WorkCard
+                key={w.id}
+                work={w}
+                expanded={expandedWork === w.id}
+                onToggle={() => setExpandedWork(expandedWork === w.id ? null : w.id)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Curated */}
+        {viewInfluences.length > 0 && (
+          <div className="space-y-3">
+            <div className="text-[0.7rem] tracking-wider uppercase font-medium" style={{ color: 'var(--text-subtle)' }}>Curated</div>
+            {viewInfluences.map(inf => (
+              <InfluenceCard key={inf.id} influence={inf} />
+            ))}
+          </div>
+        )}
+
+        {viewWorks.length === 0 && viewInfluences.length === 0 && (
+          <div className="py-8 text-center">
+            <div className="text-xs italic" style={{ color: 'var(--text-subtle)' }}>
+              {isYou ? 'your canvas is empty — start writing' : 'nothing published yet'}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Edit view: create your biography ──
+  const editTabs: { id: typeof editTab; label: string }[] = [
+    { id: 'profile', label: 'profile' },
+    { id: 'work', label: 'publish' },
+    { id: 'curation', label: 'curate' },
+  ];
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Library</h2>
-        <p className="text-xs mt-1" style={{ color: 'var(--text-subtle)' }}>your neo-biography — authored works, curated influences, interactive persona.</p>
+    <div className="space-y-6">
+      <button
+        onClick={() => setView('browse')}
+        className="text-[0.7rem] bg-transparent border-none cursor-pointer"
+        style={{ color: 'var(--text-subtle)' }}
+      >
+        ← library
+      </button>
+
+      <div className="pt-2">
+        <h2 className="text-lg font-extralight tracking-wide" style={{ color: 'var(--text-primary)' }}>Your Biography</h2>
+        <p className="text-xs mt-1 italic" style={{ color: 'var(--text-subtle)' }}>what you create, what shaped you</p>
       </div>
 
-      <div className="flex gap-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
-        {tabs.map(t => (
+      <div className="flex gap-4" style={{ borderBottom: '1px solid var(--border-light)' }}>
+        {editTabs.map(t => (
           <button
             key={t.id}
-            onClick={() => { setTab(t.id); setMessage(''); }}
-            className="pb-2 text-xs bg-transparent border-none cursor-pointer transition-opacity"
-            style={{ color: 'var(--text-primary)', opacity: tab === t.id ? 1 : 0.4, borderBottom: tab === t.id ? '2px solid var(--text-primary)' : 'none' }}
+            onClick={() => { setEditTab(t.id); setMessage(''); }}
+            className="pb-2.5 text-xs bg-transparent border-none cursor-pointer transition-all"
+            style={{
+              color: 'var(--text-primary)',
+              opacity: editTab === t.id ? 0.9 : 0.35,
+              borderBottom: editTab === t.id ? '1.5px solid var(--text-primary)' : '1.5px solid transparent',
+            }}
           >
             {t.label}
           </button>
         ))}
       </div>
 
-      {tab === 'profile' && (
+      {editTab === 'profile' && (
         <div className="space-y-3">
-          <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="display name" className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
-          <input value={editHandle} onChange={e => setEditHandle(e.target.value)} placeholder="handle" className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
-          <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="bio — who you are, in your own words" className="w-full min-h-[80px] rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
-          <button onClick={saveProfile} disabled={saving} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={btnStyle}>
-            {saving ? 'saving...' : 'save profile'}
+          <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="display name" className="w-full rounded-xl px-4 py-3 text-sm border-none outline-none" style={inputStyle} />
+          <input value={editHandle} onChange={e => setEditHandle(e.target.value)} placeholder="handle" className="w-full rounded-xl px-4 py-3 text-sm border-none outline-none" style={inputStyle} />
+          <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="who you are, in your own words" className="w-full min-h-[100px] rounded-xl px-4 py-3 text-sm border-none outline-none leading-relaxed" style={inputStyle} />
+          <button onClick={saveProfile} disabled={saving} className="rounded-xl px-4 py-2.5 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+            {saving ? 'saving...' : 'save'}
           </button>
         </div>
       )}
 
-      {tab === 'works' && (
+      {editTab === 'work' && (
         <div className="space-y-4">
-          {works.length > 0 && (
-            <div className="space-y-2">
-              {works.map(w => (
-                <div key={w.id} className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="text-sm">{w.title}</div>
-                      <div className="text-xs opacity-40 mt-0.5">{w.medium}</div>
-                    </div>
-                    <div className="text-xs opacity-30">{new Date(w.published_at).toLocaleDateString()}</div>
-                  </div>
-                  {w.summary && <div className="text-xs opacity-50 mt-2 line-clamp-2">{w.summary}</div>}
-                </div>
-              ))}
-            </div>
-          )}
-          <div className="pt-3 border-t space-y-2" style={{ borderColor: 'var(--border-light)' }}>
-            <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>publish a work — frozen on publication</div>
-            <input value={workTitle} onChange={e => setWorkTitle(e.target.value)} placeholder="title" className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
-            <select value={workMedium} onChange={e => setWorkMedium(e.target.value)} className="w-full rounded-lg px-3 py-2 text-xs border-none outline-none" style={inputStyle}>
-              {['essay', 'poetry', 'note', 'letter', 'reflection', 'speech', 'other'].map(m => <option key={m} value={m}>{m}</option>)}
+          <div className="space-y-3">
+            <input value={workTitle} onChange={e => setWorkTitle(e.target.value)} placeholder="title" className="w-full rounded-xl px-4 py-3 text-sm border-none outline-none" style={inputStyle} />
+            <select value={workMedium} onChange={e => setWorkMedium(e.target.value)} className="w-full rounded-xl px-4 py-3 text-xs border-none outline-none" style={inputStyle}>
+              {MEDIUMS_WORK.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
-            <textarea value={workContent} onChange={e => setWorkContent(e.target.value)} placeholder="content" className="w-full min-h-[120px] rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
-            <button onClick={publishWork} disabled={saving || !workTitle.trim() || !workContent.trim()} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={btnStyle}>
+            <textarea value={workContent} onChange={e => setWorkContent(e.target.value)} placeholder="your work — frozen once published" className="w-full min-h-[160px] rounded-xl px-4 py-3 text-sm border-none outline-none leading-relaxed" style={inputStyle} />
+            <button onClick={publishWork} disabled={saving || !workTitle.trim() || !workContent.trim()} className="rounded-xl px-4 py-2.5 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
               {saving ? 'publishing...' : 'publish'}
             </button>
           </div>
-        </div>
-      )}
 
-      {tab === 'influences' && (
-        <div className="space-y-4">
-          {influences.length > 0 && (
-            <div className="space-y-2">
-              {influences.map(inf => (
-                <div key={inf.id} className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="text-sm">{inf.title}</div>
-                      <div className="text-xs opacity-40 mt-0.5">{inf.medium}</div>
-                    </div>
-                    {inf.url && <a href={inf.url} target="_blank" rel="noopener noreferrer" className="text-xs opacity-30 hover:opacity-60">link</a>}
+          {viewWorks.length > 0 && (
+            <div className="pt-4 border-t space-y-2" style={{ borderColor: 'var(--border-light)' }}>
+              <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>published</div>
+              {viewWorks.map(w => (
+                <div key={w.id} className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-sm italic">{w.title}</span>
+                    <span className="text-[0.6rem]" style={{ color: 'var(--text-subtle)' }}>
+                      {new Date(w.published_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                    </span>
                   </div>
-                  {inf.annotation && <div className="text-xs opacity-50 mt-2 italic">{inf.annotation}</div>}
+                  <div className="text-[0.65rem] mt-0.5 tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>{w.medium}</div>
                 </div>
               ))}
             </div>
           )}
-          <div className="pt-3 border-t space-y-2" style={{ borderColor: 'var(--border-light)' }}>
-            <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>add an influence — what shaped you</div>
-            <input value={infTitle} onChange={e => setInfTitle(e.target.value)} placeholder="title" className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
-            <select value={infMedium} onChange={e => setInfMedium(e.target.value)} className="w-full rounded-lg px-3 py-2 text-xs border-none outline-none" style={inputStyle}>
-              {['book', 'film', 'music', 'video', 'podcast', 'essay', 'art', 'lecture', 'other'].map(m => <option key={m} value={m}>{m}</option>)}
-            </select>
-            <textarea value={infAnnotation} onChange={e => setInfAnnotation(e.target.value)} placeholder="why this matters to you" className="w-full min-h-[60px] rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
-            <input value={infUrl} onChange={e => setInfUrl(e.target.value)} placeholder="link (optional)" className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
-            <button onClick={addInfluence} disabled={saving || !infTitle.trim()} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={btnStyle}>
-              {saving ? 'adding...' : 'add influence'}
-            </button>
-          </div>
         </div>
       )}
 
-      {message && <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
+      {editTab === 'curation' && (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <input value={infTitle} onChange={e => setInfTitle(e.target.value)} placeholder="what shaped you" className="w-full rounded-xl px-4 py-3 text-sm border-none outline-none" style={inputStyle} />
+            <select value={infMedium} onChange={e => setInfMedium(e.target.value)} className="w-full rounded-xl px-4 py-3 text-xs border-none outline-none" style={inputStyle}>
+              {MEDIUMS_INFLUENCE.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <textarea value={infAnnotation} onChange={e => setInfAnnotation(e.target.value)} placeholder="why this matters to you" className="w-full min-h-[80px] rounded-xl px-4 py-3 text-sm border-none outline-none leading-relaxed" style={inputStyle} />
+            <input value={infUrl} onChange={e => setInfUrl(e.target.value)} placeholder="link — youtube, spotify, website, anything" className="w-full rounded-xl px-4 py-3 text-sm border-none outline-none" style={inputStyle} />
+            <button onClick={addInfluence} disabled={saving || !infTitle.trim()} className="rounded-xl px-4 py-2.5 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+              {saving ? 'adding...' : 'add'}
+            </button>
+          </div>
+
+          {viewInfluences.length > 0 && (
+            <div className="pt-4 border-t space-y-2" style={{ borderColor: 'var(--border-light)' }}>
+              <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>curated</div>
+              {viewInfluences.map(inf => (
+                <InfluenceCard key={inf.id} influence={inf} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {message && <div className="text-xs mt-2 italic" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
     </div>
   );
 }

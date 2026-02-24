@@ -20,7 +20,7 @@ const publishSchema = z.object({
 const influenceSchema = z.object({
   userId: z.string().min(1),
   title: z.string().min(1),
-  medium: z.enum(['book', 'film', 'music', 'video', 'podcast', 'essay', 'art', 'lecture', 'other']).default('book'),
+  medium: z.enum(['book', 'film', 'music', 'playlist', 'video', 'podcast', 'essay', 'art', 'lecture', 'person', 'place', 'other']).default('book'),
   url: z.string().optional(),
   annotation: z.string().optional(),
   category: z.string().optional()
@@ -37,6 +37,30 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = getSupabase();
     const userId = req.nextUrl.searchParams.get('userId');
+    const browse = req.nextUrl.searchParams.get('browse');
+
+    // Browse mode: return all personas with work/influence counts
+    if (browse === 'true') {
+      const { data: profiles } = await supabase
+        .from('author_profiles')
+        .select('*')
+        .order('updated_at', { ascending: false });
+
+      const personas = [];
+      for (const p of profiles || []) {
+        const [worksCount, infCount] = await Promise.all([
+          supabase.from('authored_works').select('*', { count: 'exact', head: true }).eq('user_id', p.user_id),
+          supabase.from('curated_influences').select('*', { count: 'exact', head: true }).eq('user_id', p.user_id),
+        ]);
+        personas.push({
+          ...p,
+          works_count: worksCount.count || 0,
+          influences_count: infCount.count || 0,
+        });
+      }
+
+      return NextResponse.json({ personas });
+    }
 
     if (!userId) {
       return NextResponse.json({ error: 'userId required' }, { status: 400 });
