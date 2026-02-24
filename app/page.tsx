@@ -1202,6 +1202,8 @@ export default function Alexandria() {
               <a href="/machine" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>machine</a>
               <a href="/batch-upload" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>upload</a>
               <a href="/training" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>training</a>
+              <a href="/library" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>library</a>
+              <a href="/publish" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>publish</a>
               <div className="my-1.5 mx-3" style={{ borderTop: '1px solid var(--border-light)' }} />
               <button
                 onClick={() => { handleLogout(); setShowNav(false); }}

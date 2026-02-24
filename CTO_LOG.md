@@ -293,7 +293,48 @@ After feedback:
 ## Session Handoff Notes
 *Critical context for the next session/agent*
 
-**Last session:** 2026-02-22 (Codex + auto model)
+**Last session:** 2026-02-24 (Opus)
+
+---
+
+## Session Update (2026-02-24)
+
+**Theme: From first principles — close loops, build Library, simplify**
+
+### Core Loops Fixed:
+- **Editor conversation broken** — `Output.object()` not supported by Groq's llama-3.3-70b. Removed structured output, switched to prompt-based JSON with Zod validation. Editor now returns conversational, contextual responses with proper extraction.
+- **RLAIF flywheel verified** — Triggered full cycle: synthetic prompts generated targeting Constitution gaps, PLM responses evaluated, confidence routing applied (1 auto-approved, 2 queued for review). Relaxed UUID validation on RLAIF route.
+- **Training pipeline verified** — 33 training pairs uploaded to Together AI, LoRA fine-tuning job started (job: ft-047b3991-ee3b).
+
+### Crons Wired:
+- Added `editor-cycle` (every 10 min), `auto-train` (every 12h), `constitution-refresh` (every 6h) to `vercel.json`
+
+### Dead Code Archived:
+- `lib/modules/migration/*` → `_archive/dead-code/migration-modules/`
+- `app/api/migration/` → `_archive/dead-code/api-migration/`
+- `lib/utils/pipe-check.ts` → `_archive/dead-code/`
+- Added `_archive` to tsconfig.json exclude
+
+### Machine Page Simplified:
+- Removed 14 buttons, 2 checkboxes, channel/blueprint cards
+- Now shows: refresh, run cycle, 6 status cards (editor, ingestion, constitution, rlaif, training, gaps), next actions, quick links
+
+### Library Built (the moat per ALEXANDRIA.md):
+- Migration `00034_neo_biography.sql`: `authored_works`, `curated_influences`, `author_profiles` tables
+- `app/api/neo-biography/route.ts`: GET (full Neo-Biography), POST (publish work, add influence, update profile)
+- `app/library/page.tsx`: Redesigned as Persona marketplace with enriched author cards
+- `app/persona/[id]/page.tsx`: Neo-Biography with three layers (authored works, curated influences, interactive Persona query)
+- `app/publish/page.tsx`: Author publishing flow (works, influences, profile)
+- Homepage nav updated with Library and Publish links
+
+### Key files modified:
+- `lib/modules/core/editor.ts` — removed `Output.object()`, new `parseAndValidateResponse()`
+- `app/api/rlaif/route.ts` — relaxed UUID validation
+- `app/machine/page.tsx` — complete rewrite
+- `vercel.json` — 3 new cron schedules
+- `tsconfig.json` — exclude `_archive`
+
+**Previous session:** 2026-02-22 (Codex + auto model)
 
 **V2 Data Loop MVP — code complete.** All 7 tasks in `ALEXANDRIA_EXECUTION_V2.md` are implemented:
 - TASK 1: Auto-train cron wired in `vercel.json` (every 12h).

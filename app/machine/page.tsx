@@ -2,43 +2,23 @@
 
 import { useEffect, useState } from 'react';
 
-interface MachineStatusPayload {
+interface LoopStatus {
   machine?: {
     healthy: boolean;
-    coreHealthy?: boolean;
-    warnings?: {
-      queuedHighImpactBlueprintProposals?: number;
-    };
-    axioms: {
-      healthy: boolean;
-      violations: Array<{ code: string; message: string; path: string }>;
-    };
+    axioms: { healthy: boolean; violations: Array<{ message: string }> };
     editorLoop: {
       healthy: boolean;
       activityLevel: string;
       cycleCount: number;
       sleepMinutes: number | null;
-      lastCycleAt: string | null;
-      nextCycleAt: string | null;
-      stale?: boolean;
       lagMinutes?: number | null;
-      nextInMinutes?: number | null;
+      stale?: boolean;
     };
-    ingestionLoop: {
-      healthy: boolean;
-      pendingJobs: number;
-      runningJobs: number;
-    };
-    rlaifLoop: {
-      pendingAuthorReview: number;
-      undeliveredEditorMessages: number;
-      staleUndeliveredEditorMessages?: number;
-    };
+    ingestionLoop: { healthy: boolean; pendingJobs: number; runningJobs: number };
+    rlaifLoop: { pendingAuthorReview: number; undeliveredEditorMessages: number };
     constitutionLoop?: {
       hasConstitution: boolean;
       version: number | null;
-      lastUpdatedAt: string | null;
-      ageHours: number | null;
       qualityPairsAll: number;
       newPairsSinceLast: number | null;
       refreshReady: boolean;
@@ -48,594 +28,182 @@ interface MachineStatusPayload {
       readyForAutoTrain: boolean;
       twinStatus?: string;
       activeModelId?: string | null;
-      lastTrainedAt?: string | null;
-      lastTrainingExport: {
-        id: string;
-        status: string;
-        createdAt: string;
-        completedAt: string | null;
-      } | null;
-    };
-    blueprintLoop: {
-      queuedProposals: number;
-      queuedHighImpact?: number;
-    };
-    channelLoop?: {
-      activeBindings: number;
-      pausedBindings?: number;
-      failedOutbound: number;
-      deadLetterOutbound: number;
-      localOnlyMode?: boolean;
+      lastTrainingExport: { status: string } | null;
     };
     nextActions?: string[];
   };
-  error?: string;
 }
+
+interface Gap { section: string; gapScore: number; priority: string; evidenceCount: number }
 
 export default function MachinePage() {
   const [userId, setUserId] = useState('');
-  const [status, setStatus] = useState<MachineStatusPayload | null>(null);
+  const [status, setStatus] = useState<LoopStatus | null>(null);
   const [loading, setLoading] = useState(false);
-  const [running, setRunning] = useState(false);
-  const [bootstrapping, setBootstrapping] = useState(false);
-  const [stabilizing, setStabilizing] = useState(false);
-  const [bulkReviewing, setBulkReviewing] = useState(false);
-  const [resolvingBlueprint, setResolvingBlueprint] = useState(false);
-  const [drainingEditorMessages, setDrainingEditorMessages] = useState(false);
-  const [recoveringChannels, setRecoveringChannels] = useState(false);
-  const [resolvingBlockers, setResolvingBlockers] = useState(false);
-  const [unpausingBindings, setUnpausingBindings] = useState(false);
-  const [switchingLocalMode, setSwitchingLocalMode] = useState(false);
-  const [includeChannels, setIncludeChannels] = useState(false);
-  const [autoResolveBlockers, setAutoResolveBlockers] = useState(false);
-  const [runResult, setRunResult] = useState<string>('');
-  const [gaps, setGaps] = useState<Array<{ section: string; gapScore: number; priority: string; evidenceCount: number }>>([]);
+  const [actionRunning, setActionRunning] = useState('');
+  const [result, setResult] = useState('');
+  const [gaps, setGaps] = useState<Gap[]>([]);
 
-  const loadStatus = async (id: string) => {
+  const load = async (id: string) => {
     setLoading(true);
     try {
-      const [statusRes, gapsRes] = await Promise.all([
-        fetch(`/api/machine/status?userId=${id}`),
-        fetch(`/api/rlaif/gaps?userId=${id}`)
+      const [s, g] = await Promise.all([
+        fetch(`/api/machine/status?userId=${id}`).then(r => r.json()),
+        fetch(`/api/rlaif/gaps?userId=${id}`).then(r => r.ok ? r.json() : { items: [] })
       ]);
-      const statusData = await statusRes.json();
-      setStatus(statusData);
-      if (gapsRes.ok) {
-        const gapsData = await gapsRes.json();
-        setGaps(gapsData.items || []);
-      }
-    } finally {
-      setLoading(false);
-    }
+      setStatus(s);
+      setGaps(g.items || []);
+    } finally { setLoading(false); }
   };
 
   useEffect(() => {
     const id = localStorage.getItem('alexandria_user_id') || '';
     setUserId(id);
-    if (id) {
-      void loadStatus(id);
-    }
+    if (id) void load(id);
   }, []);
 
   useEffect(() => {
     if (!userId) return;
-    const timer = setInterval(() => {
-      void loadStatus(userId);
-    }, 15000);
-    return () => clearInterval(timer);
+    const t = setInterval(() => void load(userId), 15000);
+    return () => clearInterval(t);
   }, [userId]);
 
-  const runMachineCycle = async () => {
-    setRunning(true);
-    setRunResult('');
+  const act = async (label: string, url: string, body?: Record<string, unknown>) => {
+    setActionRunning(label);
+    setResult('');
     try {
-      const res = await fetch(
-        `/api/cron/machine-cycle?userId=${encodeURIComponent(userId)}${includeChannels ? '&includeChannels=1' : ''}`,
-        { method: 'POST' }
-      );
-      const data = await res.json();
-      const ok = Boolean(data?.success);
-      const proposalNote = data?.proposalId ? ` · blueprint proposal queued (${data.proposalId})` : '';
-      setRunResult(ok ? `machine cycle complete${proposalNote}` : `machine cycle returned issues${proposalNote}`);
-      if (userId) {
-        await loadStatus(userId);
-      }
-    } catch {
-      setRunResult('machine cycle failed');
-    } finally {
-      setRunning(false);
-    }
-  };
-
-  const bootstrapMachine = async () => {
-    setBootstrapping(true);
-    setRunResult('');
-    try {
-      const res = await fetch('/api/machine/bootstrap', {
+      const res = await fetch(url, body ? {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
-      });
+        body: JSON.stringify({ userId, ...body })
+      } : { method: 'POST' });
       const data = await res.json();
-      setRunResult(res.ok && data?.success ? 'machine bootstrapped' : (data?.error || 'bootstrap failed'));
-      await loadStatus(userId);
-    } catch {
-      setRunResult('bootstrap failed');
-    } finally {
-      setBootstrapping(false);
-    }
+      setResult(data?.success ? `${label} complete` : (data?.error || `${label} failed`));
+      await load(userId);
+    } catch { setResult(`${label} failed`); }
+    finally { setActionRunning(''); }
   };
 
-  const stabilizeMachine = async () => {
-    setStabilizing(true);
-    setRunResult('');
-    try {
-      const res = await fetch('/api/machine/stabilize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, includeChannels, resolveBlockers: autoResolveBlockers })
-      });
-      const data = await res.json();
-      setRunResult(res.ok && data?.success ? `stabilized in ${data?.elapsedMs || 0}ms` : (data?.error || 'stabilize failed'));
-      await loadStatus(userId);
-    } catch {
-      setRunResult('stabilize failed');
-    } finally {
-      setStabilizing(false);
-    }
-  };
+  if (!userId) return (
+    <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <div className="mx-auto max-w-3xl">
+        <a href="/" className="text-sm opacity-50 hover:opacity-100 transition-opacity">← home</a>
+        <p className="mt-4 text-sm opacity-60">sign in first.</p>
+      </div>
+    </main>
+  );
 
-  const bulkApproveRlaif = async () => {
-    setBulkReviewing(true);
-    setRunResult('');
-    try {
-      const res = await fetch('/api/rlaif/review', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'bulk_approve',
-          userId,
-          limit: 100,
-          includeFlagged: false
-        })
-      });
-      const data = await res.json();
-      setRunResult(res.ok && data?.success ? `bulk approved ${data?.updated || 0} rlaif items` : (data?.error || 'bulk approve failed'));
-      await loadStatus(userId);
-    } catch {
-      setRunResult('bulk approve failed');
-    } finally {
-      setBulkReviewing(false);
-    }
-  };
-
-  const resolveHighImpactBlueprint = async () => {
-    setResolvingBlueprint(true);
-    setRunResult('');
-    try {
-      const res = await fetch('/api/blueprint/proposals', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'bulk_resolve_high_impact',
-          userId,
-          status: 'rejected',
-          reviewNotes: 'bulk resolved from machine dashboard'
-        })
-      });
-      const data = await res.json();
-      setRunResult(res.ok && data?.success ? `resolved ${data?.updated || 0} high-impact proposals` : (data?.error || 'resolve failed'));
-      await loadStatus(userId);
-    } catch {
-      setRunResult('resolve failed');
-    } finally {
-      setResolvingBlueprint(false);
-    }
-  };
-
-  const drainEditorMessages = async () => {
-    setDrainingEditorMessages(true);
-    setRunResult('');
-    try {
-      const res = await fetch('/api/machine/drain-editor-messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          markStaleIfNoBindings: true,
-          staleHours: 72
-        })
-      });
-      const data = await res.json();
-      if (res.ok && data?.success) {
-        setRunResult(`drained editor messages: ${data?.undeliveredBefore || 0} -> ${data?.undeliveredAfter || 0}`);
-      } else {
-        setRunResult(data?.error || 'drain failed');
-      }
-      await loadStatus(userId);
-    } catch {
-      setRunResult('drain failed');
-    } finally {
-      setDrainingEditorMessages(false);
-    }
-  };
-
-  const recoverChannels = async () => {
-    setRecoveringChannels(true);
-    setRunResult('');
-    try {
-      const res = await fetch('/api/machine/recover-channels', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, requeueDeadLetters: true, deadLetterLimit: 50 })
-      });
-      const data = await res.json();
-      if (res.ok && data?.success) {
-        setRunResult(`channels recovered · failed ${data?.failedOutboundAfter || 0} · dead-letter ${data?.deadLetterAfter || 0}`);
-      } else {
-        setRunResult(data?.error || 'channel recover failed');
-      }
-      await loadStatus(userId);
-    } catch {
-      setRunResult('channel recover failed');
-    } finally {
-      setRecoveringChannels(false);
-    }
-  };
-
-  const resolveBlockers = async () => {
-    setResolvingBlockers(true);
-    setRunResult('');
-    try {
-      const res = await fetch('/api/machine/resolve-blockers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
-      });
-      const data = await res.json();
-      setRunResult(res.ok && data?.success ? 'blocker resolution pass complete' : (data?.error || 'blocker resolution failed'));
-      await loadStatus(userId);
-    } catch {
-      setRunResult('blocker resolution failed');
-    } finally {
-      setResolvingBlockers(false);
-    }
-  };
-
-  const unpauseBindings = async () => {
-    setUnpausingBindings(true);
-    setRunResult('');
-    try {
-      const res = await fetch('/api/machine/unpause-bindings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, onlyAutoPaused: true })
-      });
-      const data = await res.json();
-      setRunResult(res.ok && data?.success ? `unpaused ${data?.unpaused || 0} bindings` : (data?.error || 'unpause failed'));
-      await loadStatus(userId);
-    } catch {
-      setRunResult('unpause failed');
-    } finally {
-      setUnpausingBindings(false);
-    }
-  };
-
-  const setLocalMode = async (enabled: boolean) => {
-    setSwitchingLocalMode(true);
-    setRunResult('');
-    try {
-      const res = await fetch('/api/machine/local-mode', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, enabled })
-      });
-      const data = await res.json();
-      setRunResult(
-        res.ok && data?.success
-          ? (enabled ? 'local-only mode enabled' : 'channel mode enabled')
-          : (data?.error || 'mode switch failed')
-      );
-      await loadStatus(userId);
-    } catch {
-      setRunResult('mode switch failed');
-    } finally {
-      setSwitchingLocalMode(false);
-    }
-  };
-
-  if (!userId) {
-    return (
-      <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-        <div className="mx-auto max-w-4xl">
-          <a href="/" className="inline-flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity mb-2" style={{ color: 'var(--text-primary)' }}>
-            ← home
-          </a>
-          <div className="rounded-xl p-4 text-sm" style={{ background: 'var(--bg-secondary)' }}>
-            sign in first, then open this page again.
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  const machine = status?.machine;
+  const m = status?.machine;
+  const healthy = m?.healthy;
+  const axiomsOk = m?.axioms?.healthy;
 
   return (
     <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-      <div className="mx-auto max-w-4xl space-y-4">
-        <a href="/" className="inline-flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity mb-2" style={{ color: 'var(--text-primary)' }}>
-          ← home
-        </a>
-        <h1 className="text-2xl">Machine</h1>
-        <p className="text-sm opacity-70">single-view loop health for editor, ingestion, rlaif, and training.</p>
-
-        <div className="flex gap-2">
-          <button
-            onClick={() => loadStatus(userId)}
-            disabled={loading}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {loading ? 'refreshing...' : 'refresh'}
-          </button>
-          <button
-            onClick={runMachineCycle}
-            disabled={running}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {running ? 'running cycle...' : 'run machine cycle'}
-          </button>
-          <button
-            onClick={bootstrapMachine}
-            disabled={bootstrapping}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {bootstrapping ? 'bootstrapping...' : 'bootstrap machine'}
-          </button>
-          <button
-            onClick={stabilizeMachine}
-            disabled={stabilizing}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {stabilizing ? 'stabilizing...' : 'stabilize machine'}
-          </button>
-          <button
-            onClick={bulkApproveRlaif}
-            disabled={bulkReviewing}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {bulkReviewing ? 'approving...' : 'bulk approve rlaif'}
-          </button>
-          <button
-            onClick={resolveHighImpactBlueprint}
-            disabled={resolvingBlueprint}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {resolvingBlueprint ? 'resolving...' : 'resolve high-impact'}
-          </button>
-          <button
-            onClick={drainEditorMessages}
-            disabled={drainingEditorMessages}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {drainingEditorMessages ? 'draining...' : 'drain editor msgs'}
-          </button>
-          <button
-            onClick={recoverChannels}
-            disabled={recoveringChannels}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {recoveringChannels ? 'recovering...' : 'recover channels'}
-          </button>
-          <button
-            onClick={resolveBlockers}
-            disabled={resolvingBlockers}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {resolvingBlockers ? 'resolving blockers...' : 'resolve blockers'}
-          </button>
-          <button
-            onClick={unpauseBindings}
-            disabled={unpausingBindings}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {unpausingBindings ? 'unpausing...' : 'unpause bindings'}
-          </button>
-          <button
-            onClick={() => setLocalMode(true)}
-            disabled={switchingLocalMode}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {switchingLocalMode ? 'switching...' : 'enable local-only'}
-          </button>
-          <button
-            onClick={() => setLocalMode(false)}
-            disabled={switchingLocalMode}
-            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
-            {switchingLocalMode ? 'switching...' : 'enable channel mode'}
-          </button>
-          <a href="/" className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bg-secondary)' }}>
-            back to app
-          </a>
-          <a href="/blueprint" className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bg-secondary)' }}>
-            blueprint
-          </a>
-        </div>
-        <label className="inline-flex items-center gap-2 text-xs opacity-80">
-          <input
-            type="checkbox"
-            checked={includeChannels}
-            onChange={(e) => setIncludeChannels(e.target.checked)}
-          />
-          include channels in run/stabilize
-        </label>
-        <label className="inline-flex items-center gap-2 text-xs opacity-80 ml-3">
-          <input
-            type="checkbox"
-            checked={autoResolveBlockers}
-            onChange={(e) => setAutoResolveBlockers(e.target.checked)}
-          />
-          auto-resolve blockers in stabilize
-        </label>
-
-        {runResult && <div className="text-xs opacity-70">{runResult}</div>}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">machine</div>
-            <div className="text-lg">{machine?.healthy ? 'healthy' : 'degraded'}</div>
-            <div className="text-xs opacity-70">
-              axioms {machine?.axioms?.healthy ? 'ok' : 'violated'}
-            </div>
-            <div className="text-xs opacity-60">
-              core {machine?.coreHealthy ? 'ok' : 'degraded'} · high-impact proposals {machine?.warnings?.queuedHighImpactBlueprintProposals || 0}
-            </div>
-            {!machine?.axioms?.healthy && (machine?.axioms?.violations?.length || 0) > 0 && (
-              <div className="text-xs opacity-60 mt-1">
-                {machine?.axioms?.violations?.[0]?.message}
-              </div>
-            )}
-          </div>
-          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">editor loop</div>
-            <div className="text-sm">
-              {machine?.editorLoop?.healthy ? 'ok' : 'not running'} · {machine?.editorLoop?.activityLevel || 'unknown'}
-            </div>
-            <div className="text-xs opacity-70">
-              cycles {machine?.editorLoop?.cycleCount || 0} · sleep {machine?.editorLoop?.sleepMinutes ?? '-'}m
-            </div>
-            <div className="text-xs opacity-60">
-              lag {machine?.editorLoop?.lagMinutes ?? '-'}m · next {machine?.editorLoop?.nextInMinutes ?? '-'}m
-              {machine?.editorLoop?.stale ? ' · stale' : ''}
-            </div>
-          </div>
-          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">ingestion loop</div>
-            <div className="text-sm">
-              pending {machine?.ingestionLoop?.pendingJobs || 0} · running {machine?.ingestionLoop?.runningJobs || 0}
-            </div>
-          </div>
-          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">rlaif loop</div>
-            <div className="text-sm">
-              review queue {machine?.rlaifLoop?.pendingAuthorReview || 0} · editor msgs {machine?.rlaifLoop?.undeliveredEditorMessages || 0}
-            </div>
-            <div className="text-xs opacity-60">
-              stale editor msgs {machine?.rlaifLoop?.staleUndeliveredEditorMessages || 0}
-            </div>
-          </div>
-          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">constitution gaps</div>
-            <div className="text-xs opacity-70 mt-1">
-              {gaps.length === 0 ? 'no data' : gaps.map((g) => (
-                <div key={g.section} className="flex justify-between gap-2">
-                  <span>{g.section}</span>
-                  <span>gap {g.gapScore.toFixed(2)} · {g.evidenceCount} ev · {g.priority}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">constitution loop</div>
-            <div className="text-sm">
-              {machine?.constitutionLoop?.hasConstitution ? `v${machine?.constitutionLoop?.version}` : 'missing'} · ready {machine?.constitutionLoop?.refreshReady ? 'yes' : 'no'}
-            </div>
-            <div className="text-xs opacity-60">
-              pairs {machine?.constitutionLoop?.qualityPairsAll || 0} · new {machine?.constitutionLoop?.newPairsSinceLast ?? '-'}
-            </div>
-          </div>
-          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">training loop</div>
-            <div className="text-sm">
-              ready pairs {machine?.trainingLoop?.readyPairs || 0}
-              {machine?.trainingLoop?.readyForAutoTrain ? ' · auto-train ready' : ''}
-            </div>
-            <div className="text-xs opacity-70">
-              last export: {machine?.trainingLoop?.lastTrainingExport?.status || 'none'}
-            </div>
-            <div className="text-xs opacity-60">
-              twin {machine?.trainingLoop?.twinStatus || 'unknown'} · model {machine?.trainingLoop?.activeModelId || 'none'}
-            </div>
-          </div>
-          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">blueprint loop</div>
-            <div className="text-sm">
-              queued proposals {machine?.blueprintLoop?.queuedProposals || 0}
-            </div>
-            <div className="text-xs opacity-60">
-              high impact {machine?.blueprintLoop?.queuedHighImpact || 0}
-            </div>
-          </div>
-          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">channel loop</div>
-            <div className="text-sm">
-              active bindings {machine?.channelLoop?.activeBindings || 0}
-            </div>
-            <div className="text-xs opacity-60">
-              mode {machine?.channelLoop?.localOnlyMode ? 'local-only' : 'channel'}
-            </div>
-            <div className="text-xs opacity-60">
-              paused {machine?.channelLoop?.pausedBindings || 0} ·
-            </div>
-            <div className="text-xs opacity-60">
-              failed {machine?.channelLoop?.failedOutbound || 0} · dead-letter {machine?.channelLoop?.deadLetterOutbound || 0}
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-xl p-4 space-y-2" style={{ background: 'var(--bg-secondary)' }}>
-          <div className="text-sm">next actions</div>
-          {(machine?.nextActions || []).length === 0 && <div className="text-xs opacity-60">none</div>}
-          {(machine?.nextActions || []).map((action, idx) => (
-            <div key={`${idx}-${action}`} className="text-xs opacity-80">
-              {idx + 1}. {action}
-            </div>
-          ))}
-        </div>
-
-        <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
-          <div className="text-sm">daily use loop</div>
-          <div className="text-xs opacity-70">
-            Run this loop daily to improve the machine without external bridges.
-          </div>
-          <div className="text-xs opacity-80">
-            1) ingest transcripts ({machine?.constitutionLoop?.qualityPairsAll || 0} quality pairs)
-          </div>
-          <div className="text-xs opacity-80">
-            2) stabilize machine (with blocker resolution)
-          </div>
-          <div className="text-xs opacity-80">
-            3) check training readiness ({machine?.trainingLoop?.readyPairs || 0}/50)
-          </div>
-          <div className="text-xs opacity-80">
-            4) chat in-app and repeat
-          </div>
+      <div className="mx-auto max-w-3xl space-y-6">
+        <div className="flex items-center justify-between">
+          <a href="/" className="text-sm opacity-50 hover:opacity-100 transition-opacity">← home</a>
           <div className="flex gap-2">
-            <a href="/batch-upload" className="rounded-lg px-3 py-2 text-xs" style={{ background: 'var(--bg-primary)' }}>
-              open batch upload
-            </a>
-            <a href="/training" className="rounded-lg px-3 py-2 text-xs" style={{ background: 'var(--bg-primary)' }}>
-              open training
-            </a>
-            <a href="/" className="rounded-lg px-3 py-2 text-xs" style={{ background: 'var(--bg-primary)' }}>
-              open chat
-            </a>
+            <button onClick={() => load(userId)} disabled={loading}
+              className="rounded px-3 py-1.5 text-xs disabled:opacity-30" style={{ background: 'var(--bg-secondary)' }}>
+              {loading ? '...' : 'refresh'}
+            </button>
+            <button onClick={() => act('cycle', `/api/cron/machine-cycle?userId=${encodeURIComponent(userId)}`)}
+              disabled={!!actionRunning}
+              className="rounded px-3 py-1.5 text-xs disabled:opacity-30" style={{ background: 'var(--bg-secondary)' }}>
+              {actionRunning === 'cycle' ? '...' : 'run cycle'}
+            </button>
           </div>
+        </div>
+
+        <div>
+          <h1 className="text-xl" style={{ letterSpacing: '0.03em' }}>Machine</h1>
+          <p className="text-xs opacity-40 mt-1">
+            {healthy ? 'healthy' : 'degraded'} · axioms {axiomsOk ? 'ok' : 'violated'}
+            {!axiomsOk && m?.axioms?.violations?.[0] ? ` — ${m.axioms.violations[0].message}` : ''}
+          </p>
+        </div>
+
+        {result && <p className="text-xs opacity-60">{result}</p>}
+
+        {/* Loop status grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Card title="editor">
+            <Line>{m?.editorLoop?.healthy ? 'running' : 'idle'} · {m?.editorLoop?.activityLevel || '—'}</Line>
+            <Dim>cycles {m?.editorLoop?.cycleCount || 0} · lag {m?.editorLoop?.lagMinutes ?? '—'}m{m?.editorLoop?.stale ? ' · stale' : ''}</Dim>
+          </Card>
+
+          <Card title="ingestion">
+            <Line>pending {m?.ingestionLoop?.pendingJobs || 0} · running {m?.ingestionLoop?.runningJobs || 0}</Line>
+          </Card>
+
+          <Card title="constitution">
+            <Line>{m?.constitutionLoop?.hasConstitution ? `v${m.constitutionLoop.version}` : 'none'} · refresh {m?.constitutionLoop?.refreshReady ? 'ready' : 'not ready'}</Line>
+            <Dim>quality pairs {m?.constitutionLoop?.qualityPairsAll || 0} · new since refresh {m?.constitutionLoop?.newPairsSinceLast ?? '—'}</Dim>
+          </Card>
+
+          <Card title="rlaif">
+            <Line>review queue {m?.rlaifLoop?.pendingAuthorReview || 0}</Line>
+            <Dim>editor msgs pending {m?.rlaifLoop?.undeliveredEditorMessages || 0}</Dim>
+            {(m?.rlaifLoop?.pendingAuthorReview || 0) > 0 && (
+              <button onClick={() => act('approve', '/api/rlaif/review', { action: 'bulk_approve', limit: 100, includeFlagged: false })}
+                disabled={!!actionRunning}
+                className="mt-2 rounded px-2 py-1 text-xs disabled:opacity-30" style={{ background: 'var(--bg-primary)' }}>
+                bulk approve
+              </button>
+            )}
+          </Card>
+
+          <Card title="training">
+            <Line>ready pairs {m?.trainingLoop?.readyPairs || 0}{m?.trainingLoop?.readyForAutoTrain ? ' · auto-train ready' : ''}</Line>
+            <Dim>export {m?.trainingLoop?.lastTrainingExport?.status || 'none'} · model {m?.trainingLoop?.activeModelId ? '✓' : 'base'}</Dim>
+          </Card>
+
+          <Card title="constitution gaps">
+            {gaps.length === 0 ? <Dim>no gap data</Dim> : gaps.map(g => (
+              <div key={g.section} className="flex justify-between text-xs opacity-70">
+                <span>{g.section}</span>
+                <span>{g.gapScore.toFixed(2)} · {g.evidenceCount} ev</span>
+              </div>
+            ))}
+          </Card>
+        </div>
+
+        {/* Next actions */}
+        {(m?.nextActions?.length || 0) > 0 && (
+          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
+            <div className="text-xs opacity-50 mb-2">next actions</div>
+            {m!.nextActions!.map((a, i) => (
+              <div key={i} className="text-xs opacity-70">{i + 1}. {a}</div>
+            ))}
+          </div>
+        )}
+
+        {/* Quick links */}
+        <div className="flex gap-2 text-xs opacity-50">
+          <a href="/batch-upload" className="hover:opacity-100 transition-opacity">upload</a>
+          <span>·</span>
+          <a href="/training" className="hover:opacity-100 transition-opacity">training</a>
+          <span>·</span>
+          <a href="/" className="hover:opacity-100 transition-opacity">chat</a>
         </div>
       </div>
     </main>
   );
+}
+
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
+      <div className="text-xs opacity-40 mb-1">{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function Line({ children }: { children: React.ReactNode }) {
+  return <div className="text-sm">{children}</div>;
+}
+
+function Dim({ children }: { children: React.ReactNode }) {
+  return <div className="text-xs opacity-50">{children}</div>;
 }

@@ -15,7 +15,7 @@ function getSupabase() {
 }
 
 const actionSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(1),
   action: z.enum(['generate', 'stats', 'validate', 'pending', 'gaps']),
   // For generate action
   maxPrompts: z.number().optional(),

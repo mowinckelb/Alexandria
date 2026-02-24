@@ -4,7 +4,7 @@
 // Verify: two-way conversation works, notepad updates, training pairs generated
 
 import { createClient } from '@supabase/supabase-js';
-import { generateText, Output } from 'ai';
+import { generateText } from 'ai';
 import { z } from 'zod';
 import Together from 'together-ai';
 import { getFastModel, getQualityModel, togetherProvider } from '@/lib/models';
@@ -251,16 +251,13 @@ export class Editor {
     const notepadContext = this.formatNotepadContext(notepad);
     const statsContext = this.formatStatsContext(trainingStats);
     
-    // 6. Generate Editor response (structured output = guaranteed valid JSON)
-    let parsed: EditorResponse & { scratchpadUpdate?: string };
-    try {
-      const result = await generateText({
-        model: getQualityModel(),
-        experimental_output: Output.object({ schema: editorOutputSchema }),
-        messages: [
-          {
-            role: 'system',
-            content: `${EDITOR_SYSTEM_PROMPT}
+    // 6. Generate Editor response
+    const { text: rawResponse } = await generateText({
+      model: getQualityModel(),
+      messages: [
+        {
+          role: 'system',
+          content: `${EDITOR_SYSTEM_PROMPT}
 
 YOUR CONSTITUTION (Author's explicit worldview - use as ground truth):
 ${constitutionContext}
@@ -272,43 +269,36 @@ CURRENT STATS:
 ${statsContext}
 ${recentContext ? `\n${recentContext}\n` : ''}
 
-CRITICAL: Your "message" must be CONVERSATIONAL — respond directly to what they just said, reference the conversation, then ask a follow-up. Never give a generic reply.`
-          },
-          ...conversationHistory.map(m => ({ role: m.role, content: m.content })),
-          { role: 'user', content: authorInput }
-        ]
-      });
+RESPOND WITH JSON:
+{
+  "message": "Your conversational response to the Author — respond to what they said, then ask a follow-up",
+  "extraction": {
+    "objective": [{"content": "fact", "entities": ["entity"], "importance": 0.7}],
+    "subjective": [{"system_prompt": "You are a PLM.", "user_content": "prompt", "assistant_content": "verbatim Author text", "quality_score": 0.8}]
+  },
+  "notepadUpdates": {
+    "observations": [{"type": "observation", "content": "...", "topic": "...", "priority": "high", "category": "critical"}],
+    "gaps": [{"type": "gap", "content": "...", "topic": "...", "priority": "medium", "category": "non_critical"}],
+    "mentalModels": [{"type": "mental_model", "content": "...", "topic": "...", "priority": "low", "category": "non_critical"}]
+  },
+  "followUpQuestions": [{"question": "...", "reason": "...", "priority": "critical"}],
+  "scratchpadUpdate": "freeform notes",
+  "trainingRecommendation": {"shouldTrain": false, "reasoning": "..."}
+}
 
-      const out = result.experimental_output as z.infer<typeof editorOutputSchema>;
-      parsed = {
-        message: out.message,
-        extraction: {
-          raw: authorInput,
-          objective: out.extraction.objective.map(o => ({
-            content: o.content,
-            entities: o.entities,
-            importance: o.importance
-          })),
-          subjective: out.extraction.subjective.map(s => ({
-            system_prompt: s.system_prompt,
-            user_content: s.user_content,
-            assistant_content: s.assistant_content,
-            quality_score: s.quality_score
-          }))
+CRITICAL RULES:
+- Your "message" MUST respond directly to what the Author just said. Reference their words. Never give a generic reply.
+- Prioritize subjective extraction (voice, style, opinions) over objective (facts)
+- Be AGGRESSIVE about identifying gaps and asking probing questions
+- Return ONLY the JSON object, no other text`
         },
-        notepadUpdates: {
-          observations: out.notepadUpdates.observations,
-          gaps: out.notepadUpdates.gaps,
-          mentalModels: out.notepadUpdates.mentalModels
-        },
-        followUpQuestions: out.followUpQuestions,
-        trainingRecommendation: out.trainingRecommendation,
-        scratchpadUpdate: out.scratchpadUpdate
-      };
-    } catch (err) {
-      console.error('[UnifiedEditor] Structured output failed, using fallback:', err);
-      parsed = this.fallbackResponse(authorInput);
-    }
+        ...conversationHistory.map(m => ({ role: m.role, content: m.content })),
+        { role: 'user', content: authorInput }
+      ]
+    });
+
+    // 7. Parse with Zod validation, fallback on failure
+    const parsed = this.parseAndValidateResponse(rawResponse, authorInput);
     
     // 7. Store raw entry
     await this.storeRawEntry(authorInput, userId);
@@ -844,25 +834,40 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
     return parts.join('\n\n') || 'Constitution exists but has no content yet.';
   }
   
-  private parseEditorResponse(response: string, rawInput: string): EditorResponse & { scratchpadUpdate?: string } {
+  private parseAndValidateResponse(response: string, rawInput: string): EditorResponse & { scratchpadUpdate?: string } {
     try {
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
+        console.warn('[Editor] No JSON found in response, using fallback');
         return this.fallbackResponse(rawInput);
       }
-      
-      const parsed = JSON.parse(jsonMatch[0]);
-      
+
+      const raw = JSON.parse(jsonMatch[0]);
+      const validated = editorOutputSchema.safeParse(raw);
+
+      if (validated.success) {
+        const out = validated.data;
+        return {
+          message: out.message,
+          extraction: { raw: rawInput, objective: out.extraction.objective, subjective: out.extraction.subjective },
+          notepadUpdates: out.notepadUpdates,
+          followUpQuestions: out.followUpQuestions,
+          trainingRecommendation: out.trainingRecommendation,
+          scratchpadUpdate: out.scratchpadUpdate
+        };
+      }
+
+      console.warn('[Editor] Zod validation failed, using loose parse:', validated.error.issues.map(i => i.message).join(', '));
       return {
-        message: parsed.message || "I'd like to learn more about you. Can you tell me more?",
+        message: raw.message || this.fallbackResponse(rawInput).message,
         extraction: {
           raw: rawInput,
-          objective: (parsed.extraction?.objective || []).map((o: Record<string, unknown>) => ({
+          objective: (raw.extraction?.objective || []).map((o: Record<string, unknown>) => ({
             content: String(o.content || ''),
             entities: (o.entities as string[]) || [],
             importance: Number(o.importance) || 0.5
           })),
-          subjective: (parsed.extraction?.subjective || []).map((s: Record<string, unknown>) => ({
+          subjective: (raw.extraction?.subjective || []).map((s: Record<string, unknown>) => ({
             system_prompt: String(s.system_prompt || 'You are a Personal Language Model (PLM).'),
             user_content: String(s.user_content || ''),
             assistant_content: String(s.assistant_content || ''),
@@ -870,16 +875,16 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
           }))
         },
         notepadUpdates: {
-          observations: parsed.notepadUpdates?.observations || [],
-          gaps: parsed.notepadUpdates?.gaps || [],
-          mentalModels: parsed.notepadUpdates?.mentalModels || []
+          observations: raw.notepadUpdates?.observations || [],
+          gaps: raw.notepadUpdates?.gaps || [],
+          mentalModels: raw.notepadUpdates?.mentalModels || []
         },
-        followUpQuestions: parsed.followUpQuestions || [],
-        trainingRecommendation: parsed.trainingRecommendation,
-        scratchpadUpdate: parsed.scratchpadUpdate
+        followUpQuestions: raw.followUpQuestions || [],
+        trainingRecommendation: raw.trainingRecommendation,
+        scratchpadUpdate: raw.scratchpadUpdate
       };
     } catch (e) {
-      console.error('[UnifiedEditor] Failed to parse response:', e);
+      console.error('[Editor] Parse failed entirely:', e);
       return this.fallbackResponse(rawInput);
     }
   }
