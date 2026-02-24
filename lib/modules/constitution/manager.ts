@@ -80,29 +80,20 @@ export class ConstitutionManager {
     const constitution = await this.getConstitution(userId);
     if (!constitution) return null;
 
-    const sections = constitution.sections;
+    const s = constitution.sections;
     const parts: string[] = [];
 
-    // Core identity
-    if (sections.coreIdentity) {
-      parts.push(`IDENTITY: ${sections.coreIdentity}`);
+    if (s.identity?.selfConcept) {
+      parts.push(`IDENTITY: ${s.identity.selfConcept}`);
     }
-
-    // Values (tier 1 only for context)
-    if (sections.values?.tier1?.length > 0) {
-      const valueNames = sections.values.tier1.map(v => v.name).join(', ');
-      parts.push(`CORE VALUES: ${valueNames}`);
+    if (s.values?.core?.length) {
+      parts.push(`CORE VALUES: ${s.values.core.map(v => v.name).join(', ')}`);
     }
-
-    // Key heuristics
-    if (sections.heuristics?.length > 0) {
-      const rules = sections.heuristics.slice(0, 5).map(h => h.rule).join('; ');
-      parts.push(`DECISION RULES: ${rules}`);
+    if (s.models?.decisionPatterns?.length) {
+      parts.push(`DECISION PATTERNS: ${s.models.decisionPatterns.slice(0, 5).join('; ')}`);
     }
-
-    // Boundaries
-    if (sections.boundaries?.length > 0) {
-      parts.push(`BOUNDARIES: ${sections.boundaries.slice(0, 3).join('; ')}`);
+    if (s.worldview?.beliefs?.length) {
+      parts.push(`WORLDVIEW: ${s.worldview.beliefs.slice(0, 3).join('; ')}`);
     }
 
     return parts.join('\n\n');
@@ -218,8 +209,7 @@ export class ConstitutionManager {
     personalityProfile: Record<string, unknown> | null;
     editorNotes: Array<{ type: string; content: string; topic?: string }>;
   }): Promise<{ sections: ConstitutionSections }> {
-    
-    // Format source data for LLM
+
     const trainingContext = sources.trainingPairs.slice(0, 30).map(p =>
       `Prompt: "${p.user_content}"\nResponse: "${p.assistant_content}"`
     ).join('\n---\n');
@@ -237,17 +227,15 @@ export class ConstitutionManager {
       messages: [
         {
           role: 'system',
-          content: `You are extracting an explicit CONSTITUTION from implicit data about a person (the Author).
+          content: `You are extracting a CONSTITUTION from data about a person (the Author).
 
-The Constitution captures their:
-- Core identity (who they are)
-- Worldview (epistemology + ontology)
-- Values (hierarchical: tier1 = non-negotiable, tier2 = strong preferences, tier3 = stylistic)
-- Mental models (how they think in different domains)
-- Decision heuristics (rules they follow)
-- Communication patterns (writing/speaking style)
-- Domain expertise (what they know well)
-- Boundaries (what they won't do)
+The Constitution has exactly 5 sections:
+
+1. WORLDVIEW — What they believe about reality. How things work. What exists and matters. How they know things.
+2. VALUES — What matters and in what order. Non-negotiable core values, strong preferences, what they find beautiful and repulsive.
+3. MODELS — How they think and decide. Mental models, heuristics, reasoning patterns, gut vs analysis.
+4. IDENTITY — Who they are, how they present, how they communicate. Self-concept, roles, style.
+5. SHADOWS — Where they are wrong. Contradictions, blind spots, theory-reality dissonance.
 
 AVAILABLE DATA:
 
@@ -260,31 +248,37 @@ ${profileContext}
 EDITOR NOTES (observations about Author):
 ${notesContext || 'No editor notes available.'}
 
-Extract a Constitution from this data. Be thorough but accurate - only include what you can INFER from the data. Leave sections empty if you can't determine them.
+Extract a Constitution. Be thorough but accurate — only include what you can INFER. Leave arrays empty if uncertain.
 
 Return JSON matching this EXACT structure:
 {
-  "coreIdentity": "string - brief self-description in first person",
   "worldview": {
-    "epistemology": ["array of beliefs about knowledge/truth"],
-    "ontology": ["array of beliefs about what exists/matters"]
+    "beliefs": ["What I believe about reality, cause and effect, how things work"],
+    "epistemology": ["How I know things, sources of truth, evidence evaluation"]
   },
   "values": {
-    "tier1": [{"name": "string", "description": "string", "examples": ["optional"]}],
-    "tier2": [{"name": "string", "description": "string"}],
-    "tier3": [{"name": "string", "description": "string"}]
+    "core": [{"name": "string", "description": "string"}],
+    "preferences": [{"name": "string", "description": "string"}],
+    "repulsions": ["things I find repulsive or unacceptable"]
   },
-  "mentalModels": [{"domain": "string", "name": "string", "whenToApply": "string", "howItWorks": "string"}],
-  "heuristics": [{"situationType": "string", "name": "string", "rule": "string", "reasoning": "optional"}],
-  "communicationPatterns": {
-    "writingStyle": {"vocabulary": ["words they use"], "avoidedWords": ["words they avoid"]},
-    "speakingStyle": {"verbalTics": ["phrases they repeat"]},
-    "characteristicPhrases": ["signature phrases"]
+  "models": {
+    "mentalModels": [{"name": "string", "domain": "string", "description": "how it works"}],
+    "decisionPatterns": ["how I approach decisions"]
   },
-  "domainExpertise": [{"domain": "string", "depth": "beginner|intermediate|expert|world-class", "subdomains": [], "opinions": []}],
-  "boundaries": ["things they won't do or say"],
-  "evolutionNotes": []
-}`
+  "identity": {
+    "selfConcept": "who I am — in first person",
+    "communicationStyle": "how I communicate — tone, vocabulary, rhythm",
+    "roles": ["roles and narratives"],
+    "trustModel": "how I build trust"
+  },
+  "shadows": {
+    "contradictions": ["stated value vs actual behaviour"],
+    "blindSpots": ["what I miss or misjudge"],
+    "dissonance": ["where my self-model diverges from reality"]
+  }
+}
+
+Return ONLY the JSON object.`
         }
       ]
     });
@@ -297,14 +291,11 @@ Return JSON matching this EXACT structure:
       }
 
       const parsed = JSON.parse(jsonMatch[0]);
-      
-      // Validate with Zod (but be lenient)
       const validated = ConstitutionSectionsSchema.safeParse(parsed);
       if (validated.success) {
         return { sections: validated.data };
       }
 
-      // If validation fails, use parsed with defaults
       console.warn('[ConstitutionManager] Validation warnings, using parsed data with defaults');
       return { sections: this.mergeWithDefaults(parsed) };
 
@@ -317,22 +308,30 @@ Return JSON matching this EXACT structure:
   private mergeWithDefaults(parsed: Partial<ConstitutionSections>): ConstitutionSections {
     const defaults = createEmptyConstitutionSections();
     return {
-      coreIdentity: parsed.coreIdentity || defaults.coreIdentity,
       worldview: {
+        beliefs: parsed.worldview?.beliefs || defaults.worldview.beliefs,
         epistemology: parsed.worldview?.epistemology || defaults.worldview.epistemology,
-        ontology: parsed.worldview?.ontology || defaults.worldview.ontology
       },
       values: {
-        tier1: parsed.values?.tier1 || defaults.values.tier1,
-        tier2: parsed.values?.tier2 || defaults.values.tier2,
-        tier3: parsed.values?.tier3 || defaults.values.tier3
+        core: parsed.values?.core || defaults.values.core,
+        preferences: parsed.values?.preferences || defaults.values.preferences,
+        repulsions: parsed.values?.repulsions || defaults.values.repulsions,
       },
-      mentalModels: parsed.mentalModels || defaults.mentalModels,
-      heuristics: parsed.heuristics || defaults.heuristics,
-      communicationPatterns: parsed.communicationPatterns || defaults.communicationPatterns,
-      domainExpertise: parsed.domainExpertise || defaults.domainExpertise,
-      boundaries: parsed.boundaries || defaults.boundaries,
-      evolutionNotes: parsed.evolutionNotes || defaults.evolutionNotes
+      models: {
+        mentalModels: parsed.models?.mentalModels || defaults.models.mentalModels,
+        decisionPatterns: parsed.models?.decisionPatterns || defaults.models.decisionPatterns,
+      },
+      identity: {
+        selfConcept: parsed.identity?.selfConcept || defaults.identity.selfConcept,
+        communicationStyle: parsed.identity?.communicationStyle || defaults.identity.communicationStyle,
+        roles: parsed.identity?.roles || defaults.identity.roles,
+        trustModel: parsed.identity?.trustModel,
+      },
+      shadows: {
+        contradictions: parsed.shadows?.contradictions || defaults.shadows.contradictions,
+        blindSpots: parsed.shadows?.blindSpots || defaults.shadows.blindSpots,
+        dissonance: parsed.shadows?.dissonance || defaults.shadows.dissonance,
+      },
     };
   }
 
@@ -389,36 +388,24 @@ Return JSON matching this EXACT structure:
 
   private addToSection(sections: ConstitutionSections, section: keyof ConstitutionSections, data: unknown): void {
     const target = sections[section];
-    if (Array.isArray(target)) {
-      // Add to array sections
-      (sections[section] as unknown[]).push(data);
-    } else if (typeof target === 'object' && target !== null) {
-      // Merge into object sections
-      Object.assign(target, data);
-    } else {
-      // Replace string sections
-      (sections[section] as unknown) = data;
+    if (typeof target === 'object' && target !== null && typeof data === 'object' && data !== null) {
+      for (const [key, val] of Object.entries(data as Record<string, unknown>)) {
+        const existing = (target as Record<string, unknown>)[key];
+        if (Array.isArray(existing) && Array.isArray(val)) {
+          (target as Record<string, unknown[]>)[key] = [...existing, ...val];
+        } else {
+          (target as Record<string, unknown>)[key] = val;
+        }
+      }
     }
   }
 
   private updateInSection(sections: ConstitutionSections, section: keyof ConstitutionSections, data: unknown): void {
-    // For updates, we replace the entire section
-    (sections[section] as unknown) = data;
+    (sections as Record<string, unknown>)[section] = data;
   }
 
-  private removeFromSection(sections: ConstitutionSections, section: keyof ConstitutionSections, data: unknown): void {
-    const target = sections[section];
-    if (Array.isArray(target) && typeof data === 'number') {
-      // Remove by index
-      target.splice(data, 1);
-    } else if (Array.isArray(target) && typeof data === 'string') {
-      // Remove by string match
-      const index = target.findIndex(item =>
-        typeof item === 'string' ? item === data :
-        typeof item === 'object' && item !== null && 'name' in item ? item.name === data : false
-      );
-      if (index > -1) target.splice(index, 1);
-    }
+  private removeFromSection(_sections: ConstitutionSections, _section: keyof ConstitutionSections, _data: unknown): void {
+    // No-op: section-level removal handled by updateInSection with filtered data
   }
 
   // ==========================================================================
@@ -671,22 +658,21 @@ If YES update needed, return:
 
     const sectionCoverage = {
       worldview: !!constitution && (
-        (constitution.sections.worldview.epistemology?.length || 0) > 0 ||
-        (constitution.sections.worldview.ontology?.length || 0) > 0
+        (constitution.sections.worldview?.beliefs?.length || 0) > 0 ||
+        (constitution.sections.worldview?.epistemology?.length || 0) > 0
       ),
       values: !!constitution && (
-        (constitution.sections.values.tier1?.length || 0) > 0 ||
-        (constitution.sections.values.tier2?.length || 0) > 0 ||
-        (constitution.sections.values.tier3?.length || 0) > 0
+        (constitution.sections.values?.core?.length || 0) > 0 ||
+        (constitution.sections.values?.preferences?.length || 0) > 0
       ),
       models: !!constitution && (
-        (constitution.sections.mentalModels?.length || 0) > 0 ||
-        (constitution.sections.heuristics?.length || 0) > 0
+        (constitution.sections.models?.mentalModels?.length || 0) > 0 ||
+        (constitution.sections.models?.decisionPatterns?.length || 0) > 0
       ),
-      identity: !!constitution && (constitution.sections.coreIdentity?.trim().length || 0) > 0,
+      identity: !!constitution && (constitution.sections.identity?.selfConcept?.trim().length || 0) > 0,
       shadows: !!constitution && (
-        (constitution.sections.boundaries?.length || 0) > 0 ||
-        (constitution.sections.evolutionNotes?.length || 0) > 0
+        (constitution.sections.shadows?.contradictions?.length || 0) > 0 ||
+        (constitution.sections.shadows?.blindSpots?.length || 0) > 0
       )
     } satisfies Record<'worldview' | 'values' | 'models' | 'identity' | 'shadows', boolean>;
 
@@ -808,16 +794,16 @@ If YES update needed, return:
 
   private calculateCoverage(sections: ConstitutionSections): number {
     const checks = [
-      !!sections.coreIdentity,
+      (sections.worldview?.beliefs?.length || 0) > 0,
       (sections.worldview?.epistemology?.length || 0) > 0,
-      (sections.worldview?.ontology?.length || 0) > 0,
-      (sections.values?.tier1?.length || 0) > 0,
-      (sections.values?.tier2?.length || 0) > 0,
-      (sections.mentalModels?.length || 0) > 0,
-      (sections.heuristics?.length || 0) > 0,
-      Object.keys(sections.communicationPatterns || {}).length > 0,
-      (sections.domainExpertise?.length || 0) > 0,
-      (sections.boundaries?.length || 0) > 0
+      (sections.values?.core?.length || 0) > 0,
+      (sections.values?.preferences?.length || 0) > 0,
+      (sections.models?.mentalModels?.length || 0) > 0,
+      (sections.models?.decisionPatterns?.length || 0) > 0,
+      !!sections.identity?.selfConcept,
+      !!sections.identity?.communicationStyle,
+      (sections.shadows?.contradictions?.length || 0) > 0,
+      (sections.shadows?.blindSpots?.length || 0) > 0,
     ];
 
     return checks.filter(Boolean).length / checks.length;
@@ -825,17 +811,11 @@ If YES update needed, return:
 
   private getSectionStatus(sections: ConstitutionSections): { filled: string[]; empty: string[] } {
     const status: Record<string, boolean> = {
-      coreIdentity: !!sections.coreIdentity,
-      epistemology: (sections.worldview?.epistemology?.length || 0) > 0,
-      ontology: (sections.worldview?.ontology?.length || 0) > 0,
-      'values.tier1': (sections.values?.tier1?.length || 0) > 0,
-      'values.tier2': (sections.values?.tier2?.length || 0) > 0,
-      'values.tier3': (sections.values?.tier3?.length || 0) > 0,
-      mentalModels: (sections.mentalModels?.length || 0) > 0,
-      heuristics: (sections.heuristics?.length || 0) > 0,
-      communicationPatterns: Object.keys(sections.communicationPatterns || {}).length > 0,
-      domainExpertise: (sections.domainExpertise?.length || 0) > 0,
-      boundaries: (sections.boundaries?.length || 0) > 0
+      worldview: (sections.worldview?.beliefs?.length || 0) > 0 || (sections.worldview?.epistemology?.length || 0) > 0,
+      values: (sections.values?.core?.length || 0) > 0,
+      models: (sections.models?.mentalModels?.length || 0) > 0 || (sections.models?.decisionPatterns?.length || 0) > 0,
+      identity: !!sections.identity?.selfConcept,
+      shadows: (sections.shadows?.contradictions?.length || 0) > 0 || (sections.shadows?.blindSpots?.length || 0) > 0,
     };
 
     return {
@@ -844,148 +824,103 @@ If YES update needed, return:
     };
   }
 
-  private sectionsToMarkdown(sections: ConstitutionSections): string {
+  sectionsToMarkdown(sections: ConstitutionSections): string {
     const lines: string[] = [];
 
     lines.push('# Constitution\n');
 
-    // Core Identity
-    lines.push('## Core Identity\n');
-    lines.push(sections.coreIdentity || '_Not yet defined._');
-    lines.push('');
-
     // Worldview
     lines.push('## Worldview\n');
-    lines.push('### Epistemology (How I Know Things)\n');
-    if (sections.worldview?.epistemology?.length > 0) {
-      sections.worldview.epistemology.forEach(e => lines.push(`- ${e}`));
-    } else {
-      lines.push('_Not yet defined._');
+    if (sections.worldview?.beliefs?.length > 0) {
+      sections.worldview.beliefs.forEach(b => lines.push(`- ${b}`));
     }
-    lines.push('');
-    lines.push('### Ontology (What Exists)\n');
-    if (sections.worldview?.ontology?.length > 0) {
-      sections.worldview.ontology.forEach(o => lines.push(`- ${o}`));
-    } else {
+    if (sections.worldview?.epistemology?.length > 0) {
+      lines.push('\n### Epistemology\n');
+      sections.worldview.epistemology.forEach(e => lines.push(`- ${e}`));
+    }
+    if (!sections.worldview?.beliefs?.length && !sections.worldview?.epistemology?.length) {
       lines.push('_Not yet defined._');
     }
     lines.push('');
 
     // Values
     lines.push('## Values\n');
-    lines.push('### Tier 1 (Non-Negotiable)\n');
-    if (sections.values?.tier1?.length > 0) {
-      sections.values.tier1.forEach(v => {
-        lines.push(`- **${v.name}**: ${v.description}`);
-        if (v.examples?.length) lines.push(`  - Examples: ${v.examples.join(', ')}`);
-      });
-    } else {
-      lines.push('_Not yet defined._');
+    if (sections.values?.core?.length > 0) {
+      lines.push('### Core\n');
+      sections.values.core.forEach(v => lines.push(`- **${v.name}**: ${v.description}`));
+      lines.push('');
     }
-    lines.push('');
-    lines.push('### Tier 2 (Strong Preferences)\n');
-    if (sections.values?.tier2?.length > 0) {
-      sections.values.tier2.forEach(v => lines.push(`- **${v.name}**: ${v.description}`));
-    } else {
-      lines.push('_Not yet defined._');
+    if (sections.values?.preferences?.length > 0) {
+      lines.push('### Preferences\n');
+      sections.values.preferences.forEach(v => lines.push(`- **${v.name}**: ${v.description}`));
+      lines.push('');
     }
-    lines.push('');
-    lines.push('### Tier 3 (Stylistic)\n');
-    if (sections.values?.tier3?.length > 0) {
-      sections.values.tier3.forEach(v => lines.push(`- **${v.name}**: ${v.description}`));
-    } else {
-      lines.push('_Not yet defined._');
+    if (sections.values?.repulsions?.length > 0) {
+      lines.push('### Repulsions\n');
+      sections.values.repulsions.forEach(r => lines.push(`- ${r}`));
+      lines.push('');
     }
-    lines.push('');
-
-    // Mental Models
-    lines.push('## Mental Models\n');
-    if (sections.mentalModels?.length > 0) {
-      sections.mentalModels.forEach(m => {
-        lines.push(`### ${m.name} (${m.domain})\n`);
-        lines.push(`**When to apply:** ${m.whenToApply}`);
-        lines.push(`**How it works:** ${m.howItWorks}`);
-        if (m.example) lines.push(`**Example:** ${m.example}`);
-        lines.push('');
-      });
-    } else {
+    if (!sections.values?.core?.length && !sections.values?.preferences?.length) {
       lines.push('_Not yet defined._\n');
     }
 
-    // Decision Heuristics
-    lines.push('## Decision Heuristics\n');
-    if (sections.heuristics?.length > 0) {
-      sections.heuristics.forEach(h => {
-        lines.push(`- **${h.name}** (${h.situationType}): ${h.rule}`);
-        if (h.reasoning) lines.push(`  - Reasoning: ${h.reasoning}`);
+    // Models
+    lines.push('## Models\n');
+    if (sections.models?.mentalModels?.length > 0) {
+      sections.models.mentalModels.forEach(m => {
+        lines.push(`- **${m.name}** (${m.domain}): ${m.description}`);
       });
-    } else {
-      lines.push('_Not yet defined._');
+      lines.push('');
     }
-    lines.push('');
-
-    // Communication Patterns
-    lines.push('## Communication Patterns\n');
-    const comm = sections.communicationPatterns;
-    if (comm?.writingStyle || comm?.speakingStyle || comm?.characteristicPhrases?.length) {
-      if (comm.writingStyle) {
-        lines.push('### Writing Style\n');
-        if (comm.writingStyle.vocabulary?.length) {
-          lines.push(`- Vocabulary: ${comm.writingStyle.vocabulary.join(', ')}`);
-        }
-        if (comm.writingStyle.avoidedWords?.length) {
-          lines.push(`- Avoided words: ${comm.writingStyle.avoidedWords.join(', ')}`);
-        }
-        lines.push('');
-      }
-      if (comm.speakingStyle?.verbalTics?.length) {
-        lines.push('### Speaking Style\n');
-        lines.push(`- Verbal tics: ${comm.speakingStyle.verbalTics.join(', ')}`);
-        lines.push('');
-      }
-      if (comm.characteristicPhrases?.length) {
-        lines.push('### Characteristic Phrases\n');
-        comm.characteristicPhrases.forEach(p => lines.push(`- "${p}"`));
-        lines.push('');
-      }
-    } else {
+    if (sections.models?.decisionPatterns?.length > 0) {
+      lines.push('### Decision Patterns\n');
+      sections.models.decisionPatterns.forEach(d => lines.push(`- ${d}`));
+      lines.push('');
+    }
+    if (!sections.models?.mentalModels?.length && !sections.models?.decisionPatterns?.length) {
       lines.push('_Not yet defined._\n');
     }
 
-    // Domain Expertise
-    lines.push('## Domain Expertise\n');
-    if (sections.domainExpertise?.length > 0) {
-      sections.domainExpertise.forEach(d => {
-        lines.push(`- **${d.domain}** (${d.depth})`);
-        if (d.subdomains?.length) lines.push(`  - Subdomains: ${d.subdomains.join(', ')}`);
-        if (d.opinions?.length) lines.push(`  - Opinions: ${d.opinions.join('; ')}`);
-      });
-    } else {
-      lines.push('_Not yet defined._');
+    // Identity
+    lines.push('## Identity\n');
+    if (sections.identity?.selfConcept) {
+      lines.push(sections.identity.selfConcept);
+      lines.push('');
     }
-    lines.push('');
-
-    // Boundaries
-    lines.push('## Boundaries (What I Don\'t Do)\n');
-    if (sections.boundaries?.length > 0) {
-      sections.boundaries.forEach(b => lines.push(`- ${b}`));
-    } else {
-      lines.push('_Not yet defined._');
+    if (sections.identity?.communicationStyle) {
+      lines.push(`**Communication style:** ${sections.identity.communicationStyle}\n`);
     }
-    lines.push('');
-
-    // Evolution Notes
-    if (sections.evolutionNotes?.length > 0) {
-      lines.push('## Evolution Notes\n');
-      sections.evolutionNotes.forEach(e => {
-        lines.push(`### ${e.date}: ${e.section}\n`);
-        lines.push(`**What changed:** ${e.whatChanged}`);
-        lines.push(`**Why:** ${e.why}`);
-        lines.push('');
-      });
+    if (sections.identity?.roles?.length > 0) {
+      lines.push('**Roles:** ' + sections.identity.roles.join(', ') + '\n');
+    }
+    if (sections.identity?.trustModel) {
+      lines.push(`**Trust model:** ${sections.identity.trustModel}\n`);
+    }
+    if (!sections.identity?.selfConcept) {
+      lines.push('_Not yet defined._\n');
     }
 
-    // Footer
+    // Shadows
+    lines.push('## Shadows\n');
+    if (sections.shadows?.contradictions?.length > 0) {
+      lines.push('### Contradictions\n');
+      sections.shadows.contradictions.forEach(c => lines.push(`- ${c}`));
+      lines.push('');
+    }
+    if (sections.shadows?.blindSpots?.length > 0) {
+      lines.push('### Blind Spots\n');
+      sections.shadows.blindSpots.forEach(b => lines.push(`- ${b}`));
+      lines.push('');
+    }
+    if (sections.shadows?.dissonance?.length > 0) {
+      lines.push('### Theory-Reality Dissonance\n');
+      sections.shadows.dissonance.forEach(d => lines.push(`- ${d}`));
+      lines.push('');
+    }
+    if (!sections.shadows?.contradictions?.length && !sections.shadows?.blindSpots?.length) {
+      lines.push('_Not yet observed._\n');
+    }
+
     lines.push('---\n');
     lines.push(`_This Constitution is living. Last updated: ${new Date().toISOString()}_`);
 

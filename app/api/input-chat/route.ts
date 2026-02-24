@@ -168,9 +168,14 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error('Input Chat API Error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
+    const errMsg = error instanceof Error ? error.message : String(error);
+    const isRateLimit = errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit');
+    const userMessage = isRateLimit
+      ? 'model provider rate limit hit — try again in a minute'
+      : 'something went wrong — try again';
+    const data = JSON.stringify({ type: 'text-delta', delta: userMessage, state: { phase: 'conversing', messagesProcessed: 0 }, lockYN: false });
+    return new Response(`data: ${data}\n\n`, {
+      headers: { 'Content-Type': 'text/event-stream' }
     });
   }
 }

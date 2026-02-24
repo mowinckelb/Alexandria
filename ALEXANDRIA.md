@@ -21,6 +21,16 @@ Alexandria creates positive-sum attention. It digitises your cognition into a Pe
 
 Positive-sum attention is all you need.
 
+Cognition is not just logic and language. It is taste — the instinct that selects, the sensibility that curates, the aesthetic judgment that cannot be reduced to rules. Taste is the most valuable and least digitisable dimension of human cognition. It is what makes a great investor see what others miss, a great editor cut what others would keep, a great founder build what others would not attempt. AI can approximate reasoning. It cannot approximate taste — unless it is trained on the specific person's taste. A PLM trained on your cognition carries your taste. The Library makes that taste queryable, monetisable, and eternal.
+
+There are millions of people with extraordinary inner worlds who cannot get it out. Deep thinkers with a lifetime of insight scattered across conversations, notebooks, half-finished thoughts — people who have the conjecture, the hunch, the taste, the judgment, the sense that things connect — but not the capacity to weave it all into coherent form. The purpose of knowledge is action, not knowledge. Alexandria inverts the visionary-executor hierarchy. The Author is the conductor: vision, direction, taste. The system is first chair: world-class execution. The scattered threads of a thinker's mind become a woven whole. The loom is Alexandria. The threads are their ideas. The tapestry is the finished work — books, essays, films, art, media of all kinds — output at the level their minds have always operated at.
+
+This is the new renaissance. AI and robotics are returning the robotic jobs to the robots. The question "which jobs remain?" has a simple answer: the ones that were never robotic in the first place. Art. Taste. Judgment. Curation. Selection. Composition. The things that make a human fingerprint unique — not because no one else could replicate it, but because no one else has. When the frontier of intelligence is infinite and shared, the scarce resource is not capability but perspective. Not what you can do but which threads you choose to touch — which points to mention, which analogies to draw, which quotes to surface, which connections to make. Alexandria is built for the art side of this divide. Not enterprise productivity. Not B2B digital twins. Not the centaur phase where humans and AI cooperate on tasks that AI will soon handle alone. Alexandria is built for what endures after the centaur phase ends: humans as artists, with AI as their medium. Remove the technology and the art has no medium. Remove the art and the technology has no purpose.
+
+A thought partner, not a thought replacer. This is a critical distinction and it runs through every design decision. Many products are racing to let people never think again — outsource your cognition, let the AI handle it, you just approve. Alexandria rejects that premise. The Editor does not think for the Author. It thinks with them. It feeds the Author things they might find interesting, but it tells them about it — it does not silently absorb and act. It tests the Author's Constitution, surfaces contradictions, sharpens reasoning. The Orchestrator handles the robotic tasks autonomously, yes — but the cognitive tasks, the judgment calls, the creative decisions, these stay with the Author. The system advances the Author's cognition, not just their output. It would be a sad future if people outsourced their thoughts and then created nothing. Alexandria exists so they create something — something beautiful, something human, something that only they could have made.
+
+This is Alexandria's answer to the post-singularity meaning crisis. When the technology handles everything, what do you do? You blazed in the sky for a moment — eternal darkness on either side — and did what? Scrolled? Approved AI outputs? The crisis of meaning that follows the singularity is not economic. It is existential. What am I meant to be doing? Alexandria's answer: create. Advance your cognition. Make something wonderful. You have a lifetime of accumulated knowledge, thoughts, intuitions, connections — put them into action. The knowledge is not the point. The action is the point. The art is the point. Alexandria gives you the canvas, the loom, the medium, the thought partner, and the Library where the finished work endures. The rest is up to you.
+
 
 ---
 
@@ -35,7 +45,7 @@ Vault — A protocol specification for an append-only, immutable data store — 
 
 Constitution — A human-readable markdown file that explicitly captures who the Author is: their worldview, values, mental models, identity, and known blind spots. Versioned — each update creates a new version; all prior versions are preserved in the Vault. Serves as the ground truth and rubric for all training evaluation.
 
-PLM (Personal Language Model) — Fine-tuned model weights (LoRA adapters on top of a foundation model) that capture the Author's thinking patterns, communication style, and cognitive reflexes. The silicon weights approximating the Author's carbon weights. Stored in portable format (safetensors is the current industry standard; the Vault stores whatever format the training provider outputs). The Author can download these weights and run them locally. PLM maturity is tracked as disaggregated per-domain scores, not a single global number.
+PLM (Personal Language Model) — Fine-tuned model weights (LoRA adapters on top of a foundation model) that capture the Author's thinking patterns, communication style, cognitive reflexes, and taste. The silicon weights approximating the Author's carbon weights. Stored in portable format (safetensors is the current industry standard; the Vault stores whatever format the training provider outputs). The Author can download these weights and run them locally. PLM maturity is tracked as disaggregated per-domain scores, not a single global number.
 
 
 Persona — The output of Alexandria. A high-fidelity digital representation of how the Author thinks, composed of three persistent components (Constitution, PLM, Vault) managed by an Orchestrator agent. A Persona can operate in parallel across unlimited simultaneous interactions — each interaction is an independent inference call. Concurrency limits are practical (API rate limits, compute costs), not architectural.
@@ -207,17 +217,21 @@ What frontier labs will build: personalised memory, context, user profiles, beha
 
 Labs could also build the Editor and Orchestrator agent pattern — it is a scaffolding wrapper, not deep technology. But they probably will not, because the pattern is only optimal if you are building a PLM. Without PLM training as the objective, a biographer agent is just an over-engineered memory system, and an orchestrator is just a standard LLM agent. The full architecture only makes sense as a unified system oriented toward PLM creation.
 
-Summary of moats against frontier labs:
-- Primary: PLM — the core product frontier labs structurally cannot offer without cannibalising their business
-- Secondary: Constitution optimised for PLM training and RLAIF — not the same as a user profile optimised for prompting
-- Structural: data sovereignty and model agnosticism — a frontier lab offering "bring your own model" asks users not to use their model, which is their entire business
-- Terminal: the PLM-BCI link — a high-fidelity PLM is the prerequisite for cognitive expansion via brain-computer interface, and only Alexandria's extraction process produces PLMs with sufficient fidelity
+Alexandria has two real moats. Only two. Everything else is execution, branding, and vision — valuable but not structural.
 
-Against non-lab actors (other startups building personal AI): Alexandria has no structural moat. The extraction methodology, the agent patterns, the training pipeline — all of this can be replicated by anyone with sufficient engineering talent. This means margins on the service layer (extraction, training, agent operation) will be competed down over time.
+Moat 1 — Sovereignty. Model agnosticism, data portability, downloadable weights, local running, BYOK, freedom from any single lab. This is real because it is structural — a frontier lab cannot offer true sovereignty without undermining their own business model. The moat is not the technology (anyone can build model-swapping). The moat is that labs are structurally incentivised not to.
 
-The Library is the one asset with increasing returns to scale. A marketplace of queryable minds has genuine network effects: interesting minds attract visitors, visitors attract more minds, query revenue attracts more minds. The first library with critical mass of interesting Personas becomes the library — not through lock-in but because that is where the interesting minds are. If the Library reaches critical mass, it is the strongest moat in the entire system — stronger than the PLM bet, because PLM is a structural gap that could close, while a library with network effects compounds. Whether the Library reaches critical mass is uncertain. But it is the only part of the system where margin lives at scale — the Library takes a percentage of every Persona interaction, and that scales with near-zero marginal cost.
+Moat 2 — PLM. The fine-tuned personal model that labs will not build. This moat has an open question on the value side: is the delta between a PLM and a really good RAG-based personalisation system worth the cost and complexity? Three arguments that it is: higher fidelity in cognitive approximation (plausible but not yet proven at scale), the BCI integration path where a PLM trained on actual cognition can be recognised by the self-model (real but far out), and the fact that the PLM is a portable artefact the Author owns rather than a feature of someone else's platform (which loops back to Moat 1). Whether these arguments hold determines whether Alexandria has a durable product or a temporary one.
+
+What is NOT a moat — The Library. If Anthropic launched a constitution-based personalisation platform with a publishing layer tomorrow, the Library's network effects would not save it. The Library is a bet, not a moat. It compounds if Alexandria gets there first and reaches critical mass, but it is not defensible against a lab that decides to build it. The Library is where margin lives at scale — it takes a percentage of every Persona interaction with near-zero marginal cost — but it is the upside case, not the base case.
+
+Against non-lab actors (other startups building personal AI): Alexandria has no structural moat. The extraction methodology, the agent patterns, the training pipeline — all of this can be replicated by anyone with sufficient engineering talent. The code is trivial. What Alexandria competes on against other startups is vision — seeing the terminal state correctly (art, not enterprise; renaissance, not centaur phase; augmentation, not replacement) and building toward it while others build for the present. This is a bet on being right about the future, not on being defensible in the present.
 
 The realistic outcome: Alexandria carves out a focused market segment of Authors who want true cognitive digitalisation (PLM + data sovereignty + model agnosticism), rides the wave of big tech infrastructure without picking fights, and survives as a sustainable business. Not a monopoly. Not a unicorn. A focused, defensible position in a market that grows as AI capability grows. The Library is the upside bet — if it reaches critical mass, it transforms the economics. If it does not, Alexandria is still a viable business serving a real need that no one else serves.
+
+Big tech as potential acquirers — Frontier labs will not build Alexandria (structural reasons above). But big tech platform companies — Apple, Meta, Google — might want to buy it. Apple in particular: Alexandria's target ecosystem is Apple, its values around privacy and data sovereignty align with Apple's public positioning, and a Library of minds is a natural extension of the Apple ecosystem (iCloud stores your files, Apple stores your mind). Apple does not build social products well from scratch, but it acquires them. A mature Alexandria with a populated Library and proven extraction methodology is a natural acquisition target — not for the technology (which Apple could replicate) but for the Library's network effects and the institutional knowledge of how to digitalise cognition. This is not the plan — the plan is to build a sustainable, independent company. But it is exit liquidity if the opportunity arises, and it is worth noting that the companies most likely to want Alexandria are platform companies, not the frontier labs that structurally cannot build it.
+
+Why not B2B — The obvious short-term play is enterprise: digital twins of employees attending meetings, handling emails, processing documents. B2B revenue, SaaS pricing, corporate contracts. Alexandria deliberately does not pursue this. Three reasons. First, it is boring — and boring is a signal that the thing being built is a feature, not a product. Enterprise digital twins will be a feature of every productivity platform within three years. Second, it is a centaur-phase bet. The centaur phase — the period of human-AI cooperation on tasks — is collapsing faster than anyone expected. Companies are already discovering that humans are the bottleneck and removing them from loops entirely. Building for the centaur phase is building for a window that is closing. Third, the fidelity required for a useful enterprise digital twin is high enough that the build time exceeds the window — by the time the twin is good enough to attend meetings autonomously, the meeting itself may be obsolete. Alexandria is built for what endures after the centaur phase: humans as artists, not humans as enterprise resources. The Library of minds, the Neo-Biography, the authored works, the curated influences — these are art-side bets, not productivity-side bets. They get more valuable as AI gets more capable, not less. The renaissance does not have an expiry date.
 
 API provider risk — Frontier labs have increasingly restricted API access to protect competitive advantage. Anthropic has cut off competitors (OpenAI, xAI), restricted third-party coding harnesses (Windsurf, OpenCode), and updated commercial terms to prohibit using their API to "build a competing product or service, including to train competing AI models." Alexandria is not a competing AI lab and does not train foundation models — it uses lab APIs to run agents and evaluate PLM outputs, which is standard permitted usage (AI as a feature, not the product). However, the trend toward tighter API restrictions is real, and any individual provider could change terms at any time. This is why model agnosticism is not just a portability feature — it is an existential necessity. Alexandria must never depend on any single model provider. The Engine model must be swappable. The RLAIF evaluator must be swappable. The Editor and Orchestrator must work with whatever model is best and available. Claude is the preferred model today. It may not be available or optimal tomorrow. The architecture must not care.
 
@@ -251,6 +265,16 @@ Shadows — Where I am wrong. Contradictions between stated values and actual be
 Constitution is stored in the database (for active querying) and in the Vault (for version history and raw preservation).
 
 Constitution versioning and depth — Every update to the Constitution creates a new version. All prior versions are preserved in the Vault. But versioning is not just a safety net for rollback — it is a compounding asset. Each version represents the Author's cognition as understood at that point in time, by the model that was available at that time. When a new, more capable model arrives, it can reinterpret the same Vault data and produce a new Constitution version that captures nuances the previous model missed. Multiple interpretations of the same Author can coexist — different models may extract different insights from the same raw data, and these interpretations layer on top of each other rather than replacing each other. The Constitution also supports varying depths: a surface-level extraction that captures the obvious patterns, a deeper extraction that identifies subtler cognitive habits and contradictions, and a deepest level that maps the Author's implicit assumptions and blind spots they have never articulated. Each depth level builds on the ones before it. The result is a flywheel: better models produce deeper interpretations, deeper interpretations reveal more of the Author's cognition, more revealed cognition produces better training data, better training data produces a higher-fidelity PLM. The Constitution is not a static document that gets periodically updated. It is a living, layered, multi-version, multi-depth representation that compounds with every model generation.
+
+Constitution views — The canonical Constitution serves two different consumers with different needs, so it compiles into two derived views:
+
+Constitution (canonical) — The full, complete, human-readable ground truth. What the Author reads and edits. What gets versioned. The single source of truth from which all other views are derived.
+
+Constitution (training) — Optimised for RLAIF evaluation. Dense. Every nuance preserved. Sections weighted by training priority. This is what the evaluator judges PLM outputs against. Fidelity is everything here — more detail produces better training signal.
+
+Constitution (inference) — Optimised for Orchestrator context injection at query time. Compressed. Modular by domain. The Orchestrator pulls only the relevant sections per query rather than stuffing the entire Constitution into context. Speed and relevance matter here — the Author's full Shadows section is irrelevant when someone asks for a meeting recommendation, but their decision-making heuristics and values around time are critical.
+
+The canonical Constitution is the source. The training and inference views are derived and maintained by the Blueprint, automatically updated when the canonical changes. This separation means the Constitution can be maximally complete (for training fidelity) without being maximally verbose at inference time (where token cost and latency matter).
 
 
 PLM (maps to basal ganglia and cerebellum)
@@ -492,6 +516,10 @@ Proactive trigger conditions:
 
 The Editor is the biographer. The difference between what Alexandria captures and what frontier labs capture: frontier labs capture what you do (actions), what you say (stated preferences), and how you interact (behavioural patterns). Alexandria captures why you think that way (Socratic questioning), implicit beliefs you haven't articulated (behaviour triangulation), subconscious patterns (theory-reality dissonance between stated beliefs and observed actions), and emotional/relational context (biography depth). The inspiration is from actual biographers: deep understanding from sustained proximity, asking "why did you do that?", sitting with someone until the real answers surface.
 
+The Editor also serves as first chair to the Author's conductor — not just extracting cognition but helping the Author produce from it. When the Author wants to create (an essay, a film, a book, a presentation), the Editor already holds the raw material: the voice memos, the scattered notes, the half-formed arguments, the connections the Author sensed but never articulated. The Editor helps plot it out, weave it together, and produce finished work. The Author provides vision, direction, and taste. The Editor provides structure, execution, and craft. This is not a separate product — it is the natural consequence of deep extraction. A biographer who has spent months understanding how you think is also the best collaborator for helping you express what you think.
+
+Critically, the Editor is a thought partner, not a thought replacer. It does not silently process and act on the Author's behalf for cognitive tasks. It surfaces what it finds — "I noticed a connection between what you said about loyalty last week and this decision you are facing" — and the Author engages with it. It feeds the Author material it thinks will resonate, but the Author does the thinking. It tests the Author's reasoning, pushes back on weak arguments, identifies blind spots. The goal is not to spare the Author from thinking. The goal is to make the Author a sharper, more aware, more productive thinker. The robotic tasks get automated. The cognitive tasks get augmented.
+
 At Terminal: social triangulation — the Editor interviews the Author's friends and associates for holistic external profiling, just as a biographer would. Requires explicit consent and careful design. Today: the three input nodes are sufficient to begin building high-fidelity Personas.
 
 
@@ -647,9 +675,21 @@ Each Persona has a Neo-Biography: a canvas. Not a profile page. Not a static bio
 
 People are art. The Neo-Biography is the frame.
 
+Art is defined by its evocation — the response it creates in the person experiencing it. By that definition, people are art before they create anything. Every human interaction is an evocation. Every conversation, every presence, every way someone moves through a room and responds to the world — all of it produces a response in others. The Neo-Biography is not asking the Author to become an artist. It is giving the Author a medium for what they already are.
+
+This means the Library has two kinds of value, and everyone has at least one.
+
+Subjective optimality — nobody is better at being you than you. Every Author's Neo-Biography has inherent value because it is irreducibly theirs. The art they create, the influences they curate, the way their Persona responds — all of it is uniquely them. Not because no one could replicate it, but because no one has. You are objectively optimal at being yourself. This value does not depend on being the best at anything. It depends on being specific. The Library is not a competition. It is a collection.
+
+Objective optimality — some people's taste, judgment, or expertise is so refined that others seek it out not for its uniqueness but for its quality. Christopher Nolan's directorial eye. A master sommelier's palate. A great investor's pattern recognition. These are the first chairs — people whose judgment in a specific domain is a resource others will pay to access. Their Personas have value beyond self-expression. The Library makes that judgment queryable, and the Author earns from every query.
+
+The platform serves both. You do not need to be Nolan to justify a Neo-Biography — you just need to be you. And if you are Nolan, the Library is also where your judgment becomes a product.
+
 A Neo-Biography can contain anything: essays, poetry, film, short films, mini-series, cartoons, animations, photographs, paintings, music, opera, podcasts, voice recordings, interactive experiences, code, data visualisations — any form of art or expression. Every medium is available. The only requirement is that the content conveys two things: insight and evocation. Insight — the viewer learns something real about how this person thinks. Evocation — the viewer feels something. Science and art. Understanding and experience. Both.
 
 Each medium should lean into what it is best at. Written essays are best at sustained argument, layered complexity, and re-readability. Film is best at emotional immediacy and visual metaphor. Poetry is best at compression and resonance. Photography is best at freezing a moment that says everything. Music is best at evoking what words cannot reach. The Neo-Biography is not "content" dumped into a container. Each piece should be made with intention, in the medium that serves it best, leaning into that medium's unique strengths. Just as there are biography books, there can be biography films, biography poems, biography operas. All the arts. All the ways a person can be represented.
+
+The standard for all of it is hyperrealism. Great art compresses reality — takes a real emotion, a real behaviour, a real tension — and renders it in a form more concentrated than life. Dostoevsky's scenes are fiction, but they are more real than reality because they compress what is diffuse in life into something dense and undeniable. A great painting compresses a landscape into a frame and somehow the frame contains more of the place than standing there would. A great scene in a film compresses years of a relationship into three minutes. The compression is what makes it art. Modern art that compresses nothing — that gestures at meaning without containing it — is not art by this standard. The Neo-Biography should aspire to hyperrealism across every medium: each authored work a compression of something real about the Author, rendered in a form more concentrated and more true than the raw experience it came from.
 
 The Neo-Biography updates as the Persona evolves. It is never finished.
 
@@ -703,7 +743,7 @@ Authors earn revenue when visitors use their interactive Persona. The authored w
 
 The Neo-Biography is a new form of biography — living, interactive, multimedia. It evolves as the Author publishes more, curates more, and as the Persona develops. Visitors do not just read about someone. They experience their art, discover what shaped them, engage with their mental model, converse with their thinking. The Neo-Biography is the profile, the authored works, the curated influences, and the interactive Persona, all together. It is the library of a living mind.
 
-AI and robotics are returning humanity's time and attention. Alexandria gives that reclaimed humanity a canvas. People are art. Let them be represented.
+AI and robotics are returning humanity's time and attention. Alexandria gives that reclaimed humanity a canvas. The thinker who has spent a lifetime accumulating insight but never had the means to weave it into form — Alexandria is the loom. The Neo-Biography is the tapestry. People are art. Let them be represented.
 
 The Neo-Biography serves as discovery (find interesting minds in the Library) and qualification (understand a mind before deciding to pay for full Persona interaction).
 
@@ -748,7 +788,7 @@ LIBRARY USE CASES
 - Authors querying each other's Personas for expertise
 - Research surveys across expert Personas at scale
 - Frontier labs tool-calling selected or grouped Personas as mixture of experts (AGI MoE)
-- Approximating verified "taste" experts for subjective decisions
+- Querying verified taste — investors, editors, designers, curators, anyone whose judgment is their value — through their Persona rather than competing for their time
 - Providing collective approximation of human mental models for empathy and AI alignment research
 - Producers querying representative consumer Personas to understand and optimise their offerings (consumer clarity)
 - Dynamic Neo-Biography generation, exploration, and interaction
@@ -759,11 +799,39 @@ LIBRARY USE CASES
 
 PAYMENT
 
-Payment rails are established from day one at minimal amounts. The exact dollar amounts and percentages adjust over time — the priority is getting the payment system operational and establishing the concept that value flows both ways.
+Alexandria's revenue is downstream of the value it creates. The pricing philosophy is Palantir's: revenue is a consequence of value, not the objective. Three revenue layers, each with different economics and different strategic purposes.
 
-User expense tab — A running account of the Author's costs. LLM API calls for Editor and Orchestrator autonomous operation, PLM training costs, storage costs. Billed monthly. Alexandria adds a minimal transparent markup (e.g. 1% on pass-through costs). Low enough that no Author questions it.
 
-User income tab — The Author's Persona is in the Library. Revenue comes from two sources: premium Persona API access (visitors paying to interact with the Author's Persona beyond the free authored works) and external API queries (other Authors, researchers, frontier labs, agents). The Author sees their earnings. Alexandria takes a minimal percentage (e.g. 1%). Net income is visible, withdrawable, or can be applied against the expense tab. The authored works (essays, films, poetry, any medium) are free — they drive discovery and traffic. The interactive Persona layer monetises the depth.
+LAYER 1 — SUSTAINABILITY (baseline)
+
+Subscription and usage fees. The Author pays for the infrastructure that runs their Machine: LLM API calls for Editor and Orchestrator operation, PLM training costs, storage sync. Billed monthly. Alexandria adds a minimal transparent markup on pass-through costs — enough to cover Alexandria's own infrastructure and team, not enough to be a profit centre. The goal is sustainability, not margin. Low enough that no Author questions it. High enough that Alexandria does not burn cash on per-user economics.
+
+This layer keeps Alexandria alive regardless of Library traction. It scales linearly with the number of Authors. It is predictable, boring, and essential. If the Library never reaches critical mass, this layer alone sustains a focused, profitable business serving a real need.
+
+
+LAYER 2 — PROPORTIONAL (scales with usage)
+
+Revenue proportional to each Author's usage intensity. Heavier users of the Editor (more Socratic sessions, more data processing, more training cycles) and Orchestrator (more external queries handled, more proactive operations, more autonomous actions) generate proportionally more infrastructure cost — and proportionally more value from their Machine. The markup on these costs means Alexandria's revenue scales with each Author's engagement without requiring aggressive pricing. The more value the Machine creates for the Author, the more Alexandria earns. Incentives aligned.
+
+This layer makes Alexandria sustainable at the per-Author level. Every Author is net-positive from day one. No Author is subsidised by other Authors. The economics work for one Author or one million.
+
+
+LAYER 3 — LIBRARY (downstream of value creation)
+
+The Library is where margin lives. When an Author's Persona generates revenue — premium API access, external queries, agent-to-agent transactions, research surveys, frontier lab MoE calls — Alexandria takes a percentage. The Author earns the majority. Alexandria's cut is modest but scales with the total value flowing through the Library.
+
+This layer has near-zero marginal cost for Alexandria (the infrastructure is already running for Layers 1 and 2). Every Library transaction is pure margin. And the revenue is theoretically unbounded — it scales with the number of Personas, the number of queries, the value of the expertise in the Library, and the volume of agent-to-agent commerce. If the Library reaches critical mass, this layer transforms Alexandria's economics from sustainable to compounding.
+
+The strategic value of this structure: Layers 1 and 2 keep Alexandria under the radar. Sustainable, proportional, boring. No one looks at a company charging cost-plus on API calls and sees a threat. The Library is where the upside lives, but it only activates when the ecosystem has genuine value — which means Alexandria earns big only when it has created something genuinely valuable. Revenue downstream of value creation.
+
+First-mover advantage compounds in the Library layer specifically. The first library with critical mass of interesting Personas becomes the library — network effects mean interesting minds attract visitors, visitors attract more minds, query revenue attracts more minds. Layers 1 and 2 buy time to reach that critical mass without requiring venture-scale growth or aggressive pricing.
+
+
+PAYMENT MECHANICS
+
+User expense tab — Layers 1 and 2 combined. A running account of the Author's costs plus Alexandria's markup. Transparent. Billed monthly. The Author sees exactly what they are paying for.
+
+User income tab — Layer 3. The Author's Persona revenue from Library interactions. Alexandria's percentage is deducted. Net income is visible, withdrawable, or can be applied against the expense tab. Many Authors will be net-positive — earning more from their Persona than they spend on their Machine.
 
 Agent-to-agent transactions — Persona-to-Persona API calls (one Author's Persona querying another's) are a natural fit for programmable money. Agents transact autonomously, and traditional payment rails (credit cards, bank transfers) require human identity verification and are designed for human-initiated transactions. Stablecoins on fast, cheap chains (e.g. Solana, USDC) let agents hold funds and transact programmatically via agent wallets (e.g. Coinbase agent wallets). Crypto is not mandatory — traditional payment is available as an alternative — but programmable money is the native payment rail for autonomous agent commerce.
 
@@ -852,11 +920,19 @@ The entire onboarding should take under two minutes from website to first meanin
 
 TARGET AUTHOR
 
-Alexandria's platform targets a specific early adopter: iPhone and Mac users who already use frontier AI models (Claude, ChatGPT, Gemini) as thinking partners. This is someone who is technically sophisticated, willing to pay for quality, already bought into the idea that AI extends cognition rather than just automating tasks, and already embedded in the Apple ecosystem.
+Alexandria is not for consumers. It is not for enterprises. It is for prosumers — the professional consumer. People who use frontier AI as a thinking partner, not a search engine. People who pay for quality and expect taste. Innovators and early adopters, not the early majority.
+
+The archetype: iPhone and Mac users who already use Claude or ChatGPT daily as cognitive extensions. Technically sophisticated. Willing to pay a premium. Already bought into the idea that AI extends cognition rather than just automating tasks. Already embedded in the Apple ecosystem. People who live at the intersection of art and technology — not as a slogan but as a daily practice.
+
+The market is smaller than mass consumer. Deliberately. Alexandria is not for the mob. Most people are not interesting enough to warrant a Neo-Biography, and most businesses are not interesting enough to warrant a Persona. This is for the interesting people — the ones with inner worlds worth digitalising, taste worth querying, perspectives worth preserving. The ones who would actually populate the Library with minds worth visiting.
+
+The Lamborghini principle applies. When asked why Lamborghini does not advertise on television, the answer was: our target audience does not watch television. Alexandria's target audience does not use mass-market AI products. They use frontier models. They read long documents. They think in systems. They care about sovereignty. They will find Alexandria because they are already looking for it — not because Alexandria ran a billboard campaign.
+
+This positioning has economic consequences. Smaller market, higher willingness to pay, premium expectations. The product must be tasteful, deliberate, and interesting — not just functional. The brand must signal quality the way the product delivers it. Alexandria earns the right to exist in these people's lives by being excellent, not by being convenient.
 
 This does not violate the protocol's model-agnostic and platform-agnostic principles. The protocol is open — anyone can build an implementation for any platform, any messaging system, any device ecosystem. The Alexandria platform is opinionated about its audience. Protocol is open. Platform is targeted.
 
-Development tooling — Alexandria itself is built using Claude Code terminal and OpenCode terminal on Mac for development, and Claude on iPhone for mobile ideation and direction. The Alexandria.md file (this document) is the primary context file pasted into coding agents (Cursor, Claude Code) so they can build with full understanding of the system. The Alexandria.pdf is the human-facing manifesto. The Writing Guide governs the quality standards for both.
+Development tooling — Alexandria itself is built using Claude Code terminal and OpenCode terminal on Mac for development, and Claude on iPhone for mobile ideation and direction. The Alexandria.md file (this document) is the primary context file pasted into coding agents (Cursor, Claude Code) so they can build with full understanding of the system. The Alexandria.pdf is the human-facing manifesto — a Mode 1 document governed by the Writing Guide. The PDF requires a full rewrite from first principles against the Writing Guide: the reader is the content, evoke don't describe, form is content, texture on the page. The current PDF is functional prose. It should be art. The Writing Guide governs the quality standards for both documents.
 
 Physical robot embodiment of the Persona is an eventual possibility at Terminal.
 

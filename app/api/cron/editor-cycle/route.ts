@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateText } from 'ai';
 import { getQualityModel } from '@/lib/models';
+import { getEditor } from '@/lib/factory';
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -338,6 +339,26 @@ async function runCycle(targetUserId?: string) {
         details: { reason: decision.reason, messageType: decision.messageType },
         requires_attention: false
       });
+    }
+
+    // Process one unprocessed entry per cycle (async editor work)
+    try {
+      const { data: unprocessed } = await supabase
+        .from('entries')
+        .select('id, content, user_id')
+        .eq('user_id', userId)
+        .or('metadata->>editor_processed.is.null,metadata->>editor_processed.eq.false')
+        .order('created_at', { ascending: true })
+        .limit(1);
+
+      if (unprocessed && unprocessed.length > 0) {
+        const entry = unprocessed[0];
+        const editor = getEditor();
+        const entryResult = await editor.processEntry(entry.id, userId, entry.content || '');
+        console.log(`[Editor Cycle] Processed entry ${entry.id} for ${userId}: ${entryResult.memoriesStored}m, ${entryResult.trainingPairsCreated}tp, ${entryResult.notesAdded}n`);
+      }
+    } catch (entryErr) {
+      console.error(`[Editor Cycle] Entry processing failed for ${userId}:`, entryErr);
     }
 
     processed += 1;

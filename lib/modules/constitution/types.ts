@@ -1,170 +1,137 @@
 /**
- * Constitution Types
- * Defines the structure of an explicit Constitution document
- * that serves as ground truth for Constitutional RLAIF.
+ * Constitution Types — per ALEXANDRIA.md
+ * 
+ * 5 sections: Worldview, Values, Models, Identity, Shadows
+ * 3 views: Canonical (full), Training (dense/weighted), Inference (compressed/modular)
  */
 
 import { z } from 'zod';
 
 // ============================================================================
-// Value Types
-// ============================================================================
-
-export const ValueSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  examples: z.array(z.string()).optional()
-});
-
-export type Value = z.infer<typeof ValueSchema>;
-
-export const ValuesHierarchySchema = z.object({
-  tier1: z.array(ValueSchema).describe('Non-negotiable values that override everything'),
-  tier2: z.array(ValueSchema).describe('Strong preferences, can be traded off'),
-  tier3: z.array(ValueSchema).describe('Stylistic preferences, not moral imperatives')
-});
-
-export type ValuesHierarchy = z.infer<typeof ValuesHierarchySchema>;
-
-// ============================================================================
-// Mental Model Types
-// ============================================================================
-
-export const MentalModelSchema = z.object({
-  domain: z.string(),
-  name: z.string(),
-  whenToApply: z.string(),
-  howItWorks: z.string(),
-  example: z.string().optional(),
-  limitations: z.string().optional()
-});
-
-export type MentalModel = z.infer<typeof MentalModelSchema>;
-
-// ============================================================================
-// Decision Heuristic Types
-// ============================================================================
-
-export const DecisionHeuristicSchema = z.object({
-  situationType: z.string(),
-  name: z.string(),
-  rule: z.string(),
-  reasoning: z.string().optional(),
-  overrideConditions: z.string().optional()
-});
-
-export type DecisionHeuristic = z.infer<typeof DecisionHeuristicSchema>;
-
-// ============================================================================
-// Communication Style Types
-// ============================================================================
-
-export const CommunicationStyleSchema = z.object({
-  writingStyle: z.object({
-    sentenceStructure: z.string().optional(),
-    vocabulary: z.array(z.string()).optional(),
-    avoidedWords: z.array(z.string()).optional(),
-    punctuationQuirks: z.string().optional(),
-    paragraphRhythm: z.string().optional()
-  }).optional(),
-  speakingStyle: z.object({
-    verbalTics: z.array(z.string()).optional(),
-    pace: z.string().optional(),
-    tangentFrequency: z.string().optional(),
-    analogyUsage: z.string().optional()
-  }).optional(),
-  characteristicPhrases: z.array(z.string()).optional()
-});
-
-export type CommunicationStyle = z.infer<typeof CommunicationStyleSchema>;
-
-// ============================================================================
-// Domain Expertise Types
-// ============================================================================
-
-export const DomainExpertiseSchema = z.object({
-  domain: z.string(),
-  depth: z.enum(['beginner', 'intermediate', 'expert', 'world-class']),
-  subdomains: z.array(z.string()).optional(),
-  opinions: z.array(z.string()).optional(),
-  gaps: z.array(z.string()).optional()
-});
-
-export type DomainExpertise = z.infer<typeof DomainExpertiseSchema>;
-
-// ============================================================================
-// Evolution Note Types
-// ============================================================================
-
-export const EvolutionNoteSchema = z.object({
-  date: z.string(),
-  section: z.string(),
-  whatChanged: z.string(),
-  why: z.string(),
-  oldState: z.string().optional(),
-  newState: z.string().optional()
-});
-
-export type EvolutionNote = z.infer<typeof EvolutionNoteSchema>;
-
-// ============================================================================
-// Worldview Types
+// Section Schemas — the 5 ALEXANDRIA.md sections
 // ============================================================================
 
 export const WorldviewSchema = z.object({
-  epistemology: z.array(z.string()).describe('How I know things - sources of truth, evidence evaluation'),
-  ontology: z.array(z.string()).describe('What exists - key concepts, categorization of reality')
+  beliefs: z.array(z.string()).describe('What I believe about reality — how things work, what exists, what matters, cause and effect'),
+  epistemology: z.array(z.string()).describe('How I know things — sources of truth, evidence evaluation'),
 });
 
-export type Worldview = z.infer<typeof WorldviewSchema>;
+export const ValuesSchema = z.object({
+  core: z.array(z.object({
+    name: z.string(),
+    description: z.string(),
+    weight: z.number().min(0).max(1).optional(),
+  })).describe('Non-negotiable core values — what I would sacrifice for'),
+  preferences: z.array(z.object({
+    name: z.string(),
+    description: z.string(),
+  })).describe('Strong preferences, aesthetic leanings, stylistic values'),
+  repulsions: z.array(z.string()).describe('What I find repulsive or unacceptable'),
+});
+
+export const ModelsSchema = z.object({
+  mentalModels: z.array(z.object({
+    name: z.string(),
+    domain: z.string(),
+    description: z.string(),
+  })).describe('Mental models, heuristics, reasoning patterns'),
+  decisionPatterns: z.array(z.string()).describe('How I approach decisions — gut vs analysis, frameworks used'),
+});
+
+export const IdentitySchema = z.object({
+  selfConcept: z.string().describe('Who I am — self-concept in the Author\'s own voice'),
+  communicationStyle: z.string().describe('How I communicate — tone, vocabulary, rhythm, quirks'),
+  roles: z.array(z.string()).describe('Roles and narratives — how I see myself in relation to others'),
+  trustModel: z.string().optional().describe('How I build and extend trust'),
+});
+
+export const ShadowsSchema = z.object({
+  contradictions: z.array(z.string()).describe('Contradictions between stated values and actual behaviour'),
+  blindSpots: z.array(z.string()).describe('Known blind spots — what I miss or misjudge'),
+  dissonance: z.array(z.string()).describe('Theory-reality gaps — where my self-model diverges from observed behaviour'),
+});
 
 // ============================================================================
-// Full Constitution Schema
+// Full Constitution Sections
 // ============================================================================
 
 export const ConstitutionSectionsSchema = z.object({
-  coreIdentity: z.string().describe('Brief self-description in Author voice'),
   worldview: WorldviewSchema,
-  values: ValuesHierarchySchema,
-  mentalModels: z.array(MentalModelSchema),
-  heuristics: z.array(DecisionHeuristicSchema),
-  communicationPatterns: CommunicationStyleSchema,
-  domainExpertise: z.array(DomainExpertiseSchema),
-  boundaries: z.array(z.string()).describe('Things I will never do or say'),
-  evolutionNotes: z.array(EvolutionNoteSchema)
+  values: ValuesSchema,
+  models: ModelsSchema,
+  identity: IdentitySchema,
+  shadows: ShadowsSchema,
 });
 
 export type ConstitutionSections = z.infer<typeof ConstitutionSectionsSchema>;
+
+export type SectionName = keyof ConstitutionSections;
+
+export const SECTION_NAMES: SectionName[] = ['worldview', 'values', 'models', 'identity', 'shadows'];
+
+// Training priority order per ALEXANDRIA.md: Values first, then Models, Identity, Worldview, Shadows
+export const TRAINING_PRIORITY: SectionName[] = ['values', 'models', 'identity', 'worldview', 'shadows'];
+
+// ============================================================================
+// Constitution Interface
+// ============================================================================
 
 export interface Constitution {
   id: string;
   userId: string;
   version: number;
-  content: string;  // Full markdown
-  sections: ConstitutionSections;
+  content: string;       // Canonical view — full human-readable markdown
+  sections: ConstitutionSections;  // Structured JSONB
   createdAt: string;
   changeSummary: string | null;
   previousVersionId: string | null;
 }
 
 // ============================================================================
-// Update Trigger Types
+// Constitution Views — per ALEXANDRIA.md
 // ============================================================================
 
-export type ConstitutionUpdateTrigger = 
+/**
+ * Canonical — full, complete, human-readable. What the Author reads/edits.
+ * This is `constitution.content` (markdown) + `constitution.sections` (structured).
+ */
+
+/**
+ * Training view — dense, every nuance preserved, sections weighted by training priority.
+ * Used by RLAIF evaluator to judge PLM outputs.
+ */
+export interface TrainingView {
+  sections: Array<{
+    name: SectionName;
+    priority: number;  // 1 = highest (values), 5 = lowest (shadows)
+    content: string;   // Dense text representation
+  }>;
+  fullText: string;    // Concatenated for context injection
+}
+
+/**
+ * Inference view — compressed, modular by domain.
+ * Orchestrator pulls relevant sections per query.
+ */
+export interface InferenceView {
+  sections: Record<SectionName, string>;  // Compressed per-section summaries
+  queryHints: Record<string, SectionName[]>;  // Query type → relevant sections
+}
+
+// ============================================================================
+// Update Types
+// ============================================================================
+
+export type ConstitutionUpdateTrigger =
   | { type: 'new_value_expressed'; value: string; context: string }
   | { type: 'contradiction_detected'; statement: string; conflictsWith: string }
   | { type: 'mental_model_used'; model: string; effectiveness: number }
-  | { type: 'boundary_crossed'; boundary: string; context: string }
+  | { type: 'shadow_identified'; observation: string; context: string }
   | { type: 'evolution_acknowledged'; domain: string; reason: string }
   | { type: 'user_direct_edit'; section: string; change: string };
 
-// ============================================================================
-// API Types
-// ============================================================================
-
 export interface ConstitutionUpdateRequest {
-  section: keyof ConstitutionSections;
+  section: SectionName;
   operation: 'add' | 'update' | 'remove';
   data: unknown;
   changeSummary: string;
@@ -172,7 +139,7 @@ export interface ConstitutionUpdateRequest {
 
 export interface ConstitutionExtractionResult {
   constitution: Constitution;
-  coverage: number;  // 0-1, percentage of sections filled
+  coverage: number;
   sectionsExtracted: string[];
   sectionsMissing: string[];
 }
@@ -186,93 +153,164 @@ export interface ConstitutionVersionSummary {
 }
 
 // ============================================================================
-// Default Empty Constitution
+// Helpers
 // ============================================================================
 
 export function createEmptyConstitutionSections(): ConstitutionSections {
   return {
-    coreIdentity: '',
-    worldview: {
-      epistemology: [],
-      ontology: []
-    },
-    values: {
-      tier1: [],
-      tier2: [],
-      tier3: []
-    },
-    mentalModels: [],
-    heuristics: [],
-    communicationPatterns: {},
-    domainExpertise: [],
-    boundaries: [],
-    evolutionNotes: []
+    worldview: { beliefs: [], epistemology: [] },
+    values: { core: [], preferences: [], repulsions: [] },
+    models: { mentalModels: [], decisionPatterns: [] },
+    identity: { selfConcept: '', communicationStyle: '', roles: [] },
+    shadows: { contradictions: [], blindSpots: [], dissonance: [] },
   };
 }
 
+/**
+ * Derive Training view from canonical constitution.
+ * Dense, preserves all nuance, weighted by training priority.
+ */
+export function deriveTrainingView(sections: ConstitutionSections): TrainingView {
+  const sectionTexts = TRAINING_PRIORITY.map((name, idx) => {
+    const content = sectionToTrainingText(name, sections[name]);
+    return { name, priority: idx + 1, content };
+  });
+
+  return {
+    sections: sectionTexts,
+    fullText: sectionTexts.map(s => `[${s.name.toUpperCase()} — priority ${s.priority}]\n${s.content}`).join('\n\n'),
+  };
+}
+
+/**
+ * Derive Inference view from canonical constitution.
+ * Compressed summaries, modular for per-query retrieval.
+ */
+export function deriveInferenceView(sections: ConstitutionSections): InferenceView {
+  return {
+    sections: {
+      worldview: sectionToCompressedText('worldview', sections.worldview),
+      values: sectionToCompressedText('values', sections.values),
+      models: sectionToCompressedText('models', sections.models),
+      identity: sectionToCompressedText('identity', sections.identity),
+      shadows: sectionToCompressedText('shadows', sections.shadows),
+    },
+    queryHints: {
+      values_question: ['values', 'worldview'],
+      factual_question: ['worldview', 'models'],
+      reasoning_question: ['models', 'worldview'],
+      style_question: ['identity', 'values'],
+      novel_situation: ['values', 'models', 'shadows'],
+      personal_question: ['identity', 'values', 'shadows'],
+    },
+  };
+}
+
+function sectionToTrainingText(name: SectionName, section: unknown): string {
+  const s = section as Record<string, unknown>;
+  const lines: string[] = [];
+
+  for (const [key, val] of Object.entries(s)) {
+    if (Array.isArray(val)) {
+      if (val.length === 0) continue;
+      if (typeof val[0] === 'string') {
+        lines.push(`${key}: ${val.join('; ')}`);
+      } else {
+        lines.push(`${key}:`);
+        for (const item of val) {
+          if (typeof item === 'object' && item !== null) {
+            const parts = Object.entries(item).map(([k, v]) => `${k}: ${v}`).join(', ');
+            lines.push(`  - ${parts}`);
+          }
+        }
+      }
+    } else if (typeof val === 'string' && val) {
+      lines.push(`${key}: ${val}`);
+    }
+  }
+
+  return lines.join('\n') || '(empty)';
+}
+
+function sectionToCompressedText(name: SectionName, section: unknown): string {
+  const s = section as Record<string, unknown>;
+  const parts: string[] = [];
+
+  for (const [key, val] of Object.entries(s)) {
+    if (Array.isArray(val) && val.length > 0) {
+      if (typeof val[0] === 'string') {
+        parts.push(val.join('. '));
+      } else {
+        const names = val.map((v: Record<string, unknown>) => v.name || v.description || JSON.stringify(v)).slice(0, 5);
+        parts.push(names.join('; '));
+      }
+    } else if (typeof val === 'string' && val) {
+      parts.push(val);
+    }
+  }
+
+  return parts.join(' | ') || '(empty)';
+}
+
 // ============================================================================
-// Markdown Template
+// Markdown Template — the canonical view format
 // ============================================================================
 
 export const CONSTITUTION_TEMPLATE = `# Constitution
 
-## Core Identity
-
-{coreIdentity}
-
 ## Worldview
+What I believe about reality. How I think things work.
 
-### Epistemology (How I Know Things)
+{worldview_beliefs}
 
-{epistemology}
+### Epistemology
+How I know things. Sources of truth. Evidence evaluation.
 
-### Ontology (What Exists)
+{worldview_epistemology}
 
-{ontology}
+## Values
+What matters and in what order. Non-negotiable core values, strong preferences, lines I draw.
 
-## Values (Hierarchical)
+### Core Values
+{values_core}
 
-### Tier 1 (Non-Negotiable)
+### Preferences
+{values_preferences}
 
-{tier1Values}
+### Repulsions
+{values_repulsions}
 
-### Tier 2 (Strong Preferences)
+## Models
+How I think and decide. Mental models, heuristics, reasoning patterns.
 
-{tier2Values}
+### Mental Models
+{models_mental}
 
-### Tier 3 (Stylistic)
+### Decision Patterns
+{models_decisions}
 
-{tier3Values}
+## Identity
+Who I am. How I present. How I relate.
 
-## Mental Models
+{identity_self}
 
-{mentalModels}
+### Communication Style
+{identity_style}
 
-## Decision Heuristics
+### Roles
+{identity_roles}
 
-{heuristics}
+## Shadows
+Where I am wrong. Contradictions, blind spots, dissonance.
 
-## Communication Patterns
+### Contradictions
+{shadows_contradictions}
 
-### Writing Style
+### Blind Spots
+{shadows_blindspots}
 
-{writingStyle}
-
-### Speaking Style
-
-{speakingStyle}
-
-## Domain Expertise
-
-{domainExpertise}
-
-## Boundaries (What I Don't Do)
-
-{boundaries}
-
-## Evolution Notes
-
-{evolutionNotes}
+### Theory-Reality Dissonance
+{shadows_dissonance}
 
 ---
 

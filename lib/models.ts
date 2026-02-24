@@ -1,97 +1,85 @@
 /**
  * Model & Provider Configuration
  * 
- * Centralized model selection and provider instances.
- * All AI providers used across Alexandria are configured here.
- * Modules should import from here rather than creating their own provider instances.
+ * Centralized model selection. Model-agnostic by design (Axiom).
  * 
- * Providers:
- *   Groq       - Editor, RLAIF, extraction, personality, all LLM text generation
- *   Together   - Embeddings (BAAI/bge-base-en-v1.5), PLM inference, fine-tuning
- *   OpenAI     - Whisper (audio transcription), Assistants (PDF), Vision (images)
+ * Priority chain: Anthropic (if key set) → Groq → Together AI fallback
  * 
  * Env vars:
- *   GROQ_API_KEY       - Required for all LLM operations
- *   TOGETHER_API_KEY   - Required for embeddings and PLM
- *   OPENAI_API_KEY     - Required for voice/file processing
- *   GROQ_FAST_MODEL    - Override fast model (default: llama-3.1-8b-instant)
- *   GROQ_QUALITY_MODEL - Override quality model (default: llama-3.3-70b-versatile)
+ *   ANTHROPIC_API_KEY  - Anthropic (Claude) — best quality, recommended
+ *   GROQ_API_KEY       - Groq (Llama) — fast and free-tier friendly
+ *   TOGETHER_API_KEY   - Together AI — embeddings, PLM fine-tuning, fallback LLM
+ *   OPENAI_API_KEY     - OpenAI — Whisper, Assistants, Vision
  */
 
+import { type LanguageModel } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { createTogetherAI } from '@ai-sdk/togetherai';
+import { createAnthropic } from '@ai-sdk/anthropic';
 import Together from 'together-ai';
 import OpenAI from 'openai';
 
 // ============================================================================
-// Provider Instances (shared singletons)
+// Provider Instances
 // ============================================================================
 
-/** Groq provider for AI SDK (text generation, structured output) */
-export const groqProvider = createGroq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+export const groqProvider = createGroq({ apiKey: process.env.GROQ_API_KEY });
+export const togetherProvider = createTogetherAI({ apiKey: process.env.TOGETHER_API_KEY });
+export const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+export const togetherClient = new Together({ apiKey: process.env.TOGETHER_API_KEY });
 
-/** Together AI provider for AI SDK (PLM inference) */
-export const togetherProvider = createTogetherAI({
-  apiKey: process.env.TOGETHER_API_KEY,
-});
-
-/** Together AI SDK client (embeddings, fine-tuning) */
-export const togetherClient = new Together({
-  apiKey: process.env.TOGETHER_API_KEY,
-});
-
-/** OpenAI SDK client (Whisper, Assistants, Vision) */
-export const openaiClient = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const anthropicProvider = process.env.ANTHROPIC_API_KEY
+  ? createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : null;
 
 // ============================================================================
-// Model Defaults
-// ============================================================================
-
-const DEFAULTS = {
-  fast: 'llama-3.1-8b-instant',
-  quality: 'llama-3.3-70b-versatile',
-  embeddings: 'BAAI/bge-base-en-v1.5',
-  plm: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
-} as const;
-
-// ============================================================================
-// Model Getters
+// Model Getters — priority: Anthropic → Groq → Together
 // ============================================================================
 
 /**
- * Get the fast model (Editor conversations, RLAIF evaluation)
- * Optimized for speed over quality
+ * Quality model for Editor, Orchestrator, extraction, RLAIF.
+ * Uses Claude if ANTHROPIC_API_KEY is set, otherwise Groq.
  */
-export function getFastModel() {
-  const modelId = process.env.GROQ_FAST_MODEL || DEFAULTS.fast;
-  return groqProvider(modelId);
+export function getQualityModel(): LanguageModel {
+  if (anthropicProvider) {
+    return anthropicProvider('claude-sonnet-4-6') as unknown as LanguageModel;
+  }
+  const modelId = process.env.GROQ_QUALITY_MODEL || 'llama-3.3-70b-versatile';
+  return groqProvider(modelId) as LanguageModel;
 }
 
 /**
- * Get the quality model (Orchestrator, extraction, structured output)
- * Optimized for quality over speed
+ * Fast model for quick tasks (RLAIF scoring, simple extraction).
+ * Uses Sonnet for fast too — Haiku 4 not yet available.
  */
-export function getQualityModel() {
-  const modelId = process.env.GROQ_QUALITY_MODEL || DEFAULTS.quality;
-  return groqProvider(modelId);
+export function getFastModel(): LanguageModel {
+  if (anthropicProvider) {
+    return anthropicProvider('claude-sonnet-4-6') as unknown as LanguageModel;
+  }
+  const modelId = process.env.GROQ_FAST_MODEL || 'llama-3.1-8b-instant';
+  return groqProvider(modelId) as LanguageModel;
 }
 
 /**
- * Get model IDs for logging/debugging
+ * Fallback when primary provider rate-limits.
  */
+export function getFallbackQualityModel(): LanguageModel {
+  if (anthropicProvider) {
+    return anthropicProvider('claude-sonnet-4-6') as unknown as LanguageModel;
+  }
+  return togetherProvider('meta-llama/Llama-3.3-70B-Instruct-Turbo') as LanguageModel;
+}
+
 export function getModelConfig() {
+  const provider = anthropicProvider ? 'anthropic' : 'groq';
   return {
-    fast: process.env.GROQ_FAST_MODEL || DEFAULTS.fast,
-    quality: process.env.GROQ_QUALITY_MODEL || DEFAULTS.quality,
-    embeddings: DEFAULTS.embeddings,
-    plm: DEFAULTS.plm,
+    provider,
+    quality: anthropicProvider ? 'claude-sonnet-4-6' : (process.env.GROQ_QUALITY_MODEL || 'llama-3.3-70b-versatile'),
+    fast: anthropicProvider ? 'claude-sonnet-4-6' : (process.env.GROQ_FAST_MODEL || 'llama-3.1-8b-instant'),
+    embeddings: 'BAAI/bge-base-en-v1.5',
+    plm: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
   };
 }
 
-// Legacy alias
 export const groq = groqProvider;
 

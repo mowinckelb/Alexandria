@@ -6,9 +6,8 @@ import LandingPage from './components/LandingPage';
 import ConstitutionPanel from './components/ConstitutionPanel';
 import RlaifReviewPanel from './components/RlaifReviewPanel';
 import { useTheme } from './components/ThemeProvider';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, ChevronDown } from 'lucide-react';
 
-const STORAGE_THRESHOLD = 4.5 * 1024 * 1024; // Use storage for files larger than this
 
 interface Message {
   id: string;
@@ -17,6 +16,419 @@ interface Message {
   prompt?: string;  // For assistant messages: the user query that generated this
   version?: number; // For regenerated responses: which version (2, 3, etc.)
 }
+
+// ============================================================================
+// Inline Section Components
+// ============================================================================
+
+function VaultSection({ userId }: { userId: string }) {
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [reprocessing, setReprocessing] = useState(false);
+  const [pasteText, setPasteText] = useState('');
+
+  const addFiles = (incoming: FileList | File[]) => {
+    const allowed = Array.from(incoming).filter(f => {
+      const name = f.name.toLowerCase();
+      return name.endsWith('.md') || name.endsWith('.txt');
+    });
+    if (allowed.length === 0) { setMessage('only .md and .txt files'); return; }
+    setFiles(prev => [...prev, ...allowed]);
+    setMessage('');
+  };
+
+  const uploadAll = async () => {
+    if (uploading || files.length === 0) return;
+    setUploading(true);
+    setMessage('');
+    let done = 0;
+    for (const file of files) {
+      try {
+        const text = await file.text();
+        if (!text.trim()) continue;
+        const res = await fetch('/api/bulk-ingest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, userId, source: `upload:${file.name}` })
+        });
+        if (res.ok) done++;
+      } catch {}
+    }
+    setFiles([]);
+    setUploading(false);
+    setMessage(`${done} file${done !== 1 ? 's' : ''} stored. editor will process gradually.`);
+  };
+
+  const uploadPaste = async () => {
+    const text = pasteText.trim();
+    if (!text) return;
+    setUploading(true);
+    try {
+      const res = await fetch('/api/bulk-ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, userId, source: 'paste' })
+      });
+      if (res.ok) { setPasteText(''); setMessage('stored. editor will process gradually.'); }
+    } catch {}
+    setUploading(false);
+  };
+
+  const reprocess = async () => {
+    setReprocessing(true);
+    try {
+      const res = await fetch('/api/reprocess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+      const data = await res.json();
+      setMessage(data.message || 'queued for re-processing.');
+    } catch { setMessage('failed.'); }
+    setReprocessing(false);
+  };
+
+  return (
+    <div className="space-y-5">
+      <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Vault</h2>
+      <p className="text-xs" style={{ color: 'var(--text-subtle)' }}>upload data. the editor processes it gradually in the background.</p>
+
+      <div
+        className="rounded-xl border-2 border-dashed p-6 text-center"
+        style={{ borderColor: 'var(--border-light)' }}
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
+      >
+        <div className="text-sm opacity-60">drag files here</div>
+        <label className="inline-block mt-2 cursor-pointer rounded-lg px-3 py-1 text-xs" style={{ background: 'var(--bg-secondary)' }}>
+          choose files
+          <input type="file" multiple accept=".md,.txt" className="hidden" onChange={e => { if (e.target.files) addFiles(e.target.files); e.currentTarget.value = ''; }} />
+        </label>
+      </div>
+
+      {files.length > 0 && (
+        <div className="space-y-2">
+          {files.map((f, i) => (
+            <div key={i} className="text-xs opacity-60">{f.name} ({(f.size / 1024).toFixed(0)} KB)</div>
+          ))}
+          <button onClick={uploadAll} disabled={uploading} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+            {uploading ? 'uploading...' : `upload ${files.length} file${files.length !== 1 ? 's' : ''}`}
+          </button>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <textarea
+          value={pasteText}
+          onChange={e => setPasteText(e.target.value)}
+          placeholder="or paste text here..."
+          className="w-full min-h-[80px] rounded-lg px-3 py-2 text-xs border-none outline-none"
+          style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+        />
+        {pasteText.trim() && (
+          <button onClick={uploadPaste} disabled={uploading} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+            upload text
+          </button>
+        )}
+      </div>
+
+      <div className="pt-3 border-t" style={{ borderColor: 'var(--border-light)' }}>
+        <div className="text-xs mb-2" style={{ color: 'var(--text-subtle)' }}>re-process all data — useful when models improve</div>
+        <button onClick={reprocess} disabled={reprocessing} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+          {reprocessing ? 'resetting...' : 're-process everything'}
+        </button>
+      </div>
+
+      {message && <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
+    </div>
+  );
+}
+
+function PLMSection({ userId }: { userId: string }) {
+  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState<{ total: number; available: number; high_quality: number; tier: string; active_model: string } | null>(null);
+  const [training, setTraining] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/training?userId=${userId}`);
+        if (res.ok) setSummary(await res.json());
+      } catch {}
+      setLoading(false);
+    };
+    load();
+  }, [userId]);
+
+  const startTraining = async () => {
+    setTraining(true);
+    setMessage('');
+    try {
+      const expRes = await fetch('/api/training/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+      if (!expRes.ok) { setMessage('export failed.'); setTraining(false); return; }
+      const exp = await expRes.json();
+      const trainRes = await fetch('/api/training/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, exportId: exp.exportId })
+      });
+      if (trainRes.ok) {
+        setMessage('training started.');
+      } else {
+        setMessage('training failed.');
+      }
+    } catch { setMessage('error.'); }
+    setTraining(false);
+  };
+
+  if (loading) return <div className="py-12 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>;
+
+  return (
+    <div className="space-y-5">
+      <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>PLM</h2>
+      <p className="text-xs" style={{ color: 'var(--text-subtle)' }}>personal language model — fine-tuned on your cognition.</p>
+
+      {summary ? (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl p-3" style={{ background: 'var(--bg-secondary)' }}>
+              <div className="text-xs opacity-50">training pairs</div>
+              <div className="text-lg">{summary.available}</div>
+            </div>
+            <div className="rounded-xl p-3" style={{ background: 'var(--bg-secondary)' }}>
+              <div className="text-xs opacity-50">tier</div>
+              <div className="text-lg">{summary.tier}</div>
+            </div>
+          </div>
+          {summary.active_model && summary.active_model !== 'none' && (
+            <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>active model: {summary.active_model}</div>
+          )}
+          <button
+            onClick={startTraining}
+            disabled={training || summary.available < 10}
+            className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer"
+            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+          >
+            {training ? 'starting...' : 'train plm'}
+          </button>
+          {message && <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
+        </div>
+      ) : (
+        <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>no training data yet. chat with the editor to generate training pairs.</div>
+      )}
+    </div>
+  );
+}
+
+type LibraryTab = 'profile' | 'works' | 'influences';
+
+interface AuthoredWork { id: string; title: string; medium: string; summary?: string; published_at: string; }
+interface CuratedInfluence { id: string; title: string; medium: string; annotation?: string; url?: string; }
+interface AuthorProfile { display_name?: string; handle?: string; bio?: string; }
+
+function LibrarySection({ userId }: { userId: string }) {
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<LibraryTab>('profile');
+  const [profile, setProfile] = useState<AuthorProfile>({});
+  const [works, setWorks] = useState<AuthoredWork[]>([]);
+  const [influences, setInfluences] = useState<CuratedInfluence[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  // Form states
+  const [editName, setEditName] = useState('');
+  const [editHandle, setEditHandle] = useState('');
+  const [editBio, setEditBio] = useState('');
+  const [workTitle, setWorkTitle] = useState('');
+  const [workMedium, setWorkMedium] = useState('essay');
+  const [workContent, setWorkContent] = useState('');
+  const [infTitle, setInfTitle] = useState('');
+  const [infMedium, setInfMedium] = useState('book');
+  const [infAnnotation, setInfAnnotation] = useState('');
+  const [infUrl, setInfUrl] = useState('');
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/neo-biography?userId=${userId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const p = data.profile || {};
+          setProfile(p);
+          setEditName(p.display_name || '');
+          setEditHandle(p.handle || '');
+          setEditBio(p.bio || '');
+          setWorks(data.works || []);
+          setInfluences(data.influences || []);
+        }
+      } catch {}
+      setLoading(false);
+    };
+    load();
+  }, [userId]);
+
+  const saveProfile = async () => {
+    setSaving(true); setMessage('');
+    try {
+      const res = await fetch('/api/neo-biography', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_profile', userId, displayName: editName, handle: editHandle, bio: editBio })
+      });
+      if (res.ok) { setMessage('saved.'); setProfile({ display_name: editName, handle: editHandle, bio: editBio }); }
+    } catch {} setSaving(false);
+  };
+
+  const publishWork = async () => {
+    if (!workTitle.trim() || !workContent.trim()) return;
+    setSaving(true); setMessage('');
+    try {
+      const res = await fetch('/api/neo-biography', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'publish', userId, title: workTitle, content: workContent, medium: workMedium })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setWorks(prev => [data.work, ...prev]);
+        setWorkTitle(''); setWorkContent(''); setMessage('published.');
+      }
+    } catch {} setSaving(false);
+  };
+
+  const addInfluence = async () => {
+    if (!infTitle.trim()) return;
+    setSaving(true); setMessage('');
+    try {
+      const res = await fetch('/api/neo-biography', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_influence', userId, title: infTitle, medium: infMedium, annotation: infAnnotation, url: infUrl })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setInfluences(prev => [data.influence, ...prev]);
+        setInfTitle(''); setInfAnnotation(''); setInfUrl(''); setMessage('added.');
+      }
+    } catch {} setSaving(false);
+  };
+
+  if (loading) return <div className="py-12 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>;
+
+  const tabs: { id: LibraryTab; label: string }[] = [
+    { id: 'profile', label: 'profile' },
+    { id: 'works', label: `works (${works.length})` },
+    { id: 'influences', label: `influences (${influences.length})` },
+  ];
+
+  const inputStyle = { background: 'var(--bg-secondary)', color: 'var(--text-primary)' };
+  const btnStyle = { background: 'var(--bg-secondary)', color: 'var(--text-primary)' };
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Library</h2>
+        <p className="text-xs mt-1" style={{ color: 'var(--text-subtle)' }}>your neo-biography — authored works, curated influences, interactive persona.</p>
+      </div>
+
+      <div className="flex gap-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
+        {tabs.map(t => (
+          <button
+            key={t.id}
+            onClick={() => { setTab(t.id); setMessage(''); }}
+            className="pb-2 text-xs bg-transparent border-none cursor-pointer transition-opacity"
+            style={{ color: 'var(--text-primary)', opacity: tab === t.id ? 1 : 0.4, borderBottom: tab === t.id ? '2px solid var(--text-primary)' : 'none' }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'profile' && (
+        <div className="space-y-3">
+          <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="display name" className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
+          <input value={editHandle} onChange={e => setEditHandle(e.target.value)} placeholder="handle" className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
+          <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="bio — who you are, in your own words" className="w-full min-h-[80px] rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
+          <button onClick={saveProfile} disabled={saving} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={btnStyle}>
+            {saving ? 'saving...' : 'save profile'}
+          </button>
+        </div>
+      )}
+
+      {tab === 'works' && (
+        <div className="space-y-4">
+          {works.length > 0 && (
+            <div className="space-y-2">
+              {works.map(w => (
+                <div key={w.id} className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="text-sm">{w.title}</div>
+                      <div className="text-xs opacity-40 mt-0.5">{w.medium}</div>
+                    </div>
+                    <div className="text-xs opacity-30">{new Date(w.published_at).toLocaleDateString()}</div>
+                  </div>
+                  {w.summary && <div className="text-xs opacity-50 mt-2 line-clamp-2">{w.summary}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="pt-3 border-t space-y-2" style={{ borderColor: 'var(--border-light)' }}>
+            <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>publish a work — frozen on publication</div>
+            <input value={workTitle} onChange={e => setWorkTitle(e.target.value)} placeholder="title" className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
+            <select value={workMedium} onChange={e => setWorkMedium(e.target.value)} className="w-full rounded-lg px-3 py-2 text-xs border-none outline-none" style={inputStyle}>
+              {['essay', 'poetry', 'note', 'letter', 'reflection', 'speech', 'other'].map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <textarea value={workContent} onChange={e => setWorkContent(e.target.value)} placeholder="content" className="w-full min-h-[120px] rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
+            <button onClick={publishWork} disabled={saving || !workTitle.trim() || !workContent.trim()} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={btnStyle}>
+              {saving ? 'publishing...' : 'publish'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {tab === 'influences' && (
+        <div className="space-y-4">
+          {influences.length > 0 && (
+            <div className="space-y-2">
+              {influences.map(inf => (
+                <div key={inf.id} className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="text-sm">{inf.title}</div>
+                      <div className="text-xs opacity-40 mt-0.5">{inf.medium}</div>
+                    </div>
+                    {inf.url && <a href={inf.url} target="_blank" rel="noopener noreferrer" className="text-xs opacity-30 hover:opacity-60">link</a>}
+                  </div>
+                  {inf.annotation && <div className="text-xs opacity-50 mt-2 italic">{inf.annotation}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="pt-3 border-t space-y-2" style={{ borderColor: 'var(--border-light)' }}>
+            <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>add an influence — what shaped you</div>
+            <input value={infTitle} onChange={e => setInfTitle(e.target.value)} placeholder="title" className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
+            <select value={infMedium} onChange={e => setInfMedium(e.target.value)} className="w-full rounded-lg px-3 py-2 text-xs border-none outline-none" style={inputStyle}>
+              {['book', 'film', 'music', 'video', 'podcast', 'essay', 'art', 'lecture', 'other'].map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <textarea value={infAnnotation} onChange={e => setInfAnnotation(e.target.value)} placeholder="why this matters to you" className="w-full min-h-[60px] rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
+            <input value={infUrl} onChange={e => setInfUrl(e.target.value)} placeholder="link (optional)" className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={inputStyle} />
+            <button onClick={addInfluence} disabled={saving || !infTitle.trim()} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={btnStyle}>
+              {saving ? 'adding...' : 'add influence'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {message && <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
+    </div>
+  );
+}
+
+// ============================================================================
 
 export default function Alexandria() {
   const { theme, toggleTheme } = useTheme();
@@ -51,19 +463,11 @@ export default function Alexandria() {
   }>({ phase: 'collecting' });
   const [carbonLockYN, setCarbonLockYN] = useState(false);
   
-  // External carbon (file uploads)
-  const [showAttachModal, setShowAttachModal] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [uploadContext, setUploadContext] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
-  const [pendingJobs, setPendingJobs] = useState<{ id: string; fileName: string; progress: number; status: string }[]>([]);
-  const [showConstitution, setShowConstitution] = useState(false);
   const [showRlaifReview, setShowRlaifReview] = useState(false);
   const [showNav, setShowNav] = useState(false);
   const [rlaifReviewCount, setRlaifReviewCount] = useState(0);
+  const [activeSection, setActiveSection] = useState<'vault' | 'constitution' | 'plm' | 'library' | null>(null);
   const seenEditorMessageIds = useRef<Set<string>>(new Set());
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const outputScrollRef = useRef<HTMLDivElement>(null);
 
@@ -985,163 +1389,6 @@ export default function Alexandria() {
     }
   };
 
-  // Handle external carbon (file upload)
-  const handleFileUpload = async () => {
-    if (selectedFiles.length === 0) return;
-    
-    const filesToUpload = [...selectedFiles];
-    const context = uploadContext.trim();
-    
-    // Close modal immediately, go to main page with "inputting" status
-    setSelectedFiles([]);
-    setUploadContext('');
-    setShowAttachModal(false);
-    setMode('input');
-    
-    // Reset viewport on mobile
-    window.scrollTo(0, 0);
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-    
-    // Start with pending jobs to show "inputting"
-    const tempJobs: { id: string; fileName: string; progress: number; status: 'pending' | 'processing' | 'completed' | 'failed' }[] = filesToUpload.map((f, i) => ({
-      id: `temp-${i}`,
-      fileName: f.name,
-      progress: 0,
-      status: 'pending'
-    }));
-    setPendingJobs(tempJobs);
-    
-    try {
-      const finalJobs: typeof tempJobs = [];
-      
-      for (let i = 0; i < filesToUpload.length; i++) {
-        const file = filesToUpload[i];
-        
-        // Large files: upload to storage and queue
-        if (file.size > STORAGE_THRESHOLD) {
-          const urlRes = await fetch('/api/get-upload-url', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, fileName: file.name, fileType: file.type })
-          });
-          
-          if (!urlRes.ok) throw new Error('failed.');
-          
-          const { signedUrl, storagePath } = await urlRes.json();
-          
-          const uploadRes = await fetch(signedUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': file.type },
-            body: file
-          });
-          
-          if (!uploadRes.ok) throw new Error('failed.');
-          
-          const jobRes = await fetch('/api/jobs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              userId,
-              storagePath,
-              fileName: file.name,
-              fileType: file.type,
-              fileSize: file.size,
-              context: context || null
-            })
-          });
-          
-          if (!jobRes.ok) throw new Error('failed.');
-          
-          const { jobId } = await jobRes.json();
-          finalJobs.push({ id: jobId, fileName: file.name, progress: 0, status: 'pending' });
-          
-        } else {
-          // Small files: process immediately
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('userId', userId);
-          if (context) formData.append('context', context);
-          
-          const response = await fetch('/api/upload-carbon', {
-            method: 'POST',
-            body: formData
-          });
-          
-          if (!response.ok) throw new Error('failed.');
-          
-          // Small file done immediately - mark as completed
-          finalJobs.push({ id: `done-${i}`, fileName: file.name, progress: 100, status: 'completed' });
-        }
-      }
-      
-      setPendingJobs(finalJobs);
-      
-      // If all were small files (immediate), trigger post_upload
-      if (finalJobs.every(j => j.status === 'completed')) {
-        setCarbonState({ phase: 'post_upload' });
-        setTimeout(() => setPendingJobs([]), 2000);
-      }
-      
-    } catch (error) {
-      console.error('File upload error:', error);
-      setPendingJobs([{ id: 'error', fileName: 'upload', progress: 0, status: 'failed' }]);
-      setTimeout(() => setPendingJobs([]), 3000);
-    }
-  };
-
-  // Poll for job status updates
-  useEffect(() => {
-    if (pendingJobs.length === 0) return;
-    
-    const interval = setInterval(async () => {
-      const updatedJobs = await Promise.all(
-        pendingJobs.map(async (job) => {
-          // Skip temp/done jobs and already finished jobs
-          if (job.status === 'completed' || job.status === 'failed') return job;
-          if (job.id.startsWith('temp-') || job.id.startsWith('done-') || job.id === 'error') return job;
-          
-          const res = await fetch(`/api/jobs?jobId=${job.id}`);
-          if (!res.ok) return job;
-          
-          const data = await res.json();
-          return { ...job, progress: data.progress || 0, status: data.status };
-        })
-      );
-      
-      setPendingJobs(updatedJobs);
-      
-      // Check if all done
-      const allDone = updatedJobs.every(j => j.status === 'completed' || j.status === 'failed');
-      if (allDone) {
-        const completed = updatedJobs.filter(j => j.status === 'completed').length;
-        if (completed > 0) {
-          setCarbonState({ phase: 'post_upload' });
-        }
-        // Clear completed jobs after a delay
-        setTimeout(() => {
-          setPendingJobs(prev => prev.filter(j => j.status !== 'completed' && j.status !== 'failed'));
-        }, 3000);
-      }
-    }, 3000);
-    
-    return () => clearInterval(interval);
-  }, [pendingJobs]);
-
-  // Client-side queue trigger (replaces Vercel cron on free tier)
-  // NOTE: Vercel Pro ($20/mo) would allow server-side cron for background processing
-  useEffect(() => {
-    const hasPending = pendingJobs.some(j => j.status === 'pending' || j.status === 'processing');
-    if (!hasPending) return;
-    
-    const trigger = setInterval(async () => {
-      try {
-        await fetch('/api/process-queue', { method: 'POST' });
-      } catch {}
-    }, 10000); // Trigger every 10s while jobs pending
-    
-    return () => clearInterval(trigger);
-  }, [pendingJobs]);
 
   // Show loading while checking auth
   if (isCheckingAuth) {
@@ -1173,10 +1420,11 @@ export default function Alexandria() {
         <div className="relative min-w-[60px]" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setShowNav(prev => !prev)}
-            className="bg-transparent border-none text-[0.7rem] cursor-pointer opacity-20 hover:opacity-45 transition-opacity"
+            className="bg-transparent border-none text-[0.7rem] cursor-pointer opacity-25 hover:opacity-50 transition-opacity flex items-center gap-1"
             style={{ color: 'var(--text-primary)' }}
           >
             {username}
+            <ChevronDown size={10} strokeWidth={1.5} className={`transition-transform ${showNav ? 'rotate-180' : ''}`} />
           </button>
           {showNav && (
             <div
@@ -1184,26 +1432,25 @@ export default function Alexandria() {
               style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}
             >
               <button
-                onClick={() => { setShowConstitution(true); setShowNav(false); }}
-                className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
-                style={{ color: 'var(--text-primary)' }}
+                onClick={() => { setActiveSection(null); setShowNav(false); }}
+                className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer transition-opacity"
+                style={{ color: 'var(--text-primary)', opacity: activeSection === null ? 0.9 : 0.5 }}
               >
-                constitution
+                Chat
               </button>
-              {rlaifReviewCount > 0 && (
+              {(['vault', 'constitution', 'plm', 'library'] as const).map(section => (
                 <button
-                  onClick={() => { setShowRlaifReview(true); setShowNav(false); }}
-                  className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
-                  style={{ color: 'var(--text-primary)' }}
+                  key={section}
+                  onClick={() => { setActiveSection(section); setShowNav(false); }}
+                  className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer transition-opacity"
+                  style={{
+                    color: 'var(--text-primary)',
+                    opacity: activeSection === section ? 0.9 : 0.5,
+                  }}
                 >
-                  review ({rlaifReviewCount})
+                  {section.charAt(0).toUpperCase() + section.slice(1)}{section === 'constitution' && rlaifReviewCount > 0 ? ` · ${rlaifReviewCount}` : ''}
                 </button>
-              )}
-              <a href="/machine" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>machine</a>
-              <a href="/batch-upload" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>upload</a>
-              <a href="/training" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>training</a>
-              <a href="/library" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>library</a>
-              <a href="/publish" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>publish</a>
+              ))}
               <div className="my-1.5 mx-3" style={{ borderTop: '1px solid var(--border-light)' }} />
               <button
                 onClick={() => { handleLogout(); setShowNav(false); }}
@@ -1216,8 +1463,8 @@ export default function Alexandria() {
           )}
         </div>
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none">
-          <div className="text-[0.95rem] font-extralight tracking-[0.2em]" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Alexandria</div>
-          <div className="text-[0.58rem] italic mt-0.5 tracking-[0.15em]" style={{ color: 'var(--text-primary)', opacity: 0.35 }}>mentes aeternae</div>
+          <div className="text-[0.95rem] font-extralight tracking-[0.2em]" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>Alexandria</div>
+          <div className="text-[0.58rem] italic mt-0.5 tracking-[0.15em]" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>mentes aeternae</div>
         </div>
         <button
           onClick={toggleTheme}
@@ -1229,130 +1476,124 @@ export default function Alexandria() {
         </button>
       </div>
 
-      {/* Messages */}
+      {/* Content */}
       <div ref={outputScrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-        <div className={`max-w-[640px] mx-auto px-5 ${isEmpty ? 'h-full' : 'pt-1 pb-8'}`}>
-          {!isEmpty && (
-            <div className="space-y-5">
-              {currentMessages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+        {activeSection ? (
+          <div className="max-w-[640px] mx-auto px-5 pt-2 pb-8">
+            {activeSection === 'vault' && <VaultSection userId={userId} />}
+            {activeSection === 'constitution' && (
+              <ConstitutionPanel userId={userId} isOpen={true} onClose={() => setActiveSection(null)} inline />
+            )}
+            {activeSection === 'plm' && <PLMSection userId={userId} />}
+            {activeSection === 'library' && <LibrarySection userId={userId} />}
+          </div>
+        ) : (
+          <div className={`max-w-[640px] mx-auto px-5 ${isEmpty ? 'h-full' : 'pt-1 pb-8'}`}>
+            {!isEmpty && (
+              <div className="space-y-5">
+                {currentMessages.map((message) => (
                   <div
-                    className="max-w-[82%] rounded-2xl px-4 py-2.5"
-                    style={{
-                      background: message.role === 'user' ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
-                      color: message.role === 'user' ? 'var(--text-primary)' : 'var(--text-secondary)'
-                    }}
+                    key={message.id}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className="text-[0.82rem] leading-[1.75] whitespace-pre-wrap">
-                      {message.version && message.version > 1 && (
-                        <span className="text-[0.68rem] mr-1" style={{ color: 'var(--text-subtle)' }}>/{message.version}</span>
-                      )}
-                      {message.content}
+                    <div
+                      className="max-w-[82%] rounded-2xl px-4 py-2.5"
+                      style={{
+                        background: message.role === 'user' ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
+                        color: message.role === 'user' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                      }}
+                    >
+                      <div className="text-[0.82rem] leading-[1.75] whitespace-pre-wrap">
+                        {message.version && message.version > 1 && (
+                          <span className="text-[0.68rem] mr-1" style={{ color: 'var(--text-subtle)' }}>/{message.version}</span>
+                        )}
+                        {message.content}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              {showThinking && !outputContent && mode === 'input' && (
-                <div className="flex justify-start px-1">
-                  <span className="text-[0.78rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.25 }}>thinking</span>
-                </div>
-              )}
-              {outputContent && (
-                <div className="flex justify-start">
-                  <div className="max-w-[82%] rounded-2xl px-4 py-2.5" style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
-                    <div className="text-[0.82rem] leading-[1.75] whitespace-pre-wrap">{outputContent}</div>
+                ))}
+                {showThinking && !outputContent && (
+                  <div className="flex justify-start px-1">
+                    <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>thinking</span>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+                )}
+                {outputContent && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[82%] rounded-2xl px-4 py-2.5" style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
+                      <div className="text-[0.82rem] leading-[1.75] whitespace-pre-wrap">{outputContent}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Input */}
-      <div className="px-4 pb-6 pt-2">
-        <div className="max-w-[640px] mx-auto">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <button
-              onClick={() => setMode('input')}
-              className={`bg-transparent border-none text-[0.66rem] cursor-pointer transition-opacity duration-300 ${mode === 'input' ? 'opacity-45' : 'opacity-12 hover:opacity-25'}`}
-              style={{ color: 'var(--text-primary)' }}
-            >
-              editor
-            </button>
-            <span className="text-[0.4rem]" style={{ color: 'var(--text-primary)', opacity: 0.08 }}>·</span>
-            <button
-              onClick={() => setMode('output')}
-              className={`bg-transparent border-none text-[0.66rem] cursor-pointer transition-opacity duration-300 ${mode === 'output' ? 'opacity-45' : 'opacity-12 hover:opacity-25'}`}
-              style={{ color: 'var(--text-primary)' }}
-            >
-              orchestrator
-            </button>
-          </div>
-          <div className="relative">
-            {mode === 'input' && feedbackPhase === 'none' && !carbonLockYN && (
+      {/* Input — hidden when viewing a section */}
+      {!activeSection && (
+        <div className="px-4 pb-6 pt-2">
+          <div className="max-w-[640px] mx-auto">
+            <div className="flex items-center justify-center gap-3 mb-3">
               <button
-                onClick={() => setShowAttachModal(true)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-base cursor-pointer z-10 opacity-20 hover:opacity-45 transition-opacity"
+                onClick={() => setMode('input')}
+                className={`bg-transparent border-none text-[0.66rem] cursor-pointer transition-opacity duration-300 ${mode === 'input' ? 'opacity-45' : 'opacity-12 hover:opacity-25'}`}
                 style={{ color: 'var(--text-primary)' }}
               >
-                +
+                editor
               </button>
-            )}
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                carbonLockYN && mode === 'input' ? 'y / n' :
-                feedbackPhase === 'binary' ? 'good? y / n' :
-                feedbackPhase === 'comment' ? 'feedback' :
-                feedbackPhase === 'regenerate' ? 'regenerate? y / n' :
-                feedbackPhase === 'wrap_up' ? 'y / n' : ''
-              }
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              enterKeyHint="send"
-              data-form-type="other"
-              className={`w-full border-none rounded-2xl text-[0.88rem] py-4 pr-12 outline-none shadow-sm ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder-italic' : ''} ${mode === 'input' ? 'pl-10' : 'pl-5'}`}
-              style={{
-                background: 'var(--bg-secondary)',
-                color: 'var(--text-primary)',
-                caretColor: 'var(--caret-color)'
-              }}
-            />
-            <button
-              onClick={handleSubmit}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-lg cursor-pointer opacity-12 hover:opacity-35 transition-opacity scale-y-[0.8]"
-              style={{ color: 'var(--text-primary)' }}
-            >
-              →
-            </button>
-          </div>
-          <div className="h-4 mt-1.5 flex justify-center">
-            {feedbackSaved && (
-              <span className="text-[0.62rem] italic" style={{ color: 'var(--text-primary)', opacity: 0.2 }}>noted.</span>
-            )}
-            {showThinking && mode !== 'input' && !outputContent && (
-              <span className="text-[0.62rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.2 }}>thinking</span>
-            )}
-            {pendingJobs.length > 0 && (
-              <span className={`text-[0.62rem] italic ${pendingJobs.some(j => j.status === 'pending' || j.status === 'processing') ? 'thinking-pulse' : ''}`} style={{ color: 'var(--text-primary)', opacity: 0.2 }}>
-                {pendingJobs.some(j => j.status === 'failed') ? 'failed.' :
-                 pendingJobs.every(j => j.status === 'completed') ? 'uploaded.' :
-                 `uploading · ${Math.round(pendingJobs.reduce((sum, j) => sum + j.progress, 0) / pendingJobs.length)}%`}
-              </span>
-            )}
+              <span className="text-[0.4rem]" style={{ color: 'var(--text-primary)', opacity: 0.08 }}>·</span>
+              <button
+                onClick={() => setMode('output')}
+                className={`bg-transparent border-none text-[0.66rem] cursor-pointer transition-opacity duration-300 ${mode === 'output' ? 'opacity-45' : 'opacity-12 hover:opacity-25'}`}
+                style={{ color: 'var(--text-primary)' }}
+              >
+                orchestrator
+              </button>
+            </div>
+            <div className="relative">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={
+                  carbonLockYN && mode === 'input' ? 'y / n' :
+                  feedbackPhase === 'binary' ? 'good? y / n' :
+                  feedbackPhase === 'comment' ? 'feedback' :
+                  feedbackPhase === 'regenerate' ? 'regenerate? y / n' :
+                  feedbackPhase === 'wrap_up' ? 'y / n' : ''
+                }
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                enterKeyHint="send"
+                data-form-type="other"
+                className={`w-full border-none rounded-2xl text-[0.88rem] py-4 pr-12 pl-5 outline-none shadow-sm ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder-italic' : ''}`}
+                style={{
+                  background: 'var(--bg-secondary)',
+                  color: 'var(--text-primary)',
+                  caretColor: 'var(--caret-color)'
+                }}
+              />
+              <button
+                onClick={handleSubmit}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-lg cursor-pointer opacity-12 hover:opacity-35 transition-opacity scale-y-[0.8]"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                →
+              </button>
+            </div>
+            <div className="h-4 mt-1.5 flex justify-center">
+              {feedbackSaved && (
+                <span className="text-[0.7rem] italic" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>noted.</span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <style jsx>{`
         @keyframes shake {
@@ -1371,11 +1612,6 @@ export default function Alexandria() {
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
       `}</style>
 
-      <ConstitutionPanel
-        userId={userId}
-        isOpen={showConstitution}
-        onClose={() => setShowConstitution(false)}
-      />
       <RlaifReviewPanel
         userId={userId}
         isOpen={showRlaifReview}
@@ -1383,109 +1619,6 @@ export default function Alexandria() {
         onReviewed={refreshRlaifReviewCount}
       />
 
-      {showAttachModal && (
-        <div
-          className="fixed inset-0 flex items-center justify-center z-50"
-          style={{ background: 'var(--bg-overlay)' }}
-          onClick={() => !isUploading && setShowAttachModal(false)}
-        >
-          <div
-            className="rounded-2xl p-6 w-[90%] max-w-[380px] flex flex-col shadow-xl"
-            style={{ background: 'var(--bg-modal)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-end">
-              <button
-                onClick={() => !isUploading && setShowAttachModal(false)}
-                className="text-lg cursor-pointer -mt-1 -mr-1 opacity-30 hover:opacity-60 transition-opacity bg-transparent border-none"
-                style={{ color: 'var(--text-primary)' }}
-                disabled={isUploading}
-              >
-                ×
-              </button>
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="audio/*,.mp3,.m4a,.wav,.webm,.ogg,.flac,.pdf,.txt,.md,image/*,.png,.jpg,.jpeg"
-              onChange={(e) => {
-                const newFiles = Array.from(e.target.files || []);
-                setSelectedFiles(prev => [...prev, ...newFiles]);
-                if (fileInputRef.current) fileInputRef.current.value = '';
-              }}
-              className="hidden"
-            />
-            <div
-              onClick={() => !isUploading && selectedFiles.length === 0 && fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors max-h-32 overflow-y-auto ${isUploading ? 'opacity-50 cursor-not-allowed' : ''} ${selectedFiles.length === 0 ? 'cursor-pointer' : ''}`}
-              style={{ borderColor: 'var(--border-dashed)' }}
-            >
-              {selectedFiles.length > 0 ? (
-                <div className="text-[0.8rem] space-y-2" style={{ color: 'var(--text-primary)' }}>
-                  {selectedFiles.map((f, i) => (
-                    <div key={i} className="flex items-center justify-center gap-3">
-                      <span onClick={(e) => { e.stopPropagation(); window.open(URL.createObjectURL(f), '_blank'); }} className="cursor-pointer hover:opacity-70">{f.name}</span>
-                      <button onClick={(e) => { e.stopPropagation(); setSelectedFiles(prev => prev.filter((_, idx) => idx !== i)); }} className="text-sm leading-none px-1 cursor-pointer hover:opacity-70 bg-transparent border-none" style={{ color: 'var(--text-ghost)' }}>×</button>
-                    </div>
-                  ))}
-                  <div className="text-sm mt-2 cursor-pointer opacity-30 hover:opacity-60 transition-opacity" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}>+</div>
-                </div>
-              ) : (
-                <div className="text-[0.8rem] opacity-30">input text / audio</div>
-              )}
-            </div>
-            <div className="relative mt-3">
-              <input
-                type="text"
-                value={uploadContext}
-                onChange={(e) => setUploadContext(e.target.value)}
-                placeholder="context"
-                disabled={isUploading}
-                className="w-full border rounded-xl text-[0.82rem] px-4 py-3 pr-12 outline-none disabled:opacity-50"
-                style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-light)', color: 'var(--text-primary)' }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !isUploading) {
-                    if (!uploadContext.trim()) {
-                      const container = e.currentTarget.parentElement;
-                      container?.classList.add('animate-shake');
-                      setTimeout(() => container?.classList.remove('animate-shake'), 500);
-                    } else if (selectedFiles.length > 0) {
-                      handleFileUpload();
-                    }
-                  }
-                }}
-              />
-              {isUploading ? (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-lg thinking-pulse scale-y-[0.8]" style={{ color: 'var(--text-muted)' }}>→</span>
-              ) : (
-                <button
-                  onClick={() => {
-                    if (!uploadContext.trim()) {
-                      const container = document.querySelector('.relative.mt-3');
-                      container?.classList.add('animate-shake');
-                      setTimeout(() => container?.classList.remove('animate-shake'), 500);
-                    } else if (selectedFiles.length > 0) {
-                      handleFileUpload();
-                    }
-                  }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-lg scale-y-[0.8] transition-opacity cursor-pointer opacity-20 hover:opacity-50 bg-transparent border-none"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  →
-                </button>
-              )}
-            </div>
-            <div className="mt-2 pl-1 h-4">
-              {uploadStatus ? (
-                <span className="text-[0.68rem] italic opacity-30">{uploadStatus}</span>
-              ) : isUploading ? (
-                <span className="text-[0.68rem] italic thinking-pulse opacity-30">uploading</span>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

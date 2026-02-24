@@ -79,15 +79,11 @@ export async function GET(request: NextRequest) {
 const PatchBodySchema = z.object({
   userId: z.string().regex(uuidPattern, 'Invalid UUID format'),
   section: z.enum([
-    'coreIdentity',
     'worldview',
     'values',
-    'mentalModels',
-    'heuristics',
-    'communicationPatterns',
-    'domainExpertise',
-    'boundaries',
-    'evolutionNotes'
+    'models',
+    'identity',
+    'shadows',
   ]),
   operation: z.enum(['add', 'update', 'remove']),
   data: z.unknown(),

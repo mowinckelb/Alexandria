@@ -42,11 +42,11 @@ export interface OrchestrationContext {
 }
 
 export interface ConstitutionDocument {
-  coreIdentity: string;
+  identity: string;
   values: string[];
-  heuristics: string[];
-  boundaries: string[];
-  mentalModels: string[];
+  models: string[];
+  worldview: string[];
+  shadows: string[];
 }
 
 export interface PersonalityContext {
@@ -249,16 +249,23 @@ export class Orchestrator {
       const constitution = await this.constitutionManager.getConstitution(userId);
       if (!constitution) return null;
       
-      const sections = constitution.sections;
+      const s = constitution.sections;
       return {
-        coreIdentity: sections.coreIdentity || '',
+        identity: s.identity?.selfConcept || '',
         values: [
-          ...(sections.values?.tier1?.map(v => `[CORE] ${v.name}: ${v.description}`) || []),
-          ...(sections.values?.tier2?.map(v => `${v.name}: ${v.description}`) || [])
+          ...(s.values?.core?.map(v => `[CORE] ${v.name}: ${v.description}`) || []),
+          ...(s.values?.preferences?.map(v => `${v.name}: ${v.description}`) || []),
+          ...(s.values?.repulsions?.map(r => `[REPULSION] ${r}`) || []),
         ],
-        heuristics: sections.heuristics?.map(h => `${h.name}: ${h.rule}`) || [],
-        boundaries: sections.boundaries || [],
-        mentalModels: sections.mentalModels?.map(m => `${m.name}: ${m.howItWorks}`) || []
+        models: [
+          ...(s.models?.mentalModels?.map(m => `${m.name}: ${m.description}`) || []),
+          ...(s.models?.decisionPatterns || []),
+        ],
+        worldview: s.worldview?.beliefs || [],
+        shadows: [
+          ...(s.shadows?.contradictions || []),
+          ...(s.shadows?.blindSpots || []),
+        ],
       };
     } catch (error) {
       console.error('[Orchestrator] Failed to get constitution:', error);
@@ -526,9 +533,9 @@ export class Orchestrator {
       ? {
           ...input.constitutionDoc,
           values: [...input.constitutionDoc.values],
-          heuristics: [...input.constitutionDoc.heuristics],
-          boundaries: [...input.constitutionDoc.boundaries],
-          mentalModels: [...input.constitutionDoc.mentalModels]
+          models: [...input.constitutionDoc.models],
+          worldview: [...input.constitutionDoc.worldview],
+          shadows: [...input.constitutionDoc.shadows],
         }
       : null;
 
@@ -544,11 +551,11 @@ export class Orchestrator {
     const blockShadows = input.settings.sensitive_sections.includes('shadows');
 
     if (filteredDoc) {
-      if (input.privacyMode === 'professional' || blockIdentity) filteredDoc.coreIdentity = '';
+      if (input.privacyMode === 'professional' || blockIdentity) filteredDoc.identity = '';
       if (input.privacyMode === 'professional' || blockValues) filteredDoc.values = [];
-      if (blockModels) filteredDoc.mentalModels = [];
-      if (input.privacyMode !== 'private' || blockShadows) filteredDoc.boundaries = [];
-      if (blockWorldview) filteredDoc.heuristics = [];
+      if (blockModels) filteredDoc.models = [];
+      if (blockWorldview) filteredDoc.worldview = [];
+      if (input.privacyMode !== 'private' || blockShadows) filteredDoc.shadows = [];
     }
 
     if (input.privacyMode === 'professional') {
@@ -630,27 +637,27 @@ ${context.personality.avoidedWords.length > 0 ?
       parts.push(`
 YOUR CONSTITUTION (ground truth for who you are):`);
       
-      if (doc.coreIdentity) {
+      if (doc.identity) {
         parts.push(`
-IDENTITY: ${doc.coreIdentity}`);
+IDENTITY: ${doc.identity}`);
       }
-      
+
       if (doc.values.length > 0 && context.weights.constitutionWeight >= 0.35) {
         parts.push(`
 YOUR VALUES:
 ${doc.values.slice(0, context.weights.constitutionWeight > 0.7 ? 8 : 4).map((v, i) => `${i + 1}. ${v}`).join('\n')}`);
       }
-      
-      if (doc.heuristics.length > 0 && context.weights.constitutionWeight >= 0.45) {
+
+      if (doc.models.length > 0 && context.weights.constitutionWeight >= 0.45) {
         parts.push(`
-YOUR DECISION RULES:
-${doc.heuristics.slice(0, context.weights.constitutionWeight > 0.7 ? 5 : 2).map((h, i) => `${i + 1}. ${h}`).join('\n')}`);
+YOUR MODELS & DECISION PATTERNS:
+${doc.models.slice(0, context.weights.constitutionWeight > 0.7 ? 5 : 2).map((m, i) => `${i + 1}. ${m}`).join('\n')}`);
       }
-      
-      if (doc.boundaries.length > 0 && context.privacyMode === 'private') {
+
+      if (doc.shadows.length > 0 && context.privacyMode === 'private') {
         parts.push(`
-BOUNDARIES (things you WON'T do):
-${doc.boundaries.slice(0, 5).map(b => `- ${b}`).join('\n')}`);
+SHADOWS (known blind spots):
+${doc.shadows.slice(0, 5).map(s => `- ${s}`).join('\n')}`);
       }
     } else if (context.constitution.length > 0) {
       // Fallback to legacy voice rules

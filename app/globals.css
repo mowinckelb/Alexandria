@@ -101,3 +101,9 @@ input.placeholder-italic::placeholder {
 input:focus {
   background: var(--bg-tertiary) !important;
 }
+
+@keyframes thinkingPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.55; }
+}
+.thinking-pulse { animation: thinkingPulse 1.8s ease-in-out infinite; }

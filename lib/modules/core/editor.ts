@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 import { generateText } from 'ai';
 import { z } from 'zod';
 import Together from 'together-ai';
-import { getFastModel, getQualityModel, togetherProvider } from '@/lib/models';
+import { getFastModel, getQualityModel, getFallbackQualityModel, togetherProvider } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
 import type { Constitution, ConstitutionSections } from '@/lib/modules/constitution/types';
 import { recomputePlmMaturity } from '@/lib/modules/core/plm-maturity';
@@ -215,6 +215,107 @@ export class Editor {
   }
   
   // ==========================================================================
+  // ==========================================================================
+  // Async Entry Processing: Editor works through unprocessed entries gradually
+  // ==========================================================================
+
+  /**
+   * Process a single unprocessed entry. Called by editor-cycle cron.
+   * Reads Constitution first, analyzes the text, extracts signal,
+   * updates notepad, and marks entry as processed.
+   */
+  async processEntry(entryId: string, userId: string, content: string): Promise<{
+    memoriesStored: number;
+    trainingPairsCreated: number;
+    notesAdded: number;
+  }> {
+    const result = { memoriesStored: 0, trainingPairsCreated: 0, notesAdded: 0 };
+
+    // 1. Read current Constitution
+    const constitution = await this.constitutionManager.getConstitution(userId);
+    const constitutionContext = constitution
+      ? this.formatConstitutionContext(constitution)
+      : 'No Constitution yet — extract everything you can.';
+
+    // 2. Truncate content if very long (process what fits in context)
+    const text = content.length > 6000 ? content.slice(0, 6000) : content;
+
+    // 3. Analyze with Constitution awareness
+    let rawResponse: string;
+    try {
+      const genResult = await generateText({
+        model: getQualityModel(),
+        messages: [{
+          role: 'system',
+          content: `You are the Editor — a biographer processing raw data from the Author.
+
+CURRENT CONSTITUTION:
+${constitutionContext}
+
+AUTHOR'S DATA:
+${text}
+
+Analyze this data against the Constitution. Extract:
+1. Objective facts (memories) — things that happened, entities mentioned
+2. Subjective signal (training pairs) — examples of how the Author thinks/speaks that can train the PLM
+3. Notepad observations — anything interesting, contradictions, gaps in the Constitution
+
+Return JSON:
+{
+  "message": "brief note to yourself about what this data reveals",
+  "extraction": {
+    "objective": [{"content": "fact", "entities": ["entity"], "importance": 0.7}],
+    "subjective": [{"system_prompt": "You are a PLM.", "user_content": "prompt", "assistant_content": "Author's actual words/voice", "quality_score": 0.8}]
+  },
+  "notepadUpdates": {
+    "observations": [{"type": "observation", "content": "...", "topic": "...", "priority": "high", "category": "critical"}],
+    "gaps": [{"type": "gap", "content": "...", "topic": "...", "priority": "medium", "category": "non_critical"}],
+    "mentalModels": []
+  },
+  "scratchpadUpdate": "running notes"
+}
+
+Return ONLY the JSON.`
+        }]
+      });
+      rawResponse = genResult.text;
+    } catch (primaryErr: unknown) {
+      const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
+      if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit')) {
+        console.warn('[Editor] Groq rate limited, falling back to Together AI for entry processing');
+        const genResult = await generateText({ model: getFallbackQualityModel(), messages: [{ role: 'system', content: `Extract facts and training examples from this text. Return JSON with "extraction" containing "objective" and "subjective" arrays.\n\nTEXT:\n${text}\n\nReturn ONLY JSON.` }] });
+        rawResponse = genResult.text;
+      } else {
+        throw primaryErr;
+      }
+    }
+
+    // 4. Parse and store
+    const parsed = this.parseAndValidateResponse(rawResponse, '');
+
+    for (const obj of parsed.extraction.objective) {
+      try { await this.storeMemory(obj as MemoryItem, userId); result.memoriesStored++; } catch {}
+    }
+    for (const subj of parsed.extraction.subjective) {
+      try { await this.storeTrainingPair(subj as TrainingPair, userId); result.trainingPairsCreated++; } catch {}
+    }
+
+    const noteCount = parsed.notepadUpdates.observations.length + parsed.notepadUpdates.gaps.length;
+    if (noteCount > 0) {
+      try {
+        await this.updateNotepad(userId, parsed.notepadUpdates, parsed.scratchpadUpdate || '');
+        result.notesAdded = noteCount;
+      } catch {}
+    }
+
+    // 5. Mark entry as processed
+    await supabase.from('entries').update({ metadata: { editor_processed: true, processed_at: new Date().toISOString() } }).eq('id', entryId);
+
+    console.log(`[Editor] Processed entry ${entryId}: ${result.memoriesStored} memories, ${result.trainingPairsCreated} training pairs, ${result.notesAdded} notes`);
+    return result;
+  }
+
+  // ==========================================================================
   // Core: Two-way conversation with Author
   // ==========================================================================
   
@@ -251,13 +352,11 @@ export class Editor {
     const notepadContext = this.formatNotepadContext(notepad);
     const statsContext = this.formatStatsContext(trainingStats);
     
-    // 6. Generate Editor response
-    const { text: rawResponse } = await generateText({
-      model: getQualityModel(),
-      messages: [
-        {
-          role: 'system',
-          content: `${EDITOR_SYSTEM_PROMPT}
+    // 6. Generate Editor response (with fallback to Together AI on rate limit)
+    const editorMessages = [
+      {
+        role: 'system' as const,
+        content: `${EDITOR_SYSTEM_PROMPT}
 
 YOUR CONSTITUTION (Author's explicit worldview - use as ground truth):
 ${constitutionContext}
@@ -291,11 +390,25 @@ CRITICAL RULES:
 - Prioritize subjective extraction (voice, style, opinions) over objective (facts)
 - Be AGGRESSIVE about identifying gaps and asking probing questions
 - Return ONLY the JSON object, no other text`
-        },
-        ...conversationHistory.map(m => ({ role: m.role, content: m.content })),
-        { role: 'user', content: authorInput }
-      ]
-    });
+      },
+      ...conversationHistory.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+      { role: 'user' as const, content: authorInput }
+    ];
+
+    let rawResponse: string;
+    try {
+      const result = await generateText({ model: getQualityModel(), messages: editorMessages });
+      rawResponse = result.text;
+    } catch (primaryErr: unknown) {
+      const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
+      if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit')) {
+        console.warn('[Editor] Groq rate limited, falling back to Together AI');
+        const result = await generateText({ model: getFallbackQualityModel(), messages: editorMessages });
+        rawResponse = result.text;
+      } else {
+        throw primaryErr;
+      }
+    }
 
     // 7. Parse with Zod validation, fallback on failure
     const parsed = this.parseAndValidateResponse(rawResponse, authorInput);
@@ -796,41 +909,38 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
   }
   
   private formatConstitutionContext(constitution: Constitution): string {
-    const sections = constitution.sections;
+    const s = constitution.sections;
     const parts: string[] = [];
-    
-    // Core identity
-    if (sections.coreIdentity) {
-      parts.push(`IDENTITY: ${sections.coreIdentity}`);
+
+    if (s.identity?.selfConcept) {
+      parts.push(`IDENTITY: ${s.identity.selfConcept}`);
     }
-    
-    // Values (all tiers summarized)
-    const allValues = [
-      ...(sections.values?.tier1?.map(v => `[NON-NEGOTIABLE] ${v.name}: ${v.description}`) || []),
-      ...(sections.values?.tier2?.map(v => `[STRONG] ${v.name}: ${v.description}`) || []),
-      ...(sections.values?.tier3?.map(v => `[STYLISTIC] ${v.name}: ${v.description}`) || [])
-    ];
+
+    const coreValues = s.values?.core?.map(v => `[CORE] ${v.name}: ${v.description}`) || [];
+    const prefs = s.values?.preferences?.map(v => `[PREF] ${v.name}: ${v.description}`) || [];
+    const allValues = [...coreValues, ...prefs];
     if (allValues.length > 0) {
       parts.push(`VALUES:\n${allValues.join('\n')}`);
     }
-    
-    // Key heuristics
-    if (sections.heuristics?.length > 0) {
-      const rules = sections.heuristics.map(h => `- ${h.name}: ${h.rule}`).join('\n');
-      parts.push(`DECISION RULES:\n${rules}`);
+    if (s.values?.repulsions?.length) {
+      parts.push(`REPULSIONS:\n${s.values.repulsions.map(r => `- ${r}`).join('\n')}`);
     }
-    
-    // Mental models
-    if (sections.mentalModels?.length > 0) {
-      const models = sections.mentalModels.map(m => `- ${m.name} (${m.domain}): ${m.howItWorks}`).join('\n');
-      parts.push(`MENTAL MODELS:\n${models}`);
+
+    if (s.worldview?.beliefs?.length) {
+      parts.push(`WORLDVIEW:\n${s.worldview.beliefs.map(b => `- ${b}`).join('\n')}`);
     }
-    
-    // Boundaries
-    if (sections.boundaries?.length > 0) {
-      parts.push(`BOUNDARIES:\n${sections.boundaries.map(b => `- ${b}`).join('\n')}`);
+
+    if (s.models?.mentalModels?.length) {
+      parts.push(`MODELS:\n${s.models.mentalModels.map(m => `- ${m.name} (${m.domain}): ${m.description}`).join('\n')}`);
     }
-    
+    if (s.models?.decisionPatterns?.length) {
+      parts.push(`DECISION PATTERNS:\n${s.models.decisionPatterns.map(d => `- ${d}`).join('\n')}`);
+    }
+
+    if (s.shadows?.contradictions?.length) {
+      parts.push(`SHADOWS:\n${s.shadows.contradictions.map(c => `- ${c}`).join('\n')}`);
+    }
+
     return parts.join('\n\n') || 'Constitution exists but has no content yet.';
   }
   

@@ -1,75 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-
-interface BulkIngestSummary {
-  chunksProcessed: number;
-  totalChunks: number;
-  extraction: {
-    facts: number;
-    preferences: number;
-    opinions: number;
-    values: number;
-    entities: number;
-  };
-  storage: {
-    memoryItems: number;
-    trainingPairs: number;
-    editorNotes: number;
-  };
-  errors?: string[];
-}
+import { useEffect, useState } from 'react';
 
 interface UploadItem {
   id: string;
   file: File;
   status: 'pending' | 'processing' | 'done' | 'error';
-  summary?: BulkIngestSummary;
+  message?: string;
   error?: string;
-}
-
-function normalizeSummary(data: unknown): BulkIngestSummary {
-  const payload = data as {
-    summary?: {
-      chunksProcessed?: number;
-      totalChunks?: number;
-      extraction?: {
-        facts?: number;
-        preferences?: number;
-        opinions?: number;
-        values?: number;
-        entities?: number;
-      };
-      storage?: {
-        memoryItems?: number;
-        trainingPairs?: number;
-        editorNotes?: number;
-      };
-      factsExtracted?: number;
-      memoryItemsStored?: number;
-      trainingPairsGenerated?: number;
-      editorNotesGenerated?: number;
-      errors?: string[];
-    };
-  };
-  const summary = payload.summary || {};
-  return {
-    chunksProcessed: summary.chunksProcessed || 0,
-    totalChunks: summary.totalChunks || summary.chunksProcessed || 0,
-    extraction: {
-      facts: summary.extraction?.facts || summary.factsExtracted || 0,
-      preferences: summary.extraction?.preferences || 0,
-      opinions: summary.extraction?.opinions || 0,
-      values: summary.extraction?.values || 0,
-      entities: summary.extraction?.entities || 0
-    },
-    storage: {
-      memoryItems: summary.storage?.memoryItems || summary.memoryItemsStored || 0,
-      trainingPairs: summary.storage?.trainingPairs || summary.trainingPairsGenerated || 0,
-      editorNotes: summary.storage?.editorNotes || summary.editorNotesGenerated || 0
-    },
-    errors: summary.errors
-  };
 }
 
 export default function BatchUploadPage() {
@@ -80,27 +18,12 @@ export default function BatchUploadPage() {
   const [message, setMessage] = useState<string>('');
   const [pasteName, setPasteName] = useState<string>('');
   const [pasteText, setPasteText] = useState<string>('');
+  const [reprocessing, setReprocessing] = useState(false);
+  const [reprocessResult, setReprocessResult] = useState<string>('');
 
   useEffect(() => {
     setUserId(localStorage.getItem('alexandria_user_id') || '');
   }, []);
-
-  const totals = useMemo(() => {
-    return items.reduce(
-      (acc, item) => {
-        if (item.status === 'done' && item.summary) {
-          acc.filesDone += 1;
-          acc.memoryItems += item.summary.storage.memoryItems || 0;
-          acc.trainingPairs += item.summary.storage.trainingPairs || 0;
-        }
-        if (item.status === 'error') {
-          acc.filesFailed += 1;
-        }
-        return acc;
-      },
-      { filesDone: 0, filesFailed: 0, memoryItems: 0, trainingPairs: 0 }
-    );
-  }, [items]);
 
   const addFiles = (incoming: FileList | File[]) => {
     const allowed = Array.from(incoming).filter((file) => {
@@ -124,10 +47,6 @@ export default function BatchUploadPage() {
     ]);
   };
 
-  const readText = async (file: File): Promise<string> => {
-    return file.text();
-  };
-
   const addPastedTranscript = () => {
     const text = pasteText.trim();
     if (!text) {
@@ -135,7 +54,7 @@ export default function BatchUploadPage() {
       return;
     }
 
-    const safeBase = (pasteName.trim() || `pasted-transcript-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}`)
+    const safeBase = (pasteName.trim() || `pasted-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}`)
       .replace(/[^a-zA-Z0-9-_ ]/g, '')
       .trim()
       .replace(/\s+/g, '-')
@@ -147,50 +66,11 @@ export default function BatchUploadPage() {
     setPasteText('');
   };
 
-  const processViaBulkIngest = async (file: File, userId: string): Promise<BulkIngestSummary> => {
-    const text = await readText(file);
-    if (!text.trim()) {
-      throw new Error('file is empty');
-    }
-
-    const res = await fetch('/api/bulk-ingest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text,
-        userId,
-        source: `voice-transcript:${file.name}`
-      })
-    });
-    const data = await res.json();
-    if (!res.ok || !data?.success) {
-      throw new Error(data?.error || `bulk ingest failed (${res.status})`);
-    }
-    return normalizeSummary(data);
-  };
-
-  const processViaUploadCarbon = async (file: File, userId: string): Promise<BulkIngestSummary> => {
-    const form = new FormData();
-    form.append('file', file);
-    form.append('userId', userId);
-    form.append('context', `voice-transcript:${file.name}`);
-
-    const res = await fetch('/api/upload-carbon', {
-      method: 'POST',
-      body: form
-    });
-    const data = await res.json();
-    if (!res.ok || !data?.success) {
-      throw new Error(data?.error || `upload fallback failed (${res.status})`);
-    }
-    return normalizeSummary(data);
-  };
-
   const processAll = async () => {
     if (isProcessing || items.length === 0) return;
-    const userId = localStorage.getItem('alexandria_user_id') || '';
-    if (!userId) {
-      setMessage('Not signed in on this device. Open the app, sign in, then come back to this page.');
+    const uid = localStorage.getItem('alexandria_user_id') || '';
+    if (!uid) {
+      setMessage('not signed in. open the app and sign in first.');
       return;
     }
 
@@ -201,23 +81,23 @@ export default function BatchUploadPage() {
     for (const item of queue) {
       setItems((prev) => prev.map((p) => (p.id === item.id ? { ...p, status: 'processing', error: undefined } : p)));
       try {
-        let summary: BulkIngestSummary;
-        try {
-          summary = await processViaBulkIngest(item.file, userId);
-        } catch (bulkError) {
-          // Fallback for mobile/body-size/network edge cases.
-          summary = await processViaUploadCarbon(item.file, userId);
-          setMessage(`fallback used for ${item.file.name} (${bulkError instanceof Error ? bulkError.message : 'bulk ingest failed'})`);
+        const text = await item.file.text();
+        if (!text.trim()) throw new Error('file is empty');
+
+        const res = await fetch('/api/bulk-ingest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, userId: uid, source: `upload:${item.file.name}` })
+        });
+        const data = await res.json();
+        if (!res.ok || !data?.success) {
+          throw new Error(data?.error || `failed (${res.status})`);
         }
 
         setItems((prev) =>
           prev.map((p) =>
             p.id === item.id
-              ? {
-                  ...p,
-                  status: 'done',
-                  summary
-                }
+              ? { ...p, status: 'done', message: data.message || 'stored' }
               : p
           )
         );
@@ -225,11 +105,7 @@ export default function BatchUploadPage() {
         setItems((prev) =>
           prev.map((p) =>
             p.id === item.id
-              ? {
-                  ...p,
-                  status: 'error',
-                  error: error instanceof Error ? error.message : 'unknown error'
-                }
+              ? { ...p, status: 'error', error: error instanceof Error ? error.message : 'unknown error' }
               : p
           )
         );
@@ -237,8 +113,40 @@ export default function BatchUploadPage() {
     }
 
     setIsProcessing(false);
-    setMessage('batch complete.');
+    const doneCount = items.filter(i => i.status === 'done').length + queue.filter(i => !items.find(x => x.id === i.id && x.status === 'error')).length;
+    setMessage(`done. ${doneCount} file${doneCount !== 1 ? 's' : ''} stored. the editor will process them gradually.`);
   };
+
+  const handleReprocess = async () => {
+    const uid = localStorage.getItem('alexandria_user_id') || '';
+    if (!uid) {
+      setReprocessResult('not signed in.');
+      return;
+    }
+
+    setReprocessing(true);
+    setReprocessResult('');
+
+    try {
+      const res = await fetch('/api/reprocess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: uid })
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.success) {
+        throw new Error(data?.error || 'failed');
+      }
+      setReprocessResult(data.message);
+    } catch (error) {
+      setReprocessResult(error instanceof Error ? error.message : 'failed');
+    } finally {
+      setReprocessing(false);
+    }
+  };
+
+  const doneCount = items.filter(i => i.status === 'done').length;
+  const errorCount = items.filter(i => i.status === 'error').length;
 
   return (
     <main
@@ -253,35 +161,25 @@ export default function BatchUploadPage() {
         <a href="/" className="inline-flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity mb-2" style={{ color: 'var(--text-primary)' }}>
           ← home
         </a>
-        <h1 className="text-2xl">Batch Upload</h1>
-        <p className="text-sm opacity-70">process many transcript files through bulk ingest.</p>
-        <p className="text-xs opacity-60">
-          On phone: sign in on this device first. For 100+ files use desktop; on phone try a few at a time.
-        </p>
+        <h1 className="text-2xl">Vault</h1>
+        <p className="text-sm opacity-70">upload data. the editor processes it gradually in the background.</p>
 
         {!userId && (
           <div className="rounded-xl p-3 text-sm" style={{ background: 'var(--bg-secondary)' }}>
-            Sign in on this device first — <a href="/" className="underline">open app and sign in</a>, then return here.
+            sign in first — <a href="/" className="underline">open app</a>, then return here.
           </div>
         )}
 
+        {/* Upload section */}
         <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
           <div
             className={`rounded-xl border-2 border-dashed p-8 text-center transition-opacity ${isDragging ? 'opacity-100' : 'opacity-80'}`}
             style={{ borderColor: 'var(--border-light)' }}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragging(true);
-            }}
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
             onDragLeave={() => setIsDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setIsDragging(false);
-              addFiles(e.dataTransfer.files);
-            }}
+            onDrop={(e) => { e.preventDefault(); setIsDragging(false); addFiles(e.dataTransfer.files); }}
           >
-            <div className="text-sm">drag and drop .md files here</div>
-            <div className="text-xs opacity-60 mt-1">or choose files manually</div>
+            <div className="text-sm">drag and drop .md or .txt files</div>
             <label className="inline-block mt-3 cursor-pointer rounded-lg px-3 py-1 text-xs" style={{ background: 'var(--bg-primary)' }}>
               choose files
               <input
@@ -289,113 +187,99 @@ export default function BatchUploadPage() {
                 multiple
                 accept=".md,.txt,text/markdown,text/plain,*/*"
                 className="hidden"
-                onChange={(e) => {
-                  if (e.target.files) addFiles(e.target.files);
-                  e.currentTarget.value = '';
-                }}
+                onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.currentTarget.value = ''; }}
               />
             </label>
           </div>
 
-          <div
-            className="sticky bottom-0 z-10 flex gap-2 py-2"
-            style={{ background: 'var(--bg-secondary)' }}
-          >
+          <div className="flex gap-2 flex-wrap">
             <button
               onClick={processAll}
               disabled={isProcessing || items.length === 0}
               className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
               style={{ background: 'var(--bg-primary)' }}
             >
-              {isProcessing ? 'processing...' : 'process all'}
+              {isProcessing ? 'uploading...' : 'upload all'}
             </button>
             <button
-              onClick={() => setItems([])}
+              onClick={() => { setItems([]); setMessage(''); }}
               disabled={isProcessing || items.length === 0}
               className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
               style={{ background: 'var(--bg-primary)' }}
             >
               clear
             </button>
-            <a className="rounded-lg px-3 py-2 text-sm" style={{ background: 'var(--bg-primary)' }} href="/">
-              back to app
-            </a>
           </div>
 
           {message && <div className="text-xs opacity-70">{message}</div>}
         </div>
 
+        {/* Paste section */}
         <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
-          <div className="text-sm">paste transcript (phone fallback)</div>
-          <div className="text-xs opacity-60">
-            If file upload is flaky on mobile, paste transcript content here and add it to the queue.
-          </div>
+          <div className="text-sm">paste text</div>
+          <div className="text-xs opacity-60">for mobile or quick pastes</div>
           <input
             value={pasteName}
             onChange={(e) => setPasteName(e.target.value)}
-            placeholder="optional name (e.g. meeting-jan-14)"
+            placeholder="optional name"
             className="w-full rounded-lg px-3 py-2 text-sm"
             style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
           />
           <textarea
             value={pasteText}
             onChange={(e) => setPasteText(e.target.value)}
-            placeholder="paste transcript markdown/text here..."
-            className="w-full min-h-[160px] rounded-lg px-3 py-2 text-sm"
+            placeholder="paste text here..."
+            className="w-full min-h-[120px] rounded-lg px-3 py-2 text-sm"
             style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
           />
-          <div className="flex gap-2">
-            <button
-              onClick={addPastedTranscript}
-              disabled={isProcessing || !pasteText.trim()}
-              className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-              style={{ background: 'var(--bg-primary)' }}
-            >
-              add pasted transcript
-            </button>
-          </div>
+          <button
+            onClick={addPastedTranscript}
+            disabled={isProcessing || !pasteText.trim()}
+            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+            style={{ background: 'var(--bg-primary)' }}
+          >
+            add to queue
+          </button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="rounded-xl p-3" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">files queued</div>
-            <div className="text-lg">{items.length}</div>
-          </div>
-          <div className="rounded-xl p-3" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">processed</div>
-            <div className="text-lg">{totals.filesDone}</div>
-          </div>
-          <div className="rounded-xl p-3" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">memory items</div>
-            <div className="text-lg">{totals.memoryItems}</div>
-          </div>
-          <div className="rounded-xl p-3" style={{ background: 'var(--bg-secondary)' }}>
-            <div className="text-xs opacity-60">training pairs</div>
-            <div className="text-lg">{totals.trainingPairs}</div>
-          </div>
-        </div>
-
-        <div className="rounded-xl p-4 space-y-2" style={{ background: 'var(--bg-secondary)' }}>
-          <div className="text-sm">files</div>
-          {items.length === 0 && <div className="text-xs opacity-60">no files selected.</div>}
-          {items.map((item) => (
-            <div key={item.id} className="rounded-lg p-3" style={{ background: 'var(--bg-primary)' }}>
-              <div className="flex justify-between gap-2">
-                <div className="text-sm break-all">{item.file.name}</div>
-                <div className="text-xs opacity-70">{(item.file.size / 1024).toFixed(1)} KB</div>
-              </div>
-              <div className="text-xs mt-1 opacity-70">
-                status: {item.status}
-                {item.error ? ` · ${item.error}` : ''}
-              </div>
-              {item.summary && (
-                <div className="text-xs mt-1 opacity-70">
-                  chunks {item.summary.chunksProcessed}/{item.summary.totalChunks} · memories {item.summary.storage.memoryItems} · pairs{' '}
-                  {item.summary.storage.trainingPairs}
-                </div>
-              )}
+        {/* File list */}
+        {items.length > 0 && (
+          <div className="rounded-xl p-4 space-y-2" style={{ background: 'var(--bg-secondary)' }}>
+            <div className="text-sm opacity-70">
+              {items.length} file{items.length !== 1 ? 's' : ''}
+              {doneCount > 0 && ` · ${doneCount} stored`}
+              {errorCount > 0 && ` · ${errorCount} failed`}
             </div>
-          ))}
+            {items.map((item) => (
+              <div key={item.id} className="rounded-lg p-3 flex justify-between items-center" style={{ background: 'var(--bg-primary)' }}>
+                <div>
+                  <div className="text-sm break-all">{item.file.name}</div>
+                  <div className="text-xs opacity-60">
+                    {item.status === 'done' ? 'stored' : item.status}
+                    {item.error ? ` · ${item.error}` : ''}
+                  </div>
+                </div>
+                <div className="text-xs opacity-50">{(item.file.size / 1024).toFixed(0)} KB</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Re-process section */}
+        <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
+          <div className="text-sm">re-process all data</div>
+          <div className="text-xs opacity-60">
+            tells the editor to go through all your data again. useful when models improve and can extract more signal.
+          </div>
+          <button
+            onClick={handleReprocess}
+            disabled={reprocessing}
+            className="rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+            style={{ background: 'var(--bg-primary)' }}
+          >
+            {reprocessing ? 'resetting...' : 're-process everything'}
+          </button>
+          {reprocessResult && <div className="text-xs opacity-70">{reprocessResult}</div>}
         </div>
       </div>
     </main>
