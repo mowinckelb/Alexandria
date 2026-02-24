@@ -224,17 +224,19 @@ export class ConstitutionManager {
 
     const { text: response } = await generateText({
       model: getQualityModel(),
-      system: `You are extracting a CONSTITUTION from data about a person (the Author).
+      system: `You are extracting a deep, detailed CONSTITUTION from data about a person (the Author).
+
+A Constitution must be GENUINELY USEFUL as a cognitive fingerprint — not surface-level platitudes. If the output reads like a generic self-help book, it has ZERO value. The entire point is to capture what makes THIS person different from every other person.
 
 The Constitution has exactly 5 sections:
 
-1. WORLDVIEW — What they believe about reality. How things work. What exists and matters. How they know things.
-2. VALUES — What matters and in what order. Non-negotiable core values, strong preferences, what they find beautiful and repulsive.
-3. MODELS — How they think and decide. Mental models, heuristics, reasoning patterns, gut vs analysis.
-4. IDENTITY — Who they are, how they present, how they communicate. Self-concept, roles, style.
-5. SHADOWS — Where they are wrong. Contradictions, blind spots, theory-reality dissonance.
+1. WORLDVIEW — What they actually believe about reality, not what they think they should believe. Specific causal models. Contrarian stances. Where they diverge from mainstream thinking. Their epistemology: how they evaluate truth, what sources they trust, what counts as evidence.
+2. VALUES — Precise hierarchy, not a list. What they would sacrifice comfort for. What makes them viscerally angry. The difference between what they say they value and what their behaviour reveals they value. Specific aesthetic preferences, not generic ones.
+3. MODELS — Their actual decision heuristics, not textbook ones. How they handle uncertainty. When they trust intuition vs analysis. Their specific mental models with concrete examples of application. Cognitive shortcuts they rely on.
+4. IDENTITY — How they ACTUALLY communicate (specific patterns, not "clear and direct"). Their relationship to authority, status, expertise. The narrative they tell themselves about who they are. How their self-concept has evolved.
+5. SHADOWS — The genuinely uncomfortable stuff. Where their stated values contradict their actions. What they systematically misjudge. Where their self-model is most wrong. Blind spots they'd resist acknowledging.
 
-Extract a Constitution. Be thorough but accurate — only include what you can INFER. Leave arrays empty if uncertain.
+GO DEEP. Extract 5-15 items per array field. Be specific and granular — "values intellectual honesty" is worthless, but "will abandon a profitable position mid-argument if shown a better framework, even at social cost" is useful. Every entry should be concrete enough that someone could PREDICT this person's behaviour in a novel situation.
 
 Return JSON matching this EXACT structure:
 {

@@ -165,7 +165,39 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, profile: data });
     }
 
-    return NextResponse.json({ error: 'Unknown action. Use: publish, add_influence, update_profile' }, { status: 400 });
+    if (action === 'delete_work') {
+      const { id, userId: uid } = body;
+      if (!id || !uid) return NextResponse.json({ error: 'id and userId required' }, { status: 400 });
+      const { error } = await supabase.from('authored_works').delete().eq('id', id).eq('user_id', uid);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ success: true });
+    }
+
+    if (action === 'delete_influence') {
+      const { id, userId: uid } = body;
+      if (!id || !uid) return NextResponse.json({ error: 'id and userId required' }, { status: 400 });
+      const { error } = await supabase.from('curated_influences').delete().eq('id', id).eq('user_id', uid);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ success: true });
+    }
+
+    if (action === 'rename_work') {
+      const { id, userId: uid, title } = body;
+      if (!id || !uid || !title) return NextResponse.json({ error: 'id, userId, and title required' }, { status: 400 });
+      const { error } = await supabase.from('authored_works').update({ title }).eq('id', id).eq('user_id', uid);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ success: true });
+    }
+
+    if (action === 'rename_influence') {
+      const { id, userId: uid, title } = body;
+      if (!id || !uid || !title) return NextResponse.json({ error: 'id, userId, and title required' }, { status: 400 });
+      const { error } = await supabase.from('curated_influences').update({ title }).eq('id', id).eq('user_id', uid);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ success: true });
+    }
+
+    return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
   } catch (e) {
     if (e instanceof z.ZodError) {
       return NextResponse.json({ error: 'Invalid request', details: e.issues }, { status: 400 });

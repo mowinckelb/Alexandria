@@ -118,18 +118,13 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
     { id: 'canonical', label: 'canonical' },
     { id: 'training', label: 'training' },
     { id: 'inference', label: 'inference' },
-    { id: 'history', label: `history (${versions.length})` },
+    { id: 'history', label: 'history' },
   ];
 
   const content = (
     <>
-      <div className="flex items-center gap-3 mb-4">
+      <div className="mb-4">
         <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Constitution</h2>
-        {constitution && (
-          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-tertiary)', color: 'var(--text-subtle)' }}>
-            v{constitution.version}
-          </span>
-        )}
       </div>
 
       <div className="flex gap-3 mb-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
@@ -162,7 +157,6 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
         ) : !constitution ? (
           <div className="text-center py-12">
             <p className="text-sm mb-4" style={{ color: 'var(--text-subtle)' }}>no constitution yet.</p>
-            <p className="text-xs mb-6" style={{ color: 'var(--text-ghost)' }}>chat with the editor first — it builds the constitution from your conversations.</p>
           </div>
         ) : activeTab === 'canonical' ? (
           <CanonicalView sections={constitution.sections} />
@@ -174,14 +168,6 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
           <VersionHistory versions={versions} currentVersion={constitution?.version} onRestore={handleRestore} />
         )}
       </div>
-
-      {constitution && activeTab !== 'history' && (
-        <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border-light)' }}>
-          <span className="text-xs" style={{ color: 'var(--text-ghost)' }}>
-            v{constitution.version} · {new Date(constitution.createdAt).toLocaleDateString()}
-          </span>
-        </div>
-      )}
     </>
   );
 
@@ -290,7 +276,7 @@ function TrainingView({ sections }: { sections: ConstitutionSections }) {
 
   return (
     <div className="space-y-4 text-xs" style={{ color: 'var(--text-secondary)' }}>
-      <p className="text-xs opacity-50 italic mb-3">Dense view for RLAIF evaluation. Sections ordered by training priority.</p>
+      {/* Dense view ordered by training priority */}
       {priority.map(({ name, key, rank }) => {
         const data = sections[key];
         if (!data) return null;
@@ -323,7 +309,7 @@ function InferenceView({ sections }: { sections: ConstitutionSections }) {
 
   return (
     <div className="space-y-4 text-xs" style={{ color: 'var(--text-secondary)' }}>
-      <p className="text-xs opacity-50 italic mb-3">Compressed view for Orchestrator inference. Per-query section routing.</p>
+      {/* Compressed view for inference routing */}
       <div className="mb-4">
         <div className="text-xs font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Query routing:</div>
         {queryTypes.map(({ type, sections: secs }) => (
@@ -361,23 +347,18 @@ function InferenceView({ sections }: { sections: ConstitutionSections }) {
 
 function VersionHistory({ versions, currentVersion, onRestore }: { versions: VersionSummary[]; currentVersion?: number; onRestore: (v: number) => void }) {
   if (versions.length === 0) {
-    return <div className="text-center py-12"><p className="text-sm" style={{ color: 'var(--text-subtle)' }}>No history yet.</p></div>;
+    return <div className="text-center py-12"><p className="text-sm" style={{ color: 'var(--text-subtle)' }}>no history yet.</p></div>;
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-1">
       {versions.map(v => (
-        <div key={v.id} className="p-3 rounded-lg flex justify-between items-start" style={{ background: v.isActive ? 'var(--bg-tertiary)' : 'var(--bg-secondary)' }}>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>v{v.version}</span>
-              {v.isActive && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>active</span>}
-            </div>
-            <p className="text-xs mt-1" style={{ color: 'var(--text-subtle)' }}>{v.changeSummary || 'No description'}</p>
-            <p className="text-xs mt-1" style={{ color: 'var(--text-ghost)' }}>{new Date(v.createdAt).toLocaleString()}</p>
-          </div>
-          {!v.isActive && (
-            <button onClick={() => onRestore(v.version)} className="text-xs px-2 py-1 rounded cursor-pointer hover:opacity-70 border-none" style={{ background: 'var(--bg-primary)', color: 'var(--text-subtle)' }}>restore</button>
+        <div key={v.id} className="flex items-center justify-between py-2.5 px-1">
+          <span className="text-sm" style={{ color: 'var(--text-primary)' }}>v{v.version}</span>
+          {v.isActive ? (
+            <span className="text-xs" style={{ color: 'var(--text-subtle)' }}>active</span>
+          ) : (
+            <button onClick={() => onRestore(v.version)} className="text-xs bg-transparent border-none cursor-pointer hover:opacity-70 p-0" style={{ color: 'var(--text-subtle)' }}>restore</button>
           )}
         </div>
       ))}

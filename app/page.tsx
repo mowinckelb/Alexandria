@@ -6,7 +6,7 @@ import LandingPage from './components/LandingPage';
 import ConstitutionPanel from './components/ConstitutionPanel';
 import RlaifReviewPanel from './components/RlaifReviewPanel';
 import { useTheme } from './components/ThemeProvider';
-import { Sun, Moon, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 
 interface Message {
@@ -129,16 +129,14 @@ function VaultSection({ userId }: { userId: string }) {
   return (
     <div className="space-y-5">
       <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Vault</h2>
-      <p className="text-xs" style={{ color: 'var(--text-subtle)' }}>upload data. the editor processes it gradually in the background.</p>
 
       <div
-        className="rounded-xl border-2 border-dashed p-6 text-center"
-        style={{ borderColor: 'var(--border-light)' }}
+        className="rounded-xl p-4"
+        style={{ background: 'var(--bg-secondary)' }}
         onDragOver={e => e.preventDefault()}
         onDrop={e => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
       >
-        <div className="text-sm opacity-60">drag files here</div>
-        <label className="inline-block mt-2 cursor-pointer rounded-lg px-3 py-1 text-xs" style={{ background: 'var(--bg-secondary)' }}>
+        <label className="inline-block cursor-pointer text-xs" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>
           choose files
           <input type="file" multiple accept=".md,.txt" className="hidden" onChange={e => { if (e.target.files) addFiles(e.target.files); e.currentTarget.value = ''; }} />
         </label>
@@ -172,56 +170,17 @@ function VaultSection({ userId }: { userId: string }) {
 
       {message && <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
 
-      {/* Editor processing status */}
+      {/* Editor progress — compact */}
       {status && (
-        <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
-          <div className="flex items-center justify-between">
-            <div className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>editor progress</div>
-            <div className="text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
-              {status.model.provider} · {status.model.quality}
-            </div>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
+            <span>{status.processed} / {status.total}</span>
+            {status.remaining > 0 && <span className="thinking-pulse">{status.remaining} remaining</span>}
           </div>
-
-          <div>
-            <div className="flex justify-between text-[0.65rem] mb-1" style={{ color: 'var(--text-subtle)' }}>
-              <span>{status.processed} / {status.total} entries</span>
-              <span>{status.percentComplete}%</span>
-            </div>
-            <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
-              <div
-                className="h-full rounded-full transition-all duration-700"
-                style={{
-                  width: `${status.percentComplete}%`,
-                  background: status.remaining > 0 ? 'var(--text-subtle)' : 'var(--text-primary)',
-                  opacity: status.remaining > 0 ? 0.5 : 0.3,
-                }}
-              />
-            </div>
-            {status.remaining > 0 && (
-              <div className="text-[0.6rem] mt-1 thinking-pulse" style={{ color: 'var(--text-subtle)' }}>
-                {status.remaining} remaining
-              </div>
-            )}
+          <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
+            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${status.percentComplete}%`, background: 'var(--text-subtle)', opacity: status.remaining > 0 ? 0.5 : 0.3 }} />
           </div>
-
-          {status.editor.lastCycleAt && (
-            <div className="text-[0.6rem]" style={{ color: 'var(--text-subtle)' }}>
-              last ran {timeAgo(status.editor.lastCycleAt)}
-            </div>
-          )}
-
-          {status.recentLogs.length > 0 && (
-            <div className="space-y-1 pt-2 border-t" style={{ borderColor: 'var(--border-light)' }}>
-              {status.recentLogs.slice(0, 4).map((log, i) => (
-                <div key={i} className="text-[0.6rem] flex justify-between" style={{ color: 'var(--text-subtle)', opacity: 0.7 }}>
-                  <span className="truncate mr-2">{log.summary}</span>
-                  <span className="whitespace-nowrap flex-shrink-0">{timeAgo(log.time)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <button onClick={reprocess} disabled={reprocessing} className="rounded-lg px-3 py-1.5 text-[0.65rem] disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-primary)', color: 'var(--text-subtle)' }}>
+          <button onClick={reprocess} disabled={reprocessing} className="text-[0.65rem] bg-transparent border-none cursor-pointer disabled:opacity-50 p-0" style={{ color: 'var(--text-subtle)' }}>
             {reprocessing ? 'resetting...' : 're-process everything'}
           </button>
         </div>
@@ -230,11 +189,36 @@ function VaultSection({ userId }: { userId: string }) {
   );
 }
 
+function cleanModelName(raw: string): string {
+  let name = raw.includes('/') ? raw.split('/').pop()! : raw;
+  name = name
+    .replace(/-Reference.*$/, '')
+    .replace(/-Turbo.*$/, '')
+    .replace(/-Instruct.*$/, '')
+    .replace(/Meta-/g, '')
+    .replace(/-[0-9a-f]{6,}$/i, '')
+    .replace(/:.*$/, '')
+    .replace(/-fp\d+/i, '')
+    .replace(/-AWQ.*$/i, '')
+    .replace(/-GPTQ.*$/i, '')
+    .replace(/-GGUF.*$/i, '')
+    .replace(/-hf$/i, '')
+    .replace(/-/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return name
+    .replace(/^Llama/, 'Llama')
+    .replace(/\s(v?\d)/, ' $1');
+}
+
+interface TrainingExport { id: string; status: string; pair_count: number; created_at: string; resulting_model_id: string | null; training_job_id: string | null; }
+
 function PLMSection({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState<{ total: number; available: number; high_quality: number; tier: string; active_model: string } | null>(null);
-  const [training, setTraining] = useState(false);
-  const [message, setMessage] = useState('');
+  const [summary, setSummary] = useState<{
+    total: number; available: number; active_model: string;
+    recent_exports: TrainingExport[];
+  } | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -247,65 +231,38 @@ function PLMSection({ userId }: { userId: string }) {
     load();
   }, [userId]);
 
-  const startTraining = async () => {
-    setTraining(true);
-    setMessage('');
-    try {
-      const expRes = await fetch('/api/training/export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
-      });
-      if (!expRes.ok) { setMessage('export failed.'); setTraining(false); return; }
-      const exp = await expRes.json();
-      const trainRes = await fetch('/api/training/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, exportId: exp.exportId })
-      });
-      if (trainRes.ok) {
-        setMessage('training started.');
-      } else {
-        setMessage('training failed.');
-      }
-    } catch { setMessage('error.'); }
-    setTraining(false);
-  };
-
   if (loading) return <div className="py-12 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>;
 
   return (
     <div className="space-y-5">
       <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>PLM</h2>
-      <p className="text-xs" style={{ color: 'var(--text-subtle)' }}>personal language model — fine-tuned on your cognition.</p>
 
       {summary ? (
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl p-3" style={{ background: 'var(--bg-secondary)' }}>
-              <div className="text-xs opacity-50">training pairs</div>
-              <div className="text-lg">{summary.available}</div>
-            </div>
-            <div className="rounded-xl p-3" style={{ background: 'var(--bg-secondary)' }}>
-              <div className="text-xs opacity-50">tier</div>
-              <div className="text-lg">{summary.tier}</div>
-            </div>
+        <div className="space-y-1">
+          {/* Active model */}
+          <div className="flex items-center justify-between py-2.5 px-1">
+            <span className="text-sm" style={{ color: 'var(--text-primary)' }}>
+              {cleanModelName(summary.active_model)}
+            </span>
+            <span className="text-xs" style={{ color: 'var(--text-subtle)' }}>active</span>
           </div>
-          {summary.active_model && summary.active_model !== 'none' && (
-            <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>active model: {summary.active_model}</div>
-          )}
-          <button
-            onClick={startTraining}
-            disabled={training || summary.available < 10}
-            className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer"
-            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-          >
-            {training ? 'starting...' : 'train plm'}
-          </button>
-          {message && <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
+
+          {/* Previous exports as history */}
+          {summary.recent_exports
+            .filter(e => e.resulting_model_id && e.status === 'active' && e.resulting_model_id !== summary.active_model)
+            .map(e => (
+              <div key={e.id} className="flex items-center justify-between py-2.5 px-1">
+                <span className="text-sm" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
+                  {cleanModelName(e.resulting_model_id!)}
+                </span>
+                <button className="text-xs bg-transparent border-none cursor-pointer hover:opacity-70 p-0" style={{ color: 'var(--text-subtle)' }}>restore</button>
+              </div>
+            ))
+          }
+
         </div>
       ) : (
-        <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>no training data yet. chat with the editor to generate training pairs.</div>
+        <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>no training data yet.</div>
       )}
     </div>
   );
@@ -315,146 +272,108 @@ interface AuthoredWork { id: string; title: string; medium: string; content?: st
 interface CuratedInfluence { id: string; title: string; medium: string; annotation?: string; url?: string; }
 interface AuthorProfile { user_id?: string; display_name?: string; handle?: string; bio?: string; works_count?: number; influences_count?: number; }
 
-const MEDIUMS_WORK = ['essay', 'poetry', 'note', 'letter', 'reflection', 'speech', 'other'] as const;
-const MEDIUMS_INFLUENCE = ['book', 'film', 'music', 'playlist', 'video', 'podcast', 'essay', 'art', 'lecture', 'person', 'place', 'other'] as const;
-
-function PersonaCard({ persona, isYou, onClick }: { persona: AuthorProfile; isYou: boolean; onClick: () => void }) {
+function PersonaModal({ persona, onClose, works, influences, loading }: {
+  persona: AuthorProfile;
+  onClose: () => void;
+  works: AuthoredWork[];
+  influences: CuratedInfluence[];
+  loading: boolean;
+}) {
   const name = persona.display_name || persona.handle || 'unnamed';
-  const initial = name.charAt(0).toUpperCase();
 
   return (
-    <button
-      onClick={onClick}
-      className="w-full text-left rounded-2xl p-5 border-none cursor-pointer transition-all duration-300 hover:scale-[1.01]"
-      style={{ background: 'var(--bg-secondary)' }}
+    <div
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center"
+      onClick={onClose}
     >
-      <div className="flex items-start gap-4">
-        <div
-          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-light"
-          style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', opacity: 0.7 }}
-        >
-          {initial}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{name}</span>
-            {isYou && <span className="text-[0.6rem] italic" style={{ color: 'var(--text-subtle)' }}>you</span>}
-          </div>
-          {persona.handle && <div className="text-[0.7rem] mt-0.5" style={{ color: 'var(--text-subtle)' }}>@{persona.handle}</div>}
-          {persona.bio && (
-            <div className="text-xs mt-2 leading-relaxed line-clamp-2" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>
-              {persona.bio}
-            </div>
-          )}
-          <div className="flex gap-4 mt-3 text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
-            {(persona.works_count || 0) > 0 && <span>{persona.works_count} work{persona.works_count !== 1 ? 's' : ''}</span>}
-            {(persona.influences_count || 0) > 0 && <span>{persona.influences_count} curated</span>}
-          </div>
-        </div>
-      </div>
-    </button>
-  );
-}
-
-function WorkCard({ work, expanded, onToggle }: { work: AuthoredWork; expanded: boolean; onToggle: () => void }) {
-  return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)' }}>
-      <button
-        onClick={onToggle}
-        className="w-full text-left p-5 border-none bg-transparent cursor-pointer"
+      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} />
+      <div
+        className="relative w-full max-w-[560px] max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl p-6"
+        style={{ background: 'var(--bg-primary)' }}
+        onClick={e => e.stopPropagation()}
       >
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="text-sm font-medium italic" style={{ color: 'var(--text-primary)' }}>{work.title}</div>
-            <div className="text-[0.65rem] mt-1 tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>{work.medium}</div>
-          </div>
-          <div className="text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
-            {new Date(work.published_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-          </div>
-        </div>
-        {!expanded && work.summary && (
-          <div className="text-xs mt-3 leading-relaxed line-clamp-2" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
-            {work.summary}
+        <button onClick={onClose} className="absolute top-4 right-5 bg-transparent border-none cursor-pointer text-lg" style={{ color: 'var(--text-subtle)' }}>×</button>
+
+        {loading ? (
+          <div className="py-16 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>
+        ) : (
+          <div className="space-y-6">
+            <h2 className="text-xl font-extralight" style={{ color: 'var(--text-primary)' }}>{name}</h2>
+
+            {works.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>Works</div>
+                {works.map(w => (
+                  <div key={w.id} className="text-sm py-1" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>{w.title}</div>
+                ))}
+              </div>
+            )}
+
+            {influences.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>Influences</div>
+                {influences.map(inf => (
+                  inf.url ? (
+                    <a key={inf.id} href={inf.url} target="_blank" rel="noopener noreferrer" className="block text-sm py-1 no-underline truncate" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
+                      {inf.title || inf.url} <span style={{ color: 'var(--text-subtle)', fontSize: '0.6rem' }}>↗</span>
+                    </a>
+                  ) : (
+                    <div key={inf.id} className="text-sm py-1" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>{inf.title}</div>
+                  )
+                ))}
+              </div>
+            )}
+
+            {works.length === 0 && influences.length === 0 && (
+              <div className="py-6 text-center"><div className="text-xs italic" style={{ color: 'var(--text-subtle)' }}>nothing yet</div></div>
+            )}
           </div>
         )}
-      </button>
-      {expanded && work.content && (
-        <div className="px-5 pb-5">
-          <div className="pt-3 border-t" style={{ borderColor: 'var(--border-light)' }}>
-            <div className="text-[0.82rem] leading-[1.9] whitespace-pre-wrap" style={{ color: 'var(--text-primary)', opacity: 0.75 }}>
-              {work.content}
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
 
-function InfluenceCard({ influence }: { influence: CuratedInfluence }) {
-  const isLink = !!influence.url;
-  const Wrapper = isLink ? 'a' : 'div';
-  const linkProps = isLink ? { href: influence.url, target: '_blank' as const, rel: 'noopener noreferrer' } : {};
-
-  return (
-    <Wrapper
-      {...linkProps}
-      className={`block rounded-2xl p-4 no-underline transition-all duration-200 ${isLink ? 'hover:scale-[1.01] cursor-pointer' : ''}`}
-      style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-sm" style={{ color: 'var(--text-primary)' }}>{influence.title}</div>
-          <div className="text-[0.65rem] mt-0.5 tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>{influence.medium}</div>
-        </div>
-        {isLink && (
-          <span className="text-[0.6rem] flex-shrink-0 mt-1" style={{ color: 'var(--text-subtle)' }}>↗</span>
-        )}
-      </div>
-      {influence.annotation && (
-        <div className="text-xs mt-2 leading-relaxed italic" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
-          {influence.annotation}
-        </div>
-      )}
-    </Wrapper>
-  );
-}
-
-type LibraryView = 'browse' | 'persona' | 'edit';
-
 function LibrarySection({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<LibraryView>('browse');
   const [personas, setPersonas] = useState<AuthorProfile[]>([]);
-  const [viewingUserId, setViewingUserId] = useState<string | null>(null);
-  const [viewProfile, setViewProfile] = useState<AuthorProfile>({});
-  const [viewWorks, setViewWorks] = useState<AuthoredWork[]>([]);
-  const [viewInfluences, setViewInfluences] = useState<CuratedInfluence[]>([]);
-  const [expandedWork, setExpandedWork] = useState<string | null>(null);
-  const [loadingPersona, setLoadingPersona] = useState(false);
-
-  // Edit states
-  const [editName, setEditName] = useState('');
-  const [editHandle, setEditHandle] = useState('');
-  const [editBio, setEditBio] = useState('');
+  const [myProfile, setMyProfile] = useState<AuthorProfile>({});
+  const [myWorks, setMyWorks] = useState<AuthoredWork[]>([]);
+  const [myInfluences, setMyInfluences] = useState<CuratedInfluence[]>([]);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
-  const [editTab, setEditTab] = useState<'profile' | 'work' | 'curation'>('profile');
+
+  const [showMyModal, setShowMyModal] = useState(false);
+  const [modalPersona, setModalPersona] = useState<AuthorProfile | null>(null);
+  const [modalWorks, setModalWorks] = useState<AuthoredWork[]>([]);
+  const [modalInfluences, setModalInfluences] = useState<CuratedInfluence[]>([]);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [linkInput, setLinkInput] = useState('');
+  const [linkTitle, setLinkTitle] = useState('');
   const [workTitle, setWorkTitle] = useState('');
-  const [workMedium, setWorkMedium] = useState<string>('essay');
-  const [workContent, setWorkContent] = useState('');
-  const [infTitle, setInfTitle] = useState('');
-  const [infMedium, setInfMedium] = useState<string>('book');
-  const [infAnnotation, setInfAnnotation] = useState('');
-  const [infUrl, setInfUrl] = useState('');
+  const [showWorkTitle, setShowWorkTitle] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const pendingFileRef = useRef<File | null>(null);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch('/api/neo-biography?browse=true');
-        if (res.ok) {
-          const data = await res.json();
-          setPersonas(data.personas || []);
+        const [browseRes, myRes] = await Promise.all([
+          fetch('/api/neo-biography?browse=true'),
+          fetch(`/api/neo-biography?userId=${userId}`)
+        ]);
+        if (browseRes.ok) {
+          const d = await browseRes.json();
+          setPersonas((d.personas || []).filter((p: AuthorProfile) => p.user_id !== userId));
+        }
+        if (myRes.ok) {
+          const d = await myRes.json();
+          setMyProfile(d.profile || {});
+          setMyWorks(d.works || []);
+          setMyInfluences(d.influences || []);
         }
       } catch {}
       setLoading(false);
@@ -462,318 +381,288 @@ function LibrarySection({ userId }: { userId: string }) {
     load();
   }, [userId]);
 
-  const openPersona = async (targetId: string) => {
-    setLoadingPersona(true);
-    setViewingUserId(targetId);
-    setView('persona');
-    setExpandedWork(null);
+  const openOtherModal = async (targetId: string) => {
+    const p = personas.find(x => x.user_id === targetId);
+    if (p) setModalPersona(p);
+    setModalLoading(true);
     try {
       const res = await fetch(`/api/neo-biography?userId=${targetId}`);
       if (res.ok) {
         const data = await res.json();
-        setViewProfile(data.profile || {});
-        setViewWorks(data.works || []);
-        setViewInfluences(data.influences || []);
+        setModalPersona(data.profile || p);
+        setModalWorks(data.works || []);
+        setModalInfluences(data.influences || []);
       }
     } catch {}
-    setLoadingPersona(false);
+    setModalLoading(false);
   };
 
-  const openEdit = async () => {
-    setView('edit');
-    setMessage('');
-    setEditTab('profile');
+  const handleFileSelected = (file: File) => {
+    pendingFileRef.current = file;
+    setWorkTitle(file.name.replace(/\.[^/.]+$/, ''));
+    setShowWorkTitle(true);
+  };
+
+  const submitWork = async () => {
+    const file = pendingFileRef.current;
+    if (!file) return;
+    setSaving(true);
+    const text = await file.text();
+    const title = workTitle.trim() || file.name;
     try {
-      const res = await fetch(`/api/neo-biography?userId=${userId}`);
+      const res = await fetch('/api/neo-biography', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'publish', userId, title, content: text, medium: 'other' })
+      });
       if (res.ok) {
         const data = await res.json();
-        const p = data.profile || {};
-        setEditName(p.display_name || '');
-        setEditHandle(p.handle || '');
-        setEditBio(p.bio || '');
-        setViewWorks(data.works || []);
-        setViewInfluences(data.influences || []);
+        setMyWorks(prev => [data.work, ...prev]);
+        setShowWorkTitle(false);
+        setWorkTitle('');
+        pendingFileRef.current = null;
       }
+    } catch {}
+    setSaving(false);
+  };
+
+  const addLink = async () => {
+    const url = linkInput.trim();
+    if (!url) return;
+    setSaving(true);
+    const title = linkTitle.trim() || url;
+    try {
+      const res = await fetch('/api/neo-biography', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_influence', userId, title, medium: 'other', url })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMyInfluences(prev => [data.influence, ...prev]);
+        setLinkInput('');
+        setLinkTitle('');
+        setShowLinkInput(false);
+      }
+    } catch {}
+    setSaving(false);
+  };
+
+  const deleteWork = async (id: string) => {
+    try {
+      const res = await fetch('/api/neo-biography', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_work', id, userId })
+      });
+      if (res.ok) setMyWorks(prev => prev.filter(w => w.id !== id));
     } catch {}
   };
 
-  const saveProfile = async () => {
-    setSaving(true); setMessage('');
+  const deleteInfluence = async (id: string) => {
     try {
       const res = await fetch('/api/neo-biography', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'update_profile', userId, displayName: editName, handle: editHandle, bio: editBio })
+        body: JSON.stringify({ action: 'delete_influence', id, userId })
       });
-      if (res.ok) {
-        setMessage('saved.');
-        setPersonas(prev => {
-          const exists = prev.find(p => p.user_id === userId);
-          if (exists) return prev.map(p => p.user_id === userId ? { ...p, display_name: editName, handle: editHandle, bio: editBio } : p);
-          return [{ user_id: userId, display_name: editName, handle: editHandle, bio: editBio, works_count: 0, influences_count: 0 }, ...prev];
-        });
-      }
-    } catch {} setSaving(false);
+      if (res.ok) setMyInfluences(prev => prev.filter(i => i.id !== id));
+    } catch {}
   };
 
-  const publishWork = async () => {
-    if (!workTitle.trim() || !workContent.trim()) return;
-    setSaving(true); setMessage('');
+  const renameItem = async (id: string, type: 'work' | 'influence', title: string) => {
+    const action = type === 'work' ? 'rename_work' : 'rename_influence';
     try {
       const res = await fetch('/api/neo-biography', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'publish', userId, title: workTitle, content: workContent, medium: workMedium })
+        body: JSON.stringify({ action, id, userId, title })
       });
       if (res.ok) {
-        const data = await res.json();
-        setViewWorks(prev => [data.work, ...prev]);
-        setWorkTitle(''); setWorkContent(''); setMessage('published.');
-        setPersonas(prev => prev.map(p => p.user_id === userId ? { ...p, works_count: (p.works_count || 0) + 1 } : p));
+        if (type === 'work') setMyWorks(prev => prev.map(w => w.id === id ? { ...w, title } : w));
+        else setMyInfluences(prev => prev.map(i => i.id === id ? { ...i, title } : i));
+        setEditingId(null);
       }
-    } catch {} setSaving(false);
-  };
-
-  const addInfluence = async () => {
-    if (!infTitle.trim()) return;
-    setSaving(true); setMessage('');
-    try {
-      const res = await fetch('/api/neo-biography', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'add_influence', userId, title: infTitle, medium: infMedium, annotation: infAnnotation, url: infUrl })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setViewInfluences(prev => [data.influence, ...prev]);
-        setInfTitle(''); setInfAnnotation(''); setInfUrl(''); setMessage('added.');
-        setPersonas(prev => prev.map(p => p.user_id === userId ? { ...p, influences_count: (p.influences_count || 0) + 1 } : p));
-      }
-    } catch {} setSaving(false);
+    } catch {}
   };
 
   if (loading) return <div className="py-16 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>;
 
-  const inputStyle = { background: 'var(--bg-secondary)', color: 'var(--text-primary)' };
-
-  // ── Browse view: gallery of all personas ──
-  if (view === 'browse') {
-    return (
-      <div className="space-y-6">
-        <div className="pt-2">
-          <h2 className="text-lg font-extralight tracking-wide" style={{ color: 'var(--text-primary)' }}>Library</h2>
-          <p className="text-xs mt-1 italic" style={{ color: 'var(--text-subtle)' }}>every mind, a world</p>
-        </div>
-
-        <button
-          onClick={openEdit}
-          className="w-full text-left rounded-2xl p-5 border-2 border-dashed cursor-pointer transition-all duration-300 hover:scale-[1.01] bg-transparent"
-          style={{ borderColor: 'var(--border-light)', color: 'var(--text-primary)' }}
-        >
-          <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>your biography</div>
-          <div className="text-sm mt-1 font-light">write, curate, publish</div>
-        </button>
-
-        {personas.length > 0 ? (
-          <div className="space-y-3">
-            {personas.map(p => (
-              <PersonaCard
-                key={p.user_id}
-                persona={p}
-                isYou={p.user_id === userId}
-                onClick={() => openPersona(p.user_id!)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="py-8 text-center">
-            <div className="text-xs italic" style={{ color: 'var(--text-subtle)' }}>no biographies yet — be the first</div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // ── Persona view: reading someone's biography ──
-  if (view === 'persona') {
-    const name = viewProfile.display_name || viewProfile.handle || 'unnamed';
-    const isYou = viewingUserId === userId;
-
-    if (loadingPersona) return <div className="py-16 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>;
-
-    return (
-      <div className="space-y-6">
-        <button
-          onClick={() => setView('browse')}
-          className="text-[0.7rem] bg-transparent border-none cursor-pointer"
-          style={{ color: 'var(--text-subtle)' }}
-        >
-          ← library
-        </button>
-
-        {/* Header */}
-        <div className="pt-2 pb-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
-          <h2 className="text-xl font-extralight" style={{ color: 'var(--text-primary)' }}>{name}</h2>
-          {viewProfile.handle && (
-            <div className="text-xs mt-1" style={{ color: 'var(--text-subtle)' }}>@{viewProfile.handle}</div>
-          )}
-          {viewProfile.bio && (
-            <div className="text-sm mt-4 leading-relaxed font-light" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
-              {viewProfile.bio}
-            </div>
-          )}
-          {isYou && (
-            <button
-              onClick={openEdit}
-              className="mt-4 text-[0.65rem] bg-transparent border-none cursor-pointer underline"
-              style={{ color: 'var(--text-subtle)' }}
-            >
-              edit your biography
-            </button>
-          )}
-        </div>
-
-        {/* Works */}
-        {viewWorks.length > 0 && (
-          <div className="space-y-3">
-            <div className="text-[0.7rem] tracking-wider uppercase font-medium" style={{ color: 'var(--text-subtle)' }}>Works</div>
-            {viewWorks.map(w => (
-              <WorkCard
-                key={w.id}
-                work={w}
-                expanded={expandedWork === w.id}
-                onToggle={() => setExpandedWork(expandedWork === w.id ? null : w.id)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Curated */}
-        {viewInfluences.length > 0 && (
-          <div className="space-y-3">
-            <div className="text-[0.7rem] tracking-wider uppercase font-medium" style={{ color: 'var(--text-subtle)' }}>Curated</div>
-            {viewInfluences.map(inf => (
-              <InfluenceCard key={inf.id} influence={inf} />
-            ))}
-          </div>
-        )}
-
-        {viewWorks.length === 0 && viewInfluences.length === 0 && (
-          <div className="py-8 text-center">
-            <div className="text-xs italic" style={{ color: 'var(--text-subtle)' }}>
-              {isYou ? 'your canvas is empty — start writing' : 'nothing published yet'}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // ── Edit view: create your biography ──
-  const editTabs: { id: typeof editTab; label: string }[] = [
-    { id: 'profile', label: 'profile' },
-    { id: 'work', label: 'publish' },
-    { id: 'curation', label: 'curate' },
-  ];
+  const myName = myProfile.display_name || myProfile.handle || 'you';
 
   return (
     <div className="space-y-6">
+      {/* Quote */}
+      <div className="pt-6 pb-2 text-center">
+        <div className="text-[0.82rem] italic leading-relaxed font-light" style={{ color: 'var(--text-primary)', opacity: 0.4 }}>
+          &ldquo;Make something wonderful and put it out there.&rdquo;
+        </div>
+        <div className="text-[0.6rem] mt-2 tracking-widest uppercase" style={{ color: 'var(--text-subtle)' }}>Steve Jobs</div>
+      </div>
+
+      {/* Your name — click to open editing modal */}
       <button
-        onClick={() => setView('browse')}
-        className="text-[0.7rem] bg-transparent border-none cursor-pointer"
-        style={{ color: 'var(--text-subtle)' }}
+        onClick={() => setShowMyModal(true)}
+        className="w-full text-left bg-transparent border-none cursor-pointer p-0"
       >
-        ← library
+        <div className="text-lg font-extralight" style={{ color: 'var(--text-primary)' }}>{myName}</div>
+        <div className="text-[0.6rem] mt-0.5 flex gap-3" style={{ color: 'var(--text-subtle)' }}>
+          {myWorks.length > 0 && <span>{myWorks.length} work{myWorks.length !== 1 ? 's' : ''}</span>}
+          {myInfluences.length > 0 && <span>{myInfluences.length} influence{myInfluences.length !== 1 ? 's' : ''}</span>}
+          {myWorks.length === 0 && myInfluences.length === 0 && <span>tap to add works &amp; influences</span>}
+        </div>
       </button>
 
-      <div className="pt-2">
-        <h2 className="text-lg font-extralight tracking-wide" style={{ color: 'var(--text-primary)' }}>Your Biography</h2>
-        <p className="text-xs mt-1 italic" style={{ color: 'var(--text-subtle)' }}>what you create, what shaped you</p>
-      </div>
-
-      <div className="flex gap-4" style={{ borderBottom: '1px solid var(--border-light)' }}>
-        {editTabs.map(t => (
-          <button
-            key={t.id}
-            onClick={() => { setEditTab(t.id); setMessage(''); }}
-            className="pb-2.5 text-xs bg-transparent border-none cursor-pointer transition-all"
-            style={{
-              color: 'var(--text-primary)',
-              opacity: editTab === t.id ? 0.9 : 0.35,
-              borderBottom: editTab === t.id ? '1.5px solid var(--text-primary)' : '1.5px solid transparent',
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {editTab === 'profile' && (
-        <div className="space-y-3">
-          <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="display name" className="w-full rounded-xl px-4 py-3 text-sm border-none outline-none" style={inputStyle} />
-          <input value={editHandle} onChange={e => setEditHandle(e.target.value)} placeholder="handle" className="w-full rounded-xl px-4 py-3 text-sm border-none outline-none" style={inputStyle} />
-          <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="who you are, in your own words" className="w-full min-h-[100px] rounded-xl px-4 py-3 text-sm border-none outline-none leading-relaxed" style={inputStyle} />
-          <button onClick={saveProfile} disabled={saving} className="rounded-xl px-4 py-2.5 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-            {saving ? 'saving...' : 'save'}
-          </button>
-        </div>
-      )}
-
-      {editTab === 'work' && (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <input value={workTitle} onChange={e => setWorkTitle(e.target.value)} placeholder="title" className="w-full rounded-xl px-4 py-3 text-sm border-none outline-none" style={inputStyle} />
-            <select value={workMedium} onChange={e => setWorkMedium(e.target.value)} className="w-full rounded-xl px-4 py-3 text-xs border-none outline-none" style={inputStyle}>
-              {MEDIUMS_WORK.map(m => <option key={m} value={m}>{m}</option>)}
-            </select>
-            <textarea value={workContent} onChange={e => setWorkContent(e.target.value)} placeholder="your work — frozen once published" className="w-full min-h-[160px] rounded-xl px-4 py-3 text-sm border-none outline-none leading-relaxed" style={inputStyle} />
-            <button onClick={publishWork} disabled={saving || !workTitle.trim() || !workContent.trim()} className="rounded-xl px-4 py-2.5 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-              {saving ? 'publishing...' : 'publish'}
-            </button>
+      {/* Separator + other personas */}
+      {personas.length > 0 && (
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 h-px" style={{ background: 'var(--border-light)' }} />
+            <span className="text-[0.6rem] tracking-widest uppercase" style={{ color: 'var(--text-subtle)' }}>others</span>
+            <div className="flex-1 h-px" style={{ background: 'var(--border-light)' }} />
           </div>
-
-          {viewWorks.length > 0 && (
-            <div className="pt-4 border-t space-y-2" style={{ borderColor: 'var(--border-light)' }}>
-              <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>published</div>
-              {viewWorks.map(w => (
-                <div key={w.id} className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
-                  <div className="flex justify-between items-baseline">
-                    <span className="text-sm italic">{w.title}</span>
-                    <span className="text-[0.6rem]" style={{ color: 'var(--text-subtle)' }}>
-                      {new Date(w.published_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                    </span>
+          <div className="space-y-1">
+            {personas.map(p => {
+              const pName = p.display_name || p.handle || 'unnamed';
+              return (
+                <button
+                  key={p.user_id}
+                  onClick={() => openOtherModal(p.user_id!)}
+                  className="w-full text-left py-2 px-0 border-none cursor-pointer bg-transparent flex items-center gap-3 transition-opacity hover:opacity-80"
+                >
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[0.6rem] font-light" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', opacity: 0.6 }}>
+                    {pName.charAt(0).toUpperCase()}
                   </div>
-                  <div className="text-[0.65rem] mt-0.5 tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>{w.medium}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {editTab === 'curation' && (
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <input value={infTitle} onChange={e => setInfTitle(e.target.value)} placeholder="what shaped you" className="w-full rounded-xl px-4 py-3 text-sm border-none outline-none" style={inputStyle} />
-            <select value={infMedium} onChange={e => setInfMedium(e.target.value)} className="w-full rounded-xl px-4 py-3 text-xs border-none outline-none" style={inputStyle}>
-              {MEDIUMS_INFLUENCE.map(m => <option key={m} value={m}>{m}</option>)}
-            </select>
-            <textarea value={infAnnotation} onChange={e => setInfAnnotation(e.target.value)} placeholder="why this matters to you" className="w-full min-h-[80px] rounded-xl px-4 py-3 text-sm border-none outline-none leading-relaxed" style={inputStyle} />
-            <input value={infUrl} onChange={e => setInfUrl(e.target.value)} placeholder="link — youtube, spotify, website, anything" className="w-full rounded-xl px-4 py-3 text-sm border-none outline-none" style={inputStyle} />
-            <button onClick={addInfluence} disabled={saving || !infTitle.trim()} className="rounded-xl px-4 py-2.5 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-              {saving ? 'adding...' : 'add'}
-            </button>
+                  <span className="text-sm" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>{pName}</span>
+                </button>
+              );
+            })}
           </div>
-
-          {viewInfluences.length > 0 && (
-            <div className="pt-4 border-t space-y-2" style={{ borderColor: 'var(--border-light)' }}>
-              <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>curated</div>
-              {viewInfluences.map(inf => (
-                <InfluenceCard key={inf.id} influence={inf} />
-              ))}
-            </div>
-          )}
         </div>
       )}
 
-      {message && <div className="text-xs mt-2 italic" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
+      {/* My editing modal */}
+      {showMyModal && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" onClick={() => setShowMyModal(false)}>
+          <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} />
+          <div
+            className="relative w-full max-w-[560px] max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl p-6"
+            style={{ background: 'var(--bg-primary)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button onClick={() => setShowMyModal(false)} className="absolute top-4 right-5 bg-transparent border-none cursor-pointer text-lg" style={{ color: 'var(--text-subtle)' }}>×</button>
+
+            <div className="space-y-6">
+              <div className="text-lg font-extralight" style={{ color: 'var(--text-primary)' }}>{myName}</div>
+
+              {/* Works section */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>Works</div>
+                  <label className="text-[0.65rem] cursor-pointer" style={{ color: 'var(--text-subtle)' }}>
+                    {saving ? '...' : '+'}
+                    <input
+                      type="file"
+                      accept=".pdf,.md,.txt,.doc,.docx"
+                      className="hidden"
+                      onChange={e => { if (e.target.files?.[0]) handleFileSelected(e.target.files[0]); e.currentTarget.value = ''; }}
+                    />
+                  </label>
+                </div>
+
+                {showWorkTitle && (
+                  <div className="flex gap-2 items-center">
+                    <input value={workTitle} onChange={e => setWorkTitle(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') submitWork(); }} placeholder="title" autoFocus className="flex-1 rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                    <button onClick={submitWork} disabled={saving} className="text-xs bg-transparent border-none cursor-pointer disabled:opacity-50" style={{ color: 'var(--text-primary)' }}>{saving ? '...' : 'add'}</button>
+                    <button onClick={() => { setShowWorkTitle(false); pendingFileRef.current = null; }} className="text-xs bg-transparent border-none cursor-pointer" style={{ color: 'var(--text-subtle)' }}>×</button>
+                  </div>
+                )}
+
+                {myWorks.map(w => (
+                  <div key={w.id} className="flex items-center justify-between py-2 group">
+                    {editingId === w.id ? (
+                      <input
+                        value={editingTitle}
+                        onChange={e => setEditingTitle(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') renameItem(w.id, 'work', editingTitle); if (e.key === 'Escape') setEditingId(null); }}
+                        onBlur={() => renameItem(w.id, 'work', editingTitle)}
+                        autoFocus
+                        className="flex-1 text-sm border-none outline-none bg-transparent"
+                        style={{ color: 'var(--text-primary)' }}
+                      />
+                    ) : (
+                      <button onClick={() => { setEditingId(w.id); setEditingTitle(w.title); }} className="text-sm bg-transparent border-none cursor-pointer text-left p-0 flex-1" style={{ color: 'var(--text-primary)' }}>
+                        {w.title}
+                      </button>
+                    )}
+                    <button onClick={() => deleteWork(w.id)} className="text-[0.6rem] bg-transparent border-none cursor-pointer opacity-0 group-hover:opacity-40 transition-opacity ml-3" style={{ color: 'var(--text-primary)' }}>×</button>
+                  </div>
+                ))}
+
+                {myWorks.length === 0 && !showWorkTitle && (
+                  <div className="text-xs italic py-2" style={{ color: 'var(--text-subtle)' }}>no works yet</div>
+                )}
+              </div>
+
+              {/* Influences section */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>Influences</div>
+                  <button onClick={() => setShowLinkInput(!showLinkInput)} className="text-[0.65rem] bg-transparent border-none cursor-pointer p-0" style={{ color: 'var(--text-subtle)' }}>+</button>
+                </div>
+
+                {showLinkInput && (
+                  <div className="space-y-2">
+                    <input value={linkInput} onChange={e => setLinkInput(e.target.value)} placeholder="paste a link" autoFocus className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                    <div className="flex gap-2 items-center">
+                      <input value={linkTitle} onChange={e => setLinkTitle(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addLink(); }} placeholder="title (optional)" className="flex-1 rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                      <button onClick={addLink} disabled={saving || !linkInput.trim()} className="text-xs bg-transparent border-none cursor-pointer disabled:opacity-50" style={{ color: 'var(--text-primary)' }}>{saving ? '...' : 'add'}</button>
+                    </div>
+                  </div>
+                )}
+
+                {myInfluences.map(inf => (
+                  <div key={inf.id} className="flex items-center justify-between py-2 group">
+                    {editingId === inf.id ? (
+                      <input
+                        value={editingTitle}
+                        onChange={e => setEditingTitle(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') renameItem(inf.id, 'influence', editingTitle); if (e.key === 'Escape') setEditingId(null); }}
+                        onBlur={() => renameItem(inf.id, 'influence', editingTitle)}
+                        autoFocus
+                        className="flex-1 text-sm border-none outline-none bg-transparent"
+                        style={{ color: 'var(--text-primary)' }}
+                      />
+                    ) : (
+                      <div className="flex-1 min-w-0">
+                        <button onClick={() => { setEditingId(inf.id); setEditingTitle(inf.title); }} className="text-sm bg-transparent border-none cursor-pointer text-left p-0 block" style={{ color: 'var(--text-primary)' }}>
+                          {inf.title !== inf.url ? inf.title : ''}
+                        </button>
+                        {inf.url && (
+                          <a href={inf.url} target="_blank" rel="noopener noreferrer" className="text-[0.6rem] truncate block no-underline" style={{ color: 'var(--text-subtle)' }}>
+                            {inf.url} ↗
+                          </a>
+                        )}
+                      </div>
+                    )}
+                    <button onClick={() => deleteInfluence(inf.id)} className="text-[0.6rem] bg-transparent border-none cursor-pointer opacity-0 group-hover:opacity-40 transition-opacity ml-3 flex-shrink-0" style={{ color: 'var(--text-primary)' }}>×</button>
+                  </div>
+                ))}
+
+                {myInfluences.length === 0 && !showLinkInput && (
+                  <div className="text-xs italic py-2" style={{ color: 'var(--text-subtle)' }}>no influences yet</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Other persona modal */}
+      {modalPersona && (
+        <PersonaModal
+          persona={modalPersona}
+          onClose={() => { setModalPersona(null); setModalWorks([]); setModalInfluences([]); }}
+          works={modalWorks}
+          influences={modalInfluences}
+          loading={modalLoading}
+        />
+      )}
     </div>
   );
 }
@@ -1029,28 +918,27 @@ export default function Alexandria() {
     return () => clearInterval(interval);
   }, [isAuthenticated, userId]);
 
-  // Auto-scroll for training and output mode conversations
+  // Auto-scroll for all conversation modes
   useEffect(() => {
-    if ((mode === 'training' || mode === 'output') && outputScrollRef.current) {
-      // Small delay to ensure DOM has updated
+    if (outputScrollRef.current) {
       setTimeout(() => {
         outputScrollRef.current?.scrollTo({
           top: outputScrollRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
-    }, 100);
-  }
-  }, [trainingMessages, outputMessages, mode]);
+          behavior: 'smooth'
+        });
+      }, 100);
+    }
+  }, [trainingMessages, outputMessages, inputMessages, mode]);
 
-  // Auto-scroll during streaming in training/output mode
+  // Auto-scroll during streaming
   useEffect(() => {
-    if ((mode === 'training' || mode === 'output') && outputContent && outputScrollRef.current) {
+    if (outputContent && outputScrollRef.current) {
       outputScrollRef.current.scrollTo({
         top: outputScrollRef.current.scrollHeight,
         behavior: 'smooth'
       });
     }
-  }, [outputContent, mode]);
+  }, [outputContent]);
 
   const showStatus = (message: string, isThinking = false) => {
     if (isThinking) {
@@ -1766,64 +1654,75 @@ export default function Alexandria() {
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 z-50 relative">
-        <div className="relative min-w-[60px]" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => setShowNav(prev => !prev)}
-            className="bg-transparent border-none text-[0.7rem] cursor-pointer opacity-25 hover:opacity-50 transition-opacity flex items-center gap-1"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            {username}
-            <ChevronDown size={10} strokeWidth={1.5} className={`transition-transform ${showNav ? 'rotate-180' : ''}`} />
-          </button>
-          {showNav && (
-            <div
-              className="absolute top-7 left-0 z-50 rounded-xl py-2 min-w-[140px] shadow-lg"
-              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}
+      <div className="z-50 relative px-5 py-4">
+        <div className="max-w-[740px] mx-auto flex items-center justify-between relative">
+          <div className="relative min-w-[60px]" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowNav(prev => !prev)}
+              className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-35 hover:opacity-55 transition-opacity flex items-center gap-1"
+              style={{ color: 'var(--text-primary)' }}
             >
-              <button
-                onClick={() => { setActiveSection(null); setShowNav(false); }}
-                className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer transition-opacity"
-                style={{ color: 'var(--text-primary)', opacity: activeSection === null ? 0.9 : 0.5 }}
+              {username}
+              <ChevronDown size={10} strokeWidth={1.5} className={`transition-transform ${showNav ? 'rotate-180' : ''}`} />
+            </button>
+            {showNav && (
+              <div
+                className="absolute top-7 left-0 z-50 rounded-xl py-2 min-w-[140px] shadow-lg"
+                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}
               >
-                Chat
-              </button>
-              {(['vault', 'constitution', 'plm', 'library'] as const).map(section => (
                 <button
-                  key={section}
-                  onClick={() => { setActiveSection(section); setShowNav(false); }}
+                  onClick={() => { setActiveSection(null); setShowNav(false); }}
                   className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer transition-opacity"
-                  style={{
-                    color: 'var(--text-primary)',
-                    opacity: activeSection === section ? 0.9 : 0.5,
-                  }}
+                  style={{ color: 'var(--text-primary)', opacity: activeSection === null ? 0.9 : 0.5 }}
                 >
-                  {section.charAt(0).toUpperCase() + section.slice(1)}{section === 'constitution' && rlaifReviewCount > 0 ? ` · ${rlaifReviewCount}` : ''}
+                  Chat
                 </button>
-              ))}
-              <div className="my-1.5 mx-3" style={{ borderTop: '1px solid var(--border-light)' }} />
-              <button
-                onClick={() => { handleLogout(); setShowNav(false); }}
-                className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-60 transition-opacity"
-                style={{ color: 'var(--text-primary)' }}
-              >
-                sign out
-              </button>
-            </div>
-          )}
+                {(['vault', 'constitution', 'plm', 'library'] as const).map(section => (
+                  <button
+                    key={section}
+                    onClick={() => { setActiveSection(section); setShowNav(false); }}
+                    className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer transition-opacity"
+                    style={{
+                      color: 'var(--text-primary)',
+                      opacity: activeSection === section ? 0.9 : 0.5,
+                    }}
+                  >
+                    {section.charAt(0).toUpperCase() + section.slice(1)}{section === 'constitution' && rlaifReviewCount > 0 ? ` · ${rlaifReviewCount}` : ''}
+                  </button>
+                ))}
+                <div className="my-1.5 mx-3" style={{ borderTop: '1px solid var(--border-light)' }} />
+                <button
+                  onClick={() => { handleLogout(); setShowNav(false); }}
+                  className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-60 transition-opacity"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  sign out
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none opacity-65">
+            <div className="text-[0.85rem] tracking-wide" style={{ color: 'var(--text-primary)' }}>alexandria.</div>
+            <div className="text-[0.7rem] italic opacity-70" style={{ color: 'var(--text-primary)' }}>mentes aeternae</div>
+          </div>
+          <button
+            onClick={toggleTheme}
+            className="bg-transparent border-none cursor-pointer opacity-35 hover:opacity-55 transition-opacity p-1"
+            style={{ color: 'var(--text-primary)' }}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            {theme === 'light' ? (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+              </svg>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            )}
+          </button>
         </div>
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none">
-          <div className="text-[0.95rem] font-extralight tracking-[0.2em]" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>Alexandria</div>
-          <div className="text-[0.58rem] italic mt-0.5 tracking-[0.15em]" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>mentes aeternae</div>
-        </div>
-        <button
-          onClick={toggleTheme}
-          className="bg-transparent border-none cursor-pointer opacity-25 hover:opacity-50 transition-opacity p-1"
-          style={{ color: 'var(--text-primary)' }}
-          aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-        >
-          {theme === 'light' ? <Sun size={16} strokeWidth={1.5} /> : <Moon size={16} strokeWidth={1.5} />}
-        </button>
       </div>
 
       {/* Content */}
@@ -1840,38 +1739,34 @@ export default function Alexandria() {
         ) : (
           <div className={`max-w-[640px] mx-auto px-5 ${isEmpty ? 'h-full' : 'pt-1 pb-8'}`}>
             {!isEmpty && (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {currentMessages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={message.role === 'user' ? 'text-right' : 'text-left'}
                   >
                     <div
-                      className="max-w-[82%] rounded-2xl px-4 py-2.5"
+                      className="text-[0.88rem] leading-[1.8] whitespace-pre-wrap inline-block text-left max-w-[85%]"
                       style={{
-                        background: message.role === 'user' ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
-                        color: message.role === 'user' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                        color: message.role === 'user' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                        opacity: message.role === 'user' ? 0.55 : 0.85
                       }}
                     >
-                      <div className="text-[0.82rem] leading-[1.75] whitespace-pre-wrap">
-                        {message.version && message.version > 1 && (
-                          <span className="text-[0.68rem] mr-1" style={{ color: 'var(--text-subtle)' }}>/{message.version}</span>
-                        )}
-                        {message.content}
-                      </div>
+                      {message.version && message.version > 1 && (
+                        <span className="text-[0.68rem] mr-1" style={{ color: 'var(--text-subtle)' }}>/{message.version}</span>
+                      )}
+                      {message.content}
                     </div>
                   </div>
                 ))}
                 {showThinking && !outputContent && (
-                  <div className="flex justify-start px-1">
-                    <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>thinking</span>
+                  <div className="text-left">
+                    <span className="text-[0.75rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.35 }}>thinking</span>
                   </div>
                 )}
                 {outputContent && (
-                  <div className="flex justify-start">
-                    <div className="max-w-[82%] rounded-2xl px-4 py-2.5" style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
-                      <div className="text-[0.82rem] leading-[1.75] whitespace-pre-wrap">{outputContent}</div>
-                    </div>
+                  <div className="text-left">
+                    <div className="text-[0.88rem] leading-[1.8] whitespace-pre-wrap inline-block text-left max-w-[85%]" style={{ color: 'var(--text-secondary)', opacity: 0.85 }}>{outputContent}</div>
                   </div>
                 )}
               </div>
@@ -1887,15 +1782,15 @@ export default function Alexandria() {
             <div className="flex items-center justify-center gap-3 mb-3">
               <button
                 onClick={() => setMode('input')}
-                className={`bg-transparent border-none text-[0.66rem] cursor-pointer transition-opacity duration-300 ${mode === 'input' ? 'opacity-45' : 'opacity-12 hover:opacity-25'}`}
+                className={`bg-transparent border-none text-[0.75rem] cursor-pointer transition-opacity duration-300 ${mode === 'input' ? 'opacity-60' : 'opacity-20 hover:opacity-35'}`}
                 style={{ color: 'var(--text-primary)' }}
               >
                 editor
               </button>
-              <span className="text-[0.4rem]" style={{ color: 'var(--text-primary)', opacity: 0.08 }}>·</span>
+              <span className="text-[0.45rem]" style={{ color: 'var(--text-primary)', opacity: 0.12 }}>·</span>
               <button
                 onClick={() => setMode('output')}
-                className={`bg-transparent border-none text-[0.66rem] cursor-pointer transition-opacity duration-300 ${mode === 'output' ? 'opacity-45' : 'opacity-12 hover:opacity-25'}`}
+                className={`bg-transparent border-none text-[0.75rem] cursor-pointer transition-opacity duration-300 ${mode === 'output' ? 'opacity-60' : 'opacity-20 hover:opacity-35'}`}
                 style={{ color: 'var(--text-primary)' }}
               >
                 orchestrator
@@ -1930,7 +1825,7 @@ export default function Alexandria() {
               />
               <button
                 onClick={handleSubmit}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-lg cursor-pointer opacity-12 hover:opacity-35 transition-opacity scale-y-[0.8]"
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-lg cursor-pointer opacity-20 hover:opacity-40 transition-opacity scale-y-[0.8]"
                 style={{ color: 'var(--text-primary)' }}
               >
                 →

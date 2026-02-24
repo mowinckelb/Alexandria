@@ -105,75 +105,61 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
   return (
     <div className="h-screen flex flex-col items-center justify-center px-8 relative" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 p-6 text-center text-[0.85rem] opacity-55 z-50" style={{ background: 'var(--bg-primary)' }}>
-        <div className="flex flex-col items-center gap-1">
-          <span>alexandria.</span>
-          <span className="text-[0.75rem] italic opacity-80">mentes aeternae</span>
-        </div>
-      </div>
-
-      {/* Back Arrow */}
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="fixed top-6 left-6 z-50 bg-transparent border-none rounded-md text-[1.2rem] cursor-pointer px-2 py-1 transition-colors disabled:opacity-50 scale-y-[0.8]"
-          style={{ color: 'var(--text-whisper)' }}
-          disabled={isLoading}
-        >
-          ←
-        </button>
-      )}
-
-      {/* Theme Toggle - subtle in corner */}
-      <div className="fixed top-6 right-6 z-50">
-        <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
+      <div className="fixed top-0 left-0 right-0 z-50" style={{ background: 'var(--bg-primary)' }}>
+        <div className="max-w-[740px] mx-auto flex items-center justify-between px-5 py-5 relative">
+          {onBack ? (
+            <button
+              onClick={onBack}
+              className="bg-transparent border-none rounded-md text-[1.2rem] cursor-pointer px-2 py-1 transition-colors disabled:opacity-50 scale-y-[0.8]"
+              style={{ color: 'var(--text-whisper)' }}
+              disabled={isLoading}
+            >
+              ←
+            </button>
+          ) : <div />}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center opacity-55">
+            <div className="text-[0.85rem] tracking-wide">alexandria.</div>
+            <div className="text-[0.7rem] italic opacity-70">mentes aeternae</div>
+          </div>
           <button
             onClick={toggleTheme}
-            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
-            style={{ color: theme === 'light' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+            className="bg-transparent border-none cursor-pointer opacity-25 hover:opacity-50 transition-opacity p-1"
+            style={{ color: 'var(--text-primary)' }}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
           >
-            light
+            {theme === 'light' ? (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+              </svg>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            )}
           </button>
-          <button
-            onClick={toggleTheme}
-            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] transition-colors cursor-pointer"
-            style={{ color: theme === 'dark' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-          >
-            dark
-          </button>
-          <div
-            className={`absolute top-[1px] left-[1px] w-[calc(50%-1px)] h-[calc(100%-2px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
-              theme === 'dark' ? 'translate-x-full' : ''
-            }`}
-            style={{ background: 'var(--toggle-pill)' }}
-          />
         </div>
       </div>
 
       {/* Auth Toggle */}
-      <div className="relative rounded-full p-[2px] inline-flex mb-6" style={{ background: 'var(--toggle-bg)' }}>
+      <div className="flex items-center justify-center gap-3 mb-6">
         <button
-          onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+          onClick={() => setAuthMode('login')}
           disabled={isLoading}
-          className="relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer"
-          style={{ color: authMode === 'login' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+          className={`bg-transparent border-none text-[0.75rem] cursor-pointer transition-opacity duration-300 ${authMode === 'login' ? 'opacity-50' : 'opacity-15 hover:opacity-30'}`}
+          style={{ color: 'var(--text-primary)' }}
         >
           sign in
         </button>
+        <span className="text-[0.4rem]" style={{ color: 'var(--text-primary)', opacity: 0.08 }}>·</span>
         <button
-          onClick={() => setAuthMode(authMode === 'register' ? 'login' : 'register')}
+          onClick={() => setAuthMode('register')}
           disabled={isLoading}
-          className="relative z-10 bg-transparent border-none px-3.5 py-1 text-[0.75rem] transition-colors cursor-pointer"
-          style={{ color: authMode === 'register' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+          className={`bg-transparent border-none text-[0.75rem] cursor-pointer transition-opacity duration-300 ${authMode === 'register' ? 'opacity-50' : 'opacity-15 hover:opacity-30'}`}
+          style={{ color: 'var(--text-primary)' }}
         >
           sign up
         </button>
-        <div
-          className={`absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
-            authMode === 'register' ? 'translate-x-full' : ''
-          }`}
-          style={{ background: 'var(--toggle-pill)' }}
-        />
       </div>
 
       {/* Auth Form */}
