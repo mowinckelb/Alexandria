@@ -242,7 +242,7 @@ export default function BatchUploadPage() {
 
   return (
     <main
-      className="fixed inset-0 overflow-y-auto px-6 pt-10 pb-28"
+      className="fixed inset-0 overflow-y-auto overscroll-contain px-6 pt-10 pb-28"
       style={{
         background: 'var(--bg-primary)',
         color: 'var(--text-primary)',
@@ -250,6 +250,9 @@ export default function BatchUploadPage() {
       }}
     >
       <div className="mx-auto max-w-4xl space-y-4">
+        <a href="/" className="inline-flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity mb-2" style={{ color: 'var(--text-primary)' }}>
+          ← home
+        </a>
         <h1 className="text-2xl">Batch Upload</h1>
         <p className="text-sm opacity-70">process many transcript files through bulk ingest.</p>
         <p className="text-xs opacity-60">

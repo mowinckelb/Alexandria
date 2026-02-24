@@ -5,31 +5,31 @@
 }
 
 :root {
-  /* Light theme (default) */
-  --bg-primary: #fafafa;
-  --bg-secondary: #f4f4f4;
-  --bg-tertiary: #efefef;
-  --bg-modal: #ffffff;
-  --bg-overlay: rgba(0, 0, 0, 0.3);
+  /* Light theme — warm cream, old library */
+  --bg-primary: #f5f0e8;
+  --bg-secondary: #ede8df;
+  --bg-tertiary: #e6e0d6;
+  --bg-modal: #f8f4ed;
+  --bg-overlay: rgba(40, 32, 20, 0.25);
   
-  --text-primary: #3a3a3a;
-  --text-secondary: #4a4a4a;
-  --text-muted: #888888;
-  --text-subtle: #999999;
-  --text-faint: #aaaaaa;
-  --text-ghost: #bbbbbb;
-  --text-whisper: #cccccc;
+  --text-primary: #3d3630;
+  --text-secondary: #4d4640;
+  --text-muted: #8a8078;
+  --text-subtle: #9a9088;
+  --text-faint: #aaa298;
+  --text-ghost: #bbb4aa;
+  --text-whisper: #ccc6bc;
   
-  --border-light: #eeeeee;
-  --border-dashed: #dddddd;
+  --border-light: #e2dbd2;
+  --border-dashed: #d4cdc4;
   
-  --toggle-bg: rgba(58, 58, 58, 0.06);
-  --toggle-pill: rgba(255, 255, 255, 0.55);
+  --toggle-bg: rgba(60, 50, 40, 0.06);
+  --toggle-pill: rgba(255, 252, 245, 0.55);
   
-  --scrollbar-thumb: rgba(58, 58, 58, 0.15);
-  --scrollbar-thumb-hover: rgba(58, 58, 58, 0.25);
+  --scrollbar-thumb: rgba(60, 50, 40, 0.12);
+  --scrollbar-thumb-hover: rgba(60, 50, 40, 0.22);
   
-  --caret-color: rgba(58, 58, 58, 0.4);
+  --caret-color: rgba(60, 50, 40, 0.4);
   
   --font-eb-garamond: 'EB Garamond', Georgia, 'Times New Roman', serif;
 }

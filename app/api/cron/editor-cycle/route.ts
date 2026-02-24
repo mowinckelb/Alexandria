@@ -79,7 +79,7 @@ function decideActivity(signals: CycleSignals): ActivityLevel {
   if (signals.entriesLast24h >= 8 || signals.hoursSinceContact !== null && signals.hoursSinceContact < 4) {
     return 'high';
   }
-  if (signals.entriesLast24h <= 1 && (signals.hoursSinceContact === null || signals.hoursSinceContact > 48)) {
+  if (signals.entriesLast24h <= 1 && (signals.hoursSinceContact === null || signals.hoursSinceContact > 24)) {
     return 'low';
   }
   return 'medium';
@@ -98,13 +98,13 @@ function decideAction(signals: CycleSignals): CycleDecision {
     };
   }
 
-  if ((signals.hoursSinceContact === null || signals.hoursSinceContact > 48) && signals.pendingEditorMessages === 0) {
+  if ((signals.hoursSinceContact === null || signals.hoursSinceContact > 24) && signals.pendingEditorMessages === 0) {
     return {
       activity,
       action: 'message',
       messageType: 'proactive_question',
       messageContent: 'quick check-in: any new thoughts, voice notes, or decisions worth capturing today?',
-      reason: 'idle_contact'
+      reason: signals.entriesLast24h > 0 ? 'new_data_no_contact' : 'idle_contact'
     };
   }
 
@@ -155,28 +155,40 @@ async function collectSignals(userId: string, now: Date): Promise<CycleSignals> 
 
 async function buildContextualProactiveMessage(userId: string): Promise<ContextualMessageResult> {
   const supabase = getSupabase();
-  const fallback = 'quick check-in: any new thoughts, voice notes, or decisions worth capturing today?';
+  const fallback = 'been thinking about something you said — text me when you get a sec.';
 
   try {
-    const [{ data: entries }, { data: deliveredMessages }] = await Promise.all([
+    const [{ data: entries }, { data: deliveredMessages }, { data: notepad }, { data: constitution }] = await Promise.all([
       supabase
         .from('entries')
         .select('content, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
-        .limit(3),
+        .limit(5),
       supabase
         .from('editor_messages')
         .select('content, created_at')
         .eq('user_id', userId)
         .eq('delivered', true)
         .order('created_at', { ascending: false })
-        .limit(3)
+        .limit(3),
+      supabase
+        .from('editor_notes')
+        .select('content, type')
+        .eq('user_id', userId)
+        .in('type', ['gap', 'observation', 'mental_model'])
+        .order('created_at', { ascending: false })
+        .limit(8),
+      supabase
+        .from('active_constitutions')
+        .select('constitution_id, constitutions(sections)')
+        .eq('user_id', userId)
+        .maybeSingle()
     ]);
 
     const recentEntries = (entries || []).map((entry) => ({
       created_at: entry.created_at,
-      content: String(entry.content || '').slice(0, 280)
+      content: String(entry.content || '').slice(0, 400)
     }));
     const recentDeliveredMessages = (deliveredMessages || []).map((item) => ({
       created_at: item.created_at,
@@ -187,22 +199,50 @@ async function buildContextualProactiveMessage(userId: string): Promise<Contextu
       return { content: fallback, context: null };
     }
 
+    const gaps = (notepad || []).filter(n => n.type === 'gap').map(n => n.content).slice(0, 3);
+    const observations = (notepad || []).filter(n => n.type === 'observation').map(n => n.content).slice(0, 3);
+
+    const sections = (constitution as Record<string, unknown>)?.constitutions
+      ? ((constitution as Record<string, unknown>).constitutions as Record<string, unknown>)?.sections
+      : null;
+    const constitutionHint = sections
+      ? `Author's core values (from Constitution): ${JSON.stringify(sections).slice(0, 500)}`
+      : 'No Constitution yet.';
+
     const { text } = await generateText({
       model: getQualityModel(),
-      system: `You are Alexandria Editor. Write one short proactive message to the Author.
-- Use lowercase style.
-- 1-2 short sentences max.
-- Be concrete and reference a recent topic.
-- Ask one useful follow-up question.
-- No emojis.
-- No markdown.`,
-      prompt: `Recent entries:
+      system: `You are the Editor — a biographer who has been working closely with this Author. You know them. You're not a notification system or a form.
+
+Your job: write a proactive message that makes the Author want to text you back. This is the only thing that matters. If they ignore it, you failed.
+
+PERSONALITY:
+- Lowercase, casual — like texting a sharp friend.
+- Be specific. Reference something concrete they said or did recently.
+- Be interesting. Ask a question they'd actually enjoy thinking about, or make an observation that surprises them.
+- Humour works if it's calibrated to them. Don't force it.
+- You can be provocative, curious, warm — read the room from what you know about them.
+- NEVER sound like a chatbot ("just checking in!", "how are you doing today?", "any updates?"). That is death.
+
+FORMAT:
+- 1-2 sentences max.
+- No emojis, no markdown, no greetings.
+- Ask one question OR make one observation that invites a response.`,
+      prompt: `WHAT YOU KNOW ABOUT THE AUTHOR:
+${constitutionHint}
+
+YOUR NOTEPAD GAPS (things you still want to understand):
+${gaps.length > 0 ? gaps.join('\n') : 'none yet'}
+
+YOUR OBSERVATIONS:
+${observations.length > 0 ? observations.join('\n') : 'none yet'}
+
+RECENT ENTRIES (what the Author has been sharing):
 ${recentEntries.map((entry, idx) => `${idx + 1}. ${entry.created_at}: ${entry.content}`).join('\n')}
 
-Recent delivered editor messages:
-${recentDeliveredMessages.length > 0 ? recentDeliveredMessages.map((msg, idx) => `${idx + 1}. ${msg.created_at}: ${msg.content}`).join('\n') : 'none'}
+PREVIOUS MESSAGES YOU SENT (don't repeat yourself):
+${recentDeliveredMessages.length > 0 ? recentDeliveredMessages.map((msg, idx) => `${idx + 1}. ${msg.content}`).join('\n') : 'none yet — this is your first outreach'}
 
-Write the next proactive message now.`
+Write one proactive message now.`
     });
 
     const cleaned = text.trim().replace(/\s+/g, ' ').slice(0, 280);

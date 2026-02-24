@@ -192,7 +192,7 @@
 | input-chat doesn't stream questions | Minor UX - text appears all at once | Medium | Buffer first word, stream rest if not SAVE |
 | Auth routes duplicate Supabase client setup | Code duplication | Low | Extract to shared lib/supabase.ts |
 | Test UUID used everywhere | Can't do multi-user | Low | Add proper auth. Substrate — needed before public launch, not before. |
-| Legacy modules in factory.ts | Deprecated aliases still exported | Low | Remove deprecated `getIngestionTools` etc. after confirming no usage |
+| Legacy modules in factory.ts | ✅ Deprecated aliases removed; dead migration orchestrator removed | — | No action needed |
 | Telegram tables in DB schema | Migration 00015 created tables no longer used | None | Leave in place. Migrations are append-only. Tables are harmless. |
 
 ---

@@ -17,15 +17,7 @@ import { GroqExtractor } from './modules/objective/extractor';
 import { TogetherTuner } from './modules/subjective/tuner';
 import { SupabaseIndexer } from './modules/objective/indexer';
 import { FeedbackProcessor } from './modules/rlhf/feedback-processor';
-import { PersonalityExtractor } from './modules/migration/personality-extractor';
-import { Distiller } from './modules/migration/distiller';
-import { MigrationOrchestrator } from './modules/migration/orchestrator';
-import { AdaptiveMigrationOrchestrator } from './modules/migration/adaptive-orchestrator';
-import { RLAIFAmplifier } from './modules/migration/rlaif-amplifier';
-import { RewardCalibrator } from './modules/migration/reward-calibrator';
-import { DynamicAssessor } from './modules/migration/dynamic-assessor';
 import { TrainingAssessor } from './modules/training/training-assessor';
-import { DecisionEditor } from './modules/core/decision-editor';
 import { EditorNotes } from './modules/core/editor-notes';
 
 // ============================================================================
@@ -47,13 +39,6 @@ export function getEditor(): Editor {
     editor = new Editor();
   }
   return editor;
-}
-
-/**
- * @deprecated Use getEditor() instead
- */
-export function getUnifiedEditor(): Editor {
-  return getEditor();
 }
 
 /**
@@ -118,58 +103,4 @@ export function getRLHFTools() {
 
 export function getTrainingTools() {
   return { trainingAssessor, tuner };
-}
-
-// ============================================================================
-// Migration Tools (model-to-model transfer)
-// ============================================================================
-
-const personalityExtractor = new PersonalityExtractor();
-const distiller = new Distiller();
-const migrationOrchestrator = new MigrationOrchestrator();
-const adaptiveMigrationOrchestrator = new AdaptiveMigrationOrchestrator();
-const rlaifAmplifier = new RLAIFAmplifier();
-const rewardCalibrator = new RewardCalibrator();
-const dynamicAssessor = new DynamicAssessor();
-const decisionEditor = new DecisionEditor();
-
-export function getMigrationTools() {
-  return { 
-    personalityExtractor, 
-    distiller, 
-    migrationOrchestrator,
-    adaptiveMigrationOrchestrator,
-    rlaifAmplifier,
-    rewardCalibrator,
-    dynamicAssessor
-  };
-}
-
-// ============================================================================
-// Deprecated aliases (will be removed — use getPipelineTools() instead)
-// ============================================================================
-
-/** @deprecated Use getPipelineTools() */
-export function getIngestionTools() {
-  return { refiner, extractor, tuner, indexer };
-}
-
-/** @deprecated Use getPipelineTools() */
-export function getEditorTools() {
-  return { editorNotes };
-}
-
-/** @deprecated Use getPipelineTools() */
-export function getBrainTools() {
-  return { refiner, extractor, indexer };
-}
-
-/** @deprecated Use getEditor() */
-export function getCoreTools() {
-  return { decisionEditor, editorNotes };
-}
-
-/** @deprecated Use getEditor() */
-export function getDecisionEditor() {
-  return decisionEditor;
 }

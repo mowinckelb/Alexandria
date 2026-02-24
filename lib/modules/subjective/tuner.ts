@@ -50,8 +50,45 @@ export interface FileInfo {
 export class TogetherTuner {
   private apiKey = process.env.TOGETHER_API_KEY;
   private baseUrl = 'https://api.together.xyz/v1';
+  private lastTrainError: string | null = null;
+  private lastUploadError: string | null = null;
+  private parseUploadOutput(raw: string): { id?: string; filename?: string; bytes?: number; error?: string } | null {
+    const trimmed = raw.trim();
+    if (!trimmed) return null;
+
+    // Fast path: strict JSON output.
+    try {
+      return JSON.parse(trimmed) as { id?: string; filename?: string; bytes?: number; error?: string };
+    } catch {
+      // fall through
+    }
+
+    // Some environments prepend warnings/log lines before JSON.
+    const lines = trimmed.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    for (let i = lines.length - 1; i >= 0; i--) {
+      try {
+        return JSON.parse(lines[i]) as { id?: string; filename?: string; bytes?: number; error?: string };
+      } catch {
+        // keep scanning
+      }
+    }
+
+    // Last resort: parse trailing JSON object if present.
+    const objectStart = trimmed.lastIndexOf('{');
+    if (objectStart >= 0) {
+      const candidate = trimmed.slice(objectStart);
+      try {
+        return JSON.parse(candidate) as { id?: string; filename?: string; bytes?: number; error?: string };
+      } catch {
+        // ignore
+      }
+    }
+
+    return null;
+  }
 
   private uploadViaApi = async (jsonl: string, filename: string, fileSize: number): Promise<UploadResult | null> => {
+    this.lastUploadError = null;
     try {
       const form = new FormData();
       form.append('purpose', 'fine-tune');
@@ -68,12 +105,14 @@ export class TogetherTuner {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`[TogetherTuner] REST upload failed: ${response.status} - ${errorText}`);
+        this.lastUploadError = `REST upload failed: ${response.status} - ${errorText}`;
         return null;
       }
 
       const output = await response.json() as { id?: string; filename?: string; bytes?: number };
       if (!output.id) {
         console.error('[TogetherTuner] REST upload missing file id');
+        this.lastUploadError = 'REST upload missing file id';
         return null;
       }
 
@@ -85,6 +124,7 @@ export class TogetherTuner {
       };
     } catch (error) {
       console.error('[TogetherTuner] REST upload error:', error);
+      this.lastUploadError = error instanceof Error ? error.message : 'Unknown REST upload error';
       return null;
     }
   };
@@ -96,8 +136,10 @@ export class TogetherTuner {
    * Requires Python with 'together' package installed.
    */
   async upload(jsonl: string, filename?: string): Promise<UploadResult | null> {
+    this.lastUploadError = null;
     if (!this.apiKey) {
       console.error('[TogetherTuner] TOGETHER_API_KEY not set');
+      this.lastUploadError = 'TOGETHER_API_KEY not set';
       return null;
     }
 
@@ -127,13 +169,20 @@ export class TogetherTuner {
             timeout: 120000 // 2 minute timeout
           });
 
-          const output = JSON.parse(result.trim()) as { id?: string; filename?: string; bytes?: number; error?: string };
+          const output = this.parseUploadOutput(result);
+          if (!output) {
+            console.error(`[TogetherTuner] ${pythonCmd} upload returned non-JSON output`);
+            this.lastUploadError = `${pythonCmd} upload returned non-JSON output`;
+            break;
+          }
           if (output.error) {
             console.error(`[TogetherTuner] ${pythonCmd} upload failed:`, output.error);
+            this.lastUploadError = `${pythonCmd} upload failed: ${output.error}`;
             break;
           }
           if (!output.id) {
             console.error(`[TogetherTuner] ${pythonCmd} upload returned no file id`);
+            this.lastUploadError = `${pythonCmd} upload returned no file id`;
             break;
           }
 
@@ -145,6 +194,7 @@ export class TogetherTuner {
           };
         } catch (pythonError) {
           console.warn(`[TogetherTuner] ${pythonCmd} unavailable or failed, trying fallback`, pythonError);
+          this.lastUploadError = pythonError instanceof Error ? pythonError.message : `${pythonCmd} upload failed`;
         }
       };
 
@@ -152,6 +202,7 @@ export class TogetherTuner {
       return await this.uploadViaApi(jsonl, finalFilename, fileSize);
     } catch (error) {
       console.error('[TogetherTuner] Upload error:', error);
+      this.lastUploadError = error instanceof Error ? error.message : 'Unknown upload error';
       return null;
     } finally {
       // Clean up temp file
@@ -246,8 +297,10 @@ export class TogetherTuner {
       fromCheckpoint?: string; // Previous job ID to continue from (e.g., "ft-xxx")
     } = {}
   ): Promise<TrainingJobResult | null> {
+    this.lastTrainError = null;
     if (!this.apiKey) {
       console.error('[TogetherTuner] TOGETHER_API_KEY not set');
+      this.lastTrainError = 'TOGETHER_API_KEY not set';
       return null;
     }
 
@@ -328,8 +381,17 @@ export class TogetherTuner {
       };
     } catch (error) {
       console.error('[TogetherTuner] Training start failed:', error);
+      this.lastTrainError = error instanceof Error ? error.message : 'Unknown training error';
       return null;
     }
+  }
+
+  getLastTrainError(): string | null {
+    return this.lastTrainError;
+  }
+
+  getLastUploadError(): string | null {
+    return this.lastUploadError;
   }
 
   /**

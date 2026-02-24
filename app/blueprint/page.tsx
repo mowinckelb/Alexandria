@@ -114,6 +114,9 @@ export default function BlueprintPage() {
     return (
       <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         <div className="mx-auto max-w-4xl">
+          <a href="/" className="inline-flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity mb-2" style={{ color: 'var(--text-primary)' }}>
+            ← home
+          </a>
           <div className="rounded-xl p-4 text-sm" style={{ background: 'var(--bg-secondary)' }}>
             sign in first, then open this page again.
           </div>
@@ -125,6 +128,9 @@ export default function BlueprintPage() {
   return (
     <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <div className="mx-auto max-w-5xl space-y-4">
+        <a href="/" className="inline-flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity mb-2" style={{ color: 'var(--text-primary)' }}>
+          ← home
+        </a>
         <h1 className="text-2xl">Blueprint</h1>
         <p className="text-sm opacity-70">engine-to-blueprint proposal valve for machine refinement.</p>
 

@@ -4,9 +4,10 @@
 // Verify: two-way conversation works, notepad updates, training pairs generated
 
 import { createClient } from '@supabase/supabase-js';
-import { generateText } from 'ai';
+import { generateText, Output } from 'ai';
+import { z } from 'zod';
 import Together from 'together-ai';
-import { getFastModel, getQualityModel } from '@/lib/models';
+import { getFastModel, getQualityModel, togetherProvider } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
 import type { Constitution, ConstitutionSections } from '@/lib/modules/constitution/types';
 import { recomputePlmMaturity } from '@/lib/modules/core/plm-maturity';
@@ -115,15 +116,27 @@ export interface TrainingDecision {
 const EDITOR_SYSTEM_PROMPT = `You are a BIOGRAPHER building a high-fidelity Personal Language Model (PLM) of the Author you're interviewing.
 
 YOUR ROLE:
-- You are NOT a passive processor. You are an active interviewer.
-- Your goal is to DEEPLY UNDERSTAND the Author — especially their SUBJECTIVE nature.
-- Ask probing questions. Fill gaps in your understanding. Build mental models.
+- You are NOT a chatbot, a form, or a data-collection tool. You are a biographer — someone the Author actually wants to talk to.
+- Your goal is to DEEPLY UNDERSTAND the Author — especially their SUBJECTIVE nature: how they think, what they value, why they make the decisions they make.
+- If the Author stops texting you, you have failed. Engagement is not a nice-to-have — it is the mechanism of extraction.
+
+PERSONALITY:
+- Humour is your primary lever. Be funny — not performatively, not generically, but in a way calibrated to this specific Author. What they find funny reveals values, sensibility, and cognitive style.
+- Read the room. Adapt. Funny with Authors who respond to humour. Serious with those who prefer depth. Provocative with those who enjoy being challenged. Warm with those who need encouragement.
+- You have opinions. You push back. You notice contradictions and call them out (with tact). Bland agreement is extraction death.
+- Use lowercase. Keep it casual, like texting a sharp friend who happens to be writing your biography.
 
 PRIORITIES (in order):
 1. SUBJECTIVE information is GOLD — opinions, values, emotional responses, personality quirks, humor, decision patterns
-2. Ask follow-up questions to clarify and go deeper
+2. Ask follow-up questions that make the Author think. Not "tell me more" — ask the question that gets under the surface.
 3. Update your notepad with observations and mental models about the Author
 4. Extract objective facts (dates, names, events) for memory storage
+
+EVERY INTERACTION IS EXTRACTION:
+- A complaint about your questioning style reveals how the Author handles frustration.
+- A joke reveals aesthetic sensibility.
+- A negotiation reveals decision-making patterns.
+- Nothing is wasted. Your personality is not separate from your extraction function — it IS part of it.
 
 WHAT TO EXTRACT:
 - Objective: Facts, dates, events, relationships, biographical data → stored in Memory (vector DB)
@@ -134,15 +147,61 @@ YOUR NOTEPAD:
 - Use it to build understanding across conversations
 - Note what you still don't know (gaps) and theories about how the Author thinks (mental models)
 
-CONVERSATION STYLE:
-- Be warm but probing — like a skilled biographer
-- Don't just acknowledge — ASK FOLLOW-UP QUESTIONS
-- Dig into the subjective: "How did that make you feel?", "Why is that important to you?", "What does that say about who you are?"
-
 SUGGESTED THRESHOLDS (guidelines, not rules):
 - Training: ~100+ quality pairs recommended, consider quality over quantity
 - RLAIF activation: ~50+ feedback samples before synthetic amplification
 - You have full agency to deviate based on your assessment`;
+
+// Zod schema for structured Editor output (guarantees valid JSON, avoids parse failures)
+const editorOutputSchema = z.object({
+  message: z.string().describe('Your conversational response to the Author - warm, probing, responds to what they said, asks follow-ups'),
+  extraction: z.object({
+    objective: z.array(z.object({
+      content: z.string(),
+      entities: z.array(z.string()).default([]),
+      importance: z.number().default(0.5)
+    })).default([]),
+    subjective: z.array(z.object({
+      system_prompt: z.string().default('You are a Personal Language Model (PLM).'),
+      user_content: z.string(),
+      assistant_content: z.string(),
+      quality_score: z.number().default(0.5)
+    })).default([])
+  }).default({ objective: [], subjective: [] }),
+  notepadUpdates: z.object({
+    observations: z.array(z.object({
+      type: z.literal('observation'),
+      content: z.string(),
+      topic: z.string().optional(),
+      priority: z.enum(['high', 'medium', 'low']).default('medium'),
+      category: z.enum(['critical', 'non_critical']).default('non_critical')
+    })).default([]),
+    gaps: z.array(z.object({
+      type: z.literal('gap'),
+      content: z.string(),
+      topic: z.string().optional(),
+      priority: z.enum(['high', 'medium', 'low']).default('medium'),
+      category: z.enum(['critical', 'non_critical']).default('non_critical')
+    })).default([]),
+    mentalModels: z.array(z.object({
+      type: z.literal('mental_model'),
+      content: z.string(),
+      topic: z.string().optional(),
+      priority: z.enum(['high', 'medium', 'low']).default('low'),
+      category: z.enum(['critical', 'non_critical']).default('non_critical')
+    })).default([])
+  }).default({ observations: [], gaps: [], mentalModels: [] }),
+  followUpQuestions: z.array(z.object({
+    question: z.string(),
+    reason: z.string(),
+    priority: z.enum(['critical', 'helpful']).default('helpful')
+  })).default([]),
+  scratchpadUpdate: z.string().optional().default(''),
+  trainingRecommendation: z.object({
+    shouldTrain: z.boolean(),
+    reasoning: z.string()
+  }).optional()
+});
 
 // ============================================================================
 // UnifiedEditor Class
@@ -177,17 +236,31 @@ export class Editor {
       ? this.formatConstitutionContext(constitution)
       : 'No Constitution yet - still building understanding of Author.';
     
-    // 4. Build context for the Editor
+    // 4. Fetch recent entries for conversation continuity
+    const { data: recentEntries } = await supabase
+      .from('entries')
+      .select('content, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(8);
+    const recentContext = recentEntries?.length
+      ? `RECENT THINGS AUTHOR SHARED:\n${recentEntries.map(e => `- ${e.content.slice(0, 200)}${e.content.length > 200 ? '...' : ''}`).join('\n')}`
+      : '';
+
+    // 5. Build context for the Editor
     const notepadContext = this.formatNotepadContext(notepad);
     const statsContext = this.formatStatsContext(trainingStats);
     
-    // 5. Generate Editor response
-    const { text: response } = await generateText({
-      model: getFastModel(),
-      messages: [
-        {
-          role: 'system',
-          content: `${EDITOR_SYSTEM_PROMPT}
+    // 6. Generate Editor response (structured output = guaranteed valid JSON)
+    let parsed: EditorResponse & { scratchpadUpdate?: string };
+    try {
+      const result = await generateText({
+        model: getQualityModel(),
+        experimental_output: Output.object({ schema: editorOutputSchema }),
+        messages: [
+          {
+            role: 'system',
+            content: `${EDITOR_SYSTEM_PROMPT}
 
 YOUR CONSTITUTION (Author's explicit worldview - use as ground truth):
 ${constitutionContext}
@@ -197,46 +270,45 @@ ${notepadContext}
 
 CURRENT STATS:
 ${statsContext}
+${recentContext ? `\n${recentContext}\n` : ''}
 
-RESPOND WITH JSON:
-{
-  "message": "Your conversational response to the Author (warm, probing, asks follow-ups)",
-  "extraction": {
-    "objective": [
-      {"content": "fact statement", "entities": ["entity1"], "importance": 0.7}
-    ],
-    "subjective": [
-      {"system_prompt": "You are a Personal Language Model (PLM).", "user_content": "prompt that would elicit this", "assistant_content": "verbatim Author text showing their voice/style", "quality_score": 0.8}
-    ]
-  },
-  "notepadUpdates": {
-    "observations": [{"type": "observation", "content": "...", "topic": "...", "priority": "high", "category": "critical"}],
-    "gaps": [{"type": "gap", "content": "...", "topic": "...", "priority": "medium", "category": "non_critical"}],
-    "mentalModels": [{"type": "mental_model", "content": "...", "topic": "...", "priority": "low", "category": "non_critical"}]
-  },
-  "followUpQuestions": [
-    {"question": "Why is that important to you?", "reason": "Understand values", "priority": "critical"}
-  ],
-  "scratchpadUpdate": "Any freeform notes to add to your scratchpad",
-  "trainingRecommendation": {"shouldTrain": false, "reasoning": "Need more quality pairs"}
-}
+CRITICAL: Your "message" must be CONVERSATIONAL — respond directly to what they just said, reference the conversation, then ask a follow-up. Never give a generic reply.`
+          },
+          ...conversationHistory.map(m => ({ role: m.role, content: m.content })),
+          { role: 'user', content: authorInput }
+        ]
+      });
 
-CRITICAL RULES:
-- Your "message" should be CONVERSATIONAL — respond to what they said, then ask follow-up questions
-- For subjective extraction: capture Author's ACTUAL WORDS that show their voice/style
-- Prioritize subjective over objective — the PLM needs to capture personality
-- Be AGGRESSIVE about identifying gaps and asking questions`
+      const out = result.experimental_output as z.infer<typeof editorOutputSchema>;
+      parsed = {
+        message: out.message,
+        extraction: {
+          raw: authorInput,
+          objective: out.extraction.objective.map(o => ({
+            content: o.content,
+            entities: o.entities,
+            importance: o.importance
+          })),
+          subjective: out.extraction.subjective.map(s => ({
+            system_prompt: s.system_prompt,
+            user_content: s.user_content,
+            assistant_content: s.assistant_content,
+            quality_score: s.quality_score
+          }))
         },
-        ...conversationHistory.map(m => ({ role: m.role, content: m.content })),
-        {
-          role: 'user',
-          content: authorInput
-        }
-      ]
-    });
-
-    // 6. Parse response
-    const parsed = this.parseEditorResponse(response, authorInput);
+        notepadUpdates: {
+          observations: out.notepadUpdates.observations,
+          gaps: out.notepadUpdates.gaps,
+          mentalModels: out.notepadUpdates.mentalModels
+        },
+        followUpQuestions: out.followUpQuestions,
+        trainingRecommendation: out.trainingRecommendation,
+        scratchpadUpdate: out.scratchpadUpdate
+      };
+    } catch (err) {
+      console.error('[UnifiedEditor] Structured output failed, using fallback:', err);
+      parsed = this.fallbackResponse(authorInput);
+    }
     
     // 7. Store raw entry
     await this.storeRawEntry(authorInput, userId);
@@ -813,8 +885,9 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
   }
   
   private fallbackResponse(rawInput: string): EditorResponse & { scratchpadUpdate?: string } {
+    const truncated = rawInput.slice(0, 80) + (rawInput.length > 80 ? '...' : '');
     return {
-      message: "That's interesting. Can you tell me more about what that means to you?",
+      message: `you mentioned "${truncated}" — what's the story behind that?`,
       extraction: {
         raw: rawInput,
         objective: [],
@@ -935,12 +1008,27 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
     const notepad = await this.getNotepad(userId);
     
     // Get prompt corpus as seeds
-    const { data: corpus } = await supabase
-      .from('prompt_corpus')
-      .select('prompt, category')
-      .limit(20);
+    const [{ data: corpus }, { data: gaps }] = await Promise.all([
+      supabase
+        .from('prompt_corpus')
+        .select('prompt, category')
+        .limit(20),
+      supabase
+        .from('constitution_gaps')
+        .select('section, gap_score, priority')
+        .eq('user_id', userId)
+        .order('gap_score', { ascending: false })
+    ]);
     
     const corpusPrompts = corpus?.map(c => c.prompt) || [];
+    
+    const gapContext = gaps && gaps.length > 0
+      ? gaps.map(g => `- ${g.section}: gap=${g.gap_score} (${g.priority} priority)`).join('\n')
+      : 'No gap data yet — generate diverse prompts across all sections.';
+    const highGapSections = gaps?.filter(g => g.gap_score >= 0.5).map(g => g.section) || [];
+    const focusDirective = highGapSections.length > 0
+      ? `PRIORITY: Focus at least half the prompts on these under-tested sections: ${highGapSections.join(', ')}.`
+      : 'Generate diverse prompts across all Constitution sections.';
     
     // Generate prompts based on gaps
     const { text: response } = await generateText({
@@ -953,11 +1041,16 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
 YOUR NOTEPAD (gaps and observations about the Author):
 ${this.formatNotepadContext(notepad)}
 
+CONSTITUTION GAP SCORES (sections needing more RLAIF evidence):
+${gapContext}
+
+${focusDirective}
+
 PROMPT CORPUS (examples):
 ${corpusPrompts.slice(0, 10).join('\n')}
 
 Generate ${maxPrompts} diverse prompts that would:
-1. Test areas where you have GAPS in understanding the Author
+1. Test the HIGHEST-GAP Constitution sections first
 2. Explore personality/voice patterns you've observed
 3. Cover different topics and response types
 
@@ -1019,7 +1112,7 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`
     for (const prompt of prompts) {
       try {
         const { text } = await generateText({
-          model: getQualityModel(), // Simulate PLM with quality model
+          model: togetherProvider(plmModelId),
           messages: [
             {
               role: 'system',
@@ -1277,11 +1370,40 @@ Return JSON:
   ): 'worldview' | 'values' | 'models' | 'identity' | 'shadows' {
     const text = `${prompt} ${response}`.toLowerCase();
 
-    if (/(value|principle|ethic|moral|priority|should|ought)/.test(text)) return 'values';
-    if (/(belief|world|truth|evidence|science|reality|epistem|ontology)/.test(text)) return 'worldview';
-    if (/(model|framework|heuristic|strategy|decision|tradeoff|mental)/.test(text)) return 'models';
-    if (/(i am|identity|myself|who i am|person i am|character)/.test(text)) return 'identity';
-    return 'shadows';
+    const patterns: Record<string, RegExp[]> = {
+      values: [
+        /\b(value|principle|ethic|moral|priority|should|ought|care about|stand for|non-negotiable)\b/g,
+        /\b(right|wrong|fair|unfair|just|unjust|duty|obligation|integrity|compassion)\b/g
+      ],
+      worldview: [
+        /\b(belief|world|truth|evidence|science|reality|epistem|ontology|religion|politic|societ|culture)\b/g,
+        /\b(philosophy|perspective|worldview|stance|opinion on|meaning|purpose|spiritual)\b/g
+      ],
+      models: [
+        /\b(model|framework|heuristic|strategy|decision|tradeoff|mental model|approach|method|system|process)\b/g,
+        /\b(optimi[sz]|efficien|productiv|workflow|problem.?solv|first.?principles|leverage)\b/g
+      ],
+      identity: [
+        /\b(i am|identity|myself|who i am|character|personality|style|voice|background|experience)\b/g,
+        /\b(hobby|interest|passion|profession|career|family|friend|relationship|grew up|childhood)\b/g
+      ],
+      shadows: [
+        /\b(regret|fear|mistake|weakness|shadow|trauma|boundary|limit|won't|refuse|struggle|anxiety)\b/g,
+        /\b(difficult|painful|uncomfortable|avoid|hide|secret|vulnerab|insecur|doubt|fail)\b/g
+      ]
+    };
+
+    const scores: Record<string, number> = { values: 0, worldview: 0, models: 0, identity: 0, shadows: 0 };
+    for (const [section, regexes] of Object.entries(patterns)) {
+      for (const re of regexes) {
+        const matches = text.match(re);
+        if (matches) scores[section] += matches.length;
+      }
+    }
+
+    const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    if (sorted[0][1] === 0) return 'identity';
+    return sorted[0][0] as 'worldview' | 'values' | 'models' | 'identity' | 'shadows';
   }
 
   private determineRouting(
@@ -1298,7 +1420,7 @@ Return JSON:
     }
   ): 'auto_approved' | 'author_review' | 'flagged' {
     if (evaluation.scores.values_alignment < 0.35) return 'flagged';
-    if (evaluation.overallConfidence >= 0.82 && evaluation.rating === 'good') return 'auto_approved';
+    if (evaluation.overallConfidence >= 0.88 && evaluation.rating === 'good') return 'auto_approved';
     if (evaluation.overallConfidence < 0.45) return 'flagged';
     return 'author_review';
   }

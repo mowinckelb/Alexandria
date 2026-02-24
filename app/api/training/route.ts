@@ -326,7 +326,8 @@ async function handleStartTraining(
 
     return NextResponse.json({ 
       error: 'Failed to upload training data to Together AI',
-      export_id: exportId
+      export_id: exportId,
+      details: (typeof tuner.getLastUploadError === 'function' ? tuner.getLastUploadError() : null)
     }, { status: 500 });
   }
 
@@ -341,11 +342,11 @@ async function handleStartTraining(
 
   // Step 6: Start fine-tuning job
   // Use fromCheckpoint for incremental training (continues from previous job)
-  const trainResult = await tuner.train(
+  const continuedModel = baseModelId.includes('ghost-') ? baseModelId : undefined;
+  let trainResult = await tuner.train(
     uploadResult.fileId,
     userId,
-    // Only continue from previous if it's a fine-tuned model (not the base reference model)
-    baseModelId.includes('ghost-') ? baseModelId : undefined,
+    continuedModel,
     {
       nEpochs,
       lora,
@@ -357,6 +358,24 @@ async function handleStartTraining(
     }
   );
 
+  // Safety fallback: if continuation from an older fine-tuned model fails,
+  // retry from the reference base model so training can proceed.
+  if (!trainResult && continuedModel) {
+    trainResult = await tuner.train(
+      uploadResult.fileId,
+      userId,
+      undefined,
+      {
+        nEpochs,
+        lora,
+        loraR,
+        loraAlpha,
+        learningRate,
+        batchSize
+      }
+    );
+  }
+
   if (!trainResult) {
     // Update export status to failed
     await supabase
@@ -367,7 +386,8 @@ async function handleStartTraining(
     return NextResponse.json({ 
       error: 'Failed to start fine-tuning job on Together AI',
       export_id: exportId,
-      file_id: uploadResult.fileId
+      file_id: uploadResult.fileId,
+      details: (typeof tuner.getLastTrainError === 'function' ? tuner.getLastTrainError() : null)
     }, { status: 500 });
   }
 

@@ -89,13 +89,21 @@ export default function MachinePage() {
   const [includeChannels, setIncludeChannels] = useState(false);
   const [autoResolveBlockers, setAutoResolveBlockers] = useState(false);
   const [runResult, setRunResult] = useState<string>('');
+  const [gaps, setGaps] = useState<Array<{ section: string; gapScore: number; priority: string; evidenceCount: number }>>([]);
 
   const loadStatus = async (id: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/machine/status?userId=${id}`);
-      const data = await res.json();
-      setStatus(data);
+      const [statusRes, gapsRes] = await Promise.all([
+        fetch(`/api/machine/status?userId=${id}`),
+        fetch(`/api/rlaif/gaps?userId=${id}`)
+      ]);
+      const statusData = await statusRes.json();
+      setStatus(statusData);
+      if (gapsRes.ok) {
+        const gapsData = await gapsRes.json();
+        setGaps(gapsData.items || []);
+      }
     } finally {
       setLoading(false);
     }
@@ -340,6 +348,9 @@ export default function MachinePage() {
     return (
       <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         <div className="mx-auto max-w-4xl">
+          <a href="/" className="inline-flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity mb-2" style={{ color: 'var(--text-primary)' }}>
+            ← home
+          </a>
           <div className="rounded-xl p-4 text-sm" style={{ background: 'var(--bg-secondary)' }}>
             sign in first, then open this page again.
           </div>
@@ -353,6 +364,9 @@ export default function MachinePage() {
   return (
     <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <div className="mx-auto max-w-4xl space-y-4">
+        <a href="/" className="inline-flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity mb-2" style={{ color: 'var(--text-primary)' }}>
+          ← home
+        </a>
         <h1 className="text-2xl">Machine</h1>
         <p className="text-sm opacity-70">single-view loop health for editor, ingestion, rlaif, and training.</p>
 
@@ -521,6 +535,17 @@ export default function MachinePage() {
             </div>
             <div className="text-xs opacity-60">
               stale editor msgs {machine?.rlaifLoop?.staleUndeliveredEditorMessages || 0}
+            </div>
+          </div>
+          <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>
+            <div className="text-xs opacity-60">constitution gaps</div>
+            <div className="text-xs opacity-70 mt-1">
+              {gaps.length === 0 ? 'no data' : gaps.map((g) => (
+                <div key={g.section} className="flex justify-between gap-2">
+                  <span>{g.section}</span>
+                  <span>gap {g.gapScore.toFixed(2)} · {g.evidenceCount} ev · {g.priority}</span>
+                </div>
+              ))}
             </div>
           </div>
           <div className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)' }}>

@@ -83,6 +83,7 @@ export default function RlaifReviewPanel({ userId, isOpen, onClose, onReviewed }
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-medium" style={{ color: 'var(--text-primary)' }}>
             RLAIF Review Queue
+            <span className="text-xs font-normal opacity-60 ml-2">(prompts target high-gap sections)</span>
           </h2>
           <button
             onClick={onClose}

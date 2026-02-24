@@ -129,6 +129,9 @@ export default function PersonaPage() {
   return (
     <main className="min-h-screen px-6 py-10" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <div className="mx-auto max-w-3xl">
+        <a href="/" className="inline-flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity mb-2" style={{ color: 'var(--text-primary)' }}>
+          ← home
+        </a>
         <h1 className="text-2xl mb-2">{data?.title || `Persona ${personaId.slice(0, 8)}`}</h1>
         <p className="text-sm opacity-70 mb-8">Neo-Biography (early)</p>
 

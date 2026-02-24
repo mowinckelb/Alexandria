@@ -533,11 +533,11 @@ Files that can be cleaned up or archived as part of any phase:
 
 | File/Directory | Status | Action |
 |----------------|--------|--------|
-| `lib/modules/migration/` (7 files) | Legacy model migration code | Archive when ready. Not used by current architecture. |
+| `lib/modules/migration/orchestrator.ts` | Legacy non-adaptive migration orchestrator | Archived/removed. Use `adaptive-orchestrator` path only. |
 | `personality_profiles` table | Superseded by Constitution | Keep for backward compat. Don't build on it. |
 | `ARCHITECTURE.md`, `COMPONENTS.md`, `DECISIONS.md`, `MIGRATION_PLAN.md` | Written against old vision | Archive to `_archive/`. Superseded by ALEXANDRIA.md + this execution plan. |
 | `ALEXANDRIA_SUGGESTIONS.md` | Improvement suggestions | Keep for now. |
-| Deprecated exports in `factory.ts` | `getIngestionTools`, `getEditorTools`, `getBrainTools`, `getCoreTools` | Remove when no usages remain. |
+| Deprecated exports in `factory.ts` | Removed (`getIngestionTools`, `getEditorTools`, `getBrainTools`, `getCoreTools`, `getUnifiedEditor`, `getMigrationTools`) | Complete. Keep `getPipelineTools` / `getTrainingTools` / `getRLHFTools`. |
 | Telegram tables in DB | Migration 00015 | Leave in place. Migrations are append-only. |
 
 ---

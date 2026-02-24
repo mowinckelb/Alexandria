@@ -128,10 +128,10 @@ export async function POST(req: Request) {
 
     console.log(`[Bulk Ingest] Processing ${chunks.length} chunks for user ${userId}`);
 
-    // Store the raw entry for reference
+    // Store the raw entry — full text preserved (axiomatic data)
     const { error: entryError } = await supabase.from('entries').insert({
       user_id: userId,
-      content: text.substring(0, 50000), // Limit stored raw text
+      content: text,
       source,
       metadata: {
         chunks: chunks.length,

@@ -5,8 +5,8 @@ import AuthScreen from './components/AuthScreen';
 import LandingPage from './components/LandingPage';
 import ConstitutionPanel from './components/ConstitutionPanel';
 import RlaifReviewPanel from './components/RlaifReviewPanel';
-import VoiceBootstrapProgress from './components/VoiceBootstrapProgress';
 import { useTheme } from './components/ThemeProvider';
+import { Sun, Moon } from 'lucide-react';
 
 const STORAGE_THRESHOLD = 4.5 * 1024 * 1024; // Use storage for files larger than this
 
@@ -60,8 +60,7 @@ export default function Alexandria() {
   const [pendingJobs, setPendingJobs] = useState<{ id: string; fileName: string; progress: number; status: string }[]>([]);
   const [showConstitution, setShowConstitution] = useState(false);
   const [showRlaifReview, setShowRlaifReview] = useState(false);
-  const [showMoreNav, setShowMoreNav] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showNav, setShowNav] = useState(false);
   const [rlaifReviewCount, setRlaifReviewCount] = useState(0);
   const seenEditorMessageIds = useRef<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -92,17 +91,12 @@ export default function Alexandria() {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    const detailsParam = params.get('details');
-    if (detailsParam === '1') {
-      setShowDetails(true);
-      localStorage.setItem('alexandria_show_details', '1');
-      return;
+    const handleClickOutside = () => setShowNav(false);
+    if (showNav) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
     }
-    const stored = localStorage.getItem('alexandria_show_details');
-    setShowDetails(stored === '1');
-  }, []);
+  }, [showNav]);
 
   useEffect(() => {
     if (!isAuthenticated || !userId) return;
@@ -428,13 +422,7 @@ export default function Alexandria() {
       handleSubmit();
     } else if (e.key === 'ArrowUp' && feedbackPhase === 'none') {
       e.preventDefault();
-      if (showDetails) {
-        // Cycle through modes: input -> training -> output -> input
-        setMode(mode === 'input' ? 'training' : mode === 'training' ? 'output' : 'input');
-      } else {
-        // Simple mode: editor <-> persona
-        setMode(mode === 'input' ? 'output' : 'input');
-      }
+      setMode(mode === 'input' ? 'output' : 'input');
     }
   };
 
@@ -1174,445 +1162,218 @@ export default function Alexandria() {
     return <AuthScreen onAuthSuccess={handleAuthSuccess} onBack={() => setShowLanding(true)} />;
   }
 
+  const currentMessages = mode === 'input' ? inputMessages : outputMessages;
+  const isEmpty = currentMessages.length === 0 && !outputContent && !showThinking;
+
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 flex items-center justify-between p-4 md:p-6 text-[0.85rem] z-50" style={{ background: 'var(--bg-primary)' }}>
-        <div className="relative flex items-center gap-3">
-          {!showDetails && (
-            <>
-              <span className="text-[0.75rem] opacity-40">{username}</span>
-              <span className="text-[0.75rem] opacity-40">·</span>
-              <a href="/batch-upload" className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
-                upload
-              </a>
-              <span className="text-[0.75rem] opacity-40">·</span>
-              <a href="/machine" className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
-                machine
-              </a>
-              <span className="text-[0.75rem] opacity-40">·</span>
+      <div className="flex items-center justify-between px-5 py-4 z-50 relative">
+        <div className="relative min-w-[60px]" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => setShowNav(prev => !prev)}
+            className="bg-transparent border-none text-[0.7rem] cursor-pointer opacity-20 hover:opacity-45 transition-opacity"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {username}
+          </button>
+          {showNav && (
+            <div
+              className="absolute top-7 left-0 z-50 rounded-xl py-2 min-w-[140px] shadow-lg"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}
+            >
               <button
-                onClick={() => {
-                  setShowDetails(true);
-                  localStorage.setItem('alexandria_show_details', '1');
-                }}
-                className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
+                onClick={() => { setShowConstitution(true); setShowNav(false); }}
+                className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
                 style={{ color: 'var(--text-primary)' }}
               >
-                details
+                constitution
               </button>
-              <span className="text-[0.75rem] opacity-40">·</span>
+              {rlaifReviewCount > 0 && (
+                <button
+                  onClick={() => { setShowRlaifReview(true); setShowNav(false); }}
+                  className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  review ({rlaifReviewCount})
+                </button>
+              )}
+              <a href="/machine" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>machine</a>
+              <a href="/batch-upload" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>upload</a>
+              <a href="/training" className="block px-4 py-1.5 text-[0.7rem] opacity-50 hover:opacity-100 transition-opacity no-underline" style={{ color: 'var(--text-primary)' }}>training</a>
+              <div className="my-1.5 mx-3" style={{ borderTop: '1px solid var(--border-light)' }} />
               <button
-                onClick={handleLogout}
-                className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
+                onClick={() => { handleLogout(); setShowNav(false); }}
+                className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-60 transition-opacity"
                 style={{ color: 'var(--text-primary)' }}
               >
                 sign out
               </button>
-            </>
-          )}
-          {showDetails && (
-            <>
-          <span className="text-[0.75rem] opacity-40">{username}</span>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <button
-            onClick={() => setShowConstitution(true)}
-            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            constitution
-          </button>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <button
-            onClick={() => setShowRlaifReview(true)}
-            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            rlaif{rlaifReviewCount > 0 ? ` (${rlaifReviewCount})` : ''}
-          </button>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <a href="/training" className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
-            training
-          </a>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <a href="/batch-upload" className="text-[0.75rem] opacity-40 hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
-            upload
-          </a>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <button
-            onClick={() => setShowMoreNav((prev) => !prev)}
-            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            more
-          </button>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <button
-            onClick={() => {
-              setShowDetails(false);
-              localStorage.setItem('alexandria_show_details', '0');
-            }}
-            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            simple
-          </button>
-          <span className="text-[0.75rem] opacity-40">·</span>
-          <button
-            onClick={handleLogout}
-            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            sign out
-          </button>
-          {showMoreNav && (
-            <div className="absolute top-8 left-0 rounded-xl p-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[0.72rem]" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}>
-              <a href="/activity" className="opacity-80 hover:opacity-100">activity</a>
-              <a href="/system" className="opacity-80 hover:opacity-100">system</a>
-              <a href="/machine" className="opacity-80 hover:opacity-100">machine</a>
-              <a href="/blueprint" className="opacity-80 hover:opacity-100">blueprint</a>
-              <a href="/library" className="opacity-80 hover:opacity-100">library</a>
-              <a href="/maturity" className="opacity-80 hover:opacity-100">maturity</a>
-              <a href="/channels" className="opacity-80 hover:opacity-100">channels</a>
-              <a href="/billing" className="opacity-80 hover:opacity-100">billing</a>
             </div>
           )}
-            </>
+        </div>
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none">
+          <div className="text-[0.95rem] font-extralight tracking-[0.2em]" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Alexandria</div>
+          <div className="text-[0.58rem] italic mt-0.5 tracking-[0.15em]" style={{ color: 'var(--text-primary)', opacity: 0.35 }}>mentes aeternae</div>
+        </div>
+        <button
+          onClick={toggleTheme}
+          className="bg-transparent border-none cursor-pointer opacity-25 hover:opacity-50 transition-opacity p-1"
+          style={{ color: 'var(--text-primary)' }}
+          aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+        >
+          {theme === 'light' ? <Sun size={16} strokeWidth={1.5} /> : <Moon size={16} strokeWidth={1.5} />}
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div ref={outputScrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+        <div className={`max-w-[640px] mx-auto px-5 ${isEmpty ? 'h-full' : 'pt-1 pb-8'}`}>
+          {!isEmpty && (
+            <div className="space-y-5">
+              {currentMessages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className="max-w-[82%] rounded-2xl px-4 py-2.5"
+                    style={{
+                      background: message.role === 'user' ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
+                      color: message.role === 'user' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                    }}
+                  >
+                    <div className="text-[0.82rem] leading-[1.75] whitespace-pre-wrap">
+                      {message.version && message.version > 1 && (
+                        <span className="text-[0.68rem] mr-1" style={{ color: 'var(--text-subtle)' }}>/{message.version}</span>
+                      )}
+                      {message.content}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {showThinking && !outputContent && mode === 'input' && (
+                <div className="flex justify-start px-1">
+                  <span className="text-[0.78rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.25 }}>thinking</span>
+                </div>
+              )}
+              {outputContent && (
+                <div className="flex justify-start">
+                  <div className="max-w-[82%] rounded-2xl px-4 py-2.5" style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
+                    <div className="text-[0.82rem] leading-[1.75] whitespace-pre-wrap">{outputContent}</div>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
-        </div>
-
-        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-55 pt-0.5">
-          <span>alexandria.</span>
-          <span className="text-[0.75rem] italic opacity-80">mentes aeternae</span>
-        </div>
-
-        <div className="relative rounded-full p-[1px] inline-flex" style={{ background: 'var(--toggle-bg)' }}>
-          <button
-            onClick={toggleTheme}
-            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] cursor-pointer"
-            style={{ color: theme === 'light' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-          >
-            light
-          </button>
-          <button
-            onClick={toggleTheme}
-            className="relative z-10 bg-transparent border-none px-2 py-0.5 text-[0.65rem] cursor-pointer"
-            style={{ color: theme === 'dark' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-          >
-            dark
-          </button>
-          <div
-            className={`absolute top-[1px] left-[1px] w-[calc(50%-1px)] h-[calc(100%-2px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out ${
-              theme === 'dark' ? 'translate-x-full' : ''
-            }`}
-            style={{ background: 'var(--toggle-pill)' }}
-          />
         </div>
       </div>
 
-      {showDetails && rlaifReviewCount > 0 && (
-        <div className="fixed top-[58px] left-0 right-0 z-40 px-4">
-          <div className="mx-auto max-w-[700px] rounded-lg px-3 py-1.5 flex items-center justify-between text-[0.72rem]" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}>
-            <span>{rlaifReviewCount} items need your review</span>
+      {/* Input */}
+      <div className="px-4 pb-6 pt-2">
+        <div className="max-w-[640px] mx-auto">
+          <div className="flex items-center justify-center gap-3 mb-3">
             <button
-              onClick={() => setShowRlaifReview(true)}
-              className="bg-transparent border-none cursor-pointer opacity-80 hover:opacity-100"
+              onClick={() => setMode('input')}
+              className={`bg-transparent border-none text-[0.66rem] cursor-pointer transition-opacity duration-300 ${mode === 'input' ? 'opacity-45' : 'opacity-12 hover:opacity-25'}`}
               style={{ color: 'var(--text-primary)' }}
             >
-              open review
+              editor
+            </button>
+            <span className="text-[0.4rem]" style={{ color: 'var(--text-primary)', opacity: 0.08 }}>·</span>
+            <button
+              onClick={() => setMode('output')}
+              className={`bg-transparent border-none text-[0.66rem] cursor-pointer transition-opacity duration-300 ${mode === 'output' ? 'opacity-45' : 'opacity-12 hover:opacity-25'}`}
+              style={{ color: 'var(--text-primary)' }}
+            >
+              orchestrator
             </button>
           </div>
-        </div>
-      )}
-
-      {/* Output Area */}
-      <div ref={outputScrollRef} className="flex-1 px-4 md:px-8 pt-16 md:pt-24 pb-4 md:pb-8 overflow-y-auto">
-        <div className="max-w-[700px] mx-auto space-y-4 md:space-y-6">
-          {!showDetails && (
-            <div className="rounded-xl p-3 text-[0.78rem] opacity-80" style={{ background: 'var(--bg-secondary)' }}>
-              {mode === 'input'
-                ? 'editor mode: answer clarifying questions and add context.'
-                : 'persona mode: chat with orchestrator using your constitution + vault + plm.'}
-            </div>
-          )}
-          {(mode === 'input' ? inputMessages : mode === 'training' ? trainingMessages : outputMessages).map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className="max-w-[85%] rounded-2xl px-4 py-2.5"
-                style={{ 
-                  background: message.role === 'user' ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
-                  color: message.role === 'user' ? 'var(--text-primary)' : 'var(--text-secondary)'
-                }}
-              >
-                <div className="text-[0.8rem] leading-relaxed whitespace-pre-wrap">
-                  {message.version && message.version > 1 && (
-                    <span className="text-[0.7rem] mr-1" style={{ color: 'var(--text-subtle)' }}>/{message.version}</span>
-                  )}
-                  {message.content}
-                </div>
-              </div>
-            </div>
-          ))}
-          {/* Thinking indicator (Input mode only - Training/Output shows below input) */}
-          {showThinking && !outputContent && mode === 'input' && (
-            <div className="flex justify-start px-1">
-              <span className="text-[0.75rem] italic thinking-pulse" style={{ color: 'var(--text-subtle)' }}>thinking</span>
-            </div>
-          )}
-          {/* Streaming content */}
-          {outputContent && (
-            <div className="flex justify-start">
-              <div className="max-w-[85%] rounded-2xl px-4 py-3" style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
-                <div className="text-[0.8rem] leading-relaxed whitespace-pre-wrap">
-                  {outputContent}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Input Area */}
-      <div className="p-4 md:p-6 pb-6 md:pb-8">
-        <div className="max-w-[700px] mx-auto relative">
-          {/* Mode Toggle */}
-          <div className="flex justify-between items-center mb-3 gap-2">
-            <div className="flex items-center gap-2">
-              {!showDetails && (
-                <div className="relative rounded-full p-[2px] inline-flex w-[140px]" style={{ background: 'var(--toggle-bg)' }}>
-                  <button
-                    onClick={() => setMode('input')}
-                    className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
-                    style={{ color: mode === 'input' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-                  >
-                    editor
-                  </button>
-                  <button
-                    onClick={() => setMode('output')}
-                    className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
-                    style={{ color: mode === 'output' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-                  >
-                    persona
-                  </button>
-                  <div
-                    className="absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out"
-                    style={{
-                      background: 'var(--toggle-pill)',
-                      transform: mode === 'input' ? 'translateX(0%)' : 'translateX(100%)'
-                    }}
-                  />
-                </div>
-              )}
-              {showDetails && (
-              <div className="relative rounded-full p-[2px] inline-flex w-[180px]" style={{ background: 'var(--toggle-bg)' }}>
-                <button
-                  onClick={() => setMode('input')}
-                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
-                  style={{ color: mode === 'input' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-                >
-                  input
-                </button>
-                <button
-                  onClick={() => setMode('training')}
-                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
-                  style={{ color: mode === 'training' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-                >
-                  process
-                </button>
-                <button
-                  onClick={() => setMode('output')}
-                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.7rem] cursor-pointer"
-                  style={{ color: mode === 'output' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-                >
-                  output
-                </button>
-                <div
-                  className={`absolute top-[2px] left-[2px] w-[calc(33.33%-2px)] h-[calc(100%-4px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out`}
-                  style={{ 
-                    background: 'var(--toggle-pill)',
-                    transform: mode === 'input' ? 'translateX(0%)' : mode === 'training' ? 'translateX(100%)' : 'translateX(200%)'
-                  }}
-                />
-              </div>
-              )}
-              {showDetails && (
-              <div className="relative rounded-full p-[2px] inline-flex w-[150px]" style={{ background: 'var(--toggle-bg)' }}>
-                <button
-                  onClick={() => updatePrivacyMode('private')}
-                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.65rem] cursor-pointer"
-                  style={{ color: privacyMode === 'private' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-                >
-                  private
-                </button>
-                <button
-                  onClick={() => updatePrivacyMode('personal')}
-                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.65rem] cursor-pointer"
-                  style={{ color: privacyMode === 'personal' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-                >
-                  personal
-                </button>
-                <button
-                  onClick={() => updatePrivacyMode('professional')}
-                  className="relative z-10 flex-1 bg-transparent border-none py-1 text-[0.65rem] cursor-pointer"
-                  style={{ color: privacyMode === 'professional' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-                >
-                  prof
-                </button>
-                <div
-                  className="absolute top-[2px] left-[2px] w-[calc(33.33%-2px)] h-[calc(100%-4px)] backdrop-blur-[10px] rounded-full shadow-sm transition-transform duration-300 ease-out"
-                  style={{
-                    background: 'var(--toggle-pill)',
-                    transform:
-                      privacyMode === 'private'
-                        ? 'translateX(0%)'
-                        : privacyMode === 'personal'
-                          ? 'translateX(100%)'
-                          : 'translateX(200%)'
-                  }}
-                />
-              </div>
-              )}
-            </div>
-            {/* Job status indicator */}
-            {pendingJobs.length > 0 && (
-              <span className={`text-[0.7rem] italic ${pendingJobs.some(j => j.status === 'pending' || j.status === 'processing') ? 'thinking-pulse' : ''}`} style={{ color: 'var(--text-subtle)' }}>
-                {pendingJobs.some(j => j.status === 'failed') ? 'failed.' : 
-                 pendingJobs.every(j => j.status === 'completed') ? 'inputted.' : 
-                 `inputting · ${Math.round(pendingJobs.reduce((sum, j) => sum + j.progress, 0) / pendingJobs.length)}%`}
-              </span>
-            )}
-          </div>
-          <VoiceBootstrapProgress userId={userId} />
-
-          {/* Input Container */}
-          <div className="relative flex items-center">
-            <div className="relative flex-1">
-              {/* Attach button - only in input mode, inside the input field */}
-              {mode === 'input' && (
-                <button
-                  onClick={() => feedbackPhase === 'none' && !carbonLockYN && setShowAttachModal(true)}
-                  className={`absolute left-5 text-lg flex items-center justify-center z-10 ${feedbackPhase === 'none' && !carbonLockYN ? 'cursor-pointer' : 'opacity-0 cursor-default'}`}
-                  style={{ color: 'var(--text-subtle)', top: '50%', transform: 'translateY(-50%)' }}
-                  title="Attach text"
-                >
-                  +
-                </button>
-              )}
-              <input
-                ref={inputRef}
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={
-                  carbonLockYN && mode === 'input' ? "y/n" :
-                  feedbackPhase === 'binary' ? "good? y/n" :
-                  feedbackPhase === 'comment' ? "feedback:" :
-                  feedbackPhase === 'regenerate' ? "regenerate? y/n" :
-                  feedbackPhase === 'wrap_up' ? "y/n" : ""
-                }
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck={false}
-                enterKeyHint="send"
-                data-form-type="other"
-                className={`w-full border-none rounded-2xl text-[0.9rem] py-4 pr-[60px] outline-none shadow-md ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder-italic' : ''} ${mode === 'input' ? 'pl-10' : 'px-5'}`}
-                style={{ 
-                  background: 'var(--bg-secondary)', 
-                  color: 'var(--text-primary)',
-                  caretColor: 'var(--caret-color)'
-                }}
-              />
+          <div className="relative">
+            {mode === 'input' && feedbackPhase === 'none' && !carbonLockYN && (
               <button
-                onClick={handleSubmit}
-                className="absolute right-4 top-1/2 -translate-y-1/2 scale-y-[0.8] bg-transparent border-none rounded-md text-[1.2rem] cursor-pointer px-2 py-1 transition-colors"
-                style={{ color: 'var(--text-whisper)' }}
+                onClick={() => setShowAttachModal(true)}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-base cursor-pointer z-10 opacity-20 hover:opacity-45 transition-opacity"
+                style={{ color: 'var(--text-primary)' }}
               >
-                →
+                +
               </button>
-            </div>
-          </div>
-          
-          {/* Status indicator below input */}
-          <div className="h-4 mt-2 pl-1">
-            {feedbackSaved && (
-              <span className="text-[0.7rem] italic" style={{ color: 'var(--text-ghost)' }}>inputted.</span>
             )}
-            {showThinking && (mode === 'training' || mode === 'output') && !outputContent && (
-              <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-subtle)' }}>thinking</span>
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={
+                carbonLockYN && mode === 'input' ? 'y / n' :
+                feedbackPhase === 'binary' ? 'good? y / n' :
+                feedbackPhase === 'comment' ? 'feedback' :
+                feedbackPhase === 'regenerate' ? 'regenerate? y / n' :
+                feedbackPhase === 'wrap_up' ? 'y / n' : ''
+              }
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              enterKeyHint="send"
+              data-form-type="other"
+              className={`w-full border-none rounded-2xl text-[0.88rem] py-4 pr-12 outline-none shadow-sm ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder-italic' : ''} ${mode === 'input' ? 'pl-10' : 'pl-5'}`}
+              style={{
+                background: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+                caretColor: 'var(--caret-color)'
+              }}
+            />
+            <button
+              onClick={handleSubmit}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-lg cursor-pointer opacity-12 hover:opacity-35 transition-opacity scale-y-[0.8]"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              →
+            </button>
+          </div>
+          <div className="h-4 mt-1.5 flex justify-center">
+            {feedbackSaved && (
+              <span className="text-[0.62rem] italic" style={{ color: 'var(--text-primary)', opacity: 0.2 }}>noted.</span>
+            )}
+            {showThinking && mode !== 'input' && !outputContent && (
+              <span className="text-[0.62rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.2 }}>thinking</span>
+            )}
+            {pendingJobs.length > 0 && (
+              <span className={`text-[0.62rem] italic ${pendingJobs.some(j => j.status === 'pending' || j.status === 'processing') ? 'thinking-pulse' : ''}`} style={{ color: 'var(--text-primary)', opacity: 0.2 }}>
+                {pendingJobs.some(j => j.status === 'failed') ? 'failed.' :
+                 pendingJobs.every(j => j.status === 'completed') ? 'uploaded.' :
+                 `uploading · ${Math.round(pendingJobs.reduce((sum, j) => sum + j.progress, 0) / pendingJobs.length)}%`}
+              </span>
             )}
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
           25% { transform: translateX(-2px); }
           75% { transform: translateX(2px); }
         }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-in;
-        }
-
-        .animate-shake {
-          animation: shake 0.2s ease-in-out;
-        }
-
+        .animate-shake { animation: shake 0.2s ease-in-out; }
         @keyframes thinkingPulse {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 0.8; }
+          0%, 100% { opacity: 0.25; }
+          50% { opacity: 0.5; }
         }
-
-        .thinking-pulse {
-          animation: thinkingPulse 1.5s ease-in-out infinite;
-        }
-
-        ::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: var(--scrollbar-thumb);
-          border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: var(--scrollbar-thumb-hover);
-        }
-
-        button:hover {
-          color: var(--text-muted) !important;
-        }
+        .thinking-pulse { animation: thinkingPulse 1.8s ease-in-out infinite; }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
       `}</style>
 
-      {/* Constitution Panel */}
-      <ConstitutionPanel 
+      <ConstitutionPanel
         userId={userId}
         isOpen={showConstitution}
         onClose={() => setShowConstitution(false)}
       />
-
       <RlaifReviewPanel
         userId={userId}
         isOpen={showRlaifReview}
@@ -1620,29 +1381,27 @@ export default function Alexandria() {
         onReviewed={refreshRlaifReviewCount}
       />
 
-      {/* File Upload Modal */}
       {showAttachModal && (
-        <div 
+        <div
           className="fixed inset-0 flex items-center justify-center z-50"
           style={{ background: 'var(--bg-overlay)' }}
           onClick={() => !isUploading && setShowAttachModal(false)}
         >
-          <div 
-            className="rounded-2xl p-6 w-[90%] max-w-[400px] flex flex-col shadow-xl"
+          <div
+            className="rounded-2xl p-6 w-[90%] max-w-[380px] flex flex-col shadow-xl"
             style={{ background: 'var(--bg-modal)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-end">
               <button
                 onClick={() => !isUploading && setShowAttachModal(false)}
-                className="text-xl cursor-pointer -mt-1 -mr-1 hover:opacity-70 transition-opacity"
-                style={{ color: 'var(--text-subtle)' }}
+                className="text-lg cursor-pointer -mt-1 -mr-1 opacity-30 hover:opacity-60 transition-opacity bg-transparent border-none"
+                style={{ color: 'var(--text-primary)' }}
                 disabled={isUploading}
               >
                 ×
               </button>
             </div>
-            
             <input
               ref={fileInputRef}
               type="file"
@@ -1655,72 +1414,38 @@ export default function Alexandria() {
               }}
               className="hidden"
             />
-            
-            <div 
-              id="upload-file-container"
+            <div
               onClick={() => !isUploading && selectedFiles.length === 0 && fileInputRef.current?.click()}
               className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors max-h-32 overflow-y-auto ${isUploading ? 'opacity-50 cursor-not-allowed' : ''} ${selectedFiles.length === 0 ? 'cursor-pointer' : ''}`}
               style={{ borderColor: 'var(--border-dashed)' }}
             >
               {selectedFiles.length > 0 ? (
-                <div className="text-sm space-y-2" style={{ color: 'var(--text-primary)' }}>
+                <div className="text-[0.8rem] space-y-2" style={{ color: 'var(--text-primary)' }}>
                   {selectedFiles.map((f, i) => (
                     <div key={i} className="flex items-center justify-center gap-3">
-                      <span 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const url = URL.createObjectURL(f);
-                          window.open(url, '_blank');
-                        }}
-                        className="cursor-pointer hover:opacity-70"
-                      >
-                        {f.name}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedFiles(prev => prev.filter((_, idx) => idx !== i));
-                        }}
-                        className="text-base leading-none px-1 cursor-pointer hover:opacity-70"
-                        style={{ color: 'var(--text-ghost)' }}
-                      >
-                        ×
-                      </button>
+                      <span onClick={(e) => { e.stopPropagation(); window.open(URL.createObjectURL(f), '_blank'); }} className="cursor-pointer hover:opacity-70">{f.name}</span>
+                      <button onClick={(e) => { e.stopPropagation(); setSelectedFiles(prev => prev.filter((_, idx) => idx !== i)); }} className="text-sm leading-none px-1 cursor-pointer hover:opacity-70 bg-transparent border-none" style={{ color: 'var(--text-ghost)' }}>×</button>
                     </div>
                   ))}
-                  <div 
-                    className="text-base mt-2 cursor-pointer hover:opacity-70"
-                    style={{ color: 'var(--text-ghost)' }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      fileInputRef.current?.click();
-                    }}
-                  >
-                    +
-                  </div>
+                  <div className="text-sm mt-2 cursor-pointer opacity-30 hover:opacity-60 transition-opacity" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}>+</div>
                 </div>
               ) : (
-                <div className="text-sm" style={{ color: 'var(--text-subtle)' }}>input text/audio</div>
+                <div className="text-[0.8rem] opacity-30">input text / audio</div>
               )}
             </div>
-            
-            <div id="upload-context-container" className="relative mt-3">
+            <div className="relative mt-3">
               <input
                 type="text"
                 value={uploadContext}
                 onChange={(e) => setUploadContext(e.target.value)}
                 placeholder="context"
                 disabled={isUploading}
-                className="w-full border rounded-xl text-sm px-4 py-3 pr-12 outline-none disabled:opacity-50"
-                style={{ 
-                  background: 'var(--bg-secondary)', 
-                  borderColor: 'var(--border-light)',
-                  color: 'var(--text-primary)'
-                }}
+                className="w-full border rounded-xl text-[0.82rem] px-4 py-3 pr-12 outline-none disabled:opacity-50"
+                style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-light)', color: 'var(--text-primary)' }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !isUploading) {
                     if (!uploadContext.trim()) {
-                      const container = document.getElementById('upload-context-container');
+                      const container = e.currentTarget.parentElement;
                       container?.classList.add('animate-shake');
                       setTimeout(() => container?.classList.remove('animate-shake'), 500);
                     } else if (selectedFiles.length > 0) {
@@ -1735,25 +1460,25 @@ export default function Alexandria() {
                 <button
                   onClick={() => {
                     if (!uploadContext.trim()) {
-                      const container = document.getElementById('upload-context-container');
+                      const container = document.querySelector('.relative.mt-3');
                       container?.classList.add('animate-shake');
                       setTimeout(() => container?.classList.remove('animate-shake'), 500);
                     } else if (selectedFiles.length > 0) {
                       handleFileUpload();
                     }
                   }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-lg scale-y-[0.8] transition-colors cursor-pointer"
-                  style={{ color: 'var(--text-subtle)' }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-lg scale-y-[0.8] transition-opacity cursor-pointer opacity-20 hover:opacity-50 bg-transparent border-none"
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   →
                 </button>
               )}
             </div>
-            <div className="mt-2 pl-1 h-[1.125rem]">
+            <div className="mt-2 pl-1 h-4">
               {uploadStatus ? (
-                <span className="text-[0.75rem] italic" style={{ color: 'var(--text-subtle)' }}>{uploadStatus}</span>
+                <span className="text-[0.68rem] italic opacity-30">{uploadStatus}</span>
               ) : isUploading ? (
-                <span className="text-[0.75rem] italic thinking-pulse" style={{ color: 'var(--text-subtle)' }}>uploading</span>
+                <span className="text-[0.68rem] italic thinking-pulse opacity-30">uploading</span>
               ) : null}
             </div>
           </div>
