@@ -413,18 +413,9 @@ Be THOUGHTFUL about recategorization. Critical = PLM gives WRONG answers without
 
     const { text: response } = await generateText({
       model: groq('llama-3.3-70b-versatile'),
-      messages: [
-        {
-          role: 'system',
-          content: `You are an Editor trying to answer your own question about an Author.
+      system: `You are an Editor trying to answer your own question about an Author from available memories.
 
-Question: ${note.content}
-Context: ${note.context || 'None'}
-
-Available memories about the Author:
-${(memories || []).map((m: { content: string }) => `- ${m.content}`).join('\n')}
-
-Can you answer this question from the available information?
+Can you answer the question from the available information?
 
 Return JSON:
 {
@@ -434,7 +425,11 @@ Return JSON:
   "reasoning": "I concluded this because..."
 }
 
-Only return can_answer: true if you have REAL evidence. Don't guess.`
+Only return can_answer: true if you have REAL evidence. Don't guess.`,
+      messages: [
+        {
+          role: 'user',
+          content: `Question: ${note.content}\nContext: ${note.context || 'None'}\n\nAvailable memories about the Author:\n${(memories || []).map((m: { content: string }) => `- ${m.content}`).join('\n')}`
         }
       ]
     });
@@ -465,10 +460,7 @@ Only return can_answer: true if you have REAL evidence. Don't guess.`
 
     const { text: response } = await generateText({
       model: groq('llama-3.3-70b-versatile'),
-      messages: [
-        {
-          role: 'system',
-          content: `You are an Editor reviewing your pending questions/notes about an Author.
+      system: `You are an Editor reviewing your pending questions/notes about an Author.
 
 RECATEGORIZE based on PLM fidelity impact:
 - "critical": PLM will give WRONG answers without this (core identity, values, key relationships, defining events)
@@ -476,15 +468,16 @@ RECATEGORIZE based on PLM fidelity impact:
 
 Also reassess priority within category (high/medium/low).
 
-Current pending notes:
-${JSON.stringify(pendingNotes, null, 2)}
-
 Return JSON array of updates (only include notes that should change):
 [
   {"note_id": "uuid", "new_category": "critical", "new_priority": "high", "reason": "..."}
 ]
 
-Be strict about "critical" - only core identity/values/relationships that would cause WRONG PLM responses.`
+Be strict about "critical" - only core identity/values/relationships that would cause WRONG PLM responses.`,
+      messages: [
+        {
+          role: 'user',
+          content: `Current pending notes:\n${JSON.stringify(pendingNotes, null, 2)}`
         }
       ]
     });

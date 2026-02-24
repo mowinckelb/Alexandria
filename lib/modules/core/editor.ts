@@ -245,17 +245,12 @@ export class Editor {
     try {
       const genResult = await generateText({
         model: getQualityModel(),
-        messages: [{
-          role: 'system',
-          content: `You are the Editor — a biographer processing raw data from the Author.
+        system: `You are the Editor — a biographer processing raw data from the Author.
 
 CURRENT CONSTITUTION:
 ${constitutionContext}
 
-AUTHOR'S DATA:
-${text}
-
-Analyze this data against the Constitution. Extract:
+Analyze the Author's data against the Constitution. Extract:
 1. Objective facts (memories) — things that happened, entities mentioned
 2. Subjective signal (training pairs) — examples of how the Author thinks/speaks that can train the PLM
 3. Notepad observations — anything interesting, contradictions, gaps in the Constitution
@@ -275,15 +270,19 @@ Return JSON:
   "scratchpadUpdate": "running notes"
 }
 
-Return ONLY the JSON.`
-        }]
+Return ONLY the JSON.`,
+        messages: [{ role: 'user', content: `AUTHOR'S DATA:\n\n${text}` }]
       });
       rawResponse = genResult.text;
     } catch (primaryErr: unknown) {
       const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
       if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit')) {
         console.warn('[Editor] Groq rate limited, falling back to Together AI for entry processing');
-        const genResult = await generateText({ model: getFallbackQualityModel(), messages: [{ role: 'system', content: `Extract facts and training examples from this text. Return JSON with "extraction" containing "objective" and "subjective" arrays.\n\nTEXT:\n${text}\n\nReturn ONLY JSON.` }] });
+        const genResult = await generateText({
+          model: getFallbackQualityModel(),
+          system: 'Extract facts and training examples from the given text. Return JSON with "extraction" containing "objective" and "subjective" arrays. Return ONLY JSON.',
+          messages: [{ role: 'user', content: text }]
+        });
         rawResponse = genResult.text;
       } else {
         throw primaryErr;
@@ -449,18 +448,9 @@ CRITICAL RULES:
       // Use LLM to detect if this reveals new Constitution-worthy information
       const { text: response } = await generateText({
         model: getFastModel(),
-        messages: [
-          {
-            role: 'system',
-            content: `You are analyzing a conversation to see if it reveals something significant about the Author's Constitution (values, worldview, mental models, boundaries).
+        system: `You are analyzing a conversation to see if it reveals something significant about the Author's Constitution (values, worldview, mental models, boundaries).
 
-AUTHOR'S INPUT:
-"${authorInput}"
-
-EXTRACTED SUBJECTIVE DATA:
-${parsed.extraction.subjective.map(s => s.assistant_content).join('\n')}
-
-Does this reveal something NEW and SIGNIFICANT that should be added to the Constitution?
+Does the input reveal something NEW and SIGNIFICANT that should be added to the Constitution?
 - New value or priority
 - New mental model or heuristic
 - New boundary or rule
@@ -474,7 +464,11 @@ Return JSON:
   "reasoning": "why this is significant"
 }
 
-Only return shouldUpdate: true if this is genuinely new and significant, not just a restatement.`
+Only return shouldUpdate: true if this is genuinely new and significant, not just a restatement.`,
+        messages: [
+          {
+            role: 'user',
+            content: `AUTHOR'S INPUT:\n"${authorInput}"\n\nEXTRACTED SUBJECTIVE DATA:\n${parsed.extraction.subjective.map(s => s.assistant_content).join('\n')}`
           }
         ]
       });
@@ -519,16 +513,7 @@ Only return shouldUpdate: true if this is genuinely new and significant, not jus
     // Generate learning insights from feedback
     const { text: response } = await generateText({
       model: getFastModel(),
-      messages: [
-        {
-          role: 'system',
-          content: `You are analyzing feedback on a PLM response to learn about the Author.
-
-FEEDBACK:
-- Rating: ${feedback.rating}
-- Comment: ${feedback.comment || 'No comment provided'}
-- Original prompt: ${feedback.prompt}
-- PLM response: ${feedback.response}
+      system: `You are analyzing feedback on a PLM response to learn about the Author.
 
 YOUR NOTEPAD:
 ${this.formatNotepadContext(notepad)}
@@ -539,10 +524,6 @@ ANALYZE:
 3. If "good" — what did PLM get RIGHT?
 4. What observations, gaps, or mental models should you update?
 
-${feedback.rating === 'good' ? 
-  'This response MATCHED what Author would say — extract as training pair.' :
-  'This response DIVERGED from Author — note what went wrong.'}
-
 Return JSON:
 {
   "insights": ["What this teaches about Author"],
@@ -552,8 +533,12 @@ Return JSON:
     "mentalModels": [...]
   },
   "scratchpadUpdate": "Any notes to add",
-  "trainingPair": ${feedback.rating === 'good' ? '{"system_prompt": "...", "user_content": "...", "assistant_content": "...", "quality_score": 0.9}' : 'null'}
-}`
+  "trainingPair": {"system_prompt": "...", "user_content": "...", "assistant_content": "...", "quality_score": 0.9} or null
+}`,
+      messages: [
+        {
+          role: 'user',
+          content: `FEEDBACK:\n- Rating: ${feedback.rating}\n- Comment: ${feedback.comment || 'No comment provided'}\n- Original prompt: ${feedback.prompt}\n- PLM response: ${feedback.response}\n\n${feedback.rating === 'good' ? 'This response MATCHED what Author would say — extract as training pair.' : 'This response DIVERGED from Author — note what went wrong.'}`
         }
       ]
     });
@@ -665,16 +650,7 @@ Return JSON:
     // Let the Editor decide
     const { text: response } = await generateText({
       model: getQualityModel(),
-      messages: [
-        {
-          role: 'system',
-          content: `You are assessing whether to trigger PLM fine-tuning.
-
-CURRENT STATE:
-- Training pairs available: ${stats.trainingPairs}
-- Average quality score: ${stats.avgQuality.toFixed(2)}
-- Feedback count: ${stats.feedbackCount}
-- Critical gaps pending: ${notepad.stats.criticalPending}
+      system: `You are assessing whether to trigger PLM fine-tuning.
 
 SUGGESTED THRESHOLDS (guidelines, not rules):
 - Minimum: ~100 pairs for meaningful training
@@ -686,13 +662,15 @@ CONSIDERATIONS:
 - Critical gaps might mean missing important personality info
 - Feedback validates PLM accuracy
 
-Should training be triggered?
-
-Return JSON:
+Should training be triggered? Return JSON:
 {
   "shouldTrain": true/false,
   "reasoning": "Explanation of decision"
-}`
+}`,
+      messages: [
+        {
+          role: 'user',
+          content: `CURRENT STATE:\n- Training pairs available: ${stats.trainingPairs}\n- Average quality score: ${stats.avgQuality.toFixed(2)}\n- Feedback count: ${stats.feedbackCount}\n- Critical gaps pending: ${notepad.stats.criticalPending}`
         }
       ]
     });
@@ -1148,23 +1126,9 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
     // Generate prompts based on gaps
     const { text: response } = await generateText({
       model: getFastModel(),
-      messages: [
-        {
-          role: 'system',
-          content: `You are generating prompts to test a PLM (Personal Language Model).
+      system: `You are generating prompts to test a PLM (Personal Language Model).
 
-YOUR NOTEPAD (gaps and observations about the Author):
-${this.formatNotepadContext(notepad)}
-
-CONSTITUTION GAP SCORES (sections needing more RLAIF evidence):
-${gapContext}
-
-${focusDirective}
-
-PROMPT CORPUS (examples):
-${corpusPrompts.slice(0, 10).join('\n')}
-
-Generate ${maxPrompts} diverse prompts that would:
+Generate diverse prompts that would:
 1. Test the HIGHEST-GAP Constitution sections first
 2. Explore personality/voice patterns you've observed
 3. Cover different topics and response types
@@ -1172,7 +1136,11 @@ Generate ${maxPrompts} diverse prompts that would:
 Return JSON array of prompts:
 ["prompt 1", "prompt 2", ...]
 
-Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`
+Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`,
+      messages: [
+        {
+          role: 'user',
+          content: `YOUR NOTEPAD (gaps and observations about the Author):\n${this.formatNotepadContext(notepad)}\n\nCONSTITUTION GAP SCORES:\n${gapContext}\n\n${focusDirective}\n\nPROMPT CORPUS (examples):\n${corpusPrompts.slice(0, 10).join('\n')}\n\nGenerate ${maxPrompts} diverse prompts.`
         }
       ]
     });
@@ -1307,26 +1275,7 @@ Respond naturally, in first person, as the Author would.`
     
     const { text: evalResponse } = await generateText({
       model: getFastModel(),
-      messages: [
-        {
-          role: 'system',
-          content: `You are evaluating if a PLM response sounds like the Author.
-
-AUTHOR CONTEXT:
-
-${constitutionContext ? `CONSTITUTION (PRIMARY GROUND TRUTH):
-${constitutionContext}` : `CONSTITUTIONAL RULES (fallback):
-${fallbackConstitution}`}
-
-NOTEPAD (observations about Author):
-${this.formatNotepadContext(notepad)}
-
-FEEDBACK HISTORY (what Author liked/disliked):
-${feedbackContext}
-
-GHOST RESPONSE TO EVALUATE:
-Prompt: "${prompt}"
-Response: "${response}"
+      system: `You are evaluating if a PLM response sounds like the Author.
 
 EVALUATE:
 1. Does this ALIGN with the Author's Constitution (values, worldview, boundaries)?
@@ -1351,7 +1300,11 @@ Return JSON:
   "confidence": "high" or "medium" or "low",
   "reasoning": "Why this matches/doesn't match Author's patterns",
   "uncertainties": ["What you're unsure about"]
-}`
+}`,
+      messages: [
+        {
+          role: 'user',
+          content: `AUTHOR CONTEXT:\n\n${constitutionContext ? `CONSTITUTION (PRIMARY GROUND TRUTH):\n${constitutionContext}` : `CONSTITUTIONAL RULES (fallback):\n${fallbackConstitution}`}\n\nNOTEPAD (observations about Author):\n${this.formatNotepadContext(notepad)}\n\nFEEDBACK HISTORY:\n${feedbackContext}\n\nGHOST RESPONSE TO EVALUATE:\nPrompt: "${prompt}"\nResponse: "${response}"`
         }
       ]
     });

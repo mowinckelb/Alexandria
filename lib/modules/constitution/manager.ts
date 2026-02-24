@@ -224,10 +224,7 @@ export class ConstitutionManager {
 
     const { text: response } = await generateText({
       model: getQualityModel(),
-      messages: [
-        {
-          role: 'system',
-          content: `You are extracting a CONSTITUTION from data about a person (the Author).
+      system: `You are extracting a CONSTITUTION from data about a person (the Author).
 
 The Constitution has exactly 5 sections:
 
@@ -236,17 +233,6 @@ The Constitution has exactly 5 sections:
 3. MODELS — How they think and decide. Mental models, heuristics, reasoning patterns, gut vs analysis.
 4. IDENTITY — Who they are, how they present, how they communicate. Self-concept, roles, style.
 5. SHADOWS — Where they are wrong. Contradictions, blind spots, theory-reality dissonance.
-
-AVAILABLE DATA:
-
-TRAINING PAIRS (Author's voice/opinions):
-${trainingContext || 'No training pairs available.'}
-
-PERSONALITY PROFILE:
-${profileContext}
-
-EDITOR NOTES (observations about Author):
-${notesContext || 'No editor notes available.'}
 
 Extract a Constitution. Be thorough but accurate — only include what you can INFER. Leave arrays empty if uncertain.
 
@@ -278,7 +264,11 @@ Return JSON matching this EXACT structure:
   }
 }
 
-Return ONLY the JSON object.`
+Return ONLY the JSON object.`,
+      messages: [
+        {
+          role: 'user',
+          content: `AVAILABLE DATA:\n\nTRAINING PAIRS (Author's voice/opinions):\n${trainingContext || 'No training pairs available.'}\n\nPERSONALITY PROFILE:\n${profileContext}\n\nEDITOR NOTES (observations about Author):\n${notesContext || 'No editor notes available.'}`
         }
       ]
     });
@@ -434,18 +424,7 @@ Return ONLY the JSON object.`
 
     const { text: response } = await generateText({
       model: getFastModel(),
-      messages: [
-        {
-          role: 'system',
-          content: `You are analyzing whether to update an Author's Constitution based on new information.
-
-CURRENT CONSTITUTION:
-${constitution.content}
-
-NEW TRIGGER:
-Type: ${trigger.type}
-Context: ${trigger.context}
-Content: ${trigger.content}
+      system: `You are analyzing whether to update an Author's Constitution based on new information.
 
 Should this update the Constitution? Consider:
 1. Is this genuinely new information or just a one-off?
@@ -460,7 +439,11 @@ If YES update needed, return:
   "section": "the section to update (e.g., 'values', 'heuristics', 'boundaries')",
   "proposedChange": "what to add/modify",
   "reasoning": "why this should be added"
-}`
+}`,
+      messages: [
+        {
+          role: 'user',
+          content: `CURRENT CONSTITUTION:\n${constitution.content}\n\nNEW TRIGGER:\nType: ${trigger.type}\nContext: ${trigger.context}\nContent: ${trigger.content}`
         }
       ]
     });

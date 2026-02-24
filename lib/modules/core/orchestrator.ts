@@ -731,12 +731,7 @@ BEHAVIOR:
   }> {
     const { text } = await generateText({
       model: getQualityModel(),
-      messages: [
-        {
-          role: 'system',
-          content: `You are routing a query to a PLM (Personal Language Model - digital representation of the Author).
-
-Query: "${query}"
+      system: `You are routing a query to a PLM (Personal Language Model - digital representation of the Author).
 
 Decide:
 1. Does this need memory lookup? (facts, dates, events, preferences)
@@ -748,8 +743,9 @@ Return JSON:
   "needsMemory": true/false,
   "needsConstitution": true/false,
   "suggestedApproach": "brief description"
-}`
-        }
+}`,
+      messages: [
+        { role: 'user', content: query }
       ]
     });
     
