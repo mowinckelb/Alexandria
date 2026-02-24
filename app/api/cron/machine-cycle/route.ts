@@ -18,7 +18,7 @@ function getBaseUrl(request: NextRequest): string {
 
 async function runEndpoint(baseUrl: string, path: string, authHeader?: string) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20000);
+  const timeout = setTimeout(() => controller.abort(), 55000);
   const startedAt = Date.now();
   const res = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
@@ -148,21 +148,21 @@ export async function POST(request: NextRequest) {
     ];
     const steps = includeChannels ? [...coreSteps, ...channelSteps] : coreSteps;
 
-    const results = [];
-    for (const path of steps) {
-      try {
-        const stepResult = await runEndpoint(baseUrl, path, authHeader);
-        results.push(stepResult);
-      } catch (error) {
-        results.push({
-          path,
-          ok: false,
-          status: error instanceof Error && error.name === 'AbortError' ? 408 : 500,
-          elapsedMs: null,
-          body: { error: error instanceof Error ? error.message : 'Unknown error' }
-        });
-      }
-    }
+    const results = await Promise.all(
+      steps.map(async (path) => {
+        try {
+          return await runEndpoint(baseUrl, path, authHeader);
+        } catch (error) {
+          return {
+            path,
+            ok: false,
+            status: error instanceof Error && error.name === 'AbortError' ? 408 : 500,
+            elapsedMs: null as number | null,
+            body: { error: error instanceof Error ? error.message : 'Unknown error' }
+          };
+        }
+      })
+    );
 
     const proposalId = await maybeQueueBlueprintProposal(userId, results);
 
