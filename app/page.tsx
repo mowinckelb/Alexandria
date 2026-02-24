@@ -21,12 +21,36 @@ interface Message {
 // Inline Section Components
 // ============================================================================
 
+interface EditorStatus {
+  total: number;
+  processed: number;
+  remaining: number;
+  percentComplete: number;
+  model: { provider: string; quality: string; fast: string };
+  editor: { lastCycleAt: string | null; cycleCount: number; activityLevel: string };
+  recentLogs: Array<{ time: string; summary: string }>;
+}
+
 function VaultSection({ userId }: { userId: string }) {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [reprocessing, setReprocessing] = useState(false);
   const [pasteText, setPasteText] = useState('');
+  const [status, setStatus] = useState<EditorStatus | null>(null);
+
+  const fetchStatus = async () => {
+    try {
+      const res = await fetch(`/api/editor-status?userId=${userId}`);
+      if (res.ok) setStatus(await res.json());
+    } catch {}
+  };
+
+  useEffect(() => {
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 8000);
+    return () => clearInterval(interval);
+  }, [userId]);
 
   const addFiles = (incoming: FileList | File[]) => {
     const allowed = Array.from(incoming).filter(f => {
@@ -58,6 +82,7 @@ function VaultSection({ userId }: { userId: string }) {
     setFiles([]);
     setUploading(false);
     setMessage(`${done} file${done !== 1 ? 's' : ''} stored. editor will process gradually.`);
+    fetchStatus();
   };
 
   const uploadPaste = async () => {
@@ -73,6 +98,7 @@ function VaultSection({ userId }: { userId: string }) {
       if (res.ok) { setPasteText(''); setMessage('stored. editor will process gradually.'); }
     } catch {}
     setUploading(false);
+    fetchStatus();
   };
 
   const reprocess = async () => {
@@ -87,12 +113,80 @@ function VaultSection({ userId }: { userId: string }) {
       setMessage(data.message || 'queued for re-processing.');
     } catch { setMessage('failed.'); }
     setReprocessing(false);
+    fetchStatus();
+  };
+
+  const timeAgo = (iso: string) => {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
   };
 
   return (
     <div className="space-y-5">
       <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Vault</h2>
       <p className="text-xs" style={{ color: 'var(--text-subtle)' }}>upload data. the editor processes it gradually in the background.</p>
+
+      {/* Editor processing status */}
+      {status && (
+        <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-secondary)' }}>
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>editor progress</div>
+            <div className="text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
+              {status.model.provider} · {status.model.quality}
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div>
+            <div className="flex justify-between text-[0.65rem] mb-1" style={{ color: 'var(--text-subtle)' }}>
+              <span>{status.processed} / {status.total} entries</span>
+              <span>{status.percentComplete}%</span>
+            </div>
+            <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${status.percentComplete}%`,
+                  background: status.remaining > 0 ? 'var(--text-subtle)' : 'var(--text-primary)',
+                  opacity: status.remaining > 0 ? 0.5 : 0.3,
+                }}
+              />
+            </div>
+            {status.remaining > 0 && (
+              <div className="text-[0.6rem] mt-1 thinking-pulse" style={{ color: 'var(--text-subtle)' }}>
+                {status.remaining} remaining — processing ~1 per cycle
+              </div>
+            )}
+          </div>
+
+          {/* Cycle info */}
+          <div className="flex gap-4 text-[0.6rem]" style={{ color: 'var(--text-subtle)' }}>
+            {status.editor.lastCycleAt && (
+              <span>last cycle: {timeAgo(status.editor.lastCycleAt)}</span>
+            )}
+            <span>cycle #{status.editor.cycleCount}</span>
+            <span>activity: {status.editor.activityLevel}</span>
+          </div>
+
+          {/* Recent processing log */}
+          {status.recentLogs.length > 0 && (
+            <div className="space-y-1 pt-2 border-t" style={{ borderColor: 'var(--border-light)' }}>
+              <div className="text-[0.6rem] font-medium" style={{ color: 'var(--text-subtle)' }}>recent activity</div>
+              {status.recentLogs.map((log, i) => (
+                <div key={i} className="text-[0.6rem] flex justify-between" style={{ color: 'var(--text-subtle)', opacity: 0.7 }}>
+                  <span className="truncate mr-2">{log.summary}</span>
+                  <span className="whitespace-nowrap flex-shrink-0">{timeAgo(log.time)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div
         className="rounded-xl border-2 border-dashed p-6 text-center"

@@ -356,9 +356,26 @@ async function runCycle(targetUserId?: string) {
         const editor = getEditor();
         const entryResult = await editor.processEntry(entry.id, userId, entry.content || '');
         console.log(`[Editor Cycle] Processed entry ${entry.id} for ${userId}: ${entryResult.memoriesStored}m, ${entryResult.trainingPairsCreated}tp, ${entryResult.notesAdded}n`);
+
+        await supabase.from('persona_activity').insert({
+          user_id: userId,
+          action_type: 'editor_entry_processed',
+          summary: `processed entry: ${entryResult.memoriesStored} memories, ${entryResult.trainingPairsCreated} training pairs, ${entryResult.notesAdded} notes`,
+          details: { entryId: entry.id, entryResult },
+          requires_attention: false,
+        });
       }
     } catch (entryErr) {
       console.error(`[Editor Cycle] Entry processing failed for ${userId}:`, entryErr);
+      try {
+        await supabase.from('persona_activity').insert({
+          user_id: userId,
+          action_type: 'editor_entry_failed',
+          summary: `entry processing failed: ${entryErr instanceof Error ? entryErr.message : 'unknown'}`,
+          details: { error: entryErr instanceof Error ? entryErr.message : String(entryErr) },
+          requires_attention: true,
+        });
+      } catch {}
     }
 
     processed += 1;
