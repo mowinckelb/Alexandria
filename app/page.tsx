@@ -148,7 +148,7 @@ function VaultSection({ userId }: { userId: string }) {
             <div key={i} className="text-xs opacity-60">{f.name} ({(f.size / 1024).toFixed(0)} KB)</div>
           ))}
           <button onClick={uploadAll} disabled={uploading} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-            {uploading ? 'uploading...' : `upload ${files.length} file${files.length !== 1 ? 's' : ''}`}
+            {uploading ? <span className="italic thinking-pulse">uploading</span> : `upload ${files.length} file${files.length !== 1 ? 's' : ''}`}
           </button>
         </div>
       )}
@@ -170,18 +170,24 @@ function VaultSection({ userId }: { userId: string }) {
 
       {message && <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
 
-      {/* Editor progress — compact */}
+      {/* Editor progress */}
       {status && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
-            <span>{status.processed} / {status.total}</span>
-            {status.remaining > 0 && <span className="thinking-pulse">{status.remaining} remaining</span>}
-          </div>
-          <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
-            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${status.percentComplete}%`, background: 'var(--text-subtle)', opacity: status.remaining > 0 ? 0.5 : 0.3 }} />
-          </div>
+          {status.remaining > 0 ? (
+            <>
+              <div className="flex items-center justify-between text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
+                <span>{status.processed} / {status.total}</span>
+                <span className="italic thinking-pulse">{status.remaining} remaining</span>
+              </div>
+              <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
+                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${status.percentComplete}%`, background: 'var(--text-subtle)', opacity: 0.5 }} />
+              </div>
+            </>
+          ) : (
+            <div className="text-[0.65rem] italic" style={{ color: 'var(--text-subtle)' }}>complete</div>
+          )}
           <button onClick={reprocess} disabled={reprocessing} className="text-[0.65rem] bg-transparent border-none cursor-pointer disabled:opacity-50 p-0" style={{ color: 'var(--text-subtle)' }}>
-            {reprocessing ? 'resetting...' : 're-process everything'}
+            {reprocessing ? <span className="italic thinking-pulse">resetting</span> : 're-process everything'}
           </button>
         </div>
       )}
@@ -218,6 +224,7 @@ function PLMSection({ userId }: { userId: string }) {
   const [summary, setSummary] = useState<{
     total: number; available: number; active_model: string;
     recent_exports: TrainingExport[];
+    version: number; last_trained_at: string | null;
   } | null>(null);
 
   useEffect(() => {
@@ -241,20 +248,34 @@ function PLMSection({ userId }: { userId: string }) {
         <div className="space-y-1">
           {/* Active model */}
           <div className="flex items-center justify-between py-2.5 px-1">
-            <span className="text-sm" style={{ color: 'var(--text-primary)' }}>
-              {cleanModelName(summary.active_model)}
-            </span>
+            <div>
+              <span className="text-sm" style={{ color: 'var(--text-primary)' }}>
+                {cleanModelName(summary.active_model)}
+              </span>
+              {summary.version > 0 ? (
+                <span className="text-[0.6rem] ml-2" style={{ color: 'var(--text-subtle)' }}>
+                  v{summary.version}{summary.last_trained_at ? ` · ${new Date(summary.last_trained_at).toLocaleDateString()}` : ''}
+                </span>
+              ) : (
+                <span className="text-[0.6rem] ml-2" style={{ color: 'var(--text-subtle)' }}>untrained</span>
+              )}
+            </div>
             <span className="text-xs" style={{ color: 'var(--text-subtle)' }}>active</span>
           </div>
 
           {/* Previous exports as history */}
           {summary.recent_exports
             .filter(e => e.resulting_model_id && e.status === 'active' && e.resulting_model_id !== summary.active_model)
-            .map(e => (
+            .map((e, i) => (
               <div key={e.id} className="flex items-center justify-between py-2.5 px-1">
-                <span className="text-sm" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
-                  {cleanModelName(e.resulting_model_id!)}
-                </span>
+                <div>
+                  <span className="text-sm" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
+                    {cleanModelName(e.resulting_model_id!)}
+                  </span>
+                  <span className="text-[0.6rem] ml-2" style={{ color: 'var(--text-subtle)', opacity: 0.5 }}>
+                    v{summary.version - (i + 1)} · {new Date(e.created_at).toLocaleDateString()}
+                  </span>
+                </div>
                 <button className="text-xs bg-transparent border-none cursor-pointer hover:opacity-70 p-0" style={{ color: 'var(--text-subtle)' }}>restore</button>
               </div>
             ))
@@ -555,7 +576,7 @@ function LibrarySection({ userId }: { userId: string }) {
                 <div className="flex items-center justify-between">
                   <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>Works</div>
                   <label className="text-[0.65rem] cursor-pointer" style={{ color: 'var(--text-subtle)' }}>
-                    {saving ? '...' : '+'}
+                    {saving ? <span className="italic thinking-pulse">saving</span> : '+'}
                     <input
                       type="file"
                       accept=".pdf,.md,.txt,.doc,.docx"
@@ -568,7 +589,7 @@ function LibrarySection({ userId }: { userId: string }) {
                 {showWorkTitle && (
                   <div className="flex gap-2 items-center">
                     <input value={workTitle} onChange={e => setWorkTitle(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') submitWork(); }} placeholder="title" autoFocus className="flex-1 rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-                    <button onClick={submitWork} disabled={saving} className="text-xs bg-transparent border-none cursor-pointer disabled:opacity-50" style={{ color: 'var(--text-primary)' }}>{saving ? '...' : 'add'}</button>
+                    <button onClick={submitWork} disabled={saving} className="text-xs bg-transparent border-none cursor-pointer disabled:opacity-50" style={{ color: 'var(--text-primary)' }}>{saving ? <span className="italic thinking-pulse">saving</span> : 'add'}</button>
                     <button onClick={() => { setShowWorkTitle(false); pendingFileRef.current = null; }} className="text-xs bg-transparent border-none cursor-pointer" style={{ color: 'var(--text-subtle)' }}>×</button>
                   </div>
                 )}
@@ -608,10 +629,10 @@ function LibrarySection({ userId }: { userId: string }) {
 
                 {showLinkInput && (
                   <div className="space-y-2">
-                    <input value={linkInput} onChange={e => setLinkInput(e.target.value)} placeholder="paste a link" autoFocus className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                    <input value={linkTitle} onChange={e => setLinkTitle(e.target.value)} placeholder="title" autoFocus className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
                     <div className="flex gap-2 items-center">
-                      <input value={linkTitle} onChange={e => setLinkTitle(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addLink(); }} placeholder="title (optional)" className="flex-1 rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-                      <button onClick={addLink} disabled={saving || !linkInput.trim()} className="text-xs bg-transparent border-none cursor-pointer disabled:opacity-50" style={{ color: 'var(--text-primary)' }}>{saving ? '...' : 'add'}</button>
+                      <input value={linkInput} onChange={e => setLinkInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && linkTitle.trim() && linkInput.trim()) addLink(); }} placeholder="paste a link" className="flex-1 rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                      <button onClick={addLink} disabled={saving || !linkInput.trim() || !linkTitle.trim()} className="text-xs bg-transparent border-none cursor-pointer disabled:opacity-50" style={{ color: 'var(--text-primary)' }}>{saving ? <span className="italic thinking-pulse">saving</span> : 'add'}</button>
                     </div>
                   </div>
                 )}
@@ -630,13 +651,15 @@ function LibrarySection({ userId }: { userId: string }) {
                       />
                     ) : (
                       <div className="flex-1 min-w-0">
-                        <button onClick={() => { setEditingId(inf.id); setEditingTitle(inf.title); }} className="text-sm bg-transparent border-none cursor-pointer text-left p-0 block" style={{ color: 'var(--text-primary)' }}>
-                          {inf.title !== inf.url ? inf.title : ''}
-                        </button>
-                        {inf.url && (
-                          <a href={inf.url} target="_blank" rel="noopener noreferrer" className="text-[0.6rem] truncate block no-underline" style={{ color: 'var(--text-subtle)' }}>
-                            {inf.url} ↗
+                        {inf.url ? (
+                          <a href={inf.url} target="_blank" rel="noopener noreferrer" className="text-sm no-underline block truncate" style={{ color: 'var(--text-primary)' }}
+                            onDoubleClick={e => { e.preventDefault(); setEditingId(inf.id); setEditingTitle(inf.title); }}>
+                            {inf.title} <span className="text-[0.6rem]" style={{ color: 'var(--text-subtle)' }}>↗</span>
                           </a>
+                        ) : (
+                          <button onClick={() => { setEditingId(inf.id); setEditingTitle(inf.title); }} className="text-sm bg-transparent border-none cursor-pointer text-left p-0 block" style={{ color: 'var(--text-primary)' }}>
+                            {inf.title}
+                          </button>
                         )}
                       </div>
                     )}
@@ -706,6 +729,7 @@ export default function Alexandria() {
   const [showNav, setShowNav] = useState(false);
   const [rlaifReviewCount, setRlaifReviewCount] = useState(0);
   const [activeSection, setActiveSection] = useState<'vault' | 'constitution' | 'plm' | 'library' | null>(null);
+  const [agentsPaused, setAgentsPaused] = useState(false);
   const seenEditorMessageIds = useRef<Set<string>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
   const outputScrollRef = useRef<HTMLDivElement>(null);
@@ -740,6 +764,28 @@ export default function Alexandria() {
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [showNav]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !userId) return;
+    fetch(`/api/system-config?userId=${userId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.config?.paused) setAgentsPaused(true); })
+      .catch(() => {});
+  }, [isAuthenticated, userId]);
+
+  const toggleAgentsPaused = async () => {
+    const newState = !agentsPaused;
+    setAgentsPaused(newState);
+    try {
+      await fetch('/api/system-config', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, config: { paused: newState } })
+      });
+    } catch {
+      setAgentsPaused(!newState);
+    }
+  };
 
   useEffect(() => {
     if (!isAuthenticated || !userId) return;
@@ -1692,6 +1738,13 @@ export default function Alexandria() {
                 ))}
                 <div className="my-1.5 mx-3" style={{ borderTop: '1px solid var(--border-light)' }} />
                 <button
+                  onClick={e => { e.stopPropagation(); toggleAgentsPaused(); }}
+                  className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-60 transition-opacity"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {agentsPaused ? 'resume agents' : 'pause agents'}
+                </button>
+                <button
                   onClick={() => { handleLogout(); setShowNav(false); }}
                   className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-60 transition-opacity"
                   style={{ color: 'var(--text-primary)' }}
@@ -1833,7 +1886,7 @@ export default function Alexandria() {
             </div>
             <div className="h-4 mt-1.5 flex justify-center">
               {feedbackSaved && (
-                <span className="text-[0.7rem] italic" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>noted.</span>
+                <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>noted</span>
               )}
             </div>
           </div>

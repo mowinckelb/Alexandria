@@ -10,6 +10,7 @@ export interface SystemConfig {
   version: string;
   createdAt: string;
   updatedAt: string;
+  paused?: boolean;
 
   axioms: {
     phases: string[];

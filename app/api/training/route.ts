@@ -51,16 +51,27 @@ export async function GET(req: Request) {
   const { data: activeModel } = await supabase
     .rpc('get_active_model', { p_user_id: userId });
 
+  // Last trained date and completed export count for versioning
+  const { data: completedExports } = await supabase
+    .from('training_exports')
+    .select('id, created_at, completed_at, resulting_model_id')
+    .eq('user_id', userId)
+    .in('status', ['active', 'completed'])
+    .order('completed_at', { ascending: false });
+
+  const completedCount = completedExports?.length || 0;
+  const lastTrained = completedExports?.[0]?.completed_at || completedExports?.[0]?.created_at || null;
+
   const availableCount = available || 0;
   return NextResponse.json({
     total: total || 0,
     available: availableCount,
     high_quality: highQuality || 0,
     ready: availableCount >= 100,
-    tier: availableCount >= 2000 ? 'optimal' : availableCount >= 500 ? 'good' : availableCount >= 100 ? 'minimum' : 'insufficient',
     active_model: activeModel || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
     recent_exports: exports || [],
-    thresholds: { minimum: 100, good: 500, optimal: 2000 }
+    version: completedCount,
+    last_trained_at: lastTrained,
   });
 }
 

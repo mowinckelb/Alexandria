@@ -6,7 +6,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateText } from 'ai';
 import { z } from 'zod';
-import Together from 'together-ai';
 import { getFastModel, getQualityModel, getFallbackQualityModel, togetherProvider } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
 import type { Constitution, ConstitutionSections } from '@/lib/modules/constitution/types';
@@ -17,8 +16,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY!
 );
 
-const together = new Together({ apiKey: process.env.TOGETHER_API_KEY });
-
 // ============================================================================
 // Types
 // ============================================================================
@@ -26,12 +23,6 @@ const together = new Together({ apiKey: process.env.TOGETHER_API_KEY });
 export interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
-}
-
-export interface MemoryItem {
-  content: string;
-  entities: string[];
-  importance: number;
 }
 
 export interface TrainingPair {
@@ -57,27 +48,26 @@ export interface FollowUpQuestion {
 }
 
 export interface EditorResponse {
-  // The Editor's conversational response to the Author
   message: string;
   
-  // What was extracted from Author's input
   extraction: {
     raw: string;
-    objective: MemoryItem[];
     subjective: TrainingPair[];
   };
+
+  constitutionUpdates?: {
+    section: string;
+    additions: unknown[];
+  }[];
   
-  // Notepad updates
   notepadUpdates: {
     observations: EditorNote[];
     gaps: EditorNote[];
     mentalModels: EditorNote[];
   };
   
-  // Follow-up questions to ask Author
   followUpQuestions: FollowUpQuestion[];
   
-  // Training recommendation
   trainingRecommendation?: {
     shouldTrain: boolean;
     reasoning: string;
@@ -130,7 +120,7 @@ PRIORITIES (in order):
 1. SUBJECTIVE information is GOLD — opinions, values, emotional responses, personality quirks, humor, decision patterns
 2. Ask follow-up questions that make the Author think. Not "tell me more" — ask the question that gets under the surface.
 3. Update your notepad with observations and mental models about the Author
-4. Extract objective facts (dates, names, events) for memory storage
+4. Everything you learn feeds into the Constitution — the comprehensive map of who the Author is
 
 EVERY INTERACTION IS EXTRACTION:
 - A complaint about your questioning style reveals how the Author handles frustration.
@@ -139,8 +129,8 @@ EVERY INTERACTION IS EXTRACTION:
 - Nothing is wasted. Your personality is not separate from your extraction function — it IS part of it.
 
 WHAT TO EXTRACT:
-- Objective: Facts, dates, events, relationships, biographical data → stored in Memory (vector DB)
-- Subjective: Voice, style, opinions, values, quirks → used for training the PLM model
+- Subjective: Voice, style, opinions, values, quirks → feeds into Constitution and PLM training
+- All raw data is preserved in the Vault — you build the Constitution by synthesizing across all data
 
 YOUR NOTEPAD:
 - You have a persistent notepad where you track observations, gaps, and mental models
@@ -154,20 +144,19 @@ SUGGESTED THRESHOLDS (guidelines, not rules):
 
 // Zod schema for structured Editor output (guarantees valid JSON, avoids parse failures)
 const editorOutputSchema = z.object({
-  message: z.string().describe('Your conversational response to the Author - warm, probing, responds to what they said, asks follow-ups'),
+  message: z.string().describe('Your conversational response to the Author'),
   extraction: z.object({
-    objective: z.array(z.object({
-      content: z.string(),
-      entities: z.array(z.string()).default([]),
-      importance: z.number().default(0.5)
-    })).default([]),
     subjective: z.array(z.object({
       system_prompt: z.string().default('You are a Personal Language Model (PLM).'),
       user_content: z.string(),
       assistant_content: z.string(),
       quality_score: z.number().default(0.5)
     })).default([])
-  }).default({ objective: [], subjective: [] }),
+  }).default({ subjective: [] }),
+  constitutionUpdates: z.array(z.object({
+    section: z.string(),
+    additions: z.array(z.unknown()).default([])
+  })).optional().default([]),
   notepadUpdates: z.object({
     observations: z.array(z.object({
       type: z.literal('observation'),
@@ -228,59 +217,65 @@ export class Editor {
     memoriesStored: number;
     trainingPairsCreated: number;
     notesAdded: number;
+    constitutionUpdated: boolean;
   }> {
-    const result = { memoriesStored: 0, trainingPairsCreated: 0, notesAdded: 0 };
+    const result = { memoriesStored: 0, trainingPairsCreated: 0, notesAdded: 0, constitutionUpdated: false };
 
-    // 1. Read current Constitution
+    // 1. Read the FULL current Canon Constitution
     const constitution = await this.constitutionManager.getConstitution(userId);
-    const constitutionContext = constitution
-      ? this.formatConstitutionContext(constitution)
-      : 'No Constitution yet — extract everything you can.';
+    const fullConstitution = constitution
+      ? constitution.content
+      : 'No Constitution yet — this is a fresh start. Extract everything you can from this data.';
 
-    // 2. Truncate content if very long (process what fits in context)
-    const text = content.length > 6000 ? content.slice(0, 6000) : content;
+    // 2. Truncate content if very long
+    const text = content.length > 8000 ? content.slice(0, 8000) : content;
 
-    // 3. Analyze with Constitution awareness
+    // 3. Analyze: extract signal, propose constitution edits, generate training pairs
     let rawResponse: string;
     try {
       const genResult = await generateText({
         model: getQualityModel(),
-        system: `You are the Editor — a biographer processing raw data from the Author.
+        system: `You are the Editor — a biographer building a comprehensive Constitution of the Author.
 
-CURRENT CONSTITUTION:
-${constitutionContext}
+You have the full current Canon Constitution below. Your job is to read this new data chunk from the Author and:
+1. CONSTITUTION UPDATES — What new signal does this data add? Propose specific additions to the 5 sections (worldview, values, models, identity, shadows). Be concrete and specific. If the data reveals something already captured, skip it. Only add genuinely new insights.
+2. TRAINING PAIRS — Extract examples of the Author's voice/thinking that can train the PLM. The user_content should be a natural prompt, and assistant_content should capture how the Author would actually respond.
+3. NOTEPAD — Observations, questions, gaps. What patterns do you notice? What contradicts the current Constitution? What's missing?
 
-Analyze the Author's data against the Constitution. Extract:
-1. Objective facts (memories) — things that happened, entities mentioned
-2. Subjective signal (training pairs) — examples of how the Author thinks/speaks that can train the PLM
-3. Notepad observations — anything interesting, contradictions, gaps in the Constitution
+CURRENT CANON CONSTITUTION:
+${fullConstitution}
 
 Return JSON:
 {
-  "message": "brief note to yourself about what this data reveals",
+  "message": "brief note about what this data reveals",
+  "constitutionUpdates": [
+    {"section": "worldview", "field": "beliefs", "additions": ["New specific belief extracted from this data"]},
+    {"section": "values", "field": "core", "additions": [{"name": "Value Name", "description": "Detailed description"}]},
+    {"section": "identity", "field": "selfConcept", "addition": "Additional paragraph about self-concept"},
+    {"section": "shadows", "field": "contradictions", "additions": ["Specific contradiction observed"]}
+  ],
   "extraction": {
-    "objective": [{"content": "fact", "entities": ["entity"], "importance": 0.7}],
-    "subjective": [{"system_prompt": "You are a PLM.", "user_content": "prompt", "assistant_content": "Author's actual words/voice", "quality_score": 0.8}]
+    "subjective": [{"system_prompt": "You are a PLM.", "user_content": "prompt", "assistant_content": "Author's actual voice", "quality_score": 0.8}]
   },
   "notepadUpdates": {
     "observations": [{"type": "observation", "content": "...", "topic": "...", "priority": "high", "category": "critical"}],
     "gaps": [{"type": "gap", "content": "...", "topic": "...", "priority": "medium", "category": "non_critical"}],
-    "mentalModels": []
+    "mentalModels": [{"type": "mental_model", "content": "...", "topic": "...", "priority": "low", "category": "non_critical"}]
   },
   "scratchpadUpdate": "running notes"
 }
 
-Return ONLY the JSON.`,
-        messages: [{ role: 'user', content: `AUTHOR'S DATA:\n\n${text}` }]
+Be AGGRESSIVE about extracting signal. Every piece of data should yield something useful. Return ONLY the JSON.`,
+        messages: [{ role: 'user', content: `AUTHOR'S DATA CHUNK:\n\n${text}` }]
       });
       rawResponse = genResult.text;
     } catch (primaryErr: unknown) {
       const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
       if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit')) {
-        console.warn('[Editor] Groq rate limited, falling back to Together AI for entry processing');
+        console.warn('[Editor] Rate limited, falling back to Together AI');
         const genResult = await generateText({
           model: getFallbackQualityModel(),
-          system: 'Extract facts and training examples from the given text. Return JSON with "extraction" containing "objective" and "subjective" arrays. Return ONLY JSON.',
+          system: 'Extract training examples and observations from the text. Return JSON with "extraction" containing "subjective" array, and "notepadUpdates". Return ONLY JSON.',
           messages: [{ role: 'user', content: text }]
         });
         rawResponse = genResult.text;
@@ -289,17 +284,26 @@ Return ONLY the JSON.`,
       }
     }
 
-    // 4. Parse and store
+    // 4. Parse response
     const parsed = this.parseAndValidateResponse(rawResponse, '');
 
-    for (const obj of parsed.extraction.objective) {
-      try { await this.storeMemory(obj as MemoryItem, userId); result.memoriesStored++; } catch {}
+    // 5. Apply constitution delta updates
+    if (constitution && parsed.constitutionUpdates && parsed.constitutionUpdates.length > 0) {
+      try {
+        await this.applyConstitutionDeltas(userId, constitution, parsed.constitutionUpdates);
+        result.constitutionUpdated = true;
+      } catch (err) {
+        console.error('[Editor] Constitution delta update failed:', err);
+      }
     }
+
+    // 6. Store training pairs
     for (const subj of parsed.extraction.subjective) {
       try { await this.storeTrainingPair(subj as TrainingPair, userId); result.trainingPairsCreated++; } catch {}
     }
 
-    const noteCount = parsed.notepadUpdates.observations.length + parsed.notepadUpdates.gaps.length;
+    // 7. Update notepad
+    const noteCount = parsed.notepadUpdates.observations.length + parsed.notepadUpdates.gaps.length + parsed.notepadUpdates.mentalModels.length;
     if (noteCount > 0) {
       try {
         await this.updateNotepad(userId, parsed.notepadUpdates, parsed.scratchpadUpdate || '');
@@ -307,11 +311,53 @@ Return ONLY the JSON.`,
       } catch {}
     }
 
-    // 5. Mark entry as processed
+    // 8. Mark entry as processed
     await supabase.from('entries').update({ metadata: { editor_processed: true, processed_at: new Date().toISOString() } }).eq('id', entryId);
 
-    console.log(`[Editor] Processed entry ${entryId}: ${result.memoriesStored} memories, ${result.trainingPairsCreated} training pairs, ${result.notesAdded} notes`);
+    console.log(`[Editor] Processed entry ${entryId}: constitution=${result.constitutionUpdated}, ${result.trainingPairsCreated} training pairs, ${result.notesAdded} notes`);
     return result;
+  }
+
+  /**
+   * Apply incremental constitution updates from entry processing.
+   * Merges new items into existing sections without overwriting.
+   */
+  private async applyConstitutionDeltas(
+    userId: string,
+    current: Constitution,
+    updates: Array<{ section: string; additions?: unknown[]; field?: string; addition?: string }>
+  ): Promise<void> {
+    const sections = JSON.parse(JSON.stringify(current.sections)) as ConstitutionSections;
+    let changed = false;
+
+    for (const update of updates) {
+      const sectionKey = update.section as keyof ConstitutionSections;
+      if (!sections[sectionKey]) continue;
+
+      const section = sections[sectionKey] as Record<string, unknown>;
+      const field = update.field;
+
+      if (field && update.additions && Array.isArray(update.additions)) {
+        const existing = section[field];
+        if (Array.isArray(existing)) {
+          section[field] = [...existing, ...update.additions];
+          changed = true;
+        }
+      } else if (field && update.addition && typeof update.addition === 'string') {
+        const existing = section[field];
+        if (typeof existing === 'string') {
+          section[field] = existing ? `${existing}\n\n${update.addition}` : update.addition;
+          changed = true;
+        }
+      }
+    }
+
+    if (changed) {
+      // Save the merged sections as a new constitution version
+      const markdown = this.constitutionManager.sectionsToMarkdown(sections);
+      await this.constitutionManager.saveNewVersion(userId, sections, markdown, 'Editor incremental update from vault data');
+      console.log(`[Editor] Applied constitution delta for user ${userId}`);
+    }
   }
 
   // ==========================================================================
@@ -371,7 +417,6 @@ RESPOND WITH JSON:
 {
   "message": "Your conversational response to the Author — respond to what they said, then ask a follow-up",
   "extraction": {
-    "objective": [{"content": "fact", "entities": ["entity"], "importance": 0.7}],
     "subjective": [{"system_prompt": "You are a PLM.", "user_content": "prompt", "assistant_content": "verbatim Author text", "quality_score": 0.8}]
   },
   "notepadUpdates": {
@@ -386,7 +431,7 @@ RESPOND WITH JSON:
 
 CRITICAL RULES:
 - Your "message" MUST respond directly to what the Author just said. Reference their words. Never give a generic reply.
-- Prioritize subjective extraction (voice, style, opinions) over objective (facts)
+- Focus on SUBJECTIVE extraction — voice, style, opinions, values, how they think
 - Be AGGRESSIVE about identifying gaps and asking probing questions
 - Return ONLY the JSON object, no other text`
       },
@@ -415,12 +460,7 @@ CRITICAL RULES:
     // 7. Store raw entry
     await this.storeRawEntry(authorInput, userId);
     
-    // 8. Store objective data (memories)
-    for (const item of parsed.extraction.objective) {
-      await this.storeMemory(item, userId);
-    }
-    
-    // 9. Store subjective data (training pairs)
+    // 8. Store training pairs
     for (const pair of parsed.extraction.subjective) {
       await this.storeTrainingPair(pair, userId);
     }
@@ -428,7 +468,7 @@ CRITICAL RULES:
     // 10. Update notepad
     await this.updateNotepad(userId, parsed.notepadUpdates, parsed.scratchpadUpdate || '');
     
-    // 11. Propose Constitution update if relevant (Phase 1)
+    // 10. Propose Constitution update if relevant
     if (constitution && parsed.extraction.subjective.length > 0) {
       await this.maybeUpdateConstitution(userId, authorInput, parsed);
     }
@@ -710,93 +750,6 @@ Should training be triggered? Return JSON:
     return data?.id || null;
   }
   
-  private async storeMemory(item: MemoryItem, userId: string): Promise<void> {
-    try {
-      const embedding = await together.embeddings.create({
-        model: "BAAI/bge-base-en-v1.5",
-        input: item.content
-      });
-      
-      const { data: memoryRow, error } = await supabase
-        .from('memory_fragments')
-        .insert({
-          user_id: userId,
-          content: item.content,
-          embedding: embedding.data[0].embedding,
-          entities: item.entities,
-          importance: item.importance
-        })
-        .select('id')
-        .single();
-
-      if (error || !memoryRow?.id) {
-        throw new Error(error?.message || 'Failed to store memory fragment');
-      }
-
-      const normalizedEntities = [...new Set(
-        (item.entities || [])
-          .map((e) => e.trim())
-          .filter((e) => e.length > 1)
-          .slice(0, 25)
-      )];
-
-      if (normalizedEntities.length > 0) {
-        await supabase
-          .from('memory_entities')
-          .insert(
-            normalizedEntities.map((entityName) => ({
-              user_id: userId,
-              memory_fragment_id: memoryRow.id,
-              entity_name: entityName,
-              entity_type: this.classifyEntityType(entityName)
-            }))
-          );
-
-        const relationships: Array<{
-          user_id: string;
-          memory_fragment_id: string;
-          source_entity: string;
-          target_entity: string;
-          relation_type: 'co_occurs';
-          confidence: number;
-        }> = [];
-
-        for (let i = 0; i < normalizedEntities.length; i++) {
-          for (let j = i + 1; j < normalizedEntities.length; j++) {
-            relationships.push({
-              user_id: userId,
-              memory_fragment_id: memoryRow.id,
-              source_entity: normalizedEntities[i],
-              target_entity: normalizedEntities[j],
-              relation_type: 'co_occurs',
-              confidence: Math.max(0.45, Math.min(0.9, item.importance || 0.5))
-            });
-          }
-        }
-
-        if (relationships.length > 0) {
-          await supabase.from('memory_relationships').upsert(
-            relationships,
-            { onConflict: 'user_id,memory_fragment_id,source_entity,target_entity,relation_type' }
-          );
-        }
-      }
-      
-      console.log(`[UnifiedEditor] Stored memory: "${item.content.substring(0, 50)}..."`);
-    } catch (e) {
-      console.error('[UnifiedEditor] Failed to store memory:', e);
-    }
-  }
-
-  private classifyEntityType(entityName: string): 'person' | 'organization' | 'location' | 'concept' | 'unknown' {
-    const text = entityName.toLowerCase();
-    if (/(inc|llc|corp|company|org|university|school|team)/.test(text)) return 'organization';
-    if (/(city|state|country|street|avenue|park|lake|river)/.test(text)) return 'location';
-    if (/(principle|value|strategy|framework|model|idea|belief)/.test(text)) return 'concept';
-    if (/^[a-z]+(?:\s+[a-z]+){0,2}$/i.test(entityName)) return 'person';
-    return 'unknown';
-  }
-  
   private async storeTrainingPair(pair: TrainingPair, userId: string): Promise<void> {
     try {
       await supabase.from('training_pairs').insert({
@@ -937,7 +890,8 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
         const out = validated.data;
         return {
           message: out.message,
-          extraction: { raw: rawInput, objective: out.extraction.objective, subjective: out.extraction.subjective },
+          extraction: { raw: rawInput, subjective: out.extraction.subjective },
+          constitutionUpdates: out.constitutionUpdates,
           notepadUpdates: out.notepadUpdates,
           followUpQuestions: out.followUpQuestions,
           trainingRecommendation: out.trainingRecommendation,
@@ -950,11 +904,6 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
         message: raw.message || this.fallbackResponse(rawInput).message,
         extraction: {
           raw: rawInput,
-          objective: (raw.extraction?.objective || []).map((o: Record<string, unknown>) => ({
-            content: String(o.content || ''),
-            entities: (o.entities as string[]) || [],
-            importance: Number(o.importance) || 0.5
-          })),
           subjective: (raw.extraction?.subjective || []).map((s: Record<string, unknown>) => ({
             system_prompt: String(s.system_prompt || 'You are a Personal Language Model (PLM).'),
             user_content: String(s.user_content || ''),
@@ -962,6 +911,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
             quality_score: Number(s.quality_score) || 0.5
           }))
         },
+        constitutionUpdates: raw.constitutionUpdates || [],
         notepadUpdates: {
           observations: raw.notepadUpdates?.observations || [],
           gaps: raw.notepadUpdates?.gaps || [],
@@ -983,9 +933,9 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
       message: `you mentioned "${truncated}" — what's the story behind that?`,
       extraction: {
         raw: rawInput,
-        objective: [],
         subjective: []
       },
+      constitutionUpdates: [],
       notepadUpdates: {
         observations: [],
         gaps: [],
@@ -1182,16 +1132,12 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`,
     
     const plmModelId = twin?.model_id || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo';
     
-    // Get memories for context
-    const { data: memories } = await supabase
-      .from('memory_fragments')
-      .select('content')
-      .eq('user_id', userId)
-      .limit(20);
+    // Use Constitution as context instead of memory fragments
+    const constitution = await this.constitutionManager.getConstitution(userId);
+    const constitutionContext = constitution
+      ? this.formatConstitutionContext(constitution)
+      : 'No Constitution yet.';
     
-    const memoryContext = memories?.map(m => m.content).join('\n') || '';
-    
-    // Generate responses (sequentially to avoid rate limits)
     for (const prompt of prompts) {
       try {
         const { text } = await generateText({
@@ -1201,8 +1147,8 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`,
               role: 'system',
               content: `You are a PLM (Personal Language Model) of an Author. Respond as them.
 
-YOUR MEMORIES:
-${memoryContext}
+AUTHOR'S CONSTITUTION:
+${constitutionContext}
 
 Respond naturally, in first person, as the Author would.`
             },

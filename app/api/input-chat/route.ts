@@ -135,13 +135,12 @@ export async function POST(req: Request) {
     }
 
     // Log extraction stats
-    const objCount = editorResponse.extraction.objective.length;
     const subjCount = editorResponse.extraction.subjective.length;
     const noteCount = editorResponse.notepadUpdates.observations.length + 
                       editorResponse.notepadUpdates.gaps.length + 
                       editorResponse.notepadUpdates.mentalModels.length;
     
-    console.log(`[Input Chat] Processed: ${objCount} memories, ${subjCount} training pairs, ${noteCount} notes`);
+    console.log(`[Input Chat] Processed: ${subjCount} training pairs, ${noteCount} notes`);
 
     // Check training recommendation
     if (editorResponse.trainingRecommendation?.shouldTrain) {
@@ -156,7 +155,7 @@ export async function POST(req: Request) {
       lockYN: false,
       // Include extraction stats for UI if needed
       stats: {
-        memoriesStored: objCount,
+        memoriesStored: 0,
         trainingPairsCreated: subjCount,
         notesAdded: noteCount
       }

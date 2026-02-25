@@ -6,7 +6,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import { generateText, streamText } from 'ai';
-import Together from 'together-ai';
 import { getQualityModel } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
 import type { ConstitutionSections } from '@/lib/modules/constitution/types';
@@ -18,8 +17,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_KEY!
 );
-
-const together = new Together({ apiKey: process.env.TOGETHER_API_KEY });
 
 // ============================================================================
 // Types
@@ -310,132 +307,30 @@ export class Orchestrator {
     }
   }
   
-  private async getRelevantMemories(query: string, userId: string): Promise<MemoryContext[]> {
+  private async getRelevantMemories(_query: string, userId: string): Promise<MemoryContext[]> {
     try {
-      const graphAugmented = await this.getGraphAugmentedMemories(query, userId, 12);
-
-      // Get all memories for weighting
-      const { data: allMemories } = await supabase
-        .from('memory_fragments')
-        .select('id, content, importance, created_at')
+      // Use recent vault entries as memory context (raw data IS the memory)
+      const { data: entries } = await supabase
+        .from('entries')
+        .select('content, created_at')
         .eq('user_id', userId)
+        .not('content', 'is', null)
         .order('created_at', { ascending: false })
-        .limit(50);
-      
-      if (!allMemories || allMemories.length === 0) {
-        return [];
-      }
-      
-      // For small datasets, return all with recency weighting
-      if (allMemories.length <= 20) {
-        const base = allMemories.map(m => ({
-          content: m.content,
-          createdAt: m.created_at,
-          relativeTime: this.formatRelativeTime(m.created_at)
+        .limit(30);
+
+      if (!entries || entries.length === 0) return [];
+
+      return entries
+        .filter(e => e.content && e.content.trim().length > 0)
+        .map(e => ({
+          content: e.content.slice(0, 500),
+          createdAt: e.created_at,
+          relativeTime: this.formatRelativeTime(e.created_at)
         }));
-        return this.mergeMemoryLists(graphAugmented, base, 20);
-      }
-      
-      // For larger datasets, use semantic search
-      const embedding = await together.embeddings.create({
-        model: "BAAI/bge-base-en-v1.5",
-        input: query
-      });
-      
-      const { data: matches } = await supabase.rpc('match_memory_enhanced', {
-        query_embedding: embedding.data[0].embedding,
-        match_threshold: 0.3,
-        match_count: 15,
-        p_user_id: userId
-      });
-      
-      if (!matches || matches.length === 0) {
-        // Fallback to recent memories
-        const fallback = allMemories.slice(0, 15).map(m => ({
-          content: m.content,
-          createdAt: m.created_at,
-          relativeTime: this.formatRelativeTime(m.created_at)
-        }));
-        return this.mergeMemoryLists(graphAugmented, fallback, 15);
-      }
-      
-      const semantic = matches.map((m: { content: string; created_at: string }) => ({
-        content: m.content,
-        createdAt: m.created_at,
-        relativeTime: this.formatRelativeTime(m.created_at)
-      }));
-      return this.mergeMemoryLists(graphAugmented, semantic, 18);
-      
     } catch (e) {
-      console.error('[Orchestrator] Memory retrieval failed:', e);
+      console.error('[Orchestrator] Vault entry retrieval failed:', e);
       return [];
     }
-  }
-
-  private async getGraphAugmentedMemories(
-    query: string,
-    userId: string,
-    maxCount: number
-  ): Promise<MemoryContext[]> {
-    const seeds = this.extractEntitySeeds(query);
-    if (seeds.length === 0) return [];
-
-    const { data: entityRows } = await supabase
-      .from('memory_entities')
-      .select('entity_name, memory_fragment_id')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(400);
-
-    const directMatches = (entityRows || []).filter((row) => {
-      const name = row.entity_name.toLowerCase();
-      return seeds.some((seed) => name.includes(seed) || seed.includes(name));
-    });
-
-    const matchedEntityNames = [...new Set(directMatches.map((row) => row.entity_name.toLowerCase()))];
-    if (matchedEntityNames.length === 0) return [];
-
-    const { data: allRelationships } = await supabase
-      .from('memory_relationships')
-      .select('source_entity, target_entity, memory_fragment_id')
-      .eq('user_id', userId)
-      .limit(200);
-    const relationships = (allRelationships || []).filter((row) =>
-      matchedEntityNames.includes(row.source_entity.toLowerCase()) ||
-      matchedEntityNames.includes(row.target_entity.toLowerCase())
-    );
-
-    const fragmentIds = new Set<string>();
-    for (const row of directMatches) fragmentIds.add(row.memory_fragment_id);
-    for (const row of relationships || []) fragmentIds.add(row.memory_fragment_id);
-
-    const ids = [...fragmentIds].slice(0, maxCount * 2);
-    if (ids.length === 0) return [];
-
-    const { data: fragments } = await supabase
-      .from('memory_fragments')
-      .select('content, created_at')
-      .eq('user_id', userId)
-      .in('id', ids)
-      .order('created_at', { ascending: false })
-      .limit(maxCount);
-
-    return (fragments || []).map((f) => ({
-      content: f.content,
-      createdAt: f.created_at,
-      relativeTime: this.formatRelativeTime(f.created_at)
-    }));
-  }
-
-  private extractEntitySeeds(query: string): string[] {
-    const lower = query.toLowerCase();
-    const rawTokens = lower
-      .replace(/[^a-z0-9\s]/g, ' ')
-      .split(/\s+/)
-      .filter((t) => t.length >= 3);
-
-    const stopwords = new Set(['the', 'and', 'for', 'with', 'that', 'this', 'from', 'what', 'when', 'where', 'how', 'about', 'have', 'your', 'you']);
-    return [...new Set(rawTokens.filter((t) => !stopwords.has(t)).slice(0, 8))];
   }
 
   private mergeMemoryLists(primary: MemoryContext[], secondary: MemoryContext[], limit: number): MemoryContext[] {

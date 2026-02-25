@@ -3,10 +3,10 @@ import { createClient } from '@supabase/supabase-js';
 import { buildMergedSystemConfig, validateSystemConfigAxioms } from '@/lib/system/axioms';
 
 export const dynamic = 'force-dynamic';
-const MIN_QUALITY = 0.4;
-const MIN_PAIRS_FOR_INITIAL_CONSTITUTION = 20;
-const MIN_NEW_PAIRS_FOR_REFRESH = 25;
-const CONSTITUTION_REFRESH_COOLDOWN_HOURS = 24;
+const MIN_QUALITY = 0.3;
+const MIN_PAIRS_FOR_INITIAL_CONSTITUTION = 8;
+const MIN_NEW_PAIRS_FOR_REFRESH = 10;
+const CONSTITUTION_REFRESH_COOLDOWN_HOURS = 6;
 const STALE_EDITOR_MESSAGE_HOURS = 24;
 
 function getSupabase() {
