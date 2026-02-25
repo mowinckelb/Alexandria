@@ -553,6 +553,18 @@ If YES update needed, return:
   }
 
   /**
+   * Derive and save Training/Inference views from the existing Canon.
+   * Called by constitution-refresh cron. Does NOT re-extract or overwrite Canon.
+   */
+  async deriveViews(userId: string): Promise<{ version: number } | null> {
+    const constitution = await this.getConstitution(userId);
+    if (!constitution) return null;
+
+    await this.saveToVault(userId, constitution, constitution.content);
+    return { version: constitution.version };
+  }
+
+  /**
    * Public method for Editor to save incremental constitution updates.
    * Only saves Canon — Training/Inference derived later during full refresh.
    */

@@ -84,6 +84,32 @@ Add temporal awareness to memories - timestamps, recency weighting, ability to t
 
 ---
 
+### 2026-02-25 - Architecture / Scaling
+**Suggested by:** Cursor Agent (Claude Opus)
+**Status:** Partially Implemented
+**Affects:** Constitution Processing, Editor, RLAIF
+
+**Suggestion:**
+Multi-layered Constitution context strategy as Constitution grows beyond token limits.
+
+**What was done (2026-02-25):**
+1. **constitution-refresh cron**: Changed from destructive full re-extraction (overwrites Canon) to safe view derivation (only creates Training/Inference views from existing Canon). Canon now grows exclusively through per-entry deltas.
+2. **processEntry summary**: Changed from showing first 5 items to showing ALL items compactly (pipe-separated titles, 50-char truncation). This lets the Editor see everything already captured and avoid duplicates. Caps at 12K chars.
+3. **formatConstitutionContext fallback**: When full Constitution exceeds 20K chars, automatically falls back to the compact summary format instead of blowing up the prompt.
+
+**Future refinements needed:**
+- **Consolidation pass**: As deltas accumulate, the Canon may have near-duplicates, verbose entries, or stale items. A periodic LLM-driven consolidation (not replacement!) could prune and merge without losing signal. This should read sections individually and consolidate each, never the full doc at once.
+- **Section-aware routing**: For very large Constitutions (100K+), processEntry could first identify which 1-2 sections are relevant to the new data, then fetch those sections in full for precise delta application. Two-pass but higher quality.
+- **Editor converse/RLAIF scaling**: Currently sends full Constitution for Author chat and PLM evaluation. Falls back to summary at 20K chars, but a smarter approach would send the most relevant sections based on the conversation topic.
+
+**Reasoning:**
+The Constitution is designed to grow continuously. Without scaling strategies, LLM calls will hit input token limits, rate limits, and cost will balloon. The current changes prevent the most acute failures (cron overwriting Canon, prompt explosions) but more sophisticated approaches will be needed as the system matures.
+
+**Human Review:**
+(pending)
+
+---
+
 ## Accepted (Promoted to ALEXANDRIA_CONTEXT.md)
 
 (None yet)

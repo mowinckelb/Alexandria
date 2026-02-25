@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getConstitutionManager } from '@/lib/factory';
 
-const MIN_PAIRS_FOR_INITIAL_EXTRACTION = 8;
-const MIN_NEW_PAIRS_FOR_REFRESH = 10;
-const MIN_QUALITY = 0.3;
-const REFRESH_COOLDOWN_HOURS = 6;
+// Canon grows through per-entry deltas in processEntry.
+// This cron only derives Training/Inference views from the existing Canon.
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -78,112 +76,31 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        const current = await manager.getConstitution(userId);
-        const { count: totalPairs } = await supabase
-          .from('training_pairs')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId)
-          .gte('quality_score', MIN_QUALITY);
-        const pairCount = totalPairs || 0;
+        // Derive Training/Inference views from existing Canon Constitution.
+        // The Canon grows through per-entry deltas — this cron only creates
+        // the downstream optimized views, never overwrites the Canon.
+        const deriveResult = await manager.deriveViews(userId);
 
-        if (!current) {
-          if (pairCount < MIN_PAIRS_FOR_INITIAL_EXTRACTION) {
-            results.push({
-              userId,
-              action: 'skipped',
-              details: {
-                reason: 'insufficient_pairs_initial',
-                available: pairCount,
-                required: MIN_PAIRS_FOR_INITIAL_EXTRACTION
-              }
-            });
-            continue;
-          }
-
-          const extraction = await manager.extractConstitution(userId, {
-            sourceData: 'both',
-            includeEditorNotes: true
-          });
-          await supabase.from('persona_activity').insert({
-            user_id: userId,
-            action_type: 'constitution_auto_extracted',
-            summary: `Auto-extracted constitution v${extraction.constitution.version}`,
-            details: {
-              coverage: extraction.coverage,
-              sectionsExtracted: extraction.sectionsExtracted
-            },
-            requires_attention: false
-          });
-          results.push({
-            userId,
-            action: 'extracted',
-            details: {
-              version: extraction.constitution.version,
-              coverage: extraction.coverage
-            }
-          });
-          continue;
-        }
-
-        const currentCreatedAt = current.createdAt ? new Date(current.createdAt) : null;
-        if (currentCreatedAt) {
-          const hoursSince = (now.getTime() - currentCreatedAt.getTime()) / (1000 * 60 * 60);
-          if (hoursSince < REFRESH_COOLDOWN_HOURS) {
-            results.push({
-              userId,
-              action: 'skipped',
-              details: {
-                reason: 'refresh_cooldown',
-                hoursSinceLastConstitution: Math.round(hoursSince)
-              }
-            });
-            continue;
-          }
-        }
-
-        const { count: newPairsCount } = await supabase
-          .from('training_pairs')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId)
-          .gte('quality_score', MIN_QUALITY)
-          .gt('created_at', current.createdAt);
-        const newPairs = newPairsCount || 0;
-
-        if (newPairs < MIN_NEW_PAIRS_FOR_REFRESH) {
+        if (!deriveResult) {
           results.push({
             userId,
             action: 'skipped',
-            details: {
-              reason: 'insufficient_new_pairs',
-              newPairs,
-              required: MIN_NEW_PAIRS_FOR_REFRESH
-            }
+            details: { reason: 'no_constitution_exists' }
           });
           continue;
         }
 
-        const extraction = await manager.extractConstitution(userId, {
-          sourceData: 'both',
-          includeEditorNotes: true
-        });
         await supabase.from('persona_activity').insert({
           user_id: userId,
-          action_type: 'constitution_auto_refreshed',
-          summary: `Auto-refreshed constitution v${extraction.constitution.version}`,
-          details: {
-            coverage: extraction.coverage,
-            newPairsSinceLast: newPairs
-          },
+          action_type: 'constitution_views_derived',
+          summary: `Derived Training + Inference views from Canon v${deriveResult.version}`,
+          details: { version: deriveResult.version },
           requires_attention: false
         });
         results.push({
           userId,
-          action: 'refreshed',
-          details: {
-            version: extraction.constitution.version,
-            coverage: extraction.coverage,
-            newPairs
-          }
+          action: 'derived_views',
+          details: { version: deriveResult.version }
         });
       } catch (error) {
         results.push({
