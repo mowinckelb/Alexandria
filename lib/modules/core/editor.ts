@@ -292,17 +292,22 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
     // 4. Parse response
     const parsed = this.parseAndValidateResponse(rawResponse, '');
 
-    // 5. Apply constitution delta updates (bootstrap if no Constitution exists yet)
-    if (parsed.constitutionUpdates && parsed.constitutionUpdates.length > 0) {
-      try {
-        if (constitution) {
+    // 5. Apply constitution delta updates or bootstrap
+    if (constitution) {
+      if (parsed.constitutionUpdates && parsed.constitutionUpdates.length > 0) {
+        try {
           await this.applyConstitutionDeltas(userId, constitution, parsed.constitutionUpdates);
-        } else {
-          await this.bootstrapConstitution(userId, parsed.constitutionUpdates);
+          result.constitutionUpdated = true;
+        } catch (err) {
+          console.error('[Editor] Constitution delta update failed:', err);
         }
+      }
+    } else {
+      try {
+        await this.bootstrapConstitution(userId, text, parsed.message);
         result.constitutionUpdated = true;
       } catch (err) {
-        console.error('[Editor] Constitution delta update failed:', err);
+        console.error('[Editor] Constitution bootstrap failed:', err);
       }
     }
 
@@ -369,38 +374,99 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
   }
 
   /**
-   * Create the first Constitution from scratch when none exists.
-   * Starts with empty sections and applies the first batch of deltas.
+   * Create the first Constitution from scratch via a dedicated LLM call.
+   * Directly produces the sections structure — no fragile delta parsing.
    */
   private async bootstrapConstitution(
     userId: string,
-    updates: Array<{ section: string; additions?: unknown[]; field?: string; addition?: string }>
+    entryContent: string,
+    editorMessage: string
   ): Promise<void> {
-    const sections = createEmptyConstitutionSections();
+    console.log(`[Editor] Bootstrapping initial Constitution for user ${userId}...`);
 
-    for (const update of updates) {
-      const sectionKey = update.section as keyof ConstitutionSections;
-      if (!sections[sectionKey]) continue;
+    const genResult = await generateText({
+      model: getQualityModel(),
+      system: `You are building the first version of a Constitution — a comprehensive profile of an Author based on their data.
 
-      const section = sections[sectionKey] as Record<string, unknown>;
-      const field = update.field;
+Output ONLY valid JSON matching this exact structure (no markdown, no explanation):
+{
+  "worldview": {
+    "beliefs": ["belief 1", "belief 2"],
+    "epistemology": ["how they think about knowledge 1"]
+  },
+  "values": {
+    "core": [{"name": "Value Name", "description": "Why this matters to them"}],
+    "preferences": ["preference 1"],
+    "repulsions": ["thing they dislike"]
+  },
+  "models": {
+    "mentalModels": [{"name": "Model Name", "domain": "domain area", "description": "How they use this framework"}],
+    "decisionPatterns": ["how they decide things"]
+  },
+  "identity": {
+    "selfConcept": "How they see themselves — paragraph form",
+    "communicationStyle": "How they communicate — paragraph form",
+    "roles": ["role they play"]
+  },
+  "shadows": {
+    "contradictions": ["contradiction observed"],
+    "blindSpots": ["potential blind spot"],
+    "dissonance": ["theory-reality gap observed"]
+  }
+}
 
-      if (field && update.additions && Array.isArray(update.additions) && update.additions.length > 0) {
-        const existing = section[field];
-        if (Array.isArray(existing)) {
-          section[field] = [...existing, ...update.additions];
-        }
-      } else if (field && update.addition && typeof update.addition === 'string') {
-        const existing = section[field];
-        if (typeof existing === 'string') {
-          section[field] = existing ? `${existing}\n\n${update.addition}` : update.addition;
-        }
-      }
+Extract EVERYTHING you can from the data. Be specific and detailed. Every field should have at least one entry. Use the Author's actual words and perspectives.`,
+      messages: [{ role: 'user', content: `AUTHOR'S DATA:\n\n${entryContent}\n\nEDITOR'S ANALYSIS:\n${editorMessage}` }]
+    });
+
+    const jsonMatch = genResult.text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error('[Editor] Bootstrap LLM returned no JSON, creating minimal constitution');
+      const sections = createEmptyConstitutionSections();
+      sections.identity.selfConcept = editorMessage || 'Constitution bootstrapped — awaiting more data.';
+      const markdown = this.constitutionManager.sectionsToMarkdown(sections);
+      await this.constitutionManager.saveNewVersion(userId, sections, markdown, 'Initial Constitution (minimal)');
+      return;
     }
 
-    const markdown = this.constitutionManager.sectionsToMarkdown(sections);
-    await this.constitutionManager.saveNewVersion(userId, sections, markdown, 'Initial Constitution bootstrapped from first vault data');
-    console.log(`[Editor] Bootstrapped initial Constitution for user ${userId}`);
+    try {
+      const raw = JSON.parse(jsonMatch[0]);
+      const sections: ConstitutionSections = {
+        worldview: {
+          beliefs: Array.isArray(raw.worldview?.beliefs) ? raw.worldview.beliefs : [],
+          epistemology: Array.isArray(raw.worldview?.epistemology) ? raw.worldview.epistemology : [],
+        },
+        values: {
+          core: Array.isArray(raw.values?.core) ? raw.values.core : [],
+          preferences: Array.isArray(raw.values?.preferences) ? raw.values.preferences : [],
+          repulsions: Array.isArray(raw.values?.repulsions) ? raw.values.repulsions : [],
+        },
+        models: {
+          mentalModels: Array.isArray(raw.models?.mentalModels) ? raw.models.mentalModels : [],
+          decisionPatterns: Array.isArray(raw.models?.decisionPatterns) ? raw.models.decisionPatterns : [],
+        },
+        identity: {
+          selfConcept: typeof raw.identity?.selfConcept === 'string' ? raw.identity.selfConcept : '',
+          communicationStyle: typeof raw.identity?.communicationStyle === 'string' ? raw.identity.communicationStyle : '',
+          roles: Array.isArray(raw.identity?.roles) ? raw.identity.roles : [],
+        },
+        shadows: {
+          contradictions: Array.isArray(raw.shadows?.contradictions) ? raw.shadows.contradictions : [],
+          blindSpots: Array.isArray(raw.shadows?.blindSpots) ? raw.shadows.blindSpots : [],
+          dissonance: Array.isArray(raw.shadows?.dissonance) ? raw.shadows.dissonance : [],
+        },
+      };
+
+      const markdown = this.constitutionManager.sectionsToMarkdown(sections);
+      await this.constitutionManager.saveNewVersion(userId, sections, markdown, 'Initial Constitution bootstrapped from first vault data');
+      console.log(`[Editor] Successfully bootstrapped Constitution v1 for user ${userId}`);
+    } catch (parseErr) {
+      console.error('[Editor] Bootstrap JSON parse failed:', parseErr);
+      const sections = createEmptyConstitutionSections();
+      sections.identity.selfConcept = editorMessage || 'Constitution bootstrapped — awaiting more data.';
+      const markdown = this.constitutionManager.sectionsToMarkdown(sections);
+      await this.constitutionManager.saveNewVersion(userId, sections, markdown, 'Initial Constitution (minimal)');
+    }
   }
 
   // ==========================================================================
