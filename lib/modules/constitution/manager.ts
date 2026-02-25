@@ -15,7 +15,9 @@ import {
   ConstitutionExtractionResult,
   ConstitutionVersionSummary,
   ConstitutionUpdateRequest,
-  createEmptyConstitutionSections
+  createEmptyConstitutionSections,
+  deriveTrainingView,
+  deriveInferenceView
 } from './types';
 
 const supabase = createClient(
@@ -157,22 +159,24 @@ export class ConstitutionManager {
     trainingPairs: Array<{ user_content: string; assistant_content: string; quality_score: number }>;
     personalityProfile: Record<string, unknown> | null;
     editorNotes: Array<{ type: string; content: string; topic?: string }>;
+    rawEntries: Array<{ content: string; created_at: string }>;
   }> {
     const results = {
       trainingPairs: [] as Array<{ user_content: string; assistant_content: string; quality_score: number }>,
       personalityProfile: null as Record<string, unknown> | null,
-      editorNotes: [] as Array<{ type: string; content: string; topic?: string }>
+      editorNotes: [] as Array<{ type: string; content: string; topic?: string }>,
+      rawEntries: [] as Array<{ content: string; created_at: string }>
     };
 
-    // Get training pairs
+    // Get training pairs — pull many more for deep extraction
     if (sourceData === 'training_pairs' || sourceData === 'both') {
       const { data: pairs } = await supabase
         .from('training_pairs')
         .select('user_content, assistant_content, quality_score')
         .eq('user_id', userId)
-        .gte('quality_score', 0.5)
+        .gte('quality_score', 0.3)
         .order('quality_score', { ascending: false })
-        .limit(100);
+        .limit(500);
 
       results.trainingPairs = pairs || [];
     }
@@ -189,17 +193,27 @@ export class ConstitutionManager {
       results.personalityProfile = profile;
     }
 
-    // Get editor notes
+    // Get ALL editor notes (observations, mental_models, questions, gaps)
     if (includeEditorNotes) {
       const { data: notes } = await supabase
         .from('editor_notes')
         .select('type, content, topic')
         .eq('user_id', userId)
-        .in('type', ['observation', 'mental_model'])
-        .limit(50);
+        .limit(300);
 
       results.editorNotes = notes || [];
     }
+
+    // Get raw processed entries for maximum signal extraction
+    const { data: entries } = await supabase
+      .from('entries')
+      .select('content, created_at')
+      .eq('user_id', userId)
+      .not('content', 'is', null)
+      .order('created_at', { ascending: true })
+      .limit(200);
+
+    results.rawEntries = (entries || []).filter(e => e.content && e.content.trim().length > 0);
 
     return results;
   }
@@ -208,9 +222,10 @@ export class ConstitutionManager {
     trainingPairs: Array<{ user_content: string; assistant_content: string; quality_score: number }>;
     personalityProfile: Record<string, unknown> | null;
     editorNotes: Array<{ type: string; content: string; topic?: string }>;
+    rawEntries?: Array<{ content: string; created_at: string }>;
   }): Promise<{ sections: ConstitutionSections }> {
 
-    const trainingContext = sources.trainingPairs.slice(0, 30).map(p =>
+    const trainingContext = sources.trainingPairs.slice(0, 150).map(p =>
       `Prompt: "${p.user_content}"\nResponse: "${p.assistant_content}"`
     ).join('\n---\n');
 
@@ -222,55 +237,67 @@ export class ConstitutionManager {
       `[${n.type}] ${n.content}${n.topic ? ` (topic: ${n.topic})` : ''}`
     ).join('\n');
 
+    // Build raw entries context — truncate each entry but include as many as possible
+    const rawEntryContext = (sources.rawEntries || []).slice(0, 100).map((e, i) => {
+      const truncated = e.content.length > 2000 ? e.content.slice(0, 2000) + '...' : e.content;
+      return `[Entry ${i + 1}]\n${truncated}`;
+    }).join('\n---\n');
+
     const { text: response } = await generateText({
       model: getQualityModel(),
-      system: `You are extracting a deep, detailed CONSTITUTION from data about a person (the Author).
+      system: `You are extracting the most comprehensive, detailed CONSTITUTION possible from extensive data about a person (the Author). This Author has uploaded roughly 100 hours of dense voice memos plus other written content. Your job is to squeeze MAXIMUM SIGNAL from every piece of data.
 
-A Constitution must be GENUINELY USEFUL as a cognitive fingerprint — not surface-level platitudes. If the output reads like a generic self-help book, it has ZERO value. The entire point is to capture what makes THIS person different from every other person.
+A Constitution is a cognitive fingerprint — the complete operating manual for how this specific person thinks, decides, values, and behaves. It must be so detailed and specific that another intelligence reading it could accurately PREDICT this person's response to any novel situation.
+
+CRITICAL: This Constitution must be EXTENSIVE. Generic platitudes have ZERO value. Every single entry must be concrete, specific, and grounded in evidence from the data. If you can't trace an insight back to something in the data, don't include it.
 
 The Constitution has exactly 5 sections:
 
-1. WORLDVIEW — What they actually believe about reality, not what they think they should believe. Specific causal models. Contrarian stances. Where they diverge from mainstream thinking. Their epistemology: how they evaluate truth, what sources they trust, what counts as evidence.
-2. VALUES — Precise hierarchy, not a list. What they would sacrifice comfort for. What makes them viscerally angry. The difference between what they say they value and what their behaviour reveals they value. Specific aesthetic preferences, not generic ones.
-3. MODELS — Their actual decision heuristics, not textbook ones. How they handle uncertainty. When they trust intuition vs analysis. Their specific mental models with concrete examples of application. Cognitive shortcuts they rely on.
-4. IDENTITY — How they ACTUALLY communicate (specific patterns, not "clear and direct"). Their relationship to authority, status, expertise. The narrative they tell themselves about who they are. How their self-concept has evolved.
-5. SHADOWS — The genuinely uncomfortable stuff. Where their stated values contradict their actions. What they systematically misjudge. Where their self-model is most wrong. Blind spots they'd resist acknowledging.
+1. WORLDVIEW — What they actually believe about reality. Specific causal models they use. Contrarian stances and where they diverge from mainstream thinking. Their epistemology: how they evaluate truth, what sources they trust, what counts as evidence vs noise. Their theories about how systems (social, economic, technological, biological) work. What they think is broken in the world and why.
 
-GO DEEP. Extract 5-15 items per array field. Be specific and granular — "values intellectual honesty" is worthless, but "will abandon a profitable position mid-argument if shown a better framework, even at social cost" is useful. Every entry should be concrete enough that someone could PREDICT this person's behaviour in a novel situation.
+2. VALUES — Precise hierarchy, not a flat list. What they would sacrifice comfort, money, or relationships for. What makes them viscerally angry or energised. The difference between what they SAY they value and what their BEHAVIOUR reveals they value. Specific aesthetic preferences. What they find beautiful, what they find ugly. Their relationship to money, status, time, attention.
+
+3. MODELS — Their actual decision heuristics with concrete examples. How they handle uncertainty and ambiguity. When they trust intuition vs analysis. Their specific mental models — named frameworks they return to repeatedly. How they evaluate people, opportunities, risks. Their reasoning patterns under pressure. Cognitive shortcuts they rely on. How they learn and update beliefs.
+
+4. IDENTITY — How they ACTUALLY communicate — specific vocabulary, sentence patterns, rhetorical devices, humour style, level of directness. Their relationship to authority, status, expertise, and institutions. The narrative they tell themselves about who they are. How their self-concept has evolved. How they present to different audiences. Their emotional patterns and triggers.
+
+5. SHADOWS — The genuinely uncomfortable stuff. Where their stated values contradict their actions. What they systematically misjudge. Where their self-model is most wrong. Patterns they repeat despite knowing better. Blind spots they'd resist acknowledging. Defence mechanisms.
+
+GO DEEP AND LONG. Extract 15-40 items per array field. The more data the Author has provided, the longer and more detailed each section should be. Every entry should be a full sentence or two — not a phrase. "selfConcept" and "communicationStyle" should each be a substantial multi-paragraph description, not a single sentence. This is a COMPREHENSIVE document.
 
 Return JSON matching this EXACT structure:
 {
   "worldview": {
-    "beliefs": ["What I believe about reality, cause and effect, how things work"],
-    "epistemology": ["How I know things, sources of truth, evidence evaluation"]
+    "beliefs": ["Full sentence describing a specific belief grounded in evidence from the data"],
+    "epistemology": ["Full sentence about how they evaluate truth and knowledge"]
   },
   "values": {
-    "core": [{"name": "string", "description": "string"}],
-    "preferences": [{"name": "string", "description": "string"}],
-    "repulsions": ["things I find repulsive or unacceptable"]
+    "core": [{"name": "string", "description": "Detailed description with concrete examples from the data"}],
+    "preferences": [{"name": "string", "description": "Detailed description with examples"}],
+    "repulsions": ["Specific thing they find unacceptable, with context"]
   },
   "models": {
-    "mentalModels": [{"name": "string", "domain": "string", "description": "how it works"}],
-    "decisionPatterns": ["how I approach decisions"]
+    "mentalModels": [{"name": "string", "domain": "string", "description": "Detailed explanation of how they apply this model"}],
+    "decisionPatterns": ["Full description of a specific decision pattern with examples"]
   },
   "identity": {
-    "selfConcept": "who I am — in first person",
-    "communicationStyle": "how I communicate — tone, vocabulary, rhythm",
-    "roles": ["roles and narratives"],
-    "trustModel": "how I build trust"
+    "selfConcept": "EXTENSIVE multi-paragraph first-person description of who they are, how they see themselves, their story, their relationship to the world",
+    "communicationStyle": "DETAILED multi-paragraph description of exactly how they communicate — tone, vocabulary, rhythm, quirks, patterns, what they emphasise, how they structure arguments",
+    "roles": ["Specific role they inhabit with context about how they perform it"],
+    "trustModel": "Detailed description of how they build, extend, and withdraw trust"
   },
   "shadows": {
-    "contradictions": ["stated value vs actual behaviour"],
-    "blindSpots": ["what I miss or misjudge"],
-    "dissonance": ["where my self-model diverges from reality"]
+    "contradictions": ["Specific contradiction between stated value and observed behaviour"],
+    "blindSpots": ["Specific pattern they miss or misjudge, with evidence"],
+    "dissonance": ["Where their self-model diverges from reality, with examples"]
   }
 }
 
-Return ONLY the JSON object.`,
+Return ONLY the JSON object. Make it as long and detailed as the data supports.`,
       messages: [
         {
           role: 'user',
-          content: `AVAILABLE DATA:\n\nTRAINING PAIRS (Author's voice/opinions):\n${trainingContext || 'No training pairs available.'}\n\nPERSONALITY PROFILE:\n${profileContext}\n\nEDITOR NOTES (observations about Author):\n${notesContext || 'No editor notes available.'}`
+          content: `AVAILABLE DATA — analyze ALL of it thoroughly:\n\nRAW ENTRIES (Author's own words — voice memos, notes, uploads):\n${rawEntryContext || 'No raw entries available.'}\n\nTRAINING PAIRS (extracted Author voice/opinions):\n${trainingContext || 'No training pairs available.'}\n\nPERSONALITY PROFILE:\n${profileContext}\n\nEDITOR NOTES (observations about Author):\n${notesContext || 'No editor notes available.'}\n\nRemember: Extract MAXIMUM signal. Be exhaustive. Every section should be extensive.`
         }
       ]
     });
@@ -525,9 +552,27 @@ If YES update needed, return:
     };
   }
 
-  private async saveToVault(userId: string, constitution: Constitution, markdown: string): Promise<void> {
+  /**
+   * Public method for Editor to save incremental constitution updates.
+   * Only saves Canon — Training/Inference derived later during full refresh.
+   */
+  async saveNewVersion(
+    userId: string,
+    sections: ConstitutionSections,
+    content: string,
+    changeSummary: string
+  ): Promise<Constitution> {
+    const current = await this.getConstitution(userId);
+    const constitution = await this.saveConstitution(userId, sections, content, changeSummary, current?.id);
+    await this.saveCanonToVault(userId, constitution, content);
+    return constitution;
+  }
+
+  /**
+   * Save only the Canon view to vault (used for incremental delta updates)
+   */
+  private async saveCanonToVault(userId: string, constitution: Constitution, markdown: string): Promise<void> {
     try {
-      // Save versioned copy
       await saveToVault(
         userId,
         `constitution/v${constitution.version}.md`,
@@ -535,8 +580,6 @@ If YES update needed, return:
         'constitution',
         { metadata: { version: constitution.version, createdAt: constitution.createdAt } }
       );
-
-      // Update current.md pointer
       await saveToVault(
         userId,
         'constitution/current.md',
@@ -544,11 +587,45 @@ If YES update needed, return:
         'constitution',
         { metadata: { version: constitution.version } }
       );
-
-      console.log(`[ConstitutionManager] Saved to Vault: constitution/v${constitution.version}.md`);
+      console.log(`[ConstitutionManager] Saved Canon to Vault: v${constitution.version}`);
     } catch (error) {
       console.error('[ConstitutionManager] Vault save failed:', error);
-      // Non-fatal - constitution is in DB
+    }
+  }
+
+  /**
+   * Save Canon + derive Training and Inference views.
+   * Only called during full periodic re-extraction (constitution-refresh),
+   * NOT on every incremental delta update from processEntry.
+   */
+  private async saveToVault(userId: string, constitution: Constitution, markdown: string): Promise<void> {
+    await this.saveCanonToVault(userId, constitution, markdown);
+
+    try {
+      const trainingView = deriveTrainingView(constitution.sections);
+      await saveToVault(
+        userId,
+        'constitution/training.md',
+        trainingView.fullText,
+        'constitution',
+        { metadata: { version: constitution.version, view: 'training' } }
+      );
+
+      const inferenceView = deriveInferenceView(constitution.sections);
+      const inferenceText = Object.entries(inferenceView.sections)
+        .map(([section, text]) => `[${section.toUpperCase()}]\n${text}`)
+        .join('\n\n');
+      await saveToVault(
+        userId,
+        'constitution/inference.md',
+        inferenceText,
+        'constitution',
+        { metadata: { version: constitution.version, view: 'inference' } }
+      );
+
+      console.log(`[ConstitutionManager] Derived Training + Inference views: v${constitution.version}`);
+    } catch (error) {
+      console.error('[ConstitutionManager] Derived views save failed:', error);
     }
   }
 

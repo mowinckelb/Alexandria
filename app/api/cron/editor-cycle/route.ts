@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateText } from 'ai';
 import { getQualityModel } from '@/lib/models';
-import { getEditor } from '@/lib/factory';
+import { getEditor, getPipelineTools } from '@/lib/factory';
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -266,6 +266,17 @@ async function runCycle(targetUserId?: string) {
 
   let processed = 0;
   for (const userId of userIds) {
+    // Check if agents are paused for this user
+    const { data: sysConfig } = await supabase
+      .from('system_configs')
+      .select('config')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if ((sysConfig?.config as Record<string, unknown>)?.paused) {
+      console.log(`[Editor Cycle] Skipping ${userId} — agents paused`);
+      continue;
+    }
+
     const { data: existing } = await supabase
       .from('editor_state')
       .select('activity_level, cycle_count')
@@ -376,6 +387,37 @@ async function runCycle(targetUserId?: string) {
           requires_attention: true,
         });
       } catch {}
+    }
+
+    // Periodic reflection — Editor's deep thinking on accumulated notes
+    try {
+      const { data: lastReflection } = await supabase
+        .from('persona_activity')
+        .select('created_at')
+        .eq('user_id', userId)
+        .eq('action_type', 'editor_reflection')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      const hoursSinceReflection = lastReflection?.[0]
+        ? (now.getTime() - new Date(lastReflection[0].created_at).getTime()) / (1000 * 60 * 60)
+        : Infinity;
+
+      if (hoursSinceReflection >= 4) {
+        const { editorNotes } = getPipelineTools();
+        const reflection = await editorNotes.reflectOnAll(userId);
+        console.log(`[Editor Cycle] Reflection for ${userId}: ${reflection.selfResolved.length} resolved, ${reflection.newQuestions.length} new Qs, ${reflection.insights.length} insights`);
+
+        await supabase.from('persona_activity').insert({
+          user_id: userId,
+          action_type: 'editor_reflection',
+          summary: `reflected: ${reflection.selfResolved.length} resolved, ${reflection.newQuestions.length} new questions, ${reflection.insights.length} insights`,
+          details: { reflection },
+          requires_attention: false,
+        });
+      }
+    } catch (reflectErr) {
+      console.error(`[Editor Cycle] Reflection failed for ${userId}:`, reflectErr);
     }
 
     processed += 1;

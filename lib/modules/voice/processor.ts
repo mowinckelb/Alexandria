@@ -299,7 +299,6 @@ export class VoiceProcessor {
     const chunks = this.chunkText(textToProcess, 4000);
     
     let totalTrainingPairs = 0;
-    let totalMemories = 0;
     let totalNotes = 0;
     
     for (const chunk of chunks) {
@@ -309,7 +308,6 @@ export class VoiceProcessor {
         const response = await editor.converse(chunk, userId, []);
         
         totalTrainingPairs += response.extraction.subjective.length;
-        totalMemories += response.extraction.objective.length;
         totalNotes += response.notepadUpdates.observations.length +
                       response.notepadUpdates.gaps.length +
                       response.notepadUpdates.mentalModels.length;
@@ -322,7 +320,7 @@ export class VoiceProcessor {
     
     return {
       trainingPairs: totalTrainingPairs,
-      memories: totalMemories,
+      memories: 0,
       notes: totalNotes
     };
   }

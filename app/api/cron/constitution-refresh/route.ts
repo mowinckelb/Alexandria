@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getConstitutionManager } from '@/lib/factory';
 
-const MIN_PAIRS_FOR_INITIAL_EXTRACTION = 20;
-const MIN_NEW_PAIRS_FOR_REFRESH = 25;
-const MIN_QUALITY = 0.4;
-const REFRESH_COOLDOWN_HOURS = 24;
+const MIN_PAIRS_FOR_INITIAL_EXTRACTION = 8;
+const MIN_NEW_PAIRS_FOR_REFRESH = 10;
+const MIN_QUALITY = 0.3;
+const REFRESH_COOLDOWN_HOURS = 6;
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -67,6 +67,17 @@ export async function POST(request: NextRequest) {
 
     for (const userId of userIds) {
       try {
+        // Check if agents are paused
+        const { data: sysConfig } = await supabase
+          .from('system_configs')
+          .select('config')
+          .eq('user_id', userId)
+          .maybeSingle();
+        if ((sysConfig?.config as Record<string, unknown>)?.paused) {
+          results.push({ userId, action: 'skipped', details: { reason: 'agents_paused' } });
+          continue;
+        }
+
         const current = await manager.getConstitution(userId);
         const { count: totalPairs } = await supabase
           .from('training_pairs')

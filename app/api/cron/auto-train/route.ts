@@ -15,9 +15,9 @@ function authorizeCron(req: NextRequest): boolean {
   return auth === `Bearer ${secret}`;
 }
 
-const MIN_PAIRS_FOR_TRAINING = 50;
-const MIN_QUALITY = 0.4;
-const COOLDOWN_HOURS = 24;
+const MIN_PAIRS_FOR_TRAINING = 15;
+const MIN_QUALITY = 0.3;
+const COOLDOWN_HOURS = 6;
 
 async function getActiveUsers() {
   const supabase = getSupabase();
@@ -66,6 +66,17 @@ export async function POST(request: NextRequest) {
     }
 
     for (const userId of userIds) {
+      // Check if agents are paused
+      const { data: sysConfig } = await supabase
+        .from('system_configs')
+        .select('config')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if ((sysConfig?.config as Record<string, unknown>)?.paused) {
+        results.push({ userId, action: 'skipped', details: { reason: 'agents_paused' } });
+        continue;
+      }
+
       const { data: recentTraining } = await supabase
         .from('training_exports')
         .select('id, status, created_at')

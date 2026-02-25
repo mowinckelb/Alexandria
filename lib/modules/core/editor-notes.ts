@@ -270,10 +270,10 @@ Rules:
    * This is where LLM leverage is maximized: give it everything, let it reason
    */
   async reflectOnAll(userId: string): Promise<ReflectionResult> {
-    // Gather all context: pending notes, memories, training pairs
-    const [pendingNotes, memories, recentPairs] = await Promise.all([
+    // Gather all context: pending notes, raw vault entries, training pairs
+    const [pendingNotes, rawEntries, recentPairs] = await Promise.all([
       supabase.rpc('get_notes_for_reflection', { p_user_id: userId }),
-      supabase.from('memory_fragments').select('content, entities').eq('user_id', userId).limit(100),
+      supabase.from('entries').select('content').eq('user_id', userId).not('content', 'is', null).order('created_at', { ascending: false }).limit(50),
       supabase.from('training_pairs').select('user_turn, assistant_turn').eq('user_id', userId).order('created_at', { ascending: false }).limit(50)
     ]);
 
@@ -281,7 +281,7 @@ Rules:
       pendingQuestions: pendingNotes.data?.filter((n: { type: string }) => n.type === 'question') || [],
       pendingGaps: pendingNotes.data?.filter((n: { type: string }) => n.type === 'gap') || [],
       observations: pendingNotes.data?.filter((n: { type: string }) => n.type === 'observation') || [],
-      memories: memories.data?.map((m: { content: string }) => m.content).slice(0, 50) || [],
+      vaultEntries: rawEntries.data?.map((e: { content: string }) => e.content?.slice(0, 500)).filter(Boolean).slice(0, 30) || [],
       recentConversations: recentPairs.data?.slice(0, 20) || []
     };
 
@@ -404,16 +404,20 @@ Be THOUGHTFUL about recategorization. Critical = PLM gives WRONG answers without
 
     if (!note) return { resolved: false };
 
-    // Get relevant memories
-    const { data: memories } = await supabase
-      .from('memory_fragments')
+    // Get relevant vault entries
+    const { data: entries } = await supabase
+      .from('entries')
       .select('content')
       .eq('user_id', userId)
-      .limit(50);
+      .not('content', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(30);
+
+    const entryContext = (entries || []).map((e: { content: string }) => e.content?.slice(0, 300)).filter(Boolean).join('\n- ');
 
     const { text: response } = await generateText({
       model: groq('llama-3.3-70b-versatile'),
-      system: `You are an Editor trying to answer your own question about an Author from available memories.
+      system: `You are an Editor trying to answer your own question about an Author from available vault data.
 
 Can you answer the question from the available information?
 
@@ -429,7 +433,7 @@ Only return can_answer: true if you have REAL evidence. Don't guess.`,
       messages: [
         {
           role: 'user',
-          content: `Question: ${note.content}\nContext: ${note.context || 'None'}\n\nAvailable memories about the Author:\n${(memories || []).map((m: { content: string }) => `- ${m.content}`).join('\n')}`
+          content: `Question: ${note.content}\nContext: ${note.context || 'None'}\n\nAvailable data from the Author's vault:\n- ${entryContext}`
         }
       ]
     });
