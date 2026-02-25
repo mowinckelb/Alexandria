@@ -309,18 +309,17 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
     // 7. Mark entry as processed
     await supabase.from('entries').update({ metadata: { editor_processed: true, processed_at: new Date().toISOString() } }).eq('id', entryId);
 
-    // 8. Constitution update — use proven full extraction every 3 entries
+    // 8. Constitution update — extract if no constitution or stale (>30min since last update)
     try {
-      const { count: processedCount } = await supabase
-        .from('entries')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .not('metadata->>editor_processed', 'is', null)
-        .eq('metadata->>editor_processed', 'true');
+      const constitutionAge = constitution
+        ? (Date.now() - new Date(constitution.createdAt).getTime()) / (1000 * 60)
+        : Infinity;
+      const shouldExtract = !constitution || constitutionAge > 30;
 
-      const shouldExtract = !constitution || ((processedCount || 0) % 3 === 0);
+      console.log(`[Editor] Constitution check: exists=${!!constitution}, age=${constitutionAge.toFixed(0)}min, shouldExtract=${shouldExtract}`);
+
       if (shouldExtract) {
-        console.log(`[Editor] Triggering full constitution extraction for ${userId} (processed: ${processedCount}, existing: ${!!constitution})`);
+        console.log(`[Editor] Triggering full constitution extraction for ${userId}`);
         const extractResult = await this.constitutionManager.extractConstitution(userId, {
           sourceData: 'both',
           includeEditorNotes: true,
