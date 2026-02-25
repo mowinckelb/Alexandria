@@ -226,11 +226,14 @@ export class Editor {
   }> {
     const result = { memoriesStored: 0, trainingPairsCreated: 0, notesAdded: 0, constitutionUpdated: false };
 
-    // 1. Read the FULL current Canon Constitution
+    // 1. Read Constitution — send a summary to stay within token limits
     const constitution = await this.constitutionManager.getConstitution(userId);
-    const fullConstitution = constitution
-      ? constitution.content
-      : 'No Constitution yet — this is a fresh start. Extract everything you can from this data.';
+    let constitutionContext: string;
+    if (!constitution) {
+      constitutionContext = 'No Constitution yet — this is a fresh start. Extract everything you can from this data.';
+    } else {
+      constitutionContext = this.buildConstitutionSummaryForProcessing(constitution);
+    }
 
     // 2. Truncate content if very long
     const text = content.length > 8000 ? content.slice(0, 8000) : content;
@@ -247,8 +250,8 @@ You have the full current Canon Constitution below. Your job is to read this new
 2. TRAINING PAIRS — Extract examples of the Author's voice/thinking that can train the PLM. The user_content should be a natural prompt, and assistant_content should capture how the Author would actually respond.
 3. NOTEPAD — Observations, questions, gaps. What patterns do you notice? What contradicts the current Constitution? What's missing?
 
-CURRENT CANON CONSTITUTION:
-${fullConstitution}
+CURRENT CANON CONSTITUTION (summary — full doc is larger):
+${constitutionContext}
 
 Return JSON:
 {
@@ -1011,6 +1014,59 @@ Feedback samples: ${stats.feedbackCount}
 Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pairs)'}`;
   }
   
+  /**
+   * Build a concise summary of the Constitution for processEntry.
+   * Shows section structure + first few items per field so the Editor
+   * knows what's already captured without sending the full 500KB+ doc.
+   * Caps at ~8000 chars to keep prompt under ~15k tokens.
+   */
+  private buildConstitutionSummaryForProcessing(constitution: Constitution): string {
+    const s = constitution.sections;
+    const lines: string[] = [`[Constitution v${constitution.version}]`];
+
+    const summarizeArray = (arr: unknown[], label: string, max: number = 5): void => {
+      if (!Array.isArray(arr) || arr.length === 0) return;
+      const shown = arr.slice(0, max).map(item => {
+        if (typeof item === 'string') return `  - ${item.slice(0, 120)}${item.length > 120 ? '...' : ''}`;
+        if (typeof item === 'object' && item !== null) {
+          const obj = item as Record<string, unknown>;
+          const name = obj.name || obj.type || '';
+          const desc = obj.description || obj.content || '';
+          return `  - ${String(name)}: ${String(desc).slice(0, 100)}${String(desc).length > 100 ? '...' : ''}`;
+        }
+        return `  - ${String(item).slice(0, 120)}`;
+      });
+      lines.push(`${label} (${arr.length} total, showing ${shown.length}):`);
+      lines.push(...shown);
+    };
+
+    lines.push('\nWORLDVIEW:');
+    summarizeArray(s.worldview?.beliefs || [], 'beliefs');
+    summarizeArray(s.worldview?.epistemology || [], 'epistemology');
+
+    lines.push('\nVALUES:');
+    summarizeArray(s.values?.core || [], 'core');
+    summarizeArray(s.values?.preferences || [], 'preferences');
+    summarizeArray(s.values?.repulsions || [], 'repulsions');
+
+    lines.push('\nMODELS:');
+    summarizeArray(s.models?.mentalModels || [], 'mentalModels');
+    summarizeArray(s.models?.decisionPatterns || [], 'decisionPatterns');
+
+    lines.push('\nIDENTITY:');
+    if (s.identity?.selfConcept) lines.push(`selfConcept: ${s.identity.selfConcept.slice(0, 300)}${s.identity.selfConcept.length > 300 ? '...' : ''}`);
+    if (s.identity?.communicationStyle) lines.push(`communicationStyle: ${s.identity.communicationStyle.slice(0, 300)}${s.identity.communicationStyle.length > 300 ? '...' : ''}`);
+    summarizeArray(s.identity?.roles || [], 'roles');
+
+    lines.push('\nSHADOWS:');
+    summarizeArray(s.shadows?.contradictions || [], 'contradictions');
+    summarizeArray(s.shadows?.blindSpots || [], 'blindSpots');
+    summarizeArray(s.shadows?.dissonance || [], 'dissonance');
+
+    const result = lines.join('\n');
+    return result.length > 8000 ? result.slice(0, 8000) + '\n...(truncated)' : result;
+  }
+
   private formatConstitutionContext(constitution: Constitution): string {
     const s = constitution.sections;
     const parts: string[] = [];
