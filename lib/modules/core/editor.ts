@@ -58,7 +58,9 @@ export interface EditorResponse {
 
   constitutionUpdates?: {
     section: string;
-    additions: unknown[];
+    field?: string;
+    additions?: unknown[];
+    addition?: string;
   }[];
   
   notepadUpdates: {
@@ -156,7 +158,9 @@ const editorOutputSchema = z.object({
   }).default({ subjective: [] }),
   constitutionUpdates: z.array(z.object({
     section: z.string(),
-    additions: z.array(z.unknown()).default([])
+    field: z.string().optional(),
+    additions: z.array(z.unknown()).optional().default([]),
+    addition: z.string().optional(),
   })).optional().default([]),
   notepadUpdates: z.object({
     observations: z.array(z.object({
@@ -342,7 +346,7 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
       const section = sections[sectionKey] as Record<string, unknown>;
       const field = update.field;
 
-      if (field && update.additions && Array.isArray(update.additions)) {
+      if (field && update.additions && Array.isArray(update.additions) && update.additions.length > 0) {
         const existing = section[field];
         if (Array.isArray(existing)) {
           section[field] = [...existing, ...update.additions];
@@ -381,7 +385,7 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
       const section = sections[sectionKey] as Record<string, unknown>;
       const field = update.field;
 
-      if (field && update.additions && Array.isArray(update.additions)) {
+      if (field && update.additions && Array.isArray(update.additions) && update.additions.length > 0) {
         const existing = section[field];
         if (Array.isArray(existing)) {
           section[field] = [...existing, ...update.additions];
