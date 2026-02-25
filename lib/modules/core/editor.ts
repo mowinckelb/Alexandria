@@ -292,31 +292,12 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
     // 4. Parse response
     const parsed = this.parseAndValidateResponse(rawResponse, '');
 
-    // 5. Apply constitution delta updates or bootstrap
-    if (constitution) {
-      if (parsed.constitutionUpdates && parsed.constitutionUpdates.length > 0) {
-        try {
-          await this.applyConstitutionDeltas(userId, constitution, parsed.constitutionUpdates);
-          result.constitutionUpdated = true;
-        } catch (err) {
-          console.error('[Editor] Constitution delta update failed:', err);
-        }
-      }
-    } else {
-      try {
-        await this.bootstrapConstitution(userId, text, parsed.message);
-        result.constitutionUpdated = true;
-      } catch (err) {
-        console.error('[Editor] Constitution bootstrap failed:', err);
-      }
-    }
-
-    // 6. Store training pairs
+    // 5. Store training pairs
     for (const subj of parsed.extraction.subjective) {
       try { await this.storeTrainingPair(subj as TrainingPair, userId); result.trainingPairsCreated++; } catch {}
     }
 
-    // 7. Update notepad
+    // 6. Update notepad
     const noteCount = parsed.notepadUpdates.observations.length + parsed.notepadUpdates.gaps.length + parsed.notepadUpdates.mentalModels.length;
     if (noteCount > 0) {
       try {
@@ -325,8 +306,31 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
       } catch {}
     }
 
-    // 8. Mark entry as processed
+    // 7. Mark entry as processed
     await supabase.from('entries').update({ metadata: { editor_processed: true, processed_at: new Date().toISOString() } }).eq('id', entryId);
+
+    // 8. Constitution update — use proven full extraction every 3 entries
+    try {
+      const { count: processedCount } = await supabase
+        .from('entries')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .not('metadata->>editor_processed', 'is', null)
+        .eq('metadata->>editor_processed', 'true');
+
+      const shouldExtract = !constitution || ((processedCount || 0) % 3 === 0);
+      if (shouldExtract) {
+        console.log(`[Editor] Triggering full constitution extraction for ${userId} (processed: ${processedCount}, existing: ${!!constitution})`);
+        const extractResult = await this.constitutionManager.extractConstitution(userId, {
+          sourceData: 'both',
+          includeEditorNotes: true,
+        });
+        result.constitutionUpdated = true;
+        console.log(`[Editor] Constitution ${constitution ? 'updated' : 'created'}: v${extractResult.constitution.version}, coverage ${(extractResult.coverage * 100).toFixed(0)}%`);
+      }
+    } catch (err) {
+      console.error('[Editor] Constitution extraction failed:', err);
+    }
 
     console.log(`[Editor] Processed entry ${entryId}: constitution=${result.constitutionUpdated}, ${result.trainingPairsCreated} training pairs, ${result.notesAdded} notes`);
     return result;
