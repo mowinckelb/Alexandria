@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { getFastModel, getQualityModel, getFallbackQualityModel, togetherProvider } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
 import type { Constitution, ConstitutionSections } from '@/lib/modules/constitution/types';
+import { createEmptyConstitutionSections } from '@/lib/modules/constitution/types';
 import { recomputePlmMaturity } from '@/lib/modules/core/plm-maturity';
 
 const supabase = createClient(
@@ -287,10 +288,14 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
     // 4. Parse response
     const parsed = this.parseAndValidateResponse(rawResponse, '');
 
-    // 5. Apply constitution delta updates
-    if (constitution && parsed.constitutionUpdates && parsed.constitutionUpdates.length > 0) {
+    // 5. Apply constitution delta updates (bootstrap if no Constitution exists yet)
+    if (parsed.constitutionUpdates && parsed.constitutionUpdates.length > 0) {
       try {
-        await this.applyConstitutionDeltas(userId, constitution, parsed.constitutionUpdates);
+        if (constitution) {
+          await this.applyConstitutionDeltas(userId, constitution, parsed.constitutionUpdates);
+        } else {
+          await this.bootstrapConstitution(userId, parsed.constitutionUpdates);
+        }
         result.constitutionUpdated = true;
       } catch (err) {
         console.error('[Editor] Constitution delta update failed:', err);
@@ -353,11 +358,45 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
     }
 
     if (changed) {
-      // Save the merged sections as a new constitution version
       const markdown = this.constitutionManager.sectionsToMarkdown(sections);
       await this.constitutionManager.saveNewVersion(userId, sections, markdown, 'Editor incremental update from vault data');
       console.log(`[Editor] Applied constitution delta for user ${userId}`);
     }
+  }
+
+  /**
+   * Create the first Constitution from scratch when none exists.
+   * Starts with empty sections and applies the first batch of deltas.
+   */
+  private async bootstrapConstitution(
+    userId: string,
+    updates: Array<{ section: string; additions?: unknown[]; field?: string; addition?: string }>
+  ): Promise<void> {
+    const sections = createEmptyConstitutionSections();
+
+    for (const update of updates) {
+      const sectionKey = update.section as keyof ConstitutionSections;
+      if (!sections[sectionKey]) continue;
+
+      const section = sections[sectionKey] as Record<string, unknown>;
+      const field = update.field;
+
+      if (field && update.additions && Array.isArray(update.additions)) {
+        const existing = section[field];
+        if (Array.isArray(existing)) {
+          section[field] = [...existing, ...update.additions];
+        }
+      } else if (field && update.addition && typeof update.addition === 'string') {
+        const existing = section[field];
+        if (typeof existing === 'string') {
+          section[field] = existing ? `${existing}\n\n${update.addition}` : update.addition;
+        }
+      }
+    }
+
+    const markdown = this.constitutionManager.sectionsToMarkdown(sections);
+    await this.constitutionManager.saveNewVersion(userId, sections, markdown, 'Initial Constitution bootstrapped from first vault data');
+    console.log(`[Editor] Bootstrapped initial Constitution for user ${userId}`);
   }
 
   // ==========================================================================

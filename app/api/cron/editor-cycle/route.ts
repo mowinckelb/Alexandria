@@ -366,12 +366,12 @@ async function runCycle(targetUserId?: string) {
         const entry = unprocessed[0];
         const editor = getEditor();
         const entryResult = await editor.processEntry(entry.id, userId, entry.content || '');
-        console.log(`[Editor Cycle] Processed entry ${entry.id} for ${userId}: ${entryResult.memoriesStored}m, ${entryResult.trainingPairsCreated}tp, ${entryResult.notesAdded}n`);
+        console.log(`[Editor Cycle] Processed entry ${entry.id} for ${userId}: constitution=${entryResult.constitutionUpdated}, ${entryResult.trainingPairsCreated}tp, ${entryResult.notesAdded}n`);
 
         await supabase.from('persona_activity').insert({
           user_id: userId,
           action_type: 'editor_entry_processed',
-          summary: `processed entry: ${entryResult.memoriesStored} memories, ${entryResult.trainingPairsCreated} training pairs, ${entryResult.notesAdded} notes`,
+          summary: `processed entry: constitution ${entryResult.constitutionUpdated ? 'updated' : 'unchanged'}, ${entryResult.trainingPairsCreated} training pairs, ${entryResult.notesAdded} notes`,
           details: { entryId: entry.id, entryResult },
           requires_attention: false,
         });
