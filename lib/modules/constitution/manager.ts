@@ -225,21 +225,21 @@ export class ConstitutionManager {
     rawEntries?: Array<{ content: string; created_at: string }>;
   }): Promise<{ sections: ConstitutionSections }> {
 
-    const trainingContext = sources.trainingPairs.slice(0, 150).map(p =>
-      `Prompt: "${p.user_content}"\nResponse: "${p.assistant_content}"`
+    // Keep prompt under ~40k chars to avoid timeouts
+    const trainingContext = sources.trainingPairs.slice(0, 40).map(p =>
+      `Q: "${p.user_content.slice(0, 200)}"\nA: "${p.assistant_content.slice(0, 400)}"`
     ).join('\n---\n');
 
     const profileContext = sources.personalityProfile
-      ? JSON.stringify(sources.personalityProfile, null, 2)
+      ? JSON.stringify(sources.personalityProfile, null, 2).slice(0, 3000)
       : 'No personality profile available.';
 
-    const notesContext = sources.editorNotes.map(n =>
-      `[${n.type}] ${n.content}${n.topic ? ` (topic: ${n.topic})` : ''}`
+    const notesContext = sources.editorNotes.slice(0, 50).map(n =>
+      `[${n.type}] ${n.content.slice(0, 200)}${n.topic ? ` (${n.topic})` : ''}`
     ).join('\n');
 
-    // Build raw entries context — truncate each entry but include as many as possible
-    const rawEntryContext = (sources.rawEntries || []).slice(0, 100).map((e, i) => {
-      const truncated = e.content.length > 2000 ? e.content.slice(0, 2000) + '...' : e.content;
+    const rawEntryContext = (sources.rawEntries || []).slice(0, 15).map((e, i) => {
+      const truncated = e.content.length > 1500 ? e.content.slice(0, 1500) + '...' : e.content;
       return `[Entry ${i + 1}]\n${truncated}`;
     }).join('\n---\n');
 
