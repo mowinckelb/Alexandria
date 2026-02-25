@@ -292,12 +292,50 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
     // 4. Parse response
     const parsed = this.parseAndValidateResponse(rawResponse, '');
 
-    // 5. Store training pairs
+    // 5. Constitution update — apply deltas from the SAME LLM call (no second call)
+    const updates = parsed.constitutionUpdates || [];
+    console.log(`[Editor] Constitution deltas from LLM: ${updates.length} updates, raw: ${JSON.stringify(updates).slice(0, 500)}`);
+
+    if (updates.length > 0) {
+      try {
+        if (constitution) {
+          await this.applyConstitutionDeltas(userId, constitution, updates);
+          result.constitutionUpdated = true;
+        } else {
+          await this.bootstrapConstitution(userId, text, parsed.message);
+          result.constitutionUpdated = true;
+        }
+      } catch (err) {
+        console.error('[Editor] Constitution update failed:', err);
+        try {
+          await supabase.from('persona_activity').insert({
+            user_id: userId,
+            action_type: 'editor_constitution_error',
+            summary: `constitution update failed: ${err instanceof Error ? err.message : String(err)}`,
+            details: { error: String(err), updatesCount: updates.length, updatesPreview: JSON.stringify(updates).slice(0, 1000) },
+            requires_attention: true,
+          });
+        } catch {}
+      }
+    } else {
+      console.log('[Editor] LLM returned 0 constitution updates — logging raw response');
+      try {
+        await supabase.from('persona_activity').insert({
+          user_id: userId,
+          action_type: 'editor_no_constitution_updates',
+          summary: `LLM returned 0 constitutionUpdates for entry ${entryId}`,
+          details: { rawResponsePreview: rawResponse.slice(0, 2000), parsedMessage: parsed.message },
+          requires_attention: false,
+        });
+      } catch {}
+    }
+
+    // 6. Store training pairs
     for (const subj of parsed.extraction.subjective) {
       try { await this.storeTrainingPair(subj as TrainingPair, userId); result.trainingPairsCreated++; } catch {}
     }
 
-    // 6. Update notepad
+    // 7. Update notepad
     const noteCount = parsed.notepadUpdates.observations.length + parsed.notepadUpdates.gaps.length + parsed.notepadUpdates.mentalModels.length;
     if (noteCount > 0) {
       try {
@@ -306,30 +344,8 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
       } catch {}
     }
 
-    // 7. Mark entry as processed
+    // 8. Mark entry as processed
     await supabase.from('entries').update({ metadata: { editor_processed: true, processed_at: new Date().toISOString() } }).eq('id', entryId);
-
-    // 8. Constitution update — extract if no constitution or stale (>30min since last update)
-    try {
-      const constitutionAge = constitution
-        ? (Date.now() - new Date(constitution.createdAt).getTime()) / (1000 * 60)
-        : Infinity;
-      const shouldExtract = !constitution || constitutionAge > 30;
-
-      console.log(`[Editor] Constitution check: exists=${!!constitution}, age=${constitutionAge.toFixed(0)}min, shouldExtract=${shouldExtract}`);
-
-      if (shouldExtract) {
-        console.log(`[Editor] Triggering full constitution extraction for ${userId}`);
-        const extractResult = await this.constitutionManager.extractConstitution(userId, {
-          sourceData: 'both',
-          includeEditorNotes: true,
-        });
-        result.constitutionUpdated = true;
-        console.log(`[Editor] Constitution ${constitution ? 'updated' : 'created'}: v${extractResult.constitution.version}, coverage ${(extractResult.coverage * 100).toFixed(0)}%`);
-      }
-    } catch (err) {
-      console.error('[Editor] Constitution extraction failed:', err);
-    }
 
     console.log(`[Editor] Processed entry ${entryId}: constitution=${result.constitutionUpdated}, ${result.trainingPairsCreated} training pairs, ${result.notesAdded} notes`);
     return result;
@@ -342,37 +358,81 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
   private async applyConstitutionDeltas(
     userId: string,
     current: Constitution,
-    updates: Array<{ section: string; additions?: unknown[]; field?: string; addition?: string }>
+    updates: Array<Record<string, unknown>>
   ): Promise<void> {
     const sections = JSON.parse(JSON.stringify(current.sections)) as ConstitutionSections;
     let changed = false;
+    let applied = 0;
+    let skipped = 0;
 
     for (const update of updates) {
-      const sectionKey = update.section as keyof ConstitutionSections;
-      if (!sections[sectionKey]) continue;
+      const sectionKey = String(update.section || '') as keyof ConstitutionSections;
+      if (!sections[sectionKey]) {
+        console.log(`[Editor] Delta skipped: unknown section "${sectionKey}"`);
+        skipped++;
+        continue;
+      }
 
       const section = sections[sectionKey] as Record<string, unknown>;
-      const field = update.field;
+      const field = String(update.field || '');
 
-      if (field && update.additions && Array.isArray(update.additions) && update.additions.length > 0) {
+      if (!field) {
+        console.log(`[Editor] Delta skipped: no field in update for section "${sectionKey}"`);
+        skipped++;
+        continue;
+      }
+
+      // Handle array additions (beliefs, core, preferences, mentalModels, etc.)
+      const additions = update.additions as unknown[] | undefined;
+      if (additions && Array.isArray(additions) && additions.length > 0) {
         const existing = section[field];
         if (Array.isArray(existing)) {
-          section[field] = [...existing, ...update.additions];
+          section[field] = [...existing, ...additions];
           changed = true;
+          applied++;
+        } else if (existing === undefined) {
+          // Field doesn't exist yet — create it
+          section[field] = additions;
+          changed = true;
+          applied++;
+        } else {
+          console.log(`[Editor] Delta type mismatch: ${sectionKey}.${field} is ${typeof existing}, got array additions`);
+          skipped++;
         }
-      } else if (field && update.addition && typeof update.addition === 'string') {
+        continue;
+      }
+
+      // Handle string addition (selfConcept, communicationStyle, trustModel)
+      const addition = update.addition as string | undefined;
+      if (addition && typeof addition === 'string') {
         const existing = section[field];
         if (typeof existing === 'string') {
-          section[field] = existing ? `${existing}\n\n${update.addition}` : update.addition;
+          section[field] = existing ? `${existing}\n\n${addition}` : addition;
           changed = true;
+          applied++;
+        } else if (existing === undefined) {
+          section[field] = addition;
+          changed = true;
+          applied++;
+        } else {
+          console.log(`[Editor] Delta type mismatch: ${sectionKey}.${field} is ${typeof existing}, got string addition`);
+          skipped++;
         }
+        continue;
       }
+
+      console.log(`[Editor] Delta skipped: no additions or addition in update for ${sectionKey}.${field}`);
+      skipped++;
     }
+
+    console.log(`[Editor] Delta results: ${applied} applied, ${skipped} skipped, changed=${changed}`);
 
     if (changed) {
       const markdown = this.constitutionManager.sectionsToMarkdown(sections);
-      await this.constitutionManager.saveNewVersion(userId, sections, markdown, 'Editor incremental update from vault data');
-      console.log(`[Editor] Applied constitution delta for user ${userId}`);
+      await this.constitutionManager.saveNewVersion(userId, sections, markdown, `Editor update: ${applied} deltas applied`);
+      console.log(`[Editor] Saved constitution delta for user ${userId}`);
+    } else {
+      console.log(`[Editor] No constitution changes after processing deltas`);
     }
   }
 
