@@ -578,14 +578,14 @@ If YES update needed, return:
         `constitution/v${constitution.version}.md`,
         markdown,
         'constitution',
-        { metadata: { version: constitution.version, createdAt: constitution.createdAt } }
+        { metadata: { version: constitution.version, createdAt: constitution.createdAt }, allowOverwrite: true }
       );
       await saveToVault(
         userId,
         'constitution/current.md',
         markdown,
         'constitution',
-        { metadata: { version: constitution.version } }
+        { metadata: { version: constitution.version }, allowOverwrite: true }
       );
       console.log(`[ConstitutionManager] Saved Canon to Vault: v${constitution.version}`);
     } catch (error) {
@@ -608,7 +608,7 @@ If YES update needed, return:
         'constitution/training.md',
         trainingView.fullText,
         'constitution',
-        { metadata: { version: constitution.version, view: 'training' } }
+        { metadata: { version: constitution.version, view: 'training' }, allowOverwrite: true }
       );
 
       const inferenceView = deriveInferenceView(constitution.sections);
@@ -620,7 +620,7 @@ If YES update needed, return:
         'constitution/inference.md',
         inferenceText,
         'constitution',
-        { metadata: { version: constitution.version, view: 'inference' } }
+        { metadata: { version: constitution.version, view: 'inference' }, allowOverwrite: true }
       );
 
       console.log(`[ConstitutionManager] Derived Training + Inference views: v${constitution.version}`);
