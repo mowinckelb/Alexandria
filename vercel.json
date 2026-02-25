@@ -26,6 +26,9 @@
     },
     "app/api/cron/machine-cycle/route.ts": {
       "maxDuration": 300
+    },
+    "app/api/debug/test-constitution/route.ts": {
+      "maxDuration": 300
     }
   },
   "crons": [
