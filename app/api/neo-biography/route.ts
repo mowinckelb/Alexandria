@@ -13,8 +13,9 @@ const publishSchema = z.object({
   userId: z.string().min(1),
   title: z.string().min(1),
   content: z.string().min(1),
-  medium: z.enum(['essay', 'poetry', 'note', 'letter', 'reflection', 'speech', 'other']).default('essay'),
-  summary: z.string().optional()
+  medium: z.enum(['essay', 'poetry', 'note', 'letter', 'reflection', 'speech', 'pdf', 'other']).default('essay'),
+  summary: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional()
 });
 
 const influenceSchema = z.object({
@@ -129,7 +130,8 @@ export async function POST(req: Request) {
         content: parsed.content,
         medium: parsed.medium,
         summary: parsed.summary || parsed.content.slice(0, 200),
-        frozen: true
+        frozen: true,
+        metadata: parsed.metadata || {}
       }).select().single();
 
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -36,7 +36,6 @@ function VaultSection({ userId }: { userId: string }) {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [reprocessing, setReprocessing] = useState(false);
-  const [pasteText, setPasteText] = useState('');
   const [status, setStatus] = useState<EditorStatus | null>(null);
 
   const fetchStatus = async () => {
@@ -82,22 +81,6 @@ function VaultSection({ userId }: { userId: string }) {
     setFiles([]);
     setUploading(false);
     setMessage(`${done} file${done !== 1 ? 's' : ''} stored. editor will process gradually.`);
-    fetchStatus();
-  };
-
-  const uploadPaste = async () => {
-    const text = pasteText.trim();
-    if (!text) return;
-    setUploading(true);
-    try {
-      const res = await fetch('/api/bulk-ingest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, userId, source: 'paste' })
-      });
-      if (res.ok) { setPasteText(''); setMessage('stored. editor will process gradually.'); }
-    } catch {}
-    setUploading(false);
     fetchStatus();
   };
 
@@ -152,21 +135,6 @@ function VaultSection({ userId }: { userId: string }) {
           </button>
         </div>
       )}
-
-      <div className="space-y-2">
-        <textarea
-          value={pasteText}
-          onChange={e => setPasteText(e.target.value)}
-          placeholder="or paste text here..."
-          className="w-full min-h-[80px] rounded-lg px-3 py-2 text-xs border-none outline-none"
-          style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-        />
-        {pasteText.trim() && (
-          <button onClick={uploadPaste} disabled={uploading} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-            upload text
-          </button>
-        )}
-      </div>
 
       {message && <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
 
@@ -289,7 +257,7 @@ function PLMSection({ userId }: { userId: string }) {
   );
 }
 
-interface AuthoredWork { id: string; title: string; medium: string; content?: string; summary?: string; published_at: string; }
+interface AuthoredWork { id: string; title: string; medium: string; content?: string; summary?: string; published_at: string; metadata?: { pdf_url?: string; storage_path?: string } }
 interface AuthorProfile { user_id?: string; display_name?: string; handle?: string; bio?: string; works_count?: number; }
 
 function PersonaModal({ persona, onClose, works, loading }: {
@@ -322,9 +290,16 @@ function PersonaModal({ persona, onClose, works, loading }: {
             {works.length > 0 && (
               <div className="space-y-2">
                 <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>Works</div>
-                {works.map(w => (
-                  <div key={w.id} className="text-sm py-1" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>{w.title}</div>
-                ))}
+                {works.map(w => {
+                  const pdfUrl = (w.metadata as Record<string, string> | undefined)?.pdf_url;
+                  return pdfUrl ? (
+                    <a key={w.id} href={pdfUrl} target="_blank" rel="noopener noreferrer" className="block text-sm py-1 no-underline" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
+                      {w.title} <span className="text-[0.55rem]" style={{ color: 'var(--text-subtle)' }}>↗</span>
+                    </a>
+                  ) : (
+                    <div key={w.id} className="text-sm py-1" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>{w.title}</div>
+                  );
+                })}
               </div>
             )}
 
@@ -403,13 +378,14 @@ function LibrarySection({ userId }: { userId: string }) {
     const file = pendingFileRef.current;
     if (!file) return;
     setSaving(true);
-    const text = await file.text();
     const title = workTitle.trim() || file.name;
     try {
-      const res = await fetch('/api/neo-biography', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'publish', userId, title, content: text, medium: 'other' })
-      });
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('userId', userId);
+      formData.append('title', title);
+
+      const res = await fetch('/api/neo-biography/upload', { method: 'POST', body: formData });
       if (res.ok) {
         const data = await res.json();
         setMyWorks(prev => [data.work, ...prev]);
@@ -520,7 +496,7 @@ function LibrarySection({ userId }: { userId: string }) {
                     {saving ? <span className="italic thinking-pulse">saving</span> : '+'}
                     <input
                       type="file"
-                      accept=".pdf,.md,.txt,.doc,.docx"
+                      accept=".pdf"
                       className="hidden"
                       onChange={e => { if (e.target.files?.[0]) handleFileSelected(e.target.files[0]); e.currentTarget.value = ''; }}
                     />
@@ -535,26 +511,40 @@ function LibrarySection({ userId }: { userId: string }) {
                   </div>
                 )}
 
-                {myWorks.map(w => (
-                  <div key={w.id} className="flex items-center justify-between py-2 group">
-                    {editingId === w.id ? (
-                      <input
-                        value={editingTitle}
-                        onChange={e => setEditingTitle(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') renameWork(w.id, editingTitle); if (e.key === 'Escape') setEditingId(null); }}
-                        onBlur={() => renameWork(w.id, editingTitle)}
-                        autoFocus
-                        className="flex-1 text-sm border-none outline-none bg-transparent"
-                        style={{ color: 'var(--text-primary)' }}
-                      />
-                    ) : (
-                      <button onClick={() => { setEditingId(w.id); setEditingTitle(w.title); }} className="text-sm bg-transparent border-none cursor-pointer text-left p-0 flex-1" style={{ color: 'var(--text-primary)' }}>
-                        {w.title}
-                      </button>
-                    )}
-                    <button onClick={() => deleteWork(w.id)} className="text-[0.6rem] bg-transparent border-none cursor-pointer opacity-0 group-hover:opacity-40 transition-opacity ml-3" style={{ color: 'var(--text-primary)' }}>×</button>
-                  </div>
-                ))}
+                {myWorks.map(w => {
+                  const pdfUrl = (w.metadata as Record<string, string> | undefined)?.pdf_url;
+                  return (
+                    <div key={w.id} className="flex items-center justify-between py-2 group">
+                      {editingId === w.id ? (
+                        <input
+                          value={editingTitle}
+                          onChange={e => setEditingTitle(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') renameWork(w.id, editingTitle); if (e.key === 'Escape') setEditingId(null); }}
+                          onBlur={() => renameWork(w.id, editingTitle)}
+                          autoFocus
+                          className="flex-1 text-sm border-none outline-none bg-transparent"
+                          style={{ color: 'var(--text-primary)' }}
+                        />
+                      ) : pdfUrl ? (
+                        <a
+                          href={pdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm no-underline flex-1 truncate"
+                          style={{ color: 'var(--text-primary)' }}
+                          onDoubleClick={e => { e.preventDefault(); setEditingId(w.id); setEditingTitle(w.title); }}
+                        >
+                          {w.title} <span className="text-[0.55rem]" style={{ color: 'var(--text-subtle)' }}>↗</span>
+                        </a>
+                      ) : (
+                        <button onClick={() => { setEditingId(w.id); setEditingTitle(w.title); }} className="text-sm bg-transparent border-none cursor-pointer text-left p-0 flex-1" style={{ color: 'var(--text-primary)' }}>
+                          {w.title}
+                        </button>
+                      )}
+                      <button onClick={() => deleteWork(w.id)} className="text-[0.6rem] bg-transparent border-none cursor-pointer opacity-0 group-hover:opacity-40 transition-opacity ml-3" style={{ color: 'var(--text-primary)' }}>×</button>
+                    </div>
+                  );
+                })}
 
                 {myWorks.length === 0 && !showWorkTitle && (
                   <div className="text-xs italic py-2" style={{ color: 'var(--text-subtle)' }}>no works yet</div>

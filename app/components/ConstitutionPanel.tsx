@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface ConstitutionSections {
   worldview?: { beliefs?: string[]; epistemology?: string[] };
@@ -47,6 +47,7 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
   const [constitution, setConstitution] = useState<Constitution | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<SectionId | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,14 +69,31 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
     }
   };
 
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(`constitution-${id}`);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  const handleScroll = useCallback(() => {
+    if (!constitution) return;
+    const ids = SECTION_META.filter(m => sectionHasContent(constitution.sections, m.id)).map(m => m.id);
+    let current: SectionId | null = null;
+    for (const id of ids) {
+      const el = document.getElementById(`cs-${id}`);
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= 120) current = id;
+      }
+    }
+    setActiveId(current);
+  }, [constitution]);
 
-  const scrollToTop = () => {
-    if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(`cs-${id}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   if (!isOpen) return null;
@@ -85,63 +103,90 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
     : [];
 
   const content = (
-    <div ref={scrollRef} className={inline ? '' : 'flex-1 overflow-y-auto'} style={inline ? {} : { maxHeight: 'calc(85vh - 60px)' }}>
-      {/* Header */}
-      <div className="mb-5">
-        <div className="flex items-baseline gap-2">
-          <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Constitution</h2>
-          {constitution && (
-            <span className="text-[0.6rem] tracking-wide" style={{ color: 'var(--text-subtle)' }}>
-              v{constitution.version}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span>
-        </div>
-      ) : error ? (
-        <div className="text-center py-8">
-          <p className="text-sm mb-4" style={{ color: 'var(--text-error, #ef4444)' }}>{error}</p>
-          <button onClick={loadConstitution} className="text-sm underline cursor-pointer bg-transparent border-none" style={{ color: 'var(--text-subtle)' }}>try again</button>
-        </div>
-      ) : !constitution ? (
-        <div className="text-center py-12">
-          <p className="text-sm" style={{ color: 'var(--text-subtle)' }}>no constitution yet.</p>
-          <p className="text-xs mt-2" style={{ color: 'var(--text-subtle)', opacity: 0.6 }}>the editor builds it as it processes your vault data.</p>
-        </div>
-      ) : (
-        <>
-          {/* Table of Contents */}
-          {activeSections.length > 1 && (
-            <nav className="mb-6 pb-4" style={{ borderBottom: '1px solid var(--border-light)' }}>
-              <div className="flex flex-wrap gap-x-4 gap-y-1">
-                {activeSections.map(s => (
-                  <button
-                    key={s.id}
-                    onClick={() => scrollToSection(s.id)}
-                    className="text-[0.7rem] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70 p-0"
-                    style={{ color: 'var(--text-primary)', opacity: 0.45 }}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </nav>
-          )}
-
-          {/* Sections */}
-          <div className="space-y-8">
-            <ConstitutionContent sections={constitution.sections} onBackToTop={scrollToTop} />
+    <div className="flex gap-0 min-h-0">
+      {/* Left sidebar nav */}
+      {constitution && activeSections.length > 1 && (
+        <nav className="sticky top-0 self-start pt-1 pr-4 flex-shrink-0 hidden sm:block" style={{ minWidth: '80px' }}>
+          <div className="space-y-1">
+            {activeSections.map(s => {
+              const isActive = activeId === s.id;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => scrollToSection(s.id)}
+                  className="block w-full text-left text-[0.65rem] bg-transparent border-none cursor-pointer py-1 px-0 transition-all duration-200"
+                  style={{
+                    color: 'var(--text-primary)',
+                    opacity: isActive ? 0.8 : 0.25,
+                    fontWeight: isActive ? 500 : 400,
+                    borderLeft: isActive ? '2px solid var(--text-primary)' : '2px solid transparent',
+                    paddingLeft: '8px',
+                  }}
+                >
+                  {s.label}
+                </button>
+              );
+            })}
           </div>
-        </>
+        </nav>
       )}
+
+      {/* Main content */}
+      <div className="flex-1 min-w-0">
+        {/* Header */}
+        <div className="mb-5">
+          <div className="flex items-baseline gap-2">
+            <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Constitution</h2>
+            {constitution && (
+              <span className="text-[0.6rem] tracking-wide" style={{ color: 'var(--text-subtle)' }}>
+                v{constitution.version}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile TOC */}
+        {constitution && activeSections.length > 1 && (
+          <nav className="mb-5 pb-3 sm:hidden" style={{ borderBottom: '1px solid var(--border-light)' }}>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {activeSections.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => scrollToSection(s.id)}
+                  className="text-[0.68rem] bg-transparent border-none cursor-pointer p-0 transition-opacity"
+                  style={{ color: 'var(--text-primary)', opacity: activeId === s.id ? 0.7 : 0.3 }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </nav>
+        )}
+
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-sm mb-4" style={{ color: 'var(--text-error, #ef4444)' }}>{error}</p>
+            <button onClick={loadConstitution} className="text-sm underline cursor-pointer bg-transparent border-none" style={{ color: 'var(--text-subtle)' }}>try again</button>
+          </div>
+        ) : !constitution ? (
+          <div className="text-center py-12">
+            <p className="text-sm" style={{ color: 'var(--text-subtle)' }}>no constitution yet.</p>
+            <p className="text-xs mt-2" style={{ color: 'var(--text-subtle)', opacity: 0.6 }}>the editor builds it as it processes your vault data.</p>
+          </div>
+        ) : (
+          <div className="space-y-10">
+            <ConstitutionContent sections={constitution.sections} />
+          </div>
+        )}
+      </div>
     </div>
   );
 
-  if (inline) return <div>{content}</div>;
+  if (inline) return <div ref={scrollRef} className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 120px)' }}>{content}</div>;
 
   return (
     <div
@@ -150,7 +195,8 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
       onClick={onClose}
     >
       <div
-        className="rounded-2xl p-6 w-[95%] max-w-[600px] max-h-[85vh] flex flex-col shadow-xl"
+        ref={scrollRef}
+        className="rounded-2xl p-6 w-[95%] max-w-[700px] max-h-[85vh] overflow-y-auto shadow-xl"
         style={{ background: 'var(--bg-modal)' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -160,23 +206,11 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
   );
 }
 
-function BackToTop({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="text-[0.6rem] bg-transparent border-none cursor-pointer p-0 mt-4 transition-opacity hover:opacity-60"
-      style={{ color: 'var(--text-subtle)', opacity: 0.3 }}
-    >
-      ↑ top
-    </button>
-  );
-}
-
 function SectionHeading({ id, title }: { id: string; title: string }) {
   return (
     <h3
-      id={`constitution-${id}`}
-      className="text-[0.7rem] font-medium uppercase tracking-wider mb-3 pt-1"
+      id={`cs-${id}`}
+      className="text-[0.7rem] font-medium uppercase tracking-wider mb-3 pt-1 scroll-mt-4"
       style={{ color: 'var(--text-primary)', opacity: 0.5 }}
     >
       {title}
@@ -184,7 +218,7 @@ function SectionHeading({ id, title }: { id: string; title: string }) {
   );
 }
 
-function ConstitutionContent({ sections, onBackToTop }: { sections: ConstitutionSections; onBackToTop: () => void }) {
+function ConstitutionContent({ sections }: { sections: ConstitutionSections }) {
   const s = sections;
   const rendered: React.ReactElement[] = [];
 
@@ -194,22 +228,17 @@ function ConstitutionContent({ sections, onBackToTop }: { sections: Constitution
         <SectionHeading id="worldview" title="Worldview" />
         <div className="space-y-1.5">
           {s.worldview?.beliefs?.map((b, i) => (
-            <p key={i} className="text-[0.8rem] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              {b}
-            </p>
+            <p key={i} className="text-[0.8rem] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{b}</p>
           ))}
         </div>
         {(s.worldview?.epistemology?.length || 0) > 0 && (
           <div className="mt-4">
             <div className="text-[0.65rem] uppercase tracking-wider mb-2" style={{ color: 'var(--text-subtle)' }}>Epistemology</div>
             {s.worldview?.epistemology?.map((e, i) => (
-              <p key={i} className="text-[0.8rem] leading-relaxed" style={{ color: 'var(--text-secondary)', opacity: 0.8 }}>
-                {e}
-              </p>
+              <p key={i} className="text-[0.8rem] leading-relaxed" style={{ color: 'var(--text-secondary)', opacity: 0.8 }}>{e}</p>
             ))}
           </div>
         )}
-        <BackToTop onClick={onBackToTop} />
       </div>
     );
   }
@@ -247,7 +276,6 @@ function ConstitutionContent({ sections, onBackToTop }: { sections: Constitution
             ))}
           </div>
         )}
-        <BackToTop onClick={onBackToTop} />
       </div>
     );
   }
@@ -275,7 +303,6 @@ function ConstitutionContent({ sections, onBackToTop }: { sections: Constitution
             ))}
           </div>
         )}
-        <BackToTop onClick={onBackToTop} />
       </div>
     );
   }
@@ -285,9 +312,7 @@ function ConstitutionContent({ sections, onBackToTop }: { sections: Constitution
       <div key="identity">
         <SectionHeading id="identity" title="Identity" />
         {s.identity?.selfConcept && (
-          <p className="text-[0.8rem] leading-relaxed italic mb-3" style={{ color: 'var(--text-secondary)' }}>
-            {s.identity.selfConcept}
-          </p>
+          <p className="text-[0.8rem] leading-relaxed italic mb-3" style={{ color: 'var(--text-secondary)' }}>{s.identity.selfConcept}</p>
         )}
         {s.identity?.communicationStyle && (
           <div className="mb-3">
@@ -307,7 +332,6 @@ function ConstitutionContent({ sections, onBackToTop }: { sections: Constitution
             <p className="text-[0.78rem] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{s.identity.trustModel}</p>
           </div>
         )}
-        <BackToTop onClick={onBackToTop} />
       </div>
     );
   }
@@ -335,7 +359,6 @@ function ConstitutionContent({ sections, onBackToTop }: { sections: Constitution
             ))}
           </div>
         )}
-        <BackToTop onClick={onBackToTop} />
       </div>
     );
   }
