@@ -43,6 +43,23 @@ function sectionHasContent(s: ConstitutionSections, id: SectionId): boolean {
   );
 }
 
+function SkeletonBlock() {
+  return (
+    <div className="space-y-10 animate-pulse">
+      {SECTION_META.map(s => (
+        <div key={s.id}>
+          <div className="h-3 w-16 rounded mb-4" style={{ background: 'var(--text-primary)', opacity: 0.06 }} />
+          <div className="space-y-2">
+            <div className="h-3 w-full rounded" style={{ background: 'var(--text-primary)', opacity: 0.04 }} />
+            <div className="h-3 w-[90%] rounded" style={{ background: 'var(--text-primary)', opacity: 0.04 }} />
+            <div className="h-3 w-[75%] rounded" style={{ background: 'var(--text-primary)', opacity: 0.04 }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: ConstitutionPanelProps) {
   const [constitution, setConstitution] = useState<Constitution | null>(null);
   const [loading, setLoading] = useState(false);
@@ -71,15 +88,21 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
 
   const handleScroll = useCallback(() => {
     if (!constitution) return;
+    const container = scrollRef.current;
+    if (!container) return;
+
     const ids = SECTION_META.filter(m => sectionHasContent(constitution.sections, m.id)).map(m => m.id);
     let current: SectionId | null = null;
+
     for (const id of ids) {
       const el = document.getElementById(`cs-${id}`);
       if (el) {
-        const rect = el.getBoundingClientRect();
-        if (rect.top <= 120) current = id;
+        const containerRect = container.getBoundingClientRect();
+        const relativeTop = el.getBoundingClientRect().top - containerRect.top;
+        if (relativeTop <= 80) current = id;
       }
     }
+
     setActiveId(current);
   }, [constitution]);
 
@@ -91,9 +114,18 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
     return () => container.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(`cs-${id}`);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToSection = (id: string, index: number) => {
+    if (index === 0) {
+      scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const el = document.getElementById(`cs-${id}`);
+      if (el && scrollRef.current) {
+        const containerTop = scrollRef.current.getBoundingClientRect().top;
+        const elTop = el.getBoundingClientRect().top;
+        const offset = elTop - containerTop + scrollRef.current.scrollTop - 16;
+        scrollRef.current.scrollTo({ top: offset, behavior: 'smooth' });
+      }
+    }
   };
 
   if (!isOpen) return null;
@@ -102,91 +134,89 @@ export default function ConstitutionPanel({ userId, isOpen, onClose, inline }: C
     ? SECTION_META.filter(m => sectionHasContent(constitution.sections, m.id))
     : [];
 
-  const content = (
-    <div className="flex gap-0 min-h-0">
-      {/* Left sidebar nav */}
-      {constitution && activeSections.length > 1 && (
-        <nav className="sticky top-0 self-start pt-1 pr-4 flex-shrink-0 hidden sm:block" style={{ minWidth: '80px' }}>
-          <div className="space-y-1">
-            {activeSections.map(s => {
-              const isActive = activeId === s.id;
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => scrollToSection(s.id)}
-                  className="block w-full text-left text-[0.65rem] bg-transparent border-none cursor-pointer py-1 px-0 transition-all duration-200"
-                  style={{
-                    color: 'var(--text-primary)',
-                    opacity: isActive ? 0.8 : 0.25,
-                    fontWeight: isActive ? 500 : 400,
-                    borderLeft: isActive ? '2px solid var(--text-primary)' : '2px solid transparent',
-                    paddingLeft: '8px',
-                  }}
-                >
-                  {s.label}
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-      )}
-
-      {/* Main content */}
-      <div className="flex-1 min-w-0">
-        {/* Header */}
-        <div className="mb-5">
-          <div className="flex items-baseline gap-2">
-            <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Constitution</h2>
-            {constitution && (
-              <span className="text-[0.6rem] tracking-wide" style={{ color: 'var(--text-subtle)' }}>
-                v{constitution.version}
-              </span>
-            )}
-          </div>
+  const mainContent = (
+    <div className="flex-1 min-w-0">
+      {loading ? (
+        <SkeletonBlock />
+      ) : error ? (
+        <div className="py-8">
+          <p className="text-sm mb-4" style={{ color: 'var(--text-error, #ef4444)' }}>{error}</p>
+          <button onClick={loadConstitution} className="text-sm underline cursor-pointer bg-transparent border-none" style={{ color: 'var(--text-subtle)' }}>try again</button>
         </div>
+      ) : !constitution ? (
+        <div className="py-12">
+          <p className="text-sm" style={{ color: 'var(--text-subtle)' }}>no constitution yet.</p>
+          <p className="text-xs mt-2" style={{ color: 'var(--text-subtle)', opacity: 0.6 }}>the editor builds it as it processes your vault data.</p>
+        </div>
+      ) : (
+        <div className="space-y-10">
+          <ConstitutionContent sections={constitution.sections} />
+        </div>
+      )}
+    </div>
+  );
 
-        {/* Mobile TOC */}
-        {constitution && activeSections.length > 1 && (
-          <nav className="mb-5 pb-3 sm:hidden" style={{ borderBottom: '1px solid var(--border-light)' }}>
-            <div className="flex flex-wrap gap-x-4 gap-y-1">
-              {activeSections.map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => scrollToSection(s.id)}
-                  className="text-[0.68rem] bg-transparent border-none cursor-pointer p-0 transition-opacity"
-                  style={{ color: 'var(--text-primary)', opacity: activeId === s.id ? 0.7 : 0.3 }}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          </nav>
-        )}
+  const sidebarNav = (
+    <nav className="flex-shrink-0 hidden sm:block" style={{ minWidth: '80px' }}>
+      <div className="pr-3 pt-1">
+        {activeSections.map((s, i) => {
+          const isActive = activeId === s.id;
+          return (
+            <button
+              key={s.id}
+              onClick={() => scrollToSection(s.id, i)}
+              className="block w-full text-left text-[0.6rem] bg-transparent border-none cursor-pointer transition-all duration-200"
+              style={{
+                color: 'var(--text-primary)',
+                opacity: isActive ? 0.6 : 0.18,
+                fontWeight: isActive ? 500 : 400,
+                paddingTop: '5px',
+                paddingBottom: '5px',
+              }}
+            >
+              {s.label}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span>
-          </div>
-        ) : error ? (
-          <div className="text-center py-8">
-            <p className="text-sm mb-4" style={{ color: 'var(--text-error, #ef4444)' }}>{error}</p>
-            <button onClick={loadConstitution} className="text-sm underline cursor-pointer bg-transparent border-none" style={{ color: 'var(--text-subtle)' }}>try again</button>
-          </div>
-        ) : !constitution ? (
-          <div className="text-center py-12">
-            <p className="text-sm" style={{ color: 'var(--text-subtle)' }}>no constitution yet.</p>
-            <p className="text-xs mt-2" style={{ color: 'var(--text-subtle)', opacity: 0.6 }}>the editor builds it as it processes your vault data.</p>
-          </div>
-        ) : (
-          <div className="space-y-10">
-            <ConstitutionContent sections={constitution.sections} />
-          </div>
+  const content = (
+    <div className="space-y-5">
+      <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>
+        Constitution
+        {constitution && (
+          <span className="text-[0.6rem] tracking-wide ml-2" style={{ color: 'var(--text-subtle)', fontWeight: 'normal' }}>
+            v{constitution.version}
+          </span>
         )}
+      </h2>
+      <div className="flex gap-0 min-h-0">
+        {sidebarNav}
+        {mainContent}
       </div>
     </div>
   );
 
-  if (inline) return <div ref={scrollRef} className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 120px)' }}>{content}</div>;
+  if (inline) return (
+    <div className="space-y-5">
+      <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>
+        Constitution
+        {constitution && (
+          <span className="text-[0.6rem] tracking-wide ml-2" style={{ color: 'var(--text-subtle)', fontWeight: 'normal' }}>
+            v{constitution.version}
+          </span>
+        )}
+      </h2>
+      <div className="flex gap-0" style={{ height: 'calc(100vh - 160px)' }}>
+        {sidebarNav}
+        <div ref={scrollRef} className={`flex-1 min-w-0 ${loading ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+          {mainContent}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div
@@ -210,7 +240,7 @@ function SectionHeading({ id, title }: { id: string; title: string }) {
   return (
     <h3
       id={`cs-${id}`}
-      className="text-[0.7rem] font-medium uppercase tracking-wider mb-3 pt-1 scroll-mt-4"
+      className="text-[0.7rem] font-medium uppercase tracking-wider mb-3 scroll-mt-4"
       style={{ color: 'var(--text-primary)', opacity: 0.5 }}
     >
       {title}
@@ -364,7 +394,7 @@ function ConstitutionContent({ sections }: { sections: ConstitutionSections }) {
   }
 
   if (rendered.length === 0) {
-    return <p className="text-sm text-center py-8" style={{ color: 'var(--text-subtle)' }}>constitution is empty.</p>;
+    return <p className="text-sm py-8" style={{ color: 'var(--text-subtle)' }}>constitution is empty.</p>;
   }
 
   return <>{rendered}</>;

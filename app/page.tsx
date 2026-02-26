@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef, KeyboardEvent } from 'react';
+import { useState, useEffect, useRef, useCallback, KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import AuthScreen from './components/AuthScreen';
 import LandingPage from './components/LandingPage';
@@ -113,14 +113,33 @@ function VaultSection({ userId }: { userId: string }) {
     <div className="space-y-5">
       <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Vault</h2>
 
+      {/* Status — always shown first for consistent layout */}
+      {status && status.remaining > 0 ? (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[0.7rem]" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
+            <span>{status.processed} / {status.total}</span>
+            <span className="italic thinking-pulse">{status.remaining} remaining</span>
+          </div>
+          <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
+            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${status.percentComplete}%`, background: 'var(--text-primary)', opacity: 0.35 }} />
+          </div>
+        </div>
+      ) : status && status.remaining === 0 ? (
+        <div className="space-y-2">
+          <div className="text-[0.7rem] italic" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>complete</div>
+          <button onClick={reprocess} disabled={reprocessing} className="text-[0.7rem] bg-transparent border-none cursor-pointer disabled:opacity-50 p-0" style={{ color: 'var(--text-primary)', opacity: 0.4 }}>
+            {reprocessing ? <span className="italic thinking-pulse">resetting</span> : 're-process'}
+          </button>
+        </div>
+      ) : null}
+
+      {/* File upload */}
       <div
-        className="rounded-xl p-4"
-        style={{ background: 'var(--bg-secondary)' }}
         onDragOver={e => e.preventDefault()}
         onDrop={e => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
       >
-        <label className="inline-block cursor-pointer text-xs" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>
-          choose files
+        <label className="inline-block cursor-pointer text-[0.7rem]" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
+          add files
           <input type="file" multiple accept=".md,.txt" className="hidden" onChange={e => { if (e.target.files) addFiles(e.target.files); e.currentTarget.value = ''; }} />
         </label>
       </div>
@@ -128,37 +147,15 @@ function VaultSection({ userId }: { userId: string }) {
       {files.length > 0 && (
         <div className="space-y-2">
           {files.map((f, i) => (
-            <div key={i} className="text-xs opacity-60">{f.name} ({(f.size / 1024).toFixed(0)} KB)</div>
+            <div key={i} className="text-[0.7rem]" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>{f.name} ({(f.size / 1024).toFixed(0)} KB)</div>
           ))}
-          <button onClick={uploadAll} disabled={uploading} className="rounded-lg px-3 py-2 text-xs disabled:opacity-50 border-none cursor-pointer" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+          <button onClick={uploadAll} disabled={uploading} className="text-[0.7rem] bg-transparent border-none cursor-pointer disabled:opacity-50 p-0" style={{ color: 'var(--text-primary)', opacity: 0.55 }}>
             {uploading ? <span className="italic thinking-pulse">uploading</span> : `upload ${files.length} file${files.length !== 1 ? 's' : ''}`}
           </button>
         </div>
       )}
 
-      {message && <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>{message}</div>}
-
-      {/* Editor progress */}
-      {status && (
-        <div className="space-y-2">
-          {status.remaining > 0 ? (
-            <>
-              <div className="flex items-center justify-between text-[0.65rem]" style={{ color: 'var(--text-subtle)' }}>
-                <span>{status.processed} / {status.total}</span>
-                <span className="italic thinking-pulse">{status.remaining} remaining</span>
-              </div>
-              <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
-                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${status.percentComplete}%`, background: 'var(--text-subtle)', opacity: 0.5 }} />
-              </div>
-            </>
-          ) : (
-            <div className="text-[0.65rem] italic" style={{ color: 'var(--text-subtle)' }}>complete</div>
-          )}
-          <button onClick={reprocess} disabled={reprocessing} className="text-[0.65rem] bg-transparent border-none cursor-pointer disabled:opacity-50 p-0" style={{ color: 'var(--text-subtle)' }}>
-            {reprocessing ? <span className="italic thinking-pulse">resetting</span> : 're-process everything'}
-          </button>
-        </div>
-      )}
+      {message && <div className="text-[0.7rem]" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>{message}</div>}
     </div>
   );
 }
@@ -206,7 +203,16 @@ function PLMSection({ userId }: { userId: string }) {
     load();
   }, [userId]);
 
-  if (loading) return <div className="py-12 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>;
+  if (loading) return (
+    <div className="space-y-5">
+      <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>PLM</h2>
+      <div className="space-y-3 animate-pulse">
+        <div className="h-3 w-[60%] rounded" style={{ background: 'var(--text-primary)', opacity: 0.05 }} />
+        <div className="h-3 w-[45%] rounded" style={{ background: 'var(--text-primary)', opacity: 0.04 }} />
+        <div className="h-3 w-[55%] rounded" style={{ background: 'var(--text-primary)', opacity: 0.03 }} />
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-5">
@@ -289,7 +295,7 @@ function PersonaModal({ persona, onClose, works, loading }: {
 
             {works.length > 0 && (
               <div className="space-y-2">
-                <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>Works</div>
+                <div className="text-[0.68rem] tracking-wider uppercase" style={{ color: 'var(--text-primary)', opacity: 0.4 }}>Works</div>
                 {works.map(w => {
                   const pdfUrl = (w.metadata as Record<string, string> | undefined)?.pdf_url;
                   return pdfUrl ? (
@@ -420,18 +426,28 @@ function LibrarySection({ userId }: { userId: string }) {
     } catch {}
   };
 
-  if (loading) return <div className="py-16 text-center"><span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>loading</span></div>;
+  if (loading) return (
+    <div className="space-y-5">
+      <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Library</h2>
+      <div className="space-y-3 animate-pulse">
+        <div className="h-3 w-[50%] rounded" style={{ background: 'var(--text-primary)', opacity: 0.04 }} />
+        <div className="h-3 w-[35%] rounded" style={{ background: 'var(--text-primary)', opacity: 0.03 }} />
+      </div>
+    </div>
+  );
 
   const myName = myProfile.display_name || myProfile.handle || 'you';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Library</h2>
+
       {/* Quote */}
-      <div className="pt-6 pb-2 text-center">
-        <div className="text-[0.82rem] italic leading-relaxed font-light" style={{ color: 'var(--text-primary)', opacity: 0.4 }}>
+      <div className="pb-2 text-center">
+        <div className="text-[0.82rem] italic leading-relaxed font-light" style={{ color: 'var(--text-primary)', opacity: 0.45 }}>
           &ldquo;Make something wonderful.&rdquo;
         </div>
-        <div className="text-[0.6rem] mt-2 tracking-widest uppercase" style={{ color: 'var(--text-subtle)' }}>Steve Jobs</div>
+        <div className="text-[0.62rem] mt-2 tracking-widest uppercase" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>Steve Jobs</div>
       </div>
 
       {/* Your name — click to open editing modal */}
@@ -441,7 +457,7 @@ function LibrarySection({ userId }: { userId: string }) {
       >
         <div className="text-lg font-extralight" style={{ color: 'var(--text-primary)' }}>
           {myName}
-          {myWorks.length > 0 && <span className="text-[0.6rem] font-light ml-2" style={{ color: 'var(--text-subtle)' }}>{myWorks.length}</span>}
+          {myWorks.length > 0 && <span className="text-[0.62rem] font-light ml-2" style={{ color: 'var(--text-primary)', opacity: 0.35 }}>{myWorks.length}</span>}
         </div>
       </button>
 
@@ -450,7 +466,7 @@ function LibrarySection({ userId }: { userId: string }) {
         <div>
           <div className="flex items-center gap-3 mb-4">
             <div className="flex-1 h-px" style={{ background: 'var(--border-light)' }} />
-            <span className="text-[0.6rem] tracking-widest uppercase" style={{ color: 'var(--text-subtle)' }}>others</span>
+            <span className="text-[0.62rem] tracking-widest uppercase" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>others</span>
             <div className="flex-1 h-px" style={{ background: 'var(--border-light)' }} />
           </div>
           <div className="space-y-1">
@@ -465,7 +481,7 @@ function LibrarySection({ userId }: { userId: string }) {
                   <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[0.6rem] font-light" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', opacity: 0.6 }}>
                     {pName.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-sm" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>{pName}</span>
+                  <span className="text-sm" style={{ color: 'var(--text-primary)', opacity: 0.55 }}>{pName}</span>
                 </button>
               );
             })}
@@ -489,64 +505,64 @@ function LibrarySection({ userId }: { userId: string }) {
 
               {/* Works section */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>Works</div>
-                  <label className="text-[0.65rem] cursor-pointer" style={{ color: 'var(--text-subtle)' }}>
-                    {saving ? <span className="italic thinking-pulse">saving</span> : '+'}
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      className="hidden"
-                      onChange={e => { if (e.target.files?.[0]) handleFileSelected(e.target.files[0]); e.currentTarget.value = ''; }}
-                    />
-                  </label>
-                </div>
+                <div className="text-[0.68rem] tracking-wider uppercase" style={{ color: 'var(--text-primary)', opacity: 0.4 }}>Works</div>
 
                 {showWorkTitle && (
                   <div className="flex gap-2 items-center">
                     <input value={workTitle} onChange={e => setWorkTitle(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') submitWork(); }} placeholder="title" autoFocus className="flex-1 rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
                     <button onClick={submitWork} disabled={saving} className="text-xs bg-transparent border-none cursor-pointer disabled:opacity-50" style={{ color: 'var(--text-primary)' }}>{saving ? <span className="italic thinking-pulse">saving</span> : 'add'}</button>
-                    <button onClick={() => { setShowWorkTitle(false); pendingFileRef.current = null; }} className="text-xs bg-transparent border-none cursor-pointer" style={{ color: 'var(--text-subtle)' }}>×</button>
+                    <button onClick={() => { setShowWorkTitle(false); pendingFileRef.current = null; }} className="text-xs bg-transparent border-none cursor-pointer" style={{ color: 'var(--text-subtle)' }}>cancel</button>
                   </div>
                 )}
 
                 {myWorks.map(w => {
                   const pdfUrl = (w.metadata as Record<string, string> | undefined)?.pdf_url;
                   return (
-                    <div key={w.id} className="flex items-center justify-between py-2 group">
-                      {editingId === w.id ? (
+                    <div key={w.id} className="flex items-center gap-3 py-2 group">
+                    {editingId === w.id ? (
+                      <div className="flex-1 flex items-center gap-2">
                         <input
                           value={editingTitle}
                           onChange={e => setEditingTitle(e.target.value)}
                           onKeyDown={e => { if (e.key === 'Enter') renameWork(w.id, editingTitle); if (e.key === 'Escape') setEditingId(null); }}
-                          onBlur={() => renameWork(w.id, editingTitle)}
                           autoFocus
                           className="flex-1 text-sm border-none outline-none bg-transparent"
                           style={{ color: 'var(--text-primary)' }}
                         />
-                      ) : pdfUrl ? (
-                        <a
-                          href={pdfUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm no-underline flex-1 truncate"
-                          style={{ color: 'var(--text-primary)' }}
-                          onDoubleClick={e => { e.preventDefault(); setEditingId(w.id); setEditingTitle(w.title); }}
-                        >
-                          {w.title} <span className="text-[0.55rem]" style={{ color: 'var(--text-subtle)' }}>↗</span>
-                        </a>
-                      ) : (
-                        <button onClick={() => { setEditingId(w.id); setEditingTitle(w.title); }} className="text-sm bg-transparent border-none cursor-pointer text-left p-0 flex-1" style={{ color: 'var(--text-primary)' }}>
-                          {w.title}
-                        </button>
-                      )}
-                      <button onClick={() => deleteWork(w.id)} className="text-[0.6rem] bg-transparent border-none cursor-pointer opacity-0 group-hover:opacity-40 transition-opacity ml-3" style={{ color: 'var(--text-primary)' }}>×</button>
+                        <button onClick={() => renameWork(w.id, editingTitle)} className="text-[0.65rem] bg-transparent border-none cursor-pointer opacity-50 hover:opacity-80 transition-opacity p-0" style={{ color: 'var(--text-primary)' }}>save</button>
+                        <button onClick={() => setEditingId(null)} className="text-[0.65rem] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-50 transition-opacity p-0" style={{ color: 'var(--text-primary)' }}>cancel</button>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="text-sm flex-1" style={{ color: 'var(--text-primary)' }}>
+                          {pdfUrl ? (
+                            <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="no-underline hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
+                              {w.title}
+                            </a>
+                          ) : w.title}
+                        </span>
+                        <span className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => { setEditingId(w.id); setEditingTitle(w.title); }} className="text-[0.7rem] bg-transparent border-none cursor-pointer opacity-50 hover:opacity-80 transition-opacity p-0" style={{ color: 'var(--text-primary)' }}>edit</button>
+                          <button onClick={() => deleteWork(w.id)} className="text-[0.7rem] bg-transparent border-none cursor-pointer opacity-50 hover:opacity-80 transition-opacity p-0" style={{ color: 'var(--text-primary)' }}>delete</button>
+                        </span>
+                      </>
+                    )}
                     </div>
                   );
                 })}
 
+                <label className="inline-flex items-center gap-1 cursor-pointer text-[0.7rem] py-1 opacity-40 hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
+                  {saving ? <span className="italic thinking-pulse">saving</span> : '+ add work'}
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    className="hidden"
+                    onChange={e => { if (e.target.files?.[0]) handleFileSelected(e.target.files[0]); e.currentTarget.value = ''; }}
+                  />
+                </label>
+
                 {myWorks.length === 0 && !showWorkTitle && (
-                  <div className="text-xs italic py-2" style={{ color: 'var(--text-subtle)' }}>no works yet</div>
+                  <div className="text-xs italic py-1" style={{ color: 'var(--text-subtle)' }}>no works yet</div>
                 )}
               </div>
             </div>
@@ -601,11 +617,23 @@ export default function Alexandria() {
     currentTopic?: string;
   }>({ phase: 'collecting' });
   const [carbonLockYN, setCarbonLockYN] = useState(false);
+  const [editorFollowUps, setEditorFollowUps] = useState<string[]>([]);
+  const [editorQuestions, setEditorQuestions] = useState<Array<{ id: string; title: string; opener?: string; criteria?: string[] }>>([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+  const [selectedQIndex, setSelectedQIndex] = useState(0);
+  const [pausedConversations, setPausedConversations] = useState<Array<{ topic: string; messages: Message[]; aims?: string[]; completedAims?: string[] }>>([]);
   
+  const [orchestratorTab, setOrchestratorTab] = useState<'activity' | 'questions' | 'chat'>('activity');
+  
+
   const [showRlaifReview, setShowRlaifReview] = useState(false);
   const [showNav, setShowNav] = useState(false);
   const [rlaifReviewCount, setRlaifReviewCount] = useState(0);
-  const [activeSection, setActiveSection] = useState<'vault' | 'constitution' | 'plm' | 'library' | null>(null);
+  const [activeSection, setActiveSectionRaw] = useState<'vault' | 'constitution' | 'plm' | 'library' | null>(null);
+  const setActiveSection = useCallback((s: 'vault' | 'constitution' | 'plm' | 'library' | null) => {
+    setActiveSectionRaw(s);
+    if (s === null) setTimeout(() => inputRef.current?.focus(), 50);
+  }, []);
   const [agentsPaused, setAgentsPaused] = useState(false);
   const seenEditorMessageIds = useRef<Set<string>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
@@ -641,6 +669,72 @@ export default function Alexandria() {
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [showNav]);
+
+  // Build unified list of selectable items for the editor landing
+  const pausedTopics = pausedConversations.map(p => p.topic);
+  const visibleQuestions = editorQuestions
+    .filter(q => !pausedTopics.includes(q.title))
+    .slice(0, Math.max(0, 5 - pausedConversations.length));
+  const editorItems: Array<{ type: 'paused' | 'new'; title: string }> = [
+    ...pausedConversations.map(p => ({ type: 'paused' as const, title: p.topic })),
+    ...visibleQuestions.map(q => ({ type: 'new' as const, title: q.title })),
+  ];
+
+  // Global keyboard handler for when the input box is hidden (landing pages)
+  useEffect(() => {
+    const handler = (e: globalThis.KeyboardEvent) => {
+      if (activeSection) return;
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return;
+
+      if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+        e.preventDefault();
+        setMode(prev => prev === 'input' ? 'output' : 'input');
+        return;
+      }
+
+      if (mode === 'input' && editorItems.length > 0) {
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setSelectedQIndex(prev => Math.max(0, prev - 1));
+          return;
+        }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setSelectedQIndex(prev => Math.min(editorItems.length - 1, prev + 1));
+          return;
+        }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const item = editorItems[selectedQIndex];
+          if (item) {
+            if (item.type === 'paused') resumeConversation(item.title);
+            else handlePickQuestion(item.title);
+          }
+          return;
+        }
+      }
+
+      if (mode === 'output') {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          setOrchestratorTab(prev => {
+            const tabs: Array<'activity' | 'questions' | 'chat'> = ['activity', 'questions', 'chat'];
+            const idx = tabs.indexOf(prev);
+            if (e.key === 'ArrowUp') return tabs[Math.max(0, idx - 1)];
+            return tabs[Math.min(tabs.length - 1, idx + 1)];
+          });
+          return;
+        }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (orchestratorTab === 'chat') startOrchestratorChat();
+          return;
+        }
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [activeSection, mode, editorItems, selectedQIndex, orchestratorTab]);
 
   useEffect(() => {
     if (!isAuthenticated || !userId) return;
@@ -680,6 +774,30 @@ export default function Alexandria() {
     };
     void loadPrivacyMode();
   }, [isAuthenticated, userId]);
+
+  const fetchEditorQuestions = useCallback(async (clearFirst = false) => {
+    if (!userId) return;
+    if (clearFirst) setEditorQuestions([]);
+    setLoadingQuestions(true);
+    try {
+      const res = await fetch(`/api/editor-questions?userId=${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setEditorQuestions(data.questions || []);
+        setSelectedQIndex(0);
+      }
+    } catch { /* ignore */ }
+    setLoadingQuestions(false);
+  }, [userId]);
+
+  // Pre-load questions as soon as we have a userId
+  useEffect(() => {
+    if (userId && editorQuestions.length === 0 && !loadingQuestions) {
+      fetchEditorQuestions();
+    }
+  }, [userId]);
+
+
 
   // Auto-trigger post_upload phase to ask questions about uploaded content
   useEffect(() => {
@@ -841,25 +959,19 @@ export default function Alexandria() {
     return () => clearInterval(interval);
   }, [isAuthenticated, userId]);
 
-  // Auto-scroll for all conversation modes
+  // Auto-scroll for all conversation modes — instant to prevent jitter
   useEffect(() => {
     if (outputScrollRef.current) {
-      setTimeout(() => {
-        outputScrollRef.current?.scrollTo({
-          top: outputScrollRef.current.scrollHeight,
-          behavior: 'smooth'
-        });
-      }, 100);
+      requestAnimationFrame(() => {
+        outputScrollRef.current?.scrollTo({ top: outputScrollRef.current.scrollHeight });
+      });
     }
-  }, [trainingMessages, outputMessages, inputMessages, mode]);
+  }, [trainingMessages, outputMessages, inputMessages, showThinking]);
 
-  // Auto-scroll during streaming
+  // Auto-scroll during streaming — instant to prevent jitter
   useEffect(() => {
     if (outputContent && outputScrollRef.current) {
-      outputScrollRef.current.scrollTo({
-        top: outputScrollRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
+      outputScrollRef.current.scrollTop = outputScrollRef.current.scrollHeight;
     }
   }, [outputContent]);
 
@@ -875,27 +987,178 @@ export default function Alexandria() {
     setTimeout(() => setStatusMessage(''), 2000);
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    // Carbon y/n lock (wrap_up, offer_questions, topic_continue phases)
-    if (carbonLockYN && mode === 'input') {
-      if (e.key === 'y' || e.key === 'Y') {
-        e.preventDefault();
-        setCarbonLockYN(false);
-        handleCarbonYN('y');
-        return;
-      }
-      if (e.key === 'n' || e.key === 'N') {
-        e.preventDefault();
-        setCarbonLockYN(false);
-        handleCarbonYN('n');
-        return;
-      }
-      // Block and shake on other keys
-      if (e.key.length === 1) {
-        e.preventDefault();
-        shakeInput();
-      }
+  const startOrchestratorChat = useCallback(() => {
+    const greetingId = uuidv4();
+    setOutputMessages([{ id: greetingId, role: 'assistant', content: 'how can I help?' }]);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }, []);
+
+  const exitOrchestratorChat = useCallback(() => {
+    setOutputMessages([]);
+    setOutputContent('');
+    setOrchestratorTab('activity');
+  }, []);
+
+  const handleEditorContinue = () => {
+    setCarbonLockYN(false);
+    setInputMessages([]);
+    setOutputContent('');
+    fetchEditorQuestions(true);
+  };
+
+  const handleEditorDone = () => {
+    setCarbonLockYN(false);
+    setInputMessages([]);
+    setOutputContent('');
+    fetchEditorQuestions(true);
+  };
+
+  const handlePickQuestion = async (title: string) => {
+    const question = editorQuestions.find(q => q.title === title);
+    const opener = question?.opener;
+    const criteria = question?.criteria || [];
+    setEditorQuestions([]);
+    setCarbonState(prev => ({ ...prev, currentTopic: title }));
+
+    if (opener) {
+      const assistantId = uuidv4();
+      setInputMessages([{ id: assistantId, role: 'assistant', content: opener }]);
+      setTimeout(() => inputRef.current?.focus(), 50);
       return;
+    }
+
+    setIsProcessing(true);
+    setShowThinking(true);
+
+    const topicMsg = criteria.length > 0
+      ? `[TOPIC: ${title}]\n[CRITERIA: ${criteria.join(' | ')}]`
+      : `[TOPIC: ${title}]`;
+
+    try {
+      const response = await fetch('/api/input-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: topicMsg }],
+          userId,
+          state: carbonState
+        })
+      });
+
+      if (!response.ok) throw new Error(`http ${response.status}`);
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+      const assistantId = uuidv4();
+
+      setShowThinking(false);
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          for (const line of chunk.split('\n')) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.type === 'text-delta' && data.delta) {
+                  assistantContent += data.delta;
+                  setOutputContent(assistantContent);
+                }
+                if (data.state) setCarbonState(data.state);
+              } catch { /* ignore */ }
+            }
+          }
+        }
+      }
+
+      setInputMessages([{ id: assistantId, role: 'assistant', content: assistantContent }]);
+      setOutputContent('');
+      setTimeout(() => inputRef.current?.focus(), 100);
+    } catch (e) {
+      console.error('Pick question error:', e);
+      setShowThinking(false);
+    } finally {
+      setIsProcessing(false);
+      setShowThinking(false);
+    }
+  };
+
+  const exitEditorChat = useCallback(() => {
+    // Pause conversation — save it so author can resume later
+    if (inputMessages.length > 0 && carbonState.currentTopic) {
+      setPausedConversations(prev => {
+        const existing = prev.findIndex(p => p.topic === carbonState.currentTopic);
+        const entry = { topic: carbonState.currentTopic!, messages: [...inputMessages] };
+        if (existing >= 0) {
+          const updated = [...prev];
+          updated[existing] = entry;
+          return updated;
+        }
+        return [...prev, entry];
+      });
+    }
+    setInputMessages([]);
+    setOutputContent('');
+    setCarbonLockYN(false);
+    setCarbonState(prev => ({ ...prev, currentTopic: undefined }));
+    fetchEditorQuestions(true);
+  }, [fetchEditorQuestions, inputMessages, carbonState.currentTopic]);
+
+  const resumeConversation = useCallback((topic: string) => {
+    const paused = pausedConversations.find(p => p.topic === topic);
+    if (!paused) return;
+    setInputMessages(paused.messages);
+    setCarbonState(prev => ({ ...prev, currentTopic: topic }));
+    setEditorQuestions([]);
+    setTimeout(() => inputRef.current?.focus(), 100);
+  }, [pausedConversations]);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    // Esc to exit conversation back to landing
+    if (e.key === 'Escape' && !isProcessing) {
+      if (mode === 'input' && inputMessages.length > 0) {
+        e.preventDefault();
+        exitEditorChat();
+        return;
+      }
+      if (mode === 'output' && outputMessages.length > 0) {
+        e.preventDefault();
+        exitOrchestratorChat();
+        return;
+      }
+    }
+
+    // Left/right arrow to toggle editor/orchestrator (when input is empty)
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !inputValue && !activeSection) {
+      e.preventDefault();
+      setMode(prev => prev === 'input' ? 'output' : 'input');
+      return;
+    }
+
+    // Arrow up/down + Enter for editor questions (unified list)
+    if (mode === 'input' && editorItems.length > 0 && !isProcessing) {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedQIndex(prev => Math.max(0, prev - 1));
+        return;
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedQIndex(prev => Math.min(editorItems.length - 1, prev + 1));
+        return;
+      }
+      if (e.key === 'Enter' && !inputValue) {
+        e.preventDefault();
+        const item = editorItems[selectedQIndex];
+        if (item) {
+          if (item.type === 'paused') resumeConversation(item.title);
+          else handlePickQuestion(item.title);
+        }
+        return;
+      }
     }
 
     // Phase 1: Binary y/n - instant response
@@ -1249,6 +1512,7 @@ export default function Alexandria() {
 
       setCarbonState(newState);
       setCarbonLockYN(shouldLockYN);
+      setEditorFollowUps([]);
       setInputMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: assistantContent }]);
       setOutputContent('');
 
@@ -1256,7 +1520,10 @@ export default function Alexandria() {
         setTimeout(() => {
           setCarbonState({ phase: 'collecting' });
           setCarbonLockYN(false);
-        }, 2000);
+          setInputMessages([]);
+          setOutputContent('');
+          fetchEditorQuestions(true);
+        }, 2500);
       }
     } catch (error) {
       console.error('Carbon YN error:', error);
@@ -1303,6 +1570,7 @@ export default function Alexandria() {
       const assistantId = uuidv4();
       let newState = carbonState;
       let shouldLockYN = false;
+      let followUps: string[] = [];
 
       if (reader) {
         let firstChunk = true;
@@ -1325,41 +1593,38 @@ export default function Alexandria() {
                   assistantContent += data.delta;
                   setOutputContent(assistantContent);
                 }
-                // Handle state updates from server
-                if (data.state) {
-                  newState = data.state;
-                }
-                if (data.lockYN !== undefined) {
-                  shouldLockYN = data.lockYN;
-                }
+                if (data.state) newState = data.state;
+                if (data.lockYN !== undefined) shouldLockYN = data.lockYN;
+                if (data.followUpOptions?.length) followUps = data.followUpOptions;
               } catch {
-                // Ignore parse errors for non-JSON lines
+                // Ignore parse errors
               }
             }
           }
         }
       }
 
-      // Update conversation state
       setCarbonState(newState);
       setCarbonLockYN(shouldLockYN);
+      setEditorFollowUps(followUps);
 
-      // Add to input messages history
       setInputMessages(prev => [...prev, { 
         id: assistantId, 
         role: 'assistant', 
         content: assistantContent 
       }]);
       
-      // Clear output content to avoid duplicate display
       setOutputContent('');
       
-      // Reset state if conversation ended
+      // Return to question bank when conversation ends
       if (newState.phase === 'goodbye') {
         setTimeout(() => {
           setCarbonState({ phase: 'collecting' });
           setCarbonLockYN(false);
-        }, 2000);
+          setInputMessages([]);
+          setOutputContent('');
+          fetchEditorQuestions(true);
+        }, 2500);
       }
 
       // Show "saved." if data was ingested
@@ -1577,67 +1842,65 @@ export default function Alexandria() {
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
       {/* Header */}
-      <div className="z-50 relative px-5 py-4">
-        <div className="max-w-[740px] mx-auto flex items-center justify-between relative">
-          <div className="relative min-w-[60px]" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setShowNav(prev => !prev)}
-              className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-35 hover:opacity-55 transition-opacity flex items-center gap-1"
-              style={{ color: 'var(--text-primary)' }}
+      <div className="z-50 relative py-4">
+        {/* Navigation — fixed left */}
+        <div className="fixed left-3 top-4 z-[200]" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => setShowNav(prev => !prev)}
+            className="bg-transparent border-none text-[0.75rem] cursor-pointer opacity-40 hover:opacity-60 transition-opacity flex items-center gap-1"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {username}
+            <ChevronDown size={10} strokeWidth={1.5} className={`transition-transform ${showNav ? 'rotate-180' : ''}`} />
+          </button>
+          {showNav && (
+            <div
+              className="absolute top-8 left-0 rounded-xl py-2 w-[120px] shadow-lg"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}
             >
-              {username}
-              <ChevronDown size={10} strokeWidth={1.5} className={`transition-transform ${showNav ? 'rotate-180' : ''}`} />
-            </button>
-            {showNav && (
-              <div
-                className="absolute top-7 left-0 z-50 rounded-xl py-2 min-w-[140px] shadow-lg"
-                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}
+              <button
+                onClick={() => { setActiveSection(null); setShowNav(false); }}
+                className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer transition-opacity"
+                style={{ color: 'var(--text-primary)', opacity: activeSection === null ? 0.9 : 0.55 }}
               >
+                Agents
+              </button>
+              {(['vault', 'constitution', 'plm', 'library'] as const).map(section => (
                 <button
-                  onClick={() => { setActiveSection(null); setShowNav(false); }}
+                  key={section}
+                  onClick={() => { setActiveSection(section); setShowNav(false); }}
                   className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer transition-opacity"
-                  style={{ color: 'var(--text-primary)', opacity: activeSection === null ? 0.9 : 0.5 }}
+                  style={{
+                    color: 'var(--text-primary)',
+                    opacity: activeSection === section ? 0.9 : 0.55,
+                  }}
                 >
-                  Chat
+                  {section === 'plm' ? 'PLM' : section.charAt(0).toUpperCase() + section.slice(1)}{section === 'constitution' && rlaifReviewCount > 0 ? ` · ${rlaifReviewCount}` : ''}
                 </button>
-                {(['vault', 'constitution', 'plm', 'library'] as const).map(section => (
-                  <button
-                    key={section}
-                    onClick={() => { setActiveSection(section); setShowNav(false); }}
-                    className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer transition-opacity"
-                    style={{
-                      color: 'var(--text-primary)',
-                      opacity: activeSection === section ? 0.9 : 0.5,
-                    }}
-                  >
-                    {section.charAt(0).toUpperCase() + section.slice(1)}{section === 'constitution' && rlaifReviewCount > 0 ? ` · ${rlaifReviewCount}` : ''}
-                  </button>
-                ))}
-                <div className="my-1.5 mx-3" style={{ borderTop: '1px solid var(--border-light)' }} />
-                <button
-                  onClick={e => { e.stopPropagation(); toggleAgentsPaused(); }}
-                  className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-60 transition-opacity"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {agentsPaused ? 'resume agents' : 'pause agents'}
-                </button>
-                <button
-                  onClick={() => { handleLogout(); setShowNav(false); }}
-                  className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-60 transition-opacity"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  sign out
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none select-none opacity-65">
-            <div className="text-[0.85rem] tracking-wide" style={{ color: 'var(--text-primary)' }}>alexandria.</div>
-            <div className="text-[0.7rem] italic opacity-70" style={{ color: 'var(--text-primary)' }}>mentes aeternae</div>
-          </div>
+              ))}
+              <div className="my-1.5 mx-3" style={{ borderTop: '1px solid var(--border-light)' }} />
+              <button
+                onClick={e => { e.stopPropagation(); toggleAgentsPaused(); }}
+                className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-35 hover:opacity-60 transition-opacity"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                {agentsPaused ? 'resume agents' : 'pause agents'}
+              </button>
+              <button
+                onClick={() => { handleLogout(); setShowNav(false); }}
+                className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-35 hover:opacity-60 transition-opacity"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                sign out
+              </button>
+            </div>
+          )}
+        </div>
+        {/* Theme toggle — fixed right, symmetrical with nav on left */}
+        <div className="fixed right-3 top-4 z-[200]">
           <button
             onClick={toggleTheme}
-            className="bg-transparent border-none cursor-pointer opacity-35 hover:opacity-55 transition-opacity p-1"
+            className="bg-transparent border-none cursor-pointer opacity-40 hover:opacity-60 transition-opacity p-0"
             style={{ color: 'var(--text-primary)' }}
             aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
           >
@@ -1653,12 +1916,22 @@ export default function Alexandria() {
             )}
           </button>
         </div>
+        {/* Center logo */}
+        <div className="flex justify-center">
+          <button
+            onClick={() => setActiveSection(null)}
+            className="text-center bg-transparent border-none cursor-pointer select-none opacity-65 hover:opacity-80 transition-opacity p-0"
+          >
+            <div className="text-[0.85rem] tracking-wide" style={{ color: 'var(--text-primary)' }}>alexandria.</div>
+            <div className="text-[0.7rem] italic opacity-70" style={{ color: 'var(--text-primary)' }}>mentes aeternae</div>
+          </button>
+        </div>
       </div>
 
       {/* Content */}
       <div ref={outputScrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
         {activeSection ? (
-          <div className="max-w-[640px] mx-auto px-5 pt-2 pb-8">
+          <div className="max-w-[640px] mx-auto px-5 pt-6 pb-8">
             {activeSection === 'vault' && <VaultSection userId={userId} />}
             {activeSection === 'constitution' && (
               <ConstitutionPanel userId={userId} isOpen={true} onClose={() => setActiveSection(null)} inline />
@@ -1667,9 +1940,127 @@ export default function Alexandria() {
             {activeSection === 'library' && <LibrarySection userId={userId} />}
           </div>
         ) : (
-          <div className={`max-w-[640px] mx-auto px-5 ${isEmpty ? 'h-full' : 'pt-1 pb-8'}`}>
+          <div className={`max-w-[640px] mx-auto px-5 pt-6 ${isEmpty ? 'h-full flex flex-col' : 'pb-8'}`}>
+            <div className="space-y-5">
+              <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Agents</h2>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setMode('input')}
+                  className={`bg-transparent border-none text-[0.7rem] cursor-pointer transition-opacity duration-300 p-0 ${mode === 'input' ? 'opacity-65' : 'opacity-25 hover:opacity-40'}`}
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  editor
+                </button>
+                <span className="text-[0.4rem]" style={{ color: 'var(--text-primary)', opacity: 0.15 }}>·</span>
+                <button
+                  onClick={() => setMode('output')}
+                  className={`bg-transparent border-none text-[0.7rem] cursor-pointer transition-opacity duration-300 p-0 ${mode === 'output' ? 'opacity-65' : 'opacity-25 hover:opacity-40'}`}
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  orchestrator
+                </button>
+              </div>
+            </div>
+
+            {/* ── EDITOR LANDING ── */}
+            {isEmpty && mode === 'input' && (
+              <div className="mt-8">
+                {pausedConversations.length > 0 && (
+                  <div className="mb-5">
+                    <div className="text-[0.62rem] tracking-wider uppercase mb-2.5" style={{ color: 'var(--text-primary)', opacity: 0.35 }}>
+                      in progress
+                    </div>
+                    {pausedConversations.map((p, pIdx) => (
+                      <button
+                        key={`paused-${pIdx}`}
+                        onClick={() => resumeConversation(p.topic)}
+                        className="block w-full text-left text-[0.85rem] leading-relaxed bg-transparent border-none cursor-pointer py-2.5 px-0 transition-all duration-150"
+                        style={{ color: 'var(--text-primary)', opacity: selectedQIndex === pIdx ? 0.75 : 0.4 }}
+                      >
+                        {p.topic}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div>
+                  <div className="text-[0.62rem] tracking-wider uppercase mb-2.5" style={{ color: 'var(--text-primary)', opacity: 0.35 }}>
+                    new questions
+                  </div>
+                  {visibleQuestions.length > 0 ? (
+                    visibleQuestions.map((q, qIdx) => {
+                      const globalIdx = pausedConversations.length + qIdx;
+                      return (
+                        <button
+                          key={q.id}
+                          onClick={() => handlePickQuestion(q.title)}
+                          className="block w-full text-left text-[0.85rem] leading-relaxed bg-transparent border-none cursor-pointer py-2.5 px-0 transition-all duration-150"
+                          style={{ color: 'var(--text-primary)', opacity: selectedQIndex === globalIdx ? 0.75 : 0.4 }}
+                        >
+                          {q.title}
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="space-y-4 animate-pulse">
+                      {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="h-3 rounded" style={{ width: `${35 + i * 12}%`, background: 'var(--text-primary)', opacity: 0.06 }} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── ORCHESTRATOR LANDING ── */}
+            {isEmpty && mode === 'output' && (
+              <div className="mt-8">
+                {(['activity', 'questions', 'chat'] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => {
+                      setOrchestratorTab(tab);
+                      if (tab === 'chat') startOrchestratorChat();
+                    }}
+                    className="block w-full text-left text-[0.85rem] leading-relaxed bg-transparent border-none cursor-pointer py-2.5 px-0 transition-all duration-150"
+                    style={{ color: 'var(--text-primary)', opacity: orchestratorTab === tab ? 0.75 : 0.35 }}
+                  >
+                    {tab}
+                  </button>
+                ))}
+
+                {orchestratorTab === 'activity' && (
+                  <div className="mt-5">
+                    <div className="text-[0.8rem] italic" style={{ color: 'var(--text-primary)', opacity: 0.35 }}>
+                      coming soon
+                    </div>
+                  </div>
+                )}
+
+                {orchestratorTab === 'questions' && (
+                  <div className="mt-5">
+                    <div className="text-[0.8rem] italic" style={{ color: 'var(--text-primary)', opacity: 0.35 }}>
+                      coming soon
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── ACTIVE CONVERSATION ── */}
             {!isEmpty && (
               <div className="space-y-4">
+                {/* Back button — works for both editor and orchestrator chats */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={mode === 'input' ? exitEditorChat : exitOrchestratorChat}
+                    className="text-[0.68rem] bg-transparent border-none cursor-pointer opacity-40 hover:opacity-65 transition-opacity flex items-center gap-1.5"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    back
+                    <span className="hidden sm:inline text-[0.52rem] px-1.5 py-0.5 rounded ml-0.5" style={{ border: '1px solid var(--border-light)', opacity: 0.6 }}>esc</span>
+                  </button>
+                </div>
                 {currentMessages.map((message) => (
                   <div
                     key={message.id}
@@ -1679,7 +2070,7 @@ export default function Alexandria() {
                       className="text-[0.88rem] leading-[1.8] whitespace-pre-wrap inline-block text-left max-w-[85%]"
                       style={{
                         color: message.role === 'user' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                        opacity: message.role === 'user' ? 0.55 : 0.85
+                        opacity: message.role === 'user' ? 0.65 : 0.9
                       }}
                     >
                       {message.version && message.version > 1 && (
@@ -1689,43 +2080,28 @@ export default function Alexandria() {
                     </div>
                   </div>
                 ))}
-                {showThinking && !outputContent && (
-                  <div className="text-left">
-                    <span className="text-[0.75rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.35 }}>thinking</span>
-                  </div>
-                )}
-                {outputContent && (
-                  <div className="text-left">
-                    <div className="text-[0.88rem] leading-[1.8] whitespace-pre-wrap inline-block text-left max-w-[85%]" style={{ color: 'var(--text-secondary)', opacity: 0.85 }}>{outputContent}</div>
-                  </div>
-                )}
+                <div className="min-h-[2rem]">
+                  {showThinking && !outputContent && (
+                    <div className="text-left">
+                      <span className="text-[0.78rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.4 }}>thinking</span>
+                    </div>
+                  )}
+                  {outputContent && (
+                    <div className="text-left">
+                      <div className="text-[0.88rem] leading-[1.8] whitespace-pre-wrap inline-block text-left max-w-[85%]" style={{ color: 'var(--text-secondary)', opacity: 0.9 }}>{outputContent}</div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* Input — hidden when viewing a section */}
-      {!activeSection && (
-        <div className="px-4 pb-6 pt-2">
+      {/* Input — only shown when in active conversation */}
+      {!activeSection && !isEmpty && (
+        <div className="px-4 pb-5 pt-1">
           <div className="max-w-[640px] mx-auto">
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <button
-                onClick={() => setMode('input')}
-                className={`bg-transparent border-none text-[0.75rem] cursor-pointer transition-opacity duration-300 ${mode === 'input' ? 'opacity-60' : 'opacity-20 hover:opacity-35'}`}
-                style={{ color: 'var(--text-primary)' }}
-              >
-                editor
-              </button>
-              <span className="text-[0.45rem]" style={{ color: 'var(--text-primary)', opacity: 0.12 }}>·</span>
-              <button
-                onClick={() => setMode('output')}
-                className={`bg-transparent border-none text-[0.75rem] cursor-pointer transition-opacity duration-300 ${mode === 'output' ? 'opacity-60' : 'opacity-20 hover:opacity-35'}`}
-                style={{ color: 'var(--text-primary)' }}
-              >
-                orchestrator
-              </button>
-            </div>
             <div className="relative">
               <input
                 ref={inputRef}
@@ -1734,7 +2110,6 @@ export default function Alexandria() {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={
-                  carbonLockYN && mode === 'input' ? 'y / n' :
                   feedbackPhase === 'binary' ? 'good? y / n' :
                   feedbackPhase === 'comment' ? 'feedback' :
                   feedbackPhase === 'regenerate' ? 'regenerate? y / n' :
@@ -1746,7 +2121,7 @@ export default function Alexandria() {
                 spellCheck={false}
                 enterKeyHint="send"
                 data-form-type="other"
-                className={`w-full border-none rounded-2xl text-[0.88rem] py-4 pr-12 pl-5 outline-none shadow-sm ${(feedbackPhase !== 'none' || carbonLockYN) ? 'placeholder-italic' : ''}`}
+                className={`w-full border-none rounded-2xl text-[0.88rem] py-3.5 pr-12 pl-5 outline-none ${feedbackPhase !== 'none' ? 'placeholder-italic' : ''}`}
                 style={{
                   background: 'var(--bg-secondary)',
                   color: 'var(--text-primary)',
@@ -1761,7 +2136,7 @@ export default function Alexandria() {
                 →
               </button>
             </div>
-            <div className="h-4 mt-1.5 flex justify-center">
+            <div className="h-3 mt-1 flex justify-center">
               {feedbackSaved && (
                 <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>noted</span>
               )}

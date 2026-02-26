@@ -146,5 +146,12 @@ The ALEXANDRIA.md was updated with significant architectural refinements. The co
 
 ## Deferred
 
-(None yet)
+### [Feb 2026] Noted Future Improvements
+
+1. **User Numbering System** — Each user gets a sequential number on signup. Founder = 0, early users get low numbers. Serves as a unique primary key for persona sorting in Library (names aren't unique). Visible badge for early members.
+2. **Vault Reprocess Efficiency** — When "re-process everything" is triggered, it should leverage the current Constitution to avoid re-extracting already-captured signal. Focus on incremental/new signal extraction. Should also support editing and deleting entries.
+3. **Web/Tool Access for Agents** — Investigate whether Editor and Orchestrator agents can access the web and use tools (MCP-style) during conversations. Currently stateless LLM calls only.
+4. **Constitution Refinement Loop** — The Constitution should have an active refinement feature beyond delta ingestion. The Editor should be able to reflect on, iterate, and refine the Constitution continuously — not just append deltas from new entries.
+5. **Orchestrator Voice Neutrality** — The Orchestrator currently returns overly neutral, non-subjective language. Need to break through this at both the Orchestrator prompt level and PLM fine-tuning level to produce responses that genuinely reflect the user's voice and perspective.
+6. **Editor Question Menu Flow** — Full redesign of the Editor chat interaction. When author opens editor: (a) editor shows its list of pending questions/topics it wants to explore, (b) author picks one, (c) focused back-and-forth conversation about that topic, (d) editor closes the topic when satisfied, (e) asks if author wants to answer another question, (f) if yes, shows remaining questions. Requires: backend storage of editor's pending questions (built during vault processing), API to fetch them, frontend question menu UI, per-topic conversation threading.
 

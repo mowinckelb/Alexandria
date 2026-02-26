@@ -93,18 +93,18 @@ export async function POST(req: Request) {
     // Get the Author's latest message
     const authorMessage = messages[messages.length - 1]?.content || '';
     
-    // Check for exit signals
+    // Check for exit signals — natural conversation endings
     const exitSignals = [
-      'bye', 'goodbye', 'done', 'that\'s all', 'that\'s it', 'nothing else',
-      'i\'m done', 'no more', 'gotta go', 'gtg', 'later'
+      'bye', 'goodbye', 'i\'m done', 'that\'s all', 'that\'s it', 'nothing else',
+      'no more', 'gotta go', 'gtg', 'that\'s enough', 'next question', 'another question'
     ];
-    const isExitSignal = exitSignals.some(s => lastMessage?.includes(s));
+    const isExitSignal = lastMessage && exitSignals.some(s => lastMessage === s || lastMessage.startsWith(s + ' ') || lastMessage.endsWith(' ' + s));
     
     if (isExitSignal) {
       return sendResponse(
-        "got it! anything else you'd like to share before I go?",
-        { phase: 'wrap_up', messagesProcessed: currentState.messagesProcessed },
-        true
+        "noted, thanks for sharing.",
+        { phase: 'goodbye', messagesProcessed: currentState.messagesProcessed },
+        false
       );
     }
 
@@ -115,22 +115,25 @@ export async function POST(req: Request) {
       coreMessages.slice(0, -1) // Pass history without the last message (which is the current input)
     );
 
-    // Build response text
+    // Build response text and extract structured questions for UI
     let responseText = editorResponse.message;
-    
-    // If Editor has follow-up questions, append them conversationally
+    const followUpOptions: string[] = [];
+
     if (editorResponse.followUpQuestions.length > 0) {
       const criticalQuestions = editorResponse.followUpQuestions.filter(q => q.priority === 'critical');
       const helpfulQuestions = editorResponse.followUpQuestions.filter(q => q.priority === 'helpful');
-      
-      // Prioritize critical questions, but don't overwhelm
-      const questionsToAsk = criticalQuestions.length > 0 
-        ? criticalQuestions.slice(0, 2)
-        : helpfulQuestions.slice(0, 1);
-      
-      if (questionsToAsk.length > 0 && !responseText.includes('?')) {
-        // Editor message didn't include a question, add one
-        responseText += ' ' + questionsToAsk[0].question;
+
+      const questionsToSurface = [
+        ...criticalQuestions.slice(0, 2),
+        ...helpfulQuestions.slice(0, 1),
+      ].slice(0, 3);
+
+      for (const q of questionsToSurface) {
+        followUpOptions.push(q.question);
+      }
+
+      if (questionsToSurface.length > 0 && !responseText.includes('?')) {
+        responseText += ' ' + questionsToSurface[0].question;
       }
     }
 
@@ -153,7 +156,7 @@ export async function POST(req: Request) {
       delta: responseText,
       state: { phase: 'conversing', messagesProcessed: currentState.messagesProcessed + 1 },
       lockYN: false,
-      // Include extraction stats for UI if needed
+      followUpOptions,
       stats: {
         memoriesStored: 0,
         trainingPairsCreated: subjCount,

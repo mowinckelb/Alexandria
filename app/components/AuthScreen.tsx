@@ -214,7 +214,7 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
 
       {/* Message */}
       <div className="text-center mt-4 text-[0.8rem] min-h-6" style={{ color: 'var(--text-muted)' }}>
-        {isLoading ? <span className="animate-pulse">thinking</span> : message}
+        {isLoading ? <span className="italic thinking-pulse">thinking</span> : message}
       </div>
 
       <style jsx>{`
@@ -226,6 +226,14 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
 
         .animate-shake {
           animation: shake 0.2s ease-in-out;
+        }
+
+        @keyframes thinkingPulse {
+          0%, 100% { opacity: 0.25; }
+          50% { opacity: 0.5; }
+        }
+        .thinking-pulse {
+          animation: thinkingPulse 1.8s ease-in-out infinite;
         }
 
         input::placeholder {
