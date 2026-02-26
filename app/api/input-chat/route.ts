@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const { messages = [], userId, state } = body as {
       messages: Array<{ role: string; content: string }>;
       userId: string;
-      state?: ConversationState;
+      state?: ConversationState & { criteria?: string[]; currentTopic?: string };
     };
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -112,7 +112,8 @@ export async function POST(req: Request) {
     const editorResponse = await editor.converse(
       authorMessage,
       userId,
-      coreMessages.slice(0, -1) // Pass history without the last message (which is the current input)
+      coreMessages.slice(0, -1),
+      state?.criteria
     );
 
     // Build response text and extract structured questions for UI
@@ -150,11 +151,14 @@ export async function POST(req: Request) {
       console.log(`[Input Chat] Training recommended: ${editorResponse.trainingRecommendation.reasoning}`);
     }
 
+    // If editor decided conversation objectives are met, signal goodbye so frontend returns to question bank
+    const nextPhase = editorResponse.shouldEndConversation ? 'goodbye' : 'conversing';
+
     // Send response
     const responseData = JSON.stringify({ 
       type: 'text-delta', 
       delta: responseText,
-      state: { phase: 'conversing', messagesProcessed: currentState.messagesProcessed + 1 },
+      state: { phase: nextPhase, messagesProcessed: currentState.messagesProcessed + 1 },
       lockYN: false,
       followUpOptions,
       stats: {

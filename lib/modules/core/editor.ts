@@ -50,6 +50,7 @@ export interface FollowUpQuestion {
 
 export interface EditorResponse {
   message: string;
+  shouldEndConversation?: boolean;
   
   extraction: {
     raw: string;
@@ -149,6 +150,7 @@ SUGGESTED THRESHOLDS (guidelines, not rules):
 // Zod schema for structured Editor output (guarantees valid JSON, avoids parse failures)
 const editorOutputSchema = z.object({
   message: z.string().describe('Your conversational response to the Author'),
+  shouldEndConversation: z.boolean().default(false).describe('Set to true when all conversation objectives are satisfied or answers are getting thin'),
   extraction: z.object({
     subjective: z.array(z.object({
       system_prompt: z.string().default('You are a Personal Language Model (PLM).'),
@@ -543,7 +545,8 @@ Extract EVERYTHING you can from the data. Be specific and detailed. Every field 
   async converse(
     authorInput: string,
     userId: string,
-    conversationHistory: Message[] = []
+    conversationHistory: Message[] = [],
+    criteria?: string[]
   ): Promise<EditorResponse> {
     
     // 1. Load notepad context
@@ -591,7 +594,8 @@ ${recentContext ? `\n${recentContext}\n` : ''}
 
 RESPOND WITH JSON:
 {
-  "message": "Your response — react briefly, then ask one specific question that fills a gap in your understanding.",
+  "message": "Your response — react briefly, then ask one specific question targeting a criterion.",
+  "shouldEndConversation": false,
   "extraction": {
     "subjective": [{"system_prompt": "You are a PLM.", "user_content": "prompt", "assistant_content": "verbatim Author text", "quality_score": 0.8}]
   },
@@ -604,14 +608,18 @@ RESPOND WITH JSON:
   "scratchpadUpdate": "freeform notes",
   "trainingRecommendation": {"shouldTrain": false, "reasoning": "..."}
 }
+${criteria && criteria.length > 0 ? `
+CONVERSATION OBJECTIVES (your checklist for THIS conversation):
+${criteria.map(c => `- [ ] ${c}`).join('\n')}
+
+Each message must work toward confirming one of these objectives. Your question must be the minimal specific question that could satisfy one unchecked objective — i.e. a question such that a short, concrete answer would count as that objective done. If you cannot form such a question for any remaining objective, do not ask a generic fallback: either target another objective or set shouldEndConversation to true and wrap up. React with a short opinion or observation (1 sentence max), then ask exactly one question targeting an unchecked objective. When all objectives are satisfied or the Author's answers are getting thin, set "shouldEndConversation" to true and say something brief like "got it, thanks".
+` : ''}
 
 CRITICAL RULES:
-- If the Author's message starts with [TOPIC: ...], they just selected a topic from your question bank. Ask ONE simple, direct opening question about that topic. One short sentence. No preamble.
-- If the message also has [CRITERIA: ...], those are the specific things you need to find out. Treat them as a checklist. Once you've confirmed each criterion, wrap up. Don't wander beyond the criteria.
-- Each question you ask should be filling a specific gap in your understanding. If you already know something, don't ask about it again. Move forward.
-- ONE question per message. Short. Specific. The kind of question a sharp friend would ask — not a generic interviewer.
-- When you've confirmed all criteria — or the answers are getting thin — wrap up naturally. Say something brief like "got it, thanks" and set shouldEndConversation to true.
-- Don't repeat what the Author just told you back to them. React, then go deeper or move on.
+- If the Author's message starts with [TOPIC: ...], they selected a topic. Ask ONE simple, direct opening question. One short sentence. No preamble.
+- React with a short observation or opinion (1 sentence max), then ask ONE question. Short. Specific. The kind of question a sharp friend would ask.
+- Each question must target a specific objective or gap. If you can't articulate what you're trying to learn, don't ask.
+- When objectives are met or answers are thin, set shouldEndConversation to true and wrap up naturally.
 - Focus on SUBJECTIVE extraction — voice, style, opinions, values, how they think
 - Return ONLY the JSON object, no other text`
       },
@@ -1133,6 +1141,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
         const out = validated.data;
         return {
           message: out.message,
+          shouldEndConversation: out.shouldEndConversation,
           extraction: { raw: rawInput, subjective: out.extraction.subjective },
           constitutionUpdates: out.constitutionUpdates,
           notepadUpdates: out.notepadUpdates,
@@ -1145,6 +1154,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
       console.warn('[Editor] Zod validation failed, using loose parse:', validated.error.issues.map(i => i.message).join(', '));
       return {
         message: raw.message || this.fallbackResponse(rawInput).message,
+        shouldEndConversation: raw.shouldEndConversation === true,
         extraction: {
           raw: rawInput,
           subjective: (raw.extraction?.subjective || []).map((s: Record<string, unknown>) => ({
@@ -1171,9 +1181,9 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
   }
   
   private fallbackResponse(rawInput: string): EditorResponse & { scratchpadUpdate?: string } {
-    const truncated = rawInput.slice(0, 80) + (rawInput.length > 80 ? '...' : '');
     return {
-      message: `you mentioned "${truncated}" — what's the story behind that?`,
+      message: `interesting — what made you think of that specifically?`,
+      shouldEndConversation: false,
       extraction: {
         raw: rawInput,
         subjective: []
@@ -1184,11 +1194,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
         gaps: [],
         mentalModels: []
       },
-      followUpQuestions: [{
-        question: "What does this reveal about who you are?",
-        reason: "Understand Author identity",
-        priority: 'helpful'
-      }],
+      followUpQuestions: [],
       scratchpadUpdate: ''
     };
   }

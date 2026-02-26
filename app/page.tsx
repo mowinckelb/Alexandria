@@ -615,6 +615,7 @@ export default function Alexandria() {
     phase: string;
     currentQuestionId?: string;
     currentTopic?: string;
+    criteria?: string[];
   }>({ phase: 'collecting' });
   const [carbonLockYN, setCarbonLockYN] = useState(false);
   const [editorFollowUps, setEditorFollowUps] = useState<string[]>([]);
@@ -1018,7 +1019,7 @@ export default function Alexandria() {
     const opener = question?.opener;
     const criteria = question?.criteria || [];
     setEditorQuestions([]);
-    setCarbonState(prev => ({ ...prev, currentTopic: title }));
+    setCarbonState(prev => ({ ...prev, currentTopic: title, criteria }));
 
     if (opener) {
       const assistantId = uuidv4();
@@ -1103,7 +1104,7 @@ export default function Alexandria() {
     setInputMessages([]);
     setOutputContent('');
     setCarbonLockYN(false);
-    setCarbonState(prev => ({ ...prev, currentTopic: undefined }));
+    setCarbonState(prev => ({ ...prev, currentTopic: undefined, criteria: undefined }));
     fetchEditorQuestions(true);
   }, [fetchEditorQuestions, inputMessages, carbonState.currentTopic]);
 
