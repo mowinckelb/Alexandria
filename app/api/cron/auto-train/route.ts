@@ -46,6 +46,10 @@ async function getActiveUsers() {
   return [...deduped];
 }
 
+export async function GET(request: NextRequest) {
+  return POST(request);
+}
+
 export async function POST(request: NextRequest) {
   if (!authorizeCron(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

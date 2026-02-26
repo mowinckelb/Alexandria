@@ -290,14 +290,12 @@ function PLMSection({ userId }: { userId: string }) {
 }
 
 interface AuthoredWork { id: string; title: string; medium: string; content?: string; summary?: string; published_at: string; }
-interface CuratedInfluence { id: string; title: string; medium: string; annotation?: string; url?: string; }
-interface AuthorProfile { user_id?: string; display_name?: string; handle?: string; bio?: string; works_count?: number; influences_count?: number; }
+interface AuthorProfile { user_id?: string; display_name?: string; handle?: string; bio?: string; works_count?: number; }
 
-function PersonaModal({ persona, onClose, works, influences, loading }: {
+function PersonaModal({ persona, onClose, works, loading }: {
   persona: AuthorProfile;
   onClose: () => void;
   works: AuthoredWork[];
-  influences: CuratedInfluence[];
   loading: boolean;
 }) {
   const name = persona.display_name || persona.handle || 'unnamed';
@@ -330,23 +328,8 @@ function PersonaModal({ persona, onClose, works, influences, loading }: {
               </div>
             )}
 
-            {influences.length > 0 && (
-              <div className="space-y-2">
-                <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>Influences</div>
-                {influences.map(inf => (
-                  inf.url ? (
-                    <a key={inf.id} href={inf.url} target="_blank" rel="noopener noreferrer" className="block text-sm py-1 no-underline truncate" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
-                      {inf.title || inf.url} <span style={{ color: 'var(--text-subtle)', fontSize: '0.6rem' }}>↗</span>
-                    </a>
-                  ) : (
-                    <div key={inf.id} className="text-sm py-1" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>{inf.title}</div>
-                  )
-                ))}
-              </div>
-            )}
-
-            {works.length === 0 && influences.length === 0 && (
-              <div className="py-6 text-center"><div className="text-xs italic" style={{ color: 'var(--text-subtle)' }}>nothing yet</div></div>
+            {works.length === 0 && (
+              <div className="py-6 text-center"><div className="text-xs italic" style={{ color: 'var(--text-subtle)' }}>no works yet</div></div>
             )}
           </div>
         )}
@@ -360,23 +343,17 @@ function LibrarySection({ userId }: { userId: string }) {
   const [personas, setPersonas] = useState<AuthorProfile[]>([]);
   const [myProfile, setMyProfile] = useState<AuthorProfile>({});
   const [myWorks, setMyWorks] = useState<AuthoredWork[]>([]);
-  const [myInfluences, setMyInfluences] = useState<CuratedInfluence[]>([]);
   const [saving, setSaving] = useState(false);
 
   const [showMyModal, setShowMyModal] = useState(false);
   const [modalPersona, setModalPersona] = useState<AuthorProfile | null>(null);
   const [modalWorks, setModalWorks] = useState<AuthoredWork[]>([]);
-  const [modalInfluences, setModalInfluences] = useState<CuratedInfluence[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
 
-  const [showLinkInput, setShowLinkInput] = useState(false);
-  const [linkInput, setLinkInput] = useState('');
-  const [linkTitle, setLinkTitle] = useState('');
   const [workTitle, setWorkTitle] = useState('');
   const [showWorkTitle, setShowWorkTitle] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingFileRef = useRef<File | null>(null);
 
   useEffect(() => {
@@ -394,7 +371,6 @@ function LibrarySection({ userId }: { userId: string }) {
           const d = await myRes.json();
           setMyProfile(d.profile || {});
           setMyWorks(d.works || []);
-          setMyInfluences(d.influences || []);
         }
       } catch {}
       setLoading(false);
@@ -412,7 +388,6 @@ function LibrarySection({ userId }: { userId: string }) {
         const data = await res.json();
         setModalPersona(data.profile || p);
         setModalWorks(data.works || []);
-        setModalInfluences(data.influences || []);
       }
     } catch {}
     setModalLoading(false);
@@ -446,27 +421,6 @@ function LibrarySection({ userId }: { userId: string }) {
     setSaving(false);
   };
 
-  const addLink = async () => {
-    const url = linkInput.trim();
-    if (!url) return;
-    setSaving(true);
-    const title = linkTitle.trim() || url;
-    try {
-      const res = await fetch('/api/neo-biography', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'add_influence', userId, title, medium: 'other', url })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setMyInfluences(prev => [data.influence, ...prev]);
-        setLinkInput('');
-        setLinkTitle('');
-        setShowLinkInput(false);
-      }
-    } catch {}
-    setSaving(false);
-  };
-
   const deleteWork = async (id: string) => {
     try {
       const res = await fetch('/api/neo-biography', {
@@ -477,26 +431,14 @@ function LibrarySection({ userId }: { userId: string }) {
     } catch {}
   };
 
-  const deleteInfluence = async (id: string) => {
+  const renameWork = async (id: string, title: string) => {
     try {
       const res = await fetch('/api/neo-biography', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete_influence', id, userId })
-      });
-      if (res.ok) setMyInfluences(prev => prev.filter(i => i.id !== id));
-    } catch {}
-  };
-
-  const renameItem = async (id: string, type: 'work' | 'influence', title: string) => {
-    const action = type === 'work' ? 'rename_work' : 'rename_influence';
-    try {
-      const res = await fetch('/api/neo-biography', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, id, userId, title })
+        body: JSON.stringify({ action: 'rename_work', id, userId, title })
       });
       if (res.ok) {
-        if (type === 'work') setMyWorks(prev => prev.map(w => w.id === id ? { ...w, title } : w));
-        else setMyInfluences(prev => prev.map(i => i.id === id ? { ...i, title } : i));
+        setMyWorks(prev => prev.map(w => w.id === id ? { ...w, title } : w));
         setEditingId(null);
       }
     } catch {}
@@ -524,8 +466,7 @@ function LibrarySection({ userId }: { userId: string }) {
         <div className="text-lg font-extralight" style={{ color: 'var(--text-primary)' }}>{myName}</div>
         <div className="text-[0.6rem] mt-0.5 flex gap-3" style={{ color: 'var(--text-subtle)' }}>
           {myWorks.length > 0 && <span>{myWorks.length} work{myWorks.length !== 1 ? 's' : ''}</span>}
-          {myInfluences.length > 0 && <span>{myInfluences.length} influence{myInfluences.length !== 1 ? 's' : ''}</span>}
-          {myWorks.length === 0 && myInfluences.length === 0 && <span>tap to add works &amp; influences</span>}
+          {myWorks.length === 0 && <span>tap to add works</span>}
         </div>
       </button>
 
@@ -600,8 +541,8 @@ function LibrarySection({ userId }: { userId: string }) {
                       <input
                         value={editingTitle}
                         onChange={e => setEditingTitle(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') renameItem(w.id, 'work', editingTitle); if (e.key === 'Escape') setEditingId(null); }}
-                        onBlur={() => renameItem(w.id, 'work', editingTitle)}
+                        onKeyDown={e => { if (e.key === 'Enter') renameWork(w.id, editingTitle); if (e.key === 'Escape') setEditingId(null); }}
+                        onBlur={() => renameWork(w.id, editingTitle)}
                         autoFocus
                         className="flex-1 text-sm border-none outline-none bg-transparent"
                         style={{ color: 'var(--text-primary)' }}
@@ -619,58 +560,6 @@ function LibrarySection({ userId }: { userId: string }) {
                   <div className="text-xs italic py-2" style={{ color: 'var(--text-subtle)' }}>no works yet</div>
                 )}
               </div>
-
-              {/* Influences section */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="text-[0.65rem] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>Influences</div>
-                  <button onClick={() => setShowLinkInput(!showLinkInput)} className="text-[0.65rem] bg-transparent border-none cursor-pointer p-0" style={{ color: 'var(--text-subtle)' }}>+</button>
-                </div>
-
-                {showLinkInput && (
-                  <div className="space-y-2">
-                    <input value={linkTitle} onChange={e => setLinkTitle(e.target.value)} placeholder="title" autoFocus className="w-full rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-                    <div className="flex gap-2 items-center">
-                      <input value={linkInput} onChange={e => setLinkInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && linkTitle.trim() && linkInput.trim()) addLink(); }} placeholder="paste a link" className="flex-1 rounded-lg px-3 py-2 text-sm border-none outline-none" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-                      <button onClick={addLink} disabled={saving || !linkInput.trim() || !linkTitle.trim()} className="text-xs bg-transparent border-none cursor-pointer disabled:opacity-50" style={{ color: 'var(--text-primary)' }}>{saving ? <span className="italic thinking-pulse">saving</span> : 'add'}</button>
-                    </div>
-                  </div>
-                )}
-
-                {myInfluences.map(inf => (
-                  <div key={inf.id} className="flex items-center justify-between py-2 group">
-                    {editingId === inf.id ? (
-                      <input
-                        value={editingTitle}
-                        onChange={e => setEditingTitle(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') renameItem(inf.id, 'influence', editingTitle); if (e.key === 'Escape') setEditingId(null); }}
-                        onBlur={() => renameItem(inf.id, 'influence', editingTitle)}
-                        autoFocus
-                        className="flex-1 text-sm border-none outline-none bg-transparent"
-                        style={{ color: 'var(--text-primary)' }}
-                      />
-                    ) : (
-                      <div className="flex-1 min-w-0">
-                        {inf.url ? (
-                          <a href={inf.url} target="_blank" rel="noopener noreferrer" className="text-sm no-underline block truncate" style={{ color: 'var(--text-primary)' }}
-                            onDoubleClick={e => { e.preventDefault(); setEditingId(inf.id); setEditingTitle(inf.title); }}>
-                            {inf.title} <span className="text-[0.6rem]" style={{ color: 'var(--text-subtle)' }}>↗</span>
-                          </a>
-                        ) : (
-                          <button onClick={() => { setEditingId(inf.id); setEditingTitle(inf.title); }} className="text-sm bg-transparent border-none cursor-pointer text-left p-0 block" style={{ color: 'var(--text-primary)' }}>
-                            {inf.title}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    <button onClick={() => deleteInfluence(inf.id)} className="text-[0.6rem] bg-transparent border-none cursor-pointer opacity-0 group-hover:opacity-40 transition-opacity ml-3 flex-shrink-0" style={{ color: 'var(--text-primary)' }}>×</button>
-                  </div>
-                ))}
-
-                {myInfluences.length === 0 && !showLinkInput && (
-                  <div className="text-xs italic py-2" style={{ color: 'var(--text-subtle)' }}>no influences yet</div>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -680,9 +569,8 @@ function LibrarySection({ userId }: { userId: string }) {
       {modalPersona && (
         <PersonaModal
           persona={modalPersona}
-          onClose={() => { setModalPersona(null); setModalWorks([]); setModalInfluences([]); }}
+          onClose={() => { setModalPersona(null); setModalWorks([]); }}
           works={modalWorks}
-          influences={modalInfluences}
           loading={modalLoading}
         />
       )}
@@ -752,7 +640,7 @@ export default function Alexandria() {
   useEffect(() => { 
     if (isAuthenticated) {
       setSessionId(uuidv4()); 
-      setMode('output');
+      setMode('input');
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isAuthenticated]);
