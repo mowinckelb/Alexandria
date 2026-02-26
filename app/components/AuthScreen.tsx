@@ -104,7 +104,15 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
 
   return (
     <div className="h-screen flex flex-col items-center justify-center px-8 relative" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-      {/* Back button — fixed top-left */}
+      {/* Header — centered title, back fixed left, toggle fixed right */}
+      <div className="fixed top-0 left-0 right-0 z-50 py-4">
+        <div className="flex justify-center">
+          <div className="text-center opacity-65">
+            <div className="text-[0.85rem] tracking-wide">alexandria.</div>
+            <div className="text-[0.7rem] italic opacity-70">mentes aeternae</div>
+          </div>
+        </div>
+      </div>
       {onBack && (
         <div className="fixed left-3 top-4 z-[200]">
           <button
