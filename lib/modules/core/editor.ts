@@ -1128,7 +1128,11 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
   
   private parseAndValidateResponse(response: string, rawInput: string): EditorResponse & { scratchpadUpdate?: string } {
     try {
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      // Strip markdown code blocks so we don't miss JSON wrapped in ```json ... ```
+      let toParse = response.trim();
+      const codeBlock = toParse.match(/^```(?:json)?\s*([\s\S]*?)```/);
+      if (codeBlock) toParse = codeBlock[1].trim();
+      const jsonMatch = toParse.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         console.warn('[Editor] No JSON found in response, using fallback');
         return this.fallbackResponse(rawInput);
@@ -1182,7 +1186,7 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
   
   private fallbackResponse(rawInput: string): EditorResponse & { scratchpadUpdate?: string } {
     return {
-      message: `interesting — what made you think of that specifically?`,
+      message: `something went wrong on my side — try sending that again?`,
       shouldEndConversation: false,
       extraction: {
         raw: rawInput,
