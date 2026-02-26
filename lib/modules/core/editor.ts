@@ -4,7 +4,7 @@
 // Verify: two-way conversation works, notepad updates, training pairs generated
 
 import { createClient } from '@supabase/supabase-js';
-import { generateText } from 'ai';
+import { generateText, Output, NoOutputGeneratedError } from 'ai';
 import { z } from 'zod';
 import { getFastModel, getQualityModel, getFallbackQualityModel, togetherProvider } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
@@ -621,29 +621,51 @@ CRITICAL RULES:
 - Each question must target a specific objective or gap. If you can't articulate what you're trying to learn, don't ask.
 - When objectives are met or answers are thin, set shouldEndConversation to true and wrap up naturally.
 - Focus on SUBJECTIVE extraction — voice, style, opinions, values, how they think
-- Return ONLY the JSON object, no other text`
+- Your reply must be exactly one JSON object: no markdown, no code fences, no text before or after. Keys: message, shouldEndConversation, extraction, notepadUpdates, followUpQuestions, scratchpadUpdate, trainingRecommendation.`
       },
       ...conversationHistory.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
       { role: 'user' as const, content: authorInput }
     ];
 
-    let rawResponse: string;
+    let parsed: EditorResponse & { scratchpadUpdate?: string };
     try {
-      const result = await generateText({ model: getQualityModel(), messages: editorMessages });
-      rawResponse = result.text;
-    } catch (primaryErr: unknown) {
-      const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
-      if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit')) {
-        console.warn('[Editor] Groq rate limited, falling back to Together AI');
-        const result = await generateText({ model: getFallbackQualityModel(), messages: editorMessages });
-        rawResponse = result.text;
-      } else {
-        throw primaryErr;
+      const model = getQualityModel();
+      const result = await generateText({
+        model,
+        messages: editorMessages,
+        experimental_output: Output.object({ schema: editorOutputSchema })
+      });
+      const out = result.experimental_output as z.infer<typeof editorOutputSchema>;
+      parsed = {
+        message: out.message,
+        shouldEndConversation: out.shouldEndConversation,
+        extraction: { raw: authorInput, subjective: out.extraction.subjective },
+        constitutionUpdates: out.constitutionUpdates,
+        notepadUpdates: out.notepadUpdates,
+        followUpQuestions: out.followUpQuestions,
+        trainingRecommendation: out.trainingRecommendation,
+        scratchpadUpdate: out.scratchpadUpdate
+      };
+    } catch (structuredErr: unknown) {
+      if (NoOutputGeneratedError.isInstance(structuredErr)) {
+        console.warn('[Editor] Structured output failed, falling back to text + parse:', structuredErr);
       }
+      let rawResponse: string;
+      try {
+        const result = await generateText({ model: getQualityModel(), messages: editorMessages });
+        rawResponse = result.text;
+      } catch (primaryErr: unknown) {
+        const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
+        if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit')) {
+          console.warn('[Editor] Groq rate limited, falling back to Together AI');
+          const result = await generateText({ model: getFallbackQualityModel(), messages: editorMessages });
+          rawResponse = result.text;
+        } else {
+          throw primaryErr;
+        }
+      }
+      parsed = this.parseAndValidateResponse(rawResponse, authorInput);
     }
-
-    // 7. Parse with Zod validation, fallback on failure
-    const parsed = this.parseAndValidateResponse(rawResponse, authorInput);
     
     // 7. Store raw entry
     await this.storeRawEntry(authorInput, userId);
@@ -1126,19 +1148,62 @@ Training ready: ${stats.trainingPairs >= 100 ? 'YES' : 'Not yet (need ~100+ pair
     return this.buildConstitutionSummaryForProcessing(constitution);
   }
   
+  /**
+   * Extract the first top-level JSON object from a string (handles leading/trailing text and nested braces in strings).
+   */
+  private extractJsonObject(str: string): string | null {
+    const start = str.indexOf('{');
+    if (start === -1) return null;
+    let depth = 0;
+    let inString: '"' | "'" | null = null;
+    let i = start;
+    while (i < str.length) {
+      const c = str[i];
+      if (inString) {
+        if (c === '\\') {
+          i += 2; // skip escape and next char
+          continue;
+        }
+        if (c === inString) inString = null;
+        i++;
+        continue;
+      }
+      if (c === '"' || c === "'") {
+        inString = c;
+        i++;
+        continue;
+      }
+      if (c === '{') depth++;
+      else if (c === '}') {
+        depth--;
+        if (depth === 0) return str.slice(start, i + 1);
+      }
+      i++;
+    }
+    return null;
+  }
+
   private parseAndValidateResponse(response: string, rawInput: string): EditorResponse & { scratchpadUpdate?: string } {
     try {
-      // Strip markdown code blocks so we don't miss JSON wrapped in ```json ... ```
       let toParse = response.trim();
-      const codeBlock = toParse.match(/^```(?:json)?\s*([\s\S]*?)```/);
-      if (codeBlock) toParse = codeBlock[1].trim();
-      const jsonMatch = toParse.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        console.warn('[Editor] No JSON found in response, using fallback');
+      // Strip markdown code blocks anywhere in the response (not only at start)
+      const codeBlockMatch = toParse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (codeBlockMatch) toParse = codeBlockMatch[1].trim();
+      const jsonStr = this.extractJsonObject(toParse);
+      if (!jsonStr) {
+        console.warn('[Editor] No JSON found in response. First 400 chars:', toParse.slice(0, 400));
+        // If the response looks like a plain conversational reply (model forgot JSON), use it as the message
+        const looksLikeReply = toParse.length >= 10 && toParse.length <= 3000 && !toParse.includes('{');
+        if (looksLikeReply) {
+          return {
+            ...this.fallbackResponse(rawInput),
+            message: toParse
+          };
+        }
         return this.fallbackResponse(rawInput);
       }
 
-      const raw = JSON.parse(jsonMatch[0]);
+      const raw = JSON.parse(jsonStr);
       const validated = editorOutputSchema.safeParse(raw);
 
       if (validated.success) {
