@@ -68,7 +68,7 @@ export async function GET(req: Request) {
     available: availableCount,
     high_quality: highQuality || 0,
     ready: availableCount >= 100,
-    active_model: activeModel || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+    active_model: activeModel || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
     recent_exports: exports || [],
     version: completedCount,
     last_trained_at: lastTrained,
@@ -190,7 +190,7 @@ async function handleExport(userId: string, body: { minQuality?: number; createE
         user_id: userId,
         pair_count: pairs.length,
         min_quality_threshold: minQuality,
-        base_model_id: baseModel || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Reference',
+        base_model_id: baseModel || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
         status: 'exported'
       })
       .select('id')
@@ -284,7 +284,7 @@ async function handleStartTraining(
   // Step 3: Get current active model for evolution chain
   const { data: baseModel } = await supabase
     .rpc('get_active_model', { p_user_id: userId });
-  const baseModelId = baseModel || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Reference';
+  const baseModelId = baseModel || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct';
 
   // Step 3b: Find previous completed training job for checkpoint continuation
   const { data: previousExport } = await supabase

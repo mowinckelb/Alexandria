@@ -277,8 +277,7 @@ export class Orchestrator {
       .eq('user_id', userId)
       .single();
     
-    // Default to serverless Turbo if no custom model
-    return twin?.model_id || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo';
+    return twin?.model_id || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct';
   }
   
   private async getPersonality(userId: string): Promise<PersonalityContext | null> {

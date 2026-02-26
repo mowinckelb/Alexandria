@@ -306,7 +306,7 @@ export class TogetherTuner {
 
     // Use Reference model for fine-tuning (this is the base for training)
     // If previousModelId is a fine-tuned model, we can continue from it
-    const baseModel = previousModelId || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Reference';
+    const baseModel = previousModelId || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct';
     
     // Default to LoRA fine-tuning (faster, cheaper, good for personalization)
     const useLora = options.lora !== false;
