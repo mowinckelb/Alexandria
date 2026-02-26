@@ -110,6 +110,28 @@ The Constitution is designed to grow continuously. Without scaling strategies, L
 
 ---
 
+### 2026-02-25 - Architecture / Implementation Alignment
+**Suggested by:** Cursor Agent (Claude Opus)
+**Status:** Pending
+**Affects:** Constitution Manager, Orchestrator, Privacy, Library
+
+**Suggestion:**
+Align implementation with updated ALEXANDRIA.md (Feb 2026 revision). Key changes:
+
+1. **Remove inference view derivation** — `deriveInferenceView` in `types.ts` and the `inference.md` Vault save in `manager.ts` should be removed. The Orchestrator should use multilayer retrieval against the Canon at query time (which we've already partially implemented with `buildConstitutionSummaryForProcessing` and the 20K-char fallback in `formatConstitutionContext`).
+2. **Three MCPs** — Editor MCP (extraction from LLM usage), Persona MCP (self-knowledge tool), Library MCP (marketplace). Not yet implemented.
+3. **Access tiers** — Public/Premium/Private replaces the old Private/Personal/Professional privacy modes. No code currently implements either, so this is a clean-slate implementation when the Library is built.
+4. **Signal** — Machine-generated agent discovery metadata. New concept, needs implementation when Library is built.
+5. **Vault storage options** — Currently Alexandria-hosted only (Supabase). The vision supports three options including private remote and local. Future work.
+
+**Reasoning:**
+The ALEXANDRIA.md was updated with significant architectural refinements. The codebase should incrementally align with these changes. Items 1 is a quick cleanup. Items 2-5 are future features.
+
+**Human Review:**
+(pending)
+
+---
+
 ## Accepted (Promoted to ALEXANDRIA_CONTEXT.md)
 
 (None yet)

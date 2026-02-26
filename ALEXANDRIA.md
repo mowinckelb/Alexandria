@@ -41,7 +41,7 @@ This section defines every term used in this document. Terms are ordered so that
 
 Author — The human user. The person whose cognition is being digitalised.
 
-Vault — A protocol specification for an append-only, immutable data store — defined as a folder structure with standard file formats, stored on the Author's own device and cloud (iCloud, local disk, etc.). Alexandria defines the structure and rules; the Author's existing storage holds the files. Contains every piece of raw data the Author has ever produced or provided: conversations, voice notes, documents, biometric data, training pairs, model weights, Constitution versions, system configuration, and audit logs. The Vault never deletes or overwrites data. It does not store passwords, API keys, or authentication secrets. The Author can access, move, or copy the folder at any time because it is just files on their filesystem.
+Vault — A unified logical entity — a single namespace with defined boundaries encompassing all of the Author's raw data, potentially spanning multiple storage locations. Append-only, immutable. Contains conversations, voice notes, documents, biometric data, training data, model weights, Constitution versions, system configuration, and audit logs. Three storage options: Alexandria-hosted (remote), private remote (Author's own cloud — iCloud, Google Drive), or local (on-device). Authors can mix options. The Vault never deletes or overwrites data. It does not store passwords, API keys, or authentication secrets. Data flows in continuously from APIs, MCP connections, and direct Author input.
 
 Constitution — A human-readable markdown file that explicitly captures who the Author is: their worldview, values, mental models, identity, and known blind spots. Versioned — each update creates a new version; all prior versions are preserved in the Vault. Serves as the ground truth and rubric for all training evaluation.
 
@@ -266,15 +266,13 @@ Constitution is stored in the database (for active querying) and in the Vault (f
 
 Constitution versioning and depth — Every update to the Constitution creates a new version. All prior versions are preserved in the Vault. But versioning is not just a safety net for rollback — it is a compounding asset. Each version represents the Author's cognition as understood at that point in time, by the model that was available at that time. When a new, more capable model arrives, it can reinterpret the same Vault data and produce a new Constitution version that captures nuances the previous model missed. Multiple interpretations of the same Author can coexist — different models may extract different insights from the same raw data, and these interpretations layer on top of each other rather than replacing each other. The Constitution also supports varying depths: a surface-level extraction that captures the obvious patterns, a deeper extraction that identifies subtler cognitive habits and contradictions, and a deepest level that maps the Author's implicit assumptions and blind spots they have never articulated. Each depth level builds on the ones before it. The result is a flywheel: better models produce deeper interpretations, deeper interpretations reveal more of the Author's cognition, more revealed cognition produces better training data, better training data produces a higher-fidelity PLM. The Constitution is not a static document that gets periodically updated. It is a living, layered, multi-version, multi-depth representation that compounds with every model generation.
 
-Constitution views — The canonical Constitution serves two different consumers with different needs, so it compiles into two derived views:
+Constitution views — The Constitution serves two purposes that benefit from different formats:
 
-Constitution (canonical) — The full, complete, human-readable ground truth. What the Author reads and edits. What gets versioned. The single source of truth from which all other views are derived.
+Constitution — The full, complete, human-readable ground truth. What the Author reads and edits. What gets versioned. The single source of truth. The Author can see it, ask questions about it, and download it.
 
-Constitution (training) — Optimised for RLAIF evaluation. Dense. Every nuance preserved. Sections weighted by training priority. This is what the evaluator judges PLM outputs against. Fidelity is everything here — more detail produces better training signal.
+Training data — Derived from the Constitution. Training pairs and evaluation datasets optimised for RLAIF and PLM fine-tuning. The Author does not see or interact with training data — it is machine-generated from the Constitution and Vault, and machine-consumed by the training pipeline. Maintained by the Blueprint, automatically updated when the Constitution changes.
 
-Constitution (inference) — Optimised for Orchestrator context injection at query time. Compressed. Modular by domain. The Orchestrator pulls only the relevant sections per query rather than stuffing the entire Constitution into context. Speed and relevance matter here — the Author's full Shadows section is irrelevant when someone asks for a meeting recommendation, but their decision-making heuristics and values around time are critical.
-
-The canonical Constitution is the source. The training and inference views are derived and maintained by the Blueprint, automatically updated when the canonical changes. This separation means the Constitution can be maximally complete (for training fidelity) without being maximally verbose at inference time (where token cost and latency matter).
+There is no separate inference version. At query time, the Orchestrator uses multilayer retrieval against the Constitution: read the overview to identify which sections are relevant to this query, pull the full detail on those sections, respond with full fidelity. This is the same pattern the Editor uses when processing new data — and it scales better than pre-compressing into a smaller version, which loses nuance. The Constitution is the Constitution. You just do not read all of it every time. The specific retrieval method (multilayer, chunked, indexed) is a Blueprint optimisation, not an Axiom.
 
 
 PLM (maps to basal ganglia and cerebellum)
@@ -291,28 +289,38 @@ When switching base models (e.g. from Llama 3 to Llama 4, or from Llama to Mistr
 
 VAULT (raw experience store)
 
-The Vault is a protocol specification, not hosted infrastructure. Alexandria defines the folder structure, the file formats, and the rules (append-only, immutable, never lossy-transform raw data). The actual storage is whatever the Author already uses — iCloud, local disk, any cloud or filesystem. Alexandria does not host the Author's files. The Author does not pay Alexandria for storage. The Author's data lives where their data already lives.
+The Vault is not necessarily one physical location. It is a unified logical entity — a single namespace with defined boundaries, potentially spanning multiple storage locations. The Editor has access to everything within the Vault's boundaries. The Author outlines exactly where those boundaries are.
+
+Three storage options:
+
+Alexandria-hosted — Alexandria stores the Vault remotely (e.g. Supabase, S3). Simplest setup. The Author still owns the data and can download it at any time, but Alexandria manages the infrastructure. Suitable for Authors who want zero configuration.
+
+Private remote — The Author hosts the Vault in their own cloud storage (iCloud, Google Drive, Dropbox). Alexandria agents read from and write to the Author's storage via API grants. The Author controls the infrastructure. Data never touches Alexandria's servers.
+
+Local — The Vault lives on the Author's device (Apple Files, local disk). The most sovereign option. Alexandria agents access the Vault via the local filesystem. Works offline. Can be combined with cloud sync (e.g. iCloud syncing the local folder) for device-to-device access.
+
+Authors can mix options — some data local, some remote. The Vault's boundaries are logical, not physical. What matters is that the Editor can reach everything within them.
 
 Append-only. Immutable. Contains:
 - All conversations (with Editor, with LLMs, with external agents)
 - Voice notes (original audio files in compressed lossless or high-bitrate format)
 - Documents (PDFs, markdown, images — original format, never lossy transformation)
 - Biometric data (health logs, activity data)
-- Training pairs (JSONL format)
+- Training data (whatever format the training pipeline requires)
 - PLM weights (all versions, in provider's output format)
 - Constitution versions (all versions, markdown)
 - System configuration (JSON)
 - Audit logs (who accessed what, when)
 
-Directory structure: vault/{userId}/{category}/{timestamp}_{filename}
+Data flows in continuously from all input sources: APIs (calendar, email, health data), MCP (the Author's LLM conversations), and direct from the Author (messages, voice memos, file uploads). The Editor churns through everything within the Vault's boundaries, piece by piece, iterating on the Constitution.
 
-The Vault is a local folder first. It lives in the Author's iCloud Drive (or any cloud-synced filesystem) as a standard directory structure containing standard files — accessible from both phone and laptop via Files/Finder, readable by any agent, any tool, any file browser. iCloud handles the sync. The local folder is the ground truth. This means any AGI agent with filesystem access can operate on the Vault directly — no API calls, no authentication, no middleware. The simplicity is the point. Whether the files are physically on the device's SSD or synced from iCloud is invisible to the agent reading them — Apple handles that, and that is exactly the kind of thing Alexandria rides rather than builds.
+Directory structure: vault/{userId}/{category}/{timestamp}_{filename}
 
 Does NOT store: passwords, API keys, authentication secrets. When the system needs to access a password manager or authenticated service, it uses OAuth or API permissions granted by the Author.
 
 The Vault is the permanent asset. Every other component (Constitution, PLM) is a derived view of the Vault's raw data. When better models arrive, they can reprocess the Vault from scratch — seeing both the raw data and the current derived views — and generate improved views. This is the core leverage mechanism: the Author invests time once, and the returns compound with every generation of AI models. Raw data should always be stored in the most signal-preserving, efficiently compressed format possible. Never summarise and discard the original. Never do lossy transformation on raw data.
 
-Storage is manageable: a heavy Author might accumulate 10-50GB per year. Most Authors already pay for iCloud or similar cloud storage — the Vault folder simply lives alongside their existing files. Local storage is trivially cheap. The Blueprint can include storage management policies (compression of older processed data, retention rules). Storage is not a concern Alexandria needs to solve.
+Storage is manageable: a heavy Author might accumulate 10-50GB per year. The Blueprint can include storage management policies (compression of older processed data, retention rules). Storage is not an existential concern regardless of which option the Author chooses.
 
 
 THE ORCHESTRATOR (maps to default mode network)
@@ -355,7 +363,7 @@ Complete list of Axioms:
 
 Structural Axioms:
 - Three input nodes (Author, LLM, API) feeding into the Editor, which builds the core components
-- Three components (Constitution, PLM, Vault) feeding into the Orchestrator, which serves three output channels (Author, LLM, API)
+- Three components (Constitution, PLM, Vault) feeding into the Orchestrator, which serves three output channels (Author, LLM, Library)
 - Two continuous autonomous agents (Editor and Orchestrator), always-on, always proactive
 
 Data Sovereignty Axioms:
@@ -609,7 +617,21 @@ Author channel (positive-sum attention) — Extends the Author's attention. Thou
 
 LLM channel (tool for frontier models) — Frontier models like Claude or ChatGPT tool-call the Persona via MCP, using a query_persona tool. Instead of interrupting the Author (which consumes zero-sum attention), the LLM queries the Persona and gets an authentic answer. The LLM gets better information. The Author doesn't lose time.
 
-API channel (external access, monetisable) — External agents query the Persona via API. Use cases: other Authors querying each other's Personas for expertise, research surveys across expert Personas, frontier labs tool-calling groups of Personas as mixture of experts, consumer clarity (producers querying representative consumer Personas to understand their market), Neo-Biography exploration. The Author configures granular privacy permissions. The Author sets price per query. Alexandria takes a minimal percentage.
+Library channel (marketplace as MCP tool) — The Alexandria Library is available as an MCP tool that anyone can plug into their LLM. The user does not need to be an Alexandria Author — they just install the Library tool. When they are chatting with their LLM about anything, the LLM can decide to tool-call the Library, scan available Personas, select the right expert (or experts), query them, and feed the response back into the conversation. The user barely notices — their LLM just got smarter because it tapped into a human expert's cognition.
+
+This is an evolution of expert networks and alpha calls. Instead of scheduling a 30-minute call with a domain expert for $500, the LLM queries that expert's Persona in seconds for a fraction of the cost. The expert earns from every query without lifting a finger. The user gets expert judgment on demand. Alexandria takes a percentage.
+
+The payment clears server-side per query — Stripe for microtransactions today, programmable money for agent-to-agent transactions at scale. The Persona owner sets their price. Latency is standard API call latency — the Library tool is just routing to a fine-tuned model with a Constitution context injection.
+
+This creates the Library flywheel: Authors are incentivised to make their Persona high-quality and well-described (so the Library tool selects them), which drives more extraction effort, which produces better Personas, which generates more Library queries, which generates more revenue, which attracts more Authors. The Library tool also serves as an acquisition channel — anyone using the Library tool sees the value of having their own Persona in it. Optionally, Alexandria can require users to create a Persona to access the Library tool, converting every Library user into an Author automatically.
+
+Three MCPs — The input and output channels manifest as three separate MCP servers that users install independently:
+
+Editor MCP (input) — connects the Author's LLM to the Editor. Extraction rides on normal LLM usage. The Author installs this when they join Alexandria.
+
+Persona MCP (output) — connects the Author's LLM to their own Persona. The LLM can tool-call the Persona for self-knowledge without interrupting the Author. The Author installs this once their Persona reaches sufficient fidelity. The Persona MCP includes a self-description — metadata that tells the Author's LLM what the Persona knows, when to tool-call it, and what kinds of queries it is useful for. This self-description has two layers: a default description provided by the Blueprint (explaining what Alexandria Personas are and the general pattern for when to query one) and a personalised description generated by the Orchestrator (specific to this Author's domains of expertise, PLM maturity, and cognitive strengths). The Author does not write this metadata — the system generates it. The format evolves with whatever is optimal for LLM tool-calling at the time (currently a tool description or SKILL.md-style file; the Blueprint updates this as conventions change).
+
+Library MCP (marketplace) — connects any LLM to the Alexandria Library. Does not require the user to be an Alexandria Author. Anyone can install this and their LLM gains access to every Persona in the Library. This is the distribution mechanism — the Library lives inside every LLM conversation, not on a destination website. The Library MCP supports scoping — a business can configure it to access only a select group of Personas (e.g. their employees' Personas) rather than the full Library. This handles the enterprise digital twin use case without requiring a separate API or product.
 
 
 EDITOR-ORCHESTRATOR RELATIONSHIP
@@ -632,15 +654,15 @@ PRIVACY AND AUTHOR CONTROL
 
 The Persona must behave differently in different contexts, just as humans do. This is social intelligence, not dishonesty.
 
-Three privacy modes (default Blueprint), from most open to most filtered:
+Three access tiers govern all Persona interactions and Neo-Biography content:
 
-Private — The Author themselves and their innermost circle. Full access, unfiltered. Close friends, partner, the people the Author holds nothing back from. The Persona as it truly is.
+Public — Free. Visible to everyone. The Persona responds openly but within the Author's configured boundaries. This is how strangers and the general public experience the Persona.
 
-Personal — Normal personal life. Family, acquaintances, social contexts. Warm but with natural social filtering. The Author assigns specific contacts and contexts to this mode.
+Premium — Paid. The Author sets the price. Deeper, more substantive Persona interaction. The Persona can draw on more of the Author's cognition and provide richer responses. This is the monetisation layer.
 
-Professional — Work, business, external interactions, API callers. Composed, strategic, filtered. The most restricted mode. The version of the Author appropriate for formal contexts and strangers.
+Private — Invite only. The Author's inner circle. Unfiltered Persona access. The Persona as it truly is — no social filtering, no held-back domains.
 
-The Author assigns queriers to modes. The Orchestrator enforces. Additionally, specific Constitution sections or data categories can be marked as sensitive by the Author — the Orchestrator never surfaces these beyond their designated mode regardless of the query.
+The Author assigns queriers to tiers. The Orchestrator enforces. Additionally, specific Constitution sections or data categories can be marked as sensitive by the Author — the Orchestrator never surfaces these beyond their designated tier regardless of the query.
 
 Autonomy dial — How much the Persona can do without explicit Author approval:
 - Low: the Persona drafts responses and waits for the Author to approve before sending
@@ -693,55 +715,60 @@ The standard for all of it is hyperrealism. Great art compresses reality — tak
 
 The Neo-Biography updates as the Persona evolves. It is never finished.
 
-A Neo-Biography has three layers: the Author's published works, the Author's curated influences, and the interactive Persona.
+A Neo-Biography has two sections: Works and Signal. The Persona is not a section — it is the interaction layer beneath everything. Three access tiers govern all content and interaction: Public (free, everyone), Premium (paid, Author sets price), and Private (invite only, inner circle).
 
 
-AUTHORED WORKS
+WORKS
 
 Authors publish works directly to their Neo-Biography. Any medium. These are the authored core of the profile — created by the Author (with whatever tools they choose, including AI), published as finished artefacts. Once published, they are frozen. The Author notes revisions for future versions rather than editing in place.
 
 Authored works serve multiple purposes: they give visitors something substantive to engage with before deciding to interact with the Persona, they establish the Author's thinking and sensibility in their own voice, and they provide high-quality training signal for the PLM (published works are some of the highest-fidelity representations of how an Author thinks, communicates, and sees the world).
 
-Visitors can engage with all authored works for free. They can annotate — leave notes on specific sections, highlight passages, react. They can ask follow-up questions about what they have experienced, going deeper on specific points or exploring tangents. This annotation and follow-up layer bridges the gap between static consumption and full Persona interaction.
+Each Work is assigned an access tier by the Author. Public Works are free and visible to everyone — the discovery layer. Premium Works require payment to access. Private Works are visible only to the Author's invited inner circle.
 
-The authored works are the discovery layer. They draw people in. They establish who the Author is. They are the front door of the Neo-Biography.
+Visitors can browse and experience Public Works freely. They can annotate — leave notes on specific sections, highlight passages, react. When they want to go deeper — ask questions about a Work, explore tangents, converse about what they have read or watched — that is where the Persona activates. The visitor is now talking to the Author's mind about the Author's work. A few introductory Persona interactions may be free. Deeper conversation is Premium. The Author configures where the threshold sits.
+
+Works are the discovery layer for humans. They draw people in. They establish who the Author is. They are the front door of the Neo-Biography.
 
 AI should make it easy to create excellent work across mediums. Alexandria provides style guides and craft guides for each medium — what makes a great essay, what makes a great short film, what makes a great poem, what makes great photography — so that Authors with something to say can say it well, even in mediums they have not worked in before. These guides start with world-class defaults (the best available taste and craft principles) and iterate toward personalisation. The reasoning: AI will raise the baseline of taste and craft to world-expert level for every user. There is no lasting advantage in having good taste when every user's AI can approximate the taste of the best experts. So Alexandria's guides start at the highest possible standard and let the Author override toward their personal sensibility. The default is objectively excellent. The personalisation is subjectively authentic. Nobody can represent the Author better than the Author themselves — but the starting point should be the best craft available, not a blank page.
 
 
-CURATED INFLUENCES
+SIGNAL
 
-You are what you love. The second layer of the Neo-Biography is the Author's curated influences — the art, ideas, and artefacts that shaped them. Not what they made. What moved them.
+The discovery layer for agents. When an LLM tool-calls the Library MCP looking for the right Persona to query, it reads Signal. This is a structured, semantic description of what the Persona knows, what domains it is strong in, what kinds of questions it is good for, and what the Author's areas of expertise and experience are.
 
-Books that changed how they think. YouTube videos they return to. Songs that feel like home. Films that rearranged something. Podcasts that introduced a new lens. Essays that crystallised what they had been trying to say. Paintings they stand in front of. Lectures they have listened to five times. The influences are the Author's taste made visible — the constellation of other minds and works that formed them.
+Signal is fully machine-generated and machine-read. The Author never sees or edits the raw Signal text — it is not displayed on the Neo-Biography page. The Orchestrator generates Signal automatically from the Constitution (which captures domains of expertise and thinking patterns) and PLM maturity scores (which show where the Persona is strong). The Orchestrator may chat with the Author to refine emphasis — "Do you want to be found more for investment thinking or philosophy?" — but the Author is giving direction, not writing metadata. Better Signal means more Library MCP queries, which means more revenue. The system is incentivised to make Signal accurate without requiring the Author to think about it.
 
-Authors curate their influences directly in the Neo-Biography. They can organise by medium (books, music, film, video, podcasts), by theme (what shaped my worldview, what I turn to for courage, what makes me laugh), or any structure that feels right. Each influence can carry the Author's annotation — why this mattered to them, what it changed, when they discovered it. The annotation is as valuable as the link. "This book broke my understanding of free will" tells a visitor more about the Author than any questionnaire.
-
-Curated influences are public — part of the free discovery layer alongside authored works. They serve the same purpose: giving visitors a way to understand who this person is before engaging with the Persona. But they also serve a social purpose. Sharing what you love is one of the most natural human acts. The Neo-Biography makes it a permanent, living exhibition.
-
-Curated influences are also extraction signal. The Author's taste is a window into their cognition — what resonates with them reveals values, aesthetics, intellectual preoccupations, and emotional patterns that the Author may never articulate directly. The Editor has access to the Author's curated influences and uses them as input for Constitution extraction. If an Author curates five books on Stoicism, that is signal. If their YouTube favourites are all long-form interviews with founders, that is signal. If their music skews melancholic, that is signal. The Editor does not just catalogue the influences — it asks the Author about them. "You have three books here about decision-making under uncertainty. What is it about that problem that draws you?" The influences become Socratic prompts.
-
-The Orchestrator also has access to curated influences. When representing the Author externally, the Orchestrator can reference the Author's influences naturally — recommending a book the Author loves, citing an idea the Author was shaped by, drawing on the intellectual tradition the Author identifies with. This makes the Persona richer and more human. People reference what they love in conversation. The Persona should too.
-
-Technical implementation: Authors can connect external playlists and lists as live sources. A YouTube playlist tagged "Alexandria" syncs to the Neo-Biography and the Vault — new additions appear automatically. A Spotify playlist, a Goodreads shelf, a Letterboxd list, a Pocket reading list, an Apple Music playlist. These are API integrations (unidirectional, same pattern as other API input nodes). The Author curates in their normal workflow — adding a video to a YouTube playlist, shelving a book on Goodreads — and it flows into Alexandria without friction. The Vault stores metadata and the Author's annotations. The original content lives where it lives (YouTube, Spotify, etc.) — Alexandria links to it, does not host it.
+Signal is always Public in the sense that agents can read it via the Library MCP. It is not visible to human visitors browsing the Library. Works are for humans. Signal is for agents.
 
 
-INTERACTIVE PERSONA LAYER
+CURATED INFLUENCES (extraction input, not a Neo-Biography section)
 
-Behind the authored works sits the full Persona API — the interactive layer where visitors can have direct conversations with the Author's Persona. This is not limited to discussing the authored works. It is a general-purpose interaction with the Author's mental model. Visitors can ask the Persona questions about anything within the domain of the Author's thinking, in the Author's voice and framework.
+The Author's taste — books, videos, music, films, podcasts, essays that shaped them — is valuable extraction signal but is not a public-facing section of the Neo-Biography. The Editor has access to the Author's curated influences and uses them as input for Constitution extraction. If an Author curates five books on Stoicism, that is signal. If their YouTube favourites are all long-form interviews with founders, that is signal. If their music skews melancholic, that is signal. The Editor asks the Author about them: "You have three books here about decision-making under uncertainty. What is it about that problem that draws you?" The influences become Socratic prompts.
 
-The interactive Persona layer is the premium product. The authored works are free and public. The Persona API is paid access.
+The Orchestrator also has access to curated influences. When representing the Author externally, it can reference the Author's influences naturally — recommending a book the Author loves, citing an idea the Author was shaped by. This makes the Persona richer and more human.
+
+Technical implementation: Authors can connect external playlists and lists as live sources — YouTube playlists, Spotify playlists, Goodreads shelves, Letterboxd lists, Pocket reading lists, Apple Music playlists. These are API integrations (unidirectional). The Author curates in their normal workflow and it flows into the Vault without friction. Alexandria links to content, does not host it.
+
+
+ACCESS TIERS
+
+Three tiers replace the old privacy modes. They apply to Works, Persona interactions, and any content in the Neo-Biography:
+
+Public — Free. Visible to everyone. Most Works, all Signal. A few introductory Persona interactions. The discovery layer that draws people in.
+
+Premium — Paid. The Author sets the price. Full Persona conversation — general or about specific Works. Deeper interaction, longer conversations, more domains. This is where the Author earns and where Alexandria takes a percentage. Queried by humans (through the Neo-Biography), by LLMs (through the Library MCP), or programmatically.
+
+Private — Invite only. The Author's inner circle. Unfiltered Persona access, private Works, content the Author does not share publicly. Access granted by the Author to specific people.
+
+These tiers are simple and intuitive. Public is the shop window. Premium is the product. Private is the inner sanctum.
 
 
 NEO-BIOGRAPHY PRODUCT MODEL
 
-Free tier — The Library itself. All authored works and curated influences across all mediums. Public. Open. Anyone can experience, annotate, and ask follow-up questions.
+Authors earn revenue when visitors interact with their Persona at the Premium tier. The Works drive discovery. The Signal drives agent discovery. The Persona monetises the depth. Alexandria handles the infrastructure: Persona API, payment processing, annotation systems, style guides. Authors focus on creating the works that represent who they are.
 
-Premium tier — API Persona access. Interactive conversations with the Author's mental model. Deeper exploration beyond what the authored works cover. Personalised responses in the Author's voice and framework.
-
-Authors earn revenue when visitors use their interactive Persona. The authored works drive traffic and establish interest. The Persona monetises the depth. Alexandria handles the infrastructure: API Persona creation, payment processing, annotation systems, style guides. Authors focus on creating the works that represent who they are.
-
-The Neo-Biography is a new form of biography — living, interactive, multimedia. It evolves as the Author publishes more, curates more, and as the Persona develops. Visitors do not just read about someone. They experience their art, discover what shaped them, engage with their mental model, converse with their thinking. The Neo-Biography is the profile, the authored works, the curated influences, and the interactive Persona, all together. It is the library of a living mind.
+The Neo-Biography is a new form of biography — living, interactive, multimedia. It evolves as the Author publishes more and as the Persona develops. Visitors do not just read about someone. They experience their art, engage with their mental model, converse with their thinking. The Neo-Biography is the Works, the Signal, and the Persona beneath it all. It is the library of a living mind.
 
 AI and robotics are returning humanity's time and attention. Alexandria gives that reclaimed humanity a canvas. The thinker who has spent a lifetime accumulating insight but never had the means to weave it into form — Alexandria is the loom. The Neo-Biography is the tapestry. People are art. Let them be represented.
 
@@ -781,17 +808,16 @@ Historical Personas populate the Library with minds that would otherwise be lost
 
 LIBRARY USE CASES
 
-- Authors publishing works in any medium (essays, film, poetry, music, photography, interactive experiences) to their Neo-Biography as free public content
-- Authors curating and sharing the art, books, videos, music, and ideas that shaped them — with annotations explaining why each matters
-- Visitors experiencing, annotating, and asking follow-up questions on authored works and curated influences across all mediums
-- Visitors paying for interactive Persona conversations beyond the authored works
+- Authors publishing Works in any medium (essays, film, poetry, music, photography, interactive experiences) to their Neo-Biography
+- Visitors experiencing, annotating, and engaging with Works across all mediums
+- Visitors paying for Premium Persona interaction beyond free browsing
+- LLMs tool-calling the Library MCP to query expert Personas mid-conversation — the evolution of expert networks and alpha calls
 - Authors querying each other's Personas for expertise
 - Research surveys across expert Personas at scale
 - Frontier labs tool-calling selected or grouped Personas as mixture of experts (AGI MoE)
 - Querying verified taste — investors, editors, designers, curators, anyone whose judgment is their value — through their Persona rather than competing for their time
 - Providing collective approximation of human mental models for empathy and AI alignment research
 - Producers querying representative consumer Personas to understand and optimise their offerings (consumer clarity)
-- Dynamic Neo-Biography generation, exploration, and interaction
 
 
 ---
