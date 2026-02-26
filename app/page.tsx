@@ -622,7 +622,7 @@ export default function Alexandria() {
   const [editorQuestions, setEditorQuestions] = useState<Array<{ id: string; title: string; opener?: string; criteria?: string[] }>>([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [selectedQIndex, setSelectedQIndex] = useState(0);
-  const [pausedConversations, setPausedConversations] = useState<Array<{ topic: string; messages: Message[]; aims?: string[]; completedAims?: string[] }>>([]);
+  const [pausedConversations, setPausedConversations] = useState<Array<{ topic: string; messages: Message[]; criteria?: string[] }>>([]);
   
   const [orchestratorTab, setOrchestratorTab] = useState<'activity' | 'questions' | 'chat'>('activity');
   
@@ -1042,7 +1042,7 @@ export default function Alexandria() {
         body: JSON.stringify({
           messages: [{ role: 'user', content: topicMsg }],
           userId,
-          state: carbonState
+          state: { ...carbonState, currentTopic: title, criteria }
         })
       });
 
@@ -1092,7 +1092,7 @@ export default function Alexandria() {
     if (inputMessages.length > 0 && carbonState.currentTopic) {
       setPausedConversations(prev => {
         const existing = prev.findIndex(p => p.topic === carbonState.currentTopic);
-        const entry = { topic: carbonState.currentTopic!, messages: [...inputMessages] };
+        const entry = { topic: carbonState.currentTopic!, messages: [...inputMessages], criteria: carbonState.criteria };
         if (existing >= 0) {
           const updated = [...prev];
           updated[existing] = entry;
@@ -1112,7 +1112,7 @@ export default function Alexandria() {
     const paused = pausedConversations.find(p => p.topic === topic);
     if (!paused) return;
     setInputMessages(paused.messages);
-    setCarbonState(prev => ({ ...prev, currentTopic: topic }));
+    setCarbonState(prev => ({ ...prev, currentTopic: topic, criteria: paused.criteria }));
     setEditorQuestions([]);
     setTimeout(() => inputRef.current?.focus(), 100);
   }, [pausedConversations]);
