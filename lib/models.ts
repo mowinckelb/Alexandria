@@ -77,7 +77,7 @@ export function getModelConfig() {
     quality: anthropicProvider ? 'claude-sonnet-4-6' : (process.env.GROQ_QUALITY_MODEL || 'llama-3.3-70b-versatile'),
     fast: anthropicProvider ? 'claude-sonnet-4-6' : (process.env.GROQ_FAST_MODEL || 'llama-3.1-8b-instant'),
     embeddings: 'BAAI/bge-base-en-v1.5',
-    plm: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+    plm: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
   };
 }
 

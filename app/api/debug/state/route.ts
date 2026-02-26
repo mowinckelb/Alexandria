@@ -126,8 +126,8 @@ export async function GET(req: Request) {
     
     // PLM model
     plm: {
-      activeModel: activeModelResult.data || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
-      isFineTuned: !!(activeModelResult.data && !activeModelResult.data.includes('Meta-Llama'))
+      activeModel: activeModelResult.data || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
+      isFineTuned: !!(activeModelResult.data && !activeModelResult.data.includes('Llama-4-Maverick'))
     },
     
     // RLHF pipeline

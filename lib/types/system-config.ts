@@ -99,13 +99,13 @@ export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
     weightingStrategy: 'query-adaptive',
     model: {
       provider: 'together',
-      model: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+      model: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
       temperature: 0.7
     }
   },
   plm: {
     trainingProvider: 'together',
-    baseModel: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+    baseModel: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
     retrainingFrequency: 'on-demand',
     maturityThresholds: {
       worldview: 0.7,

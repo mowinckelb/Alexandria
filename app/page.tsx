@@ -429,7 +429,7 @@ function LibrarySection({ userId }: { userId: string }) {
       {/* Quote */}
       <div className="pt-6 pb-2 text-center">
         <div className="text-[0.82rem] italic leading-relaxed font-light" style={{ color: 'var(--text-primary)', opacity: 0.4 }}>
-          &ldquo;Make something wonderful and put it out there.&rdquo;
+          &ldquo;Make something wonderful.&rdquo;
         </div>
         <div className="text-[0.6rem] mt-2 tracking-widest uppercase" style={{ color: 'var(--text-subtle)' }}>Steve Jobs</div>
       </div>
@@ -439,10 +439,9 @@ function LibrarySection({ userId }: { userId: string }) {
         onClick={() => setShowMyModal(true)}
         className="w-full text-left bg-transparent border-none cursor-pointer p-0"
       >
-        <div className="text-lg font-extralight" style={{ color: 'var(--text-primary)' }}>{myName}</div>
-        <div className="text-[0.6rem] mt-0.5 flex gap-3" style={{ color: 'var(--text-subtle)' }}>
-          {myWorks.length > 0 && <span>{myWorks.length} work{myWorks.length !== 1 ? 's' : ''}</span>}
-          {myWorks.length === 0 && <span>tap to add works</span>}
+        <div className="text-lg font-extralight" style={{ color: 'var(--text-primary)' }}>
+          {myName}
+          {myWorks.length > 0 && <span className="text-[0.6rem] font-light ml-2" style={{ color: 'var(--text-subtle)' }}>{myWorks.length}</span>}
         </div>
       </button>
 

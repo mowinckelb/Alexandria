@@ -73,6 +73,20 @@ export async function GET(req: NextRequest) {
       supabase.from('curated_influences').select('*').eq('user_id', userId).order('created_at', { ascending: false })
     ]);
 
+    // Generate fresh signed URLs for works with PDFs in storage
+    const works = worksRes.data || [];
+    for (const work of works) {
+      const meta = work.metadata as Record<string, unknown> | null;
+      if (meta?.storage_path) {
+        const { data: signedData } = await supabase.storage
+          .from('carbon-uploads')
+          .createSignedUrl(meta.storage_path as string, 60 * 60 * 24);
+        if (signedData?.signedUrl) {
+          (work.metadata as Record<string, unknown>).pdf_url = signedData.signedUrl;
+        }
+      }
+    }
+
     const { data: constitutionData } = await supabase
       .from('active_constitutions')
       .select('constitution_id, constitutions(sections)')
@@ -103,7 +117,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       profile: profileRes.data || { user_id: userId },
-      works: worksRes.data || [],
+      works,
       influences: influencesRes.data || [],
       persona: {
         constitutionSummary: publicSummary,

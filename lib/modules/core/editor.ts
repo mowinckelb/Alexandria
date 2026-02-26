@@ -1368,7 +1368,7 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`,
       .eq('user_id', userId)
       .single();
     
-    const plmModelId = twin?.model_id || 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo';
+    const plmModelId = twin?.model_id || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct';
     
     // Use Constitution as context instead of memory fragments
     const constitution = await this.constitutionManager.getConstitution(userId);
