@@ -52,11 +52,16 @@ const BASE_MODEL = 'accounts/fireworks/models/kimi-k2p5';
 const FIREWORKS_STATE_MAP: Record<string, JobStatus['status']> = {
   'STATE_UNSPECIFIED': 'pending',
   'PENDING': 'pending',
+  'JOB_STATE_PENDING': 'pending',
   'RUNNING': 'running',
+  'JOB_STATE_RUNNING': 'running',
   'COMPLETED': 'completed',
+  'JOB_STATE_COMPLETED': 'completed',
   'FAILED': 'failed',
+  'JOB_STATE_FAILED': 'failed',
   'DELETING': 'cancelled',
   'CANCELED': 'cancelled',
+  'JOB_STATE_CANCELED': 'cancelled',
 };
 
 function sanitizeResourceId(raw: string): string {
