@@ -26,7 +26,7 @@ export async function GET() {
         status.database = true;
 
         // 2. Check Environment
-        const requiredVars = ['GROQ_API_KEY', 'TOGETHER_API_KEY'];
+        const requiredVars = ['GROQ_API_KEY', 'FIREWORKS_API_KEY'];
         status.environment = requiredVars.every(v => !!process.env[v]);
 
         // 3. Check Logic (Refiner score test)

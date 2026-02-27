@@ -4,14 +4,10 @@
 // Verify: Users get responses that sound like the Author
 
 import { createClient } from '@supabase/supabase-js';
-import { createTogetherAI } from '@ai-sdk/togetherai';
 import { generateText, streamText } from 'ai';
-import { getQualityModel } from '@/lib/models';
+import { getQualityModel, fireworksProvider, PLM_BASE_MODEL } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
 import type { ConstitutionSections } from '@/lib/modules/constitution/types';
-
-// Together AI for PLM model inference
-const togetherProvider = createTogetherAI({ apiKey: process.env.TOGETHER_API_KEY! });
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -125,7 +121,7 @@ export class Orchestrator {
     
     // 3. Stream response from PLM model
     const stream = streamText({
-      model: togetherProvider(context.plmModelId),
+      model: fireworksProvider(context.plmModelId),
       temperature: effectiveTemperature,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -164,7 +160,7 @@ export class Orchestrator {
     );
     
     const { text } = await generateText({
-      model: togetherProvider(context.plmModelId),
+      model: fireworksProvider(context.plmModelId),
       temperature: effectiveTemperature,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -277,7 +273,12 @@ export class Orchestrator {
       .eq('user_id', userId)
       .single();
     
-    return twin?.model_id || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct';
+    const modelId = twin?.model_id;
+    // Only use stored model if it's a Fireworks-format model reference
+    if (modelId && modelId.startsWith('accounts/')) {
+      return modelId;
+    }
+    return PLM_BASE_MODEL;
   }
   
   private async getPersonality(userId: string): Promise<PersonalityContext | null> {

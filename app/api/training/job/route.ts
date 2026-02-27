@@ -9,7 +9,7 @@ const supabase = createClient(
 
 /**
  * GET /api/training/job?jobId=xxx
- * Get the status of a fine-tuning job from Together AI
+ * Get the status of a fine-tuning job from Fireworks AI
  * 
  * Also accepts exportId to look up the job from our database:
  * GET /api/training/job?exportId=xxx
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
 
   if (!status) {
     return NextResponse.json({ 
-      error: 'Failed to get job status from Together AI',
+      error: 'Failed to get job status from Fireworks AI',
       jobId 
     }, { status: 500 });
   }
@@ -85,7 +85,7 @@ export async function GET(req: Request) {
  * - 'activate': Activate a completed fine-tuned model as the PLM
  *   Body: { action: 'activate', jobId }
  * 
- * - 'sync': Force sync job status from Together AI to our database
+ * - 'sync': Force sync job status from Fireworks AI to our database
  *   Body: { action: 'sync', jobId }
  */
 export async function POST(req: Request) {
@@ -188,7 +188,7 @@ export async function POST(req: Request) {
 }
 
 /**
- * Sync job status from Together AI to our database
+ * Sync job status from Fireworks AI to our database
  */
 async function syncJobStatus(jobId: string, status: {
   status: string;
@@ -197,7 +197,7 @@ async function syncJobStatus(jobId: string, status: {
 }) {
   const updates: Record<string, unknown> = {};
 
-  // Map Together AI status to our status
+  // Map Fireworks AI job state to our status
   switch (status.status) {
     case 'completed':
       updates.status = 'completed';
@@ -307,7 +307,7 @@ function getNextSteps(status: string, modelId: string | undefined, jobId: string
     case 'completed':
       return modelId 
         ? `Training complete! Run POST /api/training/job with { action: 'activate', jobId: '${jobId}' } to use this model as your PLM.`
-        : 'Training complete but no model ID found. Check Together AI dashboard.';
+        : 'Training complete but no model ID found. Check Fireworks AI dashboard.';
     case 'failed':
       return 'Training failed. Check the error field for details.';
     case 'cancelled':

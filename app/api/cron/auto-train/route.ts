@@ -98,6 +98,14 @@ export async function POST(request: NextRequest) {
         if (!jobStatus) continue;
 
         if (jobStatus.status === 'completed' && jobStatus.fine_tuned_model) {
+          // Deploy LoRA model on Fireworks serverless before activating
+          const deployed = await tuner.deployModel(jobStatus.fine_tuned_model);
+          if (!deployed) {
+            console.warn(`[AutoTrain] Deploy failed for ${jobStatus.fine_tuned_model}, will retry next cycle`);
+            jobStillRunning = true;
+            continue;
+          }
+
           // Auto-activate: update export + twins
           await supabase.from('training_exports').update({
             status: 'active',
@@ -127,7 +135,7 @@ export async function POST(request: NextRequest) {
             user_id: userId,
             action_type: 'plm_auto_activated',
             summary: `New PLM activated: ${jobStatus.fine_tuned_model}`,
-            details: { exportId: exp.id, jobId: exp.training_job_id, model: jobStatus.fine_tuned_model },
+            details: { exportId: exp.id, jobId: exp.training_job_id, model: jobStatus.fine_tuned_model, provider: 'fireworks' },
             requires_attention: false
           });
 

@@ -98,14 +98,14 @@ export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   orchestrator: {
     weightingStrategy: 'query-adaptive',
     model: {
-      provider: 'together',
-      model: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
+      provider: 'fireworks',
+      model: 'accounts/fireworks/models/kimi-k2p5',
       temperature: 0.7
     }
   },
   plm: {
-    trainingProvider: 'together',
-    baseModel: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
+    trainingProvider: 'fireworks',
+    baseModel: 'accounts/fireworks/models/kimi-k2p5',
     retrainingFrequency: 'on-demand',
     maturityThresholds: {
       worldview: 0.7,
