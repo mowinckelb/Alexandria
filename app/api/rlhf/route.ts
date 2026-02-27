@@ -80,7 +80,7 @@ export async function POST(req: Request) {
           format: 'dpo_jsonl',
           pairCount: pairs.length,
           data: jsonl,
-          usage: 'Upload to Together AI with DPO training format'
+          usage: 'Upload to Fireworks AI with DPO training format'
         });
       }
 

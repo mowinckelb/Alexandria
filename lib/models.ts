@@ -3,20 +3,19 @@
  * 
  * Centralized model selection. Model-agnostic by design (Axiom).
  * 
- * Priority chain: Anthropic (if key set) → Groq → Together AI fallback
+ * Priority chain: Anthropic (if key set) → Groq → Fireworks fallback
  * 
  * Env vars:
  *   ANTHROPIC_API_KEY  - Anthropic (Claude) — best quality, recommended
  *   GROQ_API_KEY       - Groq (Llama) — fast and free-tier friendly
- *   TOGETHER_API_KEY   - Together AI — embeddings, PLM fine-tuning, fallback LLM
+ *   FIREWORKS_API_KEY  - Fireworks AI — PLM fine-tuning + inference (Kimi K2.5)
  *   OPENAI_API_KEY     - OpenAI — Whisper, Assistants, Vision
  */
 
 import { type LanguageModel } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
-import { createTogetherAI } from '@ai-sdk/togetherai';
+import { createFireworks } from '@ai-sdk/fireworks';
 import { createAnthropic } from '@ai-sdk/anthropic';
-import Together from 'together-ai';
 import OpenAI from 'openai';
 
 // ============================================================================
@@ -24,16 +23,21 @@ import OpenAI from 'openai';
 // ============================================================================
 
 export const groqProvider = createGroq({ apiKey: process.env.GROQ_API_KEY });
-export const togetherProvider = createTogetherAI({ apiKey: process.env.TOGETHER_API_KEY });
+export const fireworksProvider = createFireworks({ apiKey: process.env.FIREWORKS_API_KEY });
 export const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-export const togetherClient = new Together({ apiKey: process.env.TOGETHER_API_KEY });
 
 const anthropicProvider = process.env.ANTHROPIC_API_KEY
   ? createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
   : null;
 
 // ============================================================================
-// Model Getters — priority: Anthropic → Groq → Together
+// PLM Base Model (Fireworks)
+// ============================================================================
+
+export const PLM_BASE_MODEL = 'accounts/fireworks/models/kimi-k2p5';
+
+// ============================================================================
+// Model Getters — priority: Anthropic → Groq → Fireworks
 // ============================================================================
 
 /**
@@ -67,7 +71,7 @@ export function getFallbackQualityModel(): LanguageModel {
   if (anthropicProvider) {
     return anthropicProvider('claude-sonnet-4-6') as LanguageModel;
   }
-  return togetherProvider('meta-llama/Llama-3.3-70B-Instruct-Turbo') as LanguageModel;
+  return fireworksProvider('accounts/fireworks/models/llama-v3p1-70b-instruct') as LanguageModel;
 }
 
 export function getModelConfig() {
@@ -77,9 +81,8 @@ export function getModelConfig() {
     quality: anthropicProvider ? 'claude-sonnet-4-6' : (process.env.GROQ_QUALITY_MODEL || 'llama-3.3-70b-versatile'),
     fast: anthropicProvider ? 'claude-sonnet-4-6' : (process.env.GROQ_FAST_MODEL || 'llama-3.1-8b-instant'),
     embeddings: 'BAAI/bge-base-en-v1.5',
-    plm: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
+    plm: PLM_BASE_MODEL,
   };
 }
 
 export const groq = groqProvider;
-

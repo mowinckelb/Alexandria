@@ -3,7 +3,7 @@ import { getTrainingTools } from '@/lib/factory';
 
 /**
  * GET /api/training/debug
- * Debug endpoint to check Together AI file status
+ * Debug endpoint to check Fireworks AI dataset status
  */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

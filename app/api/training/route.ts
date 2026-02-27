@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getTrainingTools } from '@/lib/factory';
+import { PLM_BASE_MODEL } from '@/lib/models';
 
 // Force Node.js runtime for file system access
 export const runtime = 'nodejs';
@@ -68,7 +69,7 @@ export async function GET(req: Request) {
     available: availableCount,
     high_quality: highQuality || 0,
     ready: availableCount >= 100,
-    active_model: activeModel || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
+    active_model: activeModel || PLM_BASE_MODEL,
     recent_exports: exports || [],
     version: completedCount,
     last_trained_at: lastTrained,
@@ -82,7 +83,7 @@ export async function GET(req: Request) {
  * - 'export' (default): Export JSONL and optionally create export batch record
  *   Body: { userId, minQuality?, createExport? }
  * 
- * - 'start': Full training pipeline - export, upload to Together AI, start fine-tune job
+ * - 'start': Full training pipeline - export, upload to Fireworks AI, start fine-tune job
  *   Body: { action: 'start', userId, minQuality?, nEpochs?, lora? }
  */
 export async function POST(req: Request) {
@@ -190,7 +191,7 @@ async function handleExport(userId: string, body: { minQuality?: number; createE
         user_id: userId,
         pair_count: pairs.length,
         min_quality_threshold: minQuality,
-        base_model_id: baseModel || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct',
+        base_model_id: baseModel || PLM_BASE_MODEL,
         status: 'exported'
       })
       .select('id')
@@ -219,8 +220,8 @@ async function handleExport(userId: string, body: { minQuality?: number; createE
 /**
  * Handle 'start' action - full training pipeline
  * 1. Export JSONL from training_pairs
- * 2. Upload to Together AI
- * 3. Start fine-tuning job
+ * 2. Upload dataset to Fireworks AI
+ * 3. Start supervised fine-tuning job
  * 4. Create/update training_exports record
  */
 async function handleStartTraining(
@@ -228,23 +229,19 @@ async function handleStartTraining(
   body: { 
     minQuality?: number; 
     nEpochs?: number; 
-    lora?: boolean;
     loraR?: number;
     loraAlpha?: number;
     learningRate?: number;
-    batchSize?: number;
     forceMinimum?: number;
-    baseModel?: string;  // Override base model (e.g. switch to Llama 4)
+    baseModel?: string;
   }
 ) {
   const { 
     minQuality = 0.4, 
-    nEpochs = 3, 
-    lora = true,
+    nEpochs = 1,
     loraR,
     loraAlpha,
     learningRate,
-    batchSize,
     forceMinimum
   } = body;
 
@@ -290,22 +287,24 @@ async function handleStartTraining(
   } else {
     const { data: activeModel } = await supabase
       .rpc('get_active_model', { p_user_id: userId });
-    baseModelId = activeModel || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct';
+    baseModelId = activeModel || PLM_BASE_MODEL;
   }
 
-  // Step 3b: Find previous completed training job for checkpoint continuation
-  // Skip checkpoint when base model is explicitly overridden (fresh start on new architecture)
-  let fromCheckpoint: string | undefined;
+  // Step 3b: Find previous fine-tuned model for warm-start (continued training)
+  // Skip when base model is explicitly overridden (fresh start on new architecture)
+  let warmStartFrom: string | undefined;
   if (!body.baseModel) {
     const { data: previousExport } = await supabase
       .from('training_exports')
-      .select('training_job_id')
+      .select('resulting_model_id')
       .eq('user_id', userId)
       .eq('status', 'active')
       .order('completed_at', { ascending: false })
       .limit(1)
       .single();
-    fromCheckpoint = previousExport?.training_job_id || undefined;
+    // Only warm-start from Fireworks models (accounts/ prefix)
+    const prevModel = previousExport?.resulting_model_id;
+    warmStartFrom = prevModel?.startsWith('accounts/') ? prevModel : undefined;
   }
 
   // Step 4: Create export record (status: 'uploading')
@@ -334,19 +333,18 @@ async function handleStartTraining(
     .update({ export_id: exportId })
     .in('id', pairIds);
 
-  // Step 5: Upload JSONL to Together AI
+  // Step 5: Upload JSONL to Fireworks AI
   const filename = `ghost-${userId.slice(0, 8)}-${Date.now()}.jsonl`;
   const uploadResult = await tuner.upload(jsonl, filename);
 
   if (!uploadResult) {
-    // Update export status to failed
     await supabase
       .from('training_exports')
       .update({ status: 'upload_failed' })
       .eq('id', exportId);
 
     return NextResponse.json({ 
-      error: 'Failed to upload training data to Together AI',
+      error: 'Failed to upload training data to Fireworks AI',
       export_id: exportId,
       details: (typeof tuner.getLastUploadError === 'function' ? tuner.getLastUploadError() : null)
     }, { status: 500 });
@@ -361,51 +359,38 @@ async function handleStartTraining(
     })
     .eq('id', exportId);
 
-  // Step 6: Start fine-tuning job
-  // Use fromCheckpoint for incremental training — skip when base model is explicitly overridden
-  const continuedModel = (!body.baseModel && baseModelId.includes('ghost-')) ? baseModelId : undefined;
+  // Step 6: Start fine-tuning job on Fireworks AI
   let trainResult = await tuner.train(
     uploadResult.fileId,
     userId,
-    continuedModel,
+    undefined,
     {
       nEpochs,
-      lora,
       loraR,
       loraAlpha,
       learningRate,
-      batchSize,
-      fromCheckpoint  // Continue from previous job if available
+      warmStartFrom,
     }
   );
 
-  // Safety fallback: if continuation from an older fine-tuned model fails,
-  // retry from the reference base model so training can proceed.
-  if (!trainResult && continuedModel) {
+  // Safety fallback: if warm-start from previous model fails, retry from base
+  if (!trainResult && warmStartFrom) {
     trainResult = await tuner.train(
       uploadResult.fileId,
       userId,
       undefined,
-      {
-        nEpochs,
-        lora,
-        loraR,
-        loraAlpha,
-        learningRate,
-        batchSize
-      }
+      { nEpochs, loraR, loraAlpha, learningRate }
     );
   }
 
   if (!trainResult) {
-    // Update export status to failed
     await supabase
       .from('training_exports')
       .update({ status: 'training_failed' })
       .eq('id', exportId);
 
     return NextResponse.json({ 
-      error: 'Failed to start fine-tuning job on Together AI',
+      error: 'Failed to start fine-tuning job on Fireworks AI',
       export_id: exportId,
       file_id: uploadResult.fileId,
       details: (typeof tuner.getLastTrainError === 'function' ? tuner.getLastTrainError() : null)
@@ -430,14 +415,12 @@ async function handleStartTraining(
     pairs_count: pairs.length,
     avg_quality: pairs.reduce((sum, p) => sum + p.quality_score, 0) / pairs.length,
     base_model: baseModelId,
-    from_checkpoint: fromCheckpoint || null,
+    warm_start_from: warmStartFrom || null,
     training_config: {
       epochs: nEpochs,
-      lora,
       loraR,
       loraAlpha,
       learningRate,
-      batchSize
     },
     message: `Training job started. Poll GET /api/training/job?jobId=${trainResult.jobId} to check status.`
   });

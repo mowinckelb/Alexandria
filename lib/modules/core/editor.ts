@@ -6,7 +6,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateText } from 'ai';
 import { z } from 'zod';
-import { getFastModel, getQualityModel, getFallbackQualityModel, togetherProvider } from '@/lib/models';
+import { getFastModel, getQualityModel, getFallbackQualityModel, fireworksProvider } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
 import type { Constitution, ConstitutionSections } from '@/lib/modules/constitution/types';
 import { createEmptyConstitutionSections } from '@/lib/modules/constitution/types';
@@ -283,7 +283,7 @@ Be AGGRESSIVE about extracting signal. Every piece of data should yield somethin
     } catch (primaryErr: unknown) {
       const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
       if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit')) {
-        console.warn('[Editor] Rate limited, falling back to Together AI');
+        console.warn('[Editor] Rate limited, using fallback model');
         const genResult = await generateText({
           model: getFallbackQualityModel(),
           system: 'Extract training examples and observations from the text. Return JSON with "extraction" containing "subjective" array, and "notepadUpdates". Return ONLY JSON.',
@@ -576,7 +576,7 @@ Extract EVERYTHING you can from the data. Be specific and detailed. Every field 
     const notepadContext = this.formatNotepadContext(notepad);
     const statsContext = this.formatStatsContext(trainingStats);
     
-    // 6. Generate Editor response (with fallback to Together AI on rate limit)
+    // 6. Generate Editor response (with fallback on rate limit)
     const editorMessages = [
       {
         role: 'system' as const,
@@ -634,7 +634,7 @@ CRITICAL RULES:
     } catch (primaryErr: unknown) {
       const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
       if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit')) {
-        console.warn('[Editor] Groq rate limited, falling back to Together AI');
+        console.warn('[Editor] Groq rate limited, using fallback model');
         const result = await generateText({ model: getFallbackQualityModel(), messages: editorMessages });
         rawResponse = result.text;
       } else {
@@ -1436,7 +1436,7 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`,
     for (const prompt of prompts) {
       try {
         const { text } = await generateText({
-          model: togetherProvider(plmModelId),
+          model: fireworksProvider(plmModelId),
           messages: [
             {
               role: 'system',

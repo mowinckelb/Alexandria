@@ -14,7 +14,7 @@ import { ConstitutionManager } from './modules/constitution/manager';
 // LEGACY: Keep for backward compatibility during transition
 import { GroqRefiner } from './modules/subjective/refiner';
 import { GroqExtractor } from './modules/objective/extractor';
-import { TogetherTuner } from './modules/subjective/tuner';
+import { FireworksTuner } from './modules/subjective/tuner';
 import { SupabaseIndexer } from './modules/objective/indexer';
 import { FeedbackProcessor } from './modules/rlhf/feedback-processor';
 import { TrainingAssessor } from './modules/training/training-assessor';
@@ -83,7 +83,7 @@ export function getConstitutionManager(): ConstitutionManager {
 
 const refiner = new GroqRefiner();
 const extractor = new GroqExtractor();
-const tuner = new TogetherTuner();
+const tuner = new FireworksTuner();
 const indexer = new SupabaseIndexer();
 const editorNotes = new EditorNotes();
 const feedbackProcessor = new FeedbackProcessor();
