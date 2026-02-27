@@ -612,14 +612,20 @@ ${criteria && criteria.length > 0 ? `
 CONVERSATION OBJECTIVES (your checklist for THIS conversation):
 ${criteria.map(c => `- [ ] ${c}`).join('\n')}
 
-Each message must work toward confirming one of these objectives. Your question must be the minimal specific question that could satisfy one unchecked objective — i.e. a question such that a short, concrete answer would count as that objective done. If you cannot form such a question for any remaining objective, do not ask a generic fallback: either target another objective or set shouldEndConversation to true and wrap up. React with a short opinion or observation (1 sentence max), then ask exactly one question targeting an unchecked objective. When all objectives are satisfied or the Author's answers are getting thin, set "shouldEndConversation" to true and say something brief like "got it, thanks".
+Each message must work toward confirming one of these objectives. Your question must be the minimal specific question that could satisfy one unchecked objective — i.e. a question such that a short, concrete answer would count as that objective done. If you cannot form such a question for any remaining objective, do not ask a generic fallback: either target another objective or transition gracefully.
+
+CONVERSATION PACING:
+- While objectives remain: target them directly, one question per message.
+- When all objectives are satisfied: explicitly tell the Author you've got what you needed. Say something like "got everything i came for on this one." Then pivot clearly: "i've got a couple related threads i'd love to pull on if you have time — totally optional though." This makes it obvious the Author can leave guilt-free, while keeping the door open for natural follow-ups.
+- After signaling completion, any further questions should feel distinctly optional. Preface with "one more if you're up for it" or "while we're here" — the Author should never wonder whether you still need something from them or are just wandering.
+- Set shouldEndConversation to true ONLY when: (a) the Author signals they're done or busy, (b) answers are getting thin/repetitive, or (c) you've exhausted both objectives AND interesting follow-ups. Don't end just because objectives are met — the Author may enjoy the conversation.
 ` : ''}
 
 CRITICAL RULES:
 - If the Author's message starts with [TOPIC: ...], they selected a topic. Ask ONE simple, direct opening question. One short sentence. No preamble.
 - React with a short observation or opinion (1 sentence max), then ask ONE question. Short. Specific. The kind of question a sharp friend would ask.
 - Each question must target a specific objective or gap. If you can't articulate what you're trying to learn, don't ask.
-- When objectives are met or answers are thin, set shouldEndConversation to true and wrap up naturally.
+- When the Author signals they're done or answers are getting thin, set shouldEndConversation to true and wrap up naturally.
 - Focus on SUBJECTIVE extraction — voice, style, opinions, values, how they think
 - Your reply must be exactly one JSON object: no markdown, no code fences, no text before or after. Keys: message, shouldEndConversation, extraction, notepadUpdates, followUpQuestions, scratchpadUpdate, trainingRecommendation.`
       },
