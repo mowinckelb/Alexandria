@@ -4,7 +4,7 @@
 // Verify: two-way conversation works, notepad updates, training pairs generated
 
 import { createClient } from '@supabase/supabase-js';
-import { generateText, Output, NoOutputGeneratedError } from 'ai';
+import { generateText } from 'ai';
 import { z } from 'zod';
 import { getFastModel, getQualityModel, getFallbackQualityModel, togetherProvider } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
@@ -627,45 +627,22 @@ CRITICAL RULES:
       { role: 'user' as const, content: authorInput }
     ];
 
-    let parsed: EditorResponse & { scratchpadUpdate?: string };
+    let rawResponse: string;
     try {
-      const model = getQualityModel();
-      const result = await generateText({
-        model,
-        messages: editorMessages,
-        experimental_output: Output.object({ schema: editorOutputSchema })
-      });
-      const out = result.experimental_output as z.infer<typeof editorOutputSchema>;
-      parsed = {
-        message: out.message,
-        shouldEndConversation: out.shouldEndConversation,
-        extraction: { raw: authorInput, subjective: out.extraction.subjective },
-        constitutionUpdates: out.constitutionUpdates,
-        notepadUpdates: out.notepadUpdates,
-        followUpQuestions: out.followUpQuestions,
-        trainingRecommendation: out.trainingRecommendation,
-        scratchpadUpdate: out.scratchpadUpdate
-      };
-    } catch (structuredErr: unknown) {
-      if (NoOutputGeneratedError.isInstance(structuredErr)) {
-        console.warn('[Editor] Structured output failed, falling back to text + parse:', structuredErr);
-      }
-      let rawResponse: string;
-      try {
-        const result = await generateText({ model: getQualityModel(), messages: editorMessages });
+      const result = await generateText({ model: getQualityModel(), messages: editorMessages });
+      rawResponse = result.text;
+    } catch (primaryErr: unknown) {
+      const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
+      if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit')) {
+        console.warn('[Editor] Groq rate limited, falling back to Together AI');
+        const result = await generateText({ model: getFallbackQualityModel(), messages: editorMessages });
         rawResponse = result.text;
-      } catch (primaryErr: unknown) {
-        const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
-        if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('Rate limit')) {
-          console.warn('[Editor] Groq rate limited, falling back to Together AI');
-          const result = await generateText({ model: getFallbackQualityModel(), messages: editorMessages });
-          rawResponse = result.text;
-        } else {
-          throw primaryErr;
-        }
+      } else {
+        throw primaryErr;
       }
-      parsed = this.parseAndValidateResponse(rawResponse, authorInput);
     }
+
+    const parsed = this.parseAndValidateResponse(rawResponse, authorInput);
     
     // 7. Store raw entry
     await this.storeRawEntry(authorInput, userId);
