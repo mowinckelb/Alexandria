@@ -110,7 +110,7 @@ async function handleResetFailed(userId: string) {
     .from('training_exports')
     .select('id')
     .eq('user_id', userId)
-    .in('status', ['upload_failed', 'training_failed']);
+    .in('status', ['upload_failed', 'training_failed', 'cancelled']);
 
   if (findError) {
     return NextResponse.json({ error: findError.message }, { status: 500 });
@@ -233,7 +233,8 @@ async function handleStartTraining(
     loraAlpha?: number;
     learningRate?: number;
     batchSize?: number;
-    forceMinimum?: number;  // Allow training with fewer pairs for testing
+    forceMinimum?: number;
+    baseModel?: string;  // Override base model (e.g. switch to Llama 4)
   }
 ) {
   const { 
@@ -281,22 +282,31 @@ async function handleStartTraining(
     ]
   })).join('\n');
 
-  // Step 3: Get current active model for evolution chain
-  const { data: baseModel } = await supabase
-    .rpc('get_active_model', { p_user_id: userId });
-  const baseModelId = baseModel || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct';
+  // Step 3: Get base model — explicit override takes priority, then active model, then default
+  let baseModelId: string;
+  if (body.baseModel) {
+    baseModelId = body.baseModel;
+    console.log(`[Training] Using explicit base model override: ${baseModelId}`);
+  } else {
+    const { data: activeModel } = await supabase
+      .rpc('get_active_model', { p_user_id: userId });
+    baseModelId = activeModel || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct';
+  }
 
   // Step 3b: Find previous completed training job for checkpoint continuation
-  const { data: previousExport } = await supabase
-    .from('training_exports')
-    .select('training_job_id')
-    .eq('user_id', userId)
-    .eq('status', 'active')
-    .order('completed_at', { ascending: false })
-    .limit(1)
-    .single();
-  
-  const fromCheckpoint = previousExport?.training_job_id || undefined;
+  // Skip checkpoint when base model is explicitly overridden (fresh start on new architecture)
+  let fromCheckpoint: string | undefined;
+  if (!body.baseModel) {
+    const { data: previousExport } = await supabase
+      .from('training_exports')
+      .select('training_job_id')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .order('completed_at', { ascending: false })
+      .limit(1)
+      .single();
+    fromCheckpoint = previousExport?.training_job_id || undefined;
+  }
 
   // Step 4: Create export record (status: 'uploading')
   const { data: exportRecord, error: exportError } = await supabase
@@ -352,8 +362,8 @@ async function handleStartTraining(
     .eq('id', exportId);
 
   // Step 6: Start fine-tuning job
-  // Use fromCheckpoint for incremental training (continues from previous job)
-  const continuedModel = baseModelId.includes('ghost-') ? baseModelId : undefined;
+  // Use fromCheckpoint for incremental training — skip when base model is explicitly overridden
+  const continuedModel = (!body.baseModel && baseModelId.includes('ghost-')) ? baseModelId : undefined;
   let trainResult = await tuner.train(
     uploadResult.fileId,
     userId,
