@@ -98,12 +98,10 @@ export async function POST(request: NextRequest) {
         if (!jobStatus) continue;
 
         if (jobStatus.status === 'completed' && jobStatus.fine_tuned_model) {
-          // Deploy LoRA model on Fireworks serverless before activating
+          // Try to deploy LoRA model (non-blocking — some base models don't support serverless addons)
           const deployed = await tuner.deployModel(jobStatus.fine_tuned_model);
           if (!deployed) {
-            console.warn(`[AutoTrain] Deploy failed for ${jobStatus.fine_tuned_model}, will retry next cycle`);
-            jobStillRunning = true;
-            continue;
+            console.warn(`[AutoTrain] Deploy skipped/failed for ${jobStatus.fine_tuned_model} — activating anyway (inference may use base model fallback)`);
           }
 
           // Auto-activate: update export + twins

@@ -69,7 +69,7 @@ export async function GET(req: Request) {
     available: availableCount,
     high_quality: highQuality || 0,
     ready: availableCount >= 100,
-    active_model: activeModel || PLM_BASE_MODEL,
+    active_model: (activeModel && activeModel.startsWith('accounts/')) ? activeModel : PLM_BASE_MODEL,
     recent_exports: exports || [],
     version: completedCount,
     last_trained_at: lastTrained,

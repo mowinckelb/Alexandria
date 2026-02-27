@@ -299,9 +299,9 @@ export class FireworksTuner {
 
       const job = await resp.json();
       const status = FIREWORKS_STATE_MAP[job.state] || 'pending';
-      const outputModelId: string = job.outputModel || '';
-      const outputModelName = outputModelId
-        ? `accounts/${this.accountId}/models/${outputModelId}`
+      const rawOutputModel: string = job.outputModel || '';
+      const outputModelName = rawOutputModel
+        ? (rawOutputModel.startsWith('accounts/') ? rawOutputModel : `accounts/${this.accountId}/models/${rawOutputModel}`)
         : undefined;
 
       return {
@@ -309,7 +309,7 @@ export class FireworksTuner {
         status,
         model: job.baseModel || job.warmStartFrom || BASE_MODEL,
         training_file: job.dataset || '',
-        output_name: outputModelId,
+        output_name: rawOutputModel,
         created_at: job.createTime || '',
         updated_at: job.updateTime,
         finished_at: job.completedTime,
@@ -376,18 +376,17 @@ export class FireworksTuner {
         const name = (job.name as string) || '';
         const id = name.split('/').pop() || name;
         const state = FIREWORKS_STATE_MAP[(job.state as string)] || 'pending';
-        const outputModelId = (job.outputModel as string) || '';
+        const rawOutput = (job.outputModel as string) || '';
+        const fullModelName = rawOutput.startsWith('accounts/') ? rawOutput : `accounts/${this.accountId}/models/${rawOutput}`;
         return {
           id,
           status: state,
           model: (job.baseModel as string) || BASE_MODEL,
           training_file: (job.dataset as string) || '',
-          output_name: outputModelId,
+          output_name: rawOutput,
           created_at: (job.createTime as string) || '',
           finished_at: (job.completedTime as string) || undefined,
-          fine_tuned_model: state === 'completed' && outputModelId
-            ? `accounts/${this.accountId}/models/${outputModelId}`
-            : undefined,
+          fine_tuned_model: state === 'completed' && rawOutput ? fullModelName : undefined,
         } as JobStatus;
       });
     } catch (error) {

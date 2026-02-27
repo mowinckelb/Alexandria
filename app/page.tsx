@@ -1890,7 +1890,7 @@ export default function Alexandria() {
                 className="block w-full text-left px-4 py-1.5 text-[0.7rem] bg-transparent border-none cursor-pointer opacity-35 hover:opacity-60 transition-opacity"
                 style={{ color: 'var(--text-primary)' }}
               >
-                {agentsPaused ? 'resume agents' : 'pause agents'}
+                {agentsPaused ? 'resume' : 'pause'}
               </button>
               <button
                 onClick={() => { handleLogout(); setShowNav(false); }}
