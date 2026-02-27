@@ -1,7 +1,7 @@
 // @CRITICAL: Memory storage - all ingestion and Ghost recall depends on this
 // Verify: data actually stored in memory_fragments, recall returns results
 import { createClient } from '@supabase/supabase-js';
-import Together from 'together-ai';
+import OpenAI from 'openai';
 
 interface MemoryMetadata {
   entities?: string[];
@@ -32,13 +32,16 @@ function calculateRecencyFactor(createdAt: string): number {
 
 export class SupabaseIndexer {
   private supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
-  private together = new Together({ apiKey: process.env.TOGETHER_API_KEY });
+  private fireworks = new OpenAI({
+    baseURL: 'https://api.fireworks.ai/inference/v1',
+    apiKey: process.env.FIREWORKS_API_KEY,
+  });
 
   async ingest(fact: string, userId: string, metadata: MemoryMetadata = {}) {
     console.log(`[Indexer] Ingesting fact for userId: ${userId}`);
     console.log(`[Indexer] Fact: "${fact}"`);
     
-    const response = await this.together.embeddings.create({
+    const response = await this.fireworks.embeddings.create({
       model: "BAAI/bge-base-en-v1.5",
       input: fact
     });
@@ -86,7 +89,7 @@ export class SupabaseIndexer {
     }
 
     // For larger datasets, use enhanced semantic search with weighted ranking
-    const response = await this.together.embeddings.create({
+    const response = await this.fireworks.embeddings.create({
       model: "BAAI/bge-base-en-v1.5",
       input: query
     });
@@ -157,7 +160,7 @@ export class SupabaseIndexer {
     }
 
     // For larger datasets, use enhanced semantic search
-    const response = await this.together.embeddings.create({
+    const response = await this.fireworks.embeddings.create({
       model: "BAAI/bge-base-en-v1.5",
       input: query
     });

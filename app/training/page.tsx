@@ -221,7 +221,7 @@ export default function TrainingPage() {
               <div className="h-2 rounded" style={{ background: 'var(--bg-primary)' }}>
                 <div className="h-full rounded" style={{ width: `${progressPct}%`, background: 'var(--text-subtle)' }} />
               </div>
-              <div className="text-xs opacity-70">active model: {summary.active_model}</div>
+              <div className="text-xs opacity-70">active model: {summary.active_model.includes('ghost-') ? 'Kimi K2.5 (fine-tuned)' : summary.active_model.includes('kimi-k2p5') ? 'Kimi K2.5' : summary.active_model}</div>
               <div className="flex gap-2 pt-1">
                 <button
                   onClick={startTraining}

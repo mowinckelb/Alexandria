@@ -13,14 +13,14 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
  * 1. DPO (Direct Preference Optimization)
  *    - Simpler: No separate reward model needed
  *    - Data: Needs preference pairs (chosen vs rejected for same prompt)
- *    - Together AI: Supported via standard fine-tuning with DPO dataset format
+ *    - Fireworks AI: Supported via standard fine-tuning with DPO dataset format
  *    - Minimum data: ~100 preference pairs
  *    - Best for: When you have clear A/B comparisons
  * 
  * 2. Reward Model + PPO (Traditional RLHF)
  *    - Complex: Train reward model, then RL optimization
  *    - Data: Needs scalar rewards for prompt/response pairs
- *    - Together AI: Would require custom training pipeline
+ *    - Fireworks AI: Would require custom training pipeline
  *    - Minimum data: ~500+ reward examples
  *    - Best for: When you want a reusable reward signal
  * 

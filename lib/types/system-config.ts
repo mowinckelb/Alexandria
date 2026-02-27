@@ -38,7 +38,7 @@ export interface SystemConfig {
   };
 
   plm: {
-    trainingProvider: 'together' | 'fireworks' | 'replicate' | 'openai' | 'local';
+    trainingProvider: 'fireworks' | 'replicate' | 'openai' | 'local';
     baseModel: string;
     retrainingFrequency: 'weekly' | 'monthly' | 'on-demand';
     maturityThresholds: Record<string, number>;

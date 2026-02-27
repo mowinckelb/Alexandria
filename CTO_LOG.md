@@ -39,12 +39,12 @@
 | `memory_fragments` + pgvector | Memories (flat vectors) | ⚠️ Partial | Semantic search works. No graph structure, no entity relationships, no traversal queries |
 | `constitutions` + `active_constitutions` | Constitution | ✅ Working | Versioned storage, extraction, API endpoints, UI panel |
 | Supabase Storage (`carbon-uploads`) | Vault (partial) | ⚠️ Partial | File uploads work. Not append-only. No structured directory. No full export. |
-| `training_pairs` + JSONL export | PLM training pipeline | ✅ Working | Quality scoring, Together AI LoRA fine-tuning, checkpoint support |
+| `training_pairs` + JSONL export | PLM training pipeline | ✅ Working | Quality scoring, Fireworks AI LoRA fine-tuning (Kimi K2.5), checkpoint support |
 | `synthetic_ratings` + RLAIF | Constitutional RLAIF (basic) | ⚠️ Partial | Generates synthetic ratings. No gap identification, no targeted prompts, no iterative loop |
 | `personality_profiles` | Legacy (pre-Constitution) | ✅ Working | Keep for backward compat. Constitution is now primary. |
 | Voice processor + Whisper | Voice processing | ✅ Working | Chunking for large files, transcription, Vault storage |
 | Website UI | Author input (text) | ✅ Working | Chat interface, file upload modal, Constitution panel |
-| `.env.example`, `lib/models.ts` | Provider config | ✅ Clean | Centralized providers (Groq, Together, OpenAI), env-based model selection |
+| `.env.example`, `lib/models.ts` | Provider config | ✅ Clean | Centralized providers (Groq, Fireworks, OpenAI, Anthropic), env-based model selection |
 
 ### What DOES NOT exist yet:
 | Component | Vision Term | Priority | Why |
@@ -79,7 +79,7 @@
 |---|------|--------|------------|--------|
 | A1 | **Voice notes bootstrap pipeline** | Medium | Voice processor (exists), Whisper (exists) | Batch-process founder's voice memos → Vault + entries + memories + training pairs |
 | A2 | **Constitution extraction from voice data** | Low | A1 | Run Constitution extraction on the full corpus. First real Constitution. |
-| A3 | **PLM training batch** | Low | A1, A2 | Push accumulated training pairs to Together AI. First real fine-tuned PLM. |
+| A3 | **PLM training batch** | Low | A1, A2 | Push accumulated training pairs to Fireworks AI. First real fine-tuned PLM (Kimi K2.5 base). |
 
 ### Phase B: Make the Editor Autonomous (HIGH PRIORITY)
 **Why:** The Editor being always-alive is what makes Alexandria a Machine, not just an app. Without this, the system only works when the Author is actively chatting. With Vercel Pro, we now have cron jobs (up to 300s timeout).
@@ -100,7 +100,7 @@
 | C2 | **Targeted synthetic prompt generation** | Medium | C1 | Generate prompts specifically testing underrepresented Constitution areas |
 | C3 | **Constitutional evaluation scoring** | Medium | C2, Constitution | LLM evaluates PLM response against Constitution rubric (values, models, heuristics, style) |
 | C4 | **Confidence routing** | Low | C3 | High → auto-approve, Medium → Author review queue, Low → flag + ask Author |
-| C5 | **Automated batch training trigger** | Medium | C4, B2 | When enough high-quality pairs accumulate, auto-push to Together AI |
+| C5 | **Automated batch training trigger** | Medium | C4, B2 | When enough high-quality pairs accumulate, auto-push to Fireworks AI |
 
 ### Phase D: Structured Data (MEDIUM PRIORITY)
 **Why:** Graph memories and proper Vault unlock the data model the vision requires.
@@ -159,7 +159,7 @@
 | Constitution System | 2026-02-10 | ✅ Extraction from training data, versioning, Vault sync, LLM-based update proposals |
 | Voice Processor | 2026-02-10 | ✅ Batch processing, Whisper transcription with chunking, Vault storage, Editor integration |
 | Migration Documentation | 2026-02-10 | ✅ ARCHITECTURE.md, COMPONENTS.md, DECISIONS.md, MIGRATION_PLAN.md |
-| Together AI training pipeline | 2026-01-02 | ✅ COMPLETE. JSONL export → Python upload → LoRA fine-tune → model activation. PLM now uses fine-tuned model with memories. Checkpoint training noted as future enhancement. |
+| Together AI training pipeline | 2026-01-02 | ✅ COMPLETE → Migrated to Fireworks AI (2026-02-21). JSONL export → upload → LoRA fine-tune → model activation. PLM base: Kimi K2.5. |
 | Agent compliance enforcement (all files) | 2025-01-01 | Added compliance verification requirement, updated .cursor/rules, added enforcement headers to ALEXANDRIA_CONTEXT.md and CTO_LOG.md, added tripwire acknowledgment requirement. |
 | MOWINCKEL.md overhaul | 2025-01-01 | Complete rewrite for agent compliance: non-negotiable rules, decision authority levels, mandatory session protocols, verification requirements, common mistakes table. |
 | RLAIF synthetic feedback | 2025-01-01 | Editor evaluates PLM responses, generates synthetic good/bad ratings. Auto-approve high confidence, queue low for Author review. |
@@ -187,7 +187,7 @@
 
 | Issue | Impact | Effort | Suggested Fix |
 |-------|--------|--------|---------------|
-| Together AI JS SDK file upload broken | Uploads to R2 but never processed | N/A | Using Python SDK wrapper as workaround. Monitor if JS SDK gets fixed. |
+| ~~Together AI JS SDK file upload broken~~ | ~~Uploads to R2 but never processed~~ | ✅ RESOLVED | Together AI removed entirely. Now using Fireworks AI for all training + embeddings. |
 | ~~Vercel free tier - no real cron~~ | ~~Queue processing requires browser open~~ | ✅ RESOLVED | Vercel Pro now active. Cron jobs available. |
 | input-chat doesn't stream questions | Minor UX - text appears all at once | Medium | Buffer first word, stream rest if not SAVE |
 | Auth routes duplicate Supabase client setup | Code duplication | Low | Extract to shared lib/supabase.ts |
@@ -200,7 +200,7 @@
 ## Future RL Training Path
 *When ready to upgrade from iterative Constitutional SFT to actual RL:*
 
-**Current approach:** Together AI LoRA SFT. Constitutional evaluation filters training pairs. Iterative cycles improve quality. This is the right approach for bootstrapping.
+**Current approach:** Fireworks AI LoRA SFT on Kimi K2.5. Constitutional evaluation filters training pairs. Iterative cycles improve quality. This is the right approach for bootstrapping.
 
 **Upgrade path:** Prime Intellect RFT (Reinforcement Fine-Tuning). Hosted RL training on A100/H100 clusters. Requires writing a custom verifier that scores PLM outputs against Constitution (LLM-as-judge). Not plug-and-play but technically feasible. Investigate when we have: (1) a mature Constitution with good coverage, (2) enough training data to justify RL over SFT, (3) budget for GPU reservations.
 
@@ -304,7 +304,7 @@ After feedback:
 ### Core Loops Fixed:
 - **Editor conversation broken** — `Output.object()` not supported by Groq's llama-3.3-70b. Removed structured output, switched to prompt-based JSON with Zod validation. Editor now returns conversational, contextual responses with proper extraction.
 - **RLAIF flywheel verified** — Triggered full cycle: synthetic prompts generated targeting Constitution gaps, PLM responses evaluated, confidence routing applied (1 auto-approved, 2 queued for review). Relaxed UUID validation on RLAIF route.
-- **Training pipeline verified** — 33 training pairs uploaded to Together AI, LoRA fine-tuning job started (job: ft-047b3991-ee3b).
+- **Training pipeline verified** — 33 training pairs uploaded to Together AI (later migrated to Fireworks AI), LoRA fine-tuning job started.
 
 ### Crons Wired:
 - Added `editor-cycle` (every 10 min), `auto-train` (every 12h), `constitution-refresh` (every 6h) to `vercel.json`

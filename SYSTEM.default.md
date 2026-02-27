@@ -27,8 +27,8 @@ This document is the human-readable default Blueprint aligned with `system-confi
 
 ## PLM Training Defaults
 
-- Provider: Together.
-- Base model: Meta-Llama-3.1-8B-Instruct-Turbo.
+- Provider: Fireworks AI.
+- Base model: Kimi K2.5 (accounts/fireworks/models/kimi-k2p5).
 - Retrain cadence: on-demand (batch threshold based).
 - Maturity is disaggregated by Constitution section.
 

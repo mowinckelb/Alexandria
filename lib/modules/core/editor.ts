@@ -6,7 +6,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateText } from 'ai';
 import { z } from 'zod';
-import { getFastModel, getQualityModel, getFallbackQualityModel, fireworksProvider } from '@/lib/models';
+import { getFastModel, getQualityModel, getFallbackQualityModel, fireworksProvider, PLM_BASE_MODEL } from '@/lib/models';
 import { ConstitutionManager } from '@/lib/modules/constitution/manager';
 import type { Constitution, ConstitutionSections } from '@/lib/modules/constitution/types';
 import { createEmptyConstitutionSections } from '@/lib/modules/constitution/types';
@@ -1425,7 +1425,7 @@ Focus on SUBJECTIVE prompts (opinions, reactions, style) over factual ones.`,
       .eq('user_id', userId)
       .single();
     
-    const plmModelId = twin?.model_id || 'meta-llama/Llama-4-Maverick-17B-128E-Instruct';
+    const plmModelId = twin?.model_id || PLM_BASE_MODEL;
     
     // Use Constitution as context instead of memory fragments
     const constitution = await this.constitutionManager.getConstitution(userId);

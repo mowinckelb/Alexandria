@@ -279,7 +279,7 @@ PLM (maps to basal ganglia and cerebellum)
 
 Fine-tuned LoRA adapter weights on top of a foundation model. Captures thinking patterns, communication style, cognitive reflexes. Slow-updating — retrains in batches, not continuously (until PPO becomes available). Stored in portable format (safetensors recommended; Vault stores whatever the training provider outputs). Downloadable. Locally runnable. The Author owns these weights.
 
-Training is remote — fine-tuning happens on provider infrastructure (Together AI, etc.). The trained weights are downloadable for sovereignty and local running, but typical usage is remote inference. The PLM is hosted remotely like any other model API. Local running is an option for Authors who want it, not the default path.
+Training is remote — fine-tuning happens on provider infrastructure (Fireworks AI, etc.). The trained weights are downloadable for sovereignty and local running, but typical usage is remote inference. The PLM is hosted remotely like any other model API. Local running is an option for Authors who want it, not the default path.
 
 Maturity is tracked as disaggregated per-domain scores — for example, the PLM might score 0.8 on Values alignment but 0.4 on Domain Expertise in finance. This enables targeted training and dynamic weighting by the Orchestrator.
 
@@ -571,7 +571,7 @@ Step 5 — Confidence routing:
 - Medium confidence (between thresholds): queue for Author review — the Author sees the prompt, the PLM's response, and the evaluator's reasoning, and confirms or corrects
 - Low confidence (below threshold): flag as contradiction — the PLM's response conflicts with the Constitution, which means either the PLM needs more training or the Constitution needs updating. Ask the Author to clarify.
 
-Step 6 — Batch training: Accumulated high-quality training pairs are formatted as JSONL and pushed to the fine-tuning provider (e.g. Together AI) for LoRA fine-tuning. The provider returns new PLM weights. These are versioned and stored in the Vault.
+Step 6 — Batch training: Accumulated high-quality training pairs are formatted as JSONL and pushed to the fine-tuning provider (e.g. Fireworks AI) for LoRA fine-tuning. The provider returns new PLM weights. These are versioned and stored in the Vault.
 
 Step 7 — Iterate: Run inference with new weights. Run Constitutional evaluation again. Generate new synthetic prompts targeting remaining gaps. Repeat. Each cycle produces higher-quality training data because both the Constitution and the PLM improve.
 
@@ -580,7 +580,7 @@ Step 8 — Continuous improvement: The Editor monitors for new gaps (the Author 
 
 TRAINING METHODOLOGY — TODAY VS TERMINAL
 
-Today: iterated Constitutional SFT (Supervised Fine-Tuning). Providers like Together AI offer LoRA fine-tuning via API — upload JSONL of training pairs, get back LoRA weights. They do not offer RLAIF as a service (no reward model training, no PPO, no online RL). The "reinforcement" in Alexandria's current approach comes from iterative filtering: each batch of training data is higher quality than the last because the Constitutional evaluation improves and gaps close. The Constitution acts as a proxy reward signal that scales without requiring human feedback on every training pair.
+Today: iterated Constitutional SFT (Supervised Fine-Tuning). Providers like Fireworks AI offer LoRA fine-tuning via API — upload JSONL of training pairs, get back LoRA weights. They do not offer RLAIF as a service (no reward model training, no PPO, no online RL). The "reinforcement" in Alexandria's current approach comes from iterative filtering: each batch of training data is higher quality than the last because the Constitutional evaluation improves and gaps close. The Constitution acts as a proxy reward signal that scales without requiring human feedback on every training pair.
 
 At Terminal: full PPO-based RLAIF where the Constitutional evaluation serves as the reward model in a proper reinforcement learning loop. This enables continuous online learning rather than batch SFT. This capability is becoming available (Prime Intellect's Open Lab is an early example of remote RL training) and will be standard. The architecture supports both approaches because the evaluation methodology is identical — the Constitution is the rubric. Only the training loop changes. The transition from SFT-based to PPO-based training is a Blueprint decision, not an Axiom.
 
@@ -890,7 +890,7 @@ The phone (edge node) — iMessage conversations with the Editor and Orchestrato
 
 The laptop (data node) — The Vault folder lives here (or in iCloud, accessible from the laptop). The Constitution markdown file. Training pair JSONL files. PLM weight files. The web dashboard runs here. The laptop is where the Author's data physically resides and where heavier management tasks happen.
 
-The cloud (compute node) — The Editor and Orchestrator agents run as LLM calls on remote infrastructure, same as any other AI agent. PLM training happens on provider infrastructure (Together AI, etc.). PLM inference runs remotely. The agents have access to the Vault folder (via sync or direct read) but the compute happens in the cloud. This is the standard pattern for AI agents — remote intelligence operating on local data.
+The cloud (compute node) — The Editor and Orchestrator agents run as LLM calls on remote infrastructure, same as any other AI agent. PLM training happens on provider infrastructure (Fireworks AI, etc.). PLM inference runs remotely. The agents have access to the Vault folder (via sync or direct read) but the compute happens in the cloud. This is the standard pattern for AI agents — remote intelligence operating on local data.
 
 The Author does not need to download the entire Vault to their phone. The Vault lives on the laptop and/or in cloud-synced storage (iCloud). The agents read from it remotely. The phone is just for texting.
 

@@ -161,10 +161,10 @@ function VaultSection({ userId }: { userId: string }) {
 }
 
 function cleanModelName(raw: string): string {
-  // Fireworks PLM: accounts/{account}/models/ghost-xxx → "PLM (Kimi K2.5)"
-  if (raw.includes('/models/ghost-')) return 'PLM (Kimi K2.5)';
-  // Fireworks base: accounts/fireworks/models/kimi-k2p5 → "Kimi K2.5"
-  if (raw.includes('kimi-k2p5') || raw.includes('kimi-k2.5')) return 'Kimi K2.5 (base)';
+  // Fine-tuned LoRA on Kimi K2.5
+  if (raw.includes('/models/ghost-')) return 'Kimi K2.5';
+  // Base Kimi K2.5 (not yet fine-tuned)
+  if (raw.includes('kimi-k2p5') || raw.includes('kimi-k2.5')) return 'Kimi K2.5';
 
   let name = raw.includes('/') ? raw.split('/').pop()! : raw;
   name = name

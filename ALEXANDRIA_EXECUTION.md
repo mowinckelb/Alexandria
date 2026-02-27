@@ -234,7 +234,7 @@ Decision: Scoring dimensions, thresholds, how to combine scores, how to detect g
 
 Decision: What thresholds? How do thresholds adapt as PLM matures?
 
-**C9. Automated batch training trigger** — When enough high-quality pairs accumulate (threshold), auto-push to Together AI for LoRA fine-tuning. Version new weights. Update PLM maturity scores.
+**C9. Automated batch training trigger** — When enough high-quality pairs accumulate (threshold), auto-push to Fireworks AI for LoRA fine-tuning (Kimi K2.5 base). Version new weights. Update PLM maturity scores.
 
 Files: Extend `lib/modules/subjective/tuner.ts`, `lib/modules/training/training-assessor.ts`
 Decision: How many pairs trigger a batch? Quality threshold? How to version weights?

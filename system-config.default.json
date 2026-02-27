@@ -25,14 +25,14 @@
   "orchestrator": {
     "weightingStrategy": "query-adaptive",
     "model": {
-      "provider": "together",
-      "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+      "provider": "fireworks",
+      "model": "accounts/fireworks/models/kimi-k2p5",
       "temperature": 0.7
     }
   },
   "plm": {
-    "trainingProvider": "together",
-    "baseModel": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+    "trainingProvider": "fireworks",
+    "baseModel": "accounts/fireworks/models/kimi-k2p5",
     "retrainingFrequency": "on-demand",
     "maturityThresholds": {
       "worldview": 0.7,
