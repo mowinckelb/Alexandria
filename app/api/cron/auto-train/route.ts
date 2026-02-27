@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getTrainingTools } from '@/lib/factory';
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -69,6 +70,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'No users found', results: [] });
     }
 
+    const { tuner } = getTrainingTools();
+
     for (const userId of userIds) {
       // Check if agents are paused
       const { data: sysConfig } = await supabase
@@ -81,18 +84,77 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      const { data: recentTraining } = await supabase
+      // Phase 1: Check in-progress jobs — auto-activate completed, clean up failed
+      const { data: inProgressExports } = await supabase
         .from('training_exports')
-        .select('id, status, created_at')
+        .select('id, user_id, training_job_id, status')
         .eq('user_id', userId)
-        .in('status', ['uploading', 'uploaded', 'training'])
-        .limit(1);
+        .in('status', ['uploading', 'uploaded', 'training']);
 
-      if (recentTraining && recentTraining.length > 0) {
+      let jobStillRunning = false;
+      for (const exp of inProgressExports || []) {
+        if (!exp.training_job_id) continue;
+        const jobStatus = await tuner.getJobStatus(exp.training_job_id);
+        if (!jobStatus) continue;
+
+        if (jobStatus.status === 'completed' && jobStatus.fine_tuned_model) {
+          // Auto-activate: update export + twins
+          await supabase.from('training_exports').update({
+            status: 'active',
+            resulting_model_id: jobStatus.fine_tuned_model,
+            completed_at: new Date().toISOString()
+          }).eq('id', exp.id);
+
+          const { data: existingTwin } = await supabase
+            .from('twins').select('id').eq('user_id', userId).single();
+          if (existingTwin) {
+            await supabase.from('twins').update({
+              model_id: jobStatus.fine_tuned_model,
+              status: 'active',
+              training_job_id: exp.id,
+              updated_at: new Date().toISOString()
+            }).eq('user_id', userId);
+          } else {
+            await supabase.from('twins').insert({
+              user_id: userId,
+              model_id: jobStatus.fine_tuned_model,
+              status: 'active',
+              training_job_id: exp.id
+            });
+          }
+
+          await supabase.from('persona_activity').insert({
+            user_id: userId,
+            action_type: 'plm_auto_activated',
+            summary: `New PLM activated: ${jobStatus.fine_tuned_model}`,
+            details: { exportId: exp.id, jobId: exp.training_job_id, model: jobStatus.fine_tuned_model },
+            requires_attention: false
+          });
+
+          results.push({
+            userId,
+            action: 'model_activated',
+            details: { exportId: exp.id, model: jobStatus.fine_tuned_model }
+          });
+        } else if (jobStatus.status === 'failed' || jobStatus.status === 'cancelled') {
+          await supabase.from('training_exports').update({ status: jobStatus.status }).eq('id', exp.id);
+          // Free the pairs
+          await supabase.from('training_pairs').update({ export_id: null }).eq('export_id', exp.id);
+          results.push({
+            userId,
+            action: 'job_cleaned_up',
+            details: { exportId: exp.id, jobStatus: jobStatus.status }
+          });
+        } else {
+          jobStillRunning = true;
+        }
+      }
+
+      if (jobStillRunning) {
         results.push({
           userId,
           action: 'skipped',
-          details: { reason: 'training_in_progress', jobId: recentTraining[0].id }
+          details: { reason: 'training_in_progress' }
         });
         continue;
       }
