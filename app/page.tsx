@@ -641,6 +641,7 @@ export default function Alexandria() {
     if (s === null) setTimeout(() => inputRef.current?.focus(), 50);
   }, []);
   const [agentsPaused, setAgentsPaused] = useState(false);
+  const [agentModels, setAgentModels] = useState<{ editor: string; orchestrator: string } | null>(null);
   const seenEditorMessageIds = useRef<Set<string>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
   const outputScrollRef = useRef<HTMLDivElement>(null);
@@ -747,6 +748,17 @@ export default function Alexandria() {
     fetch(`/api/system-config?userId=${userId}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.config?.paused) setAgentsPaused(true); })
+      .catch(() => {});
+    fetch(`/api/editor-status?userId=${userId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.model) {
+          const editorLabel = d.model.provider === 'anthropic'
+            ? `claude · ${(d.model.quality || 'sonnet').replace('claude-', '')}`
+            : `${d.model.provider} · ${(d.model.quality || '').split('-').slice(0, 2).join('-')}`;
+          setAgentModels({ editor: editorLabel, orchestrator: `${editorLabel} + kimi k2.5` });
+        }
+      })
       .catch(() => {});
   }, [isAuthenticated, userId]);
 
@@ -1966,6 +1978,13 @@ export default function Alexandria() {
                   orchestrator
                 </button>
               </div>
+              {agentModels && (
+                <div className="text-[0.55rem] tracking-wide leading-relaxed" style={{ color: 'var(--text-primary)', opacity: 0.35 }}>
+                  {(mode === 'input' ? agentModels.editor : agentModels.orchestrator).split(' + ').map((m, i) => (
+                    <span key={i}>{i > 0 && <span className="mx-1" style={{ opacity: 0.4 }}>·</span>}{m}</span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ── EDITOR LANDING ── */}
