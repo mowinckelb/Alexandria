@@ -100,16 +100,17 @@ export class FireworksTuner {
 
     const finalFilename = filename || `training-${Date.now()}.jsonl`;
     const fileSize = Buffer.byteLength(jsonl, 'utf8');
+    const exampleCount = jsonl.trim().split('\n').length;
     const datasetId = sanitizeResourceId(finalFilename.replace(/\.jsonl$/i, ''));
 
-    console.log(`[FireworksTuner] Uploading ${finalFilename} (${fileSize} bytes) as dataset ${datasetId}`);
+    console.log(`[FireworksTuner] Uploading ${finalFilename} (${fileSize} bytes, ${exampleCount} examples) as dataset ${datasetId}`);
 
     try {
       // Step 1: Create dataset record
       const createResp = await fetch(`${this.accountPath}/datasets`, {
         method: 'POST',
         headers: this.authHeaders(true),
-        body: JSON.stringify({ datasetId, dataset: { userUploaded: {} } }),
+        body: JSON.stringify({ datasetId, dataset: { userUploaded: {}, exampleCount } }),
       });
 
       if (!createResp.ok) {
@@ -202,6 +203,7 @@ export class FireworksTuner {
     }
 
     const outputModelId = sanitizeResourceId(`ghost-${userId.slice(0, 8)}-${Date.now()}`);
+    const outputModelName = `accounts/${this.accountId}/models/${outputModelId}`;
 
     // Determine warm-start vs fresh base model
     const warmStart = options.warmStartFrom || previousModelId;
@@ -209,7 +211,7 @@ export class FireworksTuner {
 
     const requestBody: Record<string, unknown> = {
       dataset: datasetName,
-      outputModel: outputModelId,
+      outputModel: outputModelName,
       epochs: options.nEpochs || 1,
       loraRank: options.loraR || 8,
     };
