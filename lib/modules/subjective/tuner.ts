@@ -90,11 +90,13 @@ export class TogetherTuner {
   private uploadViaApi = async (jsonl: string, filename: string, fileSize: number): Promise<UploadResult | null> => {
     this.lastUploadError = null;
     try {
+      const blob = new Blob([jsonl], { type: 'application/jsonl' });
       const form = new FormData();
       form.append('purpose', 'fine-tune');
-      form.append('file', new Blob([jsonl], { type: 'application/jsonl' }), filename);
+      form.append('file_name', filename);
+      form.append('file', blob, filename);
 
-      const response = await fetch(`${this.baseUrl}/files`, {
+      const response = await fetch(`${this.baseUrl}/files/upload`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${this.apiKey}`
