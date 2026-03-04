@@ -70,8 +70,8 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
             </p>
           )}
 
-          {/* Links — generous spacing from title */}
-          <div className="mt-20 flex items-center gap-3">
+          {/* Links */}
+          <div className={`${confidential ? 'mt-14' : 'mt-20'} flex items-center gap-3`}>
             <a
               href="/docs/Alexandria.pdf"
               target="_blank"
@@ -94,12 +94,12 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
           </div>
 
           {/* Inline waitlist */}
-          <div className="mt-14">
+          <div className={confidential ? 'mt-10' : 'mt-14'}>
             <WaitlistSection confidential={confidential} inline />
           </div>
 
           {confidential && (
-            <div className="mt-8 flex items-center gap-3 text-[0.65rem]" style={{ color: 'var(--text-ghost)' }}>
+            <div className="mt-6 flex items-center gap-3 text-[0.65rem]" style={{ color: 'var(--text-ghost)' }}>
               <a
                 href="mailto:benjamin@mowinckel.com"
                 className="no-underline tracking-wide transition-opacity hover:opacity-40"
@@ -107,7 +107,7 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
               >
                 benjamin@mowinckel.com
               </a>
-              <span className="text-[0.35rem]">&bull;</span>
+              <span className="text-[0.35rem] flex items-center" style={{ lineHeight: 1 }}>&bull;</span>
               <a
                 href="tel:+4746643844"
                 className="no-underline tracking-wide transition-opacity hover:opacity-40"
