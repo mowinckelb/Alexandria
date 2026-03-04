@@ -273,8 +273,8 @@ function LibraryPreview() {
 
 export default function ProductShowcase() {
   return (
-    <section className="py-20 sm:py-28 px-4 sm:px-8">
-      <div className="max-w-2xl mx-auto space-y-20 overflow-hidden">
+    <section className="py-20 sm:py-28 px-4 sm:px-8 overflow-x-hidden">
+      <div className="max-w-2xl mx-auto space-y-20 overflow-hidden break-words">
         <ConstitutionPreview />
         <LibraryPreview />
       </div>
