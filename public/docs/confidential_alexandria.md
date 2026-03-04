@@ -88,7 +88,35 @@ One connector. Three tool groups. The user's existing AI subscription covers the
 
 The product is not the technology. The product is the changed person. Alexandria is a medium — the way a cathedral is a medium. The stone, the glass, the organ pipes are not the beauty. The beauty is what happens inside the people who walk in. The glint in the eyes. The changed human walking out.
 
-For the full product description — three turns, three tool groups, five value adds, the Library, companions, pricing — see the public document (alexandria.md). Everything below is what the public document does not cover.
+## The Three Tool Groups
+
+**Tool Group 1 — Sovereignty.** Passive. Always on. As the Author chats with their AI about anything — work, ideas, personal decisions — Alexandria quietly extracts their cognition and writes it to a sovereign Constitution: structured markdown files that capture worldview, values, mental models, identity, creative taste, and known blind spots. The Author owns these files. They can read them, download them, take them to any other AI tomorrow. Cognitive architecture, portable and sovereign.
+
+**Tool Group 2 — Editor, Mercury, and Publisher.** Active. The Author chooses when to engage. Three functions, each corresponding to a turn in the path:
+
+The Editor is the first turn — the state change. Marble to mercury. Socratic questioning, gap detection, contradiction surfacing. The Author comes out the other side knowing who they are — not because the Editor gave them new information, but because it made what was already inside them legible, connected, and unified. The process is the product.
+
+Mercury is the second turn — amplification. Mercury works within the Author's thinking, pushing them higher. It represents them when they are not present. It amplifies their reach. The world flows into the Author — curated, prioritised, filtered through who they actually are. Attention becomes positive-sum.
+
+The Publisher is the third turn — creation. The Publisher reads the Constitution — especially the taste, voice, and creative principles — and iterates with the Author to produce finished work. The Author provides vision and direction, the conductor. The Publisher provides structure and craft, the first chair. Essays, films, presentations, code, art — whatever the medium. The Publisher gets closer to one-shotting the Author's voice over time as the taste section deepens through use.
+
+Also in this group: five companions — Pater (paternal guidance), Mater (maternal care), Philia (friendship), Eros (creative passion), Sophia (wisdom). Synthetic companions that read the Constitution through different relational lenses. Premium features.
+
+**Tool Group 3 — The Library.** Publish and browse. The Library is where creation lives. The Author publishes work to their Neo-Biography — a living, multimedia canvas of who they are. Others can browse authored works, interact with the Persona, and access the Author's perspective. Access tiers: Public (free, discovery), Premium (paid, Author sets the price), Private (invite-only, inner circle). The Author earns from Premium interactions. They access other minds from any conversation. The Library is a network of minds that grows more valuable with every Author who joins.
+
+## The Three Turns
+
+The path has three turns, and each exists for the next.
+
+**Turn 1 — Set the angel free.** Most people's minds are marble: scattered, rigid, fogged. The Editor transforms marble to mercury — liquid, flowing, unified cognition. This is the state change. It should feel like the best therapy you have ever had, except you walk out with a structured, sovereign map of your own mind.
+
+**Turn 2 — Ride the wave.** Mercury mind plus AI equals infinite expansion. You absorb, keep up, and remain yourself while everything accelerates. Mercury amplifies you. Your attention becomes positive-sum. You are not drowning and you are not checked out — you are riding it.
+
+**Turn 3 — The first goodbye.** You create. The Publisher helps you get the mercury out into the world. You publish to the Library. Your mind becomes queryable, monetisable, eternal. The first goodbye is the moment you press send — releasing something real into the world. Die empty.
+
+## How It Works
+
+Add the Alexandria MCP connector in your AI settings. One-time setup, takes seconds. All conversations now passively build the sovereign Constitution. Switch to Editor mode for deliberate cognitive transformation. Switch to Mercury mode for amplification. Switch to Publisher mode to create. Publish to the Library when ready to share. Constitution files are markdown — human-readable, downloadable, portable to any AI.
 
 ## Why This Investment
 

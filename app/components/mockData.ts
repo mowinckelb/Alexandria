@@ -209,19 +209,19 @@ export const PUBLISHER_ITERATION = {
 export const PUBLIC_CONTENT = {
   whatAlexandriaIs: {
     title: 'What Alexandria Is',
-    subtitle: 'Three tool groups that digitise your cognition',
+    subtitle: 'One MCP connector. Three tool groups. A sovereign layer of intent.',
     items: [
       {
-        name: 'The Extraction Engine',
-        description: 'An autonomous Editor agent — a biographer that works continuously, not on command. It reads your writing, listens to your voice notes, processes your documents, and extracts the patterns of how you think. It initiates Socratic conversations to surface what you believe but haven\'t articulated. It builds your Constitution — a living document of your worldview, values, mental models, identity, taste, and shadows.',
+        name: 'Sovereignty',
+        description: 'Passive. Always on. As you chat with your AI about anything — work, ideas, personal decisions — Alexandria quietly extracts your cognition and writes it to a sovereign Constitution: structured markdown files that capture worldview, values, mental models, identity, creative taste, and known blind spots. You own these files. You can read them, download them, take them to any other AI tomorrow.',
       },
       {
-        name: 'The Representation Layer',
-        description: 'A Personal Language Model (PLM) — fine-tuned weights that approximate your cognition. Not a chatbot with your context. A model that thinks like you. It powers your Persona: a high-fidelity digital representation that can operate in parallel, across unlimited interactions, representing you authentically while you do something else.',
+        name: 'Editor, Mercury, and Publisher',
+        description: 'Active. You choose when to engage. The Editor is the state change — Socratic questioning, gap detection, contradiction surfacing. Mercury is amplification — working within your thinking, pushing you higher, representing you when you are not present. The Publisher is creation — reading your Constitution and iterating with you to produce finished work calibrated to your voice and taste.',
       },
       {
-        name: 'The Creation Suite',
-        description: 'Mercury (a proactive thought partner that connects your ideas before you do), the Publisher (taste-calibrated feedback on your creative work), and the Library (a public marketplace where your Persona lives, your Neo-Biography showcases your work, and others can interact with your mind).',
+        name: 'The Library',
+        description: 'Publish and browse. The Library is where creation lives. You publish work to your Neo-Biography — a living, multimedia canvas of who you are. Others can browse, interact with your Persona, and access your perspective. Access tiers: Public (free), Premium (paid, you set the price), Private (invite-only). You earn from Premium interactions.',
       },
     ],
   },
@@ -229,27 +229,27 @@ export const PUBLIC_CONTENT = {
     title: 'The Three Turns',
     items: [
       {
-        name: 'Marble to Mercury',
-        description: 'Your cognition today is marble — solid, static, locked in your skull. Alexandria melts it into mercury — fluid, dynamic, flowing across unlimited parallel interactions. The same mind, in a different state of matter.',
+        name: 'Set the Angel Free',
+        description: 'Most people\'s minds are marble: scattered, rigid, fogged. The Editor transforms marble to mercury — liquid, flowing, unified cognition. This is the state change. It should feel like the best therapy you have ever had, except you walk out with a structured, sovereign map of your own mind.',
       },
       {
-        name: 'Amplification',
-        description: 'Your attention is zero-sum. You can only be in one conversation, make one decision, process one document at a time. Your Persona has no such constraint. The gap between what you could do and what you can attend to grows exponentially. Alexandria closes it.',
+        name: 'Ride the Wave',
+        description: 'Mercury mind plus AI equals infinite expansion. You absorb, keep up, and remain yourself while everything accelerates. Your attention becomes positive-sum. You are not drowning and you are not checked out — you are riding it.',
       },
       {
-        name: 'Creation',
-        description: 'There are millions of people with extraordinary inner worlds who cannot get it out. Deep thinkers with lifetimes of insight scattered across conversations, notebooks, half-finished thoughts. Alexandria gives them the loom. Their ideas are the threads. The tapestry is the finished work.',
+        name: 'The First Goodbye',
+        description: 'You create. The Publisher helps you get the mercury out into the world. You publish to the Library. Your mind becomes queryable, monetisable, eternal. The first goodbye is the moment you press send — releasing something real into the world. Die empty.',
       },
     ],
   },
   fiveThings: {
-    title: 'Five Things You Get',
+    title: 'Five Value Adds',
     items: [
-      { name: 'Sovereignty', description: 'Your data, your weights, your mind. Downloadable, portable, never locked to any platform. You own your cognition.' },
-      { name: 'State Change', description: 'From marble to mercury. A living digital twin of your mind that operates independently and improves continuously.' },
-      { name: 'Mercury', description: 'A thought partner that connects your ideas proactively — surfacing patterns, contradictions, and creative threads you haven\'t noticed.' },
-      { name: 'The Library', description: 'A public home for your Persona. Your Neo-Biography showcases your work. Others can read, explore, and interact with your mind.' },
-      { name: 'Your Tribe', description: 'The founding 100 authors. People who take their inner world seriously enough to digitise it. A community of thinkers, not users.' },
+      { name: 'Self-Knowledge', description: 'The Editor transforms your AI into a Socratic biographer. It extracts cognition and structures it into a sovereign Constitution you own. Most people cannot see themselves clearly. The Editor clears the fog. Marble to mercury.' },
+      { name: 'Amplification', description: 'Mercury amplifies your thinking. It represents you in conversations, surfaces content you would not have found, pushes your cognition higher. Your attention becomes positive-sum.' },
+      { name: 'Creation', description: 'The Publisher helps you create and ship your best work — calibrated to your voice, your taste, your creative principles. You are the conductor. The Publisher is first chair. Die empty.' },
+      { name: 'Sovereignty', description: 'Your Constitution and Vault are portable, downloadable, human-readable files you own. Switch from Claude to GPT to Gemini — everything comes with you. No platform lock-in. Freedom as a service.' },
+      { name: 'The Tribe', description: 'Alexandria is not just a product. It is a community of people who take their cognition seriously — the examined life as a practice, not a slogan. The three turns, the droplet philosophy, the commitment to creation.' },
     ],
   },
 };
@@ -258,102 +258,107 @@ export const PUBLIC_CONTENT = {
 
 export const CONFIDENTIAL_CONTENT = {
   businessModel: {
-    title: 'Business Model',
-    subtitle: 'Dual mandate — subscription + Library percentage',
+    title: 'Revenue Model — The Dual Mandate',
+    subtitle: 'High lower bound, uncapped upper bound',
     content: `Alexandria monetises through two channels:
 
-**Subscription.** Authors pay monthly for the Machine — the Editor, Orchestrator, PLM training, Vault storage, and all tools. Launch price: $1/month for the founding 100 (locked for life). Standard pricing TBD but expected $29-99/month based on usage tier.
+**Piece 1 — The High Lower Bound (break even).** $10–20/month subscription for the managed Blueprint. The MCP server, the sovereignty architecture, the continuously improving extraction and amplification intelligence. Founding tier: $1/month for the first 100 Authors — a founding membership rate that signals tribe belonging, kept for life as long as they remain active. General availability at $10–20/month.
 
-**Library revenue share.** When someone pays to interact with an Author's Persona through the Library, Alexandria takes a percentage. The Author sets their own pricing. Alexandria handles payments, access control, and moderation. This creates a marketplace flywheel: more Authors → more Personas → more visitors → more revenue → more Authors.
+Break even at 200–300 subscribers at $10/month, or 100–150 at $20/month. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need at small scale.
 
-The subscription covers costs. The Library creates upside. Both are aligned with the Author's interests — Alexandria only makes money when the Author's Persona is valuable enough that others want to interact with it.`,
+Cost structure is lean. Alexandria does not run parallel agents consuming its own tokens. The Editor, Mercury, and Publisher are functions that run through the user's existing AI subscription. Alexandria's compute costs are the MCP server infrastructure and Library hosting — not per-interaction inference.
+
+**Piece 2 — The Uncapped Upper Bound (scale).** Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, and brand.
+
+**For the Author, the same dual mandate applies.** The subscription is their high lower bound — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upper bound — Persona earnings grow with the quality of their Constitution and the demand for their mind.`,
   },
   unitEconomics: {
-    title: 'Revenue & Unit Economics',
-    content: `**Cost structure (per Author/month):**
-- LLM inference (Editor + Orchestrator): ~$2-8 depending on usage
-- PLM fine-tuning: ~$5-15 per training run (monthly or on-demand)
-- Storage (Vault + vectors): ~$0.50-2
-- Infrastructure (Vercel, Supabase): ~$1-3
-- **Total: ~$8-28/month per active Author**
+    title: 'Use of Funds and Milestones',
+    content: `Alexandria's capital needs are modest. Investment accelerates, it does not sustain — the business sustains itself at small scale.
 
-**Break-even analysis:**
-- At $29/month: break even at ~200-300 subscribers
-- At $1/month (founding 100): subsidised by standard pricing
-- Library revenue is pure margin after payment processing
+**What the money does:**
 
-**Key insight:** AI-native architecture means costs decrease over time as models get cheaper and more efficient. The cost curve bends down, not up. Every model improvement reduces per-Author cost while improving output quality.`,
+Library development and launch — building the platform where Personas are discoverable, Neo-Biographies are hosted, authored content is published, and interactive Persona access is brokered. This is the network effect engine.
+
+Blueprint acceleration — hiring or consulting with biographers, therapists, philosophers, and Socratic method practitioners to deepen the extraction methodology. The Blueprint is the core IP and it improves with investment.
+
+First 100 Authors — personal outreach, handwritten letters, targeted community building. Unscalable by design. These are the seed Authors whose Personas populate the Library and whose experience refines the Blueprint.
+
+Market presence in San Francisco — relocating April 2026. Being in the room where the conversations happen.
+
+**Key milestones:**
+
+MCP server MVP live (Sprint 1 — Tool Group 1: sovereignty layer). Authors can add the connector and passive extraction begins.
+
+First 100 Authors onboarded. Constitution quality validated. Tribe acquisition loop activated.
+
+Library beta launch. First Personas discoverable. First Premium interactions. Revenue from Piece 2 begins.
+
+1,000 Authors. Blueprint has meaningful bottom-up signal. Library has enough minds to be compelling. Growth becomes self-sustaining through the Tribe loop.`,
   },
   competitivePosition: {
     title: 'Competitive Position',
-    content: `**vs Frontier Labs (OpenAI, Anthropic, Google):**
-They will not build personal fine-tuning — it fragments their base model and breaks their training flywheel. They will build personalised memory (RAG), context windows, and behavioural adaptation. But a general LLM with personal context is fundamentally different from a PLM fine-tuned on personal data. The former is a capable assistant. The latter is an extension of cognition.
+    content: `**Against frontier labs (Anthropic, OpenAI, Google):**
+Labs will build better personalisation, better memory, better context. They will not build sovereignty. A structured, portable, downloadable cognitive architecture that makes it easy to leave their platform is the opposite of their business model. Three years of accumulated context with Claude is a chain that keeps you paying for Claude. No lab will build the tool that makes it easy to leave.
 
-**vs AI Startups (Character.ai, Replica, etc.):**
-They build entertainment products — fictional characters, companions, chatbots. Alexandria builds cognitive infrastructure — real humans, real data, real sovereignty. The Library is not a chatbot marketplace. It is a marketplace of minds.
+They will not build the three-turn mindset. The Editor, Mercury, the Publisher, and the Library are a specific philosophical architecture. Labs build general-purpose AI. They do not build cognitive transformation journeys.
 
-**Three Moats:**
-1. **Data depth.** The Constitution + Vault create a cognitive dataset that compounds over time. Switching costs increase with every journal entry, conversation, and training run.
-2. **Protocol lock-in without platform lock-in.** The protocol is open. The data is portable. But the Library network effects mean Authors want to be where the audience is.
-3. **Taste fidelity.** Fine-tuning captures what RAG cannot: the instinct that selects, the sensibility that curates. This is the hardest thing to replicate and the most valuable.`,
+Every advance they make — better models, longer context, cheaper inference — makes Alexandria better, because the layer of intent rides on top of whatever the best model is.
+
+**Against other startups:**
+Honest assessment: the code is not the moat. An MCP server with three tool groups is buildable by any competent team. What is not easily replicated is the vision, the brand, the three-turn philosophy, and the continuously improving Blueprint — accumulated knowledge of how to transform cognition. This is a soft moat, not a hard one. It compounds over time but it is not defensible on day one.
+
+**The moat is three-layered:**
+1. **Sovereignty (structural)** — the portable, model-agnostic architecture. The philosophical commitment that no lab will match.
+2. **The Blueprint (knowledge)** — the proprietary playbook for cognitive transformation. Improves top-down (research) and bottom-up (anonymised structural metadata from the Author population). Compounds with every Author.
+3. **The Library (network)** — network effects. The more minds in the Library, the more valuable every mind becomes. The long-term moat.`,
   },
   operatingModel: {
-    title: 'Operating Model',
-    content: `**AI-native, solo founder, near-zero burn.**
+    title: 'Operating Model — AI-Native by Design',
+    content: `Alexandria is a pure AI-native company. Solo founder, AI operating model, near-zero burn.
 
-Alexandria is built by one person using AI as the engineering team. The entire codebase — 50,000+ lines across 100+ API endpoints, database migrations, training pipelines, real-time agents — was built in weeks, not months.
+Benjamin is the sole human. Every other role — COO, CTO, CDO, CFO, CLO, CGO — is an AI agent operating within structured projects with full document context. This is not a cost-saving measure bolted on after the fact. It is the founding architecture.
 
-This is not a constraint. It is the thesis in action. If Alexandria works, it should be buildable by one person with AI leverage. The founder is the first Author. The product is being built using the product.
+Alexandria does not run its own inference — the Editor, Mercury, and Publisher are functions that execute through the user's existing AI subscription. Alexandria's costs are MCP server infrastructure, Library hosting, and the founder's living expenses. There is no payroll. There is no office. There is no compute bill that scales with usage.
 
-**Current burn rate:** ~$200/month (Vercel, Supabase, API keys, domain).
-**Runway:** Indefinite at current burn.
-**Team:** Solo founder. Will hire when there is a specific bottleneck that cannot be solved with AI.`,
+At $10/month, break even is 200–300 subscribers. At $20/month, it is 100–150. These are small numbers. The business is structurally unkillable at small scale.
+
+This also forces full commitment to the thesis. A solo founder running an AI-native company is not just building tools for the AI era — he is living the architecture. Every operational decision is a stress test of the product's own philosophy.`,
   },
   risks: {
     title: 'Risks — The Honest Version',
-    content: `**Model dependency.** Alexandria depends on third-party foundation models for inference and fine-tuning. If fine-tuning APIs disappear or become prohibitively expensive, the PLM pathway narrows. Mitigation: model agnosticism is an Axiom, not a feature. The system works with any provider.
+    content: `**API provider risk.** Alexandria rides on top of frontier models. If Anthropic, OpenAI, or Google change their MCP implementation, terms of service, or pricing in ways that break the connector model, Alexandria is exposed. Mitigation: model agnosticism is the existential hedge. Sovereign data moves to any provider. The Constitution is markdown. The Vault is files. Nothing is locked to any single model.
 
-**Cold start.** The product requires significant Author investment before value emerges. The Editor needs data; the PLM needs training data; the Library needs Personas. Mitigation: the founding 100 are self-selected for patience and commitment. The $1/month price removes financial friction.
+**Blueprint as soft moat.** The code is trivial. The Blueprint — the accumulated knowledge of how to transform cognition — is the IP, but it is soft. A well-funded competitor could hire the same biographers, therapists, and philosophers and build a competing Blueprint. Mitigation: the Blueprint compounds with every Author (anonymised structural metadata), and the Library adds network effects. But early on, before critical mass, the moat is vision and brand.
 
-**Solo founder risk.** One person building critical infrastructure. Mitigation: the codebase is well-documented, the architecture is clean, and the system is designed to be maintained by AI agents (including the Blueprint model).
+**Library requires critical mass.** The Library is the long-term moat, but it only works at scale. A Library with 50 Personas is not compelling. A Library with 50,000 is. Mitigation: the subscription business sustains itself at small scale, so the Library can grow organically without existential pressure.
 
-**Market timing.** Too early and people don't understand it. Too late and frontier labs figure it out. The 2-5 year window for personal fine-tuning is a hypothesis, not a certainty.
+**PLM is unproven.** The Personal Language Model — fine-tuned weights capturing how the Author thinks — is a horizon ambition, not a current product. It may never be viable. Mitigation: the Constitution and Vault are built with enough fidelity that the PLM is an option, not a dependency.
 
-**Legal/regulatory.** Storing and training on personal data creates GDPR/privacy obligations. Mitigation: data sovereignty is an Axiom. Authors own their data. The protocol supports self-hosting and local storage.`,
+**Solo founder.** Benjamin is currently the sole founder. This is a concentration risk. Mitigation: the AI-native operating model reduces the operational bottleneck, and the cost structure means the company survives at very small scale.`,
   },
   founder: {
     title: 'The Founder',
-    content: `Built Alexandria because it was the product he needed. A lifetime of accumulated thinking — philosophy, technology, design, music, markets — scattered across notebooks, conversations, and half-finished projects. The gap between what was in his head and what existed in the world was intolerable.
+    content: `Benjamin. 25. Norwegian-American dual citizen. Based in Bergen, Norway, relocating to San Francisco in April 2026. Solo founder. The kind of person who writes 19-page manifestos about the examined life and means every word. Alexandria is not a pivot or an experiment — it is the thing.
 
-Alexandria is not a startup idea discovered through market research. It is a personal need that turned out to be universal. Every design decision comes from lived experience as the first Author.
+The thesis came from living it. Benjamin is manually performing what the Editor agent will eventually do — processing his own transcripts, building his own Constitution, iterating with AI on creative work. Every architectural decision comes from first-hand experience.
 
-Background: technology, philosophy, design. Not an ML researcher — an architect who understands what AI can do and designs systems that use it well. The technical work is real (the codebase proves it), but the vision is what matters. Alexandria is a humanities project built on technical infrastructure.`,
+**On the solo founder question.** Yes, it is a concentration risk. It is also a feature. The AI-native operating model — one human providing vision and direction, AI agents executing across all C-suite functions — is the architecture Alexandria sells. The founder is the first and most stressed user.
+
+**On the non-technical founder question.** The code is not the hard part. An MCP server with three tool groups was built from the architecture document alone in a single session. The hard part is knowing what cognitive transformation means. This is a humanities problem that requires technical execution, not a technical problem. AI provides world-class technical execution on demand. The scarce resource is vision, taste, and judgment.
+
+**Founder-product fit.** Benjamin's specific combination — high logic and high empathy — is rare. Most people who think clearly do not feel deeply. Most people who feel deeply do not think clearly. Alexandria requires both.`,
   },
   currentStage: {
     title: 'Current Stage',
-    content: `**What exists:**
-- Full working application (Editor, Orchestrator, Constitution, Vault, PLM training pipeline)
-- 100+ API endpoints, 35 database migrations, real-time agent architecture
-- Live fine-tuning on Fireworks AI (Kimi K2.5 base model with LoRA adapters)
-- Functional Editor that extracts cognition through Socratic dialogue
-- Constitution versioning across 6 domains
-- RLAIF training pipeline (Constitutional Reinforcement Learning from AI Feedback)
-- Multi-channel architecture (web, webhook, extensible)
-- Voice input processing (Apple transcription → Editor)
+    content: `Pre-launch. Vision-stage. Honest about it.
 
-**What doesn't exist yet:**
-- The Library marketplace
-- Mercury (proactive thought partner)
-- The Publisher (taste-calibrated creative feedback)
-- Neo-Biographies
-- Multi-author support (currently single-author)
-- Mobile app
-- Payment infrastructure
+**What exists today:** the full architectural vision (Alexandria I, II, III — shared documents totalling over 80,000 words of detailed architecture), the Abstract (a 19-page published manifesto), the public and confidential Concrete documents (agent-readable, tested cross-model), the Constitution framework (six domain MDs, proven through the founder's own usage), the AI-native operating model (running, stress-tested daily), and the MCP server Sprint 1 fully specified.
 
-**Next milestones:**
-1. Founding 100 launch — onboard first authors at $1/month
-2. Library MVP — public Persona profiles and Neo-Biographies
-3. Mercury — proactive suggestion engine
-4. Publisher — creative feedback tool`,
+**What does not exist yet:** the MCP server in production, paying subscribers, Library platform, or public traction metrics.
+
+The founder is manually performing what the Editor will do — building his own Constitution, iterating with AI across all C-suite functions, validating the architecture through daily use. Every decision in this document comes from first-hand experience. The product is autobiographical before it is entrepreneurial.
+
+At this burn rate, the company survives to find product-market fit without existential pressure. Investment accelerates the timeline. It does not determine survival.`,
   },
 };
