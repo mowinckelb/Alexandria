@@ -99,15 +99,23 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
           </div>
 
           {confidential && (
-            <a
-              href="https://mowinckel.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 text-[0.65rem] no-underline tracking-wide transition-opacity hover:opacity-40"
-              style={{ color: 'var(--text-ghost)' }}
-            >
-              or get in touch
-            </a>
+            <div className="mt-8 flex items-center gap-3 text-[0.65rem]" style={{ color: 'var(--text-ghost)' }}>
+              <a
+                href="mailto:benjamin@mowinckel.com"
+                className="no-underline tracking-wide transition-opacity hover:opacity-40"
+                style={{ color: 'var(--text-ghost)' }}
+              >
+                benjamin@mowinckel.com
+              </a>
+              <span className="text-[0.35rem]">&bull;</span>
+              <a
+                href="tel:+4746643844"
+                className="no-underline tracking-wide transition-opacity hover:opacity-40"
+                style={{ color: 'var(--text-ghost)' }}
+              >
+                +47 466 43 844
+              </a>
+            </div>
           )}
         </div>
 
