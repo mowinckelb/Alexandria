@@ -64,6 +64,7 @@
 
 html {
   overscroll-behavior: none;
+  overflow-x: hidden;
 }
 
 body {
@@ -72,6 +73,7 @@ body {
   font-family: var(--font-eb-garamond);
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 /* Lock scrolling for the authenticated app shell */

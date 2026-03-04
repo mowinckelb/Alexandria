@@ -70,52 +70,51 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
             </p>
           )}
 
-          {/* Links */}
-          <div className={`${confidential ? 'mt-14' : 'mt-20'} flex items-center gap-3`}>
-            <a
-              href="/docs/Alexandria.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
-              style={{ color: 'var(--text-primary)', opacity: 0.45 }}
-            >
-              abstract
-            </a>
-            <span className="text-[0.35rem]" style={{ color: 'var(--text-ghost)' }}>&bull;</span>
-            <a
-              href={concreteHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
-              style={{ color: 'var(--text-primary)', opacity: 0.45 }}
-            >
-              concrete
-            </a>
-          </div>
-
-          {/* Inline waitlist */}
-          <div className={confidential ? 'mt-10' : 'mt-14'}>
-            <WaitlistSection confidential={confidential} inline />
-          </div>
-
-          {confidential && (
-            <div className="mt-8 flex flex-col items-center gap-1.5 text-[0.65rem]" style={{ color: 'var(--text-ghost)' }}>
+          {/* Links + Waitlist */}
+          <div className="mt-20 flex flex-col items-center gap-12">
+            <div className="flex items-center gap-3">
               <a
-                href="mailto:benjamin@mowinckel.com"
-                className="no-underline tracking-wide transition-opacity hover:opacity-40"
-                style={{ color: 'var(--text-ghost)' }}
+                href="/docs/Alexandria.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
+                style={{ color: 'var(--text-primary)', opacity: 0.45 }}
               >
-                benjamin@mowinckel.com
+                abstract
               </a>
+              <span className="text-[0.35rem]" style={{ color: 'var(--text-ghost)' }}>&bull;</span>
               <a
-                href="tel:+4746643844"
-                className="no-underline tracking-wide transition-opacity hover:opacity-40"
-                style={{ color: 'var(--text-ghost)' }}
+                href={concreteHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
+                style={{ color: 'var(--text-primary)', opacity: 0.45 }}
               >
-                +47 466 43 844
+                concrete
               </a>
             </div>
-          )}
+
+            <WaitlistSection confidential={confidential} inline />
+
+            {confidential && (
+              <div className="flex flex-col items-center gap-1.5 text-[0.65rem]" style={{ color: 'var(--text-ghost)' }}>
+                <a
+                  href="mailto:benjamin@mowinckel.com"
+                  className="no-underline tracking-wide transition-opacity hover:opacity-40"
+                  style={{ color: 'var(--text-ghost)' }}
+                >
+                  benjamin@mowinckel.com
+                </a>
+                <a
+                  href="tel:+4746643844"
+                  className="no-underline tracking-wide transition-opacity hover:opacity-40"
+                  style={{ color: 'var(--text-ghost)' }}
+                >
+                  +47 466 43 844
+                </a>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Scroll indicator */}

@@ -136,6 +136,8 @@ The examined life is the only one worth living. Die empty — get it all out bef
 
 We are at an inflection point. AI is transforming what it means to think, to work, to create, to be human. Some say humanity is a stain that should evaporate. Some say we should dissolve into superintelligence. Alexandria says the droplet persists. Small, fragile, maybe feeble against the scale of the ocean. But itself. There is grace in that fragility.
 
+When intelligence is commoditised — when everyone has the same models, the same reasoning, the same capability on tap — the only remaining source of marginal value is the humanity on top. Taste. Judgment. Perspective. Self-knowledge. The person who knows who they are and knows what is worth doing has an edge no amount of compute can replicate. This is not philosophy for its own sake. It is an economic fact about the world that is arriving. You need to develop your humanity because your humanity is now your edge. Alexandria is not just for people who want to examine their lives. It is for people who understand that the examined life is now a competitive necessity. You would like to use it. You also should use it.
+
 A conductor above an infinite orchestra — the orchestra is infinite and improving. The conductor is what gives it direction. Alexandria is the conductor. Your AI is the orchestra. The music is yours.
 
 *mentes aeternae* — eternal minds.

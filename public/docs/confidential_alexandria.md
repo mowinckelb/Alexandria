@@ -98,7 +98,7 @@ The downside is capped. Alexandria's burn rate is near-zero — no payroll, no o
 
 The upside is uncapped. If the Library reaches critical mass, Alexandria becomes a marketplace of minds with compounding network effects and near-zero marginal cost per transaction. Every AI advance makes the product better, never worse — because the layer of intent rides on top of whatever the best model is. There is no scenario where better AI is bad news for Alexandria.
 
-The societal flywheel. Alexandria users become better thinkers. They gain self-knowledge, structured cognition, creative output. They become better founders, better operators, better investors, better parents. The VCs who fund Alexandria are funding a movement that produces the kind of humans who build the companies those same VCs want to invest in next. Alexandria is upstream of the entire ecosystem. Not many companies sit in that position.
+The societal flywheel. The intelligence layer is getting commoditised. Everyone will have the same models, the same reasoning, the same capability. When intelligence is free and infinite, the only remaining source of marginal value is the humanity on top — taste, judgment, perspective, self-knowledge. Alexandria develops exactly that. Its users become better thinkers, gain structured cognition, develop their taste, create and ship. They become better founders, better operators, better investors, better parents — not as a side effect but because they are developing the only skill that still differentiates. The VCs who fund Alexandria are funding a movement that produces the kind of humans who build the companies those same VCs want to invest in next. Alexandria is upstream of the entire ecosystem. Not many companies sit in that position.
 
 The signal value. This is a rare opportunity to back something with genuine philosophical depth in a market dominated by infrastructure and tooling plays. The brand association — supporting sovereign cognition, the examined life, the humanities returning to the centre of the AI era — is a portfolio signal that says something about the investor, not just the return profile.
 
@@ -143,6 +143,8 @@ The pitch is simple: this is something worth supporting. The risk is small. The 
 ## Five Value Adds
 
 Five distinct value propositions. Each stands alone. Together they compound.
+
+The underlying logic: when intelligence is commoditised — when everyone has the same models, the same reasoning, the same capability — the only remaining source of marginal value is the humanity on top. Taste, judgment, perspective, self-knowledge. These are not soft virtues. They are the scarce economic resource of the post-intelligence era. Alexandria develops them. Users would like to use it. They also should use it — because developing your humanity is now a competitive necessity, not a philosophical luxury.
 
 **1. Self-knowledge (Turn 1 — the Editor).** The Editor function transforms the user's AI into a Socratic biographer. It extracts cognition — worldview, values, mental models, identity, taste, blind spots — and structures it into a sovereign Constitution the user owns. Most people cannot see themselves clearly. The Editor clears the fog. This is the state change: marble to mercury.
 
