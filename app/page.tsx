@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, useCallback, KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import AuthScreen from './components/AuthScreen';
 import LandingPage from './components/LandingPage';
 import ConstitutionPanel from './components/ConstitutionPanel';
 import RlaifReviewPanel from './components/RlaifReviewPanel';
@@ -592,7 +591,6 @@ function LibrarySection({ userId }: { userId: string }) {
 
 export default function Alexandria() {
   const { theme, toggleTheme } = useTheme();
-  const [showLanding, setShowLanding] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userId, setUserId] = useState('');
   const [username, setUsername] = useState('');
@@ -651,15 +649,24 @@ export default function Alexandria() {
     const storedToken = localStorage.getItem('alexandria_token');
     const storedUserId = localStorage.getItem('alexandria_user_id');
     const storedUsername = localStorage.getItem('alexandria_username');
-    
+
     if (storedToken && storedUserId) {
       setUserId(storedUserId);
       setUsername(storedUsername || storedUserId);
       setIsAuthenticated(true);
-      setShowLanding(false);
     }
     setIsCheckingAuth(false);
   }, []);
+
+  // Toggle app-shell class on html for scroll lock when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      document.documentElement.classList.add('app-shell');
+    } else {
+      document.documentElement.classList.remove('app-shell');
+    }
+    return () => document.documentElement.classList.remove('app-shell');
+  }, [isAuthenticated]);
 
   useEffect(() => { 
     if (isAuthenticated) {
@@ -1843,14 +1850,9 @@ export default function Alexandria() {
     );
   }
 
-  // Show landing page first if not authenticated
-  if (!isAuthenticated && showLanding) {
-    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
-  }
-
-  // Show auth screen if not authenticated and landing dismissed
+  // Show landing page when not authenticated
   if (!isAuthenticated) {
-    return <AuthScreen onAuthSuccess={handleAuthSuccess} onBack={() => setShowLanding(true)} />;
+    return <LandingPage />;
   }
 
   const currentMessages = mode === 'input' ? inputMessages : outputMessages;

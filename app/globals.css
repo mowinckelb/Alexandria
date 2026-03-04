@@ -35,57 +35,74 @@
 }
 
 .dark {
-  /* Dark theme */
-  --bg-primary: #0d0d0d;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #242424;
-  --bg-modal: #1a1a1a;
-  --bg-overlay: rgba(0, 0, 0, 0.6);
-  
-  --text-primary: #e8e8e8;
-  --text-secondary: #d0d0d0;
-  --text-muted: #888888;
-  --text-subtle: #777777;
-  --text-faint: #666666;
-  --text-ghost: #555555;
-  --text-whisper: #444444;
-  
-  --border-light: #2a2a2a;
-  --border-dashed: #3a3a3a;
-  
-  --toggle-bg: rgba(255, 255, 255, 0.08);
-  --toggle-pill: rgba(255, 255, 255, 0.12);
-  
-  --scrollbar-thumb: rgba(255, 255, 255, 0.12);
-  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
-  
-  --caret-color: rgba(232, 232, 232, 0.5);
+  /* Dark theme — soft warm grey, Claude-inspired */
+  --bg-primary: #2b2a27;
+  --bg-secondary: #333230;
+  --bg-tertiary: #3b3a37;
+  --bg-modal: #333230;
+  --bg-overlay: rgba(0, 0, 0, 0.45);
+
+  --text-primary: #ece8e1;
+  --text-secondary: #cdc8c0;
+  --text-muted: #9b9690;
+  --text-subtle: #87827c;
+  --text-faint: #736e68;
+  --text-ghost: #5f5a55;
+  --text-whisper: #4d4944;
+
+  --border-light: #3e3d3a;
+  --border-dashed: #4a4945;
+
+  --toggle-bg: rgba(255, 255, 255, 0.06);
+  --toggle-pill: rgba(255, 255, 255, 0.1);
+
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.18);
+
+  --caret-color: rgba(236, 232, 225, 0.5);
 }
 
 html {
-  overflow: hidden;
-  position: fixed;
-  inset: 0;
   overscroll-behavior: none;
-  -webkit-overflow-scrolling: none;
 }
 
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-eb-garamond);
-  overflow: hidden;
-  position: fixed;
-  inset: 0;
-  overscroll-behavior: none;
   margin: 0;
   padding: 0;
 }
 
-#__next {
+/* Lock scrolling for the authenticated app shell */
+html.app-shell {
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  -webkit-overflow-scrolling: none;
+}
+
+html.app-shell body {
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  overscroll-behavior: none;
+}
+
+html.app-shell #__next {
   position: fixed;
   inset: 0;
   overflow: hidden;
+}
+
+/* Smooth scrolling for landing pages */
+html:not(.app-shell) {
+  scroll-behavior: smooth;
+}
+
+html:not(.app-shell) body {
+  overflow-y: auto;
+  min-height: 100vh;
 }
 
 /* Input styles - in globals to avoid styled-jsx flash on theme toggle */
@@ -98,7 +115,8 @@ input.placeholder-italic::placeholder {
   color: var(--text-faint);
 }
 
-input:focus {
+/* Only apply focus background to app inputs, not landing page */
+html.app-shell input:focus {
   background: var(--bg-tertiary) !important;
 }
 
@@ -107,3 +125,8 @@ input:focus {
   50% { opacity: 0.55; }
 }
 .thinking-pulse { animation: thinkingPulse 1.8s ease-in-out infinite; }
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(4px); opacity: 0.7; }
+}

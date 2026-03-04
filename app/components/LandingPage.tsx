@@ -1,67 +1,125 @@
 'use client';
+
 import { useTheme } from './ThemeProvider';
+import ProductShowcase from './ProductShowcase';
+import WaitlistSection from './WaitlistSection';
+import FooterSection from './FooterSection';
 
 interface LandingPageProps {
-  onGetStarted: () => void;
+  confidential?: boolean;
 }
 
-export default function LandingPage({ onGetStarted }: LandingPageProps) {
+function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div 
-      className="h-screen flex flex-col items-center justify-center px-8 relative"
-      style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+    <button
+      onClick={toggleTheme}
+      className="fixed right-4 top-4 z-[200] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-50 transition-opacity p-0"
+      style={{ color: 'var(--text-primary)' }}
+      aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
     >
-      {/* Header — centered title, toggle fixed top-right */}
-      <div className="fixed top-0 left-0 right-0 z-50 py-4">
-        <div className="flex justify-center">
-          <div className="text-center opacity-65">
-            <div className="text-[0.85rem] tracking-wide">alexandria.</div>
-            <div className="text-[0.7rem] italic opacity-70">mentes aeternae</div>
+      {theme === 'light' ? (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+      ) : (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
+export default function LandingPage({ confidential = false }: LandingPageProps) {
+  const concreteHref = confidential
+    ? '/docs/confidential_alexandria.md'
+    : '/docs/alexandria.md';
+
+  return (
+    <div style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <ThemeToggle />
+
+      {/* Hero — single screen */}
+      <section className="min-h-screen flex flex-col items-center justify-center px-8 relative">
+        <div className="flex flex-col items-center">
+          {/* Title */}
+          <h1
+            className="text-[2.2rem] sm:text-[2.8rem] font-normal leading-none tracking-tight"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            alexandria.
+          </h1>
+
+          {/* Subtitle */}
+          <p
+            className="mt-2 text-[0.75rem] tracking-wide italic"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            droplets of grace
+          </p>
+
+          {confidential && (
+            <p
+              className="mt-3 text-[0.6rem] tracking-widest uppercase"
+              style={{ color: 'var(--text-ghost)' }}
+            >
+              confidential
+            </p>
+          )}
+
+          {/* Links — generous spacing from title */}
+          <div className="mt-20 flex items-center gap-3">
+            <a
+              href="/docs/Alexandria.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
+              style={{ color: 'var(--text-primary)', opacity: 0.45 }}
+            >
+              abstract
+            </a>
+            <span className="text-[0.35rem]" style={{ color: 'var(--text-ghost)' }}>&bull;</span>
+            <a
+              href={concreteHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
+              style={{ color: 'var(--text-primary)', opacity: 0.45 }}
+            >
+              concrete
+            </a>
+          </div>
+
+          {/* Inline waitlist */}
+          <div className="mt-14">
+            <WaitlistSection confidential={confidential} inline />
           </div>
         </div>
-      </div>
-      <div className="fixed right-3 top-4 z-[200]">
-        <button
-          onClick={toggleTheme}
-          className="bg-transparent border-none cursor-pointer opacity-40 hover:opacity-60 transition-opacity p-0"
-          style={{ color: 'var(--text-primary)' }}
-          aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-        >
-          {theme === 'light' ? (
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="4" />
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-            </svg>
-          ) : (
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-            </svg>
-          )}
-        </button>
-      </div>
 
-      {/* Center content */}
-      <div className="flex flex-col items-center gap-10">
-        <a
-          href="/docs/Alexandria.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[0.85rem] no-underline transition-opacity hover:opacity-60 tracking-wide"
-          style={{ color: 'var(--text-primary)', opacity: 0.5 }}
-        >
-          about
+        {/* Scroll indicator */}
+        <a href="#showcase" className="absolute bottom-10 flex flex-col items-center gap-2 no-underline cursor-pointer">
+          <span className="text-[0.6rem] tracking-wider" style={{ color: 'var(--text-whisper)' }}>
+            see what you build
+          </span>
+          <svg
+            width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+            style={{ color: 'var(--text-ghost)', animation: 'bounce 2.5s ease-in-out infinite' }}
+          >
+            <path d="M7 10l5 5 5-5" />
+          </svg>
         </a>
+      </section>
 
-        <button
-          onClick={onGetStarted}
-          className="bg-transparent border-none text-[0.85rem] cursor-pointer transition-opacity hover:opacity-60 tracking-wide py-3 px-8"
-          style={{ color: 'var(--text-primary)', opacity: 0.8 }}
-        >
-          enter
-        </button>
+      {/* Product demo */}
+      <div id="showcase">
+        <ProductShowcase />
       </div>
+
+      <FooterSection />
     </div>
   );
 }
