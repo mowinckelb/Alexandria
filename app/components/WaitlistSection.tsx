@@ -80,20 +80,18 @@ export default function WaitlistSection({ confidential = false, inline = false }
         ))}
       </div>
 
-      <button
-        type="submit"
-        disabled={status === 'submitting'}
-        className="text-[0.7rem] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-40 tracking-wider disabled:opacity-20"
-        style={{ color: 'var(--text-primary)', opacity: 0.4 }}
-      >
-        {status === 'submitting' ? (
-          <span className="italic thinking-pulse">...</span>
-        ) : status === 'error' ? (
-          'try again'
-        ) : (
-          'join'
-        )}
-      </button>
+      {status === 'submitting' && (
+        <span className="text-[0.7rem] italic thinking-pulse" style={{ color: 'var(--text-ghost)' }}>...</span>
+      )}
+      {status === 'error' && (
+        <button
+          type="submit"
+          className="text-[0.65rem] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-40 tracking-wider"
+          style={{ color: 'var(--text-ghost)' }}
+        >
+          try again
+        </button>
+      )}
     </form>
   );
 

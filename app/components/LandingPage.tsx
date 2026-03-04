@@ -99,7 +99,7 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
           </div>
 
           {confidential && (
-            <div className="mt-6 flex items-center gap-3 text-[0.65rem]" style={{ color: 'var(--text-ghost)' }}>
+            <div className="mt-8 flex flex-col items-center gap-1.5 text-[0.65rem]" style={{ color: 'var(--text-ghost)' }}>
               <a
                 href="mailto:benjamin@mowinckel.com"
                 className="no-underline tracking-wide transition-opacity hover:opacity-40"
@@ -107,7 +107,6 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
               >
                 benjamin@mowinckel.com
               </a>
-              <span className="text-[0.35rem] flex items-center" style={{ lineHeight: 1 }}>&bull;</span>
               <a
                 href="tel:+4746643844"
                 className="no-underline tracking-wide transition-opacity hover:opacity-40"
