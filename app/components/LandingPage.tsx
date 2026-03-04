@@ -52,14 +52,17 @@ function CopyButton({ href }: { href: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="bg-transparent border-none cursor-pointer p-0 transition-opacity hover:opacity-40"
+      className="bg-transparent border-none cursor-pointer p-0 transition-opacity hover:opacity-40 flex items-center gap-1"
       style={{ color: 'var(--text-ghost)' }}
       aria-label="Copy to clipboard"
     >
       {copied ? (
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20 6L9 17l-5-5" />
-        </svg>
+        <>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+          <span className="text-[0.6rem] tracking-wider" style={{ color: 'var(--text-muted)' }}>copied</span>
+        </>
       ) : (
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
