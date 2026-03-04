@@ -59,7 +59,7 @@ function ConstitutionPreview() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-baseline justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
         <span className="text-[0.8rem] tracking-wide" style={{ color: 'var(--text-muted)' }}>
           Constitution
         </span>
@@ -107,7 +107,7 @@ function ConstitutionPreview() {
           />
         </div>
         <div
-          className="px-5 py-2 flex items-center justify-between text-[0.6rem]"
+          className="px-5 py-2 flex flex-col sm:flex-row items-center justify-between text-[0.6rem] gap-0.5"
           style={{ color: 'var(--text-whisper)', borderTop: '1px solid var(--border-light)' }}
         >
           <span>{entries.length} of 24 entries in {domain}</span>
@@ -211,7 +211,7 @@ function LibraryPreview() {
           </div>
 
           <div
-            className="px-5 py-2 flex items-center justify-between text-[0.55rem]"
+            className="px-5 py-2 flex flex-col sm:flex-row items-center justify-between text-[0.55rem] gap-0.5"
             style={{ color: 'var(--text-whisper)', borderTop: '1px solid var(--border-light)' }}
           >
             <span>13 more works &middot; interact with this mind</span>
@@ -245,8 +245,8 @@ function LibraryPreview() {
                   {p.i}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-[0.75rem]" style={{ color: 'var(--text-primary)' }}>{p.name}</span>
-                  <span className="text-[0.65rem] ml-2" style={{ color: 'var(--text-muted)' }}>{p.line}</span>
+                  <div className="text-[0.75rem]" style={{ color: 'var(--text-primary)' }}>{p.name}</div>
+                  <div className="text-[0.65rem] mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>{p.line}</div>
                 </div>
                 <span
                   className="text-[0.45rem] tracking-wider uppercase px-1.5 py-0.5 rounded-full shrink-0"
@@ -273,8 +273,8 @@ function LibraryPreview() {
 
 export default function ProductShowcase() {
   return (
-    <section className="py-20 sm:py-28 px-8">
-      <div className="max-w-2xl mx-auto space-y-20">
+    <section className="py-20 sm:py-28 px-4 sm:px-8">
+      <div className="max-w-2xl mx-auto space-y-20 overflow-hidden">
         <ConstitutionPreview />
         <LibraryPreview />
       </div>

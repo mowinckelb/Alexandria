@@ -46,21 +46,35 @@ export default function WaitlistSection({ confidential = false, inline = false }
 
   const form = (
     <form onSubmit={handleSubmit} className="flex flex-col items-center gap-5">
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="your@email.com"
-        required
-        className="w-56 px-0 py-1.5 text-[0.8rem] bg-transparent outline-none text-center"
-        style={{
-          color: 'var(--text-primary)',
-          border: 'none',
-          borderBottom: '1px solid var(--border-dashed)',
-          fontFamily: 'var(--font-eb-garamond)',
-          borderRadius: 0,
-        }}
-      />
+      <div className="relative w-56">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="your@email.com"
+          required
+          className="w-full px-0 py-1.5 text-[0.8rem] bg-transparent outline-none text-center"
+          style={{
+            color: 'var(--text-primary)',
+            border: 'none',
+            borderBottom: '1px solid var(--border-dashed)',
+            fontFamily: 'var(--font-eb-garamond)',
+            borderRadius: 0,
+          }}
+        />
+        {email.trim() && status !== 'submitting' && (
+          <button
+            type="submit"
+            className="absolute right-0 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 transition-opacity hover:opacity-60"
+            style={{ color: 'var(--text-ghost)' }}
+            aria-label="Submit"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
+      </div>
 
       {/* Author / Investor toggle */}
       <div className="flex items-center gap-4">
