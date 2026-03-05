@@ -376,7 +376,7 @@ function FiveThingsSection() {
             className="text-[0.85rem] leading-[1.75]"
             style={{ color: 'var(--text-muted)' }}
           >
-            A Constitution that maps who you are. A Library where your mind lives and earns. Between them &mdash; the tools that transform marble to mercury, amplify your thinking, and help you create your best work. Five things, one connector.
+            A Constitution that maps who you are. A Library where your mind lives and earns. Between them &mdash; the tools that transform marble to mercury, amplify your thinking, and help you create your best work. All three compound into the Constitution. And the process does not just capture who you are &mdash; it develops you. Your taste sharpens because you are forced to articulate it, apply it, and commit to it. The better you get, the deeper the map.
           </p>
         </div>
 
