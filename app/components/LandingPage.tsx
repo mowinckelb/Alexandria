@@ -116,7 +116,7 @@ function CopyButton({ href }: { href: string }) {
 
 function HeroSection({ confidential }: { confidential: boolean }) {
   return (
-    <section className="min-h-[85vh] flex flex-col items-center justify-center px-8 relative">
+    <section className="min-h-[85vh] sm:min-h-screen flex flex-col items-center justify-center px-8 relative">
       <div className="flex flex-col items-center">
         <h1
           className="text-[2.2rem] sm:text-[2.8rem] font-normal leading-none tracking-tight"
