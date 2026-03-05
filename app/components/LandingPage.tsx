@@ -276,7 +276,7 @@ function ThreeTurnsSection() {
             className="text-[1.3rem] sm:text-[1.5rem] font-normal italic"
             style={{ color: 'var(--text-primary)' }}
           >
-            &ldquo;Set the angel free.&rdquo;
+            &ldquo;set the angel free.&rdquo;
           </h2>
           <p
             className="text-[0.88rem] leading-[1.75]"
@@ -292,7 +292,7 @@ function ThreeTurnsSection() {
             className="text-[1.3rem] sm:text-[1.5rem] font-normal italic"
             style={{ color: 'var(--text-primary)' }}
           >
-            &ldquo;Absorb the abundance.&rdquo;
+            &ldquo;absorb the abundance.&rdquo;
           </h2>
           <p
             className="text-[0.88rem] leading-[1.75]"
@@ -308,7 +308,7 @@ function ThreeTurnsSection() {
             className="text-[1.3rem] sm:text-[1.5rem] font-normal italic"
             style={{ color: 'var(--text-primary)' }}
           >
-            &ldquo;The first goodbye.&rdquo;
+            &ldquo;the first goodbye.&rdquo;
           </h2>
           <p
             className="text-[0.88rem] leading-[1.75]"
