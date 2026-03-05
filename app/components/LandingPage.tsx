@@ -422,11 +422,7 @@ function GoDeeper({ confidential }: { confidential: boolean }) {
   );
 }
 
-function PricingSection({ confidential }: { confidential: boolean }) {
-  if (confidential) {
-    return <ConcreteSection confidential />;
-  }
-
+function PricingTiers() {
   return (
     <Section>
       <div className="space-y-10">
@@ -500,6 +496,15 @@ function PricingSection({ confidential }: { confidential: boolean }) {
 
       </div>
     </Section>
+  );
+}
+
+function PricingSection({ confidential }: { confidential: boolean }) {
+  return (
+    <>
+      <PricingTiers />
+      {confidential && <ConcreteSection confidential />}
+    </>
   );
 }
 
