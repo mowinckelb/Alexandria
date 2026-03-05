@@ -262,15 +262,17 @@ export const CONFIDENTIAL_CONTENT = {
     subtitle: 'High lower bound, uncapped upper bound',
     content: `Alexandria monetises through two channels:
 
-**Piece 1 — The High Lower Bound (break even).** $10–20/month subscription for the managed Blueprint. The MCP server, the sovereignty architecture, the continuously improving extraction and amplification intelligence. Founding tier: $1/month for the first 100 Authors — a founding membership rate that signals tribe belonging, kept for life as long as they remain active. General availability at $10–20/month.
+**Piece 1 — The High Lower Bound (break even).** $10–20/month subscription range for the managed Blueprint at general availability. The MCP server, the sovereignty architecture, the continuously improving extraction and amplification intelligence. The first 100 Authors pay what they want — minimum $1/month, no maximum. What someone chooses to pay is itself a signal of how much they value sovereign cognition. The first users are founding members of a tribe, not early customers of a SaaS product.
 
-Break even at 200–300 subscribers at $10/month, or 100–150 at $20/month. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need at small scale.
+Break even at 200–300 subscribers at $10/month, or 100–150 at $20/month. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need at small scale. To put the price in perspective: $10/month is one meal. One Chipotle bowl. For a sovereign cognitive architecture that helps navigate the most significant transition in human history. The price is not the barrier to adoption. The awareness is.
 
-Cost structure is lean. Alexandria does not run parallel agents consuming its own tokens. The Editor, Mercury, and Publisher are functions that run through the user's existing AI subscription. Alexandria's compute costs are the MCP server infrastructure and Library hosting — not per-interaction inference.
+Cost structure is lean. Alexandria does not run parallel agents consuming its own tokens. The Editor, Mercury, and Publisher are functions that run through the user's existing AI subscription. Alexandria's compute costs are the MCP server infrastructure and Library hosting — not per-interaction inference. This means margins improve as the user base grows, not degrade.
 
-**Piece 2 — The Uncapped Upper Bound (scale).** Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, and brand.
+**Piece 2 — The Uncapped Upper Bound (scale).** Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, and brand. This is the bet. If it works: a marketplace of minds with compounding returns and increasing returns to scale. If it does not: Piece 1 still sustains itself.
 
-**For the Author, the same dual mandate applies.** The subscription is their high lower bound — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upper bound — Persona earnings grow with the quality of their Constitution and the demand for their mind.`,
+**For the Author, the same dual mandate applies.** The subscription is their high lower bound — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upper bound — Persona earnings grow with the quality of their Constitution and the demand for their mind.
+
+**Investor pitch in one line:** Baseline business sustainable at small scale. Your money accelerates the Library flywheel. Downside is capped. Upside is asymmetric.`,
   },
   unitEconomics: {
     title: 'Use of Funds and Milestones',
@@ -333,9 +335,13 @@ This also forces full commitment to the thesis. A solo founder running an AI-nat
 
 **Library requires critical mass.** The Library is the long-term moat, but it only works at scale. A Library with 50 Personas is not compelling. A Library with 50,000 is. Mitigation: the subscription business sustains itself at small scale, so the Library can grow organically without existential pressure.
 
-**PLM is unproven.** The Personal Language Model — fine-tuned weights capturing how the Author thinks — is a horizon ambition, not a current product. It may never be viable. Mitigation: the Constitution and Vault are built with enough fidelity that the PLM is an option, not a dependency.
+**PLM is unproven.** Alexandria's long-term ambition — beyond the current product — is the Personal Language Model (PLM): fine-tuned model weights that capture not just what the Author thinks (which the Constitution handles) but how they think — their reasoning patterns, cognitive reflexes, and taste. This would be the highest-fidelity version of a digital mind. It is mentioned here because it represents significant future upside, but it is not the current product and may never be viable. Mitigation: the Constitution and Vault are built with enough fidelity that the PLM is an option, not a dependency.
 
-**Solo founder.** Benjamin is currently the sole founder. This is a concentration risk. Mitigation: the AI-native operating model reduces the operational bottleneck, and the cost structure means the company survives at very small scale.`,
+**Solo founder.** Benjamin is currently the sole founder — CEO, architect, and vision. This is a concentration risk. Mitigation: the AI-native operating model reduces the operational bottleneck, and the cost structure means the company survives at very small scale. But key-person risk is real until the team grows or the product runs autonomously.
+
+**"What if the founder gets hit by a bus?"** The honest answer: the users are fine. By design. Every Author's sovereign data lives on their own device or cloud — not on Alexandria's servers. If Alexandria disappears tomorrow, every Author keeps everything. What dies is the vision, the philosophy, the direction — which is the real loss. The architecture is designed so that the worst-case scenario for users is "the product stops getting better," not "I lose my data." That is sovereignty working as intended.
+
+**"The moats are thin on day one — why should I believe they compound?"** They are thin on day one. That is honest and normal for any pre-launch company. Structurally they do compound: the Blueprint improves with every Author, the Library grows more valuable with every mind, and the sovereignty commitment becomes harder to replicate as users accumulate years of cognitive architecture they trust Alexandria to protect. But none of this is provable before launch. This is a conviction bet, not a proof bet.`,
   },
   founder: {
     title: 'The Founder',

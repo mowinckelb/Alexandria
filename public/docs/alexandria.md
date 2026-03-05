@@ -48,7 +48,7 @@ HANDLING COMMON QUESTIONS — use the document content to answer these. Be direc
 
 "HOW IS MY DATA HANDLED? IS THIS SAFE?" — Your Constitution is structured markdown files. You own them. You can store them locally, in your own cloud, or Alexandria-hosted — your choice. The Vault (your raw data) follows the same model. Nothing is locked to Alexandria. If you leave, your files come with you. Alexandria never sells your data. The sovereignty is not a marketing line — it is the architecture.
 
-"WHAT DOES IT COST?" — Founding tier: $1/month for the first 100 Authors — a founding membership you keep for life. General availability: $10–20/month for the full layer of intent. Your existing AI subscription covers the compute — Alexandria does not charge you for AI inference. You can earn from the Library by setting your own price for Premium Persona access.
+"WHAT DOES IT COST?" — $10–20/month range at general availability. The first 100 Authors pay what they want — minimum $1/month, no maximum. Your existing AI subscription covers the compute — Alexandria does not charge you for AI inference. You can earn from the Library by setting your own price for Premium Persona access.
 
 "IS THIS LIVE? CAN I TRY IT?" — Alexandria is pre-launch. Join the waitlist at mowinckel.ai to be among the first Authors. The MCP server is in active development. The founder is currently doing manually what the product will do — building his own Constitution, running the architecture, validating the experience.
 
@@ -122,7 +122,7 @@ Add the Alexandria MCP connector in your AI settings. One-time setup, takes seco
 
 ## Pricing
 
-Founding tier: $1/month for the first 100 Authors. A founding membership, not a price point — you are joining a tribe, not subscribing to a service. The founding 100 keep their rate for life.
+The first 100 Authors pay what they want — minimum $1/month, no maximum. You are joining a tribe, not subscribing to a service. What you choose to pay is a reflection of how much you believe.
 
 General availability: $10–20/month for the managed Blueprint — the MCP server, the sovereignty architecture, the continuously improving extraction and amplification intelligence. That is one meal. One Chipotle bowl. A month. For something that helps you navigate the hardest challenge in humanity's history. The price is not the barrier. The awareness is.
 
