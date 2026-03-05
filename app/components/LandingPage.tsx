@@ -532,12 +532,34 @@ function PricingTiers() {
   );
 }
 
-function PricingSection({ confidential }: { confidential: boolean }) {
+function InvestorCloseSection() {
   return (
-    <>
-      <PricingTiers />
-      {confidential && <ConcreteSection confidential />}
-    </>
+    <Section>
+      <div className="space-y-6 text-center">
+        <p
+          className="text-[0.88rem] leading-[1.75] italic"
+          style={{ color: 'var(--text-secondary)' }}
+        >
+          When intelligence is commoditised, the only remaining source of marginal value is the humanity on top. Alexandria&rsquo;s architecture both captures and compounds that humanity. The downside is capped. The upside compounds.
+        </p>
+        <div className="flex flex-col items-center gap-1.5 text-[0.65rem]" style={{ color: 'var(--text-ghost)' }}>
+          <a
+            href="mailto:benjamin@mowinckel.com"
+            className="no-underline tracking-wide transition-opacity hover:opacity-40"
+            style={{ color: 'var(--text-ghost)' }}
+          >
+            benjamin@mowinckel.com
+          </a>
+          <a
+            href="tel:+4746643844"
+            className="no-underline tracking-wide transition-opacity hover:opacity-40"
+            style={{ color: 'var(--text-ghost)' }}
+          >
+            +47 466 43 844
+          </a>
+        </div>
+      </div>
+    </Section>
   );
 }
 
@@ -554,33 +576,6 @@ function PhilosophyCloseSection({ confidential }: { confidential: boolean }) {
         </p>
 
         <WaitlistSection confidential={confidential} inline />
-
-        {confidential && (
-          <div className="flex items-center justify-center gap-3 pt-4">
-            <a
-              href="/docs/Alexandria.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
-              style={{ color: 'var(--text-primary)', opacity: 0.45 }}
-            >
-              abstract
-            </a>
-            <span className="text-[0.35rem]" style={{ color: 'var(--text-ghost)' }}>&bull;</span>
-            <span className="flex items-center gap-1.5">
-              <a
-                href="/docs/confidential_alexandria.md"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
-                style={{ color: 'var(--text-primary)', opacity: 0.45 }}
-              >
-                concrete
-              </a>
-              <CopyButton href="/docs/confidential_alexandria.md" />
-            </span>
-          </div>
-        )}
       </div>
     </Section>
   );
@@ -614,13 +609,21 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
       {/* Section 6 — Five Value Adds */}
       <FiveThingsSection />
 
-      {/* Section 7 — Go Deeper */}
+      {/* Section 7 — Pricing */}
+      <PricingTiers />
+
+      {/* Section 8 — Go Deeper (rounds off the public content) */}
       <GoDeeper confidential={confidential} />
 
-      {/* Section 8 — Pricing (public) / Investment Detail (confidential) */}
-      <PricingSection confidential={confidential} />
+      {/* Section 9 — Investor Detail (confidential only) */}
+      {confidential && (
+        <>
+          <ConcreteSection confidential />
+          <InvestorCloseSection />
+        </>
+      )}
 
-      {/* Section 8 — Philosophy Close */}
+      {/* Section 10 — Philosophy Close */}
       <PhilosophyCloseSection confidential={confidential} />
 
       <FooterSection />
