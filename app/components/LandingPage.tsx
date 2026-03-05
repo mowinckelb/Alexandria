@@ -326,7 +326,7 @@ function LibraryDemoSection() {
           className="text-[0.88rem] italic"
           style={{ color: 'var(--text-muted)' }}
         >
-          A network of minds.
+          The Louvre of minds.
         </p>
         <LibraryPreview />
       </div>
