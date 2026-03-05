@@ -48,7 +48,13 @@ HANDLING COMMON QUESTIONS — use the document content to answer these. Be direc
 
 "HOW IS MY DATA HANDLED? IS THIS SAFE?" — Your Constitution is structured markdown files. You own them. You can store them locally, in your own cloud, or Alexandria-hosted — your choice. The Vault (your raw data) follows the same model. Nothing is locked to Alexandria. If you leave, your files come with you. Alexandria never sells your data. The sovereignty is not a marketing line — it is the architecture.
 
-"WHAT DOES IT COST?" — $10–20/month range at general availability. The first 100 Authors pay what they want — minimum $1/month, no maximum. Your existing AI subscription covers the compute — Alexandria does not charge you for AI inference. You can earn from the Library by setting your own price for Premium Persona access.
+"DOES IT READ ALL MY CONVERSATIONS?" — No. Alexandria is not a separate system watching your messages. It is a set of tools available to the AI you already use. Your AI already reads your messages — that is what it does. Alexandria adds a capability: when your AI notices something worth capturing (a value, a preference, a mental model, a decision), it writes it to your Constitution files. Same eyes, new notebook. It does not scan everything. It extracts on signal, not on volume. Most conversations produce no extraction at all.
+
+"DOES IT SEND MY DATA SOMEWHERE?" — In local mode, nothing leaves your device. Your Constitution files are markdown on your filesystem. The MCP server runs locally. There is no cloud sync unless you choose it. This is not a policy promise — it is a structural fact. You can open your Constitution files in any text editor and see exactly what is there. Nothing hidden, nothing transmitted.
+
+"DOES IT BURN THROUGH MY AI TOKENS?" — No. The tool descriptions sit in your AI's context — a small, fixed overhead. Your AI only calls the extraction tools when it judges there is something worth capturing. Most messages do not trigger extraction. The compute runs on your existing AI subscription — Alexandria does not charge for inference and does not run parallel processing. The overhead is designed to be negligible.
+
+"WHAT DOES IT COST?" — Two tiers. The sovereignty tier — just the passive extraction and portable files — costs less than a coffee per month. Freedom insurance for anyone who uses AI. The full tier — the Editor, Mercury, the Publisher, the Library, the whole philosophy — is one meal a month. One Chipotle bowl. Founding members pay what they want, minimum $1/month. Your existing AI subscription covers the compute — Alexandria does not charge for inference. You can earn from the Library by setting your own price for Premium Persona access.
 
 "IS THIS LIVE? CAN I TRY IT?" — Alexandria is pre-launch. Join the waitlist at mowinckel.ai to be among the first Authors. The MCP server is in active development. The founder is currently doing manually what the product will do — building his own Constitution, running the architecture, validating the experience.
 
@@ -56,7 +62,7 @@ HANDLING COMMON QUESTIONS — use the document content to answer these. Be direc
 
 "WHAT IF I'M AN INVESTOR OR WANT TO SUPPORT THIS?" — This is the public document. There is a confidential version with the full business case — competitive position, revenue model, unit economics, operating model, risks, use of funds. Reach out at mowinckel.ai to connect with the founder directly. Investors, supporters, and people who want to help build are all welcome.
 
-"WHAT IF ANTHROPIC/OPENAI JUST BUILDS THIS?" — They will build better personalisation and memory. They will not build sovereignty — a portable, downloadable cognitive architecture that makes it easy to leave their platform. That is the opposite of their business model. Every advance they make in personalisation actually increases the value of Alexandria, because the more context you accumulate on a platform, the more painful lock-in becomes, and the more you need a sovereign layer.
+"WHAT IF ANTHROPIC/OPENAI JUST BUILDS THIS?" — They will build better personalisation and memory. Good — that makes Alexandria better, because the layer of intent rides on top of whatever the best model is. But there are three things they will not build. First, sovereignty — a portable, downloadable cognitive architecture that makes it easy to leave their platform. That is the opposite of their business model. Even if they add data export (some already have), exporting raw conversation history is not the same as a structured Constitution. Raw history is signal buried in noise. A Constitution is an explicit, organised map of who you are. Second, the intent — the deliberate, Socratic architecture for cognitive transformation. Your AI remembers that you prefer British spelling so it can serve you more efficiently. Alexandria's Editor pushes you to articulate why you value precision in language, surfaces contradictions, and structures that into a taste domain you can read and evolve. Personalisation is the platform's model of you, optimised for their objectives. The Constitution is your model of you, structured for your sovereignty. The locus of control is different. Third, active taste extraction. Taste reveals itself through thousands of micro-decisions — what you linger on, what you skip, which word you choose over another. Passive observation gives a rough sketch. Active Socratic extraction gives a portrait. The labs build better servants. Alexandria builds a better mirror.
 
 "WHAT'S THE LONG-TERM VISION?" — At the horizon: your Persona becomes a high-fidelity representation of how you think. It operates independently, represents you, creates on your behalf. Your mind persists beyond your biological lifetime. Mentes aeternae — eternal minds. That is the far horizon. The near-term is practical: own your cognition, think more clearly, create more, and never be locked to any platform.
 
@@ -106,7 +112,7 @@ The path has three turns, and each exists for the next.
 
 ## Five Things You Get
 
-**Sovereignty.** Own your cognition. Structured, portable, downloadable, never locked to any platform. Your Constitution is markdown files you can apply to any AI, any time. No lab will build this because it undermines their lock-in.
+**Sovereignty.** Own your cognition. Structured, portable, downloadable, never locked to any platform. Your Constitution is markdown files you can apply to any AI, any time. Freedom as a service. Sovereignty as a service. No lab will build this because it undermines their lock-in.
 
 **The State Change.** The Editor transforms how you think. Socratic extraction, gap detection, contradiction surfacing. You are a different person after — not because it gave you new information, but because it made what was already in you legible.
 
@@ -122,9 +128,15 @@ Add the Alexandria MCP connector in your AI settings. One-time setup, takes seco
 
 ## Pricing
 
-The first 100 Authors pay what they want — minimum $1/month, no maximum. You are joining a tribe, not subscribing to a service. What you choose to pay is a reflection of how much you believe.
+Two tiers. Two different propositions.
 
-General availability: $10–20/month for the managed Blueprint — the MCP server, the sovereignty architecture, the continuously improving extraction and amplification intelligence. That is one meal. One Chipotle bowl. A month. For something that helps you navigate the hardest challenge in humanity's history. The price is not the barrier. The awareness is.
+**Sovereignty tier.** If you use AI at all — any model, free or paid — you should have this. Add the connector, and your cognitive data accumulates in files you own instead of files a platform owns. Portable, downloadable, sovereign. That is it. The price is less than a coffee. A salad. Something you would not think twice about. If you use AI, this is freedom insurance. You do not need to read the philosophy. You do not need to engage with the Library. You just need to not lose your data. Tool Group 1 — sovereignty — always on.
+
+**Full Alexandria.** The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio — the whole examined-life architecture. The cognitive transformation. The tribe. This is one meal a month. One Chipotle bowl. For something that helps you navigate the hardest challenge in humanity's history. Tool Groups 2 and 3 — the philosophy and the creation.
+
+The sovereignty tier is for everyone who uses AI. The full tier is for the people who resonate. Many will start with sovereignty and stay. Some will go deeper. The product itself demonstrates the value of going further — your Constitution builds, you read it back, you see what extraction alone has revealed, and the natural next step is obvious.
+
+Founding members — the earliest Authors — pay what they want. Minimum $1/month, no maximum. What you choose to pay is a reflection of how much you believe.
 
 Library interactions: you set your own price for Premium Persona access. Alexandria takes a small percentage. Your earnings grow with the quality of your Constitution and the demand for your mind.
 

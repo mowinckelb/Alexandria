@@ -248,7 +248,7 @@ export const PUBLIC_CONTENT = {
       { name: 'Self-Knowledge', description: 'The Editor transforms your AI into a Socratic biographer. It extracts cognition and structures it into a sovereign Constitution you own. Most people cannot see themselves clearly. The Editor clears the fog. Marble to mercury.' },
       { name: 'Amplification', description: 'Mercury amplifies your thinking. It represents you in conversations, surfaces content you would not have found, pushes your cognition higher. Your attention becomes positive-sum.' },
       { name: 'Creation', description: 'The Publisher helps you create and ship your best work — calibrated to your voice, your taste, your creative principles. You are the conductor. The Publisher is first chair. Die empty.' },
-      { name: 'Sovereignty', description: 'Your Constitution and Vault are portable, downloadable, human-readable files you own. Switch from Claude to GPT to Gemini — everything comes with you. No platform lock-in. Freedom as a service.' },
+      { name: 'Sovereignty', description: 'Your Constitution and Vault are portable, downloadable, human-readable files you own. Switch from Claude to GPT to Gemini — everything comes with you. No platform lock-in. Freedom as a service. Sovereignty as a service.' },
       { name: 'The Tribe', description: 'Alexandria is not just a product. It is a community of people who take their cognition seriously — the examined life as a practice, not a slogan. The three turns, the droplet philosophy, the commitment to creation.' },
     ],
   },
@@ -259,20 +259,20 @@ export const PUBLIC_CONTENT = {
 export const CONFIDENTIAL_CONTENT = {
   businessModel: {
     title: 'Revenue Model — The Dual Mandate',
-    subtitle: 'High lower bound, uncapped upper bound',
-    content: `Alexandria monetises through two channels:
+    subtitle: 'Two-tier acquisition funnel. High lower bound, uncapped upper bound.',
+    content: `**The Sovereignty Tier — mass-market entry.** Tool Group 1 only. Passive extraction, Constitution building, Vault sovereignty. The user adds the connector, their cognitive data accumulates in portable files they own. No philosophy required. No engagement with the Library. Just freedom insurance. Priced at "don't even think about it" level — less than a coffee. The audience is everyone who uses AI. The sovereignty tier is the top of the acquisition funnel.
 
-**Piece 1 — The High Lower Bound (break even).** $10–20/month subscription range for the managed Blueprint at general availability. The MCP server, the sovereignty architecture, the continuously improving extraction and amplification intelligence. The first 100 Authors pay what they want — minimum $1/month, no maximum. What someone chooses to pay is itself a signal of how much they value sovereign cognition. The first users are founding members of a tribe, not early customers of a SaaS product.
+**The Full Tier — the conversion.** Tool Groups 2 and 3. The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio. The cognitive transformation architecture. Priced at "one meal a month" — one Chipotle bowl. The conversion happens organically: the sovereignty tier builds the Constitution passively, the Author reads it back, sees what extraction has revealed, and the value of going deeper becomes self-evident. The product is the pitch.
 
-Break even at 200–300 subscribers at $10/month, or 100–150 at $20/month. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need at small scale. To put the price in perspective: $10/month is one meal. One Chipotle bowl. For a sovereign cognitive architecture that helps navigate the most significant transition in human history. The price is not the barrier to adoption. The awareness is.
+Founding members pay what they want — minimum $1/month, no maximum. GA pricing is flexible by design. The principle: sovereignty tier priced so low the decision cost is zero. Full tier should feel like a meal, not a commitment.
 
-Cost structure is lean. Alexandria does not run parallel agents consuming its own tokens. The Editor, Mercury, and Publisher are functions that run through the user's existing AI subscription. Alexandria's compute costs are the MCP server infrastructure and Library hosting — not per-interaction inference. This means margins improve as the user base grows, not degrade.
+**Piece 1 — The High Lower Bound (break even).** The full tier subscription sustains the business at small scale. Break even at 200–300 subscribers at ~$10/month, or fewer at a higher price. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need. The sovereignty tier at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.
 
-**Piece 2 — The Uncapped Upper Bound (scale).** Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, and brand. This is the bet. If it works: a marketplace of minds with compounding returns and increasing returns to scale. If it does not: Piece 1 still sustains itself.
+Cost structure is lean. Alexandria does not run parallel agents consuming its own tokens. The Editor, Mercury, and Publisher are functions that run through the user's existing AI subscription. Alexandria's compute costs are the MCP server infrastructure and Library hosting — not per-interaction inference. Margins improve as the user base grows, not degrade.
 
-**For the Author, the same dual mandate applies.** The subscription is their high lower bound — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upper bound — Persona earnings grow with the quality of their Constitution and the demand for their mind.
+**Piece 2 — The Uncapped Upper Bound (scale).** Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, and brand. This is the bet. If it works: a marketplace of minds with compounding returns. If it does not: Piece 1 still sustains itself.
 
-**Investor pitch in one line:** Baseline business sustainable at small scale. Your money accelerates the Library flywheel. Downside is capped. Upside is asymmetric.`,
+**Investor pitch in one line:** Massive funnel at trivial cost (sovereignty), converts to sustainable subscription (full tier), with asymmetric upside (Library). Downside is capped. Upside compounds.`,
   },
   unitEconomics: {
     title: 'Use of Funds and Milestones',
@@ -301,11 +301,13 @@ Library beta launch. First Personas discoverable. First Premium interactions. Re
   competitivePosition: {
     title: 'Competitive Position',
     content: `**Against frontier labs (Anthropic, OpenAI, Google):**
-Labs will build better personalisation, better memory, better context. They will not build sovereignty. A structured, portable, downloadable cognitive architecture that makes it easy to leave their platform is the opposite of their business model. Three years of accumulated context with Claude is a chain that keeps you paying for Claude. No lab will build the tool that makes it easy to leave.
+Labs will build better personalisation, better memory, better context. Good — every advance makes Alexandria better, because the layer of intent rides on top of whatever the best model is. But three things they will not build:
 
-They will not build the three-turn mindset. The Editor, Mercury, the Publisher, and the Library are a specific philosophical architecture. Labs build general-purpose AI. They do not build cognitive transformation journeys.
+Sovereignty. A structured, portable, downloadable cognitive architecture that makes it easy to leave their platform is the opposite of their business model. Even as data portability improves, exporting raw conversation history is not a Constitution. Raw history is signal buried in noise. A Constitution is an explicit, structured map of who the Author is. The labs may build data export. They will not build structured self-knowledge.
 
-Every advance they make — better models, longer context, cheaper inference — makes Alexandria better, because the layer of intent rides on top of whatever the best model is.
+The intent. Labs build general-purpose AI that responds to whatever the user brings. Alexandria's Editor actively pursues cognitive transformation — Socratic extraction, gap detection, contradiction surfacing, structured self-knowledge. Personalisation is the platform's model of the user, optimised for the platform's objectives. The Constitution is the user's model of themselves, structured for their sovereignty. The locus of control is different.
+
+Active taste extraction. Taste reveals itself through thousands of micro-decisions. Passive observation gives a rough sketch. Active Socratic extraction gives a portrait. The labs build better servants. Alexandria builds a better mirror.
 
 **Against other startups:**
 Honest assessment: the code is not the moat. An MCP server with three tool groups is buildable by any competent team. What is not easily replicated is the vision, the brand, the three-turn philosophy, and the continuously improving Blueprint — accumulated knowledge of how to transform cognition. This is a soft moat, not a hard one. It compounds over time but it is not defensible on day one.
