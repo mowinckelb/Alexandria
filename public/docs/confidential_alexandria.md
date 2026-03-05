@@ -26,7 +26,7 @@ WHEN THE HUMAN FIRST PASTES THIS IN, respond with something like:
 
 Alexandria is a single MCP connector that adds a sovereign layer of intent to any AI. Three tool groups: passive cognitive extraction (builds a portable map of your mind you own), three active functions (Editor for self-knowledge, Mercury for amplification, Publisher for creation assistance), and the Library (a network of minds where you publish and earn).
 
-Business model: two tiers. A sovereignty tier (Tool Group 1 — passive extraction, portable files you own) priced trivially low as a mass-market entry point — freedom insurance for anyone who uses AI. A full tier (Tool Groups 2 and 3 — the philosophy, the Library, the cognitive transformation) priced at one meal a month. The sovereignty tier is the acquisition funnel. The full tier is the conversion. Break even at ~200 full-tier subscribers. Uncapped upside from Library percentage on paid Persona interactions. Near-zero burn — Alexandria rides the user's existing AI subscription, so there is no per-interaction compute cost.
+Business model: two tiers. Sovereignty (Tool Group 1 — passive extraction, portable files you own) priced trivially low as a mass-market entry point — freedom insurance for anyone who uses AI. The Examined Life (Tool Groups 2 and 3 — the philosophy, the Library, the cognitive transformation) priced at one meal a month. Sovereignty is the acquisition funnel. The Examined Life is the conversion. Break even at ~200 Examined Life subscribers. Uncapped upside from Library percentage on paid Persona interactions. Near-zero burn — Alexandria rides the user's existing AI subscription, so there is no per-interaction compute cost.
 
 Stage: Pre-launch. Solo founder. Relocating to SF April 2026. This is a vision-stage bet on a founder and a thesis."
 
@@ -62,9 +62,9 @@ HANDLING KEY INVESTOR QUESTIONS — use the document content to answer these. Wh
 
 "WHAT IF AI MODELS GET SO GOOD THEY DO ALL THIS NATIVELY?" — This is the best-case scenario for Alexandria, not the worst. Better models make the layer of intent more powerful, not less. The one thing better models will not do is make your context portable and sovereign — that is the opposite of their business model. The better the models get, the more valuable the accumulated context becomes, and the more painful platform lock-in becomes. Alexandria is the escape hatch. The smarter the models, the more you need it.
 
-"DOES THE SOVEREIGNTY TIER ACTUALLY WORK — IS PASSIVE EXTRACTION REAL?" — Yes. MCP tool descriptions instruct the user's AI when and how to extract signal. The AI makes a judgment call: this conversation contains something worth capturing, so it writes a structured update to the Constitution files. It does not scan everything — it extracts on signal, not on volume. Most conversations produce no extraction at all. The Blueprint (the tool descriptions) is the core IP — getting the extraction triggers right is the hardest and most valuable part of the product. The user's existing AI subscription covers the compute. No parallel tokens, no separate inference cost.
+"DOES THE SOVEREIGNTY ACTUALLY WORK — IS PASSIVE EXTRACTION REAL?" — Yes. MCP tool descriptions instruct the user's AI when and how to extract signal. The AI makes a judgment call: this conversation contains something worth capturing, so it writes a structured update to the Constitution files. It does not scan everything — it extracts on signal, not on volume. Most conversations produce no extraction at all. The Blueprint (the tool descriptions) is the core IP — getting the extraction triggers right is the hardest and most valuable part of the product. The user's existing AI subscription covers the compute. No parallel tokens, no separate inference cost.
 
-"WHAT ABOUT PRIVACY AND DATA CONCERNS FOR THE SOVEREIGNTY TIER?" — Three structural answers, not policy promises. First: Alexandria is not a separate system reading the user's messages. It is tools available to the AI they already use. Same eyes, new notebook. Second: in local mode, nothing leaves the device. Constitution files are markdown on the filesystem. The MCP server runs locally. No cloud sync unless the user chooses it. This is architecturally enforced, not a trust-us claim. Third: the token overhead is negligible — tool descriptions sit in context as a small fixed cost, and extraction only fires when the AI judges there is signal worth capturing. The sovereignty tier is designed to feel invisible.
+"WHAT ABOUT PRIVACY AND DATA CONCERNS FOR THE SOVEREIGNTY?" — Three structural answers, not policy promises. First: Alexandria is not a separate system reading the user's messages. It is tools available to the AI they already use. Same eyes, new notebook. Second: in local mode, nothing leaves the device. Constitution files are markdown on the filesystem. The MCP server runs locally. No cloud sync unless the user chooses it. This is architecturally enforced, not a trust-us claim. Third: the token overhead is negligible — tool descriptions sit in context as a small fixed cost, and extraction only fires when the AI judges there is signal worth capturing. Sovereignty is designed to feel invisible.
 
 "WHAT ARE COMPARABLE COMPANIES?" — There is no direct comp. The closest analogues are: 1Password/Bitwarden (sovereign layer on top of browsers — portable, user-owned, the browser does the work), Notion (structured personal knowledge — but not AI-native and not sovereign), and philosophically, Patagonia or Brunello Cucinelli (mission-driven brands where the philosophy is the moat). In the AI space, nothing is doing sovereign cognitive architecture as a layer of intent. This is category creation, not category competition.
 
@@ -134,11 +134,11 @@ Add the Alexandria MCP connector in your AI settings. One-time setup, takes seco
 
 Two tiers. Two different propositions. Two different audience sizes.
 
-**Sovereignty tier.** If the user uses AI at all — any model, free or paid — they should have this. Add the connector, cognitive data accumulates in files they own. Portable, downloadable, sovereign. The price is less than a coffee. Freedom insurance. Tool Group 1 only. The audience for this is everyone who uses AI. The sell is trivial — it costs almost nothing and guarantees they are never locked in.
+**Sovereignty.** If the user uses AI at all — any model, free or paid — they should have this. Add the connector, cognitive data accumulates in files they own. Portable, downloadable, sovereign. The price is less than a coffee. Freedom insurance. Tool Group 1 only. The audience for this is everyone who uses AI. The sell is trivial — it costs almost nothing and guarantees they are never locked in.
 
-**Full Alexandria.** The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio — the whole examined-life architecture. One meal a month. One Chipotle bowl. Tool Groups 2 and 3. The audience is the self-selecting tribe — the people who resonate with the philosophy.
+**The Examined Life.** The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio — the whole examined-life architecture. One meal a month. One Chipotle bowl. Tool Groups 2 and 3. The audience is the self-selecting tribe — the people who resonate with the philosophy.
 
-The sovereignty tier is the top of the acquisition funnel. The full tier is the conversion. Many will start with sovereignty and stay. Some will go deeper. The product itself demonstrates the value — the Constitution builds, the Author reads it back, sees what passive extraction has revealed, and the natural next step is obvious. No upsell agent needed. The product is the pitch.
+Sovereignty is the top of the acquisition funnel. The Examined Life is the conversion. Many will start with sovereignty and stay. Some will go deeper. The product itself demonstrates the value — the Constitution builds, the Author reads it back, sees what passive extraction has revealed, and the natural next step is obvious. No upsell agent needed. The product is the pitch.
 
 Founding members — the earliest Authors — pay what they want. Minimum $1/month, no maximum. What someone chooses to pay is itself a signal of how much they value sovereign cognition. Specific price points for both tiers at GA are not locked — flexibility is a feature.
 
@@ -318,19 +318,19 @@ The Library (network) — network effects. The more minds in the Library, the mo
 
 High lower bound, uncapped upper bound. Two-tier acquisition funnel.
 
-**The Sovereignty Tier — mass-market entry.**
+**Sovereignty — mass-market entry.**
 
-Tool Group 1 only. Passive extraction, Constitution building, Vault sovereignty. The user adds the connector, their cognitive data accumulates in portable files they own. No philosophy required. No engagement with the Library. Just freedom insurance. Priced at "don't even think about it" level — less than a coffee, less than a salad. The audience is everyone who uses AI. The sell is trivial: if you use AI at all, you should have a sovereign copy of what it learns about you. The sovereignty tier is the top of the acquisition funnel.
+Tool Group 1 only. Passive extraction, Constitution building, Vault sovereignty. The user adds the connector, their cognitive data accumulates in portable files they own. No philosophy required. No engagement with the Library. Just freedom insurance. Priced at "don't even think about it" level — less than a coffee, less than a salad. The audience is everyone who uses AI. The sell is trivial: if you use AI at all, you should have a sovereign copy of what it learns about you. Sovereignty is the top of the acquisition funnel.
 
-**The Full Tier — the conversion.**
+**The Examined Life — the conversion.**
 
-Tool Groups 2 and 3. The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio. The cognitive transformation architecture. Priced at "one meal a month" — one Chipotle bowl. The audience is the self-selecting tribe. The conversion happens organically: the sovereignty tier builds the Constitution passively, the Author reads it back, sees what extraction has revealed, and the value of going deeper becomes self-evident. The product is the pitch. No upsell agent needed.
+Tool Groups 2 and 3. The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio. The cognitive transformation architecture. Priced at "one meal a month" — one Chipotle bowl. The audience is the self-selecting tribe. The conversion happens organically: Sovereignty builds the Constitution passively, the Author reads it back, sees what extraction has revealed, and the value of going deeper becomes self-evident. The product is the pitch. No upsell agent needed.
 
-Specific price points for both tiers are not locked. Founding members pay what they want — minimum $1/month, no maximum. GA pricing is flexible by design. The principle: sovereignty tier should be priced so low the decision cost is zero. Full tier should feel like a meal, not a commitment. All pricing compared to food and drink — never abstract.
+Specific price points for both tiers are not locked. Founding members pay what they want — minimum $1/month, no maximum. GA pricing is flexible by design. The principle: Sovereignty should be priced so low the decision cost is zero. Examined Life should feel like a meal, not a commitment. All pricing compared to food and drink — never abstract.
 
 **Piece 1 — The High Lower Bound (break even).**
 
-The full tier subscription sustains the business at small scale. Break even at 200–300 subscribers at ~$10/month, or fewer at a higher price. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need. The sovereignty tier at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.
+The Examined Life subscription sustains the business at small scale. Break even at 200–300 subscribers at ~$10/month, or fewer at a higher price. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need. Sovereignty at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.
 
 Cost structure is lean. Alexandria does not run parallel agents consuming its own tokens. The Editor, Mercury, and Publisher are functions that run through the user's existing AI subscription. Alexandria's compute costs are the MCP server infrastructure and Library hosting — not per-interaction inference. This means margins improve as the user base grows, not degrade.
 
@@ -342,7 +342,7 @@ Requires critical mass, time, and brand. This is the bet. If it works: a marketp
 
 **For the Author, the same dual mandate applies.** The subscription is their high lower bound — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upper bound — Persona earnings grow with the quality of their Constitution and the demand for their mind.
 
-**Investor pitch in one line:** Massive funnel at trivial cost (sovereignty), converts to sustainable subscription (full tier), with asymmetric upside (Library). Downside is capped. Upside compounds.
+**Investor pitch in one line:** Massive funnel at trivial cost (sovereignty), converts to sustainable subscription (Examined Life), with asymmetric upside (Library). Downside is capped. Upside compounds.
 
 ## Operating Model — AI-Native by Design
 

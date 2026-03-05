@@ -282,7 +282,7 @@ Architect — believes in both the philosophy and the technology. The full tribe
   
 Philosopher — believes in the art but not (yet) the technology. Read the Abstract, something shifted, wants to be part of the community. May not have Cowork or MCP set up. Comes in through the Library side — manually contributing, engaging with other Authors' work. The technology catches up to them over time as bridges improve.  
   
-Pragmatist — believes in the technology but not (yet) the philosophy. Wants sovereignty insurance. Has not read the manifesto, does not care about the examined life — just does not want their data locked to any platform. Comes in through the sovereignty tier. The product demonstrates the philosophy over time.  
+Pragmatist — believes in the technology but not (yet) the philosophy. Wants sovereignty insurance. Has not read the manifesto, does not care about the examined life — just does not want their data locked to any platform. Comes in through Sovereignty. The product demonstrates the philosophy over time.  
   
 Patron — supports the founder and the project. May not use the product actively. Friends, family, believers in Benjamin more than in any specific feature. Pay-what-you-want lets them do this with dignity. They are not donating — they are joining.  
   

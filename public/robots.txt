@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /docs/
+Disallow: /confidential
+Disallow: /docs/confidential_alexandria.md
+
+Sitemap: https://mowinckel.ai/sitemap.xml

@@ -9,8 +9,25 @@ const ebGaramond = EB_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "alexandria",
-  description: "Immortalise the Greats",
+  title: "alexandria. — droplets of grace",
+  description: "A sovereign layer of intent for personal AI. One MCP connector. Your cognition extracted into structured, portable files you own. Switch models freely. The examined life as architecture.",
+  keywords: ["Alexandria", "AI sovereignty", "personal AI", "MCP", "constitution", "cognitive architecture", "self-knowledge", "AI connector", "portable AI data", "examined life"],
+  openGraph: {
+    title: "alexandria.",
+    description: "A sovereign layer of intent for personal AI. Own your cognition. Switch models freely. The examined life as architecture.",
+    url: "https://mowinckel.ai",
+    siteName: "Alexandria",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "alexandria.",
+    description: "A sovereign layer of intent for personal AI. Own your cognition. Switch models freely.",
+  },
+  metadataBase: new URL("https://mowinckel.ai"),
+  alternates: {
+    canonical: "https://mowinckel.ai",
+  },
 };
 
 export default function RootLayout({

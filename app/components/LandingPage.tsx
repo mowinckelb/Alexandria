@@ -278,7 +278,7 @@ function ThreeTurnsSection() {
             className="text-[0.88rem] leading-[1.75]"
             style={{ color: 'var(--text-secondary)' }}
           >
-            Mercury mind plus AI equals infinite expansion. The world flows into you &mdash; curated, prioritised, filtered through who you actually are. You absorb, keep up, and remain yourself while everything accelerates. Your attention becomes positive-sum. You are not drowning and you are not checked out &mdash; you are taking it all in.
+            The world is moving faster than any mind can follow. Mercury lets you follow it. Everything flows into you &mdash; filtered through who you actually are, not who the algorithm thinks you are. You absorb. You keep up. You remain yourself. Not drowning, not checked out &mdash; taking it all in.
           </p>
         </div>
 
@@ -385,7 +385,13 @@ function GoDeeper({ confidential }: { confidential: boolean }) {
           className="text-[0.88rem] leading-[1.75]"
           style={{ color: 'var(--text-secondary)' }}
         >
-          Everything above is the surface. The Abstract is the feeling &mdash; 19 pages, ten minutes, the reason any of this matters. The Concrete is the understanding &mdash; every detail, every mechanism, ready for your AI or your own reading. Start with the Abstract. It deserves your attention.
+          Everything above is the surface. The Abstract is the feeling &mdash; 19 pages, ten minutes, the reason any of this matters. The Concrete is the understanding &mdash; every detail, every mechanism. Start with the Abstract. It deserves your attention.
+        </p>
+        <p
+          className="text-[0.88rem] leading-[1.75]"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          Or paste the Concrete into your AI and ask it anything. The document is designed for both humans and agents &mdash; your AI will walk you through it interactively. That is the first taste of what Alexandria actually feels like.
         </p>
         <div className="flex items-center justify-center gap-3">
           <a
