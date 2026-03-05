@@ -542,6 +542,30 @@ function InvestorCloseSection() {
         >
           When intelligence is commoditised, the only remaining source of marginal value is the humanity on top. Alexandria&rsquo;s architecture both captures and compounds that humanity. The downside is capped. The upside compounds.
         </p>
+        <div className="flex items-center justify-center gap-3">
+          <a
+            href="/docs/Alexandria.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
+            style={{ color: 'var(--text-primary)', opacity: 0.45 }}
+          >
+            read the abstract
+          </a>
+          <span className="text-[0.35rem]" style={{ color: 'var(--text-ghost)' }}>&bull;</span>
+          <span className="flex items-center gap-1.5">
+            <a
+              href="/docs/confidential_alexandria.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
+              style={{ color: 'var(--text-primary)', opacity: 0.45 }}
+            >
+              read the concrete
+            </a>
+            <CopyButton href="/docs/confidential_alexandria.md" />
+          </span>
+        </div>
         <div className="flex flex-col items-center gap-1.5 text-[0.65rem]" style={{ color: 'var(--text-ghost)' }}>
           <a
             href="mailto:benjamin@mowinckel.com"
