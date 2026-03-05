@@ -207,9 +207,17 @@ function HeroSection({ confidential }: { confidential: boolean }) {
   );
 }
 
-function OverviewSection() {
+function OverviewSection({ confidential }: { confidential: boolean }) {
   return (
     <Section>
+      {confidential && (
+        <p
+          className="text-[0.78rem] leading-[1.7] mb-6"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          Technically, Alexandria is an MCP server &mdash; a single connector that plugs into any frontier model. Claude, GPT, Gemini. Model-agnostic by design. The user adds the connector once, and three tool groups become available across every conversation. What follows is what those tools do and why they matter.
+        </p>
+      )}
       <p
         className="text-[0.88rem] leading-[1.75]"
         style={{ color: 'var(--text-secondary)' }}
@@ -594,7 +602,7 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
       <HeroSection confidential={confidential} />
 
       {/* Section 2 — Overview */}
-      <OverviewSection />
+      <OverviewSection confidential={confidential} />
 
       {/* Section 3 — The Sovereignty Hook */}
       <SovereigntyHookSection />
