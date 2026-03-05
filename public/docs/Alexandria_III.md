@@ -144,7 +144,7 @@ Alexandria’s revenue is downstream of the value it creates. The pricing philos
   
 LAYER 1 — SUSTAINABILITY (baseline)  
   
-Subscription fee. The Author pays for Alexandria’s layer of intent: the Blueprint, the Principles, the sovereign infrastructure (Vault hosting if Alexandria-hosted, Library presence, web dashboard). Billed monthly. The Author’s default LLM usage is on their own subscription — Alexandria does not pass through LLM costs because it does not run parallel agents. Alexandria charges for the layer itself: the accumulated knowledge of how to transform cognition (the Blueprint), the sovereignty architecture, and the Library access. The goal is sustainability, not margin. Low enough that no Author questions it. High enough that Alexandria does not burn cash on per-user economics.  
+Subscription fee. The Author pays for Alexandria’s layer of intent: the Blueprint, the Principles, the sovereignty architecture, Library presence, and web dashboard. Alexandria does not host or store Author data — the MCP server is stateless, passing through to the Author’s own cloud or local storage. Billed monthly. The Author’s default LLM usage is on their own subscription — Alexandria does not pass through LLM costs because it does not run parallel agents. Alexandria charges for the layer itself: the accumulated knowledge of how to transform cognition (the Blueprint), the sovereignty architecture, and the Library access. The goal is sustainability, not margin. Low enough that no Author questions it. High enough that Alexandria does not burn cash on per-user economics.  
   
 This layer keeps Alexandria alive regardless of Library traction. It scales linearly with the number of Authors. It is predictable, boring, and essential. If the Library never reaches critical mass, this layer alone sustains a focused, profitable business serving a real need.  
   
@@ -200,9 +200,9 @@ The phone — Claude app conversations. Voice notes. Quick interactions. The Aut
   
 The laptop — Claude desktop app with Projects (Constitution as context). Cowork for optional background processing. The Vault folder lives here (or in cloud-synced storage). The web dashboard runs here.  
   
-The cloud — The Library marketplace. The web dashboard backend. Vault hosting for Authors who choose Alexandria-hosted storage. At the horizon, PLM training on provider infrastructure when conditions are right.  
+The cloud — The Library marketplace. The web dashboard backend. At the horizon, PLM training on provider infrastructure when conditions are right. Alexandria does not host or store Author data — the MCP server passes through to the Author’s own cloud or local storage.  
   
-The key shift from previous architecture: Alexandria does not run its own agents on its own compute. The Author’s default LLM subscription covers the intelligence. Alexandria’s infrastructure is limited to the Library, the dashboard, and Vault hosting for those who want it. This keeps Alexandria’s per-Author costs minimal and aligns with the Build vs Ride principle.  
+The key shift from previous architecture: Alexandria does not run its own agents on its own compute. The Author’s default LLM subscription covers the intelligence. Alexandria’s infrastructure is limited to the Library and the dashboard. Alexandria holds zero Author data — the MCP server is a stateless pass-through to the Author’s own storage. This keeps Alexandria’s per-Author costs minimal and aligns with the Build vs Ride principle.  
   
 FUNCTIONS IN PRACTICE  
   

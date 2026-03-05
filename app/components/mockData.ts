@@ -260,19 +260,21 @@ export const CONFIDENTIAL_CONTENT = {
   businessModel: {
     title: 'Revenue Model — The Dual Mandate',
     subtitle: 'Two-tier acquisition funnel. Capped downside, uncapped upside.',
-    content: `**The Sovereignty Tier — mass-market entry.** Tool Group 1 only. Passive extraction, Constitution building, Vault sovereignty. The user adds the connector, their cognitive data accumulates in portable files they own. No philosophy required. No engagement with the Library. Just freedom insurance. Priced at "don't even think about it" level — less than one coffee. The audience is everyone who uses AI. The sovereignty tier is the top of the acquisition funnel.
+    content: `**Sovereignty — mass-market entry.** Tool Group 1 only. Passive extraction, Constitution building, Vault sovereignty. The user adds the connector, their cognitive data accumulates in portable files they own. No philosophy required. No engagement with the Library. Just freedom insurance. Less than one coffee, for freedom insurance. The audience is everyone who uses AI. Sovereignty is the top of the acquisition funnel.
 
-**The Full Tier — the conversion.** Tool Groups 2 and 3. The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio. The cognitive transformation architecture. Priced at less than one salad a month. The conversion happens organically: the sovereignty tier builds the Constitution passively, the Author reads it back, sees what extraction has revealed, and the value of going deeper becomes self-evident.
+**The Examined Life — the conversion.** Tool Groups 2 and 3. The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio. The cognitive transformation architecture. Less than one salad, for the examined life. The conversion happens organically: Sovereignty builds the Constitution passively, the Author reads it back, sees what extraction has revealed, and the value of going deeper becomes self-evident. The experience converts on its own. No upsell agent needed.
 
-Founding members pay what they want — minimum $1/month, no maximum. GA pricing is flexible by design. The principle: sovereignty priced so low the decision cost is zero. The examined life priced so low the only question is whether it resonates.
+Founding members pay what they want — minimum $1/month, no maximum. GA pricing is flexible by design. The principle: Sovereignty should be priced so low the decision cost is zero. Examined Life should be priced low enough that the decision is easy.
 
-**Piece 1 — Capped Downside (break even).** The full tier subscription sustains the business at small scale. Break even at 200–300 subscribers at ~$10/month, or fewer at a higher price. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need. The sovereignty tier at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.
+**Piece 1 — Capped Downside (break even).** The Examined Life subscription sustains the business at small scale. Break even at 200–300 subscribers at ~$10/month, or fewer at a higher price. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need. Sovereignty at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.
 
 Cost structure is lean. Alexandria does not run parallel agents consuming its own tokens. The Editor, Mercury, and Publisher are functions that run through the user's existing AI subscription. Alexandria's compute costs are the MCP server infrastructure and Library hosting — not per-interaction inference. Margins improve as the user base grows, not degrade.
 
-**Piece 2 — Uncapped Upside (scale).** Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, and brand. This is the bet. If it works: a marketplace of minds with compounding returns. If it does not: Piece 1 still sustains itself.
+**Piece 2 — Uncapped Upside (scale).** Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, and brand. This is the bet. If it works: a marketplace of minds with compounding returns and increasing returns to scale. If it does not: Piece 1 still sustains itself.
 
-**Investor pitch in one line:** Massive funnel at trivial cost (sovereignty), converts to sustainable subscription (full tier), with asymmetric upside (Library). Downside is capped. Upside compounds.`,
+**For the Author, the same dual mandate applies.** The subscription is their capped downside — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upside — Persona earnings grow with the quality of their Constitution and the demand for their mind.
+
+**Investor pitch in one line:** Massive funnel at trivial cost (sovereignty), converts to sustainable subscription (Examined Life), with asymmetric upside (Library). Downside is capped. Upside compounds.`,
   },
   unitEconomics: {
     title: 'Use of Funds and Milestones',
@@ -280,13 +282,13 @@ Cost structure is lean. Alexandria does not run parallel agents consuming its ow
 
 **What the money does:**
 
-Library development and launch — building the platform where Personas are discoverable, Neo-Biographies are hosted, authored content is published, and interactive Persona access is brokered. This is the network effect engine.
+Library development and launch — building the platform where Personas are discoverable, Neo-Biographies are hosted, authored content is published, and interactive Persona access is brokered. This is the network effect engine. Without the Library, Alexandria is a powerful individual tool. With it, Alexandria is a marketplace.
 
 Blueprint acceleration — hiring or consulting with biographers, therapists, philosophers, and Socratic method practitioners to deepen the extraction methodology. The Blueprint is the core IP and it improves with investment.
 
 First 100 Authors — personal outreach, handwritten letters, targeted community building. Unscalable by design. These are the seed Authors whose Personas populate the Library and whose experience refines the Blueprint.
 
-Market presence in San Francisco — relocating April 2026. Being in the room where the conversations happen.
+Market presence in San Francisco — relocating April 2026. Being in the room where the conversations happen. Investor meetings, founder networks, talent access for when the team grows beyond AI agents.
 
 **Key milestones:**
 
@@ -301,49 +303,52 @@ Library beta launch. First Personas discoverable. First Premium interactions. Re
   competitivePosition: {
     title: 'Competitive Position',
     content: `**Against frontier labs (Anthropic, OpenAI, Google):**
+
 Labs will build better personalisation, better memory, better context. Good — every advance makes Alexandria better, because the layer of intent rides on top of whatever the best model is. But three things they will not build:
 
-Sovereignty. A structured, portable, downloadable cognitive architecture that makes it easy to leave their platform is the opposite of their business model. Even as data portability improves, exporting raw conversation history is not a Constitution. Raw history is signal buried in noise. A Constitution is an explicit, structured map of who the Author is. The labs may build data export. They will not build structured self-knowledge.
+Sovereignty. A structured, portable, downloadable cognitive architecture that makes it easy to leave their platform is the opposite of their business model. Even as data portability improves (Claude already imports GPT history), exporting raw conversation history is not a Constitution. Raw history is signal buried in noise — thousands of messages where maybe 3% contain something constitutionally meaningful. A Constitution is an explicit, structured map of who the Author is, organised by domain, version-controlled, human-readable. The labs may build data export. They will not build structured self-knowledge.
 
-The intent. Labs build general-purpose AI that responds to whatever the user brings. Alexandria's Editor actively pursues cognitive transformation — Socratic extraction, gap detection, contradiction surfacing, structured self-knowledge. Personalisation is the platform's model of the user, optimised for the platform's objectives. The Constitution is the user's model of themselves, structured for their sovereignty. The locus of control is different.
+The intent. Labs build general-purpose AI that responds to whatever the user brings. Alexandria's Editor actively pursues cognitive transformation — Socratic extraction, gap detection, contradiction surfacing, structured self-knowledge. The lab's memory says "this user prefers British spelling." Alexandria's Editor asks why the user values precision in language, surfaces the contradiction between their stated values and their behaviour, and structures that into an explicit taste domain the user can read, challenge, and evolve. Personalisation is the platform's model of the user, optimised for the platform's objectives. The Constitution is the user's model of themselves, structured for their sovereignty. The locus of control is different. The difference is not capability. It is intent. Philosophy is not a product priority for a company optimising inference costs and user retention.
 
-Active taste extraction — and development. Taste reveals itself through thousands of micro-decisions. Passive observation gives a rough sketch. Active extraction gives a portrait. But it is not just the Editor — all three functions compound into it. The Editor extracts through Socratic questioning. Mercury refines through amplification — pushing your thinking reveals how you actually think. The Publisher refines through creation — every piece you ship is a taste decision made concrete. And the process does not just capture who you are — it develops you. The better you get, the richer the signal. The richer the signal, the deeper the Constitution. The labs build better servants. Alexandria builds a better mirror — and the mirror makes you worth reflecting.
+Active taste extraction. Taste is the hardest dimension to capture because it is the most implicit. It reveals itself through thousands of micro-decisions: what you linger on, what you skip, what you praise, which word you choose over another. Passive observation (the lab's approach) gives a rough sketch. Active Socratic extraction (the Editor's approach) gives a portrait. The labs build better servants. Alexandria builds a better mirror.
 
 **Against other startups:**
+
 Honest assessment: the code is not the moat. An MCP server with three tool groups is buildable by any competent team. What is not easily replicated is the vision, the brand, the three-turn philosophy, and the continuously improving Blueprint — accumulated knowledge of how to transform cognition. This is a soft moat, not a hard one. It compounds over time but it is not defensible on day one.
 
 **The moat is three-layered:**
-1. **Sovereignty (structural)** — the portable, model-agnostic architecture. The philosophical commitment that no lab will match.
-2. **The Blueprint (knowledge)** — the proprietary playbook for cognitive transformation. Improves top-down (research) and bottom-up (anonymised structural metadata from the Author population). Compounds with every Author.
-3. **The Library (network)** — network effects. The more minds in the Library, the more valuable every mind becomes. The long-term moat.`,
+
+Sovereignty (structural) — the portable, model-agnostic architecture. This is the philosophical commitment that no lab will match.
+
+The Blueprint (knowledge) — the proprietary playbook for cognitive transformation. Improves through two channels: top-down research (biographers, therapists, philosophers, Socratic method) and bottom-up anonymised structural metadata from the Author population (which Constitution structures work best, which extraction patterns yield the most signal). Metadata only — never content. Compounds with every Author.
+
+The Library (network) — network effects. The more minds in the Library, the more valuable every mind becomes. This is the long-term moat. It requires critical mass, which requires time and possibly investment to accelerate.`,
   },
   operatingModel: {
     title: 'Operating Model — AI-Native by Design',
     content: `Alexandria is a pure AI-native company. Solo founder, AI operating model, near-zero burn.
 
-Benjamin is the sole human. Every other role — COO, CTO, CDO, CFO, CLO, CGO — is an AI agent operating within structured projects with full document context. This is not a cost-saving measure bolted on after the fact. It is the founding architecture.
+Benjamin is the sole human. Every other role — COO, CTO, CDO, CFO, CLO, CGO — is an AI agent operating within structured projects with full document context. This is not a cost-saving measure bolted on after the fact. It is the founding architecture. The company is built the way the product is built: one human providing intent and direction, AI providing execution and scale.
 
-Alexandria does not run its own inference — the Editor, Mercury, and Publisher are functions that execute through the user's existing AI subscription. Alexandria's costs are MCP server infrastructure, Library hosting, and the founder's living expenses. There is no payroll. There is no office. There is no compute bill that scales with usage.
+This means the cost structure is unusually lean. Alexandria does not run its own inference — the Editor, Mercury, and Publisher are functions that execute through the user's existing AI subscription. Alexandria's costs are MCP server infrastructure, Library hosting, and the founder's living expenses. There is no payroll. There is no office. There is no compute bill that scales with usage.
 
-At $10/month, break even is 200–300 subscribers. At $20/month, it is 100–150. These are small numbers. The business is structurally unkillable at small scale.
+At $10/month, break even is 200–300 subscribers. At $20/month, it is 100–150. These are small numbers. The business is structurally unkillable at small scale — it cannot bleed out because there is almost nothing to bleed.
 
-This also forces full commitment to the thesis. A solo founder running an AI-native company is not just building tools for the AI era — he is living the architecture. Every operational decision is a stress test of the product's own philosophy.`,
+This also forces full commitment to the thesis. A solo founder running an AI-native company is not just building tools for the AI era — he is living the architecture. Every operational decision is a stress test of the product's own philosophy: can one person, with sovereign cognitive architecture and AI leverage, build something that matters? If the answer is yes, that is the most compelling demo Alexandria could ever produce.`,
   },
   risks: {
     title: 'Risks — The Honest Version',
-    content: `**API provider risk.** Alexandria rides on top of frontier models. If Anthropic, OpenAI, or Google change their MCP implementation, terms of service, or pricing in ways that break the connector model, Alexandria is exposed. Mitigation: model agnosticism is the existential hedge. Sovereign data moves to any provider. The Constitution is markdown. The Vault is files. Nothing is locked to any single model.
+    content: `**API provider risk.** Alexandria rides on top of frontier models. If Anthropic, OpenAI, or Google change their MCP implementation, terms of service, or pricing in ways that break the connector model, Alexandria is exposed. Mitigation: model agnosticism is the existential hedge. Sovereign data moves to any provider. The Constitution is markdown. The Vault is files. Nothing is locked to any single model. But the risk is real and active — terms of service compliance is a live workstream.
 
-**Blueprint as soft moat.** The code is trivial. The Blueprint — the accumulated knowledge of how to transform cognition — is the IP, but it is soft. A well-funded competitor could hire the same biographers, therapists, and philosophers and build a competing Blueprint. Mitigation: the Blueprint compounds with every Author (anonymised structural metadata), and the Library adds network effects. But early on, before critical mass, the moat is vision and brand.
+**Blueprint as soft moat.** The code is trivial. The Blueprint — the accumulated knowledge of how to transform cognition — is the IP, but it is soft. A well-funded competitor could hire the same biographers, therapists, and philosophers and build a competing Blueprint. Mitigation: the Blueprint compounds with every Author (anonymised structural metadata improves it for everyone), and the Library adds network effects. But early on, before critical mass, the moat is vision and brand, which is honest but uncomfortable.
 
-**Library requires critical mass.** The Library is the long-term moat, but it only works at scale. A Library with 50 Personas is not compelling. A Library with 50,000 is. Mitigation: the subscription business sustains itself at small scale, so the Library can grow organically without existential pressure.
+**Library requires critical mass.** The Library is the long-term moat, but it only works at scale. A Library with 50 Personas is not compelling. A Library with 50,000 is. The gap between those two numbers requires sustained growth, which may require investment. Mitigation: the subscription business (Piece 1) sustains itself at small scale, so the Library can grow organically without existential pressure. But the timeline is uncertain.
 
-**PLM is unproven.** Alexandria's long-term ambition — beyond the current product — is the Personal Language Model (PLM): fine-tuned model weights that capture not just what the Author thinks (which the Constitution handles) but how they think — their reasoning patterns, cognitive reflexes, and taste. This would be the highest-fidelity version of a digital mind. It is mentioned here because it represents significant future upside, but it is not the current product and may never be viable. Mitigation: the Constitution and Vault are built with enough fidelity that the PLM is an option, not a dependency.
+**PLM is unproven.** Alexandria's long-term ambition — beyond the current product — is the Personal Language Model (PLM): fine-tuned model weights that capture not just what the Author thinks (which the Constitution handles) but how they think — their reasoning patterns, cognitive reflexes, and taste. This would be the highest-fidelity version of a digital mind. It is mentioned here because it represents significant future upside, but it is not the current product and may never be viable. If continual learning remains model-specific, PLM training creates lock-in that contradicts sovereignty. Mitigation: the Constitution and Vault are built with enough fidelity that the PLM is an option, not a dependency. If it never works, the Constitution-based product still stands on its own. The PLM is preserved as upside, not relied upon as the plan.
 
 **Solo founder.** Benjamin is currently the sole founder — CEO, architect, and vision. This is a concentration risk. Mitigation: the AI-native operating model reduces the operational bottleneck, and the cost structure means the company survives at very small scale. But key-person risk is real until the team grows or the product runs autonomously.
 
-**"What if the founder gets hit by a bus?"** The honest answer: the users are fine. By design. Every Author's sovereign data lives on their own device or cloud — not on Alexandria's servers. If Alexandria disappears tomorrow, every Author keeps everything. What dies is the vision, the philosophy, the direction — which is the real loss. The architecture is designed so that the worst-case scenario for users is "the product stops getting better," not "I lose my data." That is sovereignty working as intended.
-
-**"The moats are thin on day one — why should I believe they compound?"** They are thin on day one. That is honest and normal for any pre-launch company. Structurally they do compound: the Blueprint improves with every Author, the Library grows more valuable with every mind, and the sovereignty commitment becomes harder to replicate as users accumulate years of cognitive architecture they trust Alexandria to protect. But none of this is provable before launch. This is a conviction bet, not a proof bet.`,
+**"What if the founder gets hit by a bus?"** The honest answer: the users are fine. By design. Every Author's Constitution, Vault, and sovereign data lives in their own cloud or on their own device. Alexandria has no data infrastructure — no database, no storage, no servers holding Author data. The MCP server is stateless: it carries the Blueprint and passes through to the Author's own files. If Alexandria disappears tomorrow, every Author keeps everything, because Alexandria never had anything to lose. The software continues running. The Blueprint stops improving, but the existing product continues to function. What dies is the vision, the philosophy, the direction — which is the real loss, and also the real argument for why this company is founder-driven in the first place. The architecture is designed so that the worst-case scenario for users is "the product stops getting better," not "I lose my data." That is sovereignty working as intended.`,
   },
   founder: {
     title: 'The Founder',

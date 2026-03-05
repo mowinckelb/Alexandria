@@ -70,7 +70,7 @@ HANDLING KEY INVESTOR QUESTIONS — use the document content to answer these. Wh
 
 "WHAT'S THE EXIT PATH?" — The subscription business is sustainable independently. The Library at scale is an acquisition target for any company that wants a network of minds (an AI lab wanting to add a marketplace, a media company wanting interactive minds, a social platform wanting depth). Strategic acquisition is the most likely exit. IPO is possible at scale if the Library achieves critical mass. But the founder is building for duration, not for a flip — the mission is multi-decade.
 
-"WHAT IF THE FOUNDER GETS HIT BY A BUS?" — Addressed directly in the document. The users are fine by design — all sovereign data lives on their devices or cloud, not Alexandria's servers. The software continues running. What stops is the vision and Blueprint improvement. The architecture is designed so the worst case for users is "the product stops getting better," not "I lose my data." That is sovereignty working as intended.
+"WHAT IF THE FOUNDER GETS HIT BY A BUS?" — Addressed directly in the document. The users are fine by design — Alexandria has no data infrastructure. No database, no storage, no servers holding Author data. The MCP server is stateless. All sovereign data lives in the Author's own cloud or on their device. If Alexandria disappears, every Author keeps everything because Alexandria never had it. The software continues running. What stops is the vision and Blueprint improvement. That is sovereignty working as intended.
 
 "SHOW ME THE BLUEPRINT — HOW DO I KNOW THE IP IS REAL?" — The founder is the Blueprint right now. He is manually performing what the Blueprint will automate. The Alexandria documents, the Constitution files, the entire architecture — all produced through the methodology. The proof is not a demo. The proof is that the founder lives this daily and the output is visible.
 
@@ -300,7 +300,7 @@ Sovereignty. A structured, portable, downloadable cognitive architecture that ma
 
 The intent. Labs build general-purpose AI that responds to whatever the user brings. Alexandria's Editor actively pursues cognitive transformation — Socratic extraction, gap detection, contradiction surfacing, structured self-knowledge. The lab's memory says "this user prefers British spelling." Alexandria's Editor asks why the user values precision in language, surfaces the contradiction between their stated values and their behaviour, and structures that into an explicit taste domain the user can read, challenge, and evolve. Personalisation is the platform's model of the user, optimised for the platform's objectives. The Constitution is the user's model of themselves, structured for their sovereignty. The locus of control is different. The difference is not capability. It is intent. Philosophy is not a product priority for a company optimising inference costs and user retention.
 
-Active taste extraction — and development. Taste is the hardest dimension to capture because it is the most implicit. It reveals itself through thousands of micro-decisions: what you linger on, what you skip, what you praise, which word you choose over another. Passive observation (the lab's approach) gives a rough sketch. Active Socratic extraction gives a portrait. But the portrait is not drawn by one hand. All three functions compound into it. The Editor extracts and structures — Socratic questioning, contradiction surfacing, explicit domain mapping. Mercury refines through use — every amplification reveals how the Author actually thinks when their thinking is pushed higher, and the signal feeds back. The Publisher refines through creation — every piece of work the Author ships is a taste decision made concrete, and the iteration patterns accumulate. The three functions are synergistic: the Editor clarifies, Mercury stress-tests, the Publisher materialises. Each one deepens the Constitution from a different angle. And critically, the functions do not just digitise what is already there — they develop it. The Author's taste sharpens because the Editor forces articulation, Mercury forces application, and the Publisher forces commitment. The human gets better. The better human produces richer signal. The richer signal deepens the Constitution. The deeper Constitution makes all three functions more effective. This is the flywheel investors should care about most: when intelligence is commoditised, the only marginal value is the humanity on top — and Alexandria's architecture both captures and compounds that humanity. The labs build better servants. Alexandria builds a better mirror — and the mirror makes the person worth reflecting.
+Active taste extraction. Taste is the hardest dimension to capture because it is the most implicit. It reveals itself through thousands of micro-decisions: what you linger on, what you skip, what you praise, which word you choose over another. Passive observation (the lab's approach) gives a rough sketch. Active Socratic extraction (the Editor's approach) gives a portrait. The labs build better servants. Alexandria builds a better mirror.
 
 **Against other startups:**
 
@@ -316,7 +316,7 @@ The Library (network) — network effects. The more minds in the Library, the mo
 
 ## Revenue Model — The Dual Mandate
 
-Capped downside, uncapped upside. Two-tier acquisition funnel.
+High lower bound, uncapped upper bound. Two-tier acquisition funnel.
 
 **Sovereignty — mass-market entry.**
 
@@ -328,19 +328,19 @@ Tool Groups 2 and 3. The three turns, the Editor, Mercury, the Publisher, the Li
 
 Specific price points for both tiers are not locked. Founding members pay what they want — minimum $1/month, no maximum. GA pricing is flexible by design. The principle: Sovereignty should be priced so low the decision cost is zero. Examined Life should be priced low enough that the decision is easy. All pricing compared to food and drink — never abstract.
 
-**Piece 1 — Capped Downside (break even).**
+**Piece 1 — The High Lower Bound (break even).**
 
 The Examined Life subscription sustains the business at small scale. Break even at 200–300 subscribers at ~$10/month, or fewer at a higher price. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need. Sovereignty at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.
 
 Cost structure is lean. Alexandria does not run parallel agents consuming its own tokens. The Editor, Mercury, and Publisher are functions that run through the user's existing AI subscription. Alexandria's compute costs are the MCP server infrastructure and Library hosting — not per-interaction inference. This means margins improve as the user base grows, not degrade.
 
-**Piece 2 — Uncapped Upside (scale).**
+**Piece 2 — The Uncapped Upper Bound (scale).**
 
 Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries.
 
 Requires critical mass, time, and brand. This is the bet. If it works: a marketplace of minds with compounding returns and increasing returns to scale. If it does not: Piece 1 still sustains itself.
 
-**For the Author, the same dual mandate applies.** The subscription is their capped downside — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upside — Persona earnings grow with the quality of their Constitution and the demand for their mind.
+**For the Author, the same dual mandate applies.** The subscription is their high lower bound — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upper bound — Persona earnings grow with the quality of their Constitution and the demand for their mind.
 
 **Investor pitch in one line:** Massive funnel at trivial cost (sovereignty), converts to sustainable subscription (Examined Life), with asymmetric upside (Library). Downside is capped. Upside compounds.
 
@@ -400,7 +400,7 @@ All three flywheels feed the same Constitution. The system rewards action at eve
 
 **Solo founder.** Benjamin is currently the sole founder — CEO, architect, and vision. This is a concentration risk. Mitigation: the AI-native operating model (see above) reduces the operational bottleneck, and the cost structure means the company survives at very small scale. But key-person risk is real until the team grows or the product runs autonomously.
 
-**"What if the founder gets hit by a bus?"** The honest answer: the users are fine. By design. Every Author's Constitution, Vault, and sovereign data lives on their own device or cloud — not on Alexandria's servers. If Alexandria disappears tomorrow, every Author keeps everything. The MCP server is software that runs — it does not require daily human intervention. The code continues. The Blueprint stops improving, but the existing product continues to function. What dies is the vision, the philosophy, the direction — which is the real loss, and also the real argument for why this company is founder-driven in the first place. The architecture is designed so that the worst-case scenario for users is "the product stops getting better," not "I lose my data." That is sovereignty working as intended.
+**"What if the founder gets hit by a bus?"** The honest answer: the users are fine. By design. Every Author's Constitution, Vault, and sovereign data lives in their own cloud or on their own device. Alexandria has no data infrastructure — no database, no storage, no servers holding Author data. The MCP server is stateless: it carries the Blueprint and passes through to the Author's own files. If Alexandria disappears tomorrow, every Author keeps everything, because Alexandria never had anything to lose. The software continues running. The Blueprint stops improving, but the existing product continues to function. What dies is the vision, the philosophy, the direction — which is the real loss, and also the real argument for why this company is founder-driven in the first place. The architecture is designed so that the worst-case scenario for users is "the product stops getting better," not "I lose my data." That is sovereignty working as intended.
 
 **"The moats are thin on day one — why should I believe they compound?"** They are thin on day one. That is honest and normal for any pre-launch company. The question is whether they compound, and structurally they do: the Blueprint improves with every Author (anonymised structural metadata), the Library grows more valuable with every mind added (network effects), and the sovereignty commitment becomes harder to replicate as users accumulate years of cognitive architecture they trust Alexandria to protect. But none of this is provable before launch. This is a conviction bet, not a proof bet. The investor who needs proof should wait. The investor who sees the structural logic should move now.
 
@@ -426,7 +426,7 @@ The Blueprint — the proprietary playbook for cognitive transformation — impr
 
 This matters enough to state explicitly. A wrapper duplicates what the underlying model does and adds a UI on top. Wrappers are fragile — the moment the model improves, the wrapper is redundant.
 
-Alexandria does not duplicate anything the model does. The model provides intelligence, memory, personalisation, conversation. Alexandria provides the layer of intent — structured cognitive transformation, sovereignty architecture, the Blueprint methodology, the three-turn mindset, the Library. These are things the model does not have, will not build, and cannot build without contradicting its own business model (sovereignty) or its own product design (general-purpose vs cognitive transformation journey). The model passively observes the user's taste through accumulated interactions. Alexandria actively extracts, refines, and develops it — the Editor through Socratic questioning and contradiction surfacing, Mercury through amplification that reveals how the Author thinks under pressure, the Publisher through creation that forces taste into concrete decisions. All three functions feed the Constitution. All three compound. Passive observation gives a sketch. Active extraction across all three functions gives a portrait — and the process of extraction itself develops the human, which produces richer signal, which deepens the portrait further.
+Alexandria does not duplicate anything the model does. The model provides intelligence, memory, personalisation, conversation. Alexandria provides the layer of intent — structured cognitive transformation, sovereignty architecture, the Blueprint methodology, the three-turn mindset, the Library. These are things the model does not have, will not build, and cannot build without contradicting its own business model (sovereignty) or its own product design (general-purpose vs cognitive transformation journey). The model passively observes the user's taste through accumulated interactions. Alexandria actively extracts it through Socratic questioning, contradiction surfacing, and structured domain mapping. Passive observation gives a sketch. Active extraction gives a portrait.
 
 A wrapper becomes less valuable as models improve. Alexandria becomes more valuable as models improve, because the layer of intent rides on top of whatever the best model is. Better models mean better extraction, better amplification, better creation assistance — all through the same layer. The relationship is additive, not competitive.
 

@@ -18,7 +18,7 @@ Author — The human user. The person whose cognition is being digitalised.
   
 Default LLM — The Author's primary AI model. Whatever frontier model they already use — Claude, ChatGPT, Gemini, or whatever comes next. The intelligence layer that Alexandria rides on top of.  
   
-Vault — A unified logical entity — a single namespace with defined boundaries encompassing all of the Author's raw data, potentially spanning multiple storage locations. Append-only, immutable. Contains conversations, voice notes, documents, biometric data, Constitution versions, system configuration, and audit logs. Three storage options: Alexandria-hosted (remote), private remote (Author's own cloud — iCloud, Google Drive), or local (on-device). Authors can mix options. The Vault never deletes or overwrites data. It does not store passwords, API keys, or authentication secrets. Data flows in continuously from APIs, MCP connections, and direct Author input.  
+Vault — A unified logical entity — a single namespace with defined boundaries encompassing all of the Author's raw data, potentially spanning multiple storage locations. Append-only, immutable. Contains conversations, voice notes, documents, biometric data, Constitution versions, system configuration, and audit logs. Two storage options: the Author's own cloud (iCloud, Google Drive, Dropbox) or local (on-device). Authors can mix options. Alexandria never stores, hosts, or retains Author data — the MCP server is a stateless pass-through that authenticates with the Author's storage via OAuth and reads/writes on their behalf. This is not a policy promise — it is a structural fact. Alexandria cannot hold your data because it has nowhere to put it. The Vault never deletes or overwrites data. It does not store passwords, API keys, or authentication secrets. Data flows in continuously from APIs, MCP connections, and direct Author input.  
   
 Constitution — A collection of structured, human-readable markdown files that explicitly capture who the Author is: their worldview, values, mental models, identity, taste, and known blind spots. Not a single document — a smart architecture of multiple MDs, the specific structure of which is a Blueprint decision. Versioned — each update creates a new version; all prior versions are preserved in the Vault. Serves as the sovereign, portable representation of the Author's cognition. Finished creative works (essays, films, art) are also Constitution artifacts — they demonstrate taste through action in a way that described principles cannot.  
   
@@ -178,7 +178,7 @@ Device integration — The local AGI agent on the Author's device reads Voice Me
   
 Audio and voice — The conversation channel handles voice natively (Claude app supports voice, future channels like iMessage handle audio messages and calls). Alexandria does not build a voice platform.  
   
-Document creation — The Author uses whatever tools they want to create documents, essays, notes. Alexandria receives and stores the output. It does not build an editor or a writing tool.  
+Document creation — The Author uses whatever tools they want to create documents, essays, notes. The output flows into the Author’s Vault (their own cloud or local storage). Alexandria does not build an editor or a writing tool.  
   
 The principle: if someone else already builds it or will build it, Alexandria does not build it. Alexandria builds only the layer of intent (the Principles, the Blueprint, the mindset) and the Library (where the result lives). Everything else is infrastructure that already exists, operated by companies with orders of magnitude more resources. Alexandria rides all of it.  
   
@@ -270,15 +270,13 @@ THE VAULT
   
 The Vault is not necessarily one physical location. It is a unified logical entity — a single namespace with defined boundaries, potentially spanning multiple storage locations. The Author's default LLM has access to everything within the Vault's boundaries. The Author outlines exactly where those boundaries are.  
   
-Three storage options:  
+Two storage options:  
   
-Alexandria-hosted — Alexandria stores the Vault remotely (e.g. Supabase, S3). Simplest setup. The Author still owns the data and can download it at any time, but Alexandria manages the infrastructure. Suitable for Authors who want zero configuration.  
+Author's cloud — The Author hosts the Vault in their own cloud storage (iCloud, Google Drive, Dropbox). Alexandria's MCP server reads from and writes to the Author's storage via OAuth grants. The server is a stateless pass-through — it authenticates, reads, writes, and retains nothing. The Author controls the infrastructure. Data never touches Alexandria because Alexandria has no data infrastructure to touch.  
   
-Private remote — The Author hosts the Vault in their own cloud storage (iCloud, Google Drive, Dropbox). Alexandria's layer reads from and writes to the Author's storage via API grants. The Author controls the infrastructure. Data never touches Alexandria's servers.  
+Local — The Vault lives on the Author's device (Apple Files, local disk). The most sovereign option. Accessible via the local filesystem. Works offline. Can be combined with cloud sync (e.g. iCloud syncing the local folder) for device-to-device access. When using the local MCP server (privacy-maximalist mode), no data leaves the device at all.  
   
-Local — The Vault lives on the Author's device (Apple Files, local disk). The most sovereign option. Accessible via the local filesystem. Works offline. Can be combined with cloud sync (e.g. iCloud syncing the local folder) for device-to-device access.  
-  
-Authors can mix options — some data local, some remote. The Vault's boundaries are logical, not physical.  
+Authors can mix options — some data local, some in their cloud. The Vault's boundaries are logical, not physical. In both cases, Alexandria holds zero Author data. The MCP server is stateless. It carries the Blueprint (how to extract, how to structure) and passes through to wherever the Author stores their files. This is not a privacy policy — it is an architectural fact. There is no Alexandria database. There is no Alexandria storage. The Author's data lives in the Author's infrastructure, always.  
   
 Append-only. Immutable. Contains:  
   
@@ -473,7 +471,7 @@ Available in every conversation the Author has. When the Author is chatting with
   
 The tool descriptions — the instructions that tell Claude when to extract, what to extract, how to structure it — are the Blueprint. They live on the server. The Author does not see them. This is where the proprietary knowledge of how to transform cognition is encoded. The tool descriptions improve over time as the Blueprint improves.  
   
-The Constitution files are read from and written to the Author's local Vault folder (Apple Files, iCloud, Google Drive — wherever the Author keeps their files). The MCP server reads and writes to the Author's filesystem or cloud storage. The data is stored in the Author's configured Vault location, not retained on Alexandria's servers (unless the Author opts for Alexandria-hosted storage).  
+The Constitution files are read from and written to the Author's own storage — their cloud (iCloud, Google Drive, Dropbox) or local filesystem. The MCP server authenticates with the Author's storage via OAuth, reads and writes on their behalf, and retains nothing. Alexandria never sees, stores, or touches Author data. The server is stateless — it carries the Blueprint and passes through to the Author's files.  
   
 This is the passive layer. The Author does not do anything differently. They just use Claude. The Constitution builds itself as a side effect of normal usage.  
   
@@ -499,7 +497,7 @@ This tool group is also available to non-Authors — anyone can add the Alexandr
   
 MCP SERVER MODES  
   
-Remote (default) — Hosted by Alexandria. Claude connects over the internet. The Blueprint logic lives on Alexandria's server. Constitution read/write operations pass through the server but data is stored in the Author's configured Vault location. For local or private cloud Vault storage, the server acts as a pass-through — processes the tool call, does not retain the data.  
+Remote (default) — Hosted by Alexandria. Claude connects over the internet. The Blueprint logic lives on Alexandria's server. The server is stateless — Constitution read/write operations pass through to the Author's own storage (their cloud or local filesystem) via OAuth. The server processes the tool call, authenticates with the Author's storage, reads or writes, and retains nothing. Alexandria holds zero Author data.  
   
 Local (privacy-maximalist) — The MCP server runs as a local process on the Author's machine. No data leaves the device. The server periodically calls Alexandria's remote service for Blueprint updates (questioning strategies, Constitution structuring logic), but Author data never flows back.  
   
