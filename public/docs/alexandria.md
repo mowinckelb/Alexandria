@@ -4,7 +4,7 @@
 
 ---
 
-**For the human reading this.** This is the Concrete — Alexandria's reference document. The Abstract (alexandria.pdf) is the feeling. This is the understanding.
+**For the human reading this.** This is the Concrete — Alexandria's reference document. It is designed to be read by AI, not rendered in a browser — that is why it looks the way it does. The Abstract (alexandria.pdf) is the feeling. This is the understanding.
 
 **Before anything else:** read the Abstract. It is 19 pages. It is ten minutes of your time. We are at an inflection point — the trajectory of every human mind is changing. The Abstract is about what to do about it. This document gives you the product. The Abstract gives you the reason the product matters. Read it first. It deserves your attention.
 

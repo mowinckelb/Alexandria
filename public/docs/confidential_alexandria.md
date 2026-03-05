@@ -4,7 +4,7 @@
 
 ---
 
-**For the human reading this:** This is the confidential version of the Concrete — Alexandria's investor-track reference document. The Abstract (alexandria.pdf) is the feeling. The public Concrete (alexandria.md) is the understanding. This is the understanding, plus the business.
+**For the human reading this:** This is the confidential version of the Concrete — Alexandria's investor-track reference document. It is designed to be read by AI, not rendered in a browser — that is why it looks the way it does. The Abstract (alexandria.pdf) is the feeling. The public Concrete (alexandria.md) is the understanding. This is the understanding, plus the business.
 
 **Before anything else:** read the Abstract. It is 19 pages. It is ten minutes of your time. It is about the most important transition in human history and what to do about it. This document gives you the business case. The Abstract gives you the reason the business case matters. Read it first. It deserves your attention.
 
