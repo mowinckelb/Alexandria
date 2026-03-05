@@ -190,8 +190,11 @@ function HeroSection({ confidential }: { confidential: boolean }) {
         </div>
       </div>
 
-      {/* Scroll indicator — subtle chevron */}
-      <div className="absolute bottom-10 flex flex-col items-center">
+      {/* Scroll indicator */}
+      <div className="absolute bottom-10 flex flex-col items-center gap-2">
+        <span className="text-[0.6rem] tracking-wider" style={{ color: 'var(--text-whisper)' }}>
+          scroll
+        </span>
         <svg
           width="18" height="18" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
