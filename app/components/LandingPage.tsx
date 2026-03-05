@@ -521,6 +521,33 @@ function PhilosophyCloseSection({ confidential }: { confidential: boolean }) {
         </p>
 
         <WaitlistSection confidential={confidential} inline />
+
+        {confidential && (
+          <div className="flex items-center justify-center gap-3 pt-4">
+            <a
+              href="/docs/Alexandria.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
+              style={{ color: 'var(--text-primary)', opacity: 0.45 }}
+            >
+              abstract
+            </a>
+            <span className="text-[0.35rem]" style={{ color: 'var(--text-ghost)' }}>&bull;</span>
+            <span className="flex items-center gap-1.5">
+              <a
+                href="/docs/confidential_alexandria.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[0.8rem] no-underline transition-opacity hover:opacity-40 tracking-wide"
+                style={{ color: 'var(--text-primary)', opacity: 0.45 }}
+              >
+                concrete
+              </a>
+              <CopyButton href="/docs/confidential_alexandria.md" />
+            </span>
+          </div>
+        )}
       </div>
     </Section>
   );
