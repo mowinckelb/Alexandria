@@ -204,6 +204,25 @@ function HeroSection({ confidential }: { confidential: boolean }) {
   );
 }
 
+function OverviewSection() {
+  return (
+    <Section>
+      <p
+        className="text-[0.88rem] leading-[1.75]"
+        style={{ color: 'var(--text-secondary)' }}
+      >
+        Alexandria is one connector you add to your AI. It does three things. It builds a sovereign map of your mind &mdash; your values, worldview, taste, blind spots &mdash; in structured files you own. It actively transforms how you think &mdash; the Editor asks the questions you have not thought to ask, Mercury amplifies your cognition, the Publisher helps you create your best work. And it publishes that work to a library of eternal minds.
+      </p>
+      <p
+        className="text-[0.88rem] leading-[1.75]"
+        style={{ color: 'var(--text-muted)' }}
+      >
+        Intelligence is being commoditised. Everyone will have the same models, the same reasoning, the same capability on tap. The only remaining edge is the humanity on top &mdash; taste, judgment, self-knowledge. The person who knows who they are, keeps growing, and creates something real has an advantage no amount of compute can replicate. Alexandria is how you develop that advantage.
+      </p>
+    </Section>
+  );
+}
+
 function SovereigntyHookSection() {
   return (
     <Section>
@@ -214,7 +233,7 @@ function SovereigntyHookSection() {
         >
           Your AI already knows you.
           <br />
-          You don&rsquo;t own any of it.
+          But you don&rsquo;t own any of it.
         </h2>
 
         <div className="space-y-4">
@@ -224,12 +243,13 @@ function SovereigntyHookSection() {
           >
             Every conversation you have with your AI builds a richer model of who you are &mdash; your thinking patterns, your values, your taste.
             That model lives on someone else&rsquo;s servers. You can&rsquo;t see it. You can&rsquo;t download it. You can&rsquo;t take it with you.
+            Sure, you can export your conversation history. But a raw transcript is not self-knowledge. It is signal buried in noise.
           </p>
           <p
             className="text-[0.88rem] leading-[1.75]"
             style={{ color: 'var(--text-secondary)' }}
           >
-            Alexandria adds one connector to your existing AI. Your cognition gets extracted into structured, portable markdown files that you own.
+            Alexandria shifts the locus of control. Your cognition gets extracted into a structured, portable Constitution &mdash; an explicit map of who you are, not a platform&rsquo;s model of who you are.
             Switch from Claude to GPT to Gemini &mdash; everything comes with you. No lock-in. No permission required.
           </p>
         </div>
@@ -563,7 +583,10 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
       {/* Section 1 — Hero */}
       <HeroSection confidential={confidential} />
 
-      {/* Section 2 — The Sovereignty Hook */}
+      {/* Section 2 — Overview */}
+      <OverviewSection />
+
+      {/* Section 3 — The Sovereignty Hook */}
       <SovereigntyHookSection />
 
       {/* Section 3 — The Three Turns */}
