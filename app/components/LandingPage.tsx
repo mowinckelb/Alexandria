@@ -430,6 +430,13 @@ function PricingSection({ confidential }: { confidential: boolean }) {
   return (
     <Section>
       <div className="space-y-10">
+        <h2
+          className="text-[1.2rem] sm:text-[1.4rem] font-normal"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          What it costs
+        </h2>
+
         <div className="space-y-6">
           <div className="space-y-2">
             <h3
@@ -448,7 +455,7 @@ function PricingSection({ confidential }: { confidential: boolean }) {
               className="text-[0.78rem] italic"
               style={{ color: 'var(--text-muted)' }}
             >
-              Less than a coffee. Freedom insurance.
+              Less than a salad. Freedom insurance.
             </p>
           </div>
 
@@ -474,7 +481,7 @@ function PricingSection({ confidential }: { confidential: boolean }) {
               className="text-[0.78rem] italic"
               style={{ color: 'var(--text-muted)' }}
             >
-              One meal a month. The examined life.
+              One salad a month. The examined life.
             </p>
           </div>
         </div>

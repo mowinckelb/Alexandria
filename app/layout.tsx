@@ -12,17 +12,23 @@ export const metadata: Metadata = {
   title: "alexandria. — droplets of grace",
   description: "A sovereign layer of intent for personal AI. One MCP connector. Your cognition extracted into structured, portable files you own. Switch models freely. The examined life as architecture.",
   keywords: ["Alexandria", "AI sovereignty", "personal AI", "MCP", "constitution", "cognitive architecture", "self-knowledge", "AI connector", "portable AI data", "examined life"],
+  icons: {
+    icon: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "alexandria.",
     description: "A sovereign layer of intent for personal AI. Own your cognition. Switch models freely. The examined life as architecture.",
     url: "https://mowinckel.ai",
     siteName: "Alexandria",
     type: "website",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "alexandria.",
     description: "A sovereign layer of intent for personal AI. Own your cognition. Switch models freely.",
+    images: ["/og-image.png"],
   },
   metadataBase: new URL("https://mowinckel.ai"),
   alternates: {
