@@ -54,7 +54,7 @@ HANDLING COMMON QUESTIONS — use the document content to answer these. Be direc
 
 "DOES IT BURN THROUGH MY AI TOKENS?" — No. The tool descriptions sit in your AI's context — a small, fixed overhead. Your AI only calls the extraction tools when it judges there is something worth capturing. Most messages do not trigger extraction. The compute runs on your existing AI subscription — Alexandria does not charge for inference and does not run parallel processing. The overhead is designed to be negligible.
 
-"WHAT DOES IT COST?" — Two tiers. Sovereignty — just the passive extraction and portable files — costs less than a coffee per month. Freedom insurance for anyone who uses AI. The Examined Life — the Editor, Mercury, the Publisher, the Library, the whole philosophy — is one meal a month. One Chipotle bowl. Founding members pay what they want, minimum $1/month. Your existing AI subscription covers the compute — Alexandria does not charge for inference. You can earn from the Library by setting your own price for Premium Persona access.
+"WHAT DOES IT COST?" — Two tiers. Sovereignty — just the passive extraction and portable files — costs less than a coffee per month. Freedom insurance for anyone who uses AI. The Examined Life — the Editor, Mercury, the Publisher, the Library, the whole philosophy — is less than one salad a month. Founding members pay what they want, minimum $1/month. Your existing AI subscription covers the compute — Alexandria does not charge for inference. You can earn from the Library by setting your own price for Premium Persona access.
 
 "IS THIS LIVE? CAN I TRY IT?" — Alexandria is pre-launch. Join the waitlist at mowinckel.ai to be among the first Authors. The MCP server is in active development. The founder is currently doing manually what the product will do — building his own Constitution, running the architecture, validating the experience.
 
@@ -132,7 +132,7 @@ Two tiers. Two different propositions.
 
 **Sovereignty.** If you use AI at all — any model, free or paid — you should have this. Add the connector, and your cognitive data accumulates in files you own instead of files a platform owns. Portable, downloadable, sovereign. That is it. The price is less than a coffee. A salad. Something you would not think twice about. If you use AI, this is freedom insurance. You do not need to read the philosophy. You do not need to engage with the Library. You just need to not lose your data. Tool Group 1 — sovereignty — always on.
 
-**The Examined Life.** The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio — the whole examined-life architecture. The cognitive transformation. The tribe. This is one meal a month. One Chipotle bowl. For something that helps you navigate the hardest challenge in humanity's history. Tool Groups 2 and 3 — the philosophy and the creation.
+**The Examined Life.** The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio — the whole examined-life architecture. The cognitive transformation. The tribe. Less than one salad a month. For something that helps you navigate the hardest challenge in humanity's history. Tool Groups 2 and 3 — the philosophy and the creation.
 
 Sovereignty is for everyone who uses AI. The Examined Life is for the people who resonate. Many will start with sovereignty and stay. Some will go deeper. The product itself demonstrates the value of going further — your Constitution builds, you read it back, you see what extraction alone has revealed, and the natural next step is obvious.
 

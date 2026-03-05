@@ -136,7 +136,7 @@ Two tiers. Two different propositions. Two different audience sizes.
 
 **Sovereignty.** If the user uses AI at all — any model, free or paid — they should have this. Add the connector, cognitive data accumulates in files they own. Portable, downloadable, sovereign. The price is less than a coffee. Freedom insurance. Tool Group 1 only. The audience for this is everyone who uses AI. The sell is trivial — it costs almost nothing and guarantees they are never locked in.
 
-**The Examined Life.** The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio — the whole examined-life architecture. One meal a month. One Chipotle bowl. Tool Groups 2 and 3. The audience is the self-selecting tribe — the people who resonate with the philosophy.
+**The Examined Life.** The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio — the whole examined-life architecture. Less than one salad a month. Tool Groups 2 and 3. The audience is the self-selecting tribe — the people who resonate with the philosophy.
 
 Sovereignty is the top of the acquisition funnel. The Examined Life is the conversion. Many will start with sovereignty and stay. Some will go deeper. The product itself demonstrates the value — the Constitution builds, the Author reads it back, sees what passive extraction has revealed, and the natural next step is obvious. No upsell agent needed. The product is the pitch.
 
@@ -324,9 +324,9 @@ Tool Group 1 only. Passive extraction, Constitution building, Vault sovereignty.
 
 **The Examined Life — the conversion.**
 
-Tool Groups 2 and 3. The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio. The cognitive transformation architecture. Priced at "one meal a month" — one Chipotle bowl. The audience is the self-selecting tribe. The conversion happens organically: Sovereignty builds the Constitution passively, the Author reads it back, sees what extraction has revealed, and the value of going deeper becomes self-evident. The product is the pitch. No upsell agent needed.
+Tool Groups 2 and 3. The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio. The cognitive transformation architecture. Less than one salad a month. The audience is the self-selecting tribe. The conversion happens organically: Sovereignty builds the Constitution passively, the Author reads it back, sees what extraction has revealed, and the value of going deeper becomes self-evident. The product is the pitch. No upsell agent needed.
 
-Specific price points for both tiers are not locked. Founding members pay what they want — minimum $1/month, no maximum. GA pricing is flexible by design. The principle: Sovereignty should be priced so low the decision cost is zero. Examined Life should feel like a meal, not a commitment. All pricing compared to food and drink — never abstract.
+Specific price points for both tiers are not locked. Founding members pay what they want — minimum $1/month, no maximum. GA pricing is flexible by design. The principle: Sovereignty should be priced so low the decision cost is zero. Examined Life should feel like a salad, not a commitment. All pricing compared to food and drink — never abstract.
 
 **Piece 1 — The High Lower Bound (break even).**
 
