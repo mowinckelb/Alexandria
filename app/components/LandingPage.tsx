@@ -455,7 +455,7 @@ function PricingSection({ confidential }: { confidential: boolean }) {
               className="text-[0.78rem] italic"
               style={{ color: 'var(--text-muted)' }}
             >
-              Less than a coffee. Freedom insurance.
+              Less than one coffee. Freedom insurance.
             </p>
           </div>
 
@@ -481,7 +481,7 @@ function PricingSection({ confidential }: { confidential: boolean }) {
               className="text-[0.78rem] italic"
               style={{ color: 'var(--text-muted)' }}
             >
-              Less than a salad. The examined life.
+              Less than one salad. The examined life.
             </p>
           </div>
         </div>
