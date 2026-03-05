@@ -453,13 +453,20 @@ function PricingTiers() {
           What it costs
         </h2>
 
+        <p
+          className="text-[0.82rem] leading-[1.7]"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          Two tiers. Both priced so the only question is whether it resonates.
+        </p>
+
         <div className="space-y-6">
           <div className="space-y-2">
             <h3
               className="text-[1rem] font-normal"
               style={{ color: 'var(--text-primary)' }}
             >
-              Sovereignty
+              Tier 1 &mdash; Sovereignty
             </h3>
             <p
               className="text-[0.82rem] leading-[1.7]"
@@ -471,7 +478,7 @@ function PricingTiers() {
               className="text-[0.78rem] italic"
               style={{ color: 'var(--text-muted)' }}
             >
-              Less than one coffee, for freedom insurance.
+              Less than the price of one coffee, for freedom insurance.
             </p>
           </div>
 
@@ -485,7 +492,7 @@ function PricingTiers() {
               className="text-[1rem] font-normal"
               style={{ color: 'var(--text-primary)' }}
             >
-              The Examined Life
+              Tier 2 &mdash; The Examined Life
             </h3>
             <p
               className="text-[0.82rem] leading-[1.7]"
@@ -497,7 +504,7 @@ function PricingTiers() {
               className="text-[0.78rem] italic"
               style={{ color: 'var(--text-muted)' }}
             >
-              Less than one salad, for the examined life.
+              Less than the price of one salad, for the examined life.
             </p>
           </div>
         </div>
