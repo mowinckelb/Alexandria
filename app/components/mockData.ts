@@ -259,18 +259,18 @@ export const PUBLIC_CONTENT = {
 export const CONFIDENTIAL_CONTENT = {
   businessModel: {
     title: 'Revenue Model — The Dual Mandate',
-    subtitle: 'Two-tier acquisition funnel. High lower bound, uncapped upper bound.',
+    subtitle: 'Two-tier acquisition funnel. Capped downside, uncapped upside.',
     content: `**The Sovereignty Tier — mass-market entry.** Tool Group 1 only. Passive extraction, Constitution building, Vault sovereignty. The user adds the connector, their cognitive data accumulates in portable files they own. No philosophy required. No engagement with the Library. Just freedom insurance. Priced at "don't even think about it" level — less than one coffee. The audience is everyone who uses AI. The sovereignty tier is the top of the acquisition funnel.
 
 **The Full Tier — the conversion.** Tool Groups 2 and 3. The three turns, the Editor, Mercury, the Publisher, the Library, the Companion Portfolio. The cognitive transformation architecture. Priced at less than one salad a month. The conversion happens organically: the sovereignty tier builds the Constitution passively, the Author reads it back, sees what extraction has revealed, and the value of going deeper becomes self-evident.
 
 Founding members pay what they want — minimum $1/month, no maximum. GA pricing is flexible by design. The principle: sovereignty priced so low the decision cost is zero. The examined life priced so low the only question is whether it resonates.
 
-**Piece 1 — The High Lower Bound (break even).** The full tier subscription sustains the business at small scale. Break even at 200–300 subscribers at ~$10/month, or fewer at a higher price. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need. The sovereignty tier at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.
+**Piece 1 — Capped Downside (break even).** The full tier subscription sustains the business at small scale. Break even at 200–300 subscribers at ~$10/month, or fewer at a higher price. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need. The sovereignty tier at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.
 
 Cost structure is lean. Alexandria does not run parallel agents consuming its own tokens. The Editor, Mercury, and Publisher are functions that run through the user's existing AI subscription. Alexandria's compute costs are the MCP server infrastructure and Library hosting — not per-interaction inference. Margins improve as the user base grows, not degrade.
 
-**Piece 2 — The Uncapped Upper Bound (scale).** Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, and brand. This is the bet. If it works: a marketplace of minds with compounding returns. If it does not: Piece 1 still sustains itself.
+**Piece 2 — Uncapped Upside (scale).** Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, and brand. This is the bet. If it works: a marketplace of minds with compounding returns. If it does not: Piece 1 still sustains itself.
 
 **Investor pitch in one line:** Massive funnel at trivial cost (sovereignty), converts to sustainable subscription (full tier), with asymmetric upside (Library). Downside is capped. Upside compounds.`,
   },

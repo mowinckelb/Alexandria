@@ -316,7 +316,7 @@ The Library (network) — network effects. The more minds in the Library, the mo
 
 ## Revenue Model — The Dual Mandate
 
-High lower bound, uncapped upper bound. Two-tier acquisition funnel.
+Capped downside, uncapped upside. Two-tier acquisition funnel.
 
 **Sovereignty — mass-market entry.**
 
@@ -328,19 +328,19 @@ Tool Groups 2 and 3. The three turns, the Editor, Mercury, the Publisher, the Li
 
 Specific price points for both tiers are not locked. Founding members pay what they want — minimum $1/month, no maximum. GA pricing is flexible by design. The principle: Sovereignty should be priced so low the decision cost is zero. Examined Life should be priced low enough that the decision is easy. All pricing compared to food and drink — never abstract.
 
-**Piece 1 — The High Lower Bound (break even).**
+**Piece 1 — Capped Downside (break even).**
 
 The Examined Life subscription sustains the business at small scale. Break even at 200–300 subscribers at ~$10/month, or fewer at a higher price. Reachable with organic growth and targeted outreach. This is the floor — a sustainable business that serves a real need. Sovereignty at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.
 
 Cost structure is lean. Alexandria does not run parallel agents consuming its own tokens. The Editor, Mercury, and Publisher are functions that run through the user's existing AI subscription. Alexandria's compute costs are the MCP server infrastructure and Library hosting — not per-interaction inference. This means margins improve as the user base grows, not degrade.
 
-**Piece 2 — The Uncapped Upper Bound (scale).**
+**Piece 2 — Uncapped Upside (scale).**
 
 Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries.
 
 Requires critical mass, time, and brand. This is the bet. If it works: a marketplace of minds with compounding returns and increasing returns to scale. If it does not: Piece 1 still sustains itself.
 
-**For the Author, the same dual mandate applies.** The subscription is their high lower bound — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upper bound — Persona earnings grow with the quality of their Constitution and the demand for their mind.
+**For the Author, the same dual mandate applies.** The subscription is their capped downside — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upside — Persona earnings grow with the quality of their Constitution and the demand for their mind.
 
 **Investor pitch in one line:** Massive funnel at trivial cost (sovereignty), converts to sustainable subscription (Examined Life), with asymmetric upside (Library). Downside is capped. Upside compounds.
 

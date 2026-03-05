@@ -535,7 +535,7 @@ What the Author gets that they cannot get anywhere else:
   
 REVENUE MODEL — THE DUAL MANDATE  
   
-High lower bound, uncapped upper bound. Two-tier acquisition funnel.  
+Capped downside, uncapped upside. Two-tier acquisition funnel.  
   
 Sovereignty — mass-market entry. Tool Group 1 only. Passive extraction, Constitution building, Vault sovereignty. The user adds the connector, their cognitive data accumulates in portable files they own. No philosophy required. No engagement with the Library. Just freedom insurance. Less than one coffee, for freedom insurance. The audience is everyone who uses AI. Freedom as a service. Sovereignty as a service. Sovereignty is the top of the acquisition funnel.  
   
@@ -547,11 +547,11 @@ Four entry points feed both tiers — a 2×2 of philosophy (the art, the examine
   
 Pay-what-you-want with no maximum is producer surplus maximisation — every person in the demand curve is captured, from the casual ($1) to the committed ($200+). Each founding Author has a chronological number (lower = earlier). Quadrant name is visible. Payment amount is never visible — intensity is private. Payment UX: continuous slider, not discrete options. Private internal tier visible only to the Author after locking in — a mirror, not a ladder.  
   
-Piece 1 — The High Lower Bound (break even): The Examined Life subscription sustains the business at small scale. Break even at 200-300 subscribers at ~$10/month. Reachable. This is the floor — a sustainable business that serves a real need. Sovereignty at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.  
+Piece 1 — Capped Downside (break even): The Examined Life subscription sustains the business at small scale. Break even at 200-300 subscribers at ~$10/month. Reachable. This is the floor — a sustainable business that serves a real need. Sovereignty at trivial pricing adds volume but not meaningful revenue on its own — its value is as an acquisition channel.  
   
-Piece 2 — The Uncapped Upper Bound (scale): Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, brand, possibly investment to accelerate the flywheel. If it works: a marketplace of minds with compounding returns and increasing returns to scale. If it doesn't: Piece 1 still sustains itself.  
+Piece 2 — Uncapped Upside (scale): Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of Personas and the volume of queries. Requires critical mass, time, brand, possibly investment to accelerate the flywheel. If it works: a marketplace of minds with compounding returns and increasing returns to scale. If it doesn't: Piece 1 still sustains itself.  
   
-For the Author, the same dual mandate applies. The subscription is their high lower bound — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upper bound — Persona earnings grow with the quality of their Constitution and the demand for their mind.  
+For the Author, the same dual mandate applies. The subscription is their capped downside — sovereignty, self-knowledge, the Editor, Mercury, and Publisher. The Library is their uncapped upside — Persona earnings grow with the quality of their Constitution and the demand for their mind.  
   
 Investor pitch: "Massive funnel at trivial cost (sovereignty), converts to sustainable subscription (Examined Life), with asymmetric upside (Library). Downside is capped. Upside compounds."  
   
