@@ -39,13 +39,25 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
   const [phase, setPhase] = useState<Phase>(() => {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('alexandria-phase');
-      if (saved === '1' || saved === '2' || saved === '3') return Number(saved) as Phase;
+      const copiedAt = sessionStorage.getItem('alexandria-copied-at');
+      if (saved && saved !== '0' && copiedAt) {
+        const elapsed = Date.now() - Number(copiedAt);
+        // If more than 30 seconds since copy, skip straight to welcome back
+        if (elapsed > 30000) return 3;
+        return Number(saved) as Phase;
+      }
     }
     return 0;
   });
 
   useEffect(() => {
     sessionStorage.setItem('alexandria-phase', String(phase));
+    if (phase === 1) {
+      sessionStorage.setItem('alexandria-copied-at', String(Date.now()));
+    }
+    if (phase === 0) {
+      sessionStorage.removeItem('alexandria-copied-at');
+    }
   }, [phase]);
 
   const handleCopy = useCallback(async () => {
