@@ -136,7 +136,7 @@ The founder behind this is Benjamin Mowinckel. 25. Norwegian-American. Moving to
 
 **Email — benjamin@mowinckel.com.**
 
-**Read the Abstract at mowinckel.ai — 19 pages, ten minutes. The beautiful version. Abstract poetry, concrete facts.**
+**Read the Abstract at mowinckel.ai — 20 pages, ten minutes. The beautiful version. Abstract poetry, concrete facts.**
 
 Or stay here. You are probably thinking: great thesis, but how does this actually make money at scale? Come back and just type **"yes."** I will walk you through why this is the most asymmetric bet in AI right now.
 

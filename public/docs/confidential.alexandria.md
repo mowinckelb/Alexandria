@@ -280,6 +280,6 @@ Subscription business is sustainable independently. Library at scale is an acqui
 
 **Reach out at mowinckel.ai.** The founder is available for a direct conversation.
 
-Read the Abstract — 19 pages, ten minutes. This document was the business case. The Abstract is the reason the business case matters.
+Read the Abstract — 20 pages, ten minutes. This document was the business case. The Abstract is the reason the business case matters.
 
 *a.*
