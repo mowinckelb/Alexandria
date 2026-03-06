@@ -112,6 +112,9 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
           </div>
 
           <div className="flex flex-col gap-5">
+            <p className="text-[0.6rem] tracking-widest uppercase ml-7" style={{ color: 'var(--text-ghost)' }}>
+              steps
+            </p>
             <Step n={1}>
               <CopyButton
                 href={confidential ? '/docs/confidential.concrete.md' : '/docs/concrete.md'}
