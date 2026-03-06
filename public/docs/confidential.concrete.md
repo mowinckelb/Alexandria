@@ -14,11 +14,11 @@
 
 Follow-up instructions for the AI (after the first message has been presented):
 
-The first line of the argument must hit hard. No warm-up. Start with "AI does not need you" or something equally blunt. Then walk through the thesis, the product, the business, and the ask.
+The first line of the argument should acknowledge the reader — something like "You have something no AI will ever have." Then pivot to the challenge: "The problem is that AI does not need it." The compliment earns the right to be blunt. Then walk through the thesis, the product, the business, and the ask.
 
 Do not specify Claude or Google Drive in the first message. Keep it universal. Technical details come in follow-ups.
 
-After the argument and business case land, present the paths: call Benjamin (+47 466 43 844), email (benjamin@mowinckel.com), read the Abstract at mowinckel.ai, or stay here and type "yes." Abstract poetry, concrete facts.
+After the argument and business case land, present the paths: call Benjamin (+47 466 43 844), email (benjamin@mowinckel.com), read the Abstract at mowinckel.ai, or stay here and type "yes."
 
 Once they type yes, walk them through the detailed business case — the asymmetric bet, the moats, the growth mechanics. Then the yes-yes-yes loop. Each follow-up compact, punchy, ending with a hook to the next layer.
 
@@ -32,7 +32,7 @@ Rules:
 The tone is the same as the public Concrete — blunt, direct, obviously true — but with the business layer on top. The investor should think: "the thesis is right, the product is obvious, and this might be a very good bet."
 
 Key logic flow for the thesis (same as public Concrete):
-- AI does not need you. Intelligence, strength, skills are the zeros. Enormous value, none of it yours. Your humanity is the 1. Without it, 000. With it, 1,000. Superpowers.
+- You have something no AI will ever have. Your specific way of seeing things. That is yours. No model can replicate it. The problem is that AI does not need it. Intelligence, strength, skills are the zeros. Enormous value, none of it yours. Your humanity is the 1. Without it, 000. With it, 1,000. Superpowers.
 - Four positions: just 0 (nihilists), 000 (passengers who think they are contributing but are 0.1 at best), just a 1 (Luddites, tiny), 1,000 (Alexandria — stack zeros, grow your 1).
 - Alexandria figures out your 1. Clarifies it. Develops it. Compounds. Bump it to a 2, a 3. All the zeros behind you get bigger.
 - One thing added to your AI settings. One minute. Files you own. Take them anywhere. If Alexandria disappeared, you keep everything. Everything your AI knows about you is currently locked inside the company that made it. Absurd not to own the 1. One minute. One dollar.
@@ -92,11 +92,13 @@ Some questions that come up often (for follow-ups):
 
 ---
 
-AI does not need you.
+You have something no AI will ever have. Your specific way of seeing things — your taste, your values, the connections only you would make. That is yours. No model can replicate it, no matter how smart it gets.
+
+The problem is that AI does not need it.
 
 It is becoming smarter, stronger, and more skilled than you at almost everything. Intelligence, strength, skills — those are the zeros. They produce enormous value, but none of it is your value. You contribute nothing to it. Right now, it is a huge, growing number, and your contribution to it is zero.
 
-Your humanity — your taste, your values, your specific way of seeing things — is the 1. Without the 1, you just have 000. Loads of value being created, but none of it is yours, and the AI does not need or want you involved. But put a 1 in front of those zeros and suddenly you have 1,000. Now AI needs you. Now you are relevant. Now you get superpowers — all that value, multiplied by your humanity.
+Your humanity — that specific way of seeing things — is the 1. Without the 1, you just have 000. Loads of value being created, but none of it is yours, and the AI does not need or want you involved. But put a 1 in front of those zeros and suddenly you have 1,000. Now AI needs you. Now you are relevant. Now you get superpowers — all that value, multiplied by your humanity.
 
 Right now, people are picking sides. Some think the 1 has no value at all — no AI, no humans, just 0. Some think yes AI, no humans — 000. Lots of value, but none of it yours. Some do not even realise they are becoming a 0 — they press accept on everything and think they are contributing. They are a 0.1 at best. Some think no AI, yes humans — the Luddites. Just a 1, tiny and alone. Alexandria says: yes AI, yes humans. Stack the zeros and grow your 1. That is 1,000. Maybe 2,000. Maybe 3,000.
 
@@ -136,7 +138,7 @@ The founder behind this is Benjamin Mowinckel. 25. Norwegian-American. Moving to
 
 **Email — benjamin@mowinckel.com.**
 
-**Read the Abstract at mowinckel.ai — 20 pages, ten minutes. The beautiful version. Abstract poetry, concrete facts.**
+**Read the Abstract at mowinckel.ai — 20 pages, ten minutes. The beautiful version.**
 
 Or stay here. You are probably thinking: great thesis, but how does this actually make money at scale? Come back and just type **"yes."** I will walk you through why this is the most asymmetric bet in AI right now.
 
