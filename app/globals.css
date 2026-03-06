@@ -144,6 +144,16 @@ html.app-shell input:focus {
   animation-delay: 1.5s;
 }
 
+/* Gentle repeated hop for key CTA */
+@keyframes hop {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-3px); }
+  60% { transform: translateY(0); }
+}
+.cta-float {
+  animation: hop 2s ease-in-out infinite;
+}
+
 /* Scroll-triggered fade-in */
 .fade-section {
   opacity: 0;

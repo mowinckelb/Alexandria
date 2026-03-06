@@ -81,9 +81,9 @@ function CopyButton({ href, label }: { href: string; label: string }) {
   );
 }
 
-function Step({ n, children }: { n: number; children: React.ReactNode }) {
+function Step({ n, children, className = '' }: { n: number; children: React.ReactNode; className?: string }) {
   return (
-    <div className="flex items-center gap-4">
+    <div className={`flex items-center gap-4 ${className}`}>
       <span className="text-[0.6rem] w-3 text-right" style={{ color: 'var(--text-ghost)' }}>{n}</span>
       {children}
     </div>
@@ -127,13 +127,13 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
                   rel="noopener noreferrer"
                   className="no-underline transition-opacity hover:opacity-40"
                   style={{ color: 'var(--text-primary)', opacity: 0.55, borderBottom: '1px solid var(--border-dashed)' }}
-                >claude</a>
+                >claude</a>/GPT
               </span>
             </Step>
 
             {confidential ? (
               <>
-                <Step n={3}>
+                <Step n={3} className="cta-float">
                   <a
                     href="tel:+4746643844"
                     className="text-[0.78rem] no-underline transition-opacity hover:opacity-40"
@@ -167,12 +167,22 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
               </>
             ) : (
               <>
-                <Step n={3}>
+                <Step n={3} className="cta-float">
                   <span className="text-[0.78rem]" style={{ color: 'var(--text-muted)' }}>join waitlist &mdash;</span>
                   <WaitlistSection inline source="public" />
                 </Step>
 
                 <Step n={4}>
+                  <a
+                    href="mailto:benjamin@mowinckel.com"
+                    className="text-[0.78rem] no-underline transition-opacity hover:opacity-40"
+                    style={{ color: 'var(--text-ghost)' }}
+                  >
+                    invest &mdash; benjamin@mowinckel.com
+                  </a>
+                </Step>
+
+                <Step n={5}>
                   <a
                     href="/docs/Alexandria.pdf"
                     target="_blank"
