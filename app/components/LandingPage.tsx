@@ -121,7 +121,13 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
 
             <Step n={2}>
               <span className="text-[0.78rem]" style={{ color: 'var(--text-muted)' }}>
-                paste into claude
+                paste into <a
+                  href="https://claude.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="no-underline transition-opacity hover:opacity-40"
+                  style={{ color: 'var(--text-primary)', opacity: 0.55, borderBottom: '1px solid var(--border-dashed)' }}
+                >claude</a>
               </span>
             </Step>
 
