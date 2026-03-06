@@ -118,7 +118,7 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
             )}
 
             {phase === 1 && (
-              <div className="flex flex-col items-center gap-4 fade-in max-w-[280px]">
+              <div className="flex flex-col items-center gap-4 fade-in max-w-[320px]">
                 <p className="text-[0.78rem] tracking-wide leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                   you just copied a file with everything about this company.
                 </p>
