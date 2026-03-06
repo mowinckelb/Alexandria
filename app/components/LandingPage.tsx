@@ -95,8 +95,8 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
     <div style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', overflowX: 'hidden' }}>
       <ThemeToggle />
 
-      <section className="min-h-screen flex flex-col items-center justify-center px-8">
-        <div className="flex flex-col items-center gap-14 sm:gap-16">
+      <section className="flex flex-col items-center justify-center px-8 pt-[30vh] pb-12">
+        <div className="flex flex-col items-center gap-12 sm:gap-14">
           <div className="flex flex-col items-center">
             <h1 className="text-[1.5rem] sm:text-[1.7rem] font-normal leading-none tracking-tight" style={{ color: 'var(--text-primary)' }}>
               alexandria.

@@ -2,11 +2,11 @@
 
 export default function FooterSection() {
   return (
-    <footer className="py-16 px-8 text-center space-y-3" style={{ borderTop: '1px solid var(--border-light)' }}>
-      <p className="text-[0.75rem] italic" style={{ color: 'var(--text-ghost)' }}>
+    <footer className="pb-8 pt-16 px-8 text-center space-y-2">
+      <p className="text-[0.6rem] italic" style={{ color: 'var(--text-ghost)' }}>
         mentes aeternae
       </p>
-      <p className="text-[1.3rem]" style={{ color: 'var(--text-whisper)' }}>
+      <p className="text-[0.6rem]" style={{ color: 'var(--text-ghost)' }}>
         a.
       </p>
     </footer>

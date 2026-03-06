@@ -33,13 +33,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     if (stored) {
       setTheme(stored);
     } else {
-      // Default: dark on localhost, light on production
-      const isLocalhost = 
-        window.location.hostname === 'localhost' || 
-        window.location.hostname === '127.0.0.1' ||
-        window.location.hostname.startsWith('192.168.');
-      
-      setTheme(isLocalhost ? 'dark' : 'light');
+      // Match system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
     }
     
     setMounted(true);

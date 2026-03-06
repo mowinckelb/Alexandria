@@ -50,7 +50,7 @@ Alexandria fixes this. One MCP connector. Your Claude settings. Takes a minute. 
 
 Alexandria never stores, hosts, or sees your data. The server is stateless. There is no Alexandria database. This is not a privacy policy. It is a structural impossibility.
 
-Less than a coffee a month. Freedom insurance.
+Less than a coffee a month. Freedom insurance. Pre-launch — drop your email at mowinckel.ai to be among the first.
 
 ---
 

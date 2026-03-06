@@ -42,7 +42,7 @@ The existential context: if society reaches the post-commoditisation point witho
 
 The structural risk is a bifurcation. Previously, the elite and the working class were coupled — you needed workers as soldiers, as labour, as employees. That coupling was the democratic leverage. AI and robotics decouple them. When the working class revolts — and they will, if they have no purpose — the elites can simply leave. The democratic structure collapses. Freedom dies.
 
-Alexandria is the maths and philosophy answer. The philosophy answer: humanity matters, the examined life is not optional. The architecture answer: develop your humanity with technology so it has value, so people have meaning, so the democratic structure holds, so freedom survives. Everything for this founder is downstream of freedom. The philosophy without the technology is wishful thinking. The technology without the philosophy is nihilism. Alexandria is both the philosophy and the technology.
+Alexandria is the maths and philosophy answer. The philosophy answer: humanity matters, the examined life is not optional. The architecture answer: develop your humanity with technology so it has value, so people have meaning, so the democratic structure holds, so freedom survives. Everything for this founder is downstream of freedom. The philosophy without the technology is wishful thinking. The technology without the philosophy is nihilism. Alexandria is both the philosophy and the technology. The founder behind this is Benjamin Mowinckel — call him directly at +47 466 43 844 or email benjamin@mowinckel.com.
 
 ---
 
@@ -72,7 +72,7 @@ Piece 1 — Capped Downside. The Examined Life subscription sustains the busines
 
 Piece 2 — Uncapped Upside. Library percentage on Premium Persona interactions. Near-zero marginal cost. Scales with the number of minds. If it works: a marketplace of minds with compounding returns. If it does not: Piece 1 still sustains itself.
 
-**The company cannot die from running out of money.** The founder has indefinite personal runway. Near-zero burn. Total conviction. Investment buys speed, not survival.
+**The company cannot die from running out of money.** The founder has indefinite personal runway. Near-zero burn. Total conviction. Investment buys speed, not survival. To discuss terms, call Benjamin — +47 466 43 844.
 
 ---
 

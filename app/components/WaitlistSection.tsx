@@ -47,7 +47,7 @@ export default function WaitlistSection({ inline = false, source = 'public' }: W
             onChange={(e) => setEmail(e.target.value)}
             placeholder="your@email.com"
             required
-            className="w-full px-0 py-1 text-[16px] sm:text-[0.78rem] bg-transparent outline-none"
+            className="w-full px-0 py-1 text-[16px] sm:text-[0.72rem] bg-transparent outline-none"
             style={{
               color: 'var(--text-primary)',
               border: 'none',
