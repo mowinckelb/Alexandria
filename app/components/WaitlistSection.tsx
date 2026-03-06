@@ -47,7 +47,7 @@ export default function WaitlistSection({ inline = false, source = 'public' }: W
             onChange={(e) => setEmail(e.target.value)}
             placeholder="email"
             required
-            className="w-full px-0 py-0.5 text-[0.72rem] bg-transparent outline-none"
+            className="w-full px-0 py-0.5 bg-transparent outline-none origin-left"
             style={{
               color: 'var(--text-primary)',
               border: 'none',
@@ -55,6 +55,9 @@ export default function WaitlistSection({ inline = false, source = 'public' }: W
               fontFamily: 'var(--font-eb-garamond)',
               borderRadius: 0,
               opacity: 0.55,
+              fontSize: '16px',
+              transform: 'scale(0.72)',
+              transformOrigin: 'left center',
             }}
           />
           {email.trim() && status === 'idle' && (
