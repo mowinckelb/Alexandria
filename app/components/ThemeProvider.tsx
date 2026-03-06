@@ -27,52 +27,40 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Check localStorage first
-    const stored = localStorage.getItem('alexandria_theme') as Theme | null;
-    
-    if (stored) {
-      setTheme(stored);
-    } else {
-      // Match system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
-    }
-    
+    // Always match system preference on load
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setTheme(prefersDark ? 'dark' : 'light');
+
+    // Listen for system theme changes (e.g. phone switches to dark mode)
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) => setTheme(e.matches ? 'dark' : 'light');
+    mq.addEventListener('change', handler);
+
     setMounted(true);
+    return () => mq.removeEventListener('change', handler);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
-    
-    // Apply theme class to html element
     const root = document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-    
-    // Persist preference
-    localStorage.setItem('alexandria_theme', theme);
   }, [theme, mounted]);
 
   const toggleTheme = () => {
-    // Apply theme class synchronously before state update to prevent flash
     const root = document.documentElement;
     const newTheme = theme === 'light' ? 'dark' : 'light';
-    
-    // Update DOM immediately
     if (newTheme === 'dark') {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-    
-    // Then update state (this will trigger useEffect to persist)
     setTheme(newTheme);
   };
 
-  // Prevent flash of wrong theme
   if (!mounted) {
     return null;
   }
@@ -83,4 +71,3 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     </ThemeContext.Provider>
   );
 }
-
