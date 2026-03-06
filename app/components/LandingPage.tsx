@@ -118,12 +118,12 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
             )}
 
             {phase === 1 && (
-              <div className="flex flex-col items-center gap-4 fade-in max-w-[320px]">
+              <div className="flex flex-col items-center gap-6 fade-in max-w-[220px] text-center">
                 <p className="text-[0.78rem] tracking-wide leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                   you just copied a file with everything about this company.
                 </p>
                 <p className="text-[0.78rem] tracking-wide leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-                  open any AI chat app, press paste, press enter, and ask it anything you want.
+                  open any AI chat app, press paste, press enter, and ask it anything.
                 </p>
                 <p className="text-[0.78rem] tracking-wide leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                   come back after if you liked it. i have something for you.
