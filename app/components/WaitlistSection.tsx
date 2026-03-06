@@ -34,7 +34,7 @@ export default function WaitlistSection({ inline = false, source = 'public' }: W
   };
 
   const form = (
-    <form onSubmit={handleSubmit} className="flex items-center gap-0 w-44">
+    <form onSubmit={handleSubmit} className="flex items-center gap-0 w-32">
       {status === 'success' ? (
         <span className="text-[0.75rem] italic" style={{ color: 'var(--text-muted)' }}>
           noted.

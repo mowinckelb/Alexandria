@@ -168,6 +168,7 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
             ) : (
               <>
                 <Step n={3}>
+                  <span className="text-[0.78rem]" style={{ color: 'var(--text-muted)' }}>join waitlist &mdash;</span>
                   <WaitlistSection inline source="public" />
                 </Step>
 
