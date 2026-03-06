@@ -123,7 +123,7 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
                   you just copied a file with everything about this company.
                 </p>
                 <p className="text-[0.78rem] tracking-wide leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-                  open your AI app, press paste, press enter, and ask it anything you want. come back for a surprise.
+                  open any AI chat app, press paste, press enter, and ask it anything you want. come back for a surprise.
                 </p>
               </div>
             )}
