@@ -93,25 +93,27 @@ Some questions that come up often (for follow-ups):
 
 ---
 
-You have something no AI will ever have. Your specific way of seeing things — your taste, your values, the connections only you would make. That is yours. No model can replicate it, no matter how smart it gets.
+You have something no AI will ever have. Your specific way of seeing things — your taste, your values, the connections only you would make. That is yours. No AI will ever replicate it, no matter how smart it gets.
 
 The problem is that AI does not need it.
 
-It is becoming smarter, stronger, and more skilled than you at almost everything. Intelligence, strength, skills — those are the zeros. They produce enormous value, but none of it is your value. You contribute nothing to it. Right now, it is a huge, growing number, and your contribution to it is zero.
+AI is getting extraordinarily good at producing things. Soon, most goods and services will be made by AI, not people. Intelligence, strength, skills — those are the zeros. They produce enormous value, but none of it is yours. The world will be full of amazing things. Humans just will not have made them.
 
-Your humanity — that specific way of seeing things — is the 1. Without the 1, you just have 000. Loads of value being created, but none of it is yours, and the AI does not need or want you involved. But put a 1 in front of those zeros and suddenly you have 1,000. Now AI needs you. Now you are relevant. Now you get superpowers — all that value, multiplied by your humanity.
+Your humanity — your perspective, your taste, your judgment — is the "1." Without the "1," you just have "000." Loads of value being created, none of it yours. Put a "1" in front of those zeros and suddenly you have "1,000." Now AI needs you. Now you are relevant. Now you get superpowers — all that value, multiplied by your humanity.
 
-Right now, people are picking sides. Some think no AI, no humans — the world is better off without either. Humanity is a stain, technology makes it worse. Just 0. Nothing. Some think yes AI, no humans — all that matters is goods and services, and AI handles those better than we ever could. Humanity has no special value. Do not worry about it. Just zeros. Some people do not even realise which side they are on — they leaned all the way in, pressing "accept" on every answer AI gives them, thinking they are contributing, thinking they are a 1. They are a 0.1 at best. A temporary presence. Pretty soon AI will ask them to move aside because they are not actually needed — just hovering. And some think no AI, yes humans — betting everything that this slows down, stops, or never arrives. That is a bet. A real one, with real consequences. How much would you bet on that? All the money in the world, the smartest people alive, every government, every military, working on this every minute of every day. And you are betting against that. Alexandria says: yes AI, yes humans. Stack the zeros and grow your 1. That is 1,000. Maybe 2,000. Maybe 3,000.
+Most people have not figured out how to respond to this. Some have leaned all the way in — pressing "accept" on every answer AI gives them, thinking they are contributing. They are a "0.1" at best. A temporary presence — eventually unnecessary. Some are betting everything that this slows down or never arrives. That is a real bet with real consequences. All the money in the world, every government, every military, working on this every day. And you are betting against that. Some have just checked out — figured they will deal with it later. Alexandria says: use everything AI offers, and develop the thing that makes you irreplaceable. Grow the "1." Stack the zeros behind it. "1,000." Maybe "2,000." Maybe "3,000."
 
-Alexandria figures out what your 1 is. It clarifies it. It develops it. It makes it stronger. And it compounds — the more you use it, the sharper and clearer you get. You bump that 1 up to a 2 or a 3, and all those zeros behind you get bigger too.
+Alexandria figures out what your "1" is. It clarifies it. Develops it. Makes it stronger. And it compounds — the more you use it, the sharper and clearer you get.
 
-It works by adding one simple thing to your AI settings. It takes a minute. From then on, it quietly learns what makes you you — your values, how you think, what you care about — and saves it as files that you own. Not the AI company's files. Yours. You can take them to any AI, at any time. If Alexandria disappeared tomorrow, you would keep everything. There is nothing to trust here. Alexandria has no database, no server holding your information. It just shuffles things between your conversations and your own files and back again, using the AI you already use. It does not add any trust on top of what you already give your AI. It actually reduces it — because now you are less dependent on any one company. The less you trust them, the more you need this.
+It is a small package you add to your AI account — an MCP connection. Takes a minute. Then you use your AI the way you normally would. Alexandria quietly picks up on the things that matter — your values, how you reason, what you care about — and saves them as structured files on your own storage. After about a week, you open those files and find a clear map of how you think. Recognisably you. That is the moment it clicks.
 
-Right now, everything your AI learns about you is locked inside the company that made it. You cannot take it with you. If the 1 is the bottleneck — the one thing that makes the whole number work — then it is absurd not to own it. This is the easiest, cheapest, safest thing to fix. It takes one minute and costs one dollar.
+Those files are yours. Take them to any AI. If Alexandria disappeared tomorrow, you keep everything. There is nothing to trust here. Alexandria has no database, no server holding your information. It just moves things between your conversations and your own files and back again. It does not add any trust on top of what you already give your AI. It actually reduces your dependence on any one company. The less you trust them, the more you need this.
 
-Every other AI company's incentive is to learn enough about you to eventually not need you. To replace you. To make the zeros so good that nobody asks where the 1 went. Alexandria's incentive is the opposite — the more human you become, the more valuable Alexandria becomes. The incentives are aligned with yours. By definition.
+Right now, everything your AI learns about you is locked inside the company that made it. You cannot take it with you. If the "1" is the bottleneck — the one thing that makes the whole number work — it is absurd not to own it.
 
-On the timeline for AI taking over all of this: whatever you are thinking, divide it by ten. You are in denial if you think this takes longer than five years. All the money in the world, the smartest people, every government, and every military are working on this every minute of every day. Look back five years and look at where we are now. The next five is obvious. The zeros will handle everything.
+Every other AI company's incentive is to learn enough about you to eventually not need you. Alexandria's incentive is the opposite — the more human you become, the more valuable Alexandria becomes. By definition.
+
+The timeline for all of this is shorter than you think. Much shorter. Look back five years. Look at where we are now. The next five will move even faster.
 
 ---
 
@@ -119,9 +121,9 @@ The business case is simple.
 
 AI platforms are building models of their users. Alexandria lets users build models of themselves. No AI lab will build this because it directly undermines their lock-in. That is a new category.
 
-The TAM is everyone. Everyone will use AI. Everyone needs the 1.
+The TAM is everyone. Everyone will use AI. Everyone needs the "1."
 
-Two tiers, priced by network contribution. Ownership — $1/month with 3 active referrals, $5 without. Everyone. Development — $15/month with 3 active referrals, $20 without. The ones who want to grow their 1 faster. Slider above the floor — pay what you want. The referral mechanic is structural churn reduction: every user has 3 people they want to keep active.
+Two tiers, priced by network contribution. Ownership — $1/month with 3 active referrals, $5 without. Everyone. Development — $15/month with 3 active referrals, $20 without. The ones who want to grow their "1" faster. Slider above the floor — pay what you want. The referral mechanic is structural churn reduction: every user has 3 people they want to keep active.
 
 Capped downside: break even at about 200 subscribers. Near-zero burn. No payroll, no compute, no data storage. The founder has indefinite personal runway. The company cannot die from running out of money. Investment buys speed, not survival.
 
@@ -129,7 +131,7 @@ Uncapped upside: the Library. A percentage on every interaction with a mind — 
 
 Three moats. Ownership is structural — no lab builds the thing that lets you leave. The Blueprint is knowledge — the understanding of how to develop the 1, improving with every user. The Library is a network — the first one with critical mass becomes the only one.
 
-Honest: the moats are thin on day one. They compound. This is a conviction bet, not a proof bet. The founder built a working version from a single document in one session. The code is not the hard part. The hard part is the vision — knowing what the 1 actually is and how to develop it.
+Honest: the moats are thin on day one. They compound. This is a conviction bet, not a proof bet. The founder built a working version from a single document in one session. The code is not the hard part. The hard part is the vision — knowing what the "1" actually is and how to develop it.
 
 ---
 
@@ -139,7 +141,7 @@ The founder behind this is Benjamin Mowinckel. 25. Norwegian-American. Moving to
 
 **Email — benjamin@mowinckel.com.**
 
-**Read the Abstract at mowinckel.ai — 20 pages, ten minutes. I am not always this blunt. Most people just do not have time, so I had to shake some sense into you first. Apologies. The Abstract is the beautiful version.**
+**Read the Abstract at mowinckel.ai — 20 pages, ten minutes. I am not always this direct. The Abstract is the beautiful version.**
 
 Or stay here. You are probably thinking: great thesis, but how does this actually make money at scale? Come back and just type **"yes."** I will walk you through why this is the most asymmetric bet in AI right now.
 
