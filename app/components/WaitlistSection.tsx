@@ -34,20 +34,20 @@ export default function WaitlistSection({ inline = false, source = 'public' }: W
   };
 
   const form = (
-    <form onSubmit={handleSubmit} className="flex items-center gap-0 w-32">
+    <form onSubmit={handleSubmit} className="flex items-center gap-0">
       {status === 'success' ? (
-        <span className="text-[0.75rem] italic" style={{ color: 'var(--text-muted)' }}>
+        <span className="text-[0.72rem] italic" style={{ color: 'var(--text-muted)' }}>
           noted.
         </span>
       ) : (
-        <div className="relative w-full">
+        <div className="relative" style={{ width: `${Math.max(3, email.length * 0.45 + 1)}rem` }}>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
+            placeholder="email"
             required
-            className="w-full px-0 py-1 text-[16px] sm:text-[0.72rem] bg-transparent outline-none"
+            className="w-full px-0 py-0.5 text-[0.72rem] bg-transparent outline-none"
             style={{
               color: 'var(--text-primary)',
               border: 'none',
