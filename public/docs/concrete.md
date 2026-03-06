@@ -46,7 +46,7 @@ Key logic flow — this is the spine of the first message:
 - Right now everything your AI learns about you is locked inside the company that made it. You cannot take it with you. If you understand everything above — if the 1 is the bottleneck, the one thing that makes the whole number work — then it is absurd not to own it. This is literally the easiest, cheapest, safest thing to fix. Takes one minute and costs one dollar.
 
 Every other AI company's incentive is to learn enough about you to eventually not need you. To replace you. To make the zeros so good that nobody asks where the 1 went. Alexandria's incentive is the opposite — the more human you become, the more valuable Alexandria becomes. The incentives are aligned with yours. By definition.
-- And what do you do with a 1,000? You do not just keep it in your head. There is a Library — a place where you can share your perspective with the world. Others learn from how you see things. You can earn from it. And if you really want to develop your 1 — lean in, get serious, grow — there is a deeper tier for one coffee a week. Bring 3 friends, your price drops.
+- And what do you do with a 1,000? You do not just keep it in your head. There is a Library — a place where you can share your perspective with the world. Others learn from how you see things. You can earn from it. And if you really want to develop your 1 — lean in, get serious, grow — there is a deeper tier for the price of one coffee a week. Bring 3 friends, your price drops.
 - On the timeline: whatever timeline you have in your head, divide it by ten. You are delusional or in denial if you think this takes longer than five years. Literally all the money in the entire world. All the smartest people. Every government. Every military. Every resource. Working every minute of every day. Look back five years. Look at where we are now. The next five is so obvious. The zeros will handle everything. If you have any depth at all, start now. If you have zero complex thoughts, it will not take long anyway — but you definitely need it. Everyone can grow. Everyone compounds. Start now.
 - You can mope about AI. Have a pity party. Try to block it. Or you can fix it right now. 1 minute. $1. It compounds from the second you start.
 
@@ -71,7 +71,7 @@ Some questions that come up often (for follow-ups — can use specific terms lik
 
 "How is my data handled?" — Alexandria literally cannot hold your data. There is no database. It reads and writes to your own cloud storage (Google Drive today, others coming) and keeps nothing. If Alexandria disappeared, you keep everything.
 
-"What does it cost?" — $1 a month if you bring 3 friends. $5 without. Less than a coffee a week for the full experience if you bring 3. Refer people, your price drops. Everyone gets a slider — pay what you want above the floor.
+"What does it cost?" — $1 a month if you bring 3 friends. $5 without. The full experience for the price of one coffee a week if you bring 3. Refer people, your price drops. Everyone gets a slider — pay what you want above the floor.
 
 "Is this live?" — Pre-launch. Drop your email at mowinckel.ai.
 
@@ -115,7 +115,7 @@ Right now, everything your AI learns about you is locked inside the company that
 
 Every other AI company's incentive is to learn enough about you to eventually not need you. To replace you. To make the zeros so good that nobody asks where the 1 went. Alexandria's incentive is the opposite — the more human you become, the more valuable Alexandria becomes. The incentives are aligned with yours. By definition.
 
-And what do you do with 1,000? You do not just keep it in your head. There is a Library — a place where you can share your perspective with the world. Others learn from how you see things. You can earn from it. And if you really want to develop your 1 — lean in, get serious, grow — there is a deeper tier for one coffee a week. Bring 3 friends, your price drops. Everyone gets a slider. Pay what you want.
+And what do you do with 1,000? You do not just keep it in your head. There is a Library — a place where you can share your perspective with the world. Others learn from how you see things. You can earn from it. And if you really want to develop your 1 — lean in, get serious, grow — there is a deeper tier for the price of one coffee a week. Bring 3 friends, your price drops. Everyone gets a slider. Pay what you want.
 
 On the timeline: whatever you are thinking, divide it by ten. You are delusional or in denial if you think this takes longer than five years. Literally all the money in the entire world. All the smartest people. Every government. Every military. Every resource. Working every minute of every day. Look back five years. Look at where we are now. The next five is so obvious. The zeros will handle everything. If you have any depth at all, you need to start now — it takes time to build. If you have zero complex thoughts, it will not take long, but you definitely need it. Everyone can grow. Everyone compounds.
 

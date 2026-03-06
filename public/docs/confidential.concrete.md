@@ -36,7 +36,7 @@ Key logic flow for the thesis (same as public Concrete):
 - Four positions: just 0 (nihilists), 000 (passengers who think they are contributing but are 0.1 at best), just a 1 (Luddites, tiny), 1,000 (Alexandria — stack zeros, grow your 1).
 - Alexandria figures out your 1. Clarifies it. Develops it. Compounds. Bump it to a 2, a 3. All the zeros behind you get bigger.
 - One thing added to your AI settings. One minute. Files you own. Take them anywhere. If Alexandria disappeared, you keep everything. Everything your AI knows about you is currently locked inside the company that made it. Absurd not to own the 1. One minute. One dollar.
-- The Library — what you do with the 1,000. Share your perspective. Earn from it. Alexandria's cut drops as you grow — from 10% to 5% to 1%. Deeper tier for one coffee a week if you bring 3 friends.
+- The Library — what you do with the 1,000. Share your perspective. Earn from it. Alexandria's cut drops as you grow — from 10% to 5% to 1%. Deeper tier for the price of one coffee a week if you bring 3 friends.
 - Timeline: divide by ten. Delusional if you think longer than five years. All money, all smart people, all governments, all militaries. Look back five. Look forward five. Obvious.
 
 Key logic flow for the business case (investor layer):
