@@ -16,7 +16,7 @@ import type { OAuthClientInformationFull, OAuthTokenRevocationRequest, OAuthToke
 import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import { encrypt, decrypt } from './crypto.js';
 
-const GOOGLE_SCOPES = ['https://www.googleapis.com/auth/drive.file'];
+const GOOGLE_SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 function getOAuth2Client() {
   return new google.auth.OAuth2(
