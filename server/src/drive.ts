@@ -12,6 +12,9 @@ const FOLDER_NAME = 'Alexandria';
 const CONSTITUTION_DIR = 'constitution';
 const VAULT_DIR = 'vault';
 
+// Cache folder IDs per token to avoid repeated lookups (in-memory, resets on restart)
+const folderCache = new Map<string, { rootId: string; constitutionId: string; vaultId: string; expires: number }>();
+
 function getDriveClient(encryptedToken: string): drive_v3.Drive {
   const refreshToken = decrypt(encryptedToken);
   const oauth2 = new google.auth.OAuth2(
@@ -47,15 +50,24 @@ async function findOrCreateFolder(
   return create.data.id!;
 }
 
-async function ensureFolderStructure(drive: drive_v3.Drive): Promise<{
+async function ensureFolderStructure(drive: drive_v3.Drive, cacheKey: string): Promise<{
   rootId: string;
   constitutionId: string;
   vaultId: string;
 }> {
+  const cached = folderCache.get(cacheKey);
+  if (cached && cached.expires > Date.now()) {
+    return cached;
+  }
+
   const rootId = await findOrCreateFolder(drive, FOLDER_NAME);
-  const constitutionId = await findOrCreateFolder(drive, CONSTITUTION_DIR, rootId);
-  const vaultId = await findOrCreateFolder(drive, VAULT_DIR, rootId);
-  return { rootId, constitutionId, vaultId };
+  const [constitutionId, vaultId] = await Promise.all([
+    findOrCreateFolder(drive, CONSTITUTION_DIR, rootId),
+    findOrCreateFolder(drive, VAULT_DIR, rootId),
+  ]);
+  const result = { rootId, constitutionId, vaultId };
+  folderCache.set(cacheKey, { ...result, expires: Date.now() + 10 * 60 * 1000 }); // 10 min cache
+  return result;
 }
 
 async function findFile(
@@ -76,7 +88,7 @@ export async function readConstitutionFile(
   domain: string,
 ): Promise<string | null> {
   const drive = getDriveClient(encryptedToken);
-  const { constitutionId } = await ensureFolderStructure(drive);
+  const { constitutionId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
   const fileId = await findFile(drive, `${domain}.md`, constitutionId);
   if (!fileId) return null;
 
@@ -91,23 +103,30 @@ export async function readAllConstitution(
   encryptedToken: string,
 ): Promise<Record<string, string>> {
   const drive = getDriveClient(encryptedToken);
-  const { constitutionId } = await ensureFolderStructure(drive);
+  const { constitutionId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
 
-  const domains = ['worldview', 'values', 'models', 'identity', 'taste', 'shadows'];
-  const result: Record<string, string> = {};
+  // List all files in constitution folder in one API call
+  const listRes = await drive.files.list({
+    q: `'${constitutionId}' in parents and trashed=false`,
+    fields: 'files(id,name)',
+    spaces: 'drive',
+  });
 
-  for (const domain of domains) {
-    const fileId = await findFile(drive, `${domain}.md`, constitutionId);
-    if (fileId) {
-      const res = await drive.files.get(
-        { fileId, alt: 'media' },
-        { responseType: 'text' },
-      );
-      result[domain] = res.data as string;
-    }
-  }
+  const files = listRes.data.files || [];
+  if (files.length === 0) return {};
 
-  return result;
+  // Read all files in parallel
+  const reads = files.map(async (f) => {
+    const res = await drive.files.get(
+      { fileId: f.id!, alt: 'media' },
+      { responseType: 'text' },
+    );
+    const domain = f.name!.replace('.md', '');
+    return [domain, res.data as string] as const;
+  });
+
+  const entries = await Promise.all(reads);
+  return Object.fromEntries(entries);
 }
 
 export async function writeConstitutionFile(
@@ -116,33 +135,33 @@ export async function writeConstitutionFile(
   content: string,
 ): Promise<void> {
   const drive = getDriveClient(encryptedToken);
-  const { constitutionId, vaultId } = await ensureFolderStructure(drive);
+  const { constitutionId, vaultId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
   const fileName = `${domain}.md`;
 
   const existingId = await findFile(drive, fileName, constitutionId);
 
   if (existingId) {
-    // Archive current version to vault before overwriting
+    // Archive and update in parallel
     const current = await drive.files.get(
       { fileId: existingId, alt: 'media' },
       { responseType: 'text' },
     );
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    await drive.files.create({
-      requestBody: {
-        name: `${domain}_${timestamp}.md`,
-        parents: [vaultId],
-      },
-      media: { mimeType: 'text/markdown', body: current.data as string },
-    });
 
-    // Update the current file
-    await drive.files.update({
-      fileId: existingId,
-      media: { mimeType: 'text/markdown', body: content },
-    });
+    await Promise.all([
+      drive.files.create({
+        requestBody: {
+          name: `${domain}_${timestamp}.md`,
+          parents: [vaultId],
+        },
+        media: { mimeType: 'text/markdown', body: current.data as string },
+      }),
+      drive.files.update({
+        fileId: existingId,
+        media: { mimeType: 'text/markdown', body: content },
+      }),
+    ]);
   } else {
-    // Create new file
     await drive.files.create({
       requestBody: {
         name: fileName,
@@ -169,5 +188,5 @@ export async function initializeFolderStructure(
   encryptedToken: string,
 ): Promise<void> {
   const drive = getDriveClient(encryptedToken);
-  await ensureFolderStructure(drive);
+  await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
 }
