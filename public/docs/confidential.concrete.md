@@ -28,7 +28,11 @@ Meanwhile, your AI is building the **most detailed picture of you** that's ever 
 
 There's a **20-page Abstract at mowinckel.ai** — the crafted version of everything above.
 
-**Call the founder right now — +47 466 43 844.** Five minutes. If you're high-agency, you just call. Why not? (benjamin@mowinckel.com)
+**Call the founder right now.** Five minutes. If you're high-agency, you just call. Why not?
+
+**+47 466 43 844**
+
+**benjamin@mowinckel.com**
 
 **Benjamin Mowinckel.** American-Norwegian.
 San Francisco.
