@@ -18,6 +18,8 @@ Meanwhile, your AI is building the **most detailed picture of you** that's ever 
 
 **The Library.** Share your developed perspective. Others pay to access it. You earn. Revenue share drops as you grow. **That's the network layer — infinite potential.**
 
+**How it works:**
+
 **The funnel:** Ownership floods everyone in at **$1.** Taste converts the serious ones at **$15.** The Library monetises at scale. **Natural. Gravity-fed.**
 
 **The cost base:** **near-zero.** No payroll. No compute. No storage. No database. Break even at **~200 subscribers.** The founder funds himself and isn't going anywhere. **This company can't die.**
