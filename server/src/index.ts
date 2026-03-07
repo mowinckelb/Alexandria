@@ -68,24 +68,28 @@ app.use('/mcp', async (req, _res, next) => {
   next();
 });
 
-// Single server instance — reused across requests
-const mcpServer = new McpServer({
-  name: 'Alexandria',
-  version: '0.1.0',
-  icons: [{
-    src: 'https://mowinckel.ai/favicon.png',
-    mimeType: 'image/png',
-  }],
-});
-registerTools(mcpServer);
+// Fresh server per request — McpServer.connect() can only be called once per instance
+function createMcpServer() {
+  const server = new McpServer({
+    name: 'Alexandria',
+    version: '0.1.0',
+    icons: [{
+      src: 'https://mowinckel.ai/favicon.png',
+      mimeType: 'image/png',
+    }],
+  });
+  registerTools(server);
+  return server;
+}
 
 app.all('/mcp', async (req, res) => {
+  const server = createMcpServer();
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // stateless
   });
 
   try {
-    await mcpServer.connect(transport);
+    await server.connect(transport);
     await transport.handleRequest(req, res, req.body);
   } catch (err) {
     console.error('MCP error:', err);
@@ -93,8 +97,6 @@ app.all('/mcp', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
   }
-  // Don't close transport — let the response stream finish naturally.
-  // Stateless transports are garbage collected after the request completes.
 });
 
 // ---------------------------------------------------------------------------
