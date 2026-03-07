@@ -53,19 +53,21 @@ app.get('/health', (_req, res) => {
 // MCP endpoint — Streamable HTTP transport
 // ---------------------------------------------------------------------------
 
-// Auth middleware: verify Bearer token and attach to req.auth
-app.use('/mcp', async (req, _res, next) => {
+// Auth middleware: require valid Bearer token on /mcp — forces Claude to do OAuth
+app.use('/mcp', async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (token) {
-    try {
-      const authInfo = await authProvider.verifyAccessToken(token);
-      (req as unknown as Record<string, unknown>).auth = authInfo;
-    } catch {
-      // Token invalid — proceed without auth, tools will handle gracefully
-    }
+  if (!token) {
+    res.status(401).json({ error: 'Authentication required' });
+    return;
   }
-  next();
+  try {
+    const authInfo = await authProvider.verifyAccessToken(token);
+    (req as unknown as Record<string, unknown>).auth = authInfo;
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
 });
 
 // Fresh server per request — McpServer.connect() can only be called once per instance
