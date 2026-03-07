@@ -95,6 +95,19 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
     }
   }, [phase]);
 
+  // Skip to welcome back if returning after being backgrounded
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      const copiedAt = sessionStorage.getItem('alexandria-copied-at');
+      if (copiedAt && Date.now() - Number(copiedAt) > 30000) {
+        setPhase(3);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
+
   return (
     <div style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', overflowX: 'hidden' }}>
       <ThemeToggle />
