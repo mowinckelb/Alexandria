@@ -68,35 +68,33 @@ app.use('/mcp', async (req, _res, next) => {
   next();
 });
 
+// Single server instance — reused across requests
+const mcpServer = new McpServer({
+  name: 'Alexandria',
+  version: '0.1.0',
+  icons: [{
+    src: 'https://mowinckel.ai/favicon.png',
+    mimeType: 'image/png',
+  }],
+});
+registerTools(mcpServer);
+
 app.all('/mcp', async (req, res) => {
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: undefined, // stateless
+  });
+
   try {
-    const server = new McpServer({
-      name: 'Alexandria',
-      version: '0.1.0',
-      icons: [{
-        src: 'https://mowinckel.ai/favicon.png',
-        mimeType: 'image/png',
-      }],
-    });
-
-    registerTools(server);
-
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: undefined, // stateless
-    });
-
-    res.on('close', () => {
-      transport.close();
-      server.close();
-    });
-
-    await server.connect(transport);
+    await mcpServer.connect(transport);
     await transport.handleRequest(req, res, req.body);
   } catch (err) {
     console.error('MCP error:', err);
     if (!res.headersSent) {
       res.status(500).json({ error: 'Internal server error' });
     }
+  } finally {
+    // Clean up transport after response is sent, not on connection close
+    transport.close().catch(() => {});
   }
 });
 
