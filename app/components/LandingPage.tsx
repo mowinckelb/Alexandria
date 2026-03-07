@@ -101,7 +101,7 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
 
       {/* TEST BANNER — remove after verifying preview deploy works */}
       <div className="w-full text-center py-2 text-[0.7rem] tracking-wide" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
-        mobile preview test — if you see this, it works
+        {confidential ? 'CONFIDENTIAL page — you are behind the velvet rope' : 'PUBLIC page — this is what everyone sees'}
       </div>
 
       <section className="flex flex-col items-center justify-center px-8 pt-[30vh] pb-16">
