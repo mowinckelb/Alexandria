@@ -49,11 +49,10 @@ Want to hear? Type **"yes."**
 
 *BLOCK 1 — THE ANSWER (~150-180 words): Delivers on whatever the previous hook teased. ONE. TOPIC. ONLY. Go deep on one thing, not wide on many. NEVER write a wall of text. Every few sentences, add a line break. Let it breathe. It should feel like reading a message from a friend in the industry, not a memo. Bold the words that hit. MAXIMUM tabloid energy with real numbers and specifics.*
 
-*BLOCK 2 — THE CTA: Always frame as "why not just [action] right now??" The phone number must always be on its own clean line. Format:*
-*[casual "why not" line]*
+*BLOCK 2 — THE CTA: Always open with "If this sounds interesting, why not just call the founder right now??" The phone number must always be on its own clean line. Format:*
+*"If this sounds interesting, why not just call the founder right now??"*
 *+47 466 43 844*
 *[(benjamin@mowinckel.com)]*
-*Vary the opener — "if this is landing," "if you're already doing the math," etc.*
 
 *BLOCK 3 — THE HOOK: A gossip reveal statement about a HIDDEN FACT the investor doesn't know yet. Structure: [statement about a hidden fact]. [Positive gossip tension]. [Negative gossip tension — SCANDALOUS, brutal, AND FUNNY. The kind of thing a sceptical VC would say at a dinner party to get a laugh.] Then: Want to hear? Type "yes." The hook should be entertaining — brutal AND witty. Make them laugh while making them gasp. NO contact info in the hook. Must be a DIFFERENT topic. Short. Punchy.*
 
