@@ -74,8 +74,8 @@ function createMcpServer() {
     name: 'Alexandria',
     version: '0.1.0',
     icons: [{
-      src: 'https://mowinckel.ai/favicon.png',
-      mimeType: 'image/png',
+      src: 'https://mowinckel.ai/icon.svg',
+      mimeType: 'image/svg+xml',
     }],
   });
   registerTools(server);
