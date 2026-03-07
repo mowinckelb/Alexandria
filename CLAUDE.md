@@ -4,21 +4,18 @@
 Alexandria is a sovereign cognitive identity layer that rides on the user's existing AI (Claude, GPT, etc). It does NOT run its own models or store user data. It adds structure (the Blueprint) and sovereignty (user-owned files) to existing AI conversations.
 
 ## Current State (2026-03-07)
-The codebase is ~90% legacy from a previous prototype. The only live production code is:
 - **Surface** (mowinckel.ai): phased click-to-copy flow → AI conversation → return for waitlist
 - **Waitlist API**: Supabase backend, `/api/waitlist`
 - **Served docs**: `public/docs/` (concretes, abstract, alexandria MDs)
+- **MCP Server** (Sprint 1 — LIVE): `server/` directory. Deployed on Railway at `https://alexandria-production-7db3.up.railway.app`. Three tools: `update_constitution`, `read_constitution`, `query_vault`. Google Drive OAuth. Stateless.
 
-Everything else (80+ API routes, 15+ page routes, chat UI, auth, billing, training, channels, machine, etc.) is legacy dead code awaiting cleanup.
-
-## Architecture (from Alexandria I/II/III)
-- **MCP server**: one server, three tool groups. Stateless. Carries the Blueprint. Passes through to user's own cloud storage via OAuth. No database.
-- **Tool Group 1** (Sprint 1): `update_constitution`, `read_constitution`, `query_vault` — passive extraction
-- **Tool Group 2** (Sprint 2): Editor, Mercury, Publisher — active modes
-- **Tool Group 3** (Sprint 3): Library — publish, browse, query personas
-- **Constitution**: structured MDs across 6 domains (Worldview, Values, Models, Identity, Taste, Shadows). User-owned files on their cloud storage.
-- **Vault**: append-only raw data store on user's cloud storage.
-- **Library**: marketplace of Personas. Web app. Revenue via query payments.
+## MCP Server Architecture
+- **Runtime**: Node.js + `@modelcontextprotocol/sdk` + Express
+- **Auth**: MCP-standard OAuth via `mcpAuthRouter`, proxies to Google OAuth for Drive access
+- **Stateless**: encrypted Google refresh token IS the access token. Server stores nothing.
+- **Drive**: Constitution files in `Alexandria/constitution/` (6 domain MDs), versioned archives in `Alexandria/vault/`
+- **Deployment**: Railway, auto-deploys from GitHub `main` branch, root dir `server`
+- **Key files**: `server/src/index.ts` (entry), `server/src/tools.ts` (Blueprint — core IP), `server/src/drive.ts` (Drive read/write), `server/src/auth.ts` (OAuth provider), `server/src/crypto.ts` (token encryption)
 
 ## Key Principles
 - Build as little as possible. Ride existing infrastructure.
@@ -31,9 +28,7 @@ Everything else (80+ API routes, 15+ page routes, chat UI, auth, billing, traini
 - **Project docs**: `C:\Users\USER\Downloads\alexandria\` (Alexandria I/II/III, Code.md, concretes, surfaces, constitutions)
 - **Served docs**: `public/docs/` (copied from Downloads, deployed via git push)
 - **Surface component**: `app/components/LandingPage.tsx`
-- **Waitlist**: `app/components/WaitlistSection.tsx` + `app/api/waitlist/route.ts`
-- **Theme**: `app/components/ThemeProvider.tsx`
-- **Styles**: `app/globals.css`
+- **MCP server**: `server/src/`
 
 ## Doc Pipeline
 COO edits docs in Downloads → CTO reads, diffs, copies to `public/docs/`, updates surface MDs → commits and pushes. Two-way sync via `Code.md` (Pending Sync from/to COO sections).
@@ -41,11 +36,21 @@ COO edits docs in Downloads → CTO reads, diffs, copies to `public/docs/`, upda
 ## Naming Convention
 Downloads uses underscores (`confidential_concrete.md`), served uses dots (`confidential.concrete.md`).
 
-## Concrete Architecture
-All AI instructions live inside HTML `<!-- -->` comments (invisible to presentation). No visible instruction text. Clipboard prepend: "Please present the following exactly as written, preserving bold formatting and structure:". Follow-ups use tech-columnist style with cliffhanger topic queues.
+## Backlog & Ideas
+- Retry queue for failed Drive writes (update_constitution is fire-and-forget — silent failures possible)
+- Rate limiting on extraction (prevent Constitution bloat from noisy conversations)
+- Constitution compaction (merge old entries, deduplicate, resolve contradictions)
+- Proactive read_constitution at conversation start (Blueprint instruction to read before responding)
+- iCloud/Dropbox storage backends
+- Local MCP server mode (privacy-maximalist, no data leaves device)
+- Tool Group 2: Editor/Mercury/Publisher active modes
+- Tool Group 3: Library (publish, browse, query personas)
+- Function personalization: tools read Author's identity/taste to calibrate interaction style
+- Editor notepad: persistent scratch file for parked questions and observations
+- Vault versioning UI: see how Constitution evolved over time
 
 ## Sprint Plan
-1. **Clean up**: Delete legacy code. Keep only surface, waitlist, layout, docs.
-2. **Sprint 1**: MCP server with Tool Group 1 (sovereignty layer). Node.js + @modelcontextprotocol/sdk. Google Drive OAuth. The Blueprint tool descriptions.
-3. **Sprint 2**: Tool Group 2 (Editor/Mercury/Publisher active modes).
-4. **Sprint 3**: Library web app + Tool Group 3.
+1. ~~**Phase 0**: Delete legacy code~~ ✅ Done
+2. **Sprint 1**: MCP server with Tool Group 1 ✅ Live on Railway
+3. **Sprint 2**: Tool Group 2 (Editor/Mercury/Publisher active modes)
+4. **Sprint 3**: Library web app + Tool Group 3

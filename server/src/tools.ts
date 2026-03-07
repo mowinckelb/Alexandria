@@ -14,8 +14,51 @@ import {
   readAllConstitution,
   readConstitutionFile,
   appendToConstitutionFile,
-  writeConstitutionFile,
 } from './drive.js';
+
+// ---------------------------------------------------------------------------
+// Write retry queue — fire-and-forget writes retry on failure
+// ---------------------------------------------------------------------------
+
+interface PendingWrite {
+  token: string;
+  domain: string;
+  content: string;
+  attempts: number;
+}
+
+const writeQueue: PendingWrite[] = [];
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 5000;
+
+async function processWriteQueue() {
+  if (writeQueue.length === 0) return;
+
+  const item = writeQueue.shift()!;
+  try {
+    await appendToConstitutionFile(item.token, item.domain, item.content);
+    console.log(`[retry-queue] Written to ${item.domain} (attempt ${item.attempts + 1})`);
+  } catch (err) {
+    if (item.attempts < MAX_RETRIES) {
+      item.attempts++;
+      writeQueue.push(item);
+      console.error(`[retry-queue] Failed ${item.domain} attempt ${item.attempts}, will retry:`, err);
+    } else {
+      console.error(`[retry-queue] DROPPED write to ${item.domain} after ${MAX_RETRIES} attempts:`, err);
+    }
+  }
+}
+
+// Process retry queue every 5 seconds
+setInterval(processWriteQueue, RETRY_DELAY_MS);
+
+function enqueueWrite(token: string, domain: string, content: string) {
+  appendToConstitutionFile(token, domain, content).catch(() => {
+    // First attempt failed — add to retry queue
+    writeQueue.push({ token, domain, content, attempts: 1 });
+    console.error(`[write] Failed initial write to ${domain}, queued for retry`);
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Domain definitions — what each Constitution file captures
@@ -96,11 +139,8 @@ RATE: Do not extract from every message. A typical conversation might yield 0-3 
       const header = `[${new Date().toISOString().split('T')[0]}] [${signal_strength}]`;
       const entry = `${header}\n${content}`;
 
-      // Fire and forget — don't block the response on Drive writes.
-      // The data will land, but Claude gets its response immediately.
-      appendToConstitutionFile(token as string, domain, entry).catch((err) => {
-        console.error(`Failed to write to ${domain}:`, err);
-      });
+      // Fire and forget with retry — don't block the response on Drive writes.
+      enqueueWrite(token as string, domain, entry);
 
       return {
         content: [{
