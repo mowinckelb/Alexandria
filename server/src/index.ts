@@ -49,6 +49,20 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', server: 'alexandria-mcp', version: '0.1.0' });
 });
 
+// Serve favicon so Claude picks up the a. logo instead of Railway's default
+const ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="80" fill="#F5F0E8"/>
+  <text x="256" y="360" font-family="Georgia, 'Times New Roman', serif" font-size="340" font-weight="bold" fill="#1A1A1A" text-anchor="middle">a.</text>
+</svg>`;
+
+app.get('/favicon.ico', (_req, res) => {
+  res.type('image/svg+xml').send(ICON_SVG);
+});
+
+app.get('/favicon.svg', (_req, res) => {
+  res.type('image/svg+xml').send(ICON_SVG);
+});
+
 // ---------------------------------------------------------------------------
 // MCP endpoint — Streamable HTTP transport
 // ---------------------------------------------------------------------------
