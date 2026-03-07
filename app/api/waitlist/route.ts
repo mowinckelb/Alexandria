@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { google } from 'googleapis';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+const auth = new google.auth.GoogleAuth({
+  credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '{}'),
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+});
+
+const sheets = google.sheets({ version: 'v4', auth });
+const SPREADSHEET_ID = process.env.WAITLIST_SHEET_ID!;
 
 // Simple in-memory rate limiting: max 5 requests per IP per minute
 const rateMap = new Map<string, { count: number; resetAt: number }>();
@@ -37,20 +40,18 @@ export async function POST(req: NextRequest) {
     const waitlistType = validTypes.includes(type) ? type : 'author';
     const waitlistSource = source === 'confidential' ? 'confidential' : 'public';
 
-    const { error } = await supabase
-      .from('waitlist')
-      .upsert(
-        { email: email.toLowerCase().trim(), type: waitlistType, source: waitlistSource },
-        { onConflict: 'email' }
-      );
-
-    if (error) {
-      console.error('Waitlist insert error:', error);
-      return NextResponse.json({ error: 'Failed to join waitlist.' }, { status: 500 });
-    }
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Sheet1!A:D',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [[email.toLowerCase().trim(), waitlistType, waitlistSource, new Date().toISOString()]],
+      },
+    });
 
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
+  } catch (err) {
+    console.error('Waitlist error:', err);
+    return NextResponse.json({ error: 'Failed to join waitlist.' }, { status: 500 });
   }
 }
