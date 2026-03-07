@@ -53,6 +53,21 @@ app.get('/health', (_req, res) => {
 // MCP endpoint — Streamable HTTP transport
 // ---------------------------------------------------------------------------
 
+// Auth middleware: verify Bearer token and attach to req.auth
+app.use('/mcp', async (req, _res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (token) {
+    try {
+      const authInfo = await authProvider.verifyAccessToken(token);
+      (req as unknown as Record<string, unknown>).auth = authInfo;
+    } catch {
+      // Token invalid — proceed without auth, tools will handle gracefully
+    }
+  }
+  next();
+});
+
 app.all('/mcp', async (req, res) => {
   try {
     const server = new McpServer({
