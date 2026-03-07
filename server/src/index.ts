@@ -50,17 +50,19 @@ app.get('/health', (_req, res) => {
 });
 
 // Serve favicon so Claude picks up the a. logo instead of Railway's default
-const ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="80" fill="#F5F0E8"/>
-  <text x="256" y="360" font-family="Georgia, 'Times New Roman', serif" font-size="340" font-weight="bold" fill="#1A1A1A" text-anchor="middle">a.</text>
-</svg>`;
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const faviconPng = readFileSync(join(__dirname, '..', 'favicon.png'));
 
 app.get('/favicon.ico', (_req, res) => {
-  res.type('image/svg+xml').send(ICON_SVG);
+  res.type('image/png').send(faviconPng);
 });
 
-app.get('/favicon.svg', (_req, res) => {
-  res.type('image/svg+xml').send(ICON_SVG);
+app.get('/favicon.png', (_req, res) => {
+  res.type('image/png').send(faviconPng);
 });
 
 // ---------------------------------------------------------------------------
@@ -90,8 +92,8 @@ function createMcpServer() {
     name: 'Alexandria',
     version: '0.1.0',
     icons: [{
-      src: 'https://mowinckel.ai/icon.svg',
-      mimeType: 'image/svg+xml',
+      src: 'https://alexandria-production-7db3.up.railway.app/favicon.png',
+      mimeType: 'image/png',
     }],
   });
   registerTools(server);
