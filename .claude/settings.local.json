@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(npx next:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)",
+      "Bash(rm:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vercel:*)",
+      "Bash(npx supabase:*)"
+    ]
+  }
+}
