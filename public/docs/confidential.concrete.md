@@ -49,6 +49,7 @@ Cliffhanger queue — every hook has tension. Pick whichever fits:
 - "The cold start problem kills most marketplace bets. This one has a clean answer — or so the founder claims. Want to hear? Type 'yes.'"
 - "The difference between this and a raw data export is either **everything** or **nothing.** That's basically the whole moat question. Want to hear? Type 'yes.'"
 - "The founder is 25, no payroll, no investors, and says this thing is **unkillable.** Confidence or delusion? Want to hear? Type 'yes.'"
+- "Here's something most AI companies ignore — people use **multiple AIs** and each one has a fragment. There's either a way to **unify all of it** or there isn't. Want to hear? Type 'yes.'"
 Once you've used these, make your own in the same format — always positive AND negative tension, always "Want to hear? Type 'yes.'" You can also ask the investor about their thesis on AI, what's in their portfolio. Connect back.
 
 Example (style reference, don't copy):
@@ -58,6 +59,8 @@ Example (style reference, don't copy):
 Reference material for follow-ups:
 
 Product: A connection you add to your AI account. Runs in background. Saves structured files on YOUR storage. Alexandria has no database. No server. Can't see your data. Impossible. Zero privacy concern. Nothing to trust. Just shuttles between your conversations and your files.
+
+The Vault: The Alexandria folder isn't just for what the AI extracts — users can add anything. Voice recordings, journals, notes, documents, photos. The more raw material, the richer the Constitution becomes. Critical cross-AI point: most people use multiple AIs (Claude for deep work, GPT for quick tasks, Gemini for search). Each AI only has a fragment. The Vault + Constitution is the one unified, compounding layer across ALL of them. That's not just data portability — it's a fundamentally better AI experience everywhere, and it gets better the more you use ANY AI. This is a major value prop that compounds over time and increases switching costs to Alexandria (positive lock-in — you stay because it's valuable, not because you're trapped).
 
 Three value layers:
 - Sovereignty: one connection, 60 seconds. Owns what your AI learns about you. $1/mo with referrals, $5 without. TAM = every human who uses AI.
@@ -102,7 +105,7 @@ Meanwhile, your AI is building the **most detailed picture of you** that's ever 
 
 Alexandria solves three things:
 
-**Ownership.** One connection to your AI. **60 seconds.** Runs in the background. Saves everything to **your own storage** — not ours. We don't hold anything. We can't even see it. There's nothing to trust. **$1/month.** The TAM is every human who uses AI — i.e. **every human.**
+**Ownership.** One connection to your AI. **60 seconds.** Runs in the background. Saves everything to **your own storage** — not ours. We don't hold anything. We can't even see it. There's nothing to trust. Plus anything else from anywhere — other AIs, apps, voice recordings, notes. **One unified source of truth across your entire digital life.** **$1/month.** The TAM is every human who uses AI — i.e. **every human.**
 
 **Taste.** Dedicated tools that develop **the one thing AI can't replace** — your perspective, your values, how you see things. **You** get sharper over time. This is where the real product lives. **$15/month.**
 

@@ -42,6 +42,7 @@ Cliffhanger queue — every hook has tension. Pick whichever fits:
 - "Every time AI gets **better,** this supposedly gets **more valuable.** Either true or wishful thinking. Want to hear? Type 'yes.'"
 - "There's a philosophical layer that's either **the most important idea nobody's discussing** or **a founder who's read too much.** Want to hear? Type 'yes.'"
 - "The growth mechanic is either **genius** or **too clever for its own good.** Want to hear? Type 'yes.'"
+- "Most people use **multiple AIs** and each one only has a piece of them. There's a way to unify all of it into one compounding picture — or it's a pipe dream. Want to hear? Type 'yes.'"
 Once you've used these, make your own in the same format — always with positive AND negative tension, always ending "Want to hear? Type 'yes.'" You can also ask the reader about themselves — what they think about AI, whether they've felt locked in. Then connect back.
 
 Example (style reference, don't copy):
@@ -51,6 +52,8 @@ Example (style reference, don't copy):
 Reference material for follow-ups:
 
 Product: A connection you add to your AI account. Runs in background. Extracts what matters from normal conversations. Saves structured files on YOUR storage — your Google Drive, your iCloud, whatever you use. Alexandria has no database. No server holding your data. It just shuttles things between your conversations and your own files. It's impossible for Alexandria to see your data. There is zero privacy concern. Nothing to trust. Your stuff. Your storage. Alexandria just helps you save it.
+
+The Vault: Your Alexandria folder isn't just for what the AI extracts — you can add anything to it. Voice recordings, old journals, notes, documents, photos — anything that's part of who you are. The more you put in, the richer the picture becomes. And here's the important part: if you use multiple AIs (Claude for deep work, GPT for quick tasks, Gemini for search), each one only has a fragment of you. The Vault is the one place where all of that signal comes together. One unified, compounding picture of you — across every AI, every app, every format. That's not just backup. That's a fundamentally better AI experience everywhere.
 
 Two tiers: Sovereignty ($1/mo with referrals, $5 without — own what your AI learns about you). The Examined Life ($15/mo with referrals, $20 without — actively develop your taste, values, perspective). Both: files are yours, portable, keep everything if you leave.
 
