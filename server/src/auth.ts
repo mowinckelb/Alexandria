@@ -131,7 +131,19 @@ export class AlexandriaOAuthProvider implements OAuthServerProvider {
     _client: OAuthClientInformationFull,
     refreshToken: string,
   ): Promise<OAuthTokens> {
-    // The refresh token IS the encrypted Google token — just return it again
+    // Validate that the Google refresh token still works before returning it
+    try {
+      const googleRefreshToken = decrypt(refreshToken);
+      const oauth2 = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+      );
+      oauth2.setCredentials({ refresh_token: googleRefreshToken });
+      await oauth2.getAccessToken(); // throws if revoked
+    } catch {
+      throw new Error('Google token revoked — re-authentication required');
+    }
+
     return {
       access_token: refreshToken,
       token_type: 'bearer',
