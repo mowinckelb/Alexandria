@@ -12,23 +12,39 @@ import 'dotenv/config';
 import express from 'express';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { mcpAuthRouter } from '@modelcontextprotocol/sdk/server/auth/router.js';
 import { registerTools } from './tools.js';
-import { registerAuthRoutes } from './auth.js';
+import { AlexandriaOAuthProvider, registerGoogleCallbackRoute } from './auth.js';
 import { initializeFolderStructure } from './drive.js';
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
+const SERVER_URL = process.env.SERVER_URL || `http://localhost:${PORT}`;
 
 // ---------------------------------------------------------------------------
-// Express app for OAuth routes + MCP endpoint
+// Express app
 // ---------------------------------------------------------------------------
 
 const app = express();
 app.use(express.json());
 
-// OAuth routes
-registerAuthRoutes(app);
+// ---------------------------------------------------------------------------
+// OAuth — MCP-standard auth endpoints + Google callback
+// ---------------------------------------------------------------------------
 
+const authProvider = new AlexandriaOAuthProvider();
+
+app.use(mcpAuthRouter({
+  provider: authProvider,
+  issuerUrl: new URL(SERVER_URL),
+  scopesSupported: ['mcp:tools'],
+}));
+
+registerGoogleCallbackRoute(app);
+
+// ---------------------------------------------------------------------------
 // Health check
+// ---------------------------------------------------------------------------
+
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', server: 'alexandria-mcp', version: '0.1.0' });
 });
@@ -36,16 +52,6 @@ app.get('/health', (_req, res) => {
 // ---------------------------------------------------------------------------
 // MCP endpoint — Streamable HTTP transport
 // ---------------------------------------------------------------------------
-
-// Inject auth info onto the request object for MCP transport
-app.use('/mcp', (req, _res, next) => {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (token) {
-    (req as unknown as Record<string, unknown>).auth = { token };
-  }
-  next();
-});
 
 app.all('/mcp', async (req, res) => {
   try {
@@ -103,7 +109,7 @@ app.post('/initialize', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Alexandria MCP server running on port ${PORT}`);
-  console.log(`  OAuth:  ${process.env.SERVER_URL}/oauth/authorize`);
-  console.log(`  MCP:    ${process.env.SERVER_URL}/mcp`);
-  console.log(`  Health: ${process.env.SERVER_URL}/health`);
+  console.log(`  OAuth:  ${SERVER_URL}/authorize`);
+  console.log(`  MCP:    ${SERVER_URL}/mcp`);
+  console.log(`  Health: ${SERVER_URL}/health`);
 });
