@@ -104,6 +104,10 @@ export default function ScrollPhilosophy() {
           </Pull>
 
           <Body>
+            This is not a prediction. Every dollar, every brilliant engineer, every government, every military on earth is betting the house on AI and robotics. There is no structural wall between here and there &mdash; just time. And it is much faster than you think, because human beings cannot intuit exponentials. It has been decided. It is happening. If you think otherwise, you are in denial.
+          </Body>
+
+          <Body>
             But the fifth thing &mdash; the fact that a human is involved &mdash; cannot be replaced. Not because machines are not good enough yet. By definition. A machine cannot be you.
           </Body>
         </div>
