@@ -192,7 +192,7 @@ export default function LandingPage() {
             the philosophy
           </p>
           <p className="text-[0.85rem] sm:text-[0.9rem] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            There is a 20-page essay behind all of this &mdash; the{' '}
+            There is a beautiful essay behind all of this &mdash; the{' '}
             <a href="/docs/Alexandria.pdf" target="_blank" rel="noopener noreferrer" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>
               Abstract
             </a>
