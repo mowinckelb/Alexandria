@@ -1,13 +1,10 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useTheme } from './ThemeProvider';
 import WaitlistSection from './WaitlistSection';
 import FooterSection from './FooterSection';
-
-interface LandingPageProps {
-  confidential?: boolean;
-}
+import ScrollPhilosophy from './ScrollPhilosophy';
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
@@ -19,84 +16,58 @@ function ThemeToggle() {
       aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
     >
       {theme === 'light' ? (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        <svg width="10" height="10" viewBox="0 0 10 10">
+          <circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" strokeWidth="1" />
         </svg>
       ) : (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        <svg width="10" height="10" viewBox="0 0 10 10">
+          <circle cx="5" cy="5" r="4" fill="currentColor" />
         </svg>
       )}
     </button>
   );
 }
 
-function FooterWaitlist({ confidential }: { confidential: boolean }) {
-  const [expanded, setExpanded] = useState(false);
-
+function InvestorSection() {
   return (
-    <section className="flex items-center justify-center gap-4 px-8 pb-8">
-      {confidential && (
-        <a href="tel:+4746643844" className="text-[0.6rem] no-underline transition-opacity hover:opacity-50" style={{ color: 'var(--text-muted)' }}>call</a>
-      )}
-      <a href="mailto:benjamin@mowinckel.com" className="text-[0.6rem] no-underline transition-opacity hover:opacity-50" style={{ color: 'var(--text-muted)' }}>email</a>
-      <a href="/docs/Alexandria.pdf" target="_blank" rel="noopener noreferrer" className="text-[0.6rem] no-underline transition-opacity hover:opacity-50" style={{ color: 'var(--text-muted)' }}>abstract</a>
-      {!confidential && (
-        expanded ? (
-          <div className="flex items-center" style={{ overflow: 'hidden', animation: 'expandIn 0.3s ease-out forwards' }}>
-            <WaitlistSection inline source="public" />
-          </div>
-        ) : (
-          <button
-            onClick={() => setExpanded(true)}
-            className="text-[0.6rem] bg-transparent border-none cursor-pointer p-0 no-underline transition-opacity hover:opacity-50"
-            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-eb-garamond)' }}
-          >
-            waitlist
-          </button>
-        )
-      )}
-    </section>
+    <div className="flex flex-col items-center gap-6">
+      <p className="text-[0.6rem] tracking-widest uppercase" style={{ color: 'var(--text-ghost)', letterSpacing: '0.2em' }}>
+        investors
+      </p>
+      <p className="text-[0.82rem] tracking-wide text-center leading-relaxed max-w-[320px]" style={{ color: 'var(--text-muted)' }}>
+        if you have five minutes right now, just{' '}
+        <a href="tel:+4746643844" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>call me</a>
+        {' / '}
+        <a href="mailto:benjamin@mowinckel.com" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>email</a>
+        .
+      </p>
+      <div className="flex items-center gap-2">
+        <span className="text-[0.72rem] tracking-wide italic" style={{ color: 'var(--text-ghost)' }}>
+          or just leave your email &mdash;
+        </span>
+        <WaitlistSection inline source="investor" />
+      </div>
+    </div>
   );
 }
 
-// 0 = click here, 1 = go paste, 2 = lingering, 3 = welcome back (contacts)
-type Phase = 0 | 1 | 2 | 3;
+// 0 = click here
+// 1 = "copied."
+// 2 = "paste into any AI chat."
+// 3 = "ask it anything. come back after."
+// 4 = lingering
+type Phase = 0 | 1 | 2 | 3 | 4;
 
-export default function LandingPage({ confidential = false }: LandingPageProps) {
-  const [phase, setPhase] = useState<Phase>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('alexandria-phase');
-      const copiedAt = sessionStorage.getItem('alexandria-copied-at');
-      if (saved && saved !== '0' && copiedAt) {
-        const elapsed = Date.now() - Number(copiedAt);
-        // If more than 30 seconds since copy, skip straight to welcome back
-        if (elapsed > 30000) return 3;
-        return Number(saved) as Phase;
-      }
-    }
-    return 0;
-  });
-
-  useEffect(() => {
-    sessionStorage.setItem('alexandria-phase', String(phase));
-    if (phase === 1) {
-      sessionStorage.setItem('alexandria-copied-at', String(Date.now()));
-    }
-    if (phase === 0) {
-      sessionStorage.removeItem('alexandria-copied-at');
-    }
-  }, [phase]);
+export default function LandingPage() {
+  const [phase, setPhase] = useState<Phase>(0);
 
   const handleCopy = useCallback(async () => {
-    const href = confidential ? '/docs/confidential.concrete.md' : '/docs/concrete.md';
     try {
       if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
-        const blobPromise = fetch(href).then(r => r.text()).then(t => new Blob([t], { type: 'text/plain' }));
+        const blobPromise = fetch('/docs/concrete.md').then(r => r.text()).then(t => new Blob([t], { type: 'text/plain' }));
         await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blobPromise })]);
       } else {
-        const res = await fetch(href);
+        const res = await fetch('/docs/concrete.md');
         const text = await res.text();
         const textarea = document.createElement('textarea');
         textarea.value = text;
@@ -109,40 +80,38 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
       }
       setPhase(1);
     } catch {
-      window.open(href, '_blank');
+      window.open('/docs/concrete.md', '_blank');
     }
-  }, [confidential]);
+  }, []);
 
   useEffect(() => {
     if (phase === 1) {
-      const t = setTimeout(() => setPhase(2), 12000);
+      const t = setTimeout(() => setPhase(2), 3000);
       return () => clearTimeout(t);
     }
     if (phase === 2) {
-      const t = setTimeout(() => setPhase(3), 12000);
+      const t = setTimeout(() => setPhase(3), 5000);
+      return () => clearTimeout(t);
+    }
+    if (phase === 3) {
+      const t = setTimeout(() => setPhase(4), 10000);
+      return () => clearTimeout(t);
+    }
+    if (phase === 4) {
+      const t = setTimeout(() => setPhase(0), 10000);
       return () => clearTimeout(t);
     }
   }, [phase]);
-
-  // Skip to welcome back if returning after being backgrounded
-  useEffect(() => {
-    const onVisible = () => {
-      if (document.visibilityState !== 'visible') return;
-      const copiedAt = sessionStorage.getItem('alexandria-copied-at');
-      if (copiedAt && Date.now() - Number(copiedAt) > 30000) {
-        setPhase(3);
-      }
-    };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
-  }, []);
 
   return (
     <div style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', overflowX: 'hidden' }}>
       <ThemeToggle />
 
-      <section className="flex flex-col items-center justify-center px-8 pt-[30vh] pb-16">
-        <div className="flex flex-col items-center gap-12 sm:gap-14">
+      {/* Hero */}
+      <section className="flex flex-col items-center justify-center px-8 min-h-screen relative">
+        <div className="flex flex-col items-center" style={{ marginTop: '-4vh' }}>
+
+          {/* Logo */}
           <div className="flex flex-col items-center">
             <h1 className="text-[1.5rem] sm:text-[1.7rem] font-normal leading-none tracking-tight" style={{ color: 'var(--text-primary)' }}>
               alexandria.
@@ -150,15 +119,10 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
             <p className="mt-1.5 text-[0.65rem] tracking-wide italic" style={{ color: 'var(--text-muted)' }}>
               droplets of grace
             </p>
-            {confidential && (
-              <p className="mt-2 text-[0.55rem] tracking-widest uppercase" style={{ color: 'var(--text-ghost)' }}>
-                confidential
-              </p>
-            )}
           </div>
 
-          {/* Phase content — fixed height so nothing jolts */}
-          <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: '140px' }}>
+          {/* Phase widget */}
+          <div className="flex flex-col items-center justify-center text-center mt-14 sm:mt-16" style={{ minHeight: '60px' }}>
             {phase === 0 && (
               <button
                 onClick={handleCopy}
@@ -172,103 +136,100 @@ export default function LandingPage({ confidential = false }: LandingPageProps) 
             )}
 
             {phase === 1 && (
-              <div className="flex flex-col items-center gap-6 fade-in max-w-[220px] text-center">
-                <p className="text-[0.78rem] tracking-wide leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                  you just copied a file with everything about this company.
-                </p>
-                <p className="text-[0.78rem] tracking-wide leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-                  open any AI chat app, press paste, press enter, and ask it anything.
-                </p>
-                <p className="text-[0.78rem] tracking-wide leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                  come back after if you liked it. i have something for you.
-                </p>
-              </div>
+              <p className="text-[0.85rem] tracking-wide fade-in max-w-[260px]" style={{ color: 'var(--text-primary)' }}>
+                you just copied everything about this company.
+              </p>
             )}
 
             {phase === 2 && (
-              <p className="text-[0.78rem] tracking-wide italic fade-in" style={{ color: 'var(--text-ghost)' }}>
-                you're still lingering... please go.
+              <p className="text-[0.85rem] tracking-wide fade-in" style={{ color: 'var(--text-primary)' }}>
+                paste it into any AI chat app.
               </p>
             )}
 
             {phase === 3 && (
-              <div className="flex flex-col items-center gap-6 fade-in">
-                <p className="text-[0.65rem] tracking-widest uppercase" style={{ color: 'var(--text-ghost)' }}>
-                  welcome back
-                </p>
+              <p className="text-[0.85rem] tracking-wide fade-in max-w-[240px]" style={{ color: 'var(--text-muted)' }}>
+                ask it anything. come back after.
+              </p>
+            )}
 
-                {confidential ? (
-                  <div className="flex flex-col items-start gap-4">
-                    <a
-                      href="tel:+4746643844"
-                      className="text-[0.78rem] no-underline transition-opacity hover:opacity-40"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      call me &mdash; +47 466 43 844
-                    </a>
-                    <a
-                      href="mailto:benjamin@mowinckel.com"
-                      className="text-[0.78rem] no-underline transition-opacity hover:opacity-40"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      or email &mdash; benjamin@mowinckel.com
-                    </a>
-                    <a
-                      href="/docs/Alexandria.pdf"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[0.78rem] no-underline transition-opacity hover:opacity-40"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      read the abstract
-                    </a>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[0.78rem]" style={{ color: 'var(--text-muted)' }}>
-                        join waitlist &mdash;
-                      </span>
-                      <WaitlistSection inline source="public" />
-                    </div>
-                    <a
-                      href="mailto:benjamin@mowinckel.com"
-                      className="text-[0.78rem] no-underline transition-opacity hover:opacity-40"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      invest &mdash; benjamin@mowinckel.com
-                    </a>
-                    <a
-                      href="/docs/Alexandria.pdf"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[0.78rem] no-underline transition-opacity hover:opacity-40"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      read the abstract
-                    </a>
-                  </div>
-                )}
-
-                <button
-                  onClick={() => setPhase(0)}
-                  className="bg-transparent border-none cursor-pointer transition-opacity hover:opacity-50 p-0 mt-2"
-                  style={{ color: 'var(--text-ghost)' }}
-                >
-                  <span className="text-[0.55rem] tracking-widest uppercase">
-                    start over
-                  </span>
-                </button>
-              </div>
+            {phase === 4 && (
+              <p className="text-[0.85rem] tracking-wide italic fade-in" style={{ color: 'var(--text-ghost)' }}>
+                you&rsquo;re still lingering...
+              </p>
             )}
           </div>
+
+          {/* Waitlist — always visible */}
+          <div className="flex items-center gap-2 mt-12 sm:mt-14">
+            <span className="text-[0.75rem] tracking-wide" style={{ color: 'var(--text-muted)' }}>
+              join waitlist &mdash;
+            </span>
+            <WaitlistSection inline source="hero" />
+          </div>
+        </div>
+
+        {/* Scroll nudge */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 scroll-hint">
+          <span className="text-[0.7rem] tracking-wide" style={{ color: 'var(--text-muted)' }}>
+            or keep scrolling
+          </span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)', animation: 'bounce 2.5s ease-in-out infinite' }}>
+            <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+          </svg>
         </div>
       </section>
 
-      {/* Persistent footer links — always accessible */}
-      {phase !== 3 && (
-        <FooterWaitlist confidential={confidential} />
-      )}
+      {/* Investor section — first thing after scroll */}
+      <section className="px-8 py-16 sm:py-20">
+        <InvestorSection />
+      </section>
+
+      {/* Philosophy intro */}
+      <section className="px-8 pt-16 sm:pt-24 pb-8">
+        <div className="max-w-[520px] mx-auto flex flex-col items-center gap-6 text-center">
+          <p className="text-[0.6rem] tracking-widest uppercase" style={{ color: 'var(--text-ghost)', letterSpacing: '0.2em' }}>
+            the philosophy
+          </p>
+          <p className="text-[0.85rem] sm:text-[0.9rem] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            There is a 20-page essay behind all of this &mdash; the{' '}
+            <a href="/docs/Alexandria.pdf" target="_blank" rel="noopener noreferrer" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>
+              Abstract
+            </a>
+            . Below is the plain English version.
+          </p>
+        </div>
+      </section>
+
+      {/* Philosophy */}
+      <ScrollPhilosophy />
+
+      {/* Bottom — everything */}
+      <section className="px-8 py-16 sm:py-24">
+        <div className="flex flex-col items-center gap-10">
+          {/* Abstract */}
+          <a
+            href="/docs/Alexandria.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[0.78rem] tracking-wide no-underline transition-opacity hover:opacity-40"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            read the abstract
+          </a>
+
+          {/* Waitlist */}
+          <div className="flex items-center gap-2">
+            <span className="text-[0.75rem] tracking-wide" style={{ color: 'var(--text-muted)' }}>
+              join waitlist &mdash;
+            </span>
+            <WaitlistSection inline source="bottom" />
+          </div>
+
+          {/* Investor */}
+          <InvestorSection />
+        </div>
+      </section>
 
       <FooterSection />
     </div>
