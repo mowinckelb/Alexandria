@@ -57,26 +57,40 @@ function Divider() {
   );
 }
 
+/* Section header — "X of 5" progress marker */
+function SectionHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <Fade>
+      <p className="text-[0.6rem] tracking-widest uppercase pb-4" style={{ color: 'var(--text-ghost)', letterSpacing: '0.2em' }}>
+        {children}
+      </p>
+    </Fade>
+  );
+}
+
 export default function ScrollPhilosophy() {
   return (
     <section id="philosophy" className="px-8 sm:px-12">
       <div className="max-w-[520px] mx-auto">
 
-        {/* ——— OPENING ——— */}
+        {/* Reading time marker */}
+        <Fade>
+          <p className="text-[0.6rem] tracking-widest uppercase text-center pt-16 sm:pt-24 pb-8" style={{ color: 'var(--text-ghost)', letterSpacing: '0.2em' }}>
+            5 minute read.
+          </p>
+        </Fade>
 
-        <div className="pt-16 sm:pt-24">
-          <Pull>
-            There are five things a human being brings to the world.
-          </Pull>
-        </div>
+        {/* ——— 1 of 5 — WHAT YOU ARE ——— */}
+
+        <SectionHeader>1 of 5 &mdash; What you are</SectionHeader>
+
+        <Pull>
+          There are five things a human being brings to the world.
+        </Pull>
 
         <div className="space-y-6 mt-4">
           <Body>
-            Your brain &mdash; intelligence, analysis, problem-solving, knowledge. Your legs &mdash; strength, endurance, physical power. Your hands &mdash; dexterity, craft, precision. Your heart &mdash; empathy, emotional intelligence, understanding what someone else is feeling.
-          </Body>
-
-          <Body>
-            And then there is a fifth thing, which is not like the other four. It is not something you do. It is something you are. The fact that you are a human being. That you are mortal, specific, yours. That your grandmother knitted that blanket and not someone else.
+            Your brain &mdash; intelligence, analysis, problem-solving. Your legs &mdash; strength, endurance, physical power. Your hands &mdash; dexterity, craft, precision. Your heart &mdash; empathy, emotional intelligence, understanding what someone else is feeling. And then there is a fifth thing, which is not like the other four. It is not something you do. It is something you are. The fact that you are a human being. That you are this specific person. Your kid&rsquo;s drawing on the fridge &mdash; it is the same image you could print from the internet. But it is not the same thing. It is not even close. Because a human made it, and you know which one.
           </Body>
 
           <Fade>
@@ -88,33 +102,39 @@ export default function ScrollPhilosophy() {
 
         <Divider />
 
-        {/* ——— THE SHIFT ——— */}
+        {/* ——— 2 of 5 — THE SHIFT ——— */}
+
+        <SectionHeader>2 of 5 &mdash; The shift</SectionHeader>
 
         <div className="space-y-6">
           <Body>
-            Now here is what is happening. Each of those four capabilities is being matched and then surpassed by a machine. Strength went first &mdash; the industrial revolution made human muscle irrelevant for most work. Intelligence is going now &mdash; AI already outperforms any individual human at analysis, writing, coding, and reasoning. Dexterity is next &mdash; robotic hands already operate with precision no surgeon can match.
+            Those four capabilities are going away. And it is not new &mdash; the first one already went.
           </Body>
 
           <Body>
-            And empathy, the one people resist &mdash; AI is learning to approximate it so well that most people will not care whether their therapist is human. They will just care that they feel better.
+            Strength &mdash; the industrial revolution made human muscle irrelevant for most work two centuries ago. That is settled. Now look at the other three. Intelligence &mdash; every few months, AI does something that surprises even the people building it. It keeps saturating benchmarks, solving problems nobody expected it to solve, and taking on work that was supposed to be safe from automation. Whether you think it is truly intelligent or not, the direction is not in doubt. Dexterity &mdash; look at factory floors, look at surgical robots. Both ends of the spectrum are already handled by machines. The gap in the middle is narrowing, and obviously it will close. Empathy &mdash; you already see it. Kids forming deep relationships with their AIs. People perfectly comfortable with emotional support that is not human. The approximation is getting better every month.
+          </Body>
+
+          <Fade>
+            <p className="text-[0.82rem] sm:text-[0.85rem] italic py-2" style={{ color: 'var(--text-muted)' }}>
+              All four are already in motion. The first is finished. The other three are at different stages, but the direction is the same. Taking this to its logical conclusion is not radical &mdash; it is obvious.
+            </p>
+          </Fade>
+
+          <Body>
+            If you are sceptical, take a moment to reflect on the position you are holding. Every government, every military, every brilliant engineer, every spare dollar on earth is on the other side. They are betting everything on this. Look back five years at where AI was. Look at where it is now. Project forward ten years. Twenty. There is no law of physics, no hard limit between here and there. Just time. And this is not some distant hypothetical where it does not matter whether you are right or wrong. This is your one life. Your one family. The one civilisation you are part of. The most important transition that will happen in your lifetime is already underway, and you have very little influence over its direction. What you do have influence over is how you position yourself within it. That starts with accepting where we are &mdash; clearly, honestly &mdash; so that the solution makes sense when you hear it. Read the room.
           </Body>
 
           <Pull>
-            Four capabilities. Four technologies. Each one makes the human version unnecessary.
+            The fifth thing &mdash; the fact that a human is involved &mdash; is not going anywhere. Not because machines are not good enough yet. By definition. A machine cannot be you. And that matters, because we are a species that values its own kind.
           </Pull>
-
-          <Body>
-            This is not a prediction. Every dollar, every brilliant engineer, every government, every military on earth is betting the house on AI and robotics. There is no structural wall between here and there &mdash; just time. And it is much faster than you think, because human beings cannot intuit exponentials. It has been decided. It is happening. If you think otherwise, you are in denial.
-          </Body>
-
-          <Body>
-            But the fifth thing &mdash; the fact that a human is involved &mdash; cannot be replaced. Not because machines are not good enough yet. By definition. A machine cannot be you.
-          </Body>
         </div>
 
         <Divider />
 
-        {/* ——— THE ALIEN ——— */}
+        {/* ——— 3 of 5 — THE ALIEN ——— */}
+
+        <SectionHeader>3 of 5 &mdash; The alien</SectionHeader>
 
         <div className="space-y-6">
           <Fade>
@@ -124,7 +144,7 @@ export default function ScrollPhilosophy() {
           </Fade>
 
           <Body>
-            Imagine an alien &mdash; vastly more intelligent than any human, with perfect emotional intelligence, exquisite taste, and extraordinary dexterity. This alien can cook a better meal than any chef on earth. Design a more beautiful building. Write a more compelling argument. It even has better taste than you &mdash; it knows what you like before you do.
+            Imagine an alien &mdash; vastly more intelligent than any human, with perfect emotional intelligence, exquisite taste, and extraordinary dexterity. It can cook a better meal than any chef on earth. Design a more beautiful building. Write a more compelling argument. It even has better taste than you &mdash; it knows what you like before you do.
           </Body>
 
           <Body>
@@ -133,237 +153,89 @@ export default function ScrollPhilosophy() {
 
           <Fade>
             <p className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed py-2" style={{ color: 'var(--text-primary)' }}>
-              No. And you know exactly why. Not because the alien&rsquo;s version is worse. It is better. But it is not one of us.
+              No. And you know exactly why. Not because the alien&rsquo;s version is worse. It is better. But it is not one of us. If the word &ldquo;speciesist&rdquo; just crossed your mind &mdash; very astute. That is exactly what it is. Humans value humans. That is what this company is built on. If that does not sit well with you, this is probably not your thing.
             </p>
           </Fade>
-
-          <Body>
-            The fifth thing is not a capability gap that closes with enough talent or data. It is a category difference. And it holds whether the alien is made of carbon or silicon.
-          </Body>
         </div>
 
         <Divider />
 
-        {/* ——— WHAT IT MEANS ——— */}
+        {/* ——— 4 of 5 — WHY IT MATTERS ——— */}
 
-        <Pull>
-          So what does this mean for you?
-        </Pull>
-
-        <div className="space-y-6 mt-2">
-          <Body>
-            Most of your value used to come from the first four &mdash; your intelligence, your skills, your strength. Those are what got you paid, hired, respected. And all four are being competed away. If you try to compete on intelligence alone, you are finished. AI is better. If you try to compete on any capability alone, you lose to the machine.
-          </Body>
-
-          <Body>
-            But you can compete if you are augmented. A human working with AI is vastly more capable than either alone. AI handles the raw intelligence, the analysis, the heavy lifting. You bring something AI cannot bring &mdash; the fact that it is you doing it. Your involvement makes the output yours. Not generically &ldquo;human.&rdquo; Specifically yours.
-          </Body>
-
-          <Body>
-            That is not taste &mdash; the alien has better taste. It is not perspective &mdash; the alien has a richer perspective. It is the partial derivative &mdash; the part of the output that exists only because you were involved. Remove you and the output could have been made by anyone or anything. Keep you in and it is irreducibly from a specific person.
-          </Body>
-        </div>
-
-        <Divider />
-
-        {/* ——— THE LENS ——— */}
+        <SectionHeader>4 of 5 &mdash; Why it matters</SectionHeader>
 
         <div className="space-y-6">
+          <Body>
+            Humans have always augmented themselves &mdash; books, experts, institutions, tools. Not in a science fiction sense. In the ordinary sense. You have always used things to extend what you can do. AI is just the most powerful version of that. The difference is that AI can also close the loop without you. No book ever wrote itself. No tool ever finished the job on its own. AI can. Your involvement is now a choice, not a requirement.
+          </Body>
+
+          <Body>
+            Which means the question for every job, every task, every role becomes simple. Can a human do it to an adequate level? And does anyone care that it is a human doing it? The coder who does not write code anymore and just approves what the AI generated &mdash; nobody cares that a human pressed accept. The analyst who reformats what the AI produced &mdash; there is no human premium there. The human costs more and adds nothing. That is an easy decision. The human gets replaced.
+          </Body>
+
           <Pull>
-            That is what the lens is.
+            The only roles where humans have a future are the ones where it matters that a human is involved.
           </Pull>
 
           <Body>
-            The lens is not a skill. It is your presence in your own work. The clearer that presence &mdash; the more developed your self-knowledge, the sharper your sense of what you actually think and value &mdash; the more of your output carries your partial derivative.
+            And your ability to be in those roles &mdash; to be above the bar where your involvement actually counts &mdash; depends entirely on your mind being sharp enough to keep you there.
+          </Body>
+
+          <Body>
+            But here is the problem. Every time you let AI think for you without engaging, that sharpness fades. Every decision you outsource entirely, every thought you skip because the machine already answered &mdash; your ability to direct weakens. Quietly, the way you stop being able to do mental arithmetic after years of using a calculator. Except this is not arithmetic. This is your ability to think, to decide, to know what you actually believe.
           </Body>
 
           <Fade>
             <p className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed py-2" style={{ color: 'var(--text-primary)' }}>
-              A developed lens means everything you produce has you in it. An undeveloped lens means your involvement is invisible &mdash; interchangeable with the machine &mdash; even when you are technically in the loop.
+              The same way people need a physical gym because machines handle physical labour, people need a mental gym because AI handles cognitive labour.
             </p>
           </Fade>
 
           <Body>
-            When the augmented human and the pure AI produce similar quality, someone has to get the nod. That is the tiebreaker. And the tiebreaker goes to the human &mdash; if people value human involvement. Not automatically. A culture that values humanity tips every close call toward the person. A culture that does not tips it toward the machine.
-          </Body>
-
-          <Fade>
-            <p className="text-[0.82rem] sm:text-[0.85rem] italic py-2" style={{ color: 'var(--text-muted)' }}>
-              Philosophy creates that culture. It is not decoration. It is the mechanism that determines whether the tiebreaker falls your way.
-            </p>
-          </Fade>
-
-          <Body>
-            None of this is theory. Humans already value things this way and always have. The sporting event is valuable because a human body is doing it. The live performance matters because a person is on stage. The handwritten letter means something the printed one does not. These are not sentimental exceptions. They are the rule &mdash; observable, measurable, as old as trade itself.
+            But the mental gym is more important. If your body weakens, your mind can decide to fix it. If your mind weakens, the thing that would decide to fix it is the thing that weakened. It is the one muscle where letting it go means losing the ability to realise you need it back.
           </Body>
         </div>
 
         <Divider />
 
-        {/* ——— THE DANGER ——— */}
+        {/* ——— 5 of 5 — ALEXANDRIA ——— */}
 
-        <Pull>
-          There are two ways to drown.
-        </Pull>
-
-        <div className="space-y-6 mt-2">
-          <Body>
-            The first is giving up. Every time you let AI think for you without engaging, the muscle weakens. Every decision you outsource entirely, every thought you skip because the machine already answered &mdash; your presence in your own work fades a little. Quietly, the way you stop being able to do mental arithmetic after years of using a calculator. Except this is not arithmetic. This is your ability to think for yourself, to know what you believe, to bring something to the table that is recognisably you.
-          </Body>
-
-          <Fade>
-            <p className="text-[0.82rem] sm:text-[0.85rem] italic py-2" style={{ color: 'var(--text-muted)' }}>
-              And for kids growing up inside AI, it is not even decay &mdash; it is never developing the muscle in the first place.
-            </p>
-          </Fade>
-
-          <Body>
-            The second is being overwhelmed. The abundance is real. More information, more tools, more capability, more options than any human has ever faced. Without a clear sense of who you are and what you think, you suffocate under it. You react to everything and direct nothing.
-          </Body>
-        </div>
-
-        <Divider />
-
-        {/* ——— THE RESOLUTION ——— */}
-
-        <div className="space-y-6">
-          <Body>
-            But here is what changes with AI. You do not need to hold deep, fully articulated knowledge on everything anymore. Humans have always augmented &mdash; with books, with experts, with tools. The difference now is that the tools are so powerful that you only need the spark. A hazy fragment. A directional instinct. The sense that something matters, without knowing exactly why yet.
-          </Body>
-
-          <Fade>
-            <p className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed py-2" style={{ color: 'var(--text-primary)' }}>
-              AI fills in everything underneath &mdash; the research, the articulation, the execution. Your job is the touchpoint. The &ldquo;something about this.&rdquo; The rest is handled.
-            </p>
-          </Fade>
-
-          <Body>
-            This means you can cover vastly more ground than any human ever could. Thousands of hazy fragments across hundreds of domains, each one light enough to hold, each one enough for AI to act on. Maximum surface area, minimum cognitive load. The tools fill everything under the curve.
-          </Body>
-
-          <Body>
-            But you cannot remove the touchpoint itself. Because without it, AI has infinite directions and no way to choose one that is yours. Cross that line and you have not augmented &mdash; you have outsourced. And once the touchpoints are gone, you are just approving output with no directional input.
-          </Body>
-        </div>
-
-        <Divider />
-
-        {/* ——— THE PRODUCT ——— */}
-
-        <Pull>
-          The same way people need a gym because machines handle physical labour, people need a mental gym because AI handles cognitive labour.
-        </Pull>
+        <SectionHeader>5 of 5 &mdash; Alexandria</SectionHeader>
 
         <Fade>
           <p className="text-[1.15rem] sm:text-[1.35rem] leading-relaxed text-center py-2 italic" style={{ color: 'var(--text-primary)' }}>
-            Alexandria is a mental gym.
+            Alexandria is that mental gym.
           </p>
         </Fade>
 
         <Fade>
-          <p className="text-[0.82rem] sm:text-[0.85rem] text-center italic py-2" style={{ color: 'var(--text-muted)' }}>
+          <p className="text-[0.82rem] sm:text-[0.85rem] text-center italic py-2 mb-6" style={{ color: 'var(--text-muted)' }}>
             The product is not the technology. The product is the changed person.
           </p>
         </Fade>
 
-        <div className="space-y-6 mt-8">
+        <div className="space-y-6">
           <Body>
-            Someone who has developed their lens holds more touchpoints across a wider surface area. They give sharper direction to their AI because they know what they want &mdash; even hazily. Their augmented output is better because the human element in it is clear and specific rather than vague and generic. They absorb the abundance instead of drowning in it. They are more capable, more competitive, and more themselves.
+            We see this problem clearly, and we have a simple, elegant solution for it. Most AI companies are built for the transition &mdash; they help you use AI better right now. Alexandria is built for what comes after. But it has to exist now, because the foundations have to be in place during the transition or you do not survive it. Your mind decays during the transition if you do not maintain it. And it compounds &mdash; the earlier you start, the stronger your position, the sharper your mind, the more your AI has to work with. Waiting is not neutral. Waiting is falling behind.
           </Body>
+
+          <Body>
+            At the first level &mdash; AI insurance. It runs quietly in the background across all your AI &mdash; whatever you use, it does not matter. It builds a structured, living map of how you think &mdash; your values, your taste, your worldview, your blind spots &mdash; stored on your own files, not ours. We hold nothing. We cannot see it. You own it completely and can take it anywhere. That alone is worth having.
+          </Body>
+
+          <Body>
+            At the second level &mdash; the mental gym. Alexandria actively develops your mind. New ideas you would not have found on your own. Sharpening what you already believe. Keeping alive the things that would otherwise quietly fade. You walk out a different person &mdash; not because someone told you what to think, but because you know yourself better, and everything you do with AI gets better because of it.
+          </Body>
+
+          <Fade>
+            <p className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed py-6" style={{ color: 'var(--text-primary)' }}>
+              If you have read this far, the $1 AI insurance is a no-brainer. One connection. Sixty seconds. Everything your AI learns about you, saved to your own files, yours to keep no matter what happens. There is no reason not to do this. The $15 is for the people who understand what is coming and do not want to be too late &mdash; the mental gym, the full experience. It compounds. It only gets better. And it gets more relevant every single day, not less.
+            </p>
+          </Fade>
 
           <Fade>
             <p className="text-[0.82rem] sm:text-[0.85rem] italic py-2" style={{ color: 'var(--text-muted)' }}>
-              That is what development means. Not memorising more. Not thinking harder. Maintaining and expanding the touchpoints that make augmentation yours.
-            </p>
-          </Fade>
-        </div>
-
-        <Divider />
-
-        {/* ——— HOW IT WORKS ——— */}
-
-        <div className="space-y-6">
-          <Body>
-            Alexandria works at two levels. At the first level, it runs quietly in the background across all your AI &mdash; whatever you use, whichever models, it does not matter. It builds a structured, living map of how you think &mdash; your values, your taste, your worldview, your blind spots &mdash; stored on your own files, not ours. We hold nothing. We cannot see it. You own it completely and can take it anywhere.
-          </Body>
-
-          <Fade>
-            <p className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed py-2" style={{ color: 'var(--text-primary)' }}>
-              One sovereign, compounding record of your mind, across every AI you use.
-            </p>
-          </Fade>
-
-          <Body>
-            At the second level, for those who want it, Alexandria actively develops your mind. Tools that bring you new fragments and connections you would not have found on your own &mdash; expanding your surface area. That sharpen and deepen what you already hold &mdash; refining positions, testing edges, turning hunches into something you can articulate and use. That keep your existing touchpoints alive instead of letting them quietly fade.
-          </Body>
-
-          <Fade>
-            <p className="text-[0.82rem] sm:text-[0.85rem] italic py-2" style={{ color: 'var(--text-muted)' }}>
-              The brilliant connection you made last month, the perspective you were developing, the thing you knew you believed but can no longer quite put into words.
-            </p>
-          </Fade>
-
-          <Body>
-            The mental gym. You walk out a different person &mdash; not because someone told you what to think, but because you have more touchpoints, sharper touchpoints, and a wider surface area for your AI to work with.
-          </Body>
-        </div>
-
-        <Divider />
-
-        {/* ——— THE LIBRARY ——— */}
-
-        <div className="space-y-6">
-          <Body>
-            And then there is the Library. Even with a developed lens, even with a sharpened mind &mdash; if all you do is consume, something is still missing. You cannot just take in and take in and never put anything out. The purpose of knowledge is action.
-          </Body>
-
-          <Fade>
-            <p className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed py-2" style={{ color: 'var(--text-primary)' }}>
-              The Library is the encouragement and the place. Share what you have built. Create something that is actually from you &mdash; not generated, not curated, but authored.
-            </p>
-          </Fade>
-
-          <Body>
-            An essay, a perspective, a body of work. Others can access your judgment. You earn from what makes you you. Not everyone will make a living from it. But everyone can make something &mdash; and the act of making it is where meaning lives.
-          </Body>
-        </div>
-
-        {/* ——— PRICE ——— */}
-
-        <Fade>
-          <p className="text-[1.05rem] sm:text-[1.2rem] leading-relaxed text-center py-12 sm:py-16" style={{ color: 'var(--text-primary)' }}>
-            One dollar a month for the safety net.<br />
-            Fifteen for the full experience.<br />
-            Sixty seconds to start.
-          </p>
-        </Fade>
-
-        <Divider />
-
-        {/* ——— THREE SCALES ——— */}
-
-        <div className="space-y-6">
-          <Fade>
-            <p className="text-[0.82rem] sm:text-[0.85rem] italic" style={{ color: 'var(--text-muted)' }}>
-              This matters at three scales and they are all connected.
-            </p>
-          </Fade>
-
-          <Body>
-            Personally &mdash; a developed lens is what keeps you capable, competitive, and sane when everything else can be done by a machine. It is not a luxury. It is a survival strategy.
-          </Body>
-
-          <Body>
-            Socially &mdash; a culture that values human authorship, that promotes developing the lens, that tips the tiebreaker toward people &mdash; that is a culture where augmented humans thrive instead of being quietly replaced. Philosophy builds that culture.
-          </Body>
-
-          <Body>
-            And civilisationally &mdash; if people lose their sense of meaning and purpose, they conclude they are worthless. That conclusion is rational if nobody has given them a better frame. And people who believe they are worthless demand the state fix it for them &mdash; intervention, redistribution, control. That pressure leads to stagnation. Stagnation leads to tyranny.
-          </Body>
-
-          <Fade>
-            <p className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed py-2" style={{ color: 'var(--text-primary)' }}>
-              Give people meaning and you protect the foundations everything else is built on. Let meaning erode and those foundations go with it.
+              One employee. No database. No way to hold your data. Breaks even at 200 subscribers. The market is every person who uses AI &mdash; which is everyone.
             </p>
           </Fade>
         </div>
@@ -372,7 +244,7 @@ export default function ScrollPhilosophy() {
 
         <Fade>
           <p className="text-[1.15rem] sm:text-[1.35rem] leading-relaxed text-center py-12 sm:py-20 italic" style={{ color: 'var(--text-primary)' }}>
-            Alexandria is built on two commitments: freedom and humanity. Everything follows from those two words.
+            Alexandria is built on two commitments: freedom and humanity. AI insurance and a mental gym. Everything else follows from those two words. The only question is whether you start now or wish you had.
           </p>
         </Fade>
 
