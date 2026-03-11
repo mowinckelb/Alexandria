@@ -228,18 +228,18 @@ export default function ScrollPhilosophy() {
           </Body>
 
           <Body>
-            Even if you are only half-convinced by what you just read &mdash; even if you think there is merely a chance this is as important as we are suggesting &mdash; it is one dollar. If we are wrong, you lost a dollar. If we are right and you did nothing, you lost something you cannot get back. That is not a close call.
+            Even if you are only half-convinced by what you just read &mdash; even if you think there is merely a chance this is as important as we are suggesting &mdash; it is five dollars. If we are wrong, you lost five dollars. If we are right and you did nothing, you lost something you cannot get back. That is not a close call.
           </Body>
 
           <Fade>
             <p className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed py-6" style={{ color: 'var(--text-primary)' }}>
-              If you have read this far, the $1 AI insurance is a no-brainer. One connection. Sixty seconds. Everything your AI learns about you, saved to your own files, yours to keep no matter what happens. The $15 is for the people who understand what is coming and do not want to be caught without it &mdash; the mental gym, the full experience. It compounds. It only gets better. And it gets more relevant every single day, not less.
+              If you have read this far, the $5 AI insurance is a no-brainer. One connection. Five minutes. Everything your AI learns about you, saved to your own files, yours to keep no matter what happens. The $15 is for the people who understand what is coming and do not want to be caught without it &mdash; the mental gym, the full experience. It compounds. It only gets better. And it gets more relevant every single day, not less.
             </p>
           </Fade>
 
           <Fade>
             <p className="text-[0.82rem] sm:text-[0.85rem] italic py-2" style={{ color: 'var(--text-muted)' }}>
-              One employee. No database. No way to hold your data. Breaks even at 200 subscribers. The market is every person who uses AI &mdash; which is everyone.
+              One employee. No database. No way to hold your data. Breaks even at ~150 subscribers. The market is every person who uses AI &mdash; which is everyone.
             </p>
           </Fade>
         </div>
