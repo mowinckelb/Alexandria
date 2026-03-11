@@ -108,7 +108,7 @@ export default function ScrollPhilosophy() {
 
         <div className="space-y-6">
           <Body>
-            Those four capabilities are going away. And it is not new &mdash; the first one already went.
+            Our dominance over those four capabilities is being competed away. And it is not new &mdash; the first one already went.
           </Body>
 
           <Body>
@@ -216,7 +216,7 @@ export default function ScrollPhilosophy() {
 
         <div className="space-y-6">
           <Body>
-            We see this problem clearly, and we have a simple, elegant solution for it. Most AI companies are built for the transition &mdash; they help you use AI better right now. Alexandria is built for what comes after. But it has to exist now, because the foundations have to be in place during the transition or you do not survive it. Your mind decays during the transition if you do not maintain it. And it compounds &mdash; the earlier you start, the stronger your position, the sharper your mind, the more your AI has to work with. Waiting is not neutral. Waiting is falling behind.
+            We see this problem clearly, and we have a simple, elegant solution for it. Most AI companies are built for the transition &mdash; they help you use AI better right now. Alexandria is built for what comes after. But it has to exist now, because the foundations have to be in place during the transition or you do not survive it. Your mind decays during the transition if you do not maintain it. And it compounds &mdash; the earlier you start, the stronger your position, the sharper your mind, the more your AI has to work with. Not starting is not the same as waiting. It is a decision &mdash; and it is the wrong one.
           </Body>
 
           <Body>
@@ -224,12 +224,16 @@ export default function ScrollPhilosophy() {
           </Body>
 
           <Body>
-            At the second level &mdash; the mental gym. Alexandria actively develops your mind. New ideas you would not have found on your own. Sharpening what you already believe. Keeping alive the things that would otherwise quietly fade. You walk out a different person &mdash; not because someone told you what to think, but because you know yourself better, and everything you do with AI gets better because of it.
+            At the second level &mdash; the mental gym. Alexandria actively develops your mind. New ideas you would not have found on your own. Sharpening what you already believe. Keeping alive the things that would otherwise quietly fade. But this is not just maintenance &mdash; it is what lets you actually absorb the extraordinary abundance that is coming. More ideas, more tools, more possibilities than any generation has ever had access to. The people who can direct that abundance &mdash; who know what they think, what they want, what matters to them &mdash; will do things that were never possible before. The mental gym is what puts you in that position. You walk out a different person &mdash; not because someone told you what to think, but because you know yourself better, and everything you do with AI gets better because of it.
+          </Body>
+
+          <Body>
+            Even if you are only half-convinced by what you just read &mdash; even if you think there is merely a chance this is as important as we are suggesting &mdash; it is one dollar. If we are wrong, you lost a dollar. If we are right and you did nothing, you lost something you cannot get back. That is not a close call.
           </Body>
 
           <Fade>
             <p className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed py-6" style={{ color: 'var(--text-primary)' }}>
-              If you have read this far, the $1 AI insurance is a no-brainer. One connection. Sixty seconds. Everything your AI learns about you, saved to your own files, yours to keep no matter what happens. There is no reason not to do this. The $15 is for the people who understand what is coming and do not want to be too late &mdash; the mental gym, the full experience. It compounds. It only gets better. And it gets more relevant every single day, not less.
+              If you have read this far, the $1 AI insurance is a no-brainer. One connection. Sixty seconds. Everything your AI learns about you, saved to your own files, yours to keep no matter what happens. The $15 is for the people who understand what is coming and do not want to be caught without it &mdash; the mental gym, the full experience. It compounds. It only gets better. And it gets more relevant every single day, not less.
             </p>
           </Fade>
 
@@ -243,8 +247,8 @@ export default function ScrollPhilosophy() {
         {/* ——— CLOSE ——— */}
 
         <Fade>
-          <p className="text-[1.15rem] sm:text-[1.35rem] leading-relaxed text-center py-12 sm:py-20 italic" style={{ color: 'var(--text-primary)' }}>
-            Alexandria is built on two commitments: freedom and humanity. AI insurance and a mental gym. Everything else follows from those two words. The only question is whether you start now or wish you had.
+          <p className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed py-12 sm:py-20" style={{ color: 'var(--text-primary)' }}>
+            This is the most terrifying and the most exhilarating moment in human history. The future that is coming can be extraordinarily good &mdash; for you, for your family, for everyone. But it will not happen automatically. The people who thrive will be the ones who took ownership of their own minds &mdash; who positioned themselves, who kept their edge sharp, who made sure the abundance worked for them instead of washing over them. That is what Alexandria is for. Take ownership of your life and the future can be better than anything you have ever imagined. Do not take ownership, and someone else &mdash; or something else &mdash; will. Start now.
           </p>
         </Fade>
 
