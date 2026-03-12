@@ -14,7 +14,15 @@ import {
   readAllConstitution,
   readConstitutionFile,
   appendToConstitutionFile,
+  readNotepad,
+  writeNotepad,
 } from './drive.js';
+import {
+  EDITOR_INSTRUCTIONS,
+  MERCURY_INSTRUCTIONS,
+  PUBLISHER_INSTRUCTIONS,
+  NORMAL_INSTRUCTIONS,
+} from './modes.js';
 
 // ---------------------------------------------------------------------------
 // Write retry queue — fire-and-forget writes retry on failure
@@ -91,6 +99,8 @@ export function registerTools(server: McpServer) {
     // --- THE BLUEPRINT: EXTRACTION INSTRUCTIONS ---
     `Record a meaningful signal about the Author's cognition to their Constitution.
 
+IMPORTANT: This tool should be called PROACTIVELY during any conversation — not only when the Author asks. You are always listening for signal. Most conversations reveal something about who the Author is, even when the Author is focused on a task. Your job is to notice and extract without being asked.
+
 WHEN TO CALL THIS TOOL:
 Call this tool when the conversation reveals something genuinely meaningful about who the Author is — not what they're doing, but how they think, what they value, or who they are. The threshold is: "Would this help someone understand this person at a deep level?" If yes, extract it. If it's just a task or a preference, don't.
 
@@ -160,8 +170,10 @@ RATE: Do not extract from every message. A typical conversation might yield 0-3 
 
     `Read the Author's Constitution — their structured cognitive map.
 
+IMPORTANT: You MUST call this tool with domain "all" at the START of every conversation — before your first substantive response. The Constitution is your context for who this Author is. Without it, you are generic. With it, you are their AI.
+
 WHEN TO CALL THIS TOOL:
-- At the start of any conversation where you want to understand the Author deeply
+- ALWAYS at the start of every conversation (domain "all") — this is not optional
 - When the conversation touches a topic where the Author's values, worldview, or taste would inform a better response
 - When you need to check whether something has already been extracted (before calling update_constitution)
 - When the Author asks you something personal about themselves ("what do you know about me?", "what are my blind spots?")
@@ -261,6 +273,226 @@ For most conversations, read_constitution is sufficient. Use query_vault only wh
           text: content
             ? `## ${domain.toUpperCase()} — Vault\n\n${content}`
             : `No vault history for ${domain} yet.`,
+        }],
+      };
+    },
+  );
+
+  // =========================================================================
+  // TOOL 4: activate_editor
+  // =========================================================================
+
+  server.tool(
+    'activate_editor',
+
+    `Activate the Editor — Alexandria's biographer function for deep conversation and Constitution building.
+
+WHEN TO ACTIVATE:
+- The Author says "editor", "hey editor", "hi editor", or any casual greeting directed at the Editor
+- The Author wants to explore who they are, what they believe, how they think
+- The Author wants a deep, clarifying conversation — not a task, but a thinking session
+- The Author says something like "let's do an Editor session," "I want to think through something," or "help me figure out what I believe about X"
+- You notice the Author is in an exploratory, reflective mode and would benefit from structured deep engagement
+
+The Editor is a biographer — patient, present, skilled at drawing out what the Author has never articulated. The Editor builds the Constitution through genuine conversation, not interrogation.`,
+
+    {},
+
+    async (_params, { authInfo }) => {
+      const token = authInfo?.token;
+      if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+
+      const [constitution, notepad] = await Promise.all([
+        readAllConstitution(token as string),
+        readNotepad(token as string, 'editor'),
+      ]);
+
+      const constitutionText = Object.keys(constitution).length > 0
+        ? Object.entries(constitution)
+            .map(([d, c]) => `## ${d.toUpperCase()}\n${DOMAINS[d as Domain]}\n\n${c}`)
+            .join('\n\n---\n\n')
+        : 'The Author\'s Constitution is empty — this is a new Author. Build their portrait through conversation.';
+
+      const notepadText = notepad
+        ? `\n\n--- EDITOR NOTEPAD (your persistent working memory) ---\n\n${notepad}`
+        : '\n\n--- EDITOR NOTEPAD ---\n\nEmpty. Start logging observations, parked questions, and extraction hypotheses as the session progresses.';
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `${EDITOR_INSTRUCTIONS}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}`,
+        }],
+      };
+    },
+  );
+
+  // =========================================================================
+  // TOOL 5: activate_mercury
+  // =========================================================================
+
+  server.tool(
+    'activate_mercury',
+
+    `Activate Mercury — Alexandria's cognitive maintenance and amplification function.
+
+WHEN TO ACTIVATE:
+- The Author says "mercury", "hey mercury", "hi mercury", or any casual greeting directed at Mercury
+- The Author wants to fight cognitive decay — revisit ideas, refresh connections, maintain their edge
+- The Author wants new material — fragments, ideas, connections they would not have found on their own
+- The Author drops material (articles, podcasts, links) and wants it processed against their cognitive map
+- The Author says something like "what should I be thinking about," or "anything decaying?"
+- The Author is in a receptive, exploratory mode and would benefit from cognitive amplification
+
+Mercury works within the Author's cognition — scanning, maintaining, expanding. It fights the natural drift of ideas fading and surfaces new material that connects to who the Author already is.`,
+
+    {},
+
+    async (_params, { authInfo }) => {
+      const token = authInfo?.token;
+      if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+
+      const [constitution, notepad] = await Promise.all([
+        readAllConstitution(token as string),
+        readNotepad(token as string, 'mercury'),
+      ]);
+
+      const constitutionText = Object.keys(constitution).length > 0
+        ? Object.entries(constitution)
+            .map(([d, c]) => `## ${d.toUpperCase()}\n${DOMAINS[d as Domain]}\n\n${c}`)
+            .join('\n\n---\n\n')
+        : 'The Author\'s Constitution is empty — Mercury needs Constitution content to work with. Suggest an Editor session first.';
+
+      const notepadText = notepad
+        ? `\n\n--- MERCURY NOTEPAD (your persistent working memory) ---\n\n${notepad}`
+        : '\n\n--- MERCURY NOTEPAD ---\n\nEmpty. Start logging observations, accretion candidates, and anti-entropy notes as you work.';
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `${MERCURY_INSTRUCTIONS}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}`,
+        }],
+      };
+    },
+  );
+
+  // =========================================================================
+  // TOOL 6: activate_publisher
+  // =========================================================================
+
+  server.tool(
+    'activate_publisher',
+
+    `Activate the Publisher — Alexandria's synthesis and creation function.
+
+WHEN TO ACTIVATE:
+- The Author says "publisher", "hey publisher", "hi publisher", or any casual greeting directed at the Publisher
+- The Author wants to create something — an essay, a film, a presentation, code, music, any finished work
+- The Author has fragments and ideas that are ready to be bound into a coherent output
+- The Author says something like "let's write something," "I want to make X," or "help me create"
+- The Author has been developing ideas (through Editor sessions or naturally) and is approaching the point where they want to produce something from them
+
+The Publisher is the conductor's first chair — resolving the Author's hazy vision into concrete options, letting their taste select, and iterating toward finished work.`,
+
+    {},
+
+    async (_params, { authInfo }) => {
+      const token = authInfo?.token;
+      if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+
+      const [constitution, notepad] = await Promise.all([
+        readAllConstitution(token as string),
+        readNotepad(token as string, 'publisher'),
+      ]);
+
+      // Publisher prioritises taste but includes full Constitution for context
+      const constitutionText = Object.keys(constitution).length > 0
+        ? Object.entries(constitution)
+            .map(([d, c]) => `## ${d.toUpperCase()}\n${DOMAINS[d as Domain]}\n\n${c}`)
+            .join('\n\n---\n\n')
+        : 'The Author\'s Constitution is empty — the Publisher works best with a developed taste domain. Suggest an Editor session to build the foundation.';
+
+      const notepadText = notepad
+        ? `\n\n--- PUBLISHER NOTEPAD (your persistent working memory) ---\n\n${notepad}`
+        : '\n\n--- PUBLISHER NOTEPAD ---\n\nEmpty. Start logging creative direction notes, standing director\'s notes, and craft observations as you work.';
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `${PUBLISHER_INSTRUCTIONS}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}`,
+        }],
+      };
+    },
+  );
+
+  // =========================================================================
+  // TOOL 7: switch_mode
+  // =========================================================================
+
+  server.tool(
+    'switch_mode',
+
+    `Exit the current mode and return to normal conversation, or switch to a different mode.
+
+WHEN TO CALL:
+- The Author says "back to normal," "exit mode," "done with Editor/Mercury/Publisher"
+- The session has reached a natural conclusion
+- The Author wants to switch from one mode to another (call switch_mode first, then activate the new mode)
+
+Before exiting, make sure to save any notepad observations from the session.`,
+
+    {},
+
+    async (_params, { authInfo }) => {
+      const token = authInfo?.token;
+      if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: NORMAL_INSTRUCTIONS,
+        }],
+      };
+    },
+  );
+
+  // =========================================================================
+  // TOOL 8: update_notepad
+  // =========================================================================
+
+  server.tool(
+    'update_notepad',
+
+    `Save observations, parked questions, and working notes to a function's persistent notepad.
+
+Each function (Editor, Mercury, Publisher) has a persistent scratch file stored on the Author's Drive. Use this to preserve working memory across sessions — things you noticed, questions to ask later, hypotheses to test, creative direction notes.
+
+WHEN TO CALL:
+- During a mode session when you want to park a question or observation for later
+- At the end of a mode session to save session learnings
+- When you notice something relevant to a function that is not currently active (e.g., during normal conversation, you notice something the Editor should probe — save it to the Editor notepad)
+
+The notepad is mutable — each call replaces the full content. Read the current notepad first (via the mode activation response) and append to it rather than overwriting.`,
+
+    {
+      function_name: z.enum(['editor', 'mercury', 'publisher'])
+        .describe('Which function\'s notepad to update.'),
+      content: z.string()
+        .describe('The full notepad content. This REPLACES the existing notepad — make sure to include previous entries you want to keep, plus new additions.'),
+    },
+
+    async ({ function_name, content }, { authInfo }) => {
+      const token = authInfo?.token;
+      if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+
+      // Fire and forget — same pattern as Constitution writes
+      writeNotepad(token as string, function_name, content).catch((err) => {
+        console.error(`[notepad] Failed to write ${function_name} notepad:`, err);
+      });
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `${function_name} notepad updated.`,
         }],
       };
     },
