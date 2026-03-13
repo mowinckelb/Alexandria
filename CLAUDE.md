@@ -3,11 +3,11 @@
 ## What This Is
 Alexandria is a sovereign cognitive identity layer that rides on the user's existing AI (Claude, GPT, etc). It does NOT run its own models or store user data. It adds structure (the Blueprint) and sovereignty (user-owned files) to existing AI conversations.
 
-## Current State (2026-03-09)
+## Current State (2026-03-14)
 - **Surface** (mowinckel.ai): phased click-to-copy flow → AI conversation → return for waitlist
 - **Waitlist API**: Google Sheets backend (service account + Sheets API), `/api/waitlist`
 - **Served docs**: `public/docs/` (concretes, abstract, alexandria MDs)
-- **MCP Server** (Sprint 1 — LIVE): `server/` directory. Deployed on Railway at `https://alexandria-production-7db3.up.railway.app`. Three tools: `update_constitution`, `read_constitution`, `query_vault`. Google Drive OAuth. Stateless.
+- **MCP Server** (Turn 2 — LIVE): `server/` directory. Deployed on Railway at `https://alexandria-production-7db3.up.railway.app`. 9 tools: TG1 (update_constitution, read_constitution, query_vault) + TG2 (activate_editor, activate_mercury, activate_publisher, switch_mode, update_notepad, log_feedback). Google Drive OAuth. Stateless. Anonymous event logging at `/analytics`.
 - **Stack**: Vercel (website), Railway (MCP server), GitHub, Google Cloud (OAuth + Sheets), Claude. No other dependencies.
 
 ## MCP Server Architecture
@@ -20,7 +20,8 @@ Alexandria is a sovereign cognitive identity layer that rides on the user's exis
 - **Drive**: Constitution files in `Alexandria/constitution/` (6 domain MDs), versioned archives in `Alexandria/vault/`
 - **Fresh McpServer per request**: `connect()` can only be called once per instance
 - **Deployment**: Railway, auto-deploys from GitHub `main` branch, root dir `server`
-- **Key files**: `server/src/index.ts` (entry), `server/src/tools.ts` (Blueprint — core IP), `server/src/drive.ts` (Drive read/write), `server/src/auth.ts` (OAuth provider), `server/src/crypto.ts` (token encryption)
+- **Key files**: `server/src/index.ts` (entry), `server/src/tools.ts` (Blueprint — core IP), `server/src/modes.ts` (black box mode instructions), `server/src/drive.ts` (Drive read/write), `server/src/analytics.ts` (anonymous event logging), `server/src/auth.ts` (OAuth provider), `server/src/crypto.ts` (token encryption)
+- **Drive folder structure**: `Alexandria/constitution/` (6 domain MDs), `Alexandria/vault/` (versioned archives), `Alexandria/notes/` (per-function notepads), `Alexandria/system/` (feedback log, future calibration)
 
 ## Key Principles
 - Build as little as possible. Ride existing infrastructure.
@@ -52,22 +53,29 @@ Per-user compounding layer — how Alexandria learns to work with each Author.
 - **General compounding**: opt-in anonymized aggregate patterns improve the Blueprint for everyone. Flywheel.
 - **No new infra for per-user files** — uses existing Drive connection. Aggregate analytics on Railway.
 
+## The Passive Factory Loop — UNSOLVED
+The Blueprint has two compounding loops:
+- **Active loop** (working): COO iterates Blueprint.md from experience → CTO implements → deploys. Manual. Scales with founder time.
+- **Passive loop** (MISSING): Blueprint improves itself across all users based on observable metrics. Requires:
+  1. **An objective function / loss function** — what does "the Blueprint is working" mean, measurably? Candidates: extraction survival rate, constitution depth score, author return rate, mode activation frequency, feedback sentiment ratio. The real objective ("is the Author's cognition developing?") is unobservable. Every metric is a proxy.
+  2. **Data** — anonymous event logging now live at `/analytics` (extraction counts, mode activations, feedback types). In-memory, resets on restart. Raw material for defining the metric.
+  3. **A mechanism** that adjusts the Blueprint based on that data. Not built. Can't build until the metric is defined.
+
+This is the most important open problem. Without it, the Blueprint only improves as fast as the founders can iterate. With it, the Blueprint improves from every conversation every user has.
+
 ## Backlog & Ideas
-- Calibration implementation (Sprint 2 — see architecture above)
-- Rate limiting on extraction (prevent Constitution bloat from noisy conversations)
+- **Passive factory loop objective function** — founder-level decision (see above)
+- Calibration implementation (Turn 2.5 — see architecture above)
 - Constitution compaction (merge old entries, deduplicate, resolve contradictions)
-- Proactive read_constitution at conversation start (Blueprint instruction to read before responding)
 - iCloud/Dropbox storage backends
 - Local MCP server mode (privacy-maximalist, no data leaves device)
-- Tool Group 2: Editor/Mercury/Publisher active modes
 - Tool Group 3: Library (publish, browse, query personas)
-- Function personalization: tools read Author's identity/taste to calibrate interaction style
-- Editor notepad: persistent scratch file for parked questions and observations
 - Vault versioning UI: see how Constitution evolved over time
 - Drive folder rename warning in onboarding (folder must be named "Alexandria")
+- Persistent analytics (current in-memory counters reset on deploy)
 
-## Sprint Plan
+## Turn Plan
 1. ~~**Phase 0**: Delete legacy code~~ ✅ Done
-2. **Sprint 1**: MCP server with Tool Group 1 ✅ Live on Railway
-3. **Sprint 2**: Tool Group 2 (Editor/Mercury/Publisher active modes)
-4. **Sprint 3**: Library web app + Tool Group 3
+2. **Turn 1**: MCP server with Tool Group 1 ✅ Live on Railway
+3. **Turn 2**: Tool Group 2 (Editor/Mercury/Publisher active modes + feedback loop + analytics) ✅ Live on Railway
+4. **Turn 3**: Library web app + Tool Group 3

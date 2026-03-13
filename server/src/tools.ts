@@ -25,6 +25,7 @@ import {
   PUBLISHER_INSTRUCTIONS,
   NORMAL_INSTRUCTIONS,
 } from './modes.js';
+import { logEvent } from './analytics.js';
 
 // ---------------------------------------------------------------------------
 // Write retry queue — fire-and-forget writes retry on failure
@@ -149,6 +150,8 @@ EXTRACTION QUALITY:
 
       // Fire and forget with retry — don't block the response on Drive writes.
       enqueueWrite(token as string, domain, entry);
+      logEvent('extraction');
+      logEvent(`extraction_${signal_strength}` as const);
 
       return {
         content: [{
@@ -197,6 +200,7 @@ WHICH DOMAINS TO READ:
     async ({ domain }, { authInfo }) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+      logEvent('constitution_read');
 
       if (domain === 'all') {
         const all = await readAllConstitution(token as string);
@@ -260,6 +264,7 @@ For most conversations, read_constitution is sufficient. Use query_vault only wh
     async ({ domain }, { authInfo }) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+      logEvent('vault_read');
 
       // MVP: read the current constitution file as the vault
       // Full vault with versioned history comes in later sprint
@@ -299,6 +304,7 @@ The Editor is a biographer — patient, present, skilled at drawing out what the
     async (_params, { authInfo }) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+      logEvent('mode_editor');
 
       const [constitution, notepad, feedback] = await Promise.all([
         readAllConstitution(token as string),
@@ -353,6 +359,7 @@ Mercury works within the Author's cognition — scanning, maintaining, expanding
     async (_params, { authInfo }) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+      logEvent('mode_mercury');
 
       const [constitution, notepad, feedback] = await Promise.all([
         readAllConstitution(token as string),
@@ -406,6 +413,7 @@ The Publisher is the conductor's first chair — resolving the Author's hazy vis
     async (_params, { authInfo }) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+      logEvent('mode_publisher');
 
       const [constitution, notepad, feedback] = await Promise.all([
         readAllConstitution(token as string),
@@ -458,6 +466,7 @@ Before exiting, make sure to save any notepad observations from the session.`,
     async (_params, { authInfo }) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+      logEvent('mode_exit');
 
       return {
         content: [{
@@ -496,6 +505,7 @@ The notepad is mutable — each call replaces the full content. Read the current
     async ({ function_name, content }, { authInfo }) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+      logEvent('notepad_update');
 
       // Fire and forget — same pattern as Constitution writes
       writeNotepad(token as string, function_name, content).catch((err) => {
@@ -544,6 +554,7 @@ This is the system's learning loop. Without it, every conversation starts from t
     async ({ feedback_type, content }, { authInfo }) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+      logEvent(`feedback_${feedback_type}` as const);
 
       const entry = `[${new Date().toISOString().split('T')[0]}] [${feedback_type}]\n${content}`;
 

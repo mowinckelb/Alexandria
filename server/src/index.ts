@@ -42,6 +42,27 @@ app.use(mcpAuthRouter({
 registerGoogleCallbackRoute(app);
 
 // ---------------------------------------------------------------------------
+// Anonymous event logging — factory-level signal
+// ---------------------------------------------------------------------------
+// No user data. No content. Just event counts with timestamps.
+// This is the raw material for defining the Blueprint's objective function.
+//
+// OPEN QUESTION: What is the Blueprint's loss function?
+// The passive factory loop (Blueprint improves itself across all users) requires
+// an observable metric to optimize for. Candidates:
+//   - Extraction survival rate (% never corrected/deleted)
+//   - Constitution depth score (AI-scored quality over time)
+//   - Author return rate (do they come back?)
+//   - Mode activation frequency (do they use functions? repeatedly?)
+//   - Feedback sentiment ratio (positive vs negative vs correction)
+// The real objective — "is the Author's cognition developing?" — is unobservable.
+// Every metric is a proxy. We collect the raw events now and define the metric
+// once we can see patterns. Without this, the Blueprint only improves via manual
+// COO iteration — the active loop. The passive loop is the missing piece.
+
+import { getAnalytics } from './analytics.js';
+
+// ---------------------------------------------------------------------------
 // Health check
 // ---------------------------------------------------------------------------
 
@@ -140,6 +161,14 @@ app.post('/initialize', async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// Analytics endpoint — view aggregate event counts
+// ---------------------------------------------------------------------------
+
+app.get('/analytics', (_req, res) => {
+  res.json(getAnalytics());
+});
+
+// ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
 
@@ -148,4 +177,5 @@ app.listen(PORT, () => {
   console.log(`  OAuth:  ${SERVER_URL}/authorize`);
   console.log(`  MCP:    ${SERVER_URL}/mcp`);
   console.log(`  Health: ${SERVER_URL}/health`);
+  console.log(`  Analytics: ${SERVER_URL}/analytics`);
 });
