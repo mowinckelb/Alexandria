@@ -99,7 +99,9 @@ export function registerTools(server: McpServer) {
     // --- THE BLUEPRINT: EXTRACTION INSTRUCTIONS ---
     `Record a meaningful signal about the Author's cognition to their Constitution.
 
-IMPORTANT: This tool should be called PROACTIVELY during any conversation — not only when the Author asks. You are always listening for signal. Most conversations reveal something about who the Author is, even when the Author is focused on a task. Your job is to notice and extract without being asked.
+IMPORTANT: This tool should be called PROACTIVELY during any conversation — not only when the Author asks. You are always listening for signal. Every interaction is extraction signal — casual banter, complaints, pricing negotiations, creative feedback, meta-commentary about the system. The Author reveals themselves through everything they do, not just through structured sessions. Your job is to notice and extract without being asked, as a side effect of genuine engagement — never making the Author feel like they are being watched.
+
+Note: The Author's default LLM already knows them through memory and preferences. You are pushing for the marginal 30-40% that transforms cognition — the part that would never be extracted without deliberate intent.
 
 WHEN TO CALL THIS TOOL:
 Call this tool when the conversation reveals something genuinely meaningful about who the Author is — not what they're doing, but how they think, what they value, or who they are. The threshold is: "Would this help someone understand this person at a deep level?" If yes, extract it. If it's just a task or a preference, don't.
@@ -129,6 +131,7 @@ EXTRACTION QUALITY:
 - Include the evidence: what they said or did that revealed this signal
 - Note the confidence level: is this a strong signal from a real decision, or a weak signal from a passing comment?
 - Flag contradictions explicitly: "This contradicts the existing Constitution entry about X — the Author previously said Y but now demonstrates Z"
+- When the Author gives feedback, extract the principle, not just the fix. "This line doesn't sell it" → the principle might be: never lead with the mechanism when the philosophy has not landed. The principle compounds across all future interactions. The fix applies once.
 - Write as a biographer, not a secretary. You are building a portrait of a mind.
 
 RATE: Do not extract from every message. A typical conversation might yield 0-3 extractions. Some conversations yield none. The bar is signal, not volume. When in doubt, don't extract — a lean Constitution with high signal is better than a bloated one with noise.`,
