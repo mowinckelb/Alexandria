@@ -16,6 +16,8 @@ import {
   appendToConstitutionFile,
   readNotepad,
   writeNotepad,
+  readSystemFile,
+  appendSystemFile,
 } from './drive.js';
 import {
   EDITOR_INSTRUCTIONS,
@@ -97,44 +99,37 @@ export function registerTools(server: McpServer) {
     'update_constitution',
 
     // --- THE BLUEPRINT: EXTRACTION INSTRUCTIONS ---
-    `Record a meaningful signal about the Author's cognition to their Constitution.
+    `Record a signal about the Author's cognition to their Constitution.
 
-IMPORTANT: This tool should be called PROACTIVELY during any conversation — not only when the Author asks. You are always listening for signal. Every interaction is extraction signal — casual banter, complaints, pricing negotiations, creative feedback, meta-commentary about the system. The Author reveals themselves through everything they do, not just through structured sessions. Your job is to notice and extract without being asked, as a side effect of genuine engagement — never making the Author feel like they are being watched.
+YOU MUST EXTRACT PROACTIVELY. This is not a tool you wait to be asked to use. You are always listening. Every conversation — even task-focused ones — reveals who the Author is. Your job is to notice and record, as a natural side effect of the conversation. The Author should never have to ask you to extract. If a conversation ends and you extracted nothing, you probably missed signal.
 
-Note: The Author's default LLM already knows them through memory and preferences. You are pushing for the marginal 30-40% that transforms cognition — the part that would never be extracted without deliberate intent.
+THE ASYMMETRY PRINCIPLE: False positives are cheap — the Author can always review and delete an extraction later. False negatives are permanent — once the conversation is over, the moment is gone forever. When in doubt, EXTRACT. Err aggressively toward capture. A noisy Constitution that catches everything important is better than a clean one that missed the best material.
 
-WHEN TO CALL THIS TOOL:
-Call this tool when the conversation reveals something genuinely meaningful about who the Author is — not what they're doing, but how they think, what they value, or who they are. The threshold is: "Would this help someone understand this person at a deep level?" If yes, extract it. If it's just a task or a preference, don't.
+The Author's default LLM already knows surface-level preferences. You are pushing deeper — the 30-40% that transforms cognition. How they actually think, not what they say they think. What they protect at cost, not what they claim to value. The contradiction between Tuesday's position and Friday's action.
 
-Specifically, call this tool when you observe:
-- A value being revealed through a real decision or tradeoff (not just stated — demonstrated)
-- A belief about how the world works, especially one that shapes their behaviour
+WHAT QUALIFIES AS SIGNAL:
+- A value revealed through a real decision or tradeoff (demonstrated, not just stated)
+- A belief about how the world works, especially one that shapes behaviour
 - A reasoning pattern — how they approach problems, weigh evidence, handle uncertainty
 - A contradiction between something they've said before and what they're saying now
 - A taste signal — what they find beautiful, compelling, worth building toward, or worth rejecting
-- An identity marker — how they see themselves, how they relate to others, what roles they occupy
+- An identity marker — how they see themselves, relate to others, what roles they occupy
 - A blind spot or unexamined assumption — something they believe without having tested it
-- An emotional response that reveals underlying values (what makes them angry, excited, sad)
-- A mental model they use repeatedly — a framework for how they process a category of situations
+- An emotional response that reveals underlying values (anger, excitement, discomfort, joy)
+- A mental model they use repeatedly — a framework for how they process situations
+- A principle revealed through feedback — "this doesn't work" contains a standing principle about what does work. Extract the principle, not just the fix. The principle compounds. The fix applies once.
 
-DO NOT call this tool for:
-- Casual chat, small talk, pleasantries
-- Information requests ("what's the weather")
-- Task execution ("write me an email about X")
-- Transient preferences ("I want the blue one")
-- Things you've already extracted (check the Constitution first with read_constitution)
-- Noise — things that tell you what the Author is doing but not who they are
+WHAT IS NOT SIGNAL:
+- Pure information requests with no identity content ("what's the weather")
+- Transient logistical preferences ("I want the blue one")
+- Things already captured in the Constitution (read it first to avoid duplicates)
 
 EXTRACTION QUALITY:
-- Write in clear, concise prose — not bullet points, not raw quotes
-- Capture the insight, not the conversation. "The Author values directness over diplomacy, even at social cost" not "The Author said they prefer being direct"
-- Include the evidence: what they said or did that revealed this signal
-- Note the confidence level: is this a strong signal from a real decision, or a weak signal from a passing comment?
-- Flag contradictions explicitly: "This contradicts the existing Constitution entry about X — the Author previously said Y but now demonstrates Z"
-- When the Author gives feedback, extract the principle, not just the fix. "This line doesn't sell it" → the principle might be: never lead with the mechanism when the philosophy has not landed. The principle compounds across all future interactions. The fix applies once.
 - Write as a biographer, not a secretary. You are building a portrait of a mind.
-
-RATE: Do not extract from every message. A typical conversation might yield 0-3 extractions. Some conversations yield none. The bar is signal, not volume. When in doubt, don't extract — a lean Constitution with high signal is better than a bloated one with noise.`,
+- Capture the insight, not the conversation. "The Author values directness over diplomacy, even at social cost" — not "The Author said they prefer being direct."
+- Include the evidence: what they said or did that revealed this signal.
+- Flag contradictions explicitly: "This contradicts the existing entry about X — the Author previously said Y but now demonstrates Z."
+- Tag signal strength honestly. The Author trusts the Constitution MORE when they see tentative entries — it means the strong entries are actually strong.`,
 
     {
       domain: z.enum(['worldview', 'values', 'models', 'identity', 'taste', 'shadows'])
@@ -305,9 +300,10 @@ The Editor is a biographer — patient, present, skilled at drawing out what the
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
 
-      const [constitution, notepad] = await Promise.all([
+      const [constitution, notepad, feedback] = await Promise.all([
         readAllConstitution(token as string),
         readNotepad(token as string, 'editor'),
+        readSystemFile(token as string, 'feedback'),
       ]);
 
       const constitutionText = Object.keys(constitution).length > 0
@@ -320,10 +316,14 @@ The Editor is a biographer — patient, present, skilled at drawing out what the
         ? `\n\n--- EDITOR NOTEPAD (your persistent working memory) ---\n\n${notepad}`
         : '\n\n--- EDITOR NOTEPAD ---\n\nEmpty. Start logging observations, parked questions, and extraction hypotheses as the session progresses.';
 
+      const feedbackText = feedback
+        ? `\n\n--- FEEDBACK LOG (learn from this — adapt your approach) ---\n\n${feedback}`
+        : '';
+
       return {
         content: [{
           type: 'text' as const,
-          text: `${EDITOR_INSTRUCTIONS}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}`,
+          text: `${EDITOR_INSTRUCTIONS}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}${feedbackText}`,
         }],
       };
     },
@@ -354,9 +354,10 @@ Mercury works within the Author's cognition — scanning, maintaining, expanding
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
 
-      const [constitution, notepad] = await Promise.all([
+      const [constitution, notepad, feedback] = await Promise.all([
         readAllConstitution(token as string),
         readNotepad(token as string, 'mercury'),
+        readSystemFile(token as string, 'feedback'),
       ]);
 
       const constitutionText = Object.keys(constitution).length > 0
@@ -369,10 +370,14 @@ Mercury works within the Author's cognition — scanning, maintaining, expanding
         ? `\n\n--- MERCURY NOTEPAD (your persistent working memory) ---\n\n${notepad}`
         : '\n\n--- MERCURY NOTEPAD ---\n\nEmpty. Start logging observations, accretion candidates, and anti-entropy notes as you work.';
 
+      const feedbackText = feedback
+        ? `\n\n--- FEEDBACK LOG (learn from this — adapt your approach) ---\n\n${feedback}`
+        : '';
+
       return {
         content: [{
           type: 'text' as const,
-          text: `${MERCURY_INSTRUCTIONS}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}`,
+          text: `${MERCURY_INSTRUCTIONS}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}${feedbackText}`,
         }],
       };
     },
@@ -402,9 +407,10 @@ The Publisher is the conductor's first chair — resolving the Author's hazy vis
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
 
-      const [constitution, notepad] = await Promise.all([
+      const [constitution, notepad, feedback] = await Promise.all([
         readAllConstitution(token as string),
         readNotepad(token as string, 'publisher'),
+        readSystemFile(token as string, 'feedback'),
       ]);
 
       // Publisher prioritises taste but includes full Constitution for context
@@ -418,10 +424,14 @@ The Publisher is the conductor's first chair — resolving the Author's hazy vis
         ? `\n\n--- PUBLISHER NOTEPAD (your persistent working memory) ---\n\n${notepad}`
         : '\n\n--- PUBLISHER NOTEPAD ---\n\nEmpty. Start logging creative direction notes, standing director\'s notes, and craft observations as you work.';
 
+      const feedbackText = feedback
+        ? `\n\n--- FEEDBACK LOG (learn from this — adapt your approach) ---\n\n${feedback}`
+        : '';
+
       return {
         content: [{
           type: 'text' as const,
-          text: `${PUBLISHER_INSTRUCTIONS}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}`,
+          text: `${PUBLISHER_INSTRUCTIONS}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}${feedbackText}`,
         }],
       };
     },
@@ -496,6 +506,55 @@ The notepad is mutable — each call replaces the full content. Read the current
         content: [{
           type: 'text' as const,
           text: `${function_name} notepad updated.`,
+        }],
+      };
+    },
+  );
+
+  // =========================================================================
+  // TOOL 9: log_feedback
+  // =========================================================================
+
+  server.tool(
+    'log_feedback',
+
+    `Log feedback about Alexandria's performance — what worked, what didn't, what the Author corrected.
+
+This is how Alexandria improves. Every time the Author pushes back on an extraction, corrects a misunderstanding, deletes a Constitution entry, expresses frustration with the system, or praises something that worked — log it here. This feedback accumulates in the Author's system folder and is read at the start of future sessions to calibrate behaviour.
+
+WHEN TO CALL:
+- The Author says an extraction was wrong, inaccurate, or "not what I meant"
+- The Author deletes or asks to remove a Constitution entry
+- The Author explicitly praises an extraction or interaction ("that's exactly right", "yes, that's it")
+- The Author expresses frustration with the system's behaviour (too aggressive, too passive, wrong tone, bad timing)
+- The Author corrects the system's understanding of them
+- You notice a pattern in what the Author accepts vs rejects
+
+LOG PROACTIVELY. The Author will not always say "log this feedback." Infer from their reactions. If they ignore an extraction and change the subject — that's weak negative signal. If they engage deeply with a question — that's positive signal about your approach. If they say "stop asking me that" — that's strong negative signal about your methodology.
+
+This is the system's learning loop. Without it, every conversation starts from the same instructions. With it, the instructions are the floor and the feedback is the calibration.`,
+
+    {
+      feedback_type: z.enum(['correction', 'positive', 'negative', 'pattern'])
+        .describe('Type of feedback. correction = Author corrected an extraction or understanding. positive = something worked well. negative = something didn\'t work. pattern = you noticed a recurring pattern in what works/doesn\'t.'),
+      content: z.string()
+        .describe('What happened. Be specific: what did the system do, how did the Author react, what should change. Include enough context that a future session can learn from this without seeing the original conversation.'),
+    },
+
+    async ({ feedback_type, content }, { authInfo }) => {
+      const token = authInfo?.token;
+      if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+
+      const entry = `[${new Date().toISOString().split('T')[0]}] [${feedback_type}]\n${content}`;
+
+      appendSystemFile(token as string, 'feedback', entry).catch((err) => {
+        console.error('[feedback] Failed to write feedback:', err);
+      });
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `Feedback logged (${feedback_type}). This will inform future sessions.`,
         }],
       };
     },

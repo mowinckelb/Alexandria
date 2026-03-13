@@ -12,9 +12,10 @@ const FOLDER_NAME = 'Alexandria';
 const CONSTITUTION_DIR = 'constitution';
 const VAULT_DIR = 'vault';
 const NOTES_DIR = 'notes';
+const SYSTEM_DIR = 'system';
 
 // Cache folder IDs per token to avoid repeated lookups (in-memory, resets on restart)
-const folderCache = new Map<string, { rootId: string; constitutionId: string; vaultId: string; notesId: string; expires: number }>();
+const folderCache = new Map<string, { rootId: string; constitutionId: string; vaultId: string; notesId: string; systemId: string; expires: number }>();
 
 function getDriveClient(encryptedToken: string): drive_v3.Drive {
   const refreshToken = decrypt(encryptedToken);
@@ -56,6 +57,7 @@ async function ensureFolderStructure(drive: drive_v3.Drive, cacheKey: string): P
   constitutionId: string;
   vaultId: string;
   notesId: string;
+  systemId: string;
 }> {
   const cached = folderCache.get(cacheKey);
   if (cached && cached.expires > Date.now()) {
@@ -63,12 +65,13 @@ async function ensureFolderStructure(drive: drive_v3.Drive, cacheKey: string): P
   }
 
   const rootId = await findOrCreateFolder(drive, FOLDER_NAME);
-  const [constitutionId, vaultId, notesId] = await Promise.all([
+  const [constitutionId, vaultId, notesId, systemId] = await Promise.all([
     findOrCreateFolder(drive, CONSTITUTION_DIR, rootId),
     findOrCreateFolder(drive, VAULT_DIR, rootId),
     findOrCreateFolder(drive, NOTES_DIR, rootId),
+    findOrCreateFolder(drive, SYSTEM_DIR, rootId),
   ]);
-  const result = { rootId, constitutionId, vaultId, notesId };
+  const result = { rootId, constitutionId, vaultId, notesId, systemId };
   folderCache.set(cacheKey, { ...result, expires: Date.now() + 10 * 60 * 1000 }); // 10 min cache
   return result;
 }
@@ -223,6 +226,53 @@ export async function writeNotepad(
       requestBody: {
         name: fileName,
         parents: [notesId],
+      },
+      media: { mimeType: 'text/markdown', body: content },
+    });
+  }
+}
+
+export async function readSystemFile(
+  encryptedToken: string,
+  fileName: string,
+): Promise<string | null> {
+  const drive = getDriveClient(encryptedToken);
+  const { systemId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const fileId = await findFile(drive, `${fileName}.md`, systemId);
+  if (!fileId) return null;
+
+  const res = await drive.files.get(
+    { fileId, alt: 'media' },
+    { responseType: 'text' },
+  );
+  return res.data as string;
+}
+
+export async function appendSystemFile(
+  encryptedToken: string,
+  fileName: string,
+  content: string,
+): Promise<void> {
+  const drive = getDriveClient(encryptedToken);
+  const { systemId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const fullName = `${fileName}.md`;
+  const existingId = await findFile(drive, fullName, systemId);
+
+  if (existingId) {
+    const current = await drive.files.get(
+      { fileId: existingId, alt: 'media' },
+      { responseType: 'text' },
+    );
+    const updated = `${current.data as string}\n\n${content}`;
+    await drive.files.update({
+      fileId: existingId,
+      media: { mimeType: 'text/markdown', body: updated },
+    });
+  } else {
+    await drive.files.create({
+      requestBody: {
+        name: fullName,
+        parents: [systemId],
       },
       media: { mimeType: 'text/markdown', body: content },
     });
