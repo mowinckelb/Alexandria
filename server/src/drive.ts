@@ -279,6 +279,30 @@ export async function appendSystemFile(
   }
 }
 
+/**
+ * Write a raw capture directly to the Vault.
+ * Liberal capture — zero false negatives. Cost of noise is trivial
+ * (bigger MD file). Cost of lost signal is permanent.
+ * Future models reprocess the Vault and promote signal to Constitution.
+ */
+export async function writeVaultCapture(
+  encryptedToken: string,
+  domain: string,
+  content: string,
+): Promise<void> {
+  const drive = getDriveClient(encryptedToken);
+  const { vaultId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+  await drive.files.create({
+    requestBody: {
+      name: `${domain}_${timestamp}.md`,
+      parents: [vaultId],
+    },
+    media: { mimeType: 'text/markdown', body: content },
+  });
+}
+
 export async function initializeFolderStructure(
   encryptedToken: string,
 ): Promise<void> {
