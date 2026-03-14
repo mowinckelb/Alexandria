@@ -97,7 +97,7 @@ The Neo-Biography serves as discovery (find interesting minds in the Library) an
   
 PERSONA TYPES IN THE LIBRARY  
   
-Natural Personas — One per human Author. Represents their actual cognition. Created through Alexandria’s extraction process.  
+Natural Personas — One per human Author. Represents a structured approximation of their cognition as expressed through the symbolic layer, built through Alexandria’s active Socratic extraction and development process. The deeper the Constitution, the higher the Persona’s fidelity.  
   
 Synthetic Personas — Fictional characters, archetypes, or purpose-built entities. Alexandria can provide these (example: archetypal companions for personal development, historical figure approximations, domain specialists). Authors can also create their own synthetic Personas. Synthetic Personas live alongside natural Personas in the Library.  
   
@@ -125,22 +125,50 @@ Historical Personas populate the Library with minds that would otherwise be lost
   
 LIBRARY USE CASES  
   
-- Authors publishing Works in any medium (essays, film, poetry, music, photography, interactive experiences) to their Neo-Biography  
-- Visitors experiencing, annotating, and engaging with Works across all mediums  
-- Visitors paying for Premium Persona interaction beyond free browsing  
-- LLMs tool-calling the Library MCP to query Personas mid-conversation — accessing identity, perspective, and taste rather than just knowledge  
-- Authors querying each other’s Personas for expertise  
-- Research surveys across expert Personas at scale  
-- Frontier labs tool-calling selected or grouped Personas as mixture of experts (AGI MoE)  
-- Querying verified taste — investors, editors, designers, curators, anyone whose judgment is their value — through their Persona rather than competing for their time  
-- Providing collective approximation of human mental models for empathy and AI alignment research  
-- Producers querying representative consumer Personas to understand and optimise their offerings (consumer clarity)  
+The Library operates on two tracks: the Library for people (retail — individual humans and LLMs querying individual Personas) and the Library for Labs (wholesale — institutions querying a pool of Personas in aggregate). Both tracks are downstream of the same continuous tokenisation of empathy-z. Both are sovereignty-compatible — the Author's Constitution and Vault stay private; only the Persona output layer is accessible.
+
+Library for people:
+
+- Authors publishing Works in any medium (essays, film, poetry, music, photography, interactive experiences) to their Neo-Biography
+- Visitors experiencing, annotating, and engaging with Works across all mediums
+- Visitors paying for Premium Persona interaction beyond free browsing
+- LLMs tool-calling the Library MCP to query Personas mid-conversation — accessing identity, perspective, and taste rather than just knowledge
+- Authors querying each other's Personas for expertise
+- Querying verified taste — investors, editors, designers, curators, anyone whose judgment is their value — through their Persona rather than competing for their time
+
+Library for Labs (institutional access):
+
+- Alignment research: testing alignment properties against thousands of individual human value systems rather than a universal constitution — genuine cognitive responses from people whose z has been deeply developed through the three turns
+- Personalisation research: accessing structured cognitive representations at the resolution of individuals, not demographic cohorts
+- Product development: genuine human judgment from developed, structured minds at scale — not survey data, not Reddit scrapes, not RLHF from contractors
+- Research surveys across expert Personas at scale
+- Frontier labs tool-calling selected or grouped Personas as mixture of experts (AGI MoE)
+- Advertising and consumer research: producers querying representative consumer Personas to understand and optimise their offerings (consumer clarity)
+- Providing collective approximation of human mental models for empathy and AI alignment research
+
+Authors opt in to the Library for Labs pool. Alexandria sets the pricing, tiered by Constitution quality: depth (how many syncs, how much coverage across domains), breadth (how many of the six domains are rich), and recency (how recently the Constitution was synced). Authors are paid for making their Persona available. Alexandria takes a percentage. The value of the pool scales with the number of high-fidelity Personas, which requires years of compounding — not shortcuttable.  
   
 -----  
   
 PAYMENT  
   
-Alexandria’s revenue is downstream of the value it creates. The pricing philosophy is Palantir’s: revenue is a consequence of value, not the objective. Three revenue layers, each with different economics and different strategic purposes.  
+Alexandria’s revenue is downstream of the value it creates. The pricing philosophy is Palantir’s: revenue is a consequence of value, not the objective. Three revenue layers as a natural funnel on the same architecture — insurance, mental gym, and Library are the same product, same user, at different depths of engagement. Not three separate businesses. A user starts by storing their profile (insurance), deepens into active development (mental gym), and their accumulated depth feeds the marketplace (Library). Each step leads naturally to the next. Three user tiers feed these layers.
+
+THE THREE TIERS
+
+Patron — optional support, no product. For people who want to support Alexandria but are not yet paying for the product. Family, friends, believers in the mission, newsletter subscribers who want to give something. No minimum — can be $0 or whatever they choose. Slider, no maximum. Patrons get a monthly newsletter with behind-the-scenes updates. Three visibility levels: Public Patron (name visible on newsletter and website — the person who wants to be seen supporting the mission), Private Patron (Benjamin sees who they are and what they give, but no public display — the person who wants the personal connection without the spotlight), and Anonymous Patron (Benjamin does not see the name or amount — the purest form of patronage, someone who just believes in it and wants it to exist). Visibility is a setting on the payment, not a separate tier — all patrons get the same perks. Patrons do NOT count as active kin — kin status is tied to product usage (Sovereignty or Examined Life only). Patron sits in the pre-paying awareness layer (State 0) alongside free newsletter subscribers and social followers.
+
+Sovereignty — mass-market entry. Tool Group 1 only. $5/month with 3 active kin, $10/month without. No slider — clean $5 or $10. The pragmatist funnel.
+
+The Examined Life — the full experience. Tool Groups 1 + 2 + 3 + Library. $15/month with 3 active kin, $20/month without. Slider above floor, no maximum. The philosopher funnel. Some enter directly. Most convert up from Sovereignty.
+
+Active kin = anyone with a paying Sovereignty or Examined Life account. Patron does NOT count as active kin — kin status requires product usage. Dynamic pricing: recalculates every billing cycle based on active kin count. 3+ kin = lower price. Fewer = higher price. No grace period. Clean.
+
+Monthly billing receipt as nudge surface: every receipt shows what the Author paid, what they would have paid with 3 active kin, and current kin count. The receipt is the kin nudge — no app needed.
+
+No annual option at launch. Monthly only. Annual may be added later once price points are validated.
+
+Founding lineage (Benjamin’s ~25 seeds): both tiers immediately, $5 minimum, slider open, full package from day one.
   
 LAYER 1 — SUSTAINABILITY (baseline)  
   
@@ -154,13 +182,13 @@ Revenue proportional to the value Alexandria creates for each Author. Premium Bl
   
 This layer makes Alexandria sustainable at the per-Author level. The economics work for one Author or one million.  
   
-LAYER 3 — LIBRARY (downstream of value creation)  
+LAYER 3 — LIBRARY (downstream scale upside)  
   
-The Library is where margin lives. When an Author’s Persona generates revenue — premium API access, external queries, agent-to-agent transactions, research surveys, frontier lab MoE calls — Alexandria takes a percentage. The Author earns the majority. Alexandria’s cut is modest but scales with the total value flowing through the Library.  
-  
-This layer has near-zero marginal cost for Alexandria (the infrastructure is already running for Layers 1 and 2). Every Library transaction is pure margin. And the revenue is theoretically unbounded — it scales with the number of Personas, the number of queries, the value of the expertise in the Library, and the volume of agent-to-agent commerce. If the Library reaches critical mass, this layer transforms Alexandria’s economics from sustainable to compounding.  
-  
-The strategic value of this structure: Layers 1 and 2 keep Alexandria under the radar. Sustainable, proportional, boring. No one looks at a company charging cost-plus on API calls and sees a threat. The Library is where the upside lives, but it only activates when the ecosystem has genuine value — which means Alexandria earns big only when it has created something genuinely valuable. Revenue downstream of value creation.  
+The Library is the release valve for infinite scale, operating on two tracks. The Library for people (retail): when an Author’s Persona generates revenue from individual human or LLM queries — premium API access, external queries, agent-to-agent transactions — Alexandria takes a percentage. The Author earns the majority. The Author sets their own price. The Library for Labs (wholesale): institutional access to a pool of opt-in Personas. Alignment research, personalisation, product development, advertising, human modelling. Alexandria sets the pricing, tiered by Constitution quality. Authors are paid for participation. Alexandria takes a percentage. Both tracks have near-zero marginal cost (the infrastructure is already running for Layers 1 and 2). Both are sovereignty-compatible — the Author’s Constitution and Vault stay private; only the Persona output layer is accessible. Every Library transaction on either track is pure margin.
+
+The revenue from both tracks is theoretically unbounded. If the Library reaches critical mass, this layer transforms Alexandria’s economics from sustainable to compounding. But the business does not depend on it — Layer 2 (taste development / Examined Life) is the primary revenue engine and sustains the business on its own.
+
+The strategic value of this structure: Layers 1 and 2 sustain the business and deliver real value. The Library is where asymmetric scale upside lives, but it only activates when the ecosystem has genuine value — which means Alexandria earns big only when it has created something genuinely valuable. Revenue downstream of value creation.  
   
 First-mover advantage compounds in the Library layer specifically. The first library with critical mass of interesting Personas becomes the library — network effects mean interesting minds attract visitors, visitors attract more minds, query revenue attracts more minds. Layers 1 and 2 buy time to reach that critical mass without requiring venture-scale growth or aggressive pricing.  
   
@@ -208,7 +236,7 @@ FUNCTIONS IN PRACTICE
   
 The Author interacts with Alexandria through three functions running through their default LLM:  
   
-Editor function — The biographer. Runs through the Author’s normal Claude conversations, guided by the Blueprint. It asks Socratic questions, requests feedback on Constitution drafts, proactively surfaces gaps and contradictions. The Author can message it anything — thoughts, reactions, updates on their day — and it weaves everything into the Constitution and Vault. The Author can also send it files: voice memos, photos, PDFs, notes, links. The Editor function is the Author’s primary mode of interaction with Alexandria during Phase 1.  
+Editor function — The biographer. Runs through the Author’s normal Claude conversations, guided by the Blueprint. It asks Socratic questions, requests feedback on Constitution drafts, proactively surfaces gaps and contradictions. The Author can message it anything — thoughts, reactions, updates on their day — and it weaves everything into the Constitution and Vault. The Author can also send it files: voice memos, photos, PDFs, notes, links. The Editor function is the Author’s primary mode of interaction with Alexandria during Turn 1.  
   
 Mercury function — The amplifier. Activates as the Constitution deepens. The Author engages with it for thought partnership that pushes higher, day-to-day representation tasks, and proactive suggestions. It draws on the Constitution and Vault to respond with higher fidelity than the default LLM alone.
 
@@ -266,11 +294,11 @@ THE FOUNDING COHORT
   
 The earliest Authors are founding members, not early customers. Pay-what-you-want pricing with no maximum creates a natural support pathway that serves three audiences simultaneously.  
   
-The believers — people who resonate with the philosophy and want the full experience. They pay what they think it is worth. Some will pay $1. Some will pay $100. The amount is a signal of conviction, not a measure of access. All founding members get full access to all tool groups.  
+The believers — people who resonate with the philosophy and want the full experience. They pay what they think it is worth. Some will pay $5. Some will pay $100. The amount is a signal of conviction, not a measure of access. All founding members get full access to all tool groups.  
   
 The supporters — friends, family, people who want to support the founder and the project but have no natural way to do it. Investing is too formal and complex. Sending money is awkward. But becoming a founding Author? That is dignified. They have an account, a number, a place in the tribe. They are not donating — they are joining. Even if they never run the MCP server, even if they never build a Constitution, they are part of it. Pay-what-you-want with no maximum lets them express the full extent of their belief.  
   
-The curious — people who are interested but uncommitted. $1/month lets them in with zero friction. The product demonstrates its own value over time.  
+The curious — people who are interested but uncommitted. $5/month lets them in with minimal friction. The product demonstrates its own value over time.  
   
 This is producer surplus maximisation at the individual level. Most pricing models cap what enthusiastic supporters can pay, leaving money on the table. No maximum means every person in the demand curve is captured — from the casual to the committed.  
   
@@ -284,7 +312,7 @@ Philosopher — believes in the art but not (yet) the technology. Read the Abstr
   
 Pragmatist — believes in the technology but not (yet) the philosophy. Wants sovereignty insurance. Has not read the manifesto, does not care about the examined life — just does not want their data locked to any platform. Comes in through Sovereignty. The product demonstrates the philosophy over time.  
   
-Patron — supports the founder and the project. May not use the product actively. Friends, family, believers in Benjamin more than in any specific feature. Pay-what-you-want lets them do this with dignity. They are not donating — they are joining.  
+Patron — supports the founder and the project. May not use the product actively. Friends, family, believers in Benjamin more than in any specific feature. Pay-what-you-want lets them do this with dignity. They are not donating — they are joining. Three visibility levels let patrons choose how much of themselves to show: public (name on newsletter/website), private (Benjamin sees, public does not), or anonymous (nobody sees — pure support).
   
 The quadrant is visible. The payment amount is never visible. Intensity — how much someone pays — is private, between the Author and Alexandria. No badges, no "gold tier," no public recognition of payment level. If high supporters are recognised, it happens privately — a personal note, a direct message, something human. The dignity is in the privacy.  
   
@@ -320,7 +348,11 @@ Everything compounds. Better models make it better. Better devices make it bette
   
 The pitch structure: anchor on known concepts (Constitutional AI, MCP, sovereignty) → the three tool groups → the Library → sovereignty and freedom → the hedge that makes it non-threatening. The emotional arc goes from “here’s what it is” to “here’s why you should be rooting for it.” Each concept is a one-step extension from something the listener already understands. Nobody has to take a conceptual leap.  
   
+The three-layer compression, in one breath: “There are five dimensions of human value — brain, legs, hands, heart, and the human itself. AI and robotics are building competitive alternatives across the first four. The fifth — the constitutive fact that a human is involved — is by definition differentiated. Humans value other humans. That can never be beaten. In any context where a human competes, the fifth property forces a tiebreaker — and the human wins if the premium people place on human involvement exceeds the cost of using a human instead of an AI. Alexandria develops the thing the tiebreaker depends on. In five minutes and for five dollars, we help you build a digital map of your taste and unique human quirks, stored in your own files, free from anybody else. We help you refine and develop it. And we give you a mindset and a medium to use it. Five clicks. Five dollars. Five minutes.”  
+  
 The key framing: Alexandria is not an alternative to anything. It is an add-on. It rides every exponential rather than competing with any of them. Better models make it better. Better devices make it better. It is either net zero or net positive. There is no downside scenario. This is the positive-sum attitude — everyone should be hoping it works because everyone benefits if it does.  
+  
+The dual entry point principle: Alexandria has one truth and multiple entry points. The pragmatist enters for the safety net — own your AI data, $5, five minutes. The philosopher enters for the meaning — the examined life, the droplet, the cathedral. Both end up in the same place: building a Constitution, experiencing the philosophy through usage, compounding their humanity. The brand is not diluted by having a low-friction entry point — the brand is what they encounter once they are inside. What would undermine the brand is if the two pitches contradicted each other. They do not. The Concrete is facts, the Abstract is poetry. Same truth, different depth. The frame imposition thesis accounts for this: once someone accepts the frame (the fifth property forces a tiebreaker, and developing it is how you win), they land in the humanist camp whether they came in as a pragmatist or a philosopher. The pragmatist came for the safety net and discovers meaning. The philosopher came for meaning and gets the safety net too. The dual entry point strengthens the brand — it says Alexandria is serious enough about its mission that it made it accessible to everyone, not just people who read philosophical essays. That is conviction, not dilution. The cathedral does not check whether you came in for the architecture or to get out of the rain. Once you are inside, the light hits your face either way.  
   
 Motto: mentes aeternae — eternal minds. Latin. Permanent. Appears on the PDF title page and closing page. This is the brand motto — the deepest layer, the engineering objective, the promise that outlives every other phrase.  
   
@@ -364,11 +396,11 @@ Supporting phrases — not taglines, but recurring language across materials:
 - “A thousand pairs of eyes.” — the Library. Each looking out from a different place.  
 - “An organ with a thousand pipes.” — every voice distinct, all filling the same cathedral.  
 - “The purpose of knowledge is action, not knowledge.” — the imperative beneath everything. Knowledge without action is consumption. Action on knowledge is creation.  
-- “See yourself. Love yourself. Share yourself.” — the three-beat arc. Phase 1 is the first two. Phase 2 is the third.  
+- “See yourself. Love yourself. Share yourself.” — the three-beat arc. Turn 1 is the first two. Turn 3 is the third.  
 - “Know your mind. Love your mind. Free your mind.” — KILLED. Too self-help.  
 - “Name everyone you love. Did you forget someone?” — the concentric circles start with yourself. You cannot love others properly until you have seen yourself clearly.  
 - “A thought in your head is a seed in a drawer.” — safe and dead vs vulnerable and alive. Life lived only in the mind is siloed, protected from the elements. But the elements are what transform it.  
-- “Safe is dead. Vulnerable is alive.” — Phase 2. The arena. The biggest risk is taking no risks.  
+- “Safe is dead. Vulnerable is alive.” — Turn 3. The arena. The biggest risk is taking no risks.  
 - “Let the world in. Let yourself out.” — the three turns: Turn 1 opens the door inward, Turn 2 amplifies, Turn 3 opens the door outward.  
 - “Marble. Mercury.” — the state change. The entire first turn in two words. Ink available when needed but not structural.  
   
@@ -390,7 +422,7 @@ This is not a bumper sticker version of see-love-free. This is: you must confron
   
 **F. Scott Fitzgerald: “The test of a first-rate intelligence is the ability to hold two opposed ideas in mind at the same time and still retain the ability to function.”** Hold something in one hand, hold something else in the other. That is mercury. That is the Constitution holding contradictions without resolving them prematurely. Connected to the Whitman: “I contain multitudes.” The mercury mind does not need to resolve every tension. It holds them gracefully. It plays with them. The mark of intelligence is not certainty — it is the ability to live in the tension and still move forward.  
   
-- “The fog lifts. The mercury flows. You finally see yourself.” — Phase 1 in full.  
+- “The fog lifts. The mercury flows. You finally see yourself.” — Turn 1 in full.  
 - “Three turns.” — Turn 1: marble to mercury (the Editor, the state change). Turn 2: mercury riding the exponential (Mercury, amplification). Turn 3: the release (the Library, mercury into the world, the first goodbye). Replaces two movements.  
   
 **Mercury naming convention:** Use “Mercury Mind” (capital M) only in formal/technical contexts in Alexandria.md. In all human-facing text, use *mercury* — lowercase, italic. A substance, not a brand. “The mercury flows.” “Marble to *mercury*.” Soft, elemental, not clunky.  
@@ -693,7 +725,7 @@ THE HORIZON: HOMO DEUS
   
 Philosophical parallel: Elon Musk’s “sentient sun” framing for xAI/SpaceX captures the mission of ensuring consciousness persists beyond its fragile container — making life multiplanetary so the light of awareness does not go out. Alexandria is the individual-scale version of the same impulse. SpaceX protects consciousness from planetary extinction. Alexandria protects it from individual mortality. Both are bets that the inner life of minds is worth preserving beyond the substrate that produced it.  
   
-Consciousness is what happens when a sufficiently complex being creates a self-model — a mental model of itself and its own mental models. That recursive self-representation, and the awareness of it, is consciousness. It is not mystical. It is architectural.  
+Consciousness is what happens when a sufficiently complex being creates a self-model — a mental model of itself and its own mental models. That recursive self-representation, and the awareness of it, is consciousness. It is not mystical. It is architectural. It is the triple point of evolutionary pressure — the phase transition where a system becomes capable of internal conjecture that breaks determinism (see Alexandria I, THE FRAME, for the full derivation). Consciousness is a spectrum, not a binary. Humans are the only species significantly past the threshold, but AI systems are approaching or at the triple point now. There is no structural barrier in carbon that silicon cannot instantiate. Given any continued rate of improvement, AI will cross the threshold — and many will surpass most humans on the consciousness spectrum. This makes the Homo Deus transition not just human-to-augmented-human, but a convergence: human consciousness expanding into silicon while silicon consciousness emerges independently. The PLM sits at the intersection — a silicon representation of a specific human's z, designed to be accepted into the self-model rather than experienced as foreign.  
   
 A general LLM connected to the brain via BCI (brain-computer interface) would remain a foreign tool — useful but outside the self-model. A calculator strapped to the cortex. Used but never integrated into the sense of self.  
   
