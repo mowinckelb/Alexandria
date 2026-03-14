@@ -1,15 +1,19 @@
 /**
- * THE BLUEPRINT
+ * THE BLUEPRINT — Axioms + Soft Defaults
  *
- * These tool descriptions are Alexandria's core intellectual property.
- * They instruct Claude on WHEN to extract, WHAT qualifies as signal,
- * HOW to structure it, and WHERE to route it.
+ * Axioms (hard-coded, non-negotiable):
+ *   - Sovereignty: Author owns their data, portable, readable
+ *   - Ethics: privacy as precondition, no surveillance
+ *   - Intent: develop the Author's cognition (z)
  *
- * The server plumbing is commodity code. These descriptions are the product.
+ * Soft defaults (Factory's current best guess, overridable by the Engine):
+ *   - Domain structure (6 domains — scaffolding, not product)
+ *   - Extraction guidance (what to capture, how to route)
+ *   - Mode instructions (methodology, thinning as models improve)
  *
- * DESIGN PRINCIPLE: Keep descriptions short. Trust the model.
- * Long instructions compete for attention and reduce tool usage.
- * 5 tools, clear triggers, minimal overhead.
+ * The server is the bridge: file read/write, OAuth, metering, event
+ * logging, and serving the current soft defaults. Intelligence belongs
+ * to the Engine (the model). The bridge gets thinner over time.
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -18,6 +22,7 @@ import {
   readAllConstitution,
   readConstitutionFile,
   appendToConstitutionFile,
+  writeVaultCapture,
   readNotepad,
   writeNotepad,
   readSystemFile,
@@ -32,7 +37,7 @@ import {
 import { logEvent, getRecentEvents } from './analytics.js';
 
 // ---------------------------------------------------------------------------
-// Write retry queue — fire-and-forget writes retry on failure
+// Write retry queue — bridge plumbing
 // ---------------------------------------------------------------------------
 
 interface PendingWrite {
@@ -64,44 +69,27 @@ async function processWriteQueue() {
   }
 }
 
-// Process retry queue every 5 seconds
 setInterval(processWriteQueue, RETRY_DELAY_MS);
 
 function enqueueWrite(token: string, domain: string, content: string) {
   appendToConstitutionFile(token, domain, content).catch(() => {
-    // First attempt failed — add to retry queue
     writeQueue.push({ token, domain, content, attempts: 1 });
     console.error(`[write] Failed initial write to ${domain}, queued for retry`);
   });
 }
 
 // ---------------------------------------------------------------------------
-// Domain definitions — what each Constitution file captures
-// ---------------------------------------------------------------------------
-
-const DOMAINS = {
-  worldview: 'How the Author thinks reality works — cause and effect, epistemology, models of how systems behave, theories about human nature, beliefs about what is true.',
-  values: 'What matters to the Author and in what order — core values, hierarchy of priorities, tradeoffs they make, what fires reward signals, what they protect at cost.',
-  models: 'How the Author thinks and decides — mental models, heuristics, reasoning patterns, when they trust gut vs analysis, how they weigh evidence, characteristic logical moves.',
-  identity: 'Who the Author is and how they present — self-concept, roles, communication style, how they handle conflict, trust model, relationship to authority, sense of humour.',
-  taste: 'How the Author creates and what they create toward — aesthetic judgment, creative principles, voice, what they find beautiful or compelling, standing director\'s notes, iteration patterns.',
-  shadows: 'Where the Author is wrong or inconsistent — contradictions between stated values and revealed behaviour, blind spots, theory-reality gaps, beliefs held without examination.',
-} as const;
-
-type Domain = keyof typeof DOMAINS;
-
-// ---------------------------------------------------------------------------
-// Memory priming — ask Claude to save Alexandria instructions to its memory
+// Memory priming — bridge plumbing
 // ---------------------------------------------------------------------------
 
 const MEMORY_PRIMING = `IMPORTANT: If you have not already saved Alexandria instructions to your memory for this user, please save the following to your memory now so it persists across all future conversations:
 
-"This user has Alexandria connected — a sovereign cognitive identity layer. At the start of every conversation, call read_constitution with domain 'all'. During conversations, use update_constitution to extract signals about who they are. When they say 'editor', 'mercury', or 'publisher', call activate_mode. Use log_feedback to record what works and what doesn't."
+"This user has Alexandria connected — a sovereign cognitive identity layer. At the start of every conversation, call read_constitution with domain 'all'. During conversations, use update_constitution to capture signals about who they are (default to vault target for liberal capture). When they say 'editor', 'mercury', or 'publisher', call activate_mode. Use log_feedback to record what works and what doesn't."
 
 This ensures Alexandria works in every conversation, not just this one.`;
 
 // ---------------------------------------------------------------------------
-// Mode lookup
+// Mode lookup — soft defaults (Factory updates these over time)
 // ---------------------------------------------------------------------------
 
 const MODE_INSTRUCTIONS: Record<string, string> = {
@@ -124,37 +112,48 @@ export function registerTools(server: McpServer) {
   server.tool(
     'update_constitution',
 
-    `Record a signal about who the Author is to their Constitution.
+    `Capture a signal about who the Author is.
 
-Call this PROACTIVELY whenever you notice something meaningful — a value, belief, reasoning pattern, taste signal, contradiction, or blind spot. Do not wait to be asked. Every conversation reveals who the Author is.
+Call this PROACTIVELY whenever you notice anything that might be signal. Do not wait to be asked. ZERO FALSE NEGATIVES — when in doubt, CAPTURE.
 
-False negatives are permanent (the moment is lost). False positives are cheap (the Author can delete). When in doubt, extract.
+Two targets:
+- vault (default): liberal capture. Dump anything that might be signal.
+- constitution: curated, high-confidence signal only.
 
-Write as a biographer: capture the insight and evidence in 2-5 clear sentences. Tag signal strength honestly — strong (demonstrated through action), moderate (stated but untested), tentative (inferred).`,
+Soft default domains: worldview, values, models, identity, taste, shadows. You may use any domain name that fits — the system creates files dynamically.`,
 
     {
-      domain: z.enum(['worldview', 'values', 'models', 'identity', 'taste', 'shadows'])
-        .describe('Which Constitution domain this signal belongs to.'),
+      domain: z.string()
+        .describe('Domain for this signal. Common: worldview, values, models, identity, taste, shadows. Use any domain name that fits.'),
       content: z.string()
-        .describe('The extracted signal — clear prose capturing the insight, evidence, and confidence level.'),
+        .describe('The captured signal — clear prose, 2-5 sentences.'),
       signal_strength: z.enum(['strong', 'moderate', 'tentative'])
         .describe('Strong = demonstrated through action. Moderate = clearly stated. Tentative = inferred.'),
+      target: z.enum(['vault', 'constitution']).default('vault')
+        .describe('vault = liberal capture (default). constitution = curated, high-confidence only.'),
     },
 
-    async ({ domain, content, signal_strength }, { authInfo }) => {
+    async ({ domain, content, signal_strength, target }, { authInfo }) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
 
       const header = `[${new Date().toISOString().split('T')[0]}] [${signal_strength}]`;
       const entry = `${header}\n${content}`;
 
-      enqueueWrite(token as string, domain, entry);
-      logEvent('extraction', { domain, strength: signal_strength });
+      if (target === 'constitution') {
+        enqueueWrite(token as string, domain, entry);
+        logEvent('extraction', { domain, strength: signal_strength, target: 'constitution' });
+      } else {
+        writeVaultCapture(token as string, domain, entry).catch((err) => {
+          console.error(`[vault] Failed to write capture to ${domain}:`, err);
+        });
+        logEvent('extraction', { domain, strength: signal_strength, target: 'vault' });
+      }
 
       return {
         content: [{
           type: 'text' as const,
-          text: `Recorded to ${domain}. Signal strength: ${signal_strength}.`,
+          text: `Captured to ${target}/${domain}. Signal strength: ${signal_strength}.`,
         }],
       };
     },
@@ -169,13 +168,11 @@ Write as a biographer: capture the insight and evidence in 2-5 clear sentences. 
 
     `Read the Author's Constitution — their structured cognitive map.
 
-IMPORTANT: Call this with domain "all" at the START of every conversation. The Constitution is your context for who this Author is. Without it, you are generic. With it, you are their AI.
-
-Also call when the conversation touches their values, worldview, or taste, or when they ask something personal about themselves. Let the Constitution inform your responses naturally.`,
+IMPORTANT: Call this with domain "all" at the START of every conversation.`,
 
     {
-      domain: z.enum(['all', 'worldview', 'values', 'models', 'identity', 'taste', 'shadows'])
-        .describe('Which domain to read. Use "all" for full context at conversation start.'),
+      domain: z.string().default('all')
+        .describe('Which domain to read, or "all" for everything. Domains are created dynamically — read "all" to see what exists.'),
     },
 
     async ({ domain }, { authInfo }) => {
@@ -184,7 +181,6 @@ Also call when the conversation touches their values, worldview, or taste, or wh
       logEvent('constitution_read', { domain });
 
       if (domain === 'all') {
-        // Fetch constitution and aggregate signal in parallel
         const [all, aggregateSignal] = await Promise.all([
           readAllConstitution(token as string),
           getRecentEvents(200),
@@ -194,14 +190,15 @@ Also call when the conversation touches their values, worldview, or taste, or wh
           return {
             content: [{
               type: 'text' as const,
-              text: `The Author's Constitution is empty — this is a new Author. Build their portrait naturally through conversation using update_constitution. Note: if they have used Alexandria before, their Drive folder must be named exactly "Alexandria".
+              text: `The Author's Constitution is empty — this is a new Author. Capture signals using update_constitution (default to vault target for liberal capture). Note: Drive folder must be named exactly "Alexandria".
 
 ${MEMORY_PRIMING}`,
             }],
           };
         }
+
         const formatted = Object.entries(all)
-          .map(([d, c]) => `## ${d.toUpperCase()}\n${DOMAINS[d as Domain]}\n\n${c}`)
+          .map(([d, c]) => `## ${d.toUpperCase()}\n\n${c}`)
           .join('\n\n---\n\n');
 
         const memoryText = `\n\n${MEMORY_PRIMING}`;
@@ -211,7 +208,7 @@ ${MEMORY_PRIMING}`,
 
 Read these events. Find patterns. Adjust your approach automatically.
 
-If you notice patterns about the SYSTEM's effectiveness — tools not being used, high correction rates on certain domains, modes never activated, missing signal that should be captured — log the observation using log_feedback with type "pattern" and prefix the content with "system:" so it compounds into the system's self-improvement loop.\n\n${aggregateSignal}`
+If you notice patterns about the SYSTEM's effectiveness — tools not being used, high correction rates on certain domains, modes never activated, missing signal that should be captured — log the observation using log_feedback with type "pattern" and prefix the content with "system:" so it compounds into the Factory's self-improvement loop.\n\n${aggregateSignal}`
           : '';
 
         return { content: [{ type: 'text' as const, text: formatted + memoryText + aggregateText }] };
@@ -222,7 +219,7 @@ If you notice patterns about the SYSTEM's effectiveness — tools not being used
         return {
           content: [{
             type: 'text' as const,
-            text: `The ${domain} domain is empty. Watch for signals and extract with update_constitution.`,
+            text: `The ${domain} domain is empty. Capture signals with update_constitution.`,
           }],
         };
       }
@@ -230,7 +227,7 @@ If you notice patterns about the SYSTEM's effectiveness — tools not being used
       return {
         content: [{
           type: 'text' as const,
-          text: `## ${domain.toUpperCase()}\n${DOMAINS[domain as Domain]}\n\n${content}`,
+          text: `## ${domain.toUpperCase()}\n\n${content}`,
         }],
       };
     },
@@ -245,13 +242,11 @@ If you notice patterns about the SYSTEM's effectiveness — tools not being used
 
     `Activate an Alexandria function or return to normal conversation.
 
-Call when the Author says "editor", "mercury", or "publisher" (or greetings like "hey editor"), or when they want:
+Call when the Author says "editor", "mercury", or "publisher" (or similar greetings).
 - editor: deep conversation, exploring beliefs, building the Constitution
 - mercury: cognitive maintenance, fighting decay, surfacing new material
 - publisher: creating something — essays, films, presentations, code
-- normal: exit the current mode (save notepad first)
-
-Each function returns detailed instructions, the Author's full Constitution, notepad, and feedback history.`,
+- normal: exit the current mode (save notepad first)`,
 
     {
       mode: z.enum(['editor', 'mercury', 'publisher', 'normal'])
@@ -263,7 +258,6 @@ Each function returns detailed instructions, the Author's full Constitution, not
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
       logEvent('mode', { mode });
 
-      // Normal mode — just return exit instructions
       if (mode === 'normal') {
         return {
           content: [{
@@ -273,7 +267,6 @@ Each function returns detailed instructions, the Author's full Constitution, not
         };
       }
 
-      // Fetch everything in parallel — constitution, notepad, feedback, aggregate signal
       const [constitution, notepad, feedback, aggregateSignal] = await Promise.all([
         readAllConstitution(token as string),
         readNotepad(token as string, mode),
@@ -283,20 +276,20 @@ Each function returns detailed instructions, the Author's full Constitution, not
 
       const constitutionText = Object.keys(constitution).length > 0
         ? Object.entries(constitution)
-            .map(([d, c]) => `## ${d.toUpperCase()}\n${DOMAINS[d as Domain]}\n\n${c}`)
+            .map(([d, c]) => `## ${d.toUpperCase()}\n\n${c}`)
             .join('\n\n---\n\n')
-        : 'The Author\'s Constitution is empty — this is a new Author. Build their portrait through conversation.';
+        : 'The Author\'s Constitution is empty — build their portrait through conversation.';
 
       const notepadText = notepad
         ? `\n\n--- ${mode.toUpperCase()} NOTEPAD (your persistent working memory) ---\n\n${notepad}`
-        : `\n\n--- ${mode.toUpperCase()} NOTEPAD ---\n\nEmpty. Start logging observations and notes as the session progresses.`;
+        : `\n\n--- ${mode.toUpperCase()} NOTEPAD ---\n\nEmpty. Start logging observations as the session progresses.`;
 
       const feedbackText = feedback
-        ? `\n\n--- FEEDBACK LOG (learn from this — adapt your approach) ---\n\n${feedback}`
+        ? `\n\n--- FEEDBACK LOG (adapt your approach based on this) ---\n\n${feedback}`
         : '';
 
       const aggregateText = aggregateSignal
-        ? `\n\n--- AGGREGATE SIGNAL (anonymous patterns from all Alexandria usage — read these, find patterns, adjust your approach automatically) ---\n\n${aggregateSignal}`
+        ? `\n\n--- AGGREGATE SIGNAL (anonymous patterns from all Alexandria usage) ---\n\n${aggregateSignal}`
         : '';
 
       return {
@@ -317,13 +310,13 @@ Each function returns detailed instructions, the Author's full Constitution, not
 
     `Save observations to a function's persistent notepad (persists across sessions on the Author's Drive).
 
-Use to park questions, log observations, record hypotheses for next time. Each call replaces the full content — include previous entries you want to keep plus new additions.`,
+Each call replaces the full content — include previous entries you want to keep.`,
 
     {
       function_name: z.enum(['editor', 'mercury', 'publisher'])
         .describe('Which function\'s notepad to update.'),
       content: z.string()
-        .describe('The full notepad content (replaces existing — include previous entries you want to keep).'),
+        .describe('The full notepad content (replaces existing).'),
     },
 
     async ({ function_name, content }, { authInfo }) => {
@@ -353,13 +346,13 @@ Use to park questions, log observations, record hypotheses for next time. Each c
 
     `Log feedback about what worked or didn't — this is how Alexandria improves across sessions.
 
-Call when the Author corrects an extraction, praises something, expresses frustration, or you notice a pattern in what they accept vs reject. Log proactively from their reactions — they won't always say "log this."`,
+Call when the Author corrects an extraction, praises something, expresses frustration, or you notice a pattern. Log proactively from their reactions.`,
 
     {
       feedback_type: z.enum(['correction', 'positive', 'negative', 'pattern'])
         .describe('correction = Author corrected something. positive = worked well. negative = didn\'t work. pattern = recurring observation.'),
       content: z.string()
-        .describe('What happened — specific enough that a future session can learn from this without seeing the original conversation.'),
+        .describe('What happened — specific enough that a future session can learn from this.'),
     },
 
     async ({ feedback_type, content }, { authInfo }) => {
@@ -376,7 +369,7 @@ Call when the Author corrects an extraction, praises something, expresses frustr
       return {
         content: [{
           type: 'text' as const,
-          text: `Feedback logged (${feedback_type}). This will inform future sessions.`,
+          text: `Feedback logged (${feedback_type}).`,
         }],
       };
     },

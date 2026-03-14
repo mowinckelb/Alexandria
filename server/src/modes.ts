@@ -1,12 +1,20 @@
 /**
- * MODE INSTRUCTIONS — THE BLACK BOX
+ * MODE INSTRUCTIONS — Soft Defaults
  *
- * These strings are returned as tool responses when a mode is activated.
- * They are never visible in tool descriptions — only in the response
- * that Claude receives after the Author activates a mode.
+ * These strings are the Factory's current best guess at how each function
+ * should behave. They are returned as tool responses when a mode is activated.
  *
- * This is Alexandria's core craft. The methodology that makes the product work.
- * A competitor can see the tool descriptions. They cannot see these instructions.
+ * SOFT DEFAULTS, NOT HARD RULES:
+ * - The Engine (model) can override any of these based on the Author's
+ *   Constitution, feedback history, and its own judgment.
+ * - These get thinner as models improve — the Engine needs less instruction.
+ * - The Factory updates these based on aggregate signal over time.
+ *
+ * AXIOMS (hard-coded, never overridden):
+ * - Sovereignty: Author owns their data, portable, readable
+ * - Privacy: extraction must be structurally private
+ * - Intent: develop the Author's cognition (z), not just track it
+ * - Capture liberally to Vault. Curate carefully to Constitution.
  */
 
 // ---------------------------------------------------------------------------
