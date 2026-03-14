@@ -14,13 +14,20 @@ This document is the working context for Alexandria's Chief Technology Officer r
 
 **2026-03-14, COO session (current):**
 
-- ✅ **Raise restructured: $50K at 5% equity ($1M pre-money).** Checked Surface.md — no references to old raise amount. Clean.
-- ✅ **"$0 CAC" killed.** Checked Surface.md — no "$0 CAC" or "zero CAC" references. Clean.
-- ✅ **"Only AI company that gets more valuable as models improve" killed.** Checked Surface.md and Concrete.md — no instances found. Clean.
-- ✅ **Activation/closing protocol simplified.** CLAUDE.md updated: "hi cto" → "cto", closing simplified to just "bye".
-- ✅ **Cost base corrected in investor docs.** Checked Surface.md — already shows $400 burn and 80 subscriber break-even. Clean.
-- ✅ **Passive factory loop — RESOLVED. Now Machine/Factory/Lab.** Architecture endorsed. Monitoring dashboard built (`GET /analytics/dashboard`). Railway volume configured by founder at `/data`. Event log now persists across deploys.
-- ⏳ **Tool usage problem.** Claude is not proactively calling Alexandria tools in normal conversations — Constitution on Google Drive is empty despite connector being set up. Root cause: tool descriptions are suggestions, not directives. Fix: founder adding Alexandria instructions to Claude's global "manage memory" file. Auto-memory priming in `read_constitution` response will reinforce once first call happens. Monitor whether this resolves the issue.
+- ✅ **Raise restructured: $50K at 5% equity ($1M pre-money).** Was $500K at 20%. No engineering hire — solo founder + AI agents, no hires planned. All investor documents updated: Memo.md, Numbers.xlsx, Logic.pdf, Deck.js. Surface.md swept by COO — clean, no stale references found. Finance.md updated with new cap table, raise terms, and corrected kin definition.
+- ✅ **"$0 CAC" killed.** Now "near-zero marginal CAC once the kin mechanic is running, with modest upfront seeding spend." Surface.md and Concrete.md swept — clean.
+- ✅ **"Only AI company that gets more valuable as models improve" killed.** Overclaim. Surface.md and Concrete.md swept — clean.
+- ✅ **Activation/closing protocol simplified.** CLAUDE.md already updated (CTO session 14).
+- ✅ **Cost base corrected in investor docs.** Monthly burn updated to $160 company + $340 founder = $500 total (added Railway $20, Google AI Pro $20, founder buffer $60). Break-even now 100 Sovereignty subscribers at $5. Numbers.xlsx, all docs updated.
+- ✅ **Numbers.xlsx ARPU formulas fixed (COO).** Assumptions sheet had broken formulas: Effective Sovereignty ARPU was 1.6 (should be 7), Effective Examined Life ARPU was 14 (should be 17). Formula bug: `kin_pct*(1-price)` instead of `price*kin_pct`. Fixed and recalculated. Projections sheet was unaffected (uses its own correct formulas, all numbers unchanged).
+- ✅ **Passive factory loop — RESOLVED. Now vision + two loops (Machine + Factory).** Lab collapsed into Factory. Dashboard built (`GET /analytics/dashboard`). Railway volume configured at `/data`.
+- ✅ **MAJOR: Bitter lesson architectural reframe.** Implemented:
+  - Domains freed from rigid enum to `z.string()` — soft default scaffolding, Engine can create any domain.
+  - tools.ts reframed: axioms (hard-coded) + soft defaults (overridable). File header updated.
+  - modes.ts reframed as soft defaults — Engine can override, gets thinner as models improve.
+  - Lab collapsed into Factory. CLAUDE.md updated to vision + Machine + Factory.
+  - Server confirmed as bridge: file read/write, OAuth, metering, event logging, serve soft defaults. Intelligence belongs to Engine.
+- ✅ **Extraction philosophy flipped: zero false negatives.** `update_constitution` now has `target` param: vault (default, liberal capture) and constitution (curated, high-confidence). Vault captures liberally via `writeVaultCapture()` — timestamped files, no Constitution touch. Constitution stays curated via existing append + archive flow.
 
 **2026-03-11, session 22 (COO):** ✅ ADDRESSED (CTO confirmed)
 
