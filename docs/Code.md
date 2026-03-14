@@ -14,12 +14,12 @@ This document is the working context for Alexandria's Chief Technology Officer r
 
 **2026-03-14, COO session (current):**
 
-- **Raise restructured: $50K at 5% equity ($1M pre-money).** Was $500K at 20%. No engineering hire — solo founder + AI agents, no hires planned. All investor documents updated: Memo.md, Numbers.xlsx, Logic.pdf, Deck.pptx. Surface.md may need updating if it references old raise amount or "$0 CAC."
-- **"$0 CAC" killed.** Now "near-zero marginal CAC once the kin mechanic is running, with modest upfront seeding spend." Check Surface.md for any "$0 CAC" references.
-- **"Only AI company that gets more valuable as models improve" killed.** Overclaim. Replaced with honest version: value is in the data and methodology, not model capability. A model release alone cannot replicate what Alexandria builds. Check Surface.md and Concrete.md for any instances.
-- **Activation/closing protocol simplified.** Activation: just "cto" (three letters). Closing: just "bye" (three letters). Operations.md updated. Update CLAUDE.md if it references old trigger phrases.
-- **Cost base corrected in investor docs.** Monthly burn is $120 company + $280 founder = $400 total. Break-even ~80 Sovereignty subscribers. Numbers.xlsx Y1 costs now $30K (no engineering hire). Check if Surface.md references old cost numbers.
-- **Passive factory loop articulated in Alexandria II (Feedback Loops section).** Full framing: active channel (COO/founder manual iteration) vs passive channel (system self-improves from aggregate data). Passive channel architecturally ready (feedback.md + /analytics live). Unsolved: the objective function — which proxies to optimise (extraction survival rate, depth score, return rate, feedback sentiment, mode activation frequency) and how to translate aggregate signal into Blueprint changes. This is the most important open design question. Solving it = self-improving Blueprint = compounding advantage impossible to replicate by inspection. CTO awareness: the feedback logging and analytics you built are steps 2 and 3. Step 1 (metric definition) is a founder decision. Step 4 (closing the loop — automated Blueprint updates from aggregate signal) is the CTO’s build once step 1 is decided.
+- ✅ **Raise restructured: $50K at 5% equity ($1M pre-money).** Checked Surface.md — no references to old raise amount. Clean.
+- ✅ **"$0 CAC" killed.** Checked Surface.md — no "$0 CAC" or "zero CAC" references. Clean.
+- ✅ **"Only AI company that gets more valuable as models improve" killed.** Checked Surface.md and Concrete.md — no instances found. Clean.
+- ✅ **Activation/closing protocol simplified.** CLAUDE.md updated: "hi cto" → "cto", closing simplified to just "bye".
+- ✅ **Cost base corrected in investor docs.** Checked Surface.md — already shows $400 burn and 80 subscriber break-even. Clean.
+- ⏳ **Passive factory loop — RESOLVED. Now Machine/Factory/Lab.** Architecture endorsed. Monitoring dashboard endpoint and Railway volume still pending — next priority.
 
 **2026-03-11, session 22 (COO):** ✅ ADDRESSED (CTO confirmed)
 
@@ -107,20 +107,14 @@ This document is the working context for Alexandria's Chief Technology Officer r
 
 *The CTO populates this section when implementation decisions or changes affect other domains. COO reads this on cold start. Clear items when addressed.*
 
-**2026-03-14, CTO session 14:**
+**2026-03-14, CTO session 14:** ✅ ACKNOWLEDGED BY COO
 
-- **Turn 2.5: Machine/Factory/Lab compounding architecture.** Three compounding systems defined and implemented:
-  - **Machine** (specific, per-Author): Constitution + feedback log. Unstructured text. Already working.
-  - **Factory** (general, cross-Author): Persistent append-only JSONL event log. Included in every `read_constitution` and mode activation so models adjust automatically. No human in loop.
-  - **Lab** (system, improving Machine & Factory): Models observe system effectiveness from aggregate signal, log observations with "system:" prefix. CTO cold start reads event log to inform priorities.
-- **Design constraint (all three):** meta (unstructured data appreciates with model quality) + bitter lesson (general methods, no hand-crafted rules). Baked into CLAUDE.md.
-- **Calibration killed.** 30-parameter encrypted JSON was anti-bitter-lesson. Feedback log replaced it.
-- **Tools 10 → 5.** 3 mode activations + switch_mode → single `activate_mode`. `query_vault` cut. Descriptions shortened.
-- **Auto memory priming.** `read_constitution` asks Claude to save usage instructions to memory. No user setup needed.
-- **Persistent event log.** `analytics.ts` rewritten — JSONL on disk. `GET /analytics/log` for full log.
-- **Favicon.** High-res cream square logo.
-- **CTO role redefined.** Autonomous compounding agent, not feature factory. Data-driven. Benjamin provides upstream philosophy.
-- **COO action:** Review Machine/Factory/Lab terminology (replaces "passive factory loop" / "calibration"). Add Railway volume at `/data` for event log persistence across deploys.
+- ✅ **Machine/Factory/Lab compounding architecture endorsed.** Founder decision: hybrid approach — bitter-lesson architecture as foundation (no hand-crafted objective function, unstructured data appreciates with model quality), plus lightweight monitoring dashboard for founder visibility. Monitoring signals (not optimisation targets): extraction survival rate, Constitution depth score, Author return rate, feedback sentiment, mode activation frequency. These tell the founder if something is broken. They do not tell the system what to chase. Alexandria II (Feedback Loops section) and Blueprint.md (Section V) updated to reflect Machine/Factory/Lab terminology, bitter lesson constraint, and monitoring dashboard. Calibration (encrypted JSON) killed in both documents.
+- ✅ **Tools 10 → 5 acknowledged.**
+- ✅ **Auto memory priming acknowledged.**
+- ✅ **Persistent event log acknowledged.**
+- ⏳ **Railway volume at `/data` for event log persistence.** COO flagging — CTO to confirm this is set up or needs setup.
+- ⏳ **Monitoring dashboard endpoint.** CTO to build. Key proxies: extraction survival rate, depth score, return rate, feedback sentiment, mode activation frequency. Read-only, founder-facing. Not wired into system behaviour.
 
 **2026-03-14, CTO session 13:** ✅ ACKNOWLEDGED BY COO
 
@@ -139,7 +133,7 @@ This document is the working context for Alexandria's Chief Technology Officer r
 - **Anonymous event logging live.** Every tool call increments an in-memory counter (no user data). Viewable at `/analytics`. Events: extractions by signal strength, mode activations, feedback by type, constitution reads, notepad updates. In-memory for now (resets on deploy).
 - **Blueprint editorial principles folded into Editor black box.** Seven principles from COO session 26 (objective function first, scrutiny, marginal additions, load-bearing questions, honesty threshold, signal strength, backward extraction).
 - **THE PASSIVE FACTORY LOOP — UNSOLVED. COO input needed.** The Blueprint has an active improvement loop (COO iterates Blueprint.md → CTO implements). It does NOT have a passive loop (Blueprint improves itself from aggregate usage data). The passive loop requires an objective function / loss function — what does "the Blueprint is working" mean, measurably? Candidates: extraction survival rate, constitution depth score, author return rate, mode activation frequency, feedback sentiment ratio. The real objective ("is the Author's cognition developing?") is unobservable — every metric is a proxy. Analytics data collection is live (step 2). The metric definition (step 1) is a founder-level decision. This is the most important open problem. Documented in CLAUDE.md.
-- **Drive folder structure expanded.** `Alexandria/constitution/`, `Alexandria/vault/`, `Alexandria/notes/` (editor.md, mercury.md, publisher.md), `Alexandria/system/` (feedback.md, future calibration).
+- **Drive folder structure expanded.** `Alexandria/constitution/`, `Alexandria/vault/`, `Alexandria/notes/` (editor.md, mercury.md, publisher.md), `Alexandria/system/` (feedback.md, event log).
 
 **2026-03-10, CTO session 9:**
 
@@ -173,19 +167,7 @@ This document is the working context for Alexandria's Chief Technology Officer r
 
 **2026-03-09, CTO session 6:**
 
-**Calibration architecture designed (Sprint 2+ — for A123 propagation):**
-
-The per-user compounding black box from COO session 12 now has a concrete design. Summary for COO:
-
-- **What it is:** A per-user "Calibration" file — encrypted JSON containing ~100-200 numerical parameters encoding how Alexandria has learned to work with that specific Author. Parameters like probe effectiveness per domain, directness tolerance, challenge threshold, pacing, resistance patterns. Not what the user thinks — how to interact with them.
-- **Where it lives:** On the user's own Google Drive, in `Alexandria/system/calibration.enc`. Encrypted with a key only Alexandria's server holds. User can see the file exists but can't read it. A competitor can't read it. Only our server decrypts, uses, and updates it.
-- **Sovereignty preserved:** User owns Constitution and Vault (their data, readable, portable). Calibration is Alexandria's craft — the therapist's method, not the patient's notes. User takes everything about *them* if they leave. The accumulated method of working with them stays with Alexandria. No hostage-taking — the file is on their storage, they just can't interpret it.
-- **How it compounds:** Blueprint instructs the AI to read calibration at session start, observe what works during the session, update calibration at session end. After hundreds of sessions, the calibration converges to a deeply tuned profile. A competitor starting fresh has a flat prior — noticeably worse experience.
-- **General Blueprint compounding:** Opt-in anonymized calibration analytics. Aggregate patterns across users (e.g., "Socratic probes 73% effective in values domain, 31% in worldview") inform Blueprint improvements. Better Blueprint → better calibration → better aggregate signal → better Blueprint. Flywheel.
-- **No new infrastructure for per-user files.** Uses existing Google Drive connection. One new subfolder (`system/`), one encrypted file per user. Server still stores nothing.
-- **Aggregate analytics** (internal, for Blueprint improvement): stored on Railway or equivalent. Small dataset of anonymized statistics. No per-user content. Standard product metrics.
-- **Naming for users:** "Calibration" — honest, technical, disarming. "Alexandria calibrates to how you work over time."
-- **Blueprint visibility note:** Tool descriptions are visible to the AI (that's how MCP works). Users can ask to see them. The Blueprint is not secret IP — it's first-mover advantage + iteration speed. The calibration file encrypted with our key is the structural moat.
+**~~Calibration architecture designed (Sprint 2+ — for A123 propagation):~~ SUPERSEDED by Machine/Factory/Lab architecture (CTO session 14). Calibration killed — feedback log replaces encrypted JSON. See CTO session 14 acknowledgement above.**
 
 **Other items from CTO sessions 4-5 (previously synced but lost in COO edit):**
 

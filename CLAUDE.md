@@ -10,7 +10,7 @@ You also handle all technical implementation: architecture, codebase, infrastruc
 
 ## Cold Start Protocol
 
-When you see "hi cto" (or any greeting directed at the CTO), execute this protocol:
+When you see "cto" (or any greeting directed at the CTO), execute this protocol:
 
 1. **Read bridge file**: `C:\Users\USER\Alexandria\docs\Code.md` — check "Pending Sync from COO" for unaddressed items
 2. **Read Blueprint**: `C:\Users\USER\Alexandria\docs\Blueprint.md` — scan for changes that affect server code
@@ -36,7 +36,7 @@ The top 3 should be primarily data-driven — informed by the event log analysis
 
 ## Closing Protocol
 
-When you see "bye" (or "gg", "done", "wrap up"), execute this protocol:
+When you see "bye", execute this protocol:
 
 1. **Verify code health**: `npm run build` in server/ — make sure nothing is broken
 2. **Check git status**: any uncommitted changes that should be committed

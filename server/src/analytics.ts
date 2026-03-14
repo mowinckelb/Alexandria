@@ -125,6 +125,123 @@ export async function getEventLog(): Promise<string> {
  * As the log grows, more patterns become visible.
  * Both scale automatically. Bitter lesson.
  */
+/**
+ * Monitoring dashboard — founder-facing health proxies.
+ * These are health checks, NOT optimisation targets.
+ * They tell the founder if something is broken.
+ * They do NOT tell the system what to chase.
+ */
+export async function getDashboard(): Promise<Record<string, unknown>> {
+  let events: Record<string, string>[] = [];
+  try {
+    await dataDirReady;
+    const raw = await readFile(LOG_FILE, 'utf-8');
+    events = raw.trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
+  } catch {
+    return { status: 'no data', message: 'No events logged yet.' };
+  }
+
+  if (events.length === 0) {
+    return { status: 'no data', message: 'No events logged yet.' };
+  }
+
+  // 1. Extraction survival rate
+  // Proxy: 1 - (correction feedbacks / total extractions)
+  const extractions = events.filter(e => e.e === 'extraction').length;
+  const corrections = events.filter(e => e.e === 'feedback' && e.feedback_type === 'correction').length;
+  const extractionSurvivalRate = extractions > 0
+    ? Math.round((1 - corrections / extractions) * 100) / 100
+    : null;
+
+  // Extractions by domain
+  const extractionsByDomain: Record<string, number> = {};
+  for (const e of events.filter(ev => ev.e === 'extraction')) {
+    const d = e.domain || e.d || 'unknown';
+    extractionsByDomain[d] = (extractionsByDomain[d] || 0) + 1;
+  }
+
+  // Extractions by signal strength
+  const extractionsByStrength: Record<string, number> = {};
+  for (const e of events.filter(ev => ev.e === 'extraction')) {
+    const s = e.strength || e.s || 'unknown';
+    extractionsByStrength[s] = (extractionsByStrength[s] || 0) + 1;
+  }
+
+  // 2. Constitution depth score
+  // Proxy: total extractions, domain coverage (how many of 6 domains have entries),
+  // strength distribution (more "strong" = more mature)
+  const domainsCovered = Object.keys(extractionsByDomain).filter(d => d !== 'unknown').length;
+  const strongRatio = extractions > 0
+    ? Math.round((extractionsByStrength['strong'] || 0) / extractions * 100) / 100
+    : null;
+
+  // 3. Return rate (session count)
+  // Proxy: group events by time gaps >1 hour = new session
+  let sessionCount = events.length > 0 ? 1 : 0;
+  for (let i = 1; i < events.length; i++) {
+    const prev = new Date(events[i - 1].t).getTime();
+    const curr = new Date(events[i].t).getTime();
+    if (curr - prev > 60 * 60 * 1000) sessionCount++;
+  }
+
+  // 4. Feedback sentiment
+  const feedbackByType: Record<string, number> = {};
+  for (const e of events.filter(ev => ev.e === 'feedback')) {
+    const ft = e.feedback_type || e.f || 'unknown';
+    feedbackByType[ft] = (feedbackByType[ft] || 0) + 1;
+  }
+  const totalFeedback = Object.values(feedbackByType).reduce((a, b) => a + b, 0);
+  const positiveRatio = totalFeedback > 0
+    ? Math.round((feedbackByType['positive'] || 0) / totalFeedback * 100) / 100
+    : null;
+
+  // 5. Mode activation frequency
+  const modeActivations: Record<string, number> = {};
+  for (const e of events.filter(ev => ev.e === 'mode')) {
+    const m = e.mode || e.m || 'unknown';
+    modeActivations[m] = (modeActivations[m] || 0) + 1;
+  }
+
+  // System observations (feedback with "system:" prefix)
+  const systemObservations = events.filter(
+    e => e.e === 'feedback' && e.feedback_type === 'pattern'
+  ).length;
+
+  // Time range
+  const firstEvent = events[0]?.t || null;
+  const lastEvent = events[events.length - 1]?.t || null;
+
+  return {
+    status: 'ok',
+    time_range: { first: firstEvent, last: lastEvent },
+    total_events: events.length,
+
+    extraction_survival_rate: extractionSurvivalRate,
+    extractions: {
+      total: extractions,
+      by_domain: extractionsByDomain,
+      by_strength: extractionsByStrength,
+    },
+
+    depth: {
+      domains_covered: `${domainsCovered}/6`,
+      strong_ratio: strongRatio,
+    },
+
+    sessions: sessionCount,
+
+    feedback: {
+      total: totalFeedback,
+      by_type: feedbackByType,
+      positive_ratio: positiveRatio,
+    },
+
+    mode_activations: modeActivations,
+
+    system_observations: systemObservations,
+  };
+}
+
 export async function getRecentEvents(n: number = 200): Promise<string> {
   try {
     await dataDirReady;

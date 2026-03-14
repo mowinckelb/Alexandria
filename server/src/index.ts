@@ -49,7 +49,7 @@ registerGoogleCallbackRoute(app);
 // sees patterns, suggests Blueprint improvements. As models improve, they
 // extract more from the same log. Bitter lesson.
 
-import { getAnalytics, getEventLog } from './analytics.js';
+import { getAnalytics, getEventLog, getDashboard } from './analytics.js';
 
 // ---------------------------------------------------------------------------
 // Health check
@@ -162,6 +162,11 @@ app.get('/analytics', (_req, res) => {
 app.get('/analytics/log', async (_req, res) => {
   const log = await getEventLog();
   res.type('text/plain').send(log || 'No events logged yet.');
+});
+
+// Monitoring dashboard (founder-facing health proxies — not optimisation targets)
+app.get('/analytics/dashboard', async (_req, res) => {
+  res.json(await getDashboard());
 });
 
 // ---------------------------------------------------------------------------
