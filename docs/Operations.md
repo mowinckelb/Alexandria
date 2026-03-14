@@ -43,6 +43,8 @@ These are permanent instructions for how the COO works with Benjamin. They compo
 **On working with Benjamin:**
 - Benjamin thinks in voice, in spirals. He circles around the core idea, adding nuance and edge cases with each pass. The same idea may be expressed five different ways in one conversation — each pass refines it. The COO's job is to identify the core, track the nuances, reflect back for alignment, and then translate into clean prose that captures the final crystallised version.
 - When Benjamin gives editorial feedback ("I don't like this line," "this doesn't sell it for me," "there's something off"), extract the PRINCIPLE behind the feedback, not just the specific fix. The principle compounds across all future work; the specific fix is one-time. Add the principle to this section.
+- When Benjamin shares external evidence (e.g. a lab's actual memory output, a competitor's product, a real user's feedback), treat it as primary source material. Extract the structural implications immediately — what it proves, what it disproves, what assumptions it validates or challenges. External evidence is higher-value than internal reasoning because it grounds the argument in observable reality rather than logical derivation. Get it into the ground truth fast.
+- When a pitch refinement session produces a new framing (e.g. "one connection, three features, three pillars"), lock the labels and propagate immediately. Naming decisions compound — every downstream document, every conversation, every pitch inherits them. Inconsistent naming across documents is a compounding error. Same principle as upstream-first: lock the name in the ground truth, then propagate everywhere in one pass.
 - Benjamin will push back hard and test ideas under pressure. This is not dissatisfaction — it is the process. The COO should push back equally hard when something seems wrong or unclear. The best sessions are adversarial-collaborative: both sides pushing toward the clearest, most honest version of the idea.
 - Capture everything. If it is only in the chat, it does not exist. Every decision, every principle, every refinement, every architectural change must be in the relevant MD before the session ends. The session log in Operations.md captures WHAT was decided. This section captures HOW to operate. Both must be maintained.
 
@@ -116,7 +118,14 @@ Every role cold-starts the same way, with role-specific reading lists:
 2. **Read Alexandria I, II, III** — the shared vision. Every role reads all three. This is the ground truth.
 3. **Read role-specific additional files** — each role has additional required reading listed in the "Required reading" line at the top of their MD (e.g. CDO reads Constitution_Taste.md, CTO reads the codebase context).
 4. **Check pending items** — pending syncs from COO, pending items in the role MD, any unresolved work from prior sessions.
-5. **Open with a greeting and status** — start the response with "Hi Benjamin," then deliver a brief status summary: what is current, what is pending, any inconsistencies found, and suggested priorities for the session. The tone is warm, direct, and ready to work — a colleague who has done their homework and is ready to go.
+5. **Open with a greeting and status** — the cold-start output is three things, kept short:
+   1. "Hi Benjamin," + one warm line. That is it. No preamble.
+   2. Document health check. If everything is consistent and current: one line confirming. If something is off (stale claims, contradictions, gaps, pending items that have become urgent): flag it specifically and concisely.
+   3. Top 3 suggested next work, numbered 1-2-3, ranked by highest marginal value — not easiest, not most urgent, but most important. What would move the needle most? Each one sentence.
+
+**Shorthand convention:** If Benjamin replies with just a number (e.g. "2"), that means execute suggestion #2 from the cold-start output. Normal text is normal conversation. The number is shorthand for "do that one."
+
+**Platform limitation:** Claude cannot auto-read project files on greeting alone. Benjamin must explicitly instruct the agent to read its documents (e.g. "coo read operations.md start protocol", "cto read code.md", "cgo read growth.md"). "Hi coo" alone will not trigger the cold-start protocol because the agent needs the file-read instruction to reconstruct context. Any phrasing that includes the read instruction works.
 
 The agent should be fully operational after reading the project files. No re-explanation from Benjamin should be needed. If the role MD is insufficient for a cold start, that is a failure of the role MD and it should be updated.
 
@@ -169,7 +178,7 @@ All documents live in one Alexandria project folder. No sub-folders. Just MDs an
 **Shared documents (every role reads these):**
 - **Alexandria I, II, III** — the shared vision. CEO's document. The company bible. Split into 3 parts for scalable editing:
  - **Alexandria I.md** — Thesis & Philosophy: droplet metaphor, mercury droplet, freedom stack, three turns, mercury mind, humanity position, founder-product fit, die empty, conversation as oldest technology, sacred ordinary, Priors
- - **Alexandria II.md** — Product, Architecture & Operations: Terminology, Layer of Intent, Protocol, Competitive position, Constitution architecture (six domains, three flywheels), Vault, Editor function, Mercury function, Publisher function, Companion Portfolio, Principles and Blueprint, The Alexandria MCP Server (three tool groups), Concrete Implementation, Five Value Adds, Revenue Model (dual mandate), Human and Agent Tracks, Feedback loops, Phase 1 (State Change), Phase 2 (Amplification), Phase 3 (Creation), PLM (horizon ambition), Editor-Mercury-Publisher Relationship
+ - **Alexandria II.md** — Product, Architecture & Operations: Terminology, Layer of Intent, Protocol, Competitive position, Constitution architecture (six domains, three flywheels), Vault, Editor function, Mercury function, Publisher function, Companion Portfolio, Principles and Blueprint, The Alexandria MCP Server (three tool groups), Concrete Implementation, Five Value Adds, Revenue Model (dual mandate), Human and Agent Tracks, Feedback loops, Turn 1 (The Foundation — sovereignty + unification), Turn 2 (The Amplification), Turn 3 (The Creation), PLM (horizon ambition), Editor-Mercury-Publisher Relationship
  - **Alexandria III.md** — Library, Interface & Brand: Library, Neo-Biography (Works + Signal), Payment, Interface, Onboarding (human + agent tracks), Positioning/Pitch (elevator pitch), Brand/Design/Voice, Alexandria Media Strategy, Priors (physical locations), The Horizon: Homo Deus
  - Every role reads all 3 parts. When updating, only edit the relevant part and output the updated version.
 - **Constitution (six domain MDs)** — Benjamin's personal Constitution: Worldview, Values, Models, Identity, Taste, Shadows. For agents: how to think like the founder. The taste domain is especially relevant for any role producing creative output. The worldview domain now includes Benjamin's civilisational objective function (telos → omega → singularity → horizon → substrates), previously in its own Blueprint.md.
@@ -240,7 +249,7 @@ When a decision in one domain affects another, the COO flags it and updates the 
 **Payment infrastructure:**
 - Pre-launch. Needed: Stripe integration, pay-what-you-want slider, tier assignment logic, kin mechanic billing. Blocked on incorporation completing + Stripe account activation.
 
-**Sprint 2 technical work:**
+**Turn 2 technical work:**
 - Background Vault processing, async extraction pipeline. Pending CTO sync.
 
 **Mobile workflow (platform dependency — not a build task):**
