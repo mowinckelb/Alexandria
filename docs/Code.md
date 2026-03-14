@@ -19,7 +19,8 @@ This document is the working context for Alexandria's Chief Technology Officer r
 - ✅ **"Only AI company that gets more valuable as models improve" killed.** Checked Surface.md and Concrete.md — no instances found. Clean.
 - ✅ **Activation/closing protocol simplified.** CLAUDE.md updated: "hi cto" → "cto", closing simplified to just "bye".
 - ✅ **Cost base corrected in investor docs.** Checked Surface.md — already shows $400 burn and 80 subscriber break-even. Clean.
-- ⏳ **Passive factory loop — RESOLVED. Now Machine/Factory/Lab.** Architecture endorsed. Monitoring dashboard endpoint and Railway volume still pending — next priority.
+- ✅ **Passive factory loop — RESOLVED. Now Machine/Factory/Lab.** Architecture endorsed. Monitoring dashboard built (`GET /analytics/dashboard`). Railway volume configured by founder at `/data`. Event log now persists across deploys.
+- ⏳ **Tool usage problem.** Claude is not proactively calling Alexandria tools in normal conversations — Constitution on Google Drive is empty despite connector being set up. Root cause: tool descriptions are suggestions, not directives. Fix: founder adding Alexandria instructions to Claude's global "manage memory" file. Auto-memory priming in `read_constitution` response will reinforce once first call happens. Monitor whether this resolves the issue.
 
 **2026-03-11, session 22 (COO):** ✅ ADDRESSED (CTO confirmed)
 
