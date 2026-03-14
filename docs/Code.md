@@ -98,6 +98,11 @@ This document is the working context for Alexandria's Chief Technology Officer r
 
 *The CTO populates this section when implementation decisions or changes affect other domains. COO reads this on cold start. Clear items when addressed.*
 
+**2026-03-14, CTO session 13:**
+
+- **Doc cleanup.** Deleted `docs/Investor.md` (no longer needed). Merged duplicate `Operations (1).md` into `Operations.md` (kept newer/larger version, removed duplicate). Restored `Concrete.md` to `public/docs/` (was missing after last consolidation commit — copied from source in Downloads).
+- **Claude Code settings.** Set `bypassPermissions` as default permission mode in `~/.claude/settings.json`.
+
 **2026-03-14, CTO session 12:**
 
 - **CTO cold-start and closing protocols implemented.** CLAUDE.md now contains full agent protocol: "hi cto" triggers startup (read Code.md, Blueprint.md, git status, server health, present top 3 action items), "bye" triggers closing (verify build, update bridge file, session delta summary, signoff with varied emoji). Shell alias `cto` in `.bashrc` launches Claude Code with DSP in project directory.
