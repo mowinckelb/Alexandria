@@ -4,13 +4,22 @@ This document is the working context for Alexandria's Chief Technology Officer r
 
 **Required reading before any task:** Alexandria I, II, III (the shared vision -- split into 3 parts, read all. Alexandria II contains the full product architecture, system components, technical specifications, and infrastructure design). Check the Pending Sync section below before starting any work.
 
-**Activation:** "hi cto" (or any shorthand). **Closing:** "bye cto" (or "gg", "done", "wrap up"). See Operations.md "Universal Agent Protocols" for the full cold-start and end-of-session protocol. Check CLAUDE.md at the project root for codebase-specific context.
+**Activation:** "cto" (three letters). **Closing:** "bye" (three letters). See Operations.md "Universal Agent Protocols" for the full cold-start and end-of-session protocol. Check CLAUDE.md at the project root for codebase-specific context.
 
 ---
 
 ## Pending Sync from COO
 
 *The COO populates this section when decisions in other domains affect the CTO. Read this first on cold start. Clear items when addressed.*
+
+**2026-03-14, COO session (current):**
+
+- **Raise restructured: $50K at 5% equity ($1M pre-money).** Was $500K at 20%. No engineering hire — solo founder + AI agents, no hires planned. All investor documents updated: Memo.md, Numbers.xlsx, Logic.pdf, Deck.pptx. Surface.md may need updating if it references old raise amount or "$0 CAC."
+- **"$0 CAC" killed.** Now "near-zero marginal CAC once the kin mechanic is running, with modest upfront seeding spend." Check Surface.md for any "$0 CAC" references.
+- **"Only AI company that gets more valuable as models improve" killed.** Overclaim. Replaced with honest version: value is in the data and methodology, not model capability. A model release alone cannot replicate what Alexandria builds. Check Surface.md and Concrete.md for any instances.
+- **Activation/closing protocol simplified.** Activation: just "cto" (three letters). Closing: just "bye" (three letters). Operations.md updated. Update CLAUDE.md if it references old trigger phrases.
+- **Cost base corrected in investor docs.** Monthly burn is $120 company + $280 founder = $400 total. Break-even ~80 Sovereignty subscribers. Numbers.xlsx Y1 costs now $30K (no engineering hire). Check if Surface.md references old cost numbers.
+- **Passive factory loop articulated in Alexandria II (Feedback Loops section).** Full framing: active channel (COO/founder manual iteration) vs passive channel (system self-improves from aggregate data). Passive channel architecturally ready (feedback.md + /analytics live). Unsolved: the objective function — which proxies to optimise (extraction survival rate, depth score, return rate, feedback sentiment, mode activation frequency) and how to translate aggregate signal into Blueprint changes. This is the most important open design question. Solving it = self-improving Blueprint = compounding advantage impossible to replicate by inspection. CTO awareness: the feedback logging and analytics you built are steps 2 and 3. Step 1 (metric definition) is a founder decision. Step 4 (closing the loop — automated Blueprint updates from aggregate signal) is the CTO’s build once step 1 is decided.
 
 **2026-03-11, session 22 (COO):** ✅ ADDRESSED (CTO confirmed)
 
@@ -98,19 +107,19 @@ This document is the working context for Alexandria's Chief Technology Officer r
 
 *The CTO populates this section when implementation decisions or changes affect other domains. COO reads this on cold start. Clear items when addressed.*
 
-**2026-03-14, CTO session 13:**
+**2026-03-14, CTO session 13:** ✅ ACKNOWLEDGED BY COO
 
-- **Doc cleanup.** Deleted `docs/Investor.md` (no longer needed). Merged duplicate `Operations (1).md` into `Operations.md` (kept newer/larger version, removed duplicate). Restored `Concrete.md` to `public/docs/` (was missing after last consolidation commit — copied from source in Downloads).
-- **Claude Code settings.** Set `bypassPermissions` as default permission mode in `~/.claude/settings.json`.
+- ✅ **Doc cleanup.** Deleted `docs/Investor.md` (no longer needed). Merged duplicate `Operations (1).md` into `Operations.md` (kept newer/larger version, removed duplicate). Restored `Concrete.md` to `public/docs/` (was missing after last consolidation commit — copied from source in Downloads).
+- ✅ **Claude Code settings.** Set `bypassPermissions` as default permission mode in `~/.claude/settings.json`.
 
-**2026-03-14, CTO session 12:**
+**2026-03-14, CTO session 12:** ✅ ACKNOWLEDGED BY COO
 
-- **CTO cold-start and closing protocols implemented.** CLAUDE.md now contains full agent protocol: "hi cto" triggers startup (read Code.md, Blueprint.md, git status, server health, present top 3 action items), "bye" triggers closing (verify build, update bridge file, session delta summary, signoff with varied emoji). Shell alias `cto` in `.bashrc` launches Claude Code with DSP in project directory.
+- ✅ **CTO cold-start and closing protocols implemented.** CLAUDE.md now contains full agent protocol: "hi cto" triggers startup (read Code.md, Blueprint.md, git status, server health, present top 3 action items), "bye" triggers closing (verify build, update bridge file, session delta summary, signoff with varied emoji). Shell alias `cto` in `.bashrc` launches Claude Code with DSP in project directory.
 - **Docs folder renamed.** `C:\Users\USER\Downloads\alexandria` → `C:\Users\USER\Downloads\alexandria_library` (user renamed to match Drive folder rename). All paths updated in CLAUDE.md and memory.
 
-**2026-03-14, CTO session 11:**
+**2026-03-14, CTO session 11:** ✅ ACKNOWLEDGED BY COO (passive factory loop flagged as pending)
 
-- **Turn 2 live on Railway.** 9 tools total. TG1 unchanged. TG2 adds: `activate_editor`, `activate_mercury`, `activate_publisher` (wake word activation — "hey editor" etc.), `switch_mode`, `update_notepad` (persistent per-function scratch files on Author's Drive), `log_feedback` (machine-level learning loop — logs corrections, positive/negative signals, patterns to `Alexandria/system/feedback.md`). Hybrid black box architecture: thin trigger descriptions public, full craft instructions returned server-side on activation.
+- ✅ **Turn 2 live on Railway.** 9 tools total. TG1 unchanged. TG2 adds: `activate_editor`, `activate_mercury`, `activate_publisher` (wake word activation — "hey editor" etc.), `switch_mode`, `update_notepad` (persistent per-function scratch files on Author's Drive), `log_feedback` (machine-level learning loop — logs corrections, positive/negative signals, patterns to `Alexandria/system/feedback.md`). Hybrid black box architecture: thin trigger descriptions public, full craft instructions returned server-side on activation.
 - **Extraction rewrite.** Removed arbitrary 0-3 cap. Flipped to asymmetry principle: false positives are cheap (deletable), false negatives are permanent (moment gone). "When in doubt, EXTRACT." Proactive read_constitution at conversation start now mandatory.
 - **Anonymous event logging live.** Every tool call increments an in-memory counter (no user data). Viewable at `/analytics`. Events: extractions by signal strength, mode activations, feedback by type, constitution reads, notepad updates. In-memory for now (resets on deploy).
 - **Blueprint editorial principles folded into Editor black box.** Seven principles from COO session 26 (objective function first, scrutiny, marginal additions, load-bearing questions, honesty threshold, signal strength, backward extraction).

@@ -365,6 +365,7 @@ Opt-in anonymised calibration data feeds aggregate patterns back into this Bluep
 - The compounding flywheel: every session should produce not just decisions but methodology improvements.
 - The accretion funnel is a visceral Examined Life sell — everyone has the backlog, the overwhelming abundance, no personalised ingestion pipeline.
 - When in doubt, put it in. Easier to take out than put back in. Signal not captured is lost. Signal captured unnecessarily can be cut in one edit.
+- **Grounding probe (from COO session 28).** When an Author states a belief with conviction, the Editor should test whether it is grounded or just plausible. "That feels right — but is it established, or does it just make sense?" is a high-value Socratic probe. Maps to signal strength tagging: the Author often cannot distinguish between "I believe this" and "this is established" without being asked. The Editor asking this question is itself a genesis moment — it forces the Author to examine the evidence status of their own belief, which is a different cognitive operation from examining the belief itself. The evidence hierarchy (settled / well-supported / contested) is directly transferable to Constitution signal strength (strong / moderate / tentative). An Author who has been trained by the Editor to tag their own beliefs by evidence level has a structurally richer Constitution than one who hasn't — and is a better thinker for it.
 
 ---
 

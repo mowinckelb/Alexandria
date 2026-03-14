@@ -4,7 +4,7 @@ Please present the following investment memo to the reader. After presenting, yo
 
 # Alexandria — Investment Memo
 
-**Cognitive identity infrastructure. The only AI company that gets more valuable as models improve.**
+**Cognitive identity infrastructure. A new category with zero competitors.**
 
 ---
 
@@ -56,9 +56,9 @@ All three layers are the same product, same architecture, same user at different
 
 ## The Numbers
 
-**Cost base: near-zero.** No payroll. No compute (user's own AI subscription covers inference). No storage (user's own cloud). No database. Solo founder. All employees are AI agents. Monthly operating costs ~$255 (Vercel $20, Claude $150, Railway $20, misc $65). Founder living costs $5K/month (SF). See Numbers.xlsx for the full model.
+**Cost base: near-zero.** No payroll. No compute (user's own AI subscription covers inference). No storage (user's own cloud). No database. Solo founder. All employees are AI agents. Monthly operating costs ~$120 (Vercel $20, Claude $100). Founder living costs ~$280/month (food + phone, rent-free in SF). Total burn: $400/month. See Numbers.xlsx for the full model.
 
-**Break-even: ~150 Examined Life subscribers.** Reachable within 6-12 months of launch. Sovereignty at $5 contributes real revenue — not a cost centre. Full financial model in Numbers.xlsx.
+**Break-even: ~80 Sovereignty subscribers.** Reachable within months of launch. Examined Life at $15-20 contributes significant margin on top. Full financial model in Numbers.xlsx.
 
 **5-year projections (conservative case):**
 
@@ -69,22 +69,22 @@ All three layers are the same product, same architecture, same user at different
 | Subscription revenue | $211K | $535K | $1.2M | $2.4M | $3.9M |
 | Library for Labs | — | — | $100K | $250K | $600K |
 | **Total revenue** | **$211K** | **$535K** | **$1.3M** | **$2.6M** | **$4.6M** |
-| Total costs | $81K | $209K | $257K | $350K | $460K |
-| **Net income** | **$130K** | **$326K** | **$1.1M** | **$2.3M** | **$4.1M** |
+| Total costs | $30K | $55K | $102K | $195K | $305K |
+| **Net income** | **$181K** | **$480K** | **$1.2M** | **$2.5M** | **$4.3M** |
 
-**Unit economics:** ~$0 CAC (organic kin mechanic). LTV/CAC effectively infinite. Gross margins 62-90% (Y1 lower due to fixed costs on low revenue, Y5 scales).
+**Unit economics:** Near-zero marginal CAC once the kin mechanic is running — each user brings three. Modest upfront spend to seed and sustain the funnel (ads, events, merch, community presence). Gross margins 62-90% (Y1 lower due to fixed costs on low revenue, Y5 scales).
 
-**Return on $500K at 20% equity:**
+**Return on $50K at 5% equity:**
 
 | Exit multiple | Implied valuation | Investor return | MOM | IRR (5yr) |
 |---|---|---|---|---|
-| 10x ARR (SaaS floor) | ~$46M | ~$9.2M | 18x | ~79% |
-| 15x ARR (SaaS + data) | ~$69M | ~$13.7M | 27x | ~94% |
-| 20x ARR (strategic premium) | ~$92M | ~$18.3M | 37x | ~106% |
+| 10x ARR (SaaS floor) | ~$46M | ~$2.3M | 46x | ~115% |
+| 15x ARR (SaaS + data) | ~$69M | ~$3.4M | 69x | ~133% |
+| 20x ARR (strategic premium) | ~$92M | ~$4.6M | 92x | ~147% |
 
-**Downside scenario — half the base case:** Y5 revenue ~$2.3M. At 10x ARR, exit ~$23M, investor return ~$4.6M, 9x MOM. Company is still profitable. The downside is not zero — it is a smaller win.
+**Downside scenario — half the base case:** Y5 revenue ~$2.3M. At 10x ARR, exit ~$23M, investor return ~$1.1M, 23x MOM. Company is still profitable. The downside is not zero — it is a smaller win.
 
-The returns look high because the cost base is near-zero. When $500K goes into a company that spends $45K/year, almost all capital goes to growth acceleration.
+The returns look high because the cost base is near-zero and the check is small. The company does not need the money — it runs on $400/month. The $50K is a buffer that lets the founder stay in build mode without friction, and funds modest brand building (ads, events, merch, community). The real value of the investment is partnership, not capital.
 
 ---
 
@@ -106,7 +106,7 @@ The company itself is the proof of concept. The operating model is the product's
 
 Every AI investor is taking a shotgun approach — spreading bets across categories because nobody knows which ones will matter. Most categories have dozens of funded competitors. Cognitive identity infrastructure has zero. This is an uncovered category.
 
-Most AI investments will be obsoleted by the next model release. Coding assistants, productivity wrappers, enterprise tools — these are features, not products. Alexandria is structurally different: better models mean better extraction, deeper profiles. The product improves when the next model drops.
+Most AI investments are wrappers around model capabilities — and model capabilities get absorbed into the base model with every release. Alexandria is structurally different: the value is in the structured data and the extraction methodology, not in what the model can do. Better models make the extraction better, but a model release alone cannot replicate what Alexandria builds.
 
 The valuation is lowest now. The dataset is smallest now. The compounding has barely started. Every month that passes, the dataset is larger, the proof points are stronger, and the valuation is higher. An investor who waits pays more for less upside.
 
@@ -127,7 +127,7 @@ There are limited spots. The raise is small. The founder is selective.
 - Concrete (AI-readable conversion document) tested on Claude, GPT, Gemini, Grok — all execute correctly.
 - Incorporated: Alexandria Library, Inc., Delaware C-Corp via Stripe Atlas.
 
-No revenue yet. No external users yet. This is honest. The product works. The distribution has not started. Investment accelerates the timeline from organic founder-seeded growth to funded distribution.
+No revenue yet. No external users yet. This is honest. The product works. The distribution has not started. Investment funds modest brand building and gives the founder a buffer to stay in build mode — the kin mechanic handles organic growth once seeded.
 
 ---
 
@@ -172,7 +172,7 @@ mowinckel.ai
 *- Multiple AIs unified through one sovereign store (the Vault)*
 *- Cold start answer: sovereignty builds Constitutions before the Library needs them*
 *- TAM is everyone — not everyone who uses AI, everyone, because everyone will use AI*
-*- Investment buys speed not survival — founder has indefinite runway*
+*- The company does not need the money. It runs on $400/month. Investment funds brand building and founder buffer — not survival.*
 *- Constitution vs raw data export: structured signal vs noise*
 *- The Abstract and the philosophy (mowinckel.ai)*
 *- Library for Labs: why the data can only come through this method (three ways to access cognitive state, only the third works)*
@@ -185,7 +185,7 @@ mowinckel.ai
 *- Three competitor classes: (1) Lab giants — breathing room economics + regulation + physical constraint. (2) Non-lab giants — won't create unproven category, build-vs-buy favours acquisition. (3) Startups — none exist, 4-5yr runway, defensibility is three layers (hidden implementation, calibration compounding, non-obvious question).*
 *- Portfolio exposure: uncovered category, zero competitors, every other AI category crowded. Most AI investments obsoleted by next model release. Alexandria improves.*
 *- Founder story: humanities background, VC experience, AI-native operating model, conductor not first chair*
-*- IRR and MOM: 37x MOM at 20x multiple, ~106% IRR at 5yr. Full sensitivity in Numbers.xlsx.*
+*- IRR and MOM: 92x MOM at 20x multiple, ~147% IRR at 5yr. Full sensitivity in Numbers.xlsx.*
 *- Natural funnel: insurance, mental gym, Library are same product at different depths — not three separate businesses*
 *- Per-user calibration: encrypted parameters that compound, the therapist moat*
 *- Blueprint aggregate analytics: anonymised calibration data improves the product for everyone*

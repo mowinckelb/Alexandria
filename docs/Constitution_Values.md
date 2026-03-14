@@ -84,3 +84,14 @@ You believe there is rampant, celebrated, engineered racism against white people
 ### Power Is Zero-Sum
 
 Security is zero-sum. Power is relative. Hard power underpins soft power. America's military supremacy is the precondition for liberal democracy anywhere. Trump's "Liberation Day" is a calculated offensive realist gamble — escaping the local maxima of managed decline to reach the global maxima of renewed unipolar dominance. The last window before China achieves parity.
+
+
+---
+2026-03-14 (COO session) | strong
+
+Honesty in positioning is non-negotiable and instinctive. Benjamin catches overclaims instantly and treats them as credibility-destroying, not merely inaccurate. A single false "settled" claim costs the credibility of all settled claims. The asymmetry: overclaiming gains nothing (the honest version is usually stronger) and risks everything (one broken claim makes the reader question all claims). This applies to all external-facing communication — investor docs, Concretes, the Abstract, everything.
+
+---
+2026-03-14 (COO session) | strong
+
+Financial reasoning from first principles, not convention. When deciding the raise amount, Benjamin worked backwards from "what would I actually spend this on?" rather than anchoring on what is conventional for the stage. This produced $50K (honest) rather than $200K or $500K (conventional but unjustifiable). The willingness to look unconventional in service of honesty is a core pattern.

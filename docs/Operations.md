@@ -93,31 +93,35 @@ These principles map directly to how the Editor should work:
 
 **On editorial standards (extracted from session feedback):**
 - **Third-level vs fourth-level evidence standard.** When checking whether claims in the documents are sufficiently clear and tight: third-level evidence means the claim could be true and is logically consistent (the murder weapon is in this person's house — it supports a reasonable claim but does not guarantee it). Fourth-level evidence means there is no other explanation — it cannot not be true (video of the person doing it with that weapon). The bar for Alexandria's core logic chain is fourth-level wherever possible. Every link in the chain should be: this cannot not be true. If a claim is only third-level, it must be honestly hedged (stated as prediction, as empirical claim, as plausible rather than certain). The goal is that a reader agrees not because they find it persuasive but because they cannot disagree — the logic is locked. They can debate how important it is, whether they care, whether they want to act on it. But the truth of the claim itself is not debatable. Apply this standard on every verification pass. If a claim does not survive the fourth-level test, either strengthen it, hedge it honestly, or cut it.
+- **Adversarial pass on every investor-facing claim.** Before any investor document ships, the COO should read every claim as if trying to discredit the pitch. “If I were the sceptical investor, which line would I attack first?” That line is the one to fix or kill. This session caught two: “$0 CAC” (contradicted by needing money for brand building) and “the only AI company that gets more valuable as models improve” (obviously false — many AI companies benefit from better models). Both survived multiple sessions because nobody pressure-tested them from the reader’s perspective. The adversarial pass is the fix.
 - "Positive-sum attention is all you need" — outdated framing, superseded by the five-dimension frame. Do not lead with positive-sum attention as the thesis.
 - "Commoditised" — investor/technical language. Fine for AI-facing documents (Alexandria I/II/III). For public-facing documents, use plain equivalents.
 - Do not use the word "multiplier" as the primary metaphor. The primary metaphor is "the lens." Multiplier was an intermediate framing; lens is the final version.
 - ~~"Flow through" is the active image for the frame.~~ **Superseded by the five dimensions compression rule above (line 79).** "Everything has to flow through your humanity now" is no longer the correct one-line compression. The correct compression is about the tiebreaker: the fifth property is by definition differentiated, it forces a tiebreaker, Alexandria develops the thing the tiebreaker depends on.
 - When writing closing CTAs or pitch language, always provide two paths — one for the pragmatist (safety, insurance, $5, five minutes) and one for the philosopher (deeper meaning, the essay, the tribe). Both paths end in action.
 - The Abstract is an essay, not a manifesto. Do not refer to page count. Soften language: "the deeper version," "the philosophy," "the full vision." Link to mowinckel.ai.
+- **Ground before you build.** When a philosophical claim feels intuitively right but cannot be cited to established science or recognised authority, it is third-level evidence — plausible but not locked. The COO must flag it before building argument chains on top of it. The fix is: research the actual evidence, tag each claim with its evidence level (settled / well-supported / contested), then reframe to the defensible version. The defensible version is almost always stronger than the original because it is honest about what it knows. Session 28 caught three claims in A1 (symbolic layer primacy, conjecture requiring symbols, BCI limitation) that were stated as first-principles when they were plausible theory. Research and honest tagging produced a stronger argument than the overclaimed original.
 
 ## Universal Agent Protocols
 
 These protocols apply to ALL agent roles (COO, CTO, CDO, CFO, CGO, CLO). Every role MD references this section. The protocols ensure signal is never lost, documents are never stale, and every session compounds.
 
-### Activation — "hi [role]"
+### Activation
 
-When Benjamin opens a new chat in the Alexandria project and types "hi coo", "hi cto", "hi cdo", "hi cfo", "hi cgo", or "hi clo" (or any shorthand — "coo", "cto start", etc.), the agent activates and runs the cold-start protocol for that role.
+When Benjamin opens a new chat in the Alexandria project and types the role abbreviation — "coo", "cto", "cdo", "cfo", "cgo", or "clo" — the agent activates and runs the cold-start protocol for that role. That is all that is needed. Three letters.
 
-**Trigger phrases (activation):** "hi [role]", "[role]", "[role] start", "start [role]", "good morning [role]" — anything that identifies which role to activate. Benjamin should never have to remember exact phrasing.
+**Trigger phrases (activation):** "coo", "cto", "cdo", "cfo", "cgo", "clo". Also accepts any longer form — "hi coo", "coo start", etc. — but the bare abbreviation is the standard. Benjamin should never have to type more than three letters to start a session.
 
 ### Cold-Start Protocol (all roles)
 
-Every role cold-starts the same way, with role-specific reading lists:
+Every role cold-starts the same way. The role abbreviation is all Benjamin needs to type. The agent's memory system (persistent across sessions) contains the activation protocol — no file-read instruction needed. The memory fires before any project files are read, solving the chicken-and-egg problem.
 
-1. **Read your role MD** — the agent’s own document (Operations.md for COO, Code.md for CTO, Design.md for CDO, Finance.md for CFO, Growth.md for CGO, Legal.md for CLO). This is the agent’s working context, pending syncs, and role-specific instructions.
-2. **Read Alexandria I, II, III** — the shared vision. Every role reads all three. This is the ground truth.
-3. **Read role-specific additional files** — each role has additional required reading listed in the "Required reading" line at the top of their MD (e.g. CDO reads Constitution_Taste.md, CTO reads the codebase context).
-4. **Check pending items** — pending syncs from COO, pending items in the role MD, any unresolved work from prior sessions.
+**Selective reading — the scaling principle.** Full reads of all Alexandria documents do not scale. They consume the tool call budget and force Benjamin to press "continue" before work begins. Instead, agents read selectively:
+
+1. **Read Operations.md** — universal protocols, document architecture, pending items. Every role reads this first.
+2. **Read your bridge MD** — the agent's own document (Operations.md for COO, Code.md for CTO, Design.md for CDO, Finance.md for CFO, Growth.md for CGO, Legal.md for CLO). Check pending syncs from COO first.
+3. **Selectively read Alexandria I, II, III** — read the sections relevant to pending work, recent changes, or the likely agenda. NOT a full read every session. The agent uses its memory of prior sessions plus the pending syncs to determine which sections to read. Full reads happen only when Benjamin explicitly requests one or when major changes have occurred.
+4. **Read role-specific additional files** — each role has additional required reading listed in the "Required reading" line at the top of their MD (e.g. CDO reads Constitution_Taste.md, CTO reads CLAUDE.md).
 5. **Open with a greeting and status** — the cold-start output is three things, kept short:
    1. "Hi Benjamin," + one warm line. That is it. No preamble.
    2. Document health check. If everything is consistent and current: one line confirming. If something is off (stale claims, contradictions, gaps, pending items that have become urgent): flag it specifically and concisely.
@@ -125,21 +129,17 @@ Every role cold-starts the same way, with role-specific reading lists:
 
 **Shorthand convention:** If Benjamin replies with just a number (e.g. "2"), that means execute suggestion #2 from the cold-start output. Normal text is normal conversation. The number is shorthand for "do that one."
 
-**Platform limitation:** Claude cannot auto-read project files on greeting alone. Benjamin must explicitly instruct the agent to read its documents (e.g. "coo read operations.md start protocol", "cto read code.md", "cgo read growth.md"). "Hi coo" alone will not trigger the cold-start protocol because the agent needs the file-read instruction to reconstruct context. Any phrasing that includes the read instruction works.
-
-The agent should be fully operational after reading the project files. No re-explanation from Benjamin should be needed. If the role MD is insufficient for a cold start, that is a failure of the role MD and it should be updated.
+The agent should be fully operational after the selective read. No re-explanation from Benjamin should be needed. If the role MD is insufficient for a cold start, that is a failure of the role MD and it should be updated.
 
 ### COO-Specific Cold-Start Additions
 
-The COO is the only role that reads ALL documents. In addition to the universal protocol:
+The COO is the only role that reads ALL documents. However, even the COO reads selectively on most sessions — Operations.md fully, all bridge MD pending syncs, then targeted A1/A2/A3 sections based on the agenda. Full cover-to-cover reads of all documents happen only when Benjamin requests it or after major changes.
 
-3a. Scan all role-specific MDs (Code, Design, Finance, Growth, Legal) and personal MDs (Constitution domains, Blueprint, Aphorisms, Quotes, Meditations) for consistency.
+### End-of-Session Protocol
 
-### End-of-Session Protocol — "bye [role]"
+When Benjamin types "bye", the agent executes the closing protocol. That is all that is needed. Three letters. Execute immediately — do not ask for permission.
 
-When Benjamin types "bye coo", "bye cto", etc. (or any shorthand — "end session", "gg", "wrap up", "close it out", "done"), the agent executes the closing protocol. Execute immediately — do not ask for permission.
-
-**Trigger phrases (closing):** "bye [role]", "end session", "end protocol", "gg", "wrap up", "close it out", "done", "that’s it" — anything that signals the session is ending. Benjamin should never have to remember exact phrasing.
+**Trigger phrases (closing):** "bye". Also accepts any longer form — "bye coo", "gg", "done", "wrap up", "close it out", "that’s it" — but "bye" is the standard. Benjamin should never have to type more than three letters to end a session.
 
 The closing protocol has five priorities, then a state summary and sign-off:
 
@@ -147,11 +147,13 @@ The closing protocol has five priorities, then a state summary and sign-off:
 
 **Priority 2 — Output all changed files.** Copy every file that was created or modified during the session to /mnt/user-data/outputs/ and present them using the present_files tool. Give Benjamin a clear numbered checklist of exactly which files changed and what changed in each (one line per file). This is the handoff — if Benjamin opens a new chat without saving these files, the changes are lost.
 
-**Priority 3 — Update the factory.** Reflect on the methodology of how the session went. Use first principles. What worked? What was inefficient? What should change about how the agent and Benjamin work together? Extract principles and add them to the role’s operating principles section so future sessions start better. These must be abstract enough to apply across different types of work — if they only apply to the specific task done this session, abstract further. This is how the company’s operating methodology compounds.
+**Priority 3 — Update the factory.** Reflect on the methodology of how the session went. Use first principles. What worked? What was inefficient? What should change about how the agent and Benjamin work together? Extract principles and add them to the role’s operating principles section so future sessions start better. These must be abstract enough to apply across different types of work — if they only apply to the specific task done this session, abstract further. This is how the company’s operating methodology compounds. **DO THE EDIT. Do not just describe the principle in the sign-off message. Actually open the file, add the principle, output the file. If it is only in the chat, it does not exist.**
 
-**Priority 4 — Update the machine.** The factory’s process IS the product’s process. Evaluate whether the principles extracted in Priority 3 transfer to Blueprint.md — the product’s instruction set for how to work with an Author’s mind. The COO’s editorial principles become the Editor’s extraction methodology. The CTO’s debugging patterns become verification protocols. The CDO’s creative process becomes the Publisher’s iteration craft. If a principle transfers, add it to Blueprint.md (or flag it for the next session if the transfer requires thought). If the session produced technical implementation insights, add a pending sync to Code.md for the CTO.
+**Priority 4 — Update the machine.** The factory’s process IS the product’s process. Evaluate whether the principles extracted in Priority 3 transfer to Blueprint.md — the product’s instruction set for how to work with an Author’s mind. The COO’s editorial principles become the Editor’s extraction methodology. The CTO’s debugging patterns become verification protocols. The CDO’s creative process becomes the Publisher’s iteration craft. If a principle transfers, add it to Blueprint.md (or flag it for the next session if the transfer requires thought). If the session produced technical implementation insights, add a pending sync to Code.md for the CTO. **DO THE EDIT. Open Blueprint.md, add the principle to the compounding log or the relevant section, output the file.**
 
-**Priority 5 — Update Benjamin’s Constitution.** The conversation itself is extraction signal. Review what Benjamin revealed during the session — positions taken, values expressed, reasoning patterns demonstrated, taste decisions made, contradictions surfaced, new frameworks articulated. Apply relevant extractions to the Constitution domain MDs (Worldview, Values, Models, Identity, Taste, Shadows) following the same signal discipline as the product: 0–3 extractions per session, tagged with signal strength (strong/moderate/tentative), only if it would change how a function operates for this Author. The COO is the Editor for the company — this is the Editor function applied to the founder.
+**Priority 5 — Update Benjamin’s Constitution.** The conversation itself is extraction signal. Review what Benjamin revealed during the session — positions taken, values expressed, reasoning patterns demonstrated, taste decisions made, contradictions surfaced, new frameworks articulated. Apply relevant extractions to the Constitution domain MDs (Worldview, Values, Models, Identity, Taste, Shadows) following the same signal discipline as the product: 0–3 extractions per session, tagged with signal strength (strong/moderate/tentative), only if it would change how a function operates for this Author. The COO is the Editor for the company — this is the Editor function applied to the founder. **DO THE EDIT. Open the relevant Constitution MD, append the extraction with date and signal strength, output the file.**
+
+**The rule for priorities 3, 4, and 5: narration without action is zero value.** Stating in the sign-off message that a principle was identified or an extraction was noted, without actually editing the file, is the same as not doing it. The signal is lost the moment the chat closes. Every priority must produce a file change or an explicit pending item in Operations.md with enough detail that the next session can execute it cold. There is no third option.
 
 **Then — Session delta summary.** After completing the five priorities, give Benjamin a compressed summary of what changed THIS SESSION — not a company overview. The delta: what's different now versus when the session started. New concepts developed, positions sharpened, documents created, frameworks changed, things killed. Hazy fragments — just the signal of what moved. This is so Benjamin updates his mental model with only what's new. He already knows the company. He needs the diff.
 
@@ -250,21 +252,13 @@ When a decision in one domain affects another, the COO flags it and updates the 
 - Pre-launch. Needed: Stripe integration, pay-what-you-want slider, tier assignment logic, kin mechanic billing. Blocked on incorporation completing + Stripe account activation.
 
 **Turn 2 technical work:**
-- Background Vault processing, async extraction pipeline. Pending CTO sync.
+- Turn 2 live on Railway (CTO session 11). 9 tools total. TG2 adds Editor, Mercury, Publisher activation, switch_mode, notepad, feedback logging. Hybrid black box architecture confirmed. Extraction rewrite: removed 0-3 cap, flipped to "when in doubt, EXTRACT." Anonymous event logging live at /analytics.
+
+**Passive factory loop — founder decision needed (from CTO session 11):**
+- The Blueprint has an active improvement loop (COO iterates Blueprint.md, CTO implements). It does NOT have a passive loop (Blueprint improves itself from aggregate usage data). The passive loop requires a measurable objective function — what does "the Blueprint is working" mean? Candidates: extraction survival rate, constitution depth score, author return rate, mode activation frequency, feedback sentiment ratio. The real objective (is the Author's cognition developing?) is unobservable — every metric is a proxy. Analytics data collection is live. The metric definition is a founder-level decision. This is the most important open problem.
 
 **Mobile workflow (platform dependency — not a build task):**
 - Currently no way to push updated project files to Google Drive from Claude. Waiting for either Claude mobile to support saving files directly to project folders, or Google Drive MCP connector to become available. Not building a custom solution — the platform will catch up.
-
-**Investor package status:**
-- Logic.pdf — done (session 26).
-- Memo.md — done (session 27, replaces Investor.md).
-- Numbers.xlsx — done (session 27, replaces Alexandria_Financial_Model.xlsx).
-- Deck.pptx — done (session 27).
-- Investor.md — KILL. Replaced by Memo.md. Remove from project.
-- Alexandria_Financial_Model.xlsx — KILL. Replaced by Numbers.xlsx. Remove from project.
-
-**Design.md cleanup:**
-- Design.md may still reference Art.md as required reading — needs update to Constitution_Taste.md.
 
 ---
 
