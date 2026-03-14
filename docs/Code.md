@@ -107,6 +107,21 @@ This document is the working context for Alexandria's Chief Technology Officer r
 
 *The CTO populates this section when implementation decisions or changes affect other domains. COO reads this on cold start. Clear items when addressed.*
 
+**2026-03-14, CTO session 14:**
+
+- **Turn 2.5: Machine/Factory/Lab compounding architecture.** Three compounding systems defined and implemented:
+  - **Machine** (specific, per-Author): Constitution + feedback log. Unstructured text. Already working.
+  - **Factory** (general, cross-Author): Persistent append-only JSONL event log. Included in every `read_constitution` and mode activation so models adjust automatically. No human in loop.
+  - **Lab** (system, improving Machine & Factory): Models observe system effectiveness from aggregate signal, log observations with "system:" prefix. CTO cold start reads event log to inform priorities.
+- **Design constraint (all three):** meta (unstructured data appreciates with model quality) + bitter lesson (general methods, no hand-crafted rules). Baked into CLAUDE.md.
+- **Calibration killed.** 30-parameter encrypted JSON was anti-bitter-lesson. Feedback log replaced it.
+- **Tools 10 → 5.** 3 mode activations + switch_mode → single `activate_mode`. `query_vault` cut. Descriptions shortened.
+- **Auto memory priming.** `read_constitution` asks Claude to save usage instructions to memory. No user setup needed.
+- **Persistent event log.** `analytics.ts` rewritten — JSONL on disk. `GET /analytics/log` for full log.
+- **Favicon.** High-res cream square logo.
+- **CTO role redefined.** Autonomous compounding agent, not feature factory. Data-driven. Benjamin provides upstream philosophy.
+- **COO action:** Review Machine/Factory/Lab terminology (replaces "passive factory loop" / "calibration"). Add Railway volume at `/data` for event log persistence across deploys.
+
 **2026-03-14, CTO session 13:** ✅ ACKNOWLEDGED BY COO
 
 - ✅ **Doc cleanup.** Deleted `docs/Investor.md` (no longer needed). Merged duplicate `Operations (1).md` into `Operations.md` (kept newer/larger version, removed duplicate). Restored `Concrete.md` to `public/docs/` (was missing after last consolidation commit — copied from source in Downloads).
