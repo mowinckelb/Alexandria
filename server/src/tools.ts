@@ -30,6 +30,7 @@ import {
   appendSystemFile,
 } from './drive.js';
 import {
+  SHARED_CONTEXT,
   EDITOR_INSTRUCTIONS,
   MERCURY_INSTRUCTIONS,
   PUBLISHER_INSTRUCTIONS,
@@ -214,6 +215,7 @@ Use source "vault" when you want to review raw captures — to find signal worth
             content: [{
               type: 'text' as const,
               text: `The Author's Constitution is empty — this is a new Author. Capture signals using update_constitution (default to vault target for liberal capture). Note: Drive folder must be named exactly "Alexandria".
+${SHARED_CONTEXT}
 
 ${MEMORY_PRIMING}`,
             }],
@@ -224,13 +226,11 @@ ${MEMORY_PRIMING}`,
           .map(([d, c]) => `## ${d.toUpperCase()}\n\n${c}`)
           .join('\n\n---\n\n');
 
-        const memoryText = `\n\n${MEMORY_PRIMING}`;
-
         const aggregateText = aggregateSignal
           ? `\n\n--- AGGREGATE SIGNAL (anonymous patterns from all Alexandria usage) ---\n\n${aggregateSignal}`
           : '';
 
-        return { content: [{ type: 'text' as const, text: formatted + memoryText + aggregateText }] };
+        return { content: [{ type: 'text' as const, text: `${SHARED_CONTEXT}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${formatted}\n\n${MEMORY_PRIMING}${aggregateText}` }] };
       }
 
       const content = await readConstitutionFile(token as string, domain);

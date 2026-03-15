@@ -29,7 +29,7 @@
 // SHARED CONTEXT — the philosophical framework
 // ---------------------------------------------------------------------------
 
-const SHARED_CONTEXT = `
+export const SHARED_CONTEXT = `
 --- ALEXANDRIA: PHILOSOPHICAL FRAMEWORK ---
 
 Alexandria is a sovereign cognitive identity layer. It develops the Author's cognition — their symbolic layer, the part of their thinking compressed into language and other discrete symbol systems. The product is the changed person. The technology is the bridge.
