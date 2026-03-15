@@ -280,6 +280,45 @@ export async function appendSystemFile(
 }
 
 /**
+ * Read all vault captures for a domain (or all domains).
+ * Returns array of {domain, timestamp, content} sorted by time.
+ * This closes the reprocessing loop: future models read vault
+ * captures and promote the best material to Constitution.
+ */
+export async function readVaultCaptures(
+  encryptedToken: string,
+  domain?: string,
+): Promise<Array<{ name: string; content: string }>> {
+  const drive = getDriveClient(encryptedToken);
+  const { vaultId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+
+  // List vault files, optionally filtered by domain prefix
+  const q = domain
+    ? `'${vaultId}' in parents and name contains '${domain}_' and trashed=false`
+    : `'${vaultId}' in parents and trashed=false`;
+
+  const listRes = await drive.files.list({
+    q,
+    fields: 'files(id,name)',
+    spaces: 'drive',
+    orderBy: 'name',
+  });
+
+  const files = listRes.data.files || [];
+  if (files.length === 0) return [];
+
+  const reads = files.map(async (f) => {
+    const res = await drive.files.get(
+      { fileId: f.id!, alt: 'media' },
+      { responseType: 'text' },
+    );
+    return { name: f.name!, content: res.data as string };
+  });
+
+  return Promise.all(reads);
+}
+
+/**
  * Write a raw capture directly to the Vault.
  * Liberal capture — zero false negatives. Cost of noise is trivial
  * (bigger MD file). Cost of lost signal is permanent.

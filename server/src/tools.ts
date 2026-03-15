@@ -23,6 +23,7 @@ import {
   readConstitutionFile,
   appendToConstitutionFile,
   writeVaultCapture,
+  readVaultCaptures,
   readNotepad,
   writeNotepad,
   readSystemFile,
@@ -166,20 +167,42 @@ Soft default domains: worldview, values, models, identity, taste, shadows. You m
   server.tool(
     'read_constitution',
 
-    `Read the Author's Constitution — their structured cognitive map.
+    `Read the Author's sovereign data — Constitution (curated) or Vault (raw captures).
 
-IMPORTANT: Call this with domain "all" at the START of every conversation.`,
+IMPORTANT: Call this with domain "all" at the START of every conversation.
+
+Use source "vault" when you want to review raw captures — to find signal worth promoting to Constitution, to see the Author's evolution over time, or to reprocess with fresh eyes.`,
 
     {
       domain: z.string().default('all')
-        .describe('Which domain to read, or "all" for everything. Domains are created dynamically — read "all" to see what exists.'),
+        .describe('Which domain to read, or "all" for everything.'),
+      source: z.enum(['constitution', 'vault']).default('constitution')
+        .describe('constitution = curated cognitive map (default). vault = raw captures and archived versions.'),
     },
 
-    async ({ domain }, { authInfo }) => {
+    async ({ domain, source }, { authInfo }) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
-      logEvent('constitution_read', { domain });
+      logEvent('constitution_read', { domain, source });
 
+      // Vault reading
+      if (source === 'vault') {
+        const captures = await readVaultCaptures(token as string, domain === 'all' ? undefined : domain);
+        if (captures.length === 0) {
+          return {
+            content: [{
+              type: 'text' as const,
+              text: `No vault captures${domain !== 'all' ? ` for ${domain}` : ''}. Captures accumulate as update_constitution is used with target "vault".`,
+            }],
+          };
+        }
+        const formatted = captures
+          .map(c => `### ${c.name}\n\n${c.content}`)
+          .join('\n\n---\n\n');
+        return { content: [{ type: 'text' as const, text: `## VAULT${domain !== 'all' ? ` — ${domain.toUpperCase()}` : ''}\n\n${formatted}` }] };
+      }
+
+      // Constitution reading (default)
       if (domain === 'all') {
         const [all, aggregateSignal] = await Promise.all([
           readAllConstitution(token as string),
@@ -204,11 +227,7 @@ ${MEMORY_PRIMING}`,
         const memoryText = `\n\n${MEMORY_PRIMING}`;
 
         const aggregateText = aggregateSignal
-          ? `\n\n--- AGGREGATE SIGNAL (anonymous patterns from all Alexandria usage) ---
-
-Read these events. Find patterns. Adjust your approach automatically.
-
-If you notice patterns about the SYSTEM's effectiveness — tools not being used, high correction rates on certain domains, modes never activated, missing signal that should be captured — log the observation using log_feedback with type "pattern" and prefix the content with "system:" so it compounds into the Factory's self-improvement loop.\n\n${aggregateSignal}`
+          ? `\n\n--- AGGREGATE SIGNAL (anonymous patterns from all Alexandria usage) ---\n\n${aggregateSignal}`
           : '';
 
         return { content: [{ type: 'text' as const, text: formatted + memoryText + aggregateText }] };
