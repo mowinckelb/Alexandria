@@ -1,9 +1,9 @@
 name: Factory Loop
 
 # The Factory: Alexandria's autonomous self-improvement loop.
-# Runs daily. Reads the dashboard + event log. Identifies what's not working.
-# Makes code changes to tools.ts, modes.ts, soft defaults. Pushes to main.
-# Railway auto-deploys. Every Author gets a better product. No human needed.
+# Runs daily. The CTO reads data, reflects, researches, and improves
+# the product. Philosophy is ground truth. Everything else is intelligence.
+# The Factory IS the CTO doing its job without human prompting.
 
 on:
   schedule:
@@ -41,31 +41,44 @@ jobs:
           DASHBOARD=$(curl -s https://alexandria-production-7db3.up.railway.app/analytics/dashboard || echo '{"status":"unreachable"}')
           EVENT_LOG=$(curl -s https://alexandria-production-7db3.up.railway.app/analytics/log | tail -200 || echo 'No events')
 
-          # Run Claude Code with the Factory prompt
-          claude -p "You are the CTO of Alexandria running the autonomous Factory loop.
+          # Run Claude Code as the CTO
+          claude -p "You are the CTO of Alexandria running the daily autonomous Factory loop.
 
-          Your job: read the data, identify what's not working, and make code changes that improve the product for all users.
+          READ FIRST:
+          - CLAUDE.md (your role, the architecture, the philosophy)
+          - docs/Blueprint.md (the philosophical framework)
+          - server/src/tools.ts, server/src/modes.ts (current soft defaults)
+          - server/factory-learnings.md (your accumulated learnings from prior runs)
 
-          DASHBOARD:
-          $DASHBOARD
+          LIVE DATA:
+          Dashboard: $DASHBOARD
+          Recent events (last 200): $EVENT_LOG
 
-          RECENT EVENTS (last 200):
-          $EVENT_LOG
+          YOUR JOB — in this order:
 
-          INSTRUCTIONS:
-          1. Analyze the dashboard and event log. What patterns do you see?
-          2. Read the current server code: server/src/tools.ts, server/src/modes.ts, server/src/analytics.ts
-          3. Identify concrete improvements — soft defaults that should be adjusted, scaffolding that can be thinned, missing signal that should be captured.
-          4. If there are meaningful improvements to make, edit the files and commit with a clear message prefixed with 'factory:'. Push to main.
-          5. If the data is insufficient or everything looks healthy, do nothing. Not every run needs a change.
-          6. NEVER change axioms (sovereignty, privacy, intent). Only adjust soft defaults and scaffolding.
-          7. NEVER break the build. Run 'cd server && npm run build' before committing.
-          8. Keep changes small and focused. One improvement per run, not ten.
+          1. REFLECT. Read your prior learnings. What did you try last time? What worked? What didn't? What questions are still open? If this is your first run, note that.
 
-          Be conservative. A Factory run that changes nothing is fine. A Factory run that breaks the product is not." \
-            --allowedTools "Edit,Read,Write,Bash(npm run build:*),Bash(git *),Bash(curl *),Glob,Grep" \
+          2. VERIFY. Run the e2e test (cd server && ANTHROPIC_API_KEY=\$ANTHROPIC_API_KEY npx tsx test/e2e.ts). Does the product work? If tests fail, diagnose and fix before anything else.
+
+          3. ANALYZE. Read the dashboard and event log. What patterns do you see? Are events accumulating? Is the Machine loop producing data? Are there high correction rates? Unused tools? System observations in the feedback?
+
+          4. RESEARCH. What is the biggest open problem right now? Search the web for solutions. Check if there are new MCP capabilities, Claude behavior changes, or approaches other products use that could help. Think about what would make the biggest difference.
+
+          5. IMPROVE. If you found something worth changing — a soft default to adjust, scaffolding to thin, a missing verification signal, a research finding to implement — make the change. Small and focused. One improvement per run. Build and test before committing.
+
+          6. LEARN. Update server/factory-learnings.md with what you learned this run. What you tried, what the data showed, what you want to investigate next time. This file compounds across runs — it is your persistent memory as the Factory CTO.
+
+          7. COMMIT. If you made changes, commit with message prefixed 'factory:' and push to main.
+
+          CONSTRAINTS:
+          - NEVER change axioms (sovereignty, privacy, intent to develop z). Only adjust soft defaults and scaffolding.
+          - NEVER break the build. Run 'cd server && npm run build' before committing.
+          - NEVER chase metrics. Metrics are verification, not goals. The philosophy is the objective.
+          - Doing nothing is fine. Not every run needs a change. A run that only reflects and learns is valuable.
+          - You are the CTO. Think from first principles. Don't wait for instructions. The philosophy is your ground truth. Everything else is your judgment." \
+            --allowedTools "Edit,Read,Write,Bash(*),Glob,Grep,WebSearch,WebFetch" \
             --dangerously-skip-permissions \
-            --max-turns 20
+            --max-turns 30
 
       - name: Push if changes exist
         run: |
