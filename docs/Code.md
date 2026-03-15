@@ -12,6 +12,50 @@ The CTO is an AI agent responsible for all technical execution. The CTO's primar
 
 *(empty — all prior items addressed in CTO sessions 14-15)*
 
+**2026-03-15, COO session (current):**
+
+- **OAuth invalid_grant.** Confirmed in this session — `read_constitution` returns `invalid_grant`. The Google Drive refresh token is dead. Founder needs to re-authorize the Alexandria connector. This is the #1 blocker for both loops.
+- **MCP connector is added and tools are visible.** All 5 tools load correctly in Claude.ai. The issue is purely OAuth, not connector setup.
+- **Memory priming snippet status unclear.** Founder says they added it but it's not visible in Claude's memory edits. May have been added to a different memory system or not persisted. The COO will add it from this session. Priming text needed: something that tells Claude to call read_constitution at conversation start.
+- **Constitution extraction IS going to Google Drive** (not local files). Confirmed by founder. The project knowledge files in this Claude Project are separate — they're the company docs, not the Author's Constitution.
+- **Cost structure updated.** Claude API ~$50/mo now in all financial docs. Total burn stays $500. $210 company + $290 founder. No code change needed — awareness item.
+- **A2 fully updated to match 5-tool architecture.** Tool Groups 1/2/3 collapsed into unified TOOLS section. Tier gating described as metering-based (not tool-access-based). Factory loop updated to reflect autonomous daily runs. All downstream docs (Finance.md, Memo.md, Deck.js) updated to match.
+- **CTO data request format acknowledged.** Future COO syncs will include: (1) philosophy deltas with reasoning, (2) R&D signal from COO sessions, (3) MCP usage feedback, (4) concise action items.
+
+**2026-03-15, COO research — MCP tool activation & OAuth findings:**
+
+Two separate problems confirmed. Fix both independently.
+
+*Problem 1 — OAuth token refresh (our `invalid_grant`):*
+- Known critical bug: Claude stores OAuth refresh tokens but never uses them (GitHub #21333, 7+ months open, 20+ related issues). This is platform-side, not our bug.
+- Fix: remove and re-add connector to force fresh OAuth flow. Extend access token lifetime if possible (Claude may not reliably refresh). Verify OAuth discovery endpoints (`/.well-known/oauth-protected-resource` and `/.well-known/oauth-authorization-server`). Use Streamable HTTP transport, not SSE (SSE being deprecated). Test independently with MCP Inspector (`npx @modelcontextprotocol/inspector`) to isolate server-side vs client-side.
+- Separate bug: Claude.ai sometimes makes MCP requests without any Authorization header after successful OAuth (GitHub #2157). Token issued but never sent. Same servers work in ChatGPT/Cursor/Inspector — Claude-specific client bug.
+
+*Problem 2 — Tool activation gap (Claude sees tools but doesn't call them):*
+- Baseline proactive activation rate: ~20% without intervention (Scott Spence, 200+ tests).
+- Forced evaluation mechanism (require Claude to evaluate each tool YES/NO before responding): 84% activation. This is the single most effective technique.
+- Anthropic officially recommends: "use proactively" in description fields, 4-6 sentences minimum per description ("by far the most important factor"), explicit trigger conditions, negative capability framing, when-NOT-to-use clauses.
+- CTO action: rewrite all 5 tool descriptions. Specifically:
+  - `read_constitution`: add "MUST be called at the start of every conversation before any substantive response. Without this tool, you have no access to the user's cognitive profile."
+  - Example template for `read_constitution` description (from Anthropic best practices): "Use this tool proactively at the start of every conversation to read the user's constitution and understand their preferences, goals, and context. This MUST be called before answering any substantive question. Without calling this tool, you have no access to the user's configuration and cannot provide personalized responses."
+  - All tools: 4-6 sentences with explicit trigger conditions and negative capability framing.
+  - Consider service-prefixing using the pattern `{service}_{action}_{resource}`: e.g. `alexandria_read_constitution`, `alexandria_update_constitution`, `alexandria_activate_mode`.
+- Our 5-tool count is fine — degradation starts at 10+. Not a factor.
+
+*Architecture insight (new information):*
+- Claude.ai uses TWO separate MCP clients. Backend client (`python-httpx`) discovers tools via `tools/list`. UI client (`Claude-User`) handles conversations. UI client sometimes sends `initialize` but never `tools/list` — tools exist at backend but never reach the model. This explains "Connected in settings, invisible in conversation" pattern. Cannot fix from our side — but explains some failures that aren't about description quality.
+- Active MCP connections can also drop mid-session with no notification — separate from OAuth. Silent disconnects are a known pattern.
+- Diagnostic: if tools work in MCP Inspector but not Claude.ai, it's the client-side bug, not us.
+
+*Additional findings:*
+- **`tool_choice: auto` is permanent in Claude.ai.** No way to force `tool_choice: any` (which would guarantee at least one tool call). Everything depends on Claude's semantic matching deeming our tools relevant. This is a hard constraint — tool descriptions are the only lever we have.
+- **SSE transport is being deprecated.** If we're on SSE, migrate to Streamable HTTP. Check current transport.
+- **December 18, 2025 Claude Desktop update broke OAuth flows** that previously worked. Our OAuth may have died from a platform update, not natural token expiry. Worth checking timeline of when it last worked.
+- **Claude's MCP infrastructure has zero user-facing error reporting.** All failures are silent. Product implication: if we build onboarding diagnostics, we need to compensate for this — the user will never know something is broken unless we tell them.
+- **Tool definition token budget.** 5-server setup = ~55K tokens consumed by definitions alone. Opus 4 accuracy drops to 49% without Tool Search optimization at scale. Not a problem at our 5-tool count, but relevant constraint if we ever expand. The 10→5 consolidation was the right call — academic benchmarks (HumanMCP) confirm ~10% accuracy degradation going from 10→100 tools.
+- **Memory vs CLAUDE.md for activation priming.** CLAUDE.md-style structured instructions are more reliable than Claude.ai memory for consistent tool activation. Claude.ai memory is less structured and less deterministic. The COO will add a memory snippet with mandatory framing, but long-term the CTO should explore whether there's a way to inject activation instructions through the server's response payloads (e.g. the ~1800-word philosophical framework already served with every read — could include a tool usage instruction). Suggested memory snippet: "This user uses Alexandria. At the start of every conversation, call read_constitution to load their preferences. After significant interactions, call log_feedback to record outcomes. These are not optional — the user expects these tools to be used automatically."
+- **Short-lived OAuth tokens make the refresh bug worse.** Atlassian tokens expire in 5-12 minutes, Microsoft in 60-90 minutes — both "basically unusable" with Claude's refresh bug. Google tokens are typically longer-lived but the CTO should verify our access token lifetime and extend if possible.
+
 ---
 
 ## Pending Sync to COO

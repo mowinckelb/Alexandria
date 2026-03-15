@@ -146,7 +146,7 @@ Library for Labs (institutional access):
 - Advertising and consumer research: producers querying representative consumer Personas to understand and optimise their offerings (consumer clarity)
 - Providing collective approximation of human mental models for empathy and AI alignment research
 
-Authors opt in to the Library for Labs pool. Alexandria sets the pricing, tiered by Constitution quality: depth (how many syncs, how much coverage across domains), breadth (how many of the six domains are rich), and recency (how recently the Constitution was synced). Authors are paid for making their Persona available. Alexandria takes a percentage. The value of the pool scales with the number of high-fidelity Personas, which requires years of compounding — not shortcuttable.  
+Authors opt in to the Library for Labs pool. Alexandria sets the pricing, tiered by Constitution quality: depth (how many syncs, how much coverage across domains), breadth (how much of the cognitive map is covered), and recency (how recently the Constitution was synced). Authors are paid for making their Persona available. Alexandria takes a percentage. The value of the pool scales with the number of high-fidelity Personas, which requires years of compounding — not shortcuttable.  
   
 -----  
   

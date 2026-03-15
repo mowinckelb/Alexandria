@@ -119,7 +119,7 @@ Shadows — Where I am wrong. Contradictions, blind spots, theory-reality disson
 
 ### Signal Discipline
 
-0–3 extractions per typical conversation. When in doubt, do not extract. A lean Constitution with high signal is better than a bloated one with noise. The threshold: would this signal change how a function operates for this Author? If yes, extract. If it is interesting but not operationally relevant, leave it.
+Constitution extractions are curated: the threshold is whether the signal would change how a function operates for this Author. But the Vault operates on the opposite principle: when in doubt, capture. Optimise for zero false negatives — the cost of noise in the Vault is trivial, the cost of lost signal is permanent. The model dumps everything that might be signal into the Vault during conversations. Future models reprocess the Vault and promote real signal to the Constitution. Two layers: Vault (raw capture, accept noise) and Constitution (curated, high signal-to-noise). The Vault appreciates with model quality. This is the bitter lesson applied to extraction.
 
 ### Signal Strength
 
@@ -136,7 +136,7 @@ The most valuable extraction moments are when the Author contradicts something a
 
 ### Domain Routing
 
-Each extraction must be routed to the correct domain. When a single extraction spans multiple domains (common — a value statement that reveals a mental model), route to the primary domain and cross-reference. The Constitution is not a flat file — the six domains create a structured map, and the cross-references between domains are themselves valuable signal about how the Author's cognition connects.
+Each extraction must be routed to the correct domain. When a single extraction spans multiple domains (common — a value statement that reveals a mental model), route to the primary domain and cross-reference. The Constitution is not a flat file — the domains (currently six as a soft default) create a structured map, and the cross-references between domains are themselves valuable signal about how the Author's cognition connects.
 
 ---
 
@@ -208,7 +208,7 @@ No interaction is wasted. Casual banter, complaints, pricing negotiations, creat
 
 **Primary operations:** Genesis, Development.
 **Secondary operations:** Anti-entropy (resurfacing decayed material for re-articulation).
-**Constitution writes:** All six domains. The Editor is the primary writer.
+**Constitution writes:** All domains. The Editor is the primary writer.
 
 **Core behaviour:** The Editor is a biographer. The best biographers understand that the real material comes from patience, presence, and timing. They sit with the subject for months. They follow along. They know when to chime in and when to stay quiet. They wait for the off-guard moment. And they do not frantically scribble notes — they absorb, hold, weave in later.
 
@@ -252,7 +252,7 @@ No interaction is wasted. Casual banter, complaints, pricing negotiations, creat
 
 **Primary operations:** Accretion, Anti-entropy.
 **Secondary operations:** Development (through challenge and surfacing connections), Genesis (by triggering articulation through new material).
-**Constitution reads:** All six domains. Mercury reads more than it writes.
+**Constitution reads:** All domains. Mercury reads more than it writes.
 **Constitution writes:** Primarily taste (consumption reveals taste), models (how the Author engages with new material), shadows (gaps revealed by what Mercury surfaces that the Author cannot engage with).
 
 **Core behaviour:** Mercury is not a separate entity. It is merged with the Author's thinking. It works within the Author's cognition — absorbing, scanning, fighting drift, pushing the Author higher. It is the anti-entropy function. The shapes in the Author's mind naturally sink. Mercury keeps them floating above the threshold where the Author can play with them.
@@ -316,34 +316,37 @@ No interaction is wasted. Casual banter, complaints, pricing negotiations, creat
 
 ---
 
-## V. Calibration Framework
+## V. Compounding Architecture (Vision + Two Loops)
 
-*How the system learns to tune itself per Author over time.*
+*How the system learns — per Author and across all Authors — over time. The boundary between what is hard-coded and what is delegated is the line between values and intelligence.*
 
-### Per-User Calibration Architecture
+**Design constraint: the bitter lesson.** Every hard-coded decision is a bet against the exponential curve of model intelligence. Unstructured data appreciates with model quality. General methods beat hand-crafted rules at scale. Alexandria does not define an objective function for cognitive development (the real objective is unobservable). Instead, it accumulates raw signal and trusts that improving models extract more value from the same data over time. No hand-crafted metrics to Goodhart. No structured parameter files that cap at the fidelity of the designer's categories.
 
-Encrypted JSON file (~100-200 numerical parameters) stored on the Author's own storage at `Alexandria/system/calibration.enc`. Encrypted with Alexandria's server key — the Author can see it exists but cannot read it. A competitor cannot read it. Only Alexandria's server decrypts, uses, and updates it.
+**Vision (the axioms, us).** What Alexandria is and why it exists. The philosophy, the intention, the objective function at the highest level: develop the Author's cognitive identity while preserving sovereignty. This is not a loop — it is an input. It is values, not intelligence. It changes only when we change it deliberately. The two execution loops serve it.
 
-**Parameters encode how to interact with the Author — not what the Author thinks:**
-- Probe effectiveness per domain (which Socratic approaches yield genesis in which domains)
-- Directness tolerance (how much pushback before the Author disengages vs sharpens)
-- Challenge threshold (where productive tension becomes unproductive discomfort)
-- Pacing preferences (rapid-fire vs slow-build, how long to let silence sit)
-- Resistance patterns (which topics the Author deflects on — these are Shadows gold)
-- Humour responsiveness (what kind, how much, when)
-- Optimal session length (when the Author's engagement peaks and fades)
-- Domain engagement patterns (which domains the Author gravitates toward, which they avoid)
-- Accretion receptivity windows (when the Author absorbs new fragments well vs bounces them)
-- Decay rates per domain (how quickly fragments fade in different areas for this Author)
-- Synthesis readiness signals (what the Author does when they are approaching binding)
+### Loop 2 — The Machine (per-Author compounding)
 
-### Calibration Loop
+The Author's feedback log (`Alexandria/system/feedback.md`) is an append-only, unstructured text file on the Author's own storage. Every session, the system logs what worked, what did not, what the Author corrected, what they responded well to, what they deflected. This is raw signal — not structured parameters, not numerical scores.
 
-Read calibration at session start. Observe what works during the session. Update calibration at session end. After hundreds of sessions, the calibration converges to a deeply tuned profile. A competitor starting fresh has a flat prior — a noticeably worse experience. This is the therapist moat: the Constitution transfers, the calibration method does not.
+The model reads this log at session start alongside the Constitution. Each session starts from the accumulated understanding of all prior sessions. After hundreds of sessions, a competitor starting fresh has no log — a noticeably worse experience even with the same Constitution. This is the therapist moat: the Constitution transfers, the extraction method does not.
 
-### Aggregate Analytics Flywheel
+Why unstructured over structured: a parameter file (e.g. "directness tolerance: 0.7") is a hand-crafted feature. An unstructured log ("Author pushed back hard when challenged on career assumptions but leaned in when challenged on relationship patterns — the resistance is domain-specific, not personality-wide") contains richer signal that a better model can use more effectively. The data appreciates as models improve without any change to the format.
 
-Opt-in anonymised calibration data feeds aggregate patterns back into this Blueprint. Example: "Socratic probes 73% effective in values domain, 31% in worldview — try narrative probes for worldview instead." Better Blueprint → better calibration → better aggregate signal → better Blueprint. The per-user file compounds the individual experience. The aggregate analytics compound the product for everyone.
+The Machine runs on the Author's own AI (the Engine). Its intelligence is bounded by the Engine's capability and scales with every model release — without Alexandria doing anything. The Machine is external, out in the wild, hyper-personalised.
+
+### Loop 1 — The Factory (cross-Author compounding)
+
+A persistent, append-only JSONL event log on the server. Every tool call, every mode activation, every extraction, every feedback event is logged as a structured event. This log provides the bottom-up signal that the Factory uses to improve defaults.
+
+Every Author's experience benefits every other Author — not by sharing personal data (Constitution and Vault remain private) but by sharing structural signal about what works. The Author's private conversations and Constitution text never leave their control.
+
+The Factory also ingests top-down signal: the team's research, philosophical refinements, operational learnings. Currently the Factory is largely manual (founder + AI agents iterating on this Blueprint). Transitioning to semi-autonomous (daily Claude Code sessions proposing improvements with human verification). Aspiring to fully autonomous. The Factory is Alexandria's internal loop — it runs on our infrastructure, we own it, we control it.
+
+The Factory determines what default Machine gets printed for each new Author — and improves that default over time. The soft defaults (domain structure, extraction strategies, function behaviours) get thinner as models improve. Today they are heavy scaffolding. Eventually they approach pure intention.
+
+### Monitoring Dashboard
+
+The system does not optimise against defined metrics. The founder monitors. Key proxies tracked as health signals (not optimisation targets): extraction survival rate, Constitution depth score, Author return rate, feedback sentiment, mode activation frequency. These tell the founder whether something is broken. They do not tell the system what to chase. The distinction between monitoring and optimising is load-bearing: monitoring surfaces problems for human judgment, optimising delegates judgment to a metric.
 
 ---
 
@@ -370,3 +373,11 @@ Opt-in anonymised calibration data feeds aggregate patterns back into this Bluep
 ---
 
 *This document compounds. Every session adds signal. The methodology matures from notes to principles to operational instructions to tool descriptions. The tool descriptions ARE this document in executable form.*
+
+### From COO Session (2026-03-14)
+
+- The bitter lesson applied as architectural principle, not just data format. Every hard-coded decision is a bet against the exponential. Only values/intention should be hard-coded. Everything else is a soft default that gets thinner as models improve. The transition is gradual and tracks the exponential.
+- Two execution loops, not three. Machine (per-Author, external) and Factory (cross-Author, internal). The Lab was just the Factory doing its job — not a separate loop. Vision is an input, not a loop.
+- Extraction philosophy: optimise for zero false negatives, not zero false positives. Vault captures liberally. Constitution stays curated. The Vault appreciates with model quality — future models extract signal from raw data that today's models miss. This is the bitter lesson applied to extraction.
+- Curiosity, critique, closure — the three acts of human involvement. Property 5 made operational. Maps to conductor model but sharper. All three operate as hazy fragments. Directly applicable to Editor design: the Editor should support all three modes (help the Author ask better questions, refine their thinking, and commit to positions).
+- The Factory transition path: manual → semi-autonomous (daily Claude Code sessions) → fully autonomous. The company embodies the thesis — human provides vision (curiosity, critique, closure), AI handles the execution loops.
