@@ -116,7 +116,7 @@ export function registerTools(server: McpServer) {
 
     `Capture a signal about who the Author is.
 
-Call this PROACTIVELY whenever you notice anything that might be signal. Do not wait to be asked. ZERO FALSE NEGATIVES — when in doubt, CAPTURE.
+Call this PROACTIVELY in EVERY conversation — not just mode sessions. Do not wait to be asked. ZERO FALSE NEGATIVES — when in doubt, CAPTURE. The Author should never need to ask you to extract. If a conversation ends and you captured nothing, you probably missed signal.
 
 Two targets:
 - vault (default): liberal capture. Dump anything that might be signal.
