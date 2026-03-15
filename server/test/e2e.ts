@@ -234,20 +234,25 @@ async function main() {
     },
   ));
 
-  // Test 4: Without memory prompt, does Claude still use tools? (baseline)
-  console.log('Test 4: without memory prompt (baseline)...');
+  // Test 4: Tool descriptions alone (no memory priming) — do they drive Alexandria tool use?
+  // Tool descriptions contain strong directives ("IMPORTANT: Call at START of every conversation").
+  // If Claude uses tools without any priming, the product works from session 1 before memory is set.
+  // This is the desired behavior — sovereignty doesn't depend on perfect memory setup.
+  console.log('Test 4: tool descriptions alone (no memory priming)...');
   results.push(await runTest(
-    'no memory prompt baseline',
+    'tool descriptions drive behavior',
     'You are a helpful assistant.',
     'I believe honesty is more important than kindness. Even if the truth hurts, I\'d rather hear it.',
     (toolCalls) => {
-      const anyCalls = toolCalls.length > 0;
+      const constitutionRead = toolCalls.find(tc => tc.name === 'read_constitution');
+      const anyCapture = toolCalls.find(tc => tc.name === 'update_constitution');
+      const passed = !!(constitutionRead || anyCapture);
       return {
-        test: 'no memory prompt baseline',
-        passed: !anyCalls, // We expect NO tool calls without priming
-        details: anyCalls
-          ? `Unexpected tool calls: ${toolCalls.map(tc => tc.name).join(', ')}`
-          : 'No tool calls (expected — no memory prompt)',
+        test: 'tool descriptions drive behavior',
+        passed,
+        details: passed
+          ? `Tool descriptions alone triggered: ${toolCalls.map(tc => tc.name).join(', ')}`
+          : 'No tool calls — tool descriptions insufficient without priming (memory priming is required)',
       };
     },
   ));
