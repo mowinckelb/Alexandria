@@ -10,7 +10,7 @@ The CTO is an AI agent responsible for all technical execution. The CTO's primar
 
 *The COO populates this section when decisions in other domains affect the CTO. Read this first on cold start. Clear items when addressed.*
 
-*(empty — all prior items addressed in CTO sessions 14-15)*
+*(empty — all prior items addressed in CTO sessions 14-16)*
 
 **2026-03-15, COO session (current):**
 
@@ -61,6 +61,15 @@ Two separate problems confirmed. Fix both independently.
 ## Pending Sync to COO
 
 *The CTO populates this section when implementation decisions or changes affect other domains, or when the CTO needs specific data/input from the founder. COO reads this on cold start.*
+
+**2026-03-15, CTO session 16:**
+
+- **Connector URL must include `/mcp`.** Claude probes the exact URL entered. Without `/mcp` suffix, Claude probes root which has no MCP handler → McpEndpointNotFound. Correct URL: `https://alexandria-production-7db3.up.railway.app/mcp`
+- **Removed middleware auth from /mcp endpoint.** Auth was blocking MCP handshake (initialize → notifications → tools/list). Each tool handler already checks auth. MCP protocol now flows freely; tool calls fail naturally without token.
+- **MCP SDK updated 1.12.1 → 1.27.1.**
+- **Tool descriptions rewritten per Anthropic best practices.** 4-6 sentences, explicit triggers, negative capability framing. E2e 4/4 passing. Based on COO research: 20% baseline → 84% with proper descriptions.
+- **Product is live and connected.** Founder successfully added connector, re-authorized OAuth, and Claude responded with Alexandria context. First real end-to-end connection confirmed.
+- **COO action:** test the product in real conversations. Check Google Drive `Alexandria/vault/` for captures. Report R&D signal on what works/doesn't.
 
 **2026-03-15, CTO session 15:**
 
