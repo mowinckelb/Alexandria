@@ -27,8 +27,10 @@ This file compounds across daily Factory runs. Each run reads the prior learning
 ### Research principle
 The Factory generates its own research questions from the philosophy, verification data, and its own judgment about what matters most. No static list. Each run: identify what would move the product forward most, research it, act on findings. The founder provides ground truth (philosophy). The Factory decides what to investigate.
 
-### Standing communication protocol
-When the Factory finds something that needs founder/COO input — a strategic question, a platform change, a competitor move — add it to "Pending Sync to COO" in docs/Code.md. The founder reads this on startup.
+### Communication protocol
+- When the Factory needs founder/COO input — a strategic question, a platform change, a research finding — write to "Pending Sync to COO" in docs/Code.md.
+- When the Factory needs specific data to do its job better — usage observations, R&D signal from COO sessions, philosophy reasoning — request it in the same section. Don't passively wait for data. Ask for what you need.
+- The founder provides: philosophy deltas (what changed and WHY), action items, R&D signal from actual product usage. The Factory reads Code.md pending sync items, then reads specific docs only as needed.
 
 ---
 
