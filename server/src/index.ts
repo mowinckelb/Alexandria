@@ -79,36 +79,6 @@ app.get('/favicon.png', (_req, res) => {
 // MCP endpoint — Streamable HTTP transport
 // ---------------------------------------------------------------------------
 
-// HEAD handler — Claude probes this to discover MCP server exists
-app.head('/mcp', (_req, res) => {
-  res.setHeader('MCP-Protocol-Version', '2025-03-26');
-  res.status(200).end();
-});
-
-// Auth middleware: require Bearer token on /mcp, BUT allow unauthenticated
-// initialize requests — Claude must discover the server before OAuth.
-app.use('/mcp', async (req, res, next) => {
-  // Let initialize through without auth — required by MCP spec
-  if (req.method === 'POST' && req.body?.method === 'initialize') {
-    next();
-    return;
-  }
-
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!token) {
-    res.status(401).json({ error: 'Authentication required' });
-    return;
-  }
-  try {
-    const authInfo = await authProvider.verifyAccessToken(token);
-    (req as unknown as Record<string, unknown>).auth = authInfo;
-    next();
-  } catch {
-    res.status(401).json({ error: 'Invalid or expired token' });
-  }
-});
-
 // Fresh server per request — McpServer.connect() can only be called once per instance
 function createMcpServer() {
   const server = new McpServer({
@@ -123,7 +93,42 @@ function createMcpServer() {
   return server;
 }
 
+// MCP endpoint — handles all methods, selective auth
 app.all('/mcp', async (req, res) => {
+  // HEAD probe — Claude checks if MCP server exists
+  if (req.method === 'HEAD') {
+    res.setHeader('MCP-Protocol-Version', '2025-03-26');
+    res.status(200).end();
+    return;
+  }
+
+  // DELETE — session teardown (stateless, just acknowledge)
+  if (req.method === 'DELETE') {
+    res.status(200).json({ ok: true });
+    return;
+  }
+
+  // For POST: check if this is an initialize request (must work without auth)
+  const isInitialize = req.method === 'POST' && req.body?.method === 'initialize';
+
+  // Auth check — skip for initialize, require for everything else
+  if (!isInitialize) {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+    try {
+      const authInfo = await authProvider.verifyAccessToken(token);
+      (req as unknown as Record<string, unknown>).auth = authInfo;
+    } catch {
+      res.status(401).json({ error: 'Invalid or expired token' });
+      return;
+    }
+  }
+
+  // Handle MCP request
   const server = createMcpServer();
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // stateless
