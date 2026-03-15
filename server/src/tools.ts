@@ -346,8 +346,8 @@ Call when the Author says "alexandria", "hey alexandria", or any greeting direct
 Each call replaces the full content — include previous entries you want to keep.`,
 
     {
-      function_name: z.enum(['editor', 'mercury', 'publisher'])
-        .describe('Which function\'s notepad to update.'),
+      function_name: z.string()
+        .describe('Which notepad to update. Common: editor, mercury, publisher. Use any name that fits.'),
       content: z.string()
         .describe('The full notepad content (replaces existing).'),
     },
