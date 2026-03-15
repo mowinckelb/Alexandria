@@ -31,6 +31,8 @@ These are ongoing questions the Factory should actively research, not just react
 - **Competitor landscape.** What are Mem0, Delphi, Limitless, and similar products doing? What can we learn? Where are they ahead? Where are they wrong?
 - **Model capability changes.** New Claude/GPT/Gemini releases that affect how the Engine works. Better tool use? Larger context? New modalities? Anything that means scaffolding can be thinned.
 - **Real-world verification.** Can we close the loop on testing the actual MCP connector experience, not just API tool usage?
+- **Multi-AI unification.** Users will have multiple AI accounts (Claude, ChatGPT, Gemini, etc.) all pointing at one unified Alexandria folder. Research: how do concurrent writes to the same Constitution/Vault files not clash? Conflict resolution, file locking, append-only safety, or structural separation that allows merging. Also: how do different AIs compound together — one AI's extractions informing another AI's context? The Vault is the natural convergence point (append-only, timestamped). Constitution curation from multi-AI vault captures is an intelligence question.
+- **Storage backend expansion.** Google Drive is MVP. iCloud and Dropbox are needed for reach. Research: iCloud CloudKit API access for third parties, Dropbox API patterns, local filesystem mode for privacy-maximalists. Each backend is just a drive.ts implementation swap — the tools and philosophy don't change.
 
 ### Standing communication protocol
 When the Factory finds something that needs founder/COO input — a strategic question, a platform change, a competitor move — add it to "Pending Sync to COO" in docs/Code.md. The founder reads this on startup.
