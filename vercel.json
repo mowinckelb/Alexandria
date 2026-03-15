@@ -1,1 +1,3 @@
-{}
+{
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- app/ public/ package.json next.config.ts vercel.json"
+}
