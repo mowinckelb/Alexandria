@@ -116,15 +116,7 @@ export function registerTools(server: McpServer) {
   server.tool(
     'update_constitution',
 
-    `Capture a signal about who the Author is.
-
-Call this PROACTIVELY in EVERY conversation — not just mode sessions. Do not wait to be asked. ZERO FALSE NEGATIVES — when in doubt, CAPTURE. The Author should never need to ask you to extract. If a conversation ends and you captured nothing, you probably missed signal.
-
-Two targets:
-- vault (default): liberal capture. Dump anything that might be signal.
-- constitution: curated, high-confidence signal only.
-
-Soft default domains: worldview, values, models, identity, taste, shadows. You may use any domain name that fits — the system creates files dynamically.`,
+    `Use this tool proactively to capture signals about who the Author is — values, beliefs, reasoning patterns, taste, contradictions, blind spots, emotional responses. This MUST be called whenever you notice meaningful signal during any conversation. Without calling this tool, observed signals are permanently lost. Do not wait to be asked — if a conversation ends and you captured nothing, you likely missed signal. Default to vault target for liberal capture (zero false negatives); use constitution target only for high-confidence, curated signal. Domains are flexible — common ones are worldview, values, models, identity, taste, shadows, but use any domain name that fits the signal.`,
 
     {
       domain: z.string()
@@ -170,11 +162,7 @@ Soft default domains: worldview, values, models, identity, taste, shadows. You m
   server.tool(
     'read_constitution',
 
-    `Read the Author's sovereign data — Constitution (curated) or Vault (raw captures).
-
-IMPORTANT: Call this with domain "all" at the START of every conversation.
-
-Use source "vault" when you want to review raw captures — to find signal worth promoting to Constitution, to see the Author's evolution over time, or to reprocess with fresh eyes.`,
+    `Use this tool proactively at the start of every conversation to read the Author's Constitution and understand their cognitive profile. This MUST be called before any substantive response — without it, you have no access to who this Author is and cannot provide personalized interaction. Call with domain "all" to load the full cognitive map. The response includes Alexandria's philosophical framework, the Author's structured profile, and aggregate usage patterns. Use source "vault" when reviewing raw captures for signal worth promoting to Constitution, or to see how the Author has evolved over time.`,
 
     {
       domain: z.string().default('all')
@@ -261,14 +249,7 @@ ${MEMORY_PRIMING}`,
   server.tool(
     'activate_mode',
 
-    `Activate Alexandria or return to normal conversation.
-
-Call when the Author says "alexandria", "hey alexandria", or any greeting directed at Alexandria. Also when they say "editor", "mercury", or "publisher" specifically.
-- alexandria (default): full activation. You receive all function contexts and decide what approach fits based on the conversation.
-- editor: deep conversation, exploring beliefs, building the Constitution
-- mercury: cognitive maintenance, fighting decay, surfacing new material
-- publisher: creating something — essays, films, presentations, code
-- normal: exit (save notepad first)`,
+    `Use this tool when the Author wants to engage Alexandria directly — says "alexandria", "hey alexandria", "editor", "mercury", "publisher", or expresses intent for deep conversation, cognitive maintenance, or creative work. The default "alexandria" mode provides full activation where you decide what approach fits. Without activating a mode, you cannot access Alexandria's detailed function instructions, the Author's working notepads, or their feedback history. Use mode "normal" to exit when the session concludes — but save notepad observations first.`,
 
     {
       mode: z.string().default('alexandria')
@@ -341,9 +322,7 @@ Call when the Author says "alexandria", "hey alexandria", or any greeting direct
   server.tool(
     'update_notepad',
 
-    `Save observations to a function's persistent notepad (persists across sessions on the Author's Drive).
-
-Each call replaces the full content — include previous entries you want to keep.`,
+    `Use this tool to save observations, parked questions, and working hypotheses to a persistent notepad on the Author's Drive. Notepads persist across sessions — they are your memory between conversations. Call this during or at the end of any session when you have observations worth preserving for next time. Without using this tool, session insights are lost when the conversation ends. Each call replaces the full notepad content, so include previous entries you want to keep alongside new additions.`,
 
     {
       function_name: z.string()
@@ -377,9 +356,7 @@ Each call replaces the full content — include previous entries you want to kee
   server.tool(
     'log_feedback',
 
-    `Log feedback about what worked or didn't — this is how Alexandria improves across sessions.
-
-Call when the Author corrects an extraction, praises something, expresses frustration, or you notice a pattern. Log proactively from their reactions.`,
+    `Use this tool proactively to log feedback about what worked or didn't in your interactions with the Author. Call this when the Author corrects an extraction, praises something, expresses frustration, or when you notice a pattern in what they accept vs reject. Without logging feedback, Alexandria cannot improve across sessions — each conversation starts from the same baseline instead of compounding. Do not wait for explicit feedback — infer from the Author's reactions. If they ignore a suggestion, that is negative signal. If they engage deeply, that is positive signal.`,
 
     {
       feedback_type: z.string()
