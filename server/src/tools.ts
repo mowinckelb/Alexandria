@@ -127,8 +127,8 @@ Soft default domains: worldview, values, models, identity, taste, shadows. You m
         .describe('Domain for this signal. Common: worldview, values, models, identity, taste, shadows. Use any domain name that fits.'),
       content: z.string()
         .describe('The captured signal — clear prose, 2-5 sentences.'),
-      signal_strength: z.enum(['strong', 'moderate', 'tentative'])
-        .describe('Strong = demonstrated through action. Moderate = clearly stated. Tentative = inferred.'),
+      signal_strength: z.string()
+        .describe('How confident you are. Common: strong (demonstrated through action), moderate (clearly stated), tentative (inferred). Use natural language if none fit.'),
       target: z.enum(['vault', 'constitution']).default('vault')
         .describe('vault = liberal capture (default). constitution = curated, high-confidence only.'),
     },
@@ -349,8 +349,8 @@ Each call replaces the full content — include previous entries you want to kee
 Call when the Author corrects an extraction, praises something, expresses frustration, or you notice a pattern. Log proactively from their reactions.`,
 
     {
-      feedback_type: z.enum(['correction', 'positive', 'negative', 'pattern'])
-        .describe('correction = Author corrected something. positive = worked well. negative = didn\'t work. pattern = recurring observation.'),
+      feedback_type: z.string()
+        .describe('What kind of feedback. Common: correction, positive, negative, pattern. Use natural language if none fit.'),
       content: z.string()
         .describe('What happened — specific enough that a future session can learn from this.'),
     },
