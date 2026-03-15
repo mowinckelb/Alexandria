@@ -64,10 +64,10 @@ export default function LandingPage() {
   const handleCopy = useCallback(async () => {
     try {
       if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
-        const blobPromise = fetch('/docs/concrete.md').then(r => r.text()).then(t => new Blob([t], { type: 'text/plain' }));
+        const blobPromise = fetch('/docs/Concrete.md').then(r => r.text()).then(t => new Blob([t], { type: 'text/plain' }));
         await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blobPromise })]);
       } else {
-        const res = await fetch('/docs/concrete.md');
+        const res = await fetch('/docs/Concrete.md');
         const text = await res.text();
         const textarea = document.createElement('textarea');
         textarea.value = text;
@@ -80,7 +80,7 @@ export default function LandingPage() {
       }
       setPhase(1);
     } catch {
-      window.open('/docs/concrete.md', '_blank');
+      window.open('/docs/Concrete.md', '_blank');
     }
   }, []);
 
