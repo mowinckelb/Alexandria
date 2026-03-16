@@ -6,7 +6,7 @@
 
 *Written in second person. To be read by any AI agent as operating instructions for how to create like the founder.*
 
-*Reference artifacts: on_love.pdf (Meditations essay), alexandria.pdf (the Abstract). Read these to understand what finished work looks like — they demonstrate taste through action.*
+*Reference artifacts: on_love.pdf (Meditations essay), abstract.pdf (the Abstract). Read these to understand what finished work looks like — they demonstrate taste through action.*
 
 ---
 

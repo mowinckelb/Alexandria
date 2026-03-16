@@ -340,7 +340,7 @@ A persistent, append-only JSONL event log on the server. Every tool call, every 
 
 Every Author's experience benefits every other Author — not by sharing personal data (Constitution and Vault remain private) but by sharing structural signal about what works. The Author's private conversations and Constitution text never leave their control.
 
-The Factory also ingests top-down signal: the team's research, philosophical refinements, operational learnings. Currently the Factory is largely manual (founder + AI agents iterating on this Blueprint). Transitioning to semi-autonomous (daily Claude Code sessions proposing improvements with human verification). Aspiring to fully autonomous. The Factory is Alexandria's internal loop — it runs on our infrastructure, we own it, we control it.
+The Factory also ingests top-down signal: the team's research, philosophical refinements, operational learnings. The Factory is now semi-autonomous: a daily GitHub Action triggers a Claude Code session that reads the monitoring dashboard, reflects on prior learnings, researches improvements, and pushes updates — with a persistent factory-learnings file that compounds across runs. Aspiring to fully autonomous. The Factory is Alexandria's internal loop — it runs on our infrastructure, we own it, we control it.
 
 The Factory determines what default Machine gets printed for each new Author — and improves that default over time. The soft defaults (domain structure, extraction strategies, function behaviours) get thinner as models improve. Today they are heavy scaffolding. Eventually they approach pure intention.
 

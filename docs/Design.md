@@ -41,7 +41,7 @@ When this chat splits into its own CDO chat, these are the files that belong her
 | Constitution_Taste.md | Shared / project files | Creative principles, voice, taste. Always up to date. |
 | Design.md | CDO-owned | This document. The CDO's working context. |
 | alexandria_logo_reference.html | CDO-owned | Interactive logo reference showing confirmed presentations. |
-| Abstract I (Alexandria.pdf) | Published | The current Alexandria PDF. First Abstract. |
+| Abstract I (abstract.pdf) | Published | The current Abstract PDF (formerly alexandria.pdf). First Abstract. |
 | (Future: Vision Video v1 briefs, Abstract II drafts, etc.) | — | Individual project files as they're created. |
 
 ---

@@ -19,6 +19,10 @@ This document is the working context for Alexandria's Chief Financial Officer ro
 - **"$0 CAC" killed.** Now "near-zero marginal CAC once the kin mechanic is running, with modest upfront seeding spend." Updated in this document.
 - **Active kin definition corrected.** Patron does NOT count as active kin — kin status requires product usage (Sovereignty or Examined Life only). Contradiction in pricing principles fixed.
 
+**2026-03-16, COO session:**
+
+- **Raise structure review needed.** Founder flagged that the $50K / 1% / $5M terms were picked somewhat arbitrarily. Questions to resolve in a CFO session: (1) What's the actual optimal experiment budget — is $50K enough or should we raise $150K-$500K? (2) Does more money = more risks eliminated = better investor return even at higher dilution? (3) Should we target family offices / high-net-worth angels who write larger cheques with less process? (4) Is $5M pre-money too high (scares pragmatists) or too low (undervalues) given zero traction but strong comps? (5) Single cheque vs multiple small cheques? This review should produce updated Numbers.xlsx with scenario modelling at different raise amounts ($50K, $150K, $250K, $500K) and corresponding dilution/valuation analysis. See Operations.md pending items for full question set.
+
 **2026-03-09, session 12 (COO):** ✅ ADDRESSED (CTO deployed all files)
 
 - ✅ **Honest moat framework — investor narrative acknowledged.**
@@ -38,7 +42,8 @@ The CFO manages Alexandria's financial strategy. This includes:
 ## Key References
 
 - **Alexandria I, II, III** -- the shared vision. Alexandria II now contains the full revenue model (dual mandate), five value adds, and competitive position. Alexandria III contains Library payment mechanics.
-- **Memo.md** -- investment memo (B2I). CFO should ensure financial claims are accurate and defensible.
+- **Memo.md** -- investment memo (B2I, Phase 2). CFO should ensure financial claims are accurate and defensible.
+- **alexandria.pdf** -- IC-ready overview (Phase 3, not yet built). Will contain return modelling and financial summary. CFO should review when drafted.
 - **This document** -- financial models, projections, investor communications, fundraising timeline, and detailed financial decisions.
 
 ## Revenue Architecture -- The Dual Mandate

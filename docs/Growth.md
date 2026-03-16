@@ -4,7 +4,7 @@ This document is the working context for Alexandria's Chief Growth Officer role.
 
 **Required reading before any task:** Alexandria I, II, III (the shared vision -- split into 3 parts, read all. Alexandria III contains positioning, audience definition, brand voice. Alexandria I contains the philosophical core. Alexandria II contains the Five Value Adds, Human and Agent Tracks, and the Tribe acquisition loop) and Constitution_Taste.md (creative principles and voice).
 
-**Activation:** "hi cgo" (or any shorthand). **Closing:** "bye cgo" (or "gg", "done", "wrap up"). See Operations.md "Universal Agent Protocols" for the full cold-start and end-of-session protocol. Review Memo.md and Logic.pdf for current investor-facing framing.
+**Activation:** "hi cgo" (or any shorthand). **Closing:** "bye cgo" (or "gg", "done", "wrap up"). See Operations.md "Universal Agent Protocols" for the full cold-start and end-of-session protocol. Review Memo.md, Logic.pdf, and alexandria.pdf for current investor-facing framing.
 
 ---
 
@@ -71,7 +71,7 @@ Alexandria serves four live audiences. Each has a different pitch, a different d
 
 - **B2C — the consumer.** Sovereignty, $1, pragmatists. Volume play. Frame imposition at scale. The Concrete does this work. Pitch is facts: own your data, one minute, one dollar.
 - **B2P — the prosumer.** The Examined Life, philosophers. Depth play. The Abstract does this work. Pitch is meaning: the examined life, the droplet, the cathedral.
-- **B2I — investors.** investor.md (not yet built) — serious, dense, AI-readable, sent directly after contact. Pitch is category creation: cognitive identity infrastructure, TAM is everyone, capped downside / uncapped upside.
+- **B2I — investors.** Three-phase progressive disclosure: Phase 1 public (Surface + Concrete + abstract.pdf), Phase 2 pre-meeting (Deck + Numbers.xlsx + Logic.pdf + Memo.md), Phase 3 post-meeting (alexandria.pdf + product demo Loom). Pitch is category creation: cognitive identity infrastructure, TAM is everyone, capped downside / uncapped upside.
 - **B2B — Library for Labs.** Institutional access to the Persona pool. Pitch is data asset: the dataset labs cannot build themselves, delivered sovereignty-compatibly.
 - **Exit vector: strategic buyer acquisition.** A non-lab player (Apple in particular) decides it is cheaper to buy Alexandria than to build the philosophy, the library, the trust, and the tribe. The B2B relationship is the shop window — it demonstrates the asset value in action, making acquisition more attractive than competition.
 
@@ -80,8 +80,9 @@ Alexandria serves four live audiences. Each has a different pitch, a different d
 - **Alexandria I, II, III** -- the shared vision
 - **Constitution_Taste.md** -- creative principles and voice
 - **concrete.md** -- the Concrete. Conversion weapon for B2C and B2P. Truck-driver language. For every human on the planet. Surface copies this.
-- ~~confidential.concrete.md~~ -- **killed session 13.** Replaced by investor.md (not yet built). Tabloid gossip style inappropriate for serious investor conversations.
-- **alexandria.pdf** -- the Abstract. The poetic version of the thesis.
+- ~~confidential.concrete.md~~ -- **killed session 13.** Replaced by Memo.md for B2I. Tabloid gossip style inappropriate for serious investor conversations.
+- **abstract.pdf** -- the Abstract (formerly alexandria.pdf). The poetic version of the thesis.
+- **alexandria.pdf** -- the IC-ready overview. Phase 3 investor document. Shared post-meeting with serious interest only.
 - **This document** -- growth strategy, channels, campaigns
 
 ## Growth Channels (Prioritised)
@@ -90,8 +91,8 @@ Alexandria serves four live audiences. Each has a different pitch, a different d
 2. **Tribe acquisition loop** (Private tier organic) -- highest quality, zero cost. Every Author is a demo.
 3. **Handwritten letters** (founding members) -- launch channel
 4. **Claude power user communities** -- Reddit, Twitter, forums. These people already feel the pain of platform lock-in.
-5. **Agent discoverability** (concrete.md for LLM retrieval) -- The Concrete is already optimised as an agent-readable document. As AI sourcing becomes standard (consumers using AI to find tools), the Concrete enters funnels directly. The document IS the pitch the AI would write anyway. For investor AI agents, investor.md (when built) will serve the same function — a serious, AI-readable pitch document that enters VC sourcing pipelines without human intermediary.
-6. **AI VC sourcing pipeline** -- investor.md (not yet built) will be the self-contained investor pitch document that any AI sourcing tool can read, understand, and present to a human partner. As VC firms adopt AI for deal sourcing, this document enters the pipeline without any human intermediary. The thesis, business case, moats, financials, and founder contact will all be in one place. Forward-compatible with AI-native VC sourcing. This is not a future channel — VC AI sourcing is already happening.
+5. **Agent discoverability** (concrete.md for LLM retrieval) -- The Concrete is already optimised as an agent-readable document. As AI sourcing becomes standard (consumers using AI to find tools), the Concrete enters funnels directly. The document IS the pitch the AI would write anyway. For investor AI agents, Memo.md serves the same function — a serious, AI-readable pitch document that enters VC sourcing pipelines without human intermediary.
+6. **AI VC sourcing pipeline** -- Memo.md is the self-contained investor pitch document that any AI sourcing tool can read, understand, and present to a human partner. As VC firms adopt AI for deal sourcing, this document enters the pipeline without any human intermediary. The thesis, business case, moats, financials, and founder contact are all in one place. Forward-compatible with AI-native VC sourcing. This is not a future channel — VC AI sourcing is already happening.
 7. **Library network effects** (post critical mass) -- flywheel
 8. **Library for Labs** (institutional scale) -- opt-in Persona pool for alignment research, personalisation, product development, advertising. Alexandria sets pricing tiered by Constitution quality. Authors paid for participation. The value scales with years of compounding — not shortcuttable. This is also the exit thesis: the pool of high-fidelity, continuously tokenised Personas is the dataset every lab wants for alignment and human modelling, delivered sovereignty-compatibly through the output layer only. The individual product (sovereignty, taste development) builds the asset. The institutional product (Library for Labs) monetises it at scale. Both downstream of the same architecture.
 
@@ -211,7 +212,7 @@ Monthly billing receipt as nudge surface: every receipt shows what you paid, wha
 **Phase 6 — Investment (optional, timing flexible)**
 - Raise when there's proof, not need. Founder has indefinite runway.
 - Best timing: end of Turn 3 or shortly after. Working product, both tiers live, early engaged users, Library about to activate.
-- The investor.md (when built) is the pitch document. Story: "working product, growing users, investment accelerates the network effect."
+- Memo.md is the pitch document. Story: "working product, growing users, investment accelerates the network effect."
 - Speed vs independence. Independence is the default. Speed costs equity.
 
 **Side note — B2B:** Not now. Enterprise digital twins will be commoditised. Maybe later: "Alexandria for Teams" where employees all have Constitutions. Far future.
