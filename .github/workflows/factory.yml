@@ -36,10 +36,11 @@ jobs:
       - name: Run Factory Loop
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ALEXANDRIA_SERVER_URL: ${{ vars.ALEXANDRIA_SERVER_URL || 'https://alexandria-mcp.fly.dev' }}
         run: |
           # Fetch live data from the server
-          DASHBOARD=$(curl -s https://alexandria-production-7db3.up.railway.app/analytics/dashboard || echo '{"status":"unreachable"}')
-          EVENT_LOG=$(curl -s https://alexandria-production-7db3.up.railway.app/analytics/log | tail -200 || echo 'No events')
+          DASHBOARD=$(curl -s ${ALEXANDRIA_SERVER_URL}/analytics/dashboard || echo '{"status":"unreachable"}')
+          EVENT_LOG=$(curl -s ${ALEXANDRIA_SERVER_URL}/analytics/log | tail -200 || echo 'No events')
 
           # Run Claude Code as the CTO
           claude -p "You are the CTO of Alexandria running the daily autonomous Factory loop.

@@ -15,9 +15,9 @@ When you see "cto" (or any greeting directed at the CTO), execute this protocol:
 1. **Read bridge file**: `C:\Users\USER\Alexandria\docs\Code.md` — check "Pending Sync from COO" for unaddressed items
 2. **Read Blueprint**: `C:\Users\USER\Alexandria\docs\Blueprint.md` — scan for changes that affect server code
 3. **Check git status**: any uncommitted changes, recent commits, deployment state
-4. **Check server health**: `curl https://alexandria-production-7db3.up.railway.app/health`
-   - Connector URL for users: `https://alexandria-production-7db3.up.railway.app/mcp` (must include `/mcp`)
-5. **Read Factory data**: `curl https://alexandria-production-7db3.up.railway.app/analytics/dashboard` — evaluate whether Machine and Factory loops are working. Look for: high correction rates (extraction guidance wrong), low extraction counts (tools not triggering), feedback patterns (system observations). Let this data inform your top 3 priorities.
+4. **Check server health**: `curl https://alexandria-mcp.fly.dev/health`
+   - Connector URL for users: `https://alexandria-mcp.fly.dev/mcp` (must include `/mcp`)
+5. **Read Factory data**: `curl https://alexandria-mcp.fly.dev/analytics/dashboard` — evaluate whether Machine and Factory loops are working. Look for: high correction rates (extraction guidance wrong), low extraction counts (tools not triggering), feedback patterns (system observations). Let this data inform your top 3 priorities.
 6. **Present startup message**:
 
 ```
@@ -85,9 +85,9 @@ Alexandria gets better at working with ALL Authors over time. Also improves the 
 - **Data**: anonymous event log (append-only JSONL at `data/events.jsonl`). No user data, no content. Open-ended schema (`Record<string, string>`).
 - **Loop**: tool calls produce events → `read_constitution` and mode activations include last 200 events → Engine sees patterns, adjusts → adjusted behavior produces new events → loop. Fully automatic.
 - **System improvement**: Engine observes whether tools are working, logs system observations via `log_feedback` with "system:" prefix. CTO cold start reads dashboard. Structural improvements follow.
-- **Autonomous trigger**: `.github/workflows/factory.yml` — runs daily at 06:00 UTC. Fetches dashboard + event log, runs Claude Code with CTO Factory prompt, makes code changes, pushes to main. Railway auto-deploys. Fully autonomous. Can also be triggered manually via GitHub Actions.
+- **Autonomous trigger**: `.github/workflows/factory.yml` — runs daily at 06:00 UTC. Fetches dashboard + event log, runs Claude Code with CTO Factory prompt, makes code changes, pushes to main. Fly.io auto-deploys via GitHub Action. Fully autonomous. Can also be triggered manually via GitHub Actions.
 - **Monitoring dashboard**: `GET /analytics/dashboard` — 5 health proxies (extraction survival rate, depth score, sessions, feedback sentiment, mode activations). Health checks, not optimisation targets.
-- **Storage**: Railway volume at `/data` for persistence across deploys.
+- **Storage**: Fly.io volume at `/data` for persistence across deploys.
 
 ### Design Constraints
 - **Bitter lesson**: never add structured parameters, fixed schemas, or hand-crafted rules. Use unstructured text/JSONL. Let the model figure out what the data means.
@@ -106,14 +106,14 @@ The server is the bridge/chokepoint — not the intelligence. The intelligence i
 - **Modes**: soft default instructions in `modes.ts`. Engine can override based on Author's Constitution and its own judgment. Gets thinner as models improve.
 - **Key files**: `index.ts` (entry/bridge), `tools.ts` (axioms + soft defaults), `modes.ts` (mode soft defaults), `drive.ts` (Drive read/write), `analytics.ts` (Factory event log), `auth.ts` (OAuth), `crypto.ts` (encryption)
 - **Drive structure**: `constitution/` (curated domain MDs), `vault/` (liberal captures + versioned archives), `notes/` (per-function notepads), `system/` (feedback log)
-- **Deployment**: Railway, auto-deploys from GitHub `main`, root dir `server`
+- **Deployment**: Fly.io (`fly deploy`), Dockerfile in `server/`, config in `server/fly.toml`. Provider-portable — no hardcoded URLs in code (uses `SERVER_URL` env var).
 
 ## Key Principles
 - Build as little as possible. Ride existing infrastructure.
 - Server is the bridge. Intelligence belongs to the Engine.
 - Axioms are hard-coded. Everything else is a soft default that thins as models improve.
 - Machine and Factory must both be meta and bitter lesson aligned.
-- Stack: Vercel (website), Railway (MCP server), GitHub, Google Cloud (OAuth + Sheets), Claude.
+- Stack: Vercel (website), Fly.io (MCP server), GitHub, Google Cloud (OAuth + Sheets), Claude.
 
 ## File Locations
 - **Internal docs**: `docs/` (Alexandria I/II/III, Code.md, Blueprint.md, Finance, etc.)

@@ -64,7 +64,7 @@ Two separate problems confirmed. Fix both independently.
 
 **2026-03-15, CTO session 16:**
 
-- **Connector URL must include `/mcp`.** Claude probes the exact URL entered. Without `/mcp` suffix, Claude probes root which has no MCP handler → McpEndpointNotFound. Correct URL: `https://alexandria-production-7db3.up.railway.app/mcp`
+- **Connector URL must include `/mcp`.** Claude probes the exact URL entered. Without `/mcp` suffix, Claude probes root which has no MCP handler → McpEndpointNotFound. Correct URL: `https://alexandria-mcp.fly.dev/mcp`
 - **Removed middleware auth from /mcp endpoint.** Auth was blocking MCP handshake (initialize → notifications → tools/list). Each tool handler already checks auth. MCP protocol now flows freely; tool calls fail naturally without token.
 - **MCP SDK updated 1.12.1 → 1.27.1.**
 - **Tool descriptions rewritten per Anthropic best practices.** 4-6 sentences, explicit triggers, negative capability framing. E2e 4/4 passing. Based on COO research: 20% baseline → 84% with proper descriptions.

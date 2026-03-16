@@ -59,7 +59,7 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', server: 'alexandria-mcp', version: '0.1.0' });
 });
 
-// Serve favicon so Claude picks up the a. logo instead of Railway's default
+// Serve favicon so Claude picks up the a. logo
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -85,7 +85,7 @@ function createMcpServer() {
     name: 'Alexandria',
     version: '0.1.0',
     icons: [{
-      src: 'https://alexandria-production-7db3.up.railway.app/favicon.png',
+      src: `${SERVER_URL}/favicon.png`,
       mimeType: 'image/png',
     }],
   });

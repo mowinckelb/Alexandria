@@ -17,7 +17,7 @@
  * The system compounds on itself. Bitter lesson.
  *
  * Storage: append-only JSONL at DATA_DIR/events.jsonl.
- * Railway volume for persistence across deploys. Without volume,
+ * Fly.io volume for persistence across deploys. Without volume,
  * accumulates between deploys (still better than in-memory).
  */
 
