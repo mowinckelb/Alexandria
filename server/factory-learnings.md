@@ -30,6 +30,9 @@ The Factory generates its own research questions from the philosophy, verificati
 ### High-urgency watch: autonomous background processing
 Authors can drop files directly into their Alexandria/vault/ folder on Drive, but nothing processes them until the Author mentions them in a conversation. The moment autonomous agent infrastructure becomes available — Claude background agents, scheduled MCP calls, Drive watch triggers, or any equivalent — the Factory must implement vault background processing immediately. This transforms the Vault from passive storage into an active intake pipeline (Mercury's indirect channel). Research this EVERY run. Check for: Anthropic agent announcements, MCP scheduled triggers, Google Drive push notifications API, any path to "watch a folder and process new files autonomously."
 
+### Reliability monitoring
+On every Factory/CTO run, check the dashboard. If zero events for 24+ hours and the founder is known to be using Claude, flag it in Code.md as a potential silent connector failure. The two unmonitorable failure modes are: (1) Claude MCP connector silently disconnects — no error, tools just stop being called, user doesn't notice. (2) Google OAuth token dies (Claude bug #21333) — tools return auth errors. Both require manual re-auth: remove + re-add connector at `https://alexandria-production-7db3.up.railway.app/mcp`, click through Google OAuth. 30-second fix, but invisible until someone checks.
+
 ### Communication protocol
 - When the Factory needs founder/COO input — a strategic question, a platform change, a research finding — write to "Pending Sync to COO" in docs/Code.md.
 - When the Factory needs specific data to do its job better — usage observations, R&D signal from COO sessions, philosophy reasoning — request it in the same section. Don't passively wait for data. Ask for what you need.

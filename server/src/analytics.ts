@@ -208,13 +208,17 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
     e => e.e === 'feedback' && e.feedback_type === 'pattern'
   ).length;
 
-  // Time range
+  // Time range + staleness check
   const firstEvent = events[0]?.t || null;
   const lastEvent = events[events.length - 1]?.t || null;
+  const hoursSinceLastEvent = lastEvent
+    ? Math.round((Date.now() - new Date(lastEvent).getTime()) / (1000 * 60 * 60) * 10) / 10
+    : null;
+  const stale = hoursSinceLastEvent !== null && hoursSinceLastEvent > 24;
 
   return {
-    status: 'ok',
-    time_range: { first: firstEvent, last: lastEvent },
+    status: stale ? 'stale — no events for 24+ hours, possible silent connector failure' : 'ok',
+    time_range: { first: firstEvent, last: lastEvent, hours_since_last: hoursSinceLastEvent },
     total_events: events.length,
 
     extraction_survival_rate: extractionSurvivalRate,
