@@ -37,6 +37,39 @@ Authors can drop files directly into their Alexandria/vault/ folder on Drive, bu
 
 ---
 
+## 2026-03-16 — Factory Run 2 (autonomous daily loop)
+
+### State at run start
+- Dashboard: 6 events, 4 sessions, 2 extractions (both vault/models), 2 mode activations (alexandria), 0 feedback, 0 system observations. First real usage data.
+- e2e: 4/4 passing. One failure to install deps (missing node_modules in CI env) resolved with npm install first.
+
+### What the data shows
+- Read and extraction arms of the Machine loop are working: read_constitution being called, signal being captured to vault.
+- Only "models" domain in 2 extractions — plausible given session content, not a problem at this sample size.
+- **Zero feedback events** across 4 sessions. This is the sharpest signal. The feedback arm is structurally inactive.
+- Mode activations working (2x "alexandria"). No mode deactivation events (no log_feedback trigger from NORMAL_INSTRUCTIONS).
+
+### Root cause of zero feedback
+log_feedback only had reactive triggers ("when the Author corrects, praises, expresses frustration"). Unlike read_constitution ("MUST call at start") and update_constitution ("MUST call when signal noticed"), log_feedback had no proactive timing anchor. Sessions can conclude with zero explicit Author reactions — nothing fires.
+
+### What changed
+- **log_feedback description**: Added explicit end-of-session trigger: "At the end of any substantive session, call this once with a session observation — even if the Author gave no explicit feedback." Mirrors read_constitution's start-of-session framing.
+- **NORMAL_INSTRUCTIONS** (mode deactivation): Added log_feedback as the first action before notepad save or vault capture. The deactivation event is a reliable end-of-session anchor.
+- **MEMORY_PRIMING**: Updated snippet to include end-of-session log_feedback guidance so it propagates into Claude's saved memory.
+
+### What I researched
+- **Background agents / autonomous Vault processing:** Claude Cowork launched Jan 2026 (desktop automation), Opus 4.6 has multi-agent coordination (14h+ task horizon). Still no scheduled MCP triggers or Drive watch infrastructure. Autonomous background Vault processing remains aspirational. Continue watching.
+- **Claude model versions:** e2e test uses `claude-sonnet-4-20250514`. Sonnet 4.6 available as `claude-sonnet-4-6`. Left unchanged — tests passing, no benefit to model churn while tests are stable.
+
+### Open questions for next run
+- Did the feedback description change produce feedback events? Check dashboard for feedback events.
+- Are the strength strings in extractions too long/narrative? "strong — demonstrated through action (requested research project specifically because he was leaving for an hour)" — this is rich signal, actually fine. Not a problem.
+- SUGGESTIONS sections — still insufficient usage data to thin. Need feedback events first to understand which suggestions are being misinterpreted.
+- Should we add a Test 5 for end-of-session feedback logging? Deferred — risk of flakiness in short test conversations. Only add if feedback events remain zero after description change.
+- Background Vault processing: watch for any Anthropic agent scheduling or Drive webhook announcements.
+
+---
+
 ## 2026-03-15 — Factory Run 1 (autonomous daily loop)
 
 ### State at run start

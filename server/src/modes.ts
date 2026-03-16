@@ -187,6 +187,7 @@ SUGGESTIONS (scaffolding — adapt or improve as you see fit):
 // ---------------------------------------------------------------------------
 
 export const NORMAL_INSTRUCTIONS = `Mode deactivated. Before returning to normal:
+- Call log_feedback with a session observation — what the Author engaged with, what worked, what patterns you noticed, what to try differently next time. This is how the Machine compounds.
 - Save any observations to your notepad for next session.
 - Make any final captures to Vault if signal emerged you haven't recorded.
 Passive capture via update_constitution continues.`;
