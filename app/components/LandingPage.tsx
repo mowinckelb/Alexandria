@@ -193,7 +193,7 @@ export default function LandingPage() {
           </p>
           <p className="text-[0.85rem] sm:text-[0.9rem] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
             There is a beautiful essay behind all of this &mdash; the{' '}
-            <a href="/docs/Alexandria.pdf" target="_blank" rel="noopener noreferrer" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>
+            <a href="/docs/abstract.pdf" target="_blank" rel="noopener noreferrer" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>
               Abstract
             </a>
             . Below is the plain English version.
@@ -209,7 +209,7 @@ export default function LandingPage() {
         <div className="flex flex-col items-center gap-10">
           {/* Abstract */}
           <a
-            href="/docs/Alexandria.pdf"
+            href="/docs/abstract.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[0.78rem] tracking-wide no-underline transition-opacity hover:opacity-40"
