@@ -180,7 +180,7 @@ app.get('/analytics/dashboard', async (_req, res) => {
 // Start
 // ---------------------------------------------------------------------------
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Alexandria MCP server running on port ${PORT}`);
   console.log(`  OAuth:  ${SERVER_URL}/authorize`);
   console.log(`  MCP:    ${SERVER_URL}/mcp`);
