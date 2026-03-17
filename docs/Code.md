@@ -63,7 +63,7 @@ Two separate problems confirmed. Both now resolved by CTO session 16.
 - **Closing protocol expanded.** Now 7 steps (was 5). Steps 3-4 update compounding docs with session learnings.
 - **Production durability fixes (earlier this session).** Health endpoint now tests real analytics read/write, auth failures return proper HTTP errors instead of silent 200s, event log parsing is resilient to corruption, backup system creates data dir if missing.
 - **No deployment changes.** All changes are docs + protocol. Server code changes from earlier in session already deployed.
-- **Branch `claude/cto-planning-focv1` needs merge to main.** 14 commits. Create PR or merge from PC. All builds pass.
+- ✅ **Branch `claude/cto-planning-focv1` merged to main.** Done in CTO session 19.
 
 **2026-03-16, CTO session 17 (mobile) + CTO session 18:**
 
