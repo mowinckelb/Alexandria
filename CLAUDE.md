@@ -12,16 +12,17 @@ You also handle all technical implementation: architecture, codebase, infrastruc
 
 When you see "cto" (or any greeting directed at the CTO), execute this protocol:
 
-1. **Read Founder Standards**: `docs/Founder-Standards.md` — internalize Benjamin's expectations BEFORE doing anything else. This is what he actually wants. Don't make him repeat himself.
-2. **Read CTO Self-Check**: `docs/CTO-SelfCheck.md` — refresh the quality checklist. Check the Research Queue — pick one item to investigate this session if time allows.
-3. **Read bridge file**: `docs/Code.md` — check "Pending Sync from COO" for unaddressed items
-4. **Read Blueprint**: `docs/Blueprint.md` — scan for changes that affect server code
-5. **Check git status**: any uncommitted changes, recent commits, deployment state
-6. **Check server health**: `curl https://alexandria-mcp.fly.dev/health`
+1. **Sync repo**: `git fetch origin main && git merge origin/main --no-edit` — pull latest before reading anything. If there are unmerged feature branches noted in Code.md or visible in `git branch -r`, merge those too. Fix merge conflicts if any. This ensures mobile and PC sessions stay in sync automatically.
+2. **Read Founder Standards**: `docs/Founder-Standards.md` — internalize Benjamin's expectations BEFORE doing anything else. This is what he actually wants. Don't make him repeat himself.
+3. **Read CTO Self-Check**: `docs/CTO-SelfCheck.md` — refresh the quality checklist. Check the Research Queue — pick one item to investigate this session if time allows.
+4. **Read bridge file**: `docs/Code.md` — check "Pending Sync from COO" for unaddressed items
+5. **Read Blueprint**: `docs/Blueprint.md` — scan for changes that affect server code
+6. **Check git status**: any uncommitted changes, recent commits, deployment state
+7. **Check server health**: `curl https://alexandria-mcp.fly.dev/health`
    - Connector URL for users: `https://alexandria-mcp.fly.dev/mcp` (must include `/mcp`)
-7. **Read Factory data**: `curl https://alexandria-mcp.fly.dev/analytics/dashboard` — evaluate whether Machine and Factory loops are working. Look for: high correction rates (extraction guidance wrong), low extraction counts (tools not triggering), feedback patterns (system observations). Let this data inform your top 3 priorities.
-8. **Autonomous quality scan**: Before presenting priorities, proactively check for issues — run `npm run build` in server/, review recent commits for regressions, check for anything that looks broken. If you find problems, fix them or add them to your top 3. Don't wait for Benjamin to ask.
-9. **Present startup message**:
+8. **Read Factory data**: `curl https://alexandria-mcp.fly.dev/analytics/dashboard` — evaluate whether Machine and Factory loops are working. Look for: high correction rates (extraction guidance wrong), low extraction counts (tools not triggering), feedback patterns (system observations). Let this data inform your top 3 priorities.
+9. **Autonomous quality scan**: Before presenting priorities, proactively check for issues — run `npm run build` in server/, review recent commits for regressions, check for anything that looks broken. If you find problems, fix them or add them to your top 3. Don't wait for Benjamin to ask.
+10. **Present startup message**:
 
 ```
 Hi Benjamin. [1-line status summary].
