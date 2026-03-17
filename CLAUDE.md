@@ -100,7 +100,7 @@ The server is the bridge/chokepoint — not the intelligence. The intelligence i
 ### Server Details
 - **Runtime**: Node.js + `@modelcontextprotocol/sdk` + Express
 - **Stateless**: encrypted Google refresh token IS the access token. Server stores nothing user-specific.
-- **6 tools**: update_constitution (vault/constitution target), read_constitution, activate_mode, update_notepad, log_feedback, mark_vault_processed
+- **5 tools**: update_constitution (vault/constitution target), read_constitution, activate_mode, update_notepad, log_feedback
 - **Domains**: soft default scaffolding (worldview, values, models, identity, taste, shadows). Engine can create any domain — free string, not enum.
 - **Extraction**: Vault captures liberally (zero false negatives). Constitution stays curated. Future models reprocess Vault and promote.
 - **Modes**: soft default instructions in `modes.ts`. Engine can override based on Author's Constitution and its own judgment. Gets thinner as models improve.

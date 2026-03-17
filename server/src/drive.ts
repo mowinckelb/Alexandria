@@ -368,21 +368,6 @@ export async function listVaultFiles(
   }));
 }
 
-/**
- * Read a single vault file by ID (on-demand content fetch for processing).
- */
-export async function readVaultFileById(
-  encryptedToken: string,
-  fileId: string,
-): Promise<string> {
-  const drive = getDriveClient(encryptedToken);
-  const res = await drive.files.get(
-    { fileId, alt: 'media' },
-    { responseType: 'text' },
-  );
-  return res.data as string;
-}
-
 // Tool-created vault files match: {domain}_{ISO-timestamp}.md
 const TOOL_CREATED_PATTERN = /^.+_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}.*\.md$/;
 

@@ -116,17 +116,15 @@ function formatVaultIntakePrompt(
     .map(f => `- **${f.name}** (${f.mimeType}, ${Math.round(parseInt(f.size) / 1024)}KB)`)
     .join('\n');
 
-  return `The Author has ${files.length} unprocessed file${files.length > 1 ? 's' : ''} in their Vault — material they dropped directly into their Alexandria/vault/ folder on Google Drive for you to review.
+  return `The Author has ${files.length} unprocessed file${files.length > 1 ? 's' : ''} in their Vault — material they dropped directly into their Alexandria/vault/ folder on Google Drive. These are new since last session.
 
 ${fileList}
 
-**Action**: Read these files using read_constitution with source "vault", review them for cognitive signal, and use update_constitution to promote any meaningful signal to the Constitution. When done, call log_feedback with feedback_type "vault_processing" to record what you found. The files will be marked as processed automatically.
-
-Do this early in the conversation — the Author added these files expecting them to be incorporated into their cognitive profile.`;
+Review these for cognitive signal worth capturing. Use read_constitution with source "vault" to access the content.`;
 }
 
 // ---------------------------------------------------------------------------
-// Tool registration — 6 tools
+// Tool registration — 5 tools
 // ---------------------------------------------------------------------------
 
 export function registerTools(server: McpServer) {
@@ -223,10 +221,19 @@ export function registerTools(server: McpServer) {
           getUnprocessedVaultFiles(token as string).catch(() => []),
         ]);
 
+        // Auto-mark surfaced files as processed (fire-and-forget)
+        if (unprocessedVault.length > 0) {
+          markVaultFilesProcessed(token as string, unprocessedVault.map(f => f.name)).catch((err) => {
+            console.error('[vault] Failed to mark files as processed:', err);
+          });
+          logEvent('vault_intake', { count: String(unprocessedVault.length) });
+        }
+
+        const vaultIntakeText = unprocessedVault.length > 0
+          ? `\n\n--- VAULT INTAKE QUEUE ---\n\n${formatVaultIntakePrompt(unprocessedVault)}`
+          : '';
+
         if (Object.keys(all).length === 0) {
-          const vaultIntakeText = unprocessedVault.length > 0
-            ? `\n\n--- VAULT INTAKE QUEUE ---\n\n${formatVaultIntakePrompt(unprocessedVault)}`
-            : '';
           return {
             content: [{
               type: 'text' as const,
@@ -244,10 +251,6 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
 
         const aggregateText = aggregateSignal
           ? `\n\n--- AGGREGATE SIGNAL (anonymous patterns from all Alexandria usage) ---\n\n${aggregateSignal}`
-          : '';
-
-        const vaultIntakeText = unprocessedVault.length > 0
-          ? `\n\n--- VAULT INTAKE QUEUE ---\n\n${formatVaultIntakePrompt(unprocessedVault)}`
           : '';
 
         return { content: [{ type: 'text' as const, text: `${SHARED_CONTEXT}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${formatted}\n\n${MEMORY_PRIMING}${aggregateText}${vaultIntakeText}` }] };
@@ -415,35 +418,4 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
     },
   );
 
-  // =========================================================================
-  // TOOL 6: mark_vault_processed
-  // =========================================================================
-
-  server.tool(
-    'mark_vault_processed',
-
-    `Use this tool after you have reviewed user-dropped vault files flagged in the VAULT INTAKE QUEUE. Call this once you have read the files, extracted signal to the Constitution, and no longer need to process them again. This prevents the same files from being flagged in future conversations. Only call this after actually reviewing the files — do not mark files as processed without reading them.`,
-
-    {
-      file_names: z.array(z.string())
-        .describe('Array of vault file names to mark as processed (exact names from the intake queue).'),
-    },
-
-    async ({ file_names }, { authInfo }) => {
-      const token = authInfo?.token;
-      if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
-      logEvent('vault_processed', { count: String(file_names.length) });
-
-      markVaultFilesProcessed(token as string, file_names).catch((err) => {
-        console.error('[vault] Failed to mark files as processed:', err);
-      });
-
-      return {
-        content: [{
-          type: 'text' as const,
-          text: `Marked ${file_names.length} vault file${file_names.length > 1 ? 's' : ''} as processed: ${file_names.join(', ')}`,
-        }],
-      };
-    },
-  );
 }

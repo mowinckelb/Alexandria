@@ -3,7 +3,7 @@
  * No API key needed. No cost. This is the default test.
  *
  * Tests: health endpoint, MCP handshake (initialize + tools/list),
- * analytics endpoints, tool registration (all 6 tools present).
+ * analytics endpoints, tool registration (all 5 tools present).
  *
  * Usage: npx tsx test/server.ts
  *
@@ -87,8 +87,8 @@ async function main() {
     };
   });
 
-  // Test 4: MCP tools/list — all 6 tools registered
-  await test('MCP tools/list (6 tools)', async () => {
+  // Test 4: MCP tools/list — all 5 tools registered
+  await test('MCP tools/list (5 tools)', async () => {
     // Need to initialize first, then list tools in same session
     // Since server is stateless with no session, we send tools/list directly
     const res = await fetch(`${BASE}/mcp`, {
@@ -103,11 +103,11 @@ async function main() {
     });
     const body = await res.json();
     const toolNames = (body.result?.tools || []).map((t: { name: string }) => t.name).sort();
-    const expected = ['activate_mode', 'log_feedback', 'mark_vault_processed', 'read_constitution', 'update_constitution', 'update_notepad'];
+    const expected = ['activate_mode', 'log_feedback', 'read_constitution', 'update_constitution', 'update_notepad'];
     const allPresent = expected.every(n => toolNames.includes(n));
     return {
-      test: 'MCP tools/list (6 tools)',
-      passed: res.ok && allPresent && toolNames.length === 6,
+      test: 'MCP tools/list (5 tools)',
+      passed: res.ok && allPresent && toolNames.length === 5,
       details: `Found: [${toolNames.join(', ')}], expected: [${expected.join(', ')}]`,
     };
   });
