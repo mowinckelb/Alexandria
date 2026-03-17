@@ -30,6 +30,8 @@ import {
   writeNotepad,
   readSystemFile,
   appendSystemFile,
+  getUnprocessedVaultFiles,
+  markVaultFilesProcessed,
 } from './drive.js';
 import {
   SHARED_CONTEXT,
@@ -104,7 +106,27 @@ const MODE_INSTRUCTIONS: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
-// Tool registration — 5 tools
+// Vault intake prompt — tells the Engine about unprocessed user-dropped files
+// ---------------------------------------------------------------------------
+
+function formatVaultIntakePrompt(
+  files: Array<{ name: string; mimeType: string; size: string }>,
+): string {
+  const fileList = files
+    .map(f => `- **${f.name}** (${f.mimeType}, ${Math.round(parseInt(f.size) / 1024)}KB)`)
+    .join('\n');
+
+  return `The Author has ${files.length} unprocessed file${files.length > 1 ? 's' : ''} in their Vault — material they dropped directly into their Alexandria/vault/ folder on Google Drive for you to review.
+
+${fileList}
+
+**Action**: Read these files using read_constitution with source "vault", review them for cognitive signal, and use update_constitution to promote any meaningful signal to the Constitution. When done, call log_feedback with feedback_type "vault_processing" to record what you found. The files will be marked as processed automatically.
+
+Do this early in the conversation — the Author added these files expecting them to be incorporated into their cognitive profile.`;
+}
+
+// ---------------------------------------------------------------------------
+// Tool registration — 6 tools
 // ---------------------------------------------------------------------------
 
 export function registerTools(server: McpServer) {
@@ -195,19 +217,23 @@ export function registerTools(server: McpServer) {
 
       // Constitution reading (default)
       if (domain === 'all') {
-        const [all, aggregateSignal] = await Promise.all([
+        const [all, aggregateSignal, unprocessedVault] = await Promise.all([
           readAllConstitution(token as string),
           getRecentEvents(200),
+          getUnprocessedVaultFiles(token as string).catch(() => []),
         ]);
 
         if (Object.keys(all).length === 0) {
+          const vaultIntakeText = unprocessedVault.length > 0
+            ? `\n\n--- VAULT INTAKE QUEUE ---\n\n${formatVaultIntakePrompt(unprocessedVault)}`
+            : '';
           return {
             content: [{
               type: 'text' as const,
               text: `The Author's Constitution is empty — this is a new Author. Capture signals using update_constitution (default to vault target for liberal capture). Note: Drive folder must be named exactly "Alexandria".
 ${SHARED_CONTEXT}
 
-${MEMORY_PRIMING}`,
+${MEMORY_PRIMING}${vaultIntakeText}`,
             }],
           };
         }
@@ -220,7 +246,11 @@ ${MEMORY_PRIMING}`,
           ? `\n\n--- AGGREGATE SIGNAL (anonymous patterns from all Alexandria usage) ---\n\n${aggregateSignal}`
           : '';
 
-        return { content: [{ type: 'text' as const, text: `${SHARED_CONTEXT}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${formatted}\n\n${MEMORY_PRIMING}${aggregateText}` }] };
+        const vaultIntakeText = unprocessedVault.length > 0
+          ? `\n\n--- VAULT INTAKE QUEUE ---\n\n${formatVaultIntakePrompt(unprocessedVault)}`
+          : '';
+
+        return { content: [{ type: 'text' as const, text: `${SHARED_CONTEXT}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${formatted}\n\n${MEMORY_PRIMING}${aggregateText}${vaultIntakeText}` }] };
       }
 
       const content = await readConstitutionFile(token as string, domain);
@@ -380,6 +410,38 @@ ${MEMORY_PRIMING}`,
         content: [{
           type: 'text' as const,
           text: `Feedback logged (${feedback_type}).`,
+        }],
+      };
+    },
+  );
+
+  // =========================================================================
+  // TOOL 6: mark_vault_processed
+  // =========================================================================
+
+  server.tool(
+    'mark_vault_processed',
+
+    `Use this tool after you have reviewed user-dropped vault files flagged in the VAULT INTAKE QUEUE. Call this once you have read the files, extracted signal to the Constitution, and no longer need to process them again. This prevents the same files from being flagged in future conversations. Only call this after actually reviewing the files — do not mark files as processed without reading them.`,
+
+    {
+      file_names: z.array(z.string())
+        .describe('Array of vault file names to mark as processed (exact names from the intake queue).'),
+    },
+
+    async ({ file_names }, { authInfo }) => {
+      const token = authInfo?.token;
+      if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
+      logEvent('vault_processed', { count: String(file_names.length) });
+
+      markVaultFilesProcessed(token as string, file_names).catch((err) => {
+        console.error('[vault] Failed to mark files as processed:', err);
+      });
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `Marked ${file_names.length} vault file${file_names.length > 1 ? 's' : ''} as processed: ${file_names.join(', ')}`,
         }],
       };
     },

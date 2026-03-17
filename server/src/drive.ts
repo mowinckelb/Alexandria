@@ -342,6 +342,93 @@ export async function writeVaultCapture(
   });
 }
 
+/**
+ * List vault files with metadata (name, size, mimeType) without downloading content.
+ * Used to detect unprocessed user-dropped files vs tool-created captures.
+ */
+export async function listVaultFiles(
+  encryptedToken: string,
+): Promise<Array<{ id: string; name: string; mimeType: string; size: string }>> {
+  const drive = getDriveClient(encryptedToken);
+  const { vaultId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+
+  const listRes = await drive.files.list({
+    q: `'${vaultId}' in parents and trashed=false`,
+    fields: 'files(id,name,mimeType,size)',
+    spaces: 'drive',
+    orderBy: 'createdTime desc',
+    pageSize: 100,
+  });
+
+  return (listRes.data.files || []).map(f => ({
+    id: f.id!,
+    name: f.name!,
+    mimeType: f.mimeType || 'unknown',
+    size: f.size || '0',
+  }));
+}
+
+/**
+ * Read a single vault file by ID (on-demand content fetch for processing).
+ */
+export async function readVaultFileById(
+  encryptedToken: string,
+  fileId: string,
+): Promise<string> {
+  const drive = getDriveClient(encryptedToken);
+  const res = await drive.files.get(
+    { fileId, alt: 'media' },
+    { responseType: 'text' },
+  );
+  return res.data as string;
+}
+
+// Tool-created vault files match: {domain}_{ISO-timestamp}.md
+const TOOL_CREATED_PATTERN = /^.+_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}.*\.md$/;
+
+/**
+ * Read the processed vault tracker from system/vault-processed.md.
+ * Returns a Set of filenames that have already been reviewed.
+ */
+export async function getProcessedVaultFiles(
+  encryptedToken: string,
+): Promise<Set<string>> {
+  const content = await readSystemFile(encryptedToken, 'vault-processed');
+  if (!content) return new Set();
+  return new Set(content.split('\n').map(l => l.trim()).filter(Boolean));
+}
+
+/**
+ * Mark vault files as processed by appending to system/vault-processed.md.
+ */
+export async function markVaultFilesProcessed(
+  encryptedToken: string,
+  fileNames: string[],
+): Promise<void> {
+  if (fileNames.length === 0) return;
+  await appendSystemFile(encryptedToken, 'vault-processed', fileNames.join('\n'));
+}
+
+/**
+ * Detect unprocessed vault files — files the Author dropped directly,
+ * not created by update_constitution and not yet reviewed by the Engine.
+ *
+ * Tool-created files match pattern: {domain}_{ISO-timestamp}.md
+ * Everything else is user-dropped and needs processing.
+ */
+export async function getUnprocessedVaultFiles(
+  encryptedToken: string,
+): Promise<Array<{ id: string; name: string; mimeType: string; size: string }>> {
+  const [allFiles, processed] = await Promise.all([
+    listVaultFiles(encryptedToken),
+    getProcessedVaultFiles(encryptedToken),
+  ]);
+
+  return allFiles.filter(f =>
+    !TOOL_CREATED_PATTERN.test(f.name) && !processed.has(f.name)
+  );
+}
+
 export async function initializeFolderStructure(
   encryptedToken: string,
 ): Promise<void> {

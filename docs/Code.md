@@ -141,7 +141,7 @@ The missing piece is **autonomous background processing** — an agent that watc
 - **Verification** (data): event log, dashboard, feedback, e2e tests. Ground truth feedback for iteration. Not optimization targets.
 
 **Server = Bridge**
-- 5 tools. Free string parameters. Soft defaults in descriptions.
+- 6 tools. Free string parameters. Soft defaults in descriptions.
 - Full philosophical framework served in every read_constitution and mode activation.
 - Stateless. Encrypted token auth. Google Drive OAuth.
 - Fly.io deployment. Auto-deploy via GitHub Action on push to main.

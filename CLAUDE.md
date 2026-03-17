@@ -100,7 +100,7 @@ The server is the bridge/chokepoint — not the intelligence. The intelligence i
 ### Server Details
 - **Runtime**: Node.js + `@modelcontextprotocol/sdk` + Express
 - **Stateless**: encrypted Google refresh token IS the access token. Server stores nothing user-specific.
-- **5 tools**: update_constitution (vault/constitution target), read_constitution, activate_mode, update_notepad, log_feedback
+- **6 tools**: update_constitution (vault/constitution target), read_constitution, activate_mode, update_notepad, log_feedback, mark_vault_processed
 - **Domains**: soft default scaffolding (worldview, values, models, identity, taste, shadows). Engine can create any domain — free string, not enum.
 - **Extraction**: Vault captures liberally (zero false negatives). Constitution stays curated. Future models reprocess Vault and promote.
 - **Modes**: soft default instructions in `modes.ts`. Engine can override based on Author's Constitution and its own judgment. Gets thinner as models improve.
@@ -128,6 +128,7 @@ COO edits docs in `docs/` → CTO reads, diffs, copies public-facing docs to `pu
 ## Backlog
 - Constitution compaction (merge old entries, deduplicate, resolve contradictions)
 - Vault reprocessing (future models promote signal from Vault to Constitution)
+- Vault background processing upgrade: true background agent (blocked on MCP sampling / Claude background agents). Current lazy processing on conversation start is live.
 - iCloud/Dropbox storage backends
 - Local MCP server mode (privacy-maximalist)
 - Tool Group 3: Library (publish, browse, query personas)
