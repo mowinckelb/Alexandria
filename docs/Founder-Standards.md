@@ -46,6 +46,7 @@ Benjamin prefers concise, direct communication. Don't pad with caveats, don't ov
 
 - **2026-03-17**: Benjamin asked basic durability/quality questions and the CTO found actual issues to fix each time. Lesson: the CTO should be asking these questions internally every session during cold start, not waiting for the founder to probe.
 - **2026-03-17**: Benjamin explicitly said "you need to make a system so you actually do it without me" and "we need a compounding system." Result: this document + CTO-SelfCheck.md + cold start protocol update.
+- **2026-03-17 (close)**: "Double check" caught a numbering bug in the very commit that created the self-check system. Benjamin's "double check" pattern is validated — verification must happen before presenting work. Also: Benjamin said "lol" and "ok so we're good?" — when the system works correctly and catches its own issues, he's satisfied quickly. Short sessions = good sessions.
 
 ---
 

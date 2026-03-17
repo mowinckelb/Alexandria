@@ -75,3 +75,4 @@ Top dimensions to research and incorporate (update on cold start):
 *Add entries here when this checklist is updated, so compounding is visible.*
 
 - **2026-03-17**: Initial creation. Based on patterns from sessions where Benjamin had to flag basic issues that should have been caught autonomously.
+- **2026-03-17**: First use of "double check" caught step numbering bug and stale cross-reference in CLAUDE.md. Added to checklist awareness: when modifying numbered lists or cross-references, verify all numbering and references are consistent.
