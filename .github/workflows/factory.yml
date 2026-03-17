@@ -30,6 +30,16 @@ jobs:
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
 
+      - name: Backup event log
+        env:
+          ALEXANDRIA_SERVER_URL: ${{ vars.ALEXANDRIA_SERVER_URL || 'https://alexandria-mcp.fly.dev' }}
+        run: |
+          # Backup full event log to repo — the only durable copy outside Fly volume
+          mkdir -p data/backups
+          curl -s ${ALEXANDRIA_SERVER_URL}/analytics/log > data/backups/events-$(date -u +%Y-%m-%d).jsonl || true
+          # Keep last 30 backups to avoid bloat
+          ls -t data/backups/events-*.jsonl 2>/dev/null | tail -n +31 | xargs rm -f 2>/dev/null || true
+
       - name: Run Factory Loop
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

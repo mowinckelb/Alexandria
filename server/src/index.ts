@@ -55,8 +55,42 @@ import { getAnalytics, getEventLog, getDashboard } from './analytics.js';
 // Health check
 // ---------------------------------------------------------------------------
 
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', server: 'alexandria-mcp', version: '0.1.0' });
+app.get('/health', async (_req, res) => {
+  const checks: Record<string, string> = {};
+
+  // Check data volume is writable
+  const dataDir = process.env.DATA_DIR || './data';
+  try {
+    const { writeFile, unlink } = await import('fs/promises');
+    const probe = `${dataDir}/.health-probe`;
+    await writeFile(probe, 'ok');
+    await unlink(probe);
+    checks.volume = 'ok';
+  } catch {
+    checks.volume = 'error — data directory not writable';
+  }
+
+  // Check event log is readable
+  try {
+    const { stat } = await import('fs/promises');
+    const logFile = `${dataDir}/events.jsonl`;
+    const s = await stat(logFile);
+    checks.event_log = `ok — ${s.size} bytes`;
+  } catch {
+    checks.event_log = 'empty or missing — no events yet';
+  }
+
+  // Check encryption key is available
+  checks.encryption_key = process.env.ENCRYPTION_KEY ? 'ok' : 'missing';
+
+  const healthy = checks.volume === 'ok' && checks.encryption_key === 'ok';
+
+  res.status(healthy ? 200 : 503).json({
+    status: healthy ? 'ok' : 'degraded',
+    server: 'alexandria-mcp',
+    version: '0.1.0',
+    checks,
+  });
 });
 
 // Serve favicon so Claude picks up the a. logo

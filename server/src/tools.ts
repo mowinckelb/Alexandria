@@ -71,6 +71,7 @@ async function processWriteQueue() {
       console.error(`[retry-queue] Failed ${item.domain} attempt ${item.attempts}, will retry:`, err);
     } else {
       console.error(`[retry-queue] DROPPED write to ${item.domain} after ${MAX_RETRIES} attempts:`, err);
+      logEvent('write_dropped', { domain: item.domain, attempts: String(item.attempts), error: String(err) });
     }
   }
 }
@@ -164,6 +165,7 @@ export function registerTools(server: McpServer) {
       } else {
         writeVaultCapture(token as string, domain, entry).catch((err) => {
           console.error(`[vault] Failed to write capture to ${domain}:`, err);
+          logEvent('drive_write_error', { target: 'vault', domain, error: String(err) });
         });
         logEvent('extraction', { domain, strength: signal_strength, target: 'vault' });
       }
@@ -382,6 +384,7 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
 
       writeNotepad(token as string, function_name, content).catch((err) => {
         console.error(`[notepad] Failed to write ${function_name} notepad:`, err);
+        logEvent('drive_write_error', { target: 'notepad', domain: function_name, error: String(err) });
       });
 
       return {
@@ -418,6 +421,7 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
 
       appendSystemFile(token as string, 'feedback', entry).catch((err) => {
         console.error('[feedback] Failed to write feedback:', err);
+        logEvent('drive_write_error', { target: 'feedback', domain: feedback_type, error: String(err) });
       });
 
       return {
