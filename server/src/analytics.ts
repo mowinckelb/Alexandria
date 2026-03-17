@@ -209,6 +209,7 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
     (sum, e) => sum + (parseInt(e.count) || 0), 0
   );
   const vaultTrackerErrors = events.filter(e => e.e === 'vault_tracker_error').length;
+  const vaultListErrors = events.filter(e => e.e === 'vault_intake_error').length;
 
   // System observations (feedback with "system:" prefix)
   const systemObservations = events.filter(
@@ -254,6 +255,7 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
       sessions_with_intake: vaultIntakeEvents.length,
       total_files_surfaced: vaultIntakeTotal,
       tracker_errors: vaultTrackerErrors,
+      list_errors: vaultListErrors,
     },
 
     system_observations: systemObservations,
