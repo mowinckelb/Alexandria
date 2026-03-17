@@ -134,10 +134,21 @@ export async function getEventLog(): Promise<string> {
  */
 export async function getDashboard(): Promise<Record<string, unknown>> {
   let events: Record<string, string>[] = [];
+  let parseErrors = 0;
   try {
     await dataDirReady;
     const raw = await readFile(LOG_FILE, 'utf-8');
-    events = raw.trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
+    const lines = raw.trim().split('\n').filter(Boolean);
+    for (const line of lines) {
+      try {
+        events.push(JSON.parse(line));
+      } catch {
+        parseErrors++;
+      }
+    }
+    if (parseErrors > 0) {
+      console.error(`[analytics] Skipped ${parseErrors} corrupted event log lines`);
+    }
   } catch {
     return { status: 'no data', message: 'No events logged yet.' };
   }
@@ -211,6 +222,10 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
   const vaultTrackerErrors = events.filter(e => e.e === 'vault_tracker_error').length;
   const vaultListErrors = events.filter(e => e.e === 'vault_intake_error').length;
 
+  // 7. Drive write errors and dropped writes — data loss signals
+  const driveWriteErrors = events.filter(e => e.e === 'drive_write_error').length;
+  const droppedWrites = events.filter(e => e.e === 'write_dropped').length;
+
   // System observations (feedback with "system:" prefix)
   const systemObservations = events.filter(
     e => e.e === 'feedback' && e.feedback_type === 'pattern'
@@ -225,9 +240,12 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
   const stale = hoursSinceLastEvent !== null && hoursSinceLastEvent > 24;
 
   return {
-    status: stale ? 'stale — no events for 24+ hours, possible silent connector failure' : 'ok',
+    status: stale ? 'stale — no events for 24+ hours, possible silent connector failure'
+      : parseErrors > 0 ? `ok — ${parseErrors} corrupted log lines skipped`
+      : 'ok',
     time_range: { first: firstEvent, last: lastEvent, hours_since_last: hoursSinceLastEvent },
     total_events: events.length,
+    parse_errors: parseErrors,
 
     extraction_survival_rate: extractionSurvivalRate,
     extractions: {
@@ -254,8 +272,14 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
     vault_intake: {
       sessions_with_intake: vaultIntakeEvents.length,
       total_files_surfaced: vaultIntakeTotal,
-      tracker_errors: vaultTrackerErrors,
-      list_errors: vaultListErrors,
+    },
+
+    errors: {
+      drive_write_errors: driveWriteErrors,
+      dropped_writes: droppedWrites,
+      vault_tracker_errors: vaultTrackerErrors,
+      vault_list_errors: vaultListErrors,
+      log_parse_errors: parseErrors,
     },
 
     system_observations: systemObservations,
