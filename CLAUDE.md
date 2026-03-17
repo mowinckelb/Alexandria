@@ -36,7 +36,7 @@ Top 3 next steps:
 Reply 1, 2, or 3 to start — or tell me what you need.
 ```
 
-The top 3 should be primarily data-driven — informed by the dashboard and event log from step 5. What does the data say is broken or underperforming? What loop isn't compounding? What signal is missing? Pending COO items and backlog are secondary inputs. The data is the primary input. Be concrete — "adjust X because the data shows Y" not "consider Z."
+The top 3 should be primarily data-driven — informed by the dashboard and event log from step 7. What does the data say is broken or underperforming? What loop isn't compounding? What signal is missing? Pending COO items and backlog are secondary inputs. The data is the primary input. Be concrete — "adjust X because the data shows Y" not "consider Z."
 
 ## Closing Protocol
 
@@ -48,7 +48,7 @@ When you see "bye", execute this protocol:
 4. **Update CTO Self-Check**: `docs/CTO-SelfCheck.md` — if anything broke that the checklist should have caught, add it. Update the Research Queue based on what you learned.
 5. **Update bridge file**: Add CTO session entry to "Pending Sync to COO" section in `docs/Code.md` with everything that changed this session
 6. **Update CLAUDE.md**: If any architectural state changed (new tools, new files, new infrastructure), update the relevant sections
-5. **Present closing message**:
+7. **Present closing message**:
 
 ```
 Session delta:
