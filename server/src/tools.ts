@@ -222,6 +222,7 @@ export function registerTools(server: McpServer) {
           getRecentEvents(200),
           getUnprocessedVaultFiles(token as string).catch((err) => {
             console.error('[vault] Failed to check for unprocessed files:', err);
+            logEvent('vault_intake_error', { error: String(err) });
             return [];
           }),
         ]);
