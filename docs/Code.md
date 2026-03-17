@@ -51,6 +51,14 @@ Two separate problems confirmed. Both now resolved by CTO session 16.
 
 *The CTO populates this section when implementation decisions or changes affect other domains, or when the CTO needs specific data/input from the founder. COO reads this on cold start.*
 
+**2026-03-17, CTO session 19:**
+
+- **CTO compounding system built.** Two new docs: `docs/Founder-Standards.md` (captures Benjamin's expectations so he doesn't repeat himself) and `docs/CTO-SelfCheck.md` (coding quality checklist run before every commit). Both read on cold start, updated on close.
+- **Cold start protocol expanded.** Now 9 steps (was 6). Steps 1-2 read compounding docs first. Step 8 is autonomous quality scan (build + review for regressions) before presenting priorities.
+- **Closing protocol expanded.** Now 7 steps (was 5). Steps 3-4 update compounding docs with session learnings.
+- **Production durability fixes (earlier this session).** Health endpoint now tests real analytics read/write, auth failures return proper HTTP errors instead of silent 200s, event log parsing is resilient to corruption, backup system creates data dir if missing.
+- **No deployment changes.** All changes are docs + protocol. Server code changes from earlier in session already deployed.
+
 **2026-03-16, CTO session 17 (mobile) + CTO session 18:**
 
 - **Server is provider-portable.** No hardcoded URLs — everything uses `SERVER_URL` env var. Dockerfile and fly.toml ready.
