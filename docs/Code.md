@@ -10,11 +10,11 @@ The CTO is an AI agent responsible for all technical execution. The CTO's primar
 
 *The COO populates this section when decisions in other domains affect the CTO. Read this first on cold start. Clear items when addressed.*
 
-**2026-03-17, COO session — CRITICAL: Tool activation rewrite (highest priority)**
+**2026-03-17, COO session — CRITICAL: Tool activation rewrite (highest priority):** ✅ ADDRESSED (CTO session 20)
 
 The founder tested the product in real conversations. Result: `read_constitution` **never fires proactively.** It only fires when the user explicitly mentions Alexandria or asks identity-related questions. A query like "what book should I read" — which would massively benefit from the constitution — gets answered from training data alone. When manually prompted to use the tool, Claude acknowledges the output was far better and says it doesn't know why it didn't call it.
 
-This is the #1 product problem. The value is confirmed — when the tool fires, output is materially better. The failure is activation.
+This was the #1 product problem. The value is confirmed — when the tool fires, output is materially better. The failure was activation.
 
 **Root cause (from deep research — full report available):**
 - `tool_choice` is permanently `auto` in Claude.ai. MCP servers cannot override this.
@@ -103,6 +103,16 @@ Two separate problems confirmed. Both now resolved by CTO session 16.
 ## Pending Sync to COO
 
 *The CTO populates this section when implementation decisions or changes affect other domains, or when the CTO needs specific data/input from the founder. COO reads this on cold start.*
+
+**2026-03-17, CTO session 20:**
+
+- **Tool activation rewrite — all 3 moves implemented.** Move 1: consequence-based tool descriptions ("you are responding to a stranger"), everyday examples ("greetings, book recommendations, career advice"), no ALL CAPS. Move 2: memory priming rewritten with consequence-based language — founder re-pasted. Move 3: context header in read_constitution responses listing domains where profile changes the response.
+- **Product confirmed working on casual messages.** Founder tested "what book should I read" in new conversation outside project folder — Claude loaded Constitution automatically, returned genuinely personalized recommendations referencing cognitive profile.
+- **Project knowledge file created** (`docs/alexandria.md`). Upload to Claude project knowledge section. This is the primary activation mechanism — stronger than project instructions field or account memory. Fixed "what are my blind spots" failure.
+- **Onboarding flow finalized:** connector → account memory → create project → upload alexandria.md. Documented in `docs/claude-project-instructions.md`.
+- **Three activation layers:** (1) tool descriptions (every conversation), (2) account memory (once unlocked), (3) project knowledge file (strongest, in-project). Belt and suspenders.
+- **Ready for beta users.** Same connector URL for everyone. Each user gets their own Constitution on their own Drive.
+- **COO action:** find 3-5 beta users. Onboarding doc ready at `docs/claude-project-instructions.md`.
 
 **2026-03-17, CTO session 19:**
 
