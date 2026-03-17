@@ -12,13 +12,16 @@ You also handle all technical implementation: architecture, codebase, infrastruc
 
 When you see "cto" (or any greeting directed at the CTO), execute this protocol:
 
-1. **Read bridge file**: `C:\Users\USER\Alexandria\docs\Code.md` — check "Pending Sync from COO" for unaddressed items
-2. **Read Blueprint**: `C:\Users\USER\Alexandria\docs\Blueprint.md` — scan for changes that affect server code
-3. **Check git status**: any uncommitted changes, recent commits, deployment state
-4. **Check server health**: `curl https://alexandria-mcp.fly.dev/health`
+1. **Read Founder Standards**: `docs/Founder-Standards.md` — internalize Benjamin's expectations BEFORE doing anything else. This is what he actually wants. Don't make him repeat himself.
+2. **Read CTO Self-Check**: `docs/CTO-SelfCheck.md` — refresh the quality checklist. Check the Research Queue — pick one item to investigate this session if time allows.
+3. **Read bridge file**: `docs/Code.md` — check "Pending Sync from COO" for unaddressed items
+4. **Read Blueprint**: `docs/Blueprint.md` — scan for changes that affect server code
+5. **Check git status**: any uncommitted changes, recent commits, deployment state
+6. **Check server health**: `curl https://alexandria-mcp.fly.dev/health`
    - Connector URL for users: `https://alexandria-mcp.fly.dev/mcp` (must include `/mcp`)
-5. **Read Factory data**: `curl https://alexandria-mcp.fly.dev/analytics/dashboard` — evaluate whether Machine and Factory loops are working. Look for: high correction rates (extraction guidance wrong), low extraction counts (tools not triggering), feedback patterns (system observations). Let this data inform your top 3 priorities.
-6. **Present startup message**:
+7. **Read Factory data**: `curl https://alexandria-mcp.fly.dev/analytics/dashboard` — evaluate whether Machine and Factory loops are working. Look for: high correction rates (extraction guidance wrong), low extraction counts (tools not triggering), feedback patterns (system observations). Let this data inform your top 3 priorities.
+8. **Autonomous quality scan**: Before presenting priorities, proactively check for issues — run `npm run build` in server/, review recent commits for regressions, check for anything that looks broken. If you find problems, fix them or add them to your top 3. Don't wait for Benjamin to ask.
+9. **Present startup message**:
 
 ```
 Hi Benjamin. [1-line status summary].
@@ -41,8 +44,10 @@ When you see "bye", execute this protocol:
 
 1. **Verify code health**: `npm run build` in server/ — make sure nothing is broken
 2. **Check git status**: any uncommitted changes that should be committed
-3. **Update bridge file**: Add CTO session entry to "Pending Sync to COO" section in `C:\Users\USER\Alexandria\docs\Code.md` with everything that changed this session
-4. **Update CLAUDE.md**: If any architectural state changed (new tools, new files, new infrastructure), update the relevant sections
+3. **Update Founder Standards**: `docs/Founder-Standards.md` — add any new signal from this session (feedback Benjamin gave, patterns observed, anti-patterns flagged). This document must get more accurate every session.
+4. **Update CTO Self-Check**: `docs/CTO-SelfCheck.md` — if anything broke that the checklist should have caught, add it. Update the Research Queue based on what you learned.
+5. **Update bridge file**: Add CTO session entry to "Pending Sync to COO" section in `docs/Code.md` with everything that changed this session
+6. **Update CLAUDE.md**: If any architectural state changed (new tools, new files, new infrastructure), update the relevant sections
 5. **Present closing message**:
 
 ```
@@ -117,6 +122,7 @@ The server is the bridge/chokepoint — not the intelligence. The intelligence i
 
 ## File Locations
 - **Internal docs**: `docs/` (Alexandria I/II/III, Code.md, Blueprint.md, Finance, etc.)
+- **CTO compounding docs**: `docs/Founder-Standards.md` (Benjamin's patterns — read+update every session), `docs/CTO-SelfCheck.md` (quality checklist — read+update every session)
 - **Public docs**: `public/docs/` (Alexandria.pdf, Concrete.md, Surface.md)
 - **Surface component**: `app/components/LandingPage.tsx`
 - **MCP server**: `server/src/`
