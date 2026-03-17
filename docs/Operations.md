@@ -283,20 +283,28 @@ When a decision in one domain affects another, the COO flags it and updates the 
 - Alexandria Library, Inc. incorporated (Delaware C-Corp via Stripe Atlas, submitted session 24). Ongoing obligations: Delaware franchise tax (due June 1, ~$400/yr), California foreign qualification (needed before meaningful CA operations, ~$150 filing fee), California franchise tax (~$800/yr after qualification), startup CPA engagement before first filing deadline early 2027.
 
 **Payment infrastructure:**
-- Pre-launch. Needed: Stripe integration, pay-what-you-want slider, tier assignment logic, kin mechanic billing. Blocked on incorporation completing + Stripe account activation.
+- Pre-launch. Needed: ACH integration for Sovereignty tier (GoCardless or Stripe ACH, 0.8% flat), Stripe for Examined Life (2.9% + $0.30), pay-what-you-want slider, tier assignment logic, kin mechanic billing, billing frequency options (monthly full price, quarterly 10% off, annual 20% off). Blocked on incorporation completing + Stripe account activation.
 
 **Turn 2 technical work:**
-- Turn 2.5 complete and live (CTO sessions 15-16). Product connected end-to-end: 5 tools, OAuth working, connector in claude.ai confirmed. Architecture: Philosophy → Intelligence → Verification. Server = bridge. Autonomous Factory loop running daily. Tool descriptions rewritten per Anthropic best practices (4-6 sentences, explicit triggers, negative capability framing). MCP SDK updated to 1.27.1. **Next: real-world usage testing and R&D signal collection.**
+- Turn 2.5 complete and live (CTO sessions 15-18). Product connected end-to-end: 5 tools, OAuth working, connector in claude.ai confirmed. Architecture: Philosophy → Intelligence → Verification. Server = bridge. Factory loop manual trigger only (daily cron killed). MCP SDK updated to 1.27.1. Railway primary ($1/mo), Fly.io cold standby (free). UptimeRobot monitoring (health ping + dashboard keyword check). **Next: real-world usage testing and R&D signal collection.**
 
 **Mobile workflow (platform dependency — not a build task):**
 - Currently no way to push updated project files to Google Drive from Claude. Waiting for either Claude mobile to support saving files directly to project folders, or Google Drive MCP connector to become available. Not building a custom solution — the platform will catch up.
 
 **Investor package — Phase 3 documents:**
-- ✅ **alexandria.pdf** — DONE. IC-ready overview. 9 pages, Lora on cream, risk-reduction Use of Funds, operating model, Next 12 Months, FAQ. Build script not in project — COO rebuilds in-session when content changes.
+- ⚠️ **alexandria.pdf** — STALE. Contains old numbers ($500 burn, $210 opex, 100 subscribers, old Stripe fees). Needs rebuild with: $101/mo company opex, ~21 subscriber break-even, ACH/billing discount payment strategy. Build script not in project — COO rebuilds in-session when content changes.
+- **Deck.js** — UNCHECKED. May contain stale financial references. Check and update next session.
 - ✅ **Memo.md return table** — DONE. Downside row added. Four scenarios match alexandria.pdf.
 - ✅ **Memo.md body alignment** — DONE. Why Now has three catalysts, Use of Funds has risk-reduction framing, Founder has operating model, opening claim fixed.
 - **Product demo** — Loom recording of Alexandria in action. Not yet recorded. 3-5 minutes. The #1 pre-revenue traction proxy. Show: adding the connector, a conversation where extraction fires, the Constitution building on Google Drive, cross-conversation continuity.
 - **Customer discovery** — No documented user research. Talk to 20-30 potential users, structure findings. Strongest pre-revenue traction proxy after a working demo.
+
+**Financial model propagation (from this session — not yet complete):**
+- Numbers.xlsx updated with: separated company opex ($101/mo) vs founder costs ($300/mo + rent), free stack, MacBook removed from capex, payment processing optimization (ACH for Sovereignty, Stripe for EL, 10% quarterly / 20% annual billing discounts), IB-grade formatting.
+- Finance.md, Memo.md, Alexandria_I.md, Alexandria_II.md, Surface.md updated with $101/mo opex and ~21 subscriber break-even.
+- **NOT YET PROPAGATED:** Payment processing optimization (ACH, billing frequency discounts, new ARPUs) needs to land in Finance.md (pricing principles section), Memo.md (cost base paragraph), Alexandria_II.md (capped downside), Growth.md (billing strategy). These docs still reference old Stripe-only model.
+- **Growth.md** needs billing frequency incentive strategy documented (monthly/quarterly/annual, discount structure, ACH default for Sovereignty).
+- **Code.md** needs CTO sync: ACH integration requirement for Sovereignty tier at launch (GoCardless or Stripe ACH).
 
 **Autonomous philosophy loop (flagged this session — needs CTO + COO sessions to scope):**
 - Can the COO run an autonomous daily protocol like the CTO's factory loop? The goal: the philosophy loop compounds on its own. Research projects run overnight, document audits happen automatically, signal propagates without Benjamin in the chair.

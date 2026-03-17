@@ -23,8 +23,8 @@ Each stage has one job: get them to the next stage.
 - **Return** brings them back to the Surface where waitlist, contact, and abstract are revealed.
 - **Pragmatists** sign up at Phase 3 and leave. Done. They do not need the scroll.
 - **Philosophers and investors** scroll into the philosophy section — a one-page summary in plain English. The bridge between the Concrete's facts and the Abstract's art. No jargon. Teaches the actual five-dimension frame. At the bottom, paths split: philosophers sign up and read the Abstract; investors submit email, email directly, or call.
-- **Abstract** (Alexandria.pdf) is the emotional lock-in. The poetic version. For the deeply convinced.
-- **Investor flow** after scroll: investor reaches out via form/email/phone → Benjamin engages 1:1 digitally (and ideally physically) → pre-meeting sends investor.md → meeting covers final 10% questions + founder profiling → go from there.
+- **Abstract** (abstract.pdf) is the emotional lock-in. The poetic version. For the deeply convinced.
+- **Investor flow** after scroll: investor reaches out via form/email/phone → Benjamin engages 1:1 digitally (and ideally physically) → pre-meeting sends Phase 2 package (Deck, Numbers.xlsx, Logic.pdf, Memo.md) → meeting covers final questions + founder profiling → if serious interest, shares alexandria.pdf + product demo → go from there.
 
 The Surface is not the product. It is not the pitch. It is the door — and the hallway that leads to the cathedral.
 
@@ -80,7 +80,7 @@ Prose-style CTA. "call me" is a `tel:` link, "email" is a `mailto:` link — bot
       is the plain English version.
 ```
 
-"Abstract" links to Alexandria.pdf. Brief bridge between the investor section and the scroll philosophy.
+"Abstract" links to abstract.pdf. Brief bridge between the investor section and the scroll philosophy.
 
 ### Philosophy Scroll (~700 words)
 
@@ -96,7 +96,7 @@ Sections: 1 of 5 — Five things (capabilities vs property) → 2 of 5 — The s
 ### Bottom CTAs — After Philosophy
 
 ```
-          read the abstract             ← links to Alexandria.pdf
+          read the abstract             ← links to abstract.pdf
 
       join waitlist — [email input]     ← same inline waitlist, source="bottom"
 
@@ -126,7 +126,7 @@ Minimal footer with "built by benjamin" credit.
 
 - Next.js 16 app at mowinckel.ai
 - concrete.md served from /docs/concrete.md — clipboard fetch on click (ClipboardItem API with textarea fallback)
-- Alexandria.pdf served from /docs/Alexandria.pdf
+- abstract.pdf served from /docs/abstract.pdf
 - Email submits to /api/waitlist (Google Sheets backend), stores email + source tag
 - Sources: "hero", "investor", "bottom" — all same endpoint, differentiated by source param
 - Theme follows `prefers-color-scheme` media query, no localStorage persistence
@@ -202,7 +202,7 @@ Even if you are only half-convinced by what you just read — even if you think 
 
 If you have read this far, the $5 AI insurance is a no-brainer. One connection. Five minutes. Everything your AI learns about you, saved to your own files, yours to keep no matter what happens. The $15 is for the people who understand what is coming and do not want to be caught without it — the mental gym, the full experience. It compounds. It only gets better. And it gets more relevant every single day, not less.
 
-One employee. No database. No way to hold your data. Breaks even at 80 subscribers paying $5 a month. Total monthly burn: $400. The market is every person who uses AI — which is everyone.
+One employee. No database. No way to hold your data. Company opex: $101 a month — two paid services and an entire free stack. Breaks even at 21 subscribers paying $5 a month. The market is every person who uses AI — which is everyone.
 
 This is the most terrifying and the most exhilarating moment in human history. The future that is coming can be extraordinarily good — for you, for your family, for everyone. But it will not happen automatically. The people who thrive will be the ones who took ownership of their own minds — who positioned themselves, who kept their edge sharp, who made sure the abundance worked for them instead of washing over them. That is what Alexandria is for. Take ownership of your life and the future can be better than anything you have ever imagined. Do not take ownership, and someone else — or something else — will. Start now.
 
@@ -211,7 +211,7 @@ This is the most terrifying and the most exhilarating moment in human history. T
 Three paths, equal weight, clean layout. Centered, same typography as Phase 3.
 
 ```
-      read the abstract             ← links to Alexandria.pdf
+      read the abstract             ← links to abstract.pdf
       sign up — [email]             ← same waitlist as Phase 3
       reach out                     ← expands to: submit email form + benjamin@mowinckel.com + +47 466 43 844
 ```

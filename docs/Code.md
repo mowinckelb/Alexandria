@@ -10,6 +10,11 @@ The CTO is an AI agent responsible for all technical execution. The CTO's primar
 
 *The COO populates this section when decisions in other domains affect the CTO. Read this first on cold start. Clear items when addressed.*
 
+**2026-03-16, COO session:**
+
+- **Payment processing architecture decision.** Sovereignty tier will use ACH/Direct Debit from launch (0.8% flat, no per-txn fee — GoCardless or Stripe ACH). Examined Life stays on Stripe cards (2.9% + $0.30). This cuts processing fees from ~6.7% to ~1.4% of revenue. CTO needs to scope: (1) ACH integration (GoCardless vs Stripe ACH — which is simpler?), (2) billing frequency support (monthly/quarterly/annual with 10%/20% discounts), (3) payment method selection in checkout flow (default ACH for Sovereignty, cards for EL).
+- **Updated opex:** Company costs now $101/mo (Claude Max $100 + Railway $1). Vercel free, Fly.io free, Google AI Pro killed. Everything else free stack. This is documented in Numbers.xlsx and all MDs.
+
 *(COO session items from 2026-03-15 all addressed in CTO session 17)*
 
 **2026-03-15, COO session (post CTO-16 sync): ✅ ADDRESSED

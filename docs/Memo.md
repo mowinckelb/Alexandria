@@ -56,7 +56,7 @@ All three layers are the same product, same architecture, same user at different
 
 ## The Numbers
 
-**Cost base: near-zero.** No payroll. No compute (user's own AI subscription covers inference). No storage (user's own cloud). No database. Solo founder. All employees are AI agents. Monthly operating costs ~$210 (Claude $100, Claude API $50, Vercel $20, Railway $20, Google AI Pro $20). Founder living costs ~$290/month (food, phone, rent-free in SF). Total burn: $500/month. See Numbers.xlsx for the full model.
+**Cost base: near-zero.** No payroll. No compute (user's own AI subscription covers inference). No storage (user's own cloud). No database. Solo founder. All employees are AI agents. Company opex: $101/month — Claude Max $100, Railway $1. Everything else is free tier or owned: GitHub, Google Drive, Vercel, Fly.io, UptimeRobot, Google Cloud Console, Claude Code, domain. Two paid services and an entire free stack. Founder living costs (~$300/month + rent) are separate. Break even on company opex alone: ~21 Sovereignty subscribers at $5/month. See Numbers.xlsx for the full model.
 
 **Break-even: ~100 Sovereignty subscribers.** Reachable within months of launch. Examined Life at $15-20 contributes significant margin on top. Full financial model in Numbers.xlsx.
 
@@ -85,7 +85,7 @@ All three layers are the same product, same architecture, same user at different
 
 Even at half the base case, the company is profitable and the return is 4.6x. The downside is not zero — it is a smaller win. The returns look high because the cost base is near-zero and the check is small. Assumptions are conservative on some axes (8% initial conversion, 4% monthly churn) and optimistic on others (150% Y1 growth, 20x exit multiple). Full sensitivity analysis in Numbers.xlsx.
 
-The company does not need the money — it runs on $500/month. The $50K is a risk-reduction purchase. The company has four unresolved risks: (1) nobody wants this — zero external users, (2) the kin mechanic does not compound, (3) the brand does not land, (4) the founder cannot sustain. ~$35K seeds the experiment that answers risks 1–3. ~$15K eliminates risk 4 — over four years of founder living costs. If the experiment works, the investor owns 1% of a company that has answered its existential questions. If it fails, $50K lost — less than a bad angel bet on a company with $2M burn. The asymmetry is the investment case.
+The company does not need the money — company opex is $101/month. The $50K is a risk-reduction purchase. The company has four unresolved risks: (1) nobody wants this — zero external users, (2) the kin mechanic does not compound, (3) the brand does not land, (4) the founder cannot sustain. ~$35K seeds the experiment that answers risks 1–3. ~$15K eliminates risk 4 — over three years of founder living costs. If the experiment works, the investor owns 1% of a company that has answered its existential questions. If it fails, $50K lost — less than a bad angel bet on a company with $2M burn. The asymmetry is the investment case.
 
 **Why $5M pre-money:** The market is validated. Top-tier VCs have collectively invested $60M+ in companies building fragments of what Alexandria unifies — Sequoia backed Delphi at $18.7M Series A (digital minds / output layer only), YC backed Mem0 at $24M (developer memory infrastructure only), a16z backed Personal AI at $8-24M (personal AI models) and Limitless at $350M pre-acquisition (ambient capture only). Uare.ai raised $10.3M seed for structured values capture without sovereignty or cross-AI portability. None has the full thesis. $5M pre-money for the most complete architecture in the space, pre-launch, is conservative relative to these comps and reflects radical honesty about zero traction. The anchor is the thesis and the validated market, not the revenue.
 
@@ -173,13 +173,13 @@ mowinckel.ai
 *- Why labs won't build this: breathing room concept — personalisation value < lock-in cost, threshold gap is the runway*
 *- The formal argument: Logic.pdf — 44 premises, 11 conclusions, 20 assumptions. Every settled premise cannot reasonably be denied. The only conversation is the blue assumptions.*
 *- Taste development as the real product ($15/mo, the examined life, the mental gym)*
-*- Break-even at 100 subscribers paying $5/month — total monthly burn is $500. Structurally unkillable.*
+*- Break-even at ~21 subscribers paying $5/month — company opex is $101/month. Structurally unkillable.*
 *- Growth mechanic: kin pricing, founding lineage, frame imposition as distribution*
 *- Cognitive identity infrastructure — no one building the full stack. Adjacent companies funded at $60M+ by Sequoia/YC/a16z.*
 *- Multiple AIs unified through one sovereign store (the Vault)*
 *- Cold start answer: sovereignty builds Constitutions before the Library needs them*
 *- TAM is everyone — not everyone who uses AI, everyone, because everyone will use AI*
-*- The company does not need the money. It runs on $500/month. The $50K is a risk-reduction purchase: four unresolved risks (nobody wants this, kin doesn't compound, brand doesn't land, founder can't sustain). ~$35K buys the seeding experiment that answers risks 1–3. ~$15K eliminates risk 4. If the experiment works, the company is worth multiples more. If it fails, the investor lost $50K — less than a bad angel bet on a $2M-burn company. The asymmetry is the case: small downside, large upside, and the money directly purchases the information that determines which outcome materialises.*
+*- The company does not need the money. Company opex is $101/month. The $50K is a risk-reduction purchase: four unresolved risks (nobody wants this, kin doesn't compound, brand doesn't land, founder can't sustain). ~$35K buys the seeding experiment that answers risks 1–3. ~$15K eliminates risk 4. If the experiment works, the company is worth multiples more. If it fails, the investor lost $50K — less than a bad angel bet on a $2M-burn company. The asymmetry is the case: small downside, large upside, and the money directly purchases the information that determines which outcome materialises.*
 *- What if the kin mechanic doesn't work? Honest answer: at this stage, $50K specifically buys the answer to that question. If kin doesn't compound, the company pivots to paid acquisition at higher CAC — changes the unit economics but doesn't kill the product. Or the founder learns the product has value but the distribution model needs rethinking. Either way, $50K is the cheapest possible price for that information. There is no Plan B baked in — the experiment IS the plan.*
 *- Constitution vs raw data export: structured signal vs noise*
 *- The Abstract and the philosophy (mowinckel.ai)*

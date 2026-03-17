@@ -69,8 +69,9 @@ Pricing floors depend on tier and kin status. "Active kin" = referrals who are c
 **Founding lineage (Benjamin's ~25 seeds).** Both tiers immediately. $5 minimum. Slider open. Full package from day one. No tier gate.
 
 **Piece 1 -- Capped Downside (break even):**
-- Total monthly burn: $500 — $210 company operating costs (Claude Max $100, Claude API $50, Vercel $20, Railway $20, Google AI Pro $20) + $290 founder living costs (food $220, phone $60, buffer $10 — rent zero, health insurance Medi-Cal, transport walking)
-- Break even: 100 Sovereignty subscribers at $5/month (worst case — no kin, no Examined Life). With kin mechanic (blended ~$7 ARPU): ~72 subscribers. With Examined Life ($15-20/month): ~25 subscribers.
+- Company opex: $101/month — Claude Max $100, Railway $1. Everything else is free: GitHub, Google Drive, Vercel, Fly.io (cold standby), UptimeRobot (health monitoring), Google Cloud Console, Claude Code, claude.ai, domain (owned). Two paid services and an entire free stack.
+- Founder living costs (separate from company opex): ~$300/month + rent — food $220, T-Mobile $60, Apple One $20. Rent currently $0 (living with a friend in SF). Health insurance Medi-Cal (free). Transport walking.
+- Break even on company opex: ~21 Sovereignty subscribers at $5/month (covers $101 + Stripe fees). That is the real number. With kin mechanic (blended ~$7 ARPU): ~15 subscribers. With Examined Life ($15-20/month): ~6 subscribers.
 - This is the floor — a sustainable business that cannot be starved out
 - Sovereignty adds volume and kin network value. Patron adds community support and potential future conversion.
 - **Taste development (Examined Life at $15-20/mo) is the primary revenue engine.** This is where the real product and most of the revenue live. The investor story is: develop the one thing AI can't replace, charge for the tools.
@@ -126,7 +127,7 @@ Alexandria Library, Inc. incorporated as Delaware C-Corp via Stripe Atlas. 10,00
 
 **Family (brother + parents): ~5%.** In return for direct and indirect financial and other support. Structure TBD (may be split unevenly, may be gifted or structured as a family trust).
 
-**Investor raise: $50K at ~1% equity ($5M pre-money valuation).** Small check, high conviction. The company does not need the money — it runs on $500/month. The $50K is a buffer that lets the founder stay in build mode without friction, and funds modest brand building (ads, events, merch, community). The real value of the investment is partnership, not capital. No engineering hire — solo founder + AI agents, no hires planned.
+**Investor raise: $50K at ~1% equity ($5M pre-money valuation).** Small check, high conviction. The company does not need the money — company opex is $101/month. The $50K is a buffer that lets the founder stay in build mode without friction, and funds modest brand building (ads, events, merch, community). The real value of the investment is partnership, not capital. No engineering hire — solo founder + AI agents, no hires planned.
 
 **Total: 100%.** Benjamin retains majority control in all scenarios.
 
