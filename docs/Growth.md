@@ -53,7 +53,7 @@ This is also a civilisational point. This philosophy — develop your humanity, 
 - **The TAM is everyone.** Not everyone who uses AI — everyone. Because everyone will use AI. And everyone who uses AI without developing their humanity layer is letting their value leak away. The lens is not optional. Alexandria is the simplest, cleanest way to develop it. The sovereignty sell is the entry point for the entire human population. The Examined Life is the conversion for the self-selecting tribe. The Library is the upside.
 - **Humanity as the lens everything flows through.** AI and robotics will dominate intelligence, strength, and dexterity. But humans value other humans — that can never be beaten. People can still have value, but it has to flow through their humanity. Otherwise you might as well just use AI or robots. Alexandria is hyper-focused on freedom and humanity. In one minute and for one dollar, we help humans build a digital map of their taste and unique human quirks, stored in their own files, free from anybody else. We help them refine and develop it. And we give them a mindset and a medium to monetise and enjoy all their existing capabilities by flowing them through this humanity lens. Own it, develop it, use it. Five clicks, one dollar, one minute. This is the core pitch for every audience — consumers, investors, press.
 - **The Tribe, not a user base.** Authors are a community with shared philosophy -- the three turns, the droplet, die empty. Marketing speaks to identity, not features.
-- **Three-bridge funnel with four states and active kin mechanic.** State 0 — Aware (free): newsletter, social follow, read Concrete. Patron is optional support within State 0 (no minimum, no kin status). Bridge 1 → State 1 — Sovereignty (Tool Group 1, $1/mo with 3 active kin, $5/mo without, no slider) — freedom insurance for anyone who uses AI. Bridge 2 → State 2 — Examined Life (Tool Groups 1+2+3+Library, $15/mo with kin, $20/mo without, slider above floor). Bridge 3 → State 3 — Library Author (no new price, same Examined Life tier — Author actively creates, posts to Neo-Biography, charges for Persona access, Alexandria takes rev-share cut). Active kin = anyone with a paying Sovereignty or Examined Life account. Patron excluded. Dynamic pricing: recalculates every billing cycle. No grace period. Monthly billing receipt as nudge surface ("You paid $5. With 3 active kin it would have been $1"). No annual at launch.
+- **Three-bridge funnel with four states and active kin mechanic.** State 0 — Aware (free): newsletter, social follow, read Concrete. Patron is optional support within State 0 (no minimum, no kin status). Bridge 1 → State 1 — Sovereignty (Tool Group 1, $5/mo with 3 active kin, $10/mo without, no slider) — freedom insurance for anyone who uses AI. Bridge 2 → State 2 — Examined Life (Tool Groups 1+2+3+Library, $15/mo with kin, $20/mo without, slider above floor). Bridge 3 → State 3 — Library Author (no new price, same Examined Life tier — Author actively creates, posts to Neo-Biography, charges for Persona access, Alexandria takes rev-share cut). Active kin = anyone with a paying Sovereignty or Examined Life account. Patron excluded. Dynamic pricing: recalculates every billing cycle. No grace period. Monthly billing receipt as nudge surface ("You paid $10. With 3 active kin it would have been $5"). No annual at launch.
 - **The sovereignty sell is trivial.** If you use AI at all, you should have a sovereign copy of what it learns about you. One coffee a month (with kin), for freedom insurance. The audience for this is 50%+ of AI users. The audience for the full philosophy is smaller -- but the sovereignty funnel feeds it.
 - **The onboarding is trivial.** Two prerequisites: you use Claude, and you have a cloud drive. Claude is the only platform where anyone — including free users — can add a custom MCP connector in under a minute. One connector slot, one OAuth authorisation, extraction starts. No app to download, no desktop agent, no technical setup. ChatGPT and Gemini require paid enterprise plans or developer mode for custom MCP. This makes Claude the only viable mass-market platform for the MVP — and it means every Claude user is a potential Sovereignty Author on day one.
 - **The experience converts on its own.** The conversion from Sovereignty to Examined Life happens organically. The Constitution builds passively, the Author reads it back, sees what extraction has revealed, and the value of going deeper becomes self-evident. Tool Groups 2 and 3 act as sleeper agents — occasional free tastes of the Editor, Mercury, and Publisher, curated to the individual, creating organic pull. No upsell agent. No manipulation. The product demonstrates its own value.
@@ -69,7 +69,7 @@ This is also a civilisational point. This philosophy — develop your humanity, 
 
 Alexandria serves four live audiences. Each has a different pitch, a different document, and a different conversion mechanic. The full framework lives in Alexandria I (FOUNDER-PRODUCT FIT). Summary for growth execution:
 
-- **B2C — the consumer.** Sovereignty, $1, pragmatists. Volume play. Frame imposition at scale. The Concrete does this work. Pitch is facts: own your data, one minute, one dollar.
+- **B2C — the consumer.** Sovereignty, $5, pragmatists. Volume play. Frame imposition at scale. The Concrete does this work. Pitch is facts: own your data, one minute, five dollars.
 - **B2P — the prosumer.** The Examined Life, philosophers. Depth play. The Abstract does this work. Pitch is meaning: the examined life, the droplet, the cathedral.
 - **B2I — investors.** Three-phase progressive disclosure: Phase 1 public (Surface + Concrete + abstract.pdf), Phase 2 pre-meeting (Deck + Numbers.xlsx + Logic.pdf + Memo.md), Phase 3 post-meeting (alexandria.pdf + product demo Loom). Pitch is category creation: cognitive identity infrastructure, TAM is everyone, capped downside / uncapped upside.
 - **B2B — Library for Labs.** Institutional access to the Persona pool. Pitch is data asset: the dataset labs cannot build themselves, delivered sovereignty-compatibly.
@@ -87,7 +87,7 @@ Alexandria serves four live audiences. Each has a different pitch, a different d
 
 ## Growth Channels (Prioritised)
 
-1. **Sovereignty as mass-market entry** -- $1/mo with 3 active kin, $5/mo without. Freedom insurance for anyone who uses AI. Highest volume channel.
+1. **Sovereignty as mass-market entry** -- $5/mo with 3 active kin, $10/mo without. Freedom insurance for anyone who uses AI. Highest volume channel.
 2. **Tribe acquisition loop** (Private tier organic) -- highest quality, zero cost. Every Author is a demo.
 3. **Handwritten letters** (founding members) -- launch channel
 4. **Claude power user communities** -- Reddit, Twitter, forums. These people already feel the pain of platform lock-in.
@@ -98,7 +98,7 @@ Alexandria serves four live audiences. Each has a different pitch, a different d
 
 ## Conversion Funnel
 
-**Bridge 1 (Aware → Sovereignty):** Frame imposition through Concretes, Abstract, newsletter, social, tribe. Once the frame lands, the sovereignty sell is trivial — $1/mo for freedom insurance. One minute, one dollar.
+**Bridge 1 (Aware → Sovereignty):** Frame imposition through Concretes, Abstract, newsletter, social, tribe. Once the frame lands, the sovereignty sell is trivial — $5/mo for freedom insurance. One minute, five dollars.
 
 **Bridge 2 (Sovereignty → Examined Life):** Sovereignty → passive Constitution builds → sleeper agent drip-feeds from Tool Groups 2/3 (occasional free tastes of Editor, Mercury, Publisher, curated to the individual) → Author reads Constitution back → sees value of going deeper → converts to Examined Life. The conversion is organic. The experience converts on its own. No upsell agent needed -- the risk of undermining trust outweighs the conversion benefit. The sovereignty layer must feel clean and trustworthy, not like a Trojan horse. The sleeper agent moments should feel like gifts, not pitches.
 
@@ -106,13 +106,13 @@ Alexandria serves four live audiences. Each has a different pitch, a different d
 
 ## Founding Cohort as Tribe Infrastructure
 
-Pay-what-you-want with no maximum is not just pricing -- it is a support pathway and an acquisition architecture. The universal slider sits above the kin-adjusted floor (Examined Life and Patron tiers). Sovereignty is clean $1 or $5.
+Pay-what-you-want with no maximum is not just pricing -- it is a support pathway and an acquisition architecture. The universal slider sits above the kin-adjusted floor (Examined Life and Patron tiers). Sovereignty is clean $5 or $10.
 
 **Three bridges, four states.** The 2×2 framework is dead. Four states map to the full journey:
 
 **State 0 — Aware (free).** Newsletter subscribers, social followers, people who read the Concrete, anyone with a connection to Alexandria. Patron is an optional support layer within this state — no minimum payment, no gate, no kin status. Three visibility levels (a setting, not separate tiers): Public Patron (name on newsletter/website), Private Patron (Benjamin sees, public does not), Anonymous Patron (nobody sees — pure support). All patrons get the same perks (personal updates, newsletter). Not donating — joining. Some will become product users over time.
 
-**State 1 — Sovereignty (pragmatist).** Wants freedom insurance. Uses AI, doesn't necessarily care about the philosophy. Comes in through the sovereignty pitch. $1/$5. Tool Group 1 only.
+**State 1 — Sovereignty (pragmatist).** Wants freedom insurance. Uses AI, doesn't necessarily care about the philosophy. Comes in through the sovereignty pitch. $5/$10. Tool Group 1 only.
 
 **State 2 — The Examined Life (philosopher).** Believes in the philosophy, wants to develop their humanity, wants the full experience. Comes in through the philosophy or converts up from Sovereignty. $15/$20. Tool Groups 1+2+3+Library.
 
@@ -130,7 +130,7 @@ Pay-what-you-want with no maximum is not just pricing -- it is a support pathway
 
 **Producer surplus maximisation:** No maximum on Examined Life or Patron sliders. Each person pays what they think it is worth. The casual pays $1. The committed pays $200. Both are captured. Both are welcome.
 
-**Payment UX — the slider principle.** Examined Life and Patron use continuous sliders from the kin-adjusted floor to a high anchor. No discrete price options. No "most popular" nudge. The Author slides to where they feel right. Sovereignty has no slider — $1 or $5, clean.
+**Payment UX — the slider principle.** Examined Life and Patron use continuous sliders from the kin-adjusted floor to a high anchor. No discrete price options. No "most popular" nudge. The Author slides to where they feel right. Sovereignty has no slider — $5 or $10, clean.
 
 After locking in, the Author sees a private internal tier — a quiet acknowledgement of where their support level places them. Named in classical vocabulary (CDO decision). This is visible only to the Author in their own account. Not flashing, not prompting upgrade, not comparing to anyone. A mirror, not a ladder.
 
@@ -140,11 +140,11 @@ Critical UX constraints: never reveal tier boundaries. Never show "you're $X awa
 
 The founding tribe traces back to Benjamin. Not a time window. A lineage.
 
-**The seed.** Benjamin personally invites ~25 people. They receive both tiers immediately — $1 minimum, slider open, full package from day one. Personal invite from the founder, no conditions. They are the root of the tree.
+**The seed.** Benjamin personally invites ~25 people. They receive both tiers immediately — $5 minimum, slider open, full package from day one. Personal invite from the founder, no conditions. They are the root of the tree.
 
 **The active kin mechanic.** The referral system is not just a growth engine — it is a structural churn-reduction mechanism baked into the price itself. An Author's "active kin" are referrals who are currently subscribed and paying at the Sovereignty or Examined Life tier. Patron does NOT count as active kin. The subscription floor depends on kin count:
 
-Sovereignty: $1/month with 3 active kin, $5/month without (no slider). The Examined Life: $15/month with 3 active kin, $20/month without (slider above floor). Patron: optional support, no minimum, no kin status.
+Sovereignty: $5/month with 3 active kin, $10/month without (no slider). The Examined Life: $15/month with 3 active kin, $20/month without (slider above floor). Patron: optional support, no minimum, no kin status.
 
 Dynamic pricing: recalculates every billing cycle. 3+ active kin = lower price. Fewer = higher price. No grace period. Clean and simple. If a kin drops off, the referring Author's price goes up next month. If they gain one back, it goes down.
 
@@ -155,13 +155,15 @@ Monthly billing receipt as nudge surface: every receipt shows what you paid, wha
 
 **Library rev-share — the publish incentive.** Alexandria's take on Library Persona revenue also scales with kin status: 10% with no active kin (below threshold), 5% with 3 active kin (below threshold), 1% with 3 active kin (above threshold). The revenue threshold is the level at which the Author is demonstrably providing value through their Persona (exact amount TBD). This closes the flywheel: Alexandria develops your humanity → you publish to the Library → the Library generates value → the rev-share rewards both network-building and value creation.
 
-**The math.** Benjamin seeds 25 (both tiers). Each needs 3 kin for the $1 floor and founding status → 75 at the first layer. Each of those 75 wants the same → 225. Then 675. Then 2,025. The network triples at every layer. And the kin must stay active — so the exponential pressure is not just on sign-up but on retention.
+**The math.** Benjamin seeds 25 (both tiers). Each needs 3 kin for the $5 floor and founding status → 75 at the first layer. Each of those 75 wants the same → 225. Then 675. Then 2,025. The network triples at every layer. And the kin must stay active — so the exponential pressure is not just on sign-up but on retention.
 
 **The compounding argument.** "Get on now. The Constitution builds passively from day one. When sharing and the full philosophy launch, the people who started early have months of accumulated signal. The ones who wait start from scratch. The data you're building today is the asset that makes everything else work later." This is true and it's a genuine reason to start at Sovereignty even before Tool Groups 2 and 3 exist.
 
 **Why this works for the brand.** It's not a referral code. It's not growth hacking. It's a lineage — every Founding Author traces back to the founder through a chain of people who vouched for each other. The kin mechanic is the easy entry. The status is the earned identity. The mechanic creates exponential pressure on both acquisition and retention, but it's aspirational, not transactional. You want founding status because it means you contributed. The product works fully either way. The founding identity is the layer on top.
 
-**What this covers:** Churn reduction (kin mechanic — every Author has 3 people they want to keep active). Exponential distribution (the $1→$5 spread and rev-share drop both reward network-building). Upgrade incentive (Sovereignty users get drip-fed tastes of Tool Groups 2/3 — the sleeper agents — creating organic pull). Publish incentive (rev-share structure rewards Authors who create value in the Library). Monthly only at launch — no annual until pricing is validated.
+**What this covers:** Churn reduction (kin mechanic — every Author has 3 people they want to keep active). Exponential distribution (the $5→$10 spread and rev-share drop both reward network-building). Upgrade incentive (Sovereignty users get drip-fed tastes of Tool Groups 2/3 — the sleeper agents — creating organic pull). Publish incentive (rev-share structure rewards Authors who create value in the Library). Monthly only at launch — quarterly (10% discount) and annual (20% discount) added once pricing is validated. Billing frequency discounts reduce churn (longer commitment) and improve cash flow (upfront payment).
+
+**Billing frequency incentive strategy:** Monthly is the default — lowest commitment, maximum flexibility, right for price discovery. Quarterly (10% off) and annual (20% off) are added once price points settle. The discounts are modest enough to not cannibalise monthly revenue but meaningful enough to reward commitment. Annual Sovereignty with kin: $54/yr ($4.50/mo effective). Annual Examined Life with kin: $144/yr ($12/mo effective). ACH is the default payment method for Sovereignty (0.8% flat) — optimised for the highest-volume, lowest-dollar tier. Stripe cards for Examined Life (2.9% + $0.30) — acceptable because higher ticket absorbs the fee. This payment processing split cuts blended fees from ~6.7% to ~1.4% of revenue.
 
 **Open design questions (CDO/taste decisions):**
 - What does founding status look like in the Library / Neo-Biography? How is it displayed?
@@ -182,9 +184,9 @@ Monthly billing receipt as nudge surface: every receipt shows what you paid, wha
 
 **Turn 1 — Unified Sovereignty (freedom)**
 - Priority: make the pragmatist funnel take literally 1 minute. No friction. No confusion.
-- Payment infrastructure (Stripe, billing cycle logic, kin counting, dynamic pricing).
+- Payment infrastructure: ACH/Direct Debit for Sovereignty tier (0.8% flat via GoCardless or Stripe ACH), Stripe cards for Examined Life (2.9% + $0.30). Billing frequency: monthly (default at launch), quarterly (10% discount), annual (20% discount) — quarterly and annual added once pricing is validated. Billing cycle logic, kin counting, dynamic pricing.
 - OAuth flow polished. "Add connector → authorise Drive → done" bulletproof.
-- Once smooth, sovereignty grows passively via kin mechanic + word of mouth. $1 price point and kin incentive do the distribution.
+- Once smooth, sovereignty grows passively via kin mechanic + word of mouth. $5 price point and kin incentive do the distribution.
 - This is the "set it and forget it" phase. Get it running, then move on.
 
 **Turn 2 — Mental Gym (humanity)**

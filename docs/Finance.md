@@ -64,14 +64,14 @@ Pricing floors depend on tier and kin status. "Active kin" = referrals who are c
 
 **Monthly billing receipt.** Every receipt shows: what you paid, what you would have paid with 3 active kin, and how many kin you currently have. The receipt is the nudge surface — no app needed, no notifications, just facts. "You paid $10 this month. With 3 active kin it would have been $5."
 
-**No annual option at launch.** Pricing needs to settle first. Annual locks in rates that might need to change. Monthly gives flexibility. Annual may be added later once price points are validated.
+**No annual option at launch.** Monthly only initially. Pricing needs to settle before locking longer commitments. Quarterly (10% discount) and annual (20% discount) added once price points are validated.
 
 **Founding lineage (Benjamin's ~25 seeds).** Both tiers immediately. $5 minimum. Slider open. Full package from day one. No tier gate.
 
 **Piece 1 -- Capped Downside (break even):**
 - Company opex: $101/month — Claude Max $100, Railway $1. Everything else is free: GitHub, Google Drive, Vercel, Fly.io (cold standby), UptimeRobot (health monitoring), Google Cloud Console, Claude Code, claude.ai, domain (owned). Two paid services and an entire free stack.
 - Founder living costs (separate from company opex): ~$300/month + rent — food $220, T-Mobile $60, Apple One $20. Rent currently $0 (living with a friend in SF). Health insurance Medi-Cal (free). Transport walking.
-- Break even on company opex: ~21 Sovereignty subscribers at $5/month (covers $101 + Stripe fees). That is the real number. With kin mechanic (blended ~$7 ARPU): ~15 subscribers. With Examined Life ($15-20/month): ~6 subscribers.
+- Break even on company opex: ~21 Sovereignty subscribers at $5/month (covers $101 + payment processing fees). That is the real number. With kin mechanic (blended ~$7 ARPU): ~15 subscribers. With Examined Life ($15-20/month): ~6 subscribers. Payment processing: Sovereignty uses ACH/Direct Debit (0.8% flat via GoCardless or Stripe ACH — optimised for high-volume low-dollar subscriptions). Examined Life uses Stripe cards (2.9% + $0.30 — higher fees acceptable on higher ticket). This cuts blended processing fees from ~6.7% (all-Stripe) to ~1.4% of revenue.
 - This is the floor — a sustainable business that cannot be starved out
 - Sovereignty adds volume and kin network value. Patron adds community support and potential future conversion.
 - **Taste development (Examined Life at $15-20/mo) is the primary revenue engine.** This is where the real product and most of the revenue live. The investor story is: develop the one thing AI can't replace, charge for the tools.
@@ -104,10 +104,12 @@ Pricing floors depend on tier and kin status. "Active kin" = referrals who are c
 - Active kin = referrals who are currently subscribed and paying at the Sovereignty or Examined Life tier. Patron does NOT count.
 - Dynamic kin pricing: recalculates every billing cycle based on active kin count. No grace period.
 - Sovereignty: no slider, $5 or $10. Examined Life + Patron: slider above floor.
-- No annual at launch. Monthly only. Annual added later when pricing is validated.
+- No annual at launch. Monthly only. Quarterly and annual (10%/20% discounts) added once pricing is validated.
 - Founding lineage (~25 seeds from Benjamin): both tiers, $5 minimum, slider open, full package
 - Library rev-share: 10% / 5% / 1% tiered by kin status and revenue threshold
 - Monthly billing receipt shows actual vs kin price — the receipt is the kin nudge surface
+- **Billing frequency:** Monthly (default), quarterly (10% discount), annual (20% discount). Monthly-only at launch until pricing is validated — quarterly and annual added once price points settle. Discounts reduce churn (longer commitment) and improve cash flow (upfront payment). Annual Sovereignty with kin: $54/yr ($4.50/mo effective). Annual Examined Life with kin: $144/yr ($12/mo effective).
+- **Payment processing:** Sovereignty tier uses ACH/Direct Debit (0.8% flat — GoCardless or Stripe ACH). Examined Life uses Stripe cards (2.9% + $0.30). ACH default for Sovereignty optimises the highest-volume, lowest-dollar tier. Stripe for Examined Life is acceptable because higher ticket absorbs the fee. Blended processing cost drops from ~6.7% (all-Stripe) to ~1.4% of revenue. This is a meaningful margin improvement at scale.
 
 **Key financial principle:** Alexandria does not run parallel LLM compute. The Author's existing Claude subscription covers inference costs. Alexandria holds zero Author data — the MCP server is stateless, passing through to the Author's own cloud or local storage. Alexandria's marginal cost per user is near-zero (server hosting for the stateless MCP server only). This means unit economics are strong from day one.
 

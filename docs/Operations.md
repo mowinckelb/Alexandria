@@ -286,33 +286,35 @@ When a decision in one domain affects another, the COO flags it and updates the 
 - Pre-launch. Needed: ACH integration for Sovereignty tier (GoCardless or Stripe ACH, 0.8% flat), Stripe for Examined Life (2.9% + $0.30), pay-what-you-want slider, tier assignment logic, kin mechanic billing, billing frequency options (monthly full price, quarterly 10% off, annual 20% off). Blocked on incorporation completing + Stripe account activation.
 
 **Turn 2 technical work:**
-- Turn 2.5 complete and live (CTO sessions 15-18). Product connected end-to-end: 5 tools, OAuth working, connector in claude.ai confirmed. Architecture: Philosophy → Intelligence → Verification. Server = bridge. Factory loop manual trigger only (daily cron killed). MCP SDK updated to 1.27.1. Railway primary ($1/mo), Fly.io cold standby (free). UptimeRobot monitoring (health ping + dashboard keyword check). **Next: real-world usage testing and R&D signal collection.**
+- Turn 2.5 complete and live (CTO sessions 15-19). Product connected end-to-end: 5 tools, OAuth working, connector in claude.ai confirmed. Architecture: Philosophy → Intelligence → Verification. Server = bridge. Factory loop manual trigger only (daily cron killed). MCP SDK updated to 1.27.1. Railway primary ($1/mo), Fly.io cold standby (free). UptimeRobot monitoring (health ping + dashboard keyword check). CTO session 19: production durability fixes (health endpoint tests real read/write, auth errors return proper HTTP, event log resilience, backup dir creation). CTO compounding system built (Founder-Standards.md + CTO-SelfCheck.md — read on cold start, updated on close). Branch merged to main. **Next: real-world usage testing and R&D signal collection.**
 
 **Mobile workflow (platform dependency — not a build task):**
 - Currently no way to push updated project files to Google Drive from Claude. Waiting for either Claude mobile to support saving files directly to project folders, or Google Drive MCP connector to become available. Not building a custom solution — the platform will catch up.
 
 **Investor package — Phase 3 documents:**
-- ⚠️ **alexandria.pdf** — STALE. Contains old numbers ($500 burn, $210 opex, 100 subscribers, old Stripe fees). Needs rebuild with: $101/mo company opex, ~21 subscriber break-even, ACH/billing discount payment strategy. Build script not in project — COO rebuilds in-session when content changes.
-- **Deck.js** — UNCHECKED. May contain stale financial references. Check and update next session.
+- ✅ **alexandria.pdf** — DONE. Rebuilt with current financials ($101/mo opex, ~21 break-even, ACH/Stripe split, billing frequency discounts). Build script not in project — COO rebuilds in-session when content changes.
+- ✅ **Deck.js** — DONE. Checked and updated: $500→$101, ~80→~21, speaker notes updated across 4 slides with ACH/billing details.
 - ✅ **Memo.md return table** — DONE. Downside row added. Four scenarios match alexandria.pdf.
 - ✅ **Memo.md body alignment** — DONE. Why Now has three catalysts, Use of Funds has risk-reduction framing, Founder has operating model, opening claim fixed.
+- ✅ **Memo.md break-even contradiction** — DONE. Was "~100 Sovereignty subscribers" in one place and "~21" in another. Now consistent at ~21.
 - **Product demo** — Loom recording of Alexandria in action. Not yet recorded. 3-5 minutes. The #1 pre-revenue traction proxy. Show: adding the connector, a conversation where extraction fires, the Constitution building on Google Drive, cross-conversation continuity.
 - **Customer discovery** — No documented user research. Talk to 20-30 potential users, structure findings. Strongest pre-revenue traction proxy after a working demo.
 
-**Financial model propagation (from this session — not yet complete):**
-- Numbers.xlsx updated with: separated company opex ($101/mo) vs founder costs ($300/mo + rent), free stack, MacBook removed from capex, payment processing optimization (ACH for Sovereignty, Stripe for EL, 10% quarterly / 20% annual billing discounts), IB-grade formatting.
-- Finance.md, Memo.md, Alexandria_I.md, Alexandria_II.md, Surface.md updated with $101/mo opex and ~21 subscriber break-even.
-- **NOT YET PROPAGATED:** Payment processing optimization (ACH, billing frequency discounts, new ARPUs) needs to land in Finance.md (pricing principles section), Memo.md (cost base paragraph), Alexandria_II.md (capped downside), Growth.md (billing strategy). These docs still reference old Stripe-only model.
-- **Growth.md** needs billing frequency incentive strategy documented (monthly/quarterly/annual, discount structure, ACH default for Sovereignty).
-- **Code.md** needs CTO sync: ACH integration requirement for Sovereignty tier at launch (GoCardless or Stripe ACH).
+**Financial model propagation:**
+- ✅ Numbers.xlsx updated with: separated company opex ($101/mo) vs founder costs ($300/mo + rent), free stack, MacBook removed from capex, payment processing optimization (ACH for Sovereignty, Stripe for EL, 10% quarterly / 20% annual billing discounts), IB-grade formatting.
+- ✅ Finance.md, Memo.md, Alexandria_I.md, Alexandria_II.md, Surface.md updated with $101/mo opex and ~21 subscriber break-even.
+- ✅ **Payment processing optimization propagated.** ACH for Sovereignty (0.8%), Stripe for EL (2.9%+$0.30), blended ~1.4%, billing frequency discounts (monthly/quarterly 10%/annual 20%) now in: Finance.md (break-even line + pricing principles), Memo.md (cost base + break-even), Alexandria_II.md (billing frequency + capped downside), Growth.md (billing frequency incentive strategy + payment infrastructure).
+- ✅ **Growth.md pricing inconsistency fixed.** Was $1/$5, now $5/$10 matching all other documents. 13 references corrected.
+- ✅ **Code.md** already had CTO sync for ACH integration requirement.
 
 **Autonomous philosophy loop (flagged this session — needs CTO + COO sessions to scope):**
 - Can the COO run an autonomous daily protocol like the CTO's factory loop? The goal: the philosophy loop compounds on its own. Research projects run overnight, document audits happen automatically, signal propagates without Benjamin in the chair.
 - **Option 1 (buildable now):** GitHub Action that runs a Claude API call with project files as context. Protocol: run top 3 research projects from a priority list, audit all documents for cross-file consistency, extract gaps, write findings to a report file (e.g. coo-daily-report.md), push to repo. COO reads the report on cold start. Cost: ~$5-15/run in API credits.
 - **Option 2 (platform dependency):** Wait for Claude to support scheduled tasks within claude.ai projects. Would run in full project context with memory. Timeline unknown.
 - **Option 3 (CTO expansion):** Expand the CTO's existing 6 AM loop to include COO-style tasks — research, document audits, consistency checks. CTO loop becomes the autonomous engine for the whole company.
+- **Option 4 (OpenClaw / external agent):** OpenClaw is an open-source autonomous AI agent (247K GitHub stars, Feb 2026). Skills system uses SKILL.md files — same pattern as our project. Already proven for autonomous marketing (content creation → posting → analytics → iteration loops). Post Bridge integration enables cross-platform social media posting. Could power CGO/CDO sub-agents for content distribution. Runs on any LLM (Claude API, not Max tokens). Security concerns flagged by researchers — requires careful setup. Recommended approach: hybrid — OpenClaw for downstream execution (posting, tracking), claude.ai for strategic thinking (intent, philosophy, direction). Wait for Claude to ship equivalent autonomous agent capability before building deep integrations.
 - **The bridge question:** How does the philosophy loop (live COO sessions) connect to the factory loop (autonomous CTO runs)? Current mechanism: COO writes signal to Code.md → CTO reads it daily. An autonomous COO loop would add a second signal path: autonomous research → report file → CTO reads alongside Code.md. Both feed the factory.
-- **Next steps:** (1) CTO session to scope the GitHub Action for Option 1. (2) COO session to define the autonomous protocol — what research, what audits, what format. (3) Decide whether to expand the CTO loop (Option 3) or keep them separate.
+- **Next steps:** (1) CTO session to scope the GitHub Action for Option 1. (2) COO session to define the autonomous protocol — what research, what audits, what format. (3) Decide whether to expand the CTO loop (Option 3) or keep them separate. (4) Monitor Claude autonomous agent announcements — platform-native solution preferred over external tooling.
 
 **Raise structure review (flagged this session — needs a dedicated CFO/COO session with Numbers.xlsx open):**
 - **Why $50K?** The number was picked somewhat arbitrarily and justified backwards. The risk-reduction framing argues for raising more, not less — more money eliminates more risks, which de-risks the company further, which makes the investor's return better even at more dilution. Need to work backwards from: what's the actual experiment budget done properly? What's the optimal cheque size?
