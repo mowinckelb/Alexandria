@@ -203,6 +203,13 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
     modeActivations[m] = (modeActivations[m] || 0) + 1;
   }
 
+  // 6. Vault intake — Author-dropped files surfaced to the Engine
+  const vaultIntakeEvents = events.filter(e => e.e === 'vault_intake');
+  const vaultIntakeTotal = vaultIntakeEvents.reduce(
+    (sum, e) => sum + (parseInt(e.count) || 0), 0
+  );
+  const vaultTrackerErrors = events.filter(e => e.e === 'vault_tracker_error').length;
+
   // System observations (feedback with "system:" prefix)
   const systemObservations = events.filter(
     e => e.e === 'feedback' && e.feedback_type === 'pattern'
@@ -242,6 +249,12 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
     },
 
     mode_activations: modeActivations,
+
+    vault_intake: {
+      sessions_with_intake: vaultIntakeEvents.length,
+      total_files_surfaced: vaultIntakeTotal,
+      tracker_errors: vaultTrackerErrors,
+    },
 
     system_observations: systemObservations,
   };

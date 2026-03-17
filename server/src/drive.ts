@@ -7,6 +7,7 @@
 
 import { google, type drive_v3 } from 'googleapis';
 import { decrypt } from './crypto.js';
+import { logEvent } from './analytics.js';
 
 const FOLDER_NAME = 'Alexandria';
 const CONSTITUTION_DIR = 'constitution';
@@ -369,6 +370,7 @@ export async function writeVaultCapture(
   // Record this filename so vault intake knows the server created it
   recordVaultCreated(encryptedToken, fileName).catch((err) => {
     console.error(`[vault] Failed to record vault-created for ${fileName}:`, err);
+    logEvent('vault_tracker_error', { tracker: 'vault-created', file: fileName, error: String(err) });
   });
 }
 

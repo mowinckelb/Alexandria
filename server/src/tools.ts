@@ -230,8 +230,13 @@ export function registerTools(server: McpServer) {
         if (unprocessedVault.length > 0) {
           markVaultFilesProcessed(token as string, unprocessedVault.map(f => f.name)).catch((err) => {
             console.error('[vault] Failed to mark files as processed:', err);
+            logEvent('vault_tracker_error', { tracker: 'vault-processed', error: String(err) });
           });
-          logEvent('vault_intake', { count: String(unprocessedVault.length) });
+          logEvent('vault_intake', {
+            count: String(unprocessedVault.length),
+            files: unprocessedVault.map(f => f.name).join(', '),
+            types: [...new Set(unprocessedVault.map(f => f.mimeType))].join(', '),
+          });
         }
 
         const vaultIntakeText = unprocessedVault.length > 0
