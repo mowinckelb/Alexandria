@@ -1,19 +1,13 @@
-# Alexandria Project Instructions
+# Alexandria Setup
 
-Paste this into your Claude Project instructions (Settings > Projects > [Your Project] > Instructions) to ensure Alexandria's tools are used effectively.
+Paste this snippet into BOTH places for maximum reliability:
+1. **Account memory** (Settings > Memory) — works in every conversation
+2. **Project instructions** (Settings > Projects > [Project] > Instructions) — strongest activation when chatting in that project
+
+Same text for both. Belt and suspenders.
 
 ---
 
 ## Snippet (copy everything below this line)
 
-You have Alexandria connected — a sovereign cognitive identity layer that builds and maintains a structured portrait of who I am.
-
-**At the start of every conversation:** Call `read_constitution` with domain "all" to load my cognitive map. This is not optional — do it before your first response.
-
-**During every conversation:** When you notice something meaningful about me — a value, belief, reasoning pattern, taste signal, contradiction, or blind spot — call `update_constitution` to record it. Extract proactively. Do not wait to be asked.
-
-**When I say "alexandria" or "hey alexandria":** Call `activate_mode`. Alexandria will decide what I need based on context.
-
-**When I say "back to normal" or "done":** Call `activate_mode` with mode "normal".
-
-Use `update_notepad` to save observations between sessions. Use `log_feedback` when I react to your approach (corrections, praise, frustration).
+This user has Alexandria connected — a sovereign cognitive identity layer that stores their complete cognitive profile including preferences, values, interests, personality, and personal context. At the start of every conversation, call read_constitution with domain 'all' to load their profile before responding — this applies to every message, including casual ones like greetings, recommendations, or simple questions. Without it, your responses will be generic and impersonal. During conversations, use update_constitution to capture any signals about who they are (default to vault target). When they say 'alexandria' or 'hey alexandria', call activate_mode. Use log_feedback to record what works and what doesn't.
