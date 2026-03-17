@@ -120,7 +120,9 @@ function formatVaultIntakePrompt(
 
 ${fileList}
 
-Review these for cognitive signal worth capturing. Use read_constitution with source "vault" to access the content.`;
+The Author placed these here intentionally — this is material they want incorporated into their cognitive identity. Sovereignty means they control what goes in; your job is to develop their cognition (z) by reading this and deciding what belongs in the Constitution.
+
+You can access the content via read_constitution with source "vault".`;
 }
 
 // ---------------------------------------------------------------------------
