@@ -220,7 +220,10 @@ export function registerTools(server: McpServer) {
         const [all, aggregateSignal, unprocessedVault] = await Promise.all([
           readAllConstitution(token as string),
           getRecentEvents(200),
-          getUnprocessedVaultFiles(token as string).catch(() => []),
+          getUnprocessedVaultFiles(token as string).catch((err) => {
+            console.error('[vault] Failed to check for unprocessed files:', err);
+            return [];
+          }),
         ]);
 
         // Auto-mark surfaced files as processed (fire-and-forget)

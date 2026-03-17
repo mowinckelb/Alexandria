@@ -299,7 +299,7 @@ export async function readVaultCaptures(
 
   const listRes = await drive.files.list({
     q,
-    fields: 'files(id,name)',
+    fields: 'files(id,name,mimeType)',
     spaces: 'drive',
     orderBy: 'name',
   });
@@ -307,7 +307,13 @@ export async function readVaultCaptures(
   const files = listRes.data.files || [];
   if (files.length === 0) return [];
 
-  const reads = files.map(async (f) => {
+  // Only read text-based files — skip binary (images, PDFs, etc.)
+  const textFiles = files.filter(f => {
+    const mime = f.mimeType || '';
+    return mime.startsWith('text/') || mime === 'application/json';
+  });
+
+  const reads = textFiles.map(async (f) => {
     const res = await drive.files.get(
       { fileId: f.id!, alt: 'media' },
       { responseType: 'text' },
@@ -315,7 +321,17 @@ export async function readVaultCaptures(
     return { name: f.name!, content: res.data as string };
   });
 
-  return Promise.all(reads);
+  // Include non-text files as metadata-only entries so the Engine knows they exist
+  const nonTextFiles = files.filter(f => {
+    const mime = f.mimeType || '';
+    return !mime.startsWith('text/') && mime !== 'application/json';
+  });
+  const nonTextEntries = nonTextFiles.map(f => ({
+    name: f.name!,
+    content: `[Binary file — ${f.mimeType || 'unknown type'}. Cannot be read as text. The Author placed this in the Vault; acknowledge it but note it cannot be processed directly.]`,
+  }));
+
+  return [...await Promise.all(reads), ...nonTextEntries];
 }
 
 /**
@@ -332,13 +348,19 @@ export async function writeVaultCapture(
   const drive = getDriveClient(encryptedToken);
   const { vaultId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const fileName = `${domain}_${timestamp}.md`;
 
   await drive.files.create({
     requestBody: {
-      name: `${domain}_${timestamp}.md`,
+      name: fileName,
       parents: [vaultId],
     },
     media: { mimeType: 'text/markdown', body: content },
+  });
+
+  // Record this filename so vault intake knows the server created it
+  recordVaultCreated(encryptedToken, fileName).catch((err) => {
+    console.error(`[vault] Failed to record vault-created for ${fileName}:`, err);
   });
 }
 
@@ -368,49 +390,72 @@ export async function listVaultFiles(
   }));
 }
 
-// Tool-created vault files match: {domain}_{ISO-timestamp}.md
-const TOOL_CREATED_PATTERN = /^.+_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}.*\.md$/;
-
 /**
- * Read the processed vault tracker from system/vault-processed.md.
- * Returns a Set of filenames that have already been reviewed.
+ * Read a system tracker file (vault-created or vault-processed).
+ * Returns a Set of filenames stored as newline-separated entries.
  */
-export async function getProcessedVaultFiles(
+async function readVaultTracker(
   encryptedToken: string,
+  trackerName: string,
 ): Promise<Set<string>> {
-  const content = await readSystemFile(encryptedToken, 'vault-processed');
+  const content = await readSystemFile(encryptedToken, trackerName);
   if (!content) return new Set();
   return new Set(content.split('\n').map(l => l.trim()).filter(Boolean));
 }
 
 /**
- * Mark vault files as processed by appending to system/vault-processed.md.
+ * Append filenames to a system tracker file.
+ */
+async function appendVaultTracker(
+  encryptedToken: string,
+  trackerName: string,
+  fileNames: string[],
+): Promise<void> {
+  if (fileNames.length === 0) return;
+  await appendSystemFile(encryptedToken, trackerName, fileNames.join('\n'));
+}
+
+/**
+ * Record a vault filename as server-created.
+ * Called by writeVaultCapture so we can distinguish tool-created files
+ * from Author-dropped files without pattern matching.
+ */
+export async function recordVaultCreated(
+  encryptedToken: string,
+  fileName: string,
+): Promise<void> {
+  await appendVaultTracker(encryptedToken, 'vault-created', [fileName]);
+}
+
+/**
+ * Mark vault files as processed (already surfaced to the Engine).
  */
 export async function markVaultFilesProcessed(
   encryptedToken: string,
   fileNames: string[],
 ): Promise<void> {
-  if (fileNames.length === 0) return;
-  await appendSystemFile(encryptedToken, 'vault-processed', fileNames.join('\n'));
+  await appendVaultTracker(encryptedToken, 'vault-processed', fileNames);
 }
 
 /**
  * Detect unprocessed vault files — files the Author dropped directly,
- * not created by update_constitution and not yet reviewed by the Engine.
+ * not created by the server and not yet surfaced to the Engine.
  *
- * Tool-created files match pattern: {domain}_{ISO-timestamp}.md
- * Everything else is user-dropped and needs processing.
+ * Uses two trackers: vault-created (files the server wrote) and
+ * vault-processed (files already surfaced). No pattern matching —
+ * zero false negatives guaranteed.
  */
 export async function getUnprocessedVaultFiles(
   encryptedToken: string,
 ): Promise<Array<{ id: string; name: string; mimeType: string; size: string }>> {
-  const [allFiles, processed] = await Promise.all([
+  const [allFiles, created, processed] = await Promise.all([
     listVaultFiles(encryptedToken),
-    getProcessedVaultFiles(encryptedToken),
+    readVaultTracker(encryptedToken, 'vault-created'),
+    readVaultTracker(encryptedToken, 'vault-processed'),
   ]);
 
   return allFiles.filter(f =>
-    !TOOL_CREATED_PATTERN.test(f.name) && !processed.has(f.name)
+    !created.has(f.name) && !processed.has(f.name)
   );
 }
 
