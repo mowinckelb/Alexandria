@@ -3,9 +3,9 @@
 ## For new users
 
 1. **Add connector:** Claude.ai → Settings → Connectors → paste `https://alexandria-production-7db3.up.railway.app/mcp` → authorize Google (click "Continue" past the unverified app warning)
-2. **Create project:** Claude.ai → Projects → New Project → name it "Alexandria" (or anything)
-3. **Upload knowledge file:** In the project, click the knowledge/files section → upload `alexandria-project-file.md` (this is the most important step — it tells Claude to use Alexandria in every conversation)
-4. **Account memory (optional, unlocks after a few chats):** Settings → Memory → paste the snippet below. This makes Alexandria work outside the project too.
+2. **Account memory:** Settings → Memory → paste the snippet below (may require a few chats before editing is unlocked — do it as soon as you can)
+3. **Create project:** Projects → New Project → name it "Alexandria" (or anything)
+4. **Upload knowledge file:** In the project, click the knowledge/files section → upload `alexandria.md` (this is the most important step — it tells Claude to use Alexandria in every conversation in this project)
 
 ## Snippet (for account memory and/or project instructions)
 
