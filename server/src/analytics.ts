@@ -226,6 +226,8 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
   const driveWriteErrors = events.filter(e => e.e === 'drive_write_error').length;
   const droppedWrites = events.filter(e => e.e === 'write_dropped').length;
 
+  const authErrors = events.filter(e => e.e === 'auth_error').length;
+
   // System observations (feedback with "system:" prefix)
   const systemObservations = events.filter(
     e => e.e === 'feedback' && e.feedback_type === 'pattern'
@@ -280,6 +282,7 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
       vault_tracker_errors: vaultTrackerErrors,
       vault_list_errors: vaultListErrors,
       log_parse_errors: parseErrors,
+      auth_errors: authErrors,
     },
 
     system_observations: systemObservations,

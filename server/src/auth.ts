@@ -15,6 +15,7 @@ import type { OAuthRegisteredClientsStore } from '@modelcontextprotocol/sdk/serv
 import type { OAuthClientInformationFull, OAuthTokenRevocationRequest, OAuthTokens } from '@modelcontextprotocol/sdk/shared/auth.js';
 import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import { encrypt, decrypt } from './crypto.js';
+import { logEvent } from './analytics.js';
 
 const GOOGLE_SCOPES = ['https://www.googleapis.com/auth/drive'];
 
@@ -224,6 +225,7 @@ export function registerGoogleCallbackRoute(router: Router) {
       res.redirect(targetUrl.toString());
     } catch (err) {
       console.error('Google OAuth error:', err);
+      logEvent('auth_error', { error: String(err) });
       res.status(500).send('Authentication failed. Please try again.');
     }
   });
