@@ -72,7 +72,7 @@ All three layers are the same product, same architecture, same user at different
 | Total costs | $31K | $56K | $103K | $196K | $306K |
 | **Net income** | **$180K** | **$479K** | **$1.2M** | **$2.5M** | **$4.3M** |
 
-**Unit economics:** Near-zero marginal CAC once the kin mechanic is running — each user brings three. Modest upfront spend to seed and sustain the funnel (ads, events, merch, community presence). Gross margins 85-93% (Y1 lower due to fixed costs on low revenue, Y5 scales).
+**Unit economics:** Near-zero marginal CAC once the kin mechanic is running — each user brings three. Modest upfront spend to seed and sustain the funnel (ads, events, merch, community presence). Gross margins 85-93% (Y1 lower due to fixed costs on low revenue, Y5 scales). Sovereignty has no natural cancellation point — it works across every AI the user touches, the Constitution compounds over time, and cancelling means abandoning a growing cognitive asset. As long as someone uses AI, the layer adds value. The 4% monthly churn in the model is conservative for a new product; structurally, churn should trend toward near-zero as Constitutions deepen.
 
 **Return on $50K at ~1% equity:**
 
@@ -109,7 +109,9 @@ The company itself is the proof of concept. The operating model is the product's
 
 ## Why Now
 
-Three structural shifts converge. First, the MCP (Model Context Protocol) standard enables cross-AI connectivity — a user can add a third-party connector to their AI account in under a minute. This did not exist 12 months ago. Second, Claude is the first platform where any user (including free tier) can add a custom MCP connector with zero gatekeeping — a distribution channel that costs nothing to access. Third, GDPR enforcement is escalating — LinkedIn was fined €310 million in October 2024 for behavioural profiling without consent — pushing the regulatory environment toward transparency and portability, which favours sovereign architecture.
+The technology industry moves through eras, each deeper than the last. Deep software — algorithms, platforms, the internet — is maturing. Deep hardware — chips, compute, robotics, energy — is the current frontier. Deep philosophy is next: once the machines are built and the intelligence is running, the only remaining question is what it should do, and for whom. Alexandria is building the philosophy layer now so that both the company and the product are ready when the world catches up. Pre-positioning for an inevitable transition is the entire point of venture capital.
+
+Three structural shifts make this the moment. First, the MCP (Model Context Protocol) standard enables cross-AI connectivity — a user can add a third-party connector to their AI account in under a minute. This did not exist 12 months ago. Second, Claude is the first platform where any user (including free tier) can add a custom MCP connector with zero gatekeeping — a distribution channel that costs nothing to access. Third, GDPR enforcement is escalating — LinkedIn was fined €310 million in October 2024 for behavioural profiling without consent — pushing the regulatory environment toward transparency and portability, which favours sovereign architecture.
 
 Together they create a window. The window closes as labs improve their own memory features. The advantage of moving now is compounding — every month of data accumulation widens the gap.
 
@@ -135,6 +137,12 @@ There are limited spots. The raise is small. The founder is selective.
 - Incorporated: Alexandria Library, Inc., Delaware C-Corp via Stripe Atlas.
 
 No revenue yet. No external users yet. This is honest. The product works. The distribution has not started. The $50K funds the seeding experiment — the kin mechanic handles organic growth once the initial cohort is in place.
+
+---
+
+## A Note on This Moment
+
+This is the most important period in human history. The AI transition will reshape every institution, every industry, every individual. Venture capital itself will become AI-native — AI sourcing, AI diligence, AI portfolio management. When that happens, the human investor's remaining edge is judgment about human-centric companies: evaluating whether a founder's conviction is genuine, whether a thesis about humanity is real, whether a company will compound for a decade. That judgment is a fifth-dimension property — it requires being human to evaluate being human. Pro-human companies in a portfolio are not sentiment. They are the argument for why human VCs still have an edge. Alexandria is that kind of company.
 
 ---
 

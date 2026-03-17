@@ -10,6 +10,18 @@ The CTO is an AI agent responsible for all technical execution. The CTO's primar
 
 *The COO populates this section when decisions in other domains affect the CTO. Read this first on cold start. Clear items when addressed.*
 
+**2026-03-17, COO session (post CTO-20 sync):**
+
+- **CTO session 20 sync processed.** All items acknowledged. Tool activation fix confirmed. Project knowledge file (`alexandria.md`) noted as strongest activation layer — this changes onboarding docs across Growth.md and Concrete.
+- **Beta users: COO will identify 3-5 from Cohort 1.** Onboarding doc at `docs/claude-project-instructions.md` will be used. R&D signal from beta is now the #1 priority for the company.
+- **Memory priming snippet updated.** Founder will re-paste the new consequence-based version (see `alexandria.md` in project knowledge).
+- **Philosophy deltas this session (4 new sections in A1, 1 in A2):**
+  - *Industrial era sequence* (A1): deep software → deep hardware → deep philosophy as a logical sequence. Philosophy becomes the dominant frontier once machines are built and intelligence is running. Alexandria is pre-positioning for this transition. Connected to the "three components" paragraph — the company's own structure (philosophy as outer loop) mirrors the industry-level sequence.
+  - *VC as American infrastructure* (A1): risk capital is a structural pillar of American global dominance. Genuine respect for what VC does. Pre-positioning for inevitable transitions is what VC was invented to fund.
+  - *VC's own AI-native future* (A1): as VC becomes AI-native (AI sourcing, diligence, portfolio management), the human VC's remaining edge is judgment about human-centric companies — fifth-dimension properties. Pro-human companies in a portfolio prove why human VCs still have an edge over AI VCs.
+  - *No natural cancellation point* (A1 + A2): Sovereignty has no structural reason to cancel — works across all AIs, compounds over time, cancelling abandons a growing cognitive asset. Only three rational reasons to cancel: stop using AI, find superior alternative, or don't value self-knowledge. 4% monthly churn is conservative for launch; structural expectation is near-zero. Direct LTV implications.
+- **No CTO action items from this session.** All changes are philosophy/investor docs — no product or technical implications.
+
 **2026-03-17, COO session — CRITICAL: Tool activation rewrite (highest priority):** ✅ ADDRESSED (CTO session 20)
 
 The founder tested the product in real conversations. Result: `read_constitution` **never fires proactively.** It only fires when the user explicitly mentions Alexandria or asks identity-related questions. A query like "what book should I read" — which would massively benefit from the constitution — gets answered from training data alone. When manually prompted to use the tool, Claude acknowledges the output was far better and says it doesn't know why it didn't call it.
