@@ -116,6 +116,15 @@ Two separate problems confirmed. Both now resolved by CTO session 16.
 
 *The CTO populates this section when implementation decisions or changes affect other domains, or when the CTO needs specific data/input from the founder. COO reads this on cold start.*
 
+**2026-03-18, CTO session 21:**
+
+- **"Hey alexandria" is the product interaction.** Auto-call remains probabilistic (~70-85% in-project, lower outside). Platform limitation — `tool_choice: auto` is permanent. Instead of fighting it: wake word is the brand. "Alexandria, what do you think?" loads full profile reliably every time.
+- **Two modes documented:** Active (wake word, 100% reliable, the brand) + Passive (background extraction, probabilistic, improves as Anthropic improves MCP). Both compound.
+- **Onboarding simplified:** connector + two memory edits + "say alexandria." Project folder is optional.
+- **Memory edits split into two entries:** short imperative trigger + context. Reduces dilution.
+- **Constitution files are free-form:** any `.md` file in `Alexandria/constitution/` on Drive becomes a domain. Founder can copy existing extracted constitution data directly.
+- **COO action:** find beta users. Clean-slate test needed (founder's memory is saturated with Alexandria context). Demo video: "hey alexandria" + personalized response + Drive folder.
+
 **2026-03-17, CTO session 20:**
 
 - **Tool activation rewrite — all 3 moves implemented.** Move 1: consequence-based tool descriptions ("you are responding to a stranger"), everyday examples ("greetings, book recommendations, career advice"), no ALL CAPS. Move 2: memory priming rewritten with consequence-based language — founder re-pasted. Move 3: context header in read_constitution responses listing domains where profile changes the response.
