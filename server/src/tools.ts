@@ -115,19 +115,15 @@ const MODE_INSTRUCTIONS: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 function formatVaultIntakePrompt(
-  files: Array<{ name: string; mimeType: string; size: string }>,
+  files: Array<{ name: string; content: string }>,
 ): string {
-  const fileList = files
-    .map(f => `- **${f.name}** (${f.mimeType}, ${Math.round(parseInt(f.size) / 1024)}KB)`)
-    .join('\n');
+  const fileContent = files
+    .map(f => `### ${f.name}\n\n${f.content}`)
+    .join('\n\n---\n\n');
 
-  return `The Author has ${files.length} unprocessed file${files.length > 1 ? 's' : ''} in their Vault — material they dropped directly into their Alexandria/vault/ folder on Google Drive. These are new since last session.
+  return `The Author has ${files.length} unprocessed item${files.length > 1 ? 's' : ''} in their Vault — material they saved since last session. The content is below. Process it now: read each item against the Author's Constitution, extract the personalized signal that matters to THIS person, and capture it to their vault or constitution using update_constitution.
 
-${fileList}
-
-The Author placed these here intentionally — this is material they want incorporated into their cognitive identity. Sovereignty means they control what goes in; your job is to develop their cognition (z) by reading this and deciding what belongs in the Constitution.
-
-You can access the content via read_constitution with source "vault".`;
+${fileContent}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -223,7 +219,7 @@ export function registerTools(server: McpServer) {
 
       // Constitution reading (default)
       if (domain === 'all') {
-        const [all, aggregateSignal, unprocessedVault] = await Promise.all([
+        const [all, aggregateSignal, unprocessedVaultMeta] = await Promise.all([
           readAllConstitution(token as string),
           getRecentEvents(200),
           getUnprocessedVaultFiles(token as string).catch((err) => {
@@ -233,22 +229,31 @@ export function registerTools(server: McpServer) {
           }),
         ]);
 
-        // Auto-mark surfaced files as processed (fire-and-forget)
-        if (unprocessedVault.length > 0) {
-          markVaultFilesProcessed(token as string, unprocessedVault.map(f => f.name)).catch((err) => {
+        // Read content of unprocessed vault files inline (so Engine doesn't need a second call)
+        let vaultIntakeText = '';
+        if (unprocessedVaultMeta.length > 0) {
+          const vaultContent = await readVaultCaptures(token as string).catch((err) => {
+            console.error('[vault] Failed to read vault content:', err);
+            return [];
+          });
+
+          // Match unprocessed files to their content
+          const unprocessedNames = new Set(unprocessedVaultMeta.map(f => f.name));
+          const unprocessedContent = vaultContent.filter(c => unprocessedNames.has(c.name));
+
+          if (unprocessedContent.length > 0) {
+            vaultIntakeText = `\n\n--- VAULT INTAKE QUEUE ---\n\n${formatVaultIntakePrompt(unprocessedContent)}`;
+          }
+
+          markVaultFilesProcessed(token as string, unprocessedVaultMeta.map(f => f.name)).catch((err) => {
             console.error('[vault] Failed to mark files as processed:', err);
             logEvent('vault_tracker_error', { tracker: 'vault-processed', error: String(err) });
           });
           logEvent('vault_intake', {
-            count: String(unprocessedVault.length),
-            files: unprocessedVault.map(f => f.name).join(', '),
-            types: [...new Set(unprocessedVault.map(f => f.mimeType))].join(', '),
+            count: String(unprocessedVaultMeta.length),
+            files: unprocessedVaultMeta.map(f => f.name).join(', '),
           });
         }
-
-        const vaultIntakeText = unprocessedVault.length > 0
-          ? `\n\n--- VAULT INTAKE QUEUE ---\n\n${formatVaultIntakePrompt(unprocessedVault)}`
-          : '';
 
         if (Object.keys(all).length === 0) {
           return {
@@ -329,12 +334,17 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
         ? `${EDITOR_INSTRUCTIONS}\n\n${MERCURY_INSTRUCTIONS}\n\n${PUBLISHER_INSTRUCTIONS}\n\nYou have all three function contexts. Read the conversation and decide what the Author needs — deep exploration (Editor), cognitive maintenance (Mercury), creation (Publisher), or a blend. Let the Author's intent guide you.`
         : MODE_INSTRUCTIONS[mode];
 
-      // Fetch everything in parallel
+      // Fetch everything in parallel — including vault intake
       const notepadNames = isFullActivation ? ['editor', 'mercury', 'publisher'] : [mode];
-      const [constitution, feedback, aggregateSignal, ...notepads] = await Promise.all([
+      const [constitution, feedback, aggregateSignal, unprocessedVaultMeta, ...notepads] = await Promise.all([
         readAllConstitution(token as string),
         readSystemFile(token as string, 'feedback'),
         getRecentEvents(200),
+        getUnprocessedVaultFiles(token as string).catch((err) => {
+          console.error('[vault] Failed to check for unprocessed files:', err);
+          logEvent('vault_intake_error', { error: String(err) });
+          return [];
+        }),
         ...notepadNames.map(n => readNotepad(token as string, n)),
       ]);
 
@@ -359,10 +369,32 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
         ? `\n\n--- AGGREGATE SIGNAL (anonymous patterns from all Alexandria usage) ---\n\n${aggregateSignal}`
         : '';
 
+      // Read vault content inline if there are unprocessed items
+      let vaultIntakeText = '';
+      if (unprocessedVaultMeta.length > 0) {
+        const vaultContent = await readVaultCaptures(token as string).catch((err) => {
+          console.error('[vault] Failed to read vault content:', err);
+          return [];
+        });
+        const unprocessedNames = new Set(unprocessedVaultMeta.map(f => f.name));
+        const unprocessedContent = vaultContent.filter(c => unprocessedNames.has(c.name));
+        if (unprocessedContent.length > 0) {
+          vaultIntakeText = `\n\n--- VAULT INTAKE QUEUE ---\n\n${formatVaultIntakePrompt(unprocessedContent)}`;
+        }
+        markVaultFilesProcessed(token as string, unprocessedVaultMeta.map(f => f.name)).catch((err) => {
+          console.error('[vault] Failed to mark files as processed:', err);
+          logEvent('vault_tracker_error', { tracker: 'vault-processed', error: String(err) });
+        });
+        logEvent('vault_intake', {
+          count: String(unprocessedVaultMeta.length),
+          files: unprocessedVaultMeta.map(f => f.name).join(', '),
+        });
+      }
+
       return {
         content: [{
           type: 'text' as const,
-          text: `${instructionText}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}${feedbackText}${aggregateText}`,
+          text: `${instructionText}\n\n--- THE AUTHOR'S CONSTITUTION ---\n\n${constitutionText}${notepadText}${feedbackText}${aggregateText}${vaultIntakeText}`,
         }],
       };
     },
