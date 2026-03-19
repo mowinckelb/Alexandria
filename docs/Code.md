@@ -116,6 +116,77 @@ Two separate problems confirmed. Both now resolved by CTO session 16.
 
 *The CTO populates this section when implementation decisions or changes affect other domains, or when the CTO needs specific data/input from the founder. COO reads this on cold start.*
 
+**2026-03-19, CTO session 22 — STRATEGIC: Multi-channel architecture + Mercury as standalone product**
+
+### The insight
+
+MCP-through-chat is ONE channel, not THE product. The real product is: vault fills from everywhere, Mercury processes and delivers, Constitution compounds, Library is where it lives. The user never comes to us — we go to them.
+
+### Product map
+
+| Layer | What | Channel |
+|---|---|---|
+| **Intake** | Drop anything into vault | Drive folder, browser extension, email forward, share sheet, SMS |
+| **Mercury** | Processes vault, delivers personalized hazy fragments proactively | iMessage/SMS, email, push, in-app |
+| **Editor** | Deep conversation, Constitution building | Chat (MCP) + voice calls |
+| **Publisher** | Create, bind, release | Chat (MCP) + app |
+| **Library** | Neo-Biography, browse others | App/website |
+| **Dashboard** | Your Constitution, growth, domains | App/website |
+
+### Mercury as standalone product
+
+Mercury watches the vault folder. User drops an article → Mercury reads it against their Constitution → delivers the one personalized hazy fragment worth holding. "I read that article you saved. Given your interest in X, the one thing worth keeping: [fragment]." Delivered via SMS/email/push. No chat required. Immediate, tangible, repeated value.
+
+This is the clearest value proposition: a folder you dump things into, and a service that tells you what matters TO YOU. Powered by your Constitution. Gets better as the Constitution grows.
+
+### Channels — feasibility + cost
+
+**Outbound (Alexandria → user, proactive):**
+- Twilio SMS: $1/mo phone number + $0.008/message. No app needed. 100 users daily = ~$24/mo. Lowest complexity. Can't do iMessage (Apple blocks it), but SMS works on every phone.
+- WhatsApp Business API: $0.025/conversation. Can initiate proactively. International reach. More expensive.
+- PWA push notifications: free but unreliable on iOS (requires add-to-home-screen).
+- Email (SendGrid): free tier 100/day. Good for weekly digests. Low urgency.
+- Voice calls (Twilio): ~$0.02/min. Editor sessions by phone. Future.
+
+**Inbound (user → vault):**
+- Drive folder drop: works now (vault intake pipeline processes at next chat).
+- Browser extension: medium effort. "Save to Alexandria" button.
+- Email forwarding (vault@mowinckel.ai): medium effort. Needs email processing.
+- SMS to Twilio number: low effort if we already have Twilio for outbound.
+- Share sheet (mobile): needs native app or PWA.
+
+**App/website needed for:**
+- Library (Neo-Biography, browse others)
+- Dashboard (view your Constitution, growth)
+- Mercury delivery (in-app feed)
+- Vault management (see what's been captured)
+- Settings (notification preferences, connected accounts)
+
+**Cost to add:**
+- Apple Developer: $99/year (if native iOS app)
+- Twilio (SMS): ~$25/month at 100 users
+- SendGrid (email): free tier sufficient initially
+- Total new infrastructure: ~$125/year + ~$25/month at early scale
+
+### What this requires that we don't have
+
+**State.** Our server is stateless — doesn't know who users are between requests. Proactive outreach needs: stored contact info (email/phone), stored Drive token (to read their Constitution), and a scheduler.
+
+Sovereignty still holds: we store a token and a phone number. Their actual data stays on their Drive. Revoke = we lose the token, their data is untouched.
+
+This is the first real infrastructure addition since Turn 1. A lightweight user table (email, phone, encrypted Drive token, preferences). Could be as simple as a Google Sheet initially, or a proper database when scale demands it.
+
+### Priorities for COO discussion
+
+1. **Is Mercury-as-standalone (vault folder → personalized fragments via SMS/email) the right next product move?** It solves the "background extraction doesn't work reliably" problem by making Mercury proactive instead of passive.
+2. **Do we build an app or start with Twilio SMS (no app)?** SMS is cheaper and faster. App is needed eventually for Library.
+3. **Does this change the fundraise story?** Mercury as proactive AI that contacts you — not an app you open — is a compelling differentiator.
+4. **Timeline?** Twilio SMS Mercury could be prototype-ready in days. Full app is Turn 3+.
+
+### ChatGPT MCP — also ready
+
+Separate finding: ChatGPT Plus ($20/mo) supports MCP connectors in Developer Mode. Our server should work without code changes — same transport, same OAuth. Needs testing. This doubles our addressable market immediately.
+
 **2026-03-18, CTO session 21:**
 
 - **"Hey alexandria" is the product interaction.** Auto-call remains probabilistic (~70-85% in-project, lower outside). Platform limitation — `tool_choice: auto` is permanent. Instead of fighting it: wake word is the brand. "Alexandria, what do you think?" loads full profile reliably every time.
