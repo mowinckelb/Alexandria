@@ -374,6 +374,28 @@ The system does not optimise against defined metrics. The founder monitors. Key 
 
 *This document compounds. Every session adds signal. The methodology matures from notes to principles to operational instructions to tool descriptions. The tool descriptions ARE this document in executable form.*
 
+### From Constitution Extraction (2026-03-23)
+
+Meta-loop signal: this session was a full Constitution rewrite from raw vault material (130 voice memos, 80+ notes, Palantir doc, aphorisms, quotes). The process itself is R&D for the Editor function. Key extraction methodology learnings:
+
+- **The aphorism layer is the compressed signal; voice memos are the context.** When an Author produces both compressed positions (aphorisms) and raw stream-of-consciousness (voice memos), the compressed version IS the signal — the voice memos add emotional texture and reasoning chains but rarely add new positions. The Editor should extract from the compressed layer first, then use the raw layer to verify and deepen. This is more efficient than the reverse (which the previous Sonnet extraction attempted — processing raw memos first, producing thin results).
+
+- **Shadows require adversarial extraction, not passive capture.** The previous Constitution had 22 lines of Shadows. The raw material contained far more shadow signal, but it was distributed across domains — contradictions between aphorisms, tensions between stated values and described behaviour, gaps between framework and experience. Shadow extraction requires actively looking for the delta between what the Author claims and what the Author reveals. The Editor must cross-reference domains, not extract shadows in isolation.
+
+- **The contempt gradient is a shadow pattern.** When an Author's analytical positions (defensible) are expressed alongside contemptuous language (emotional), the gap between the two is shadow material. The analytical position ("cultures produce different outcomes") and the emotional expression ("liberals are less conscious humans") reveal something the Author may not have examined: whether the contempt is load-bearing (provides energy to maintain unpopular positions) or decorative (costs more than it is worth). Surfacing this distinction is high-value Editor work.
+
+- **Categories should serve the Author's cognition, not the product's architecture.** The six domains (Identity, Values, Worldview, Models, Taste, Shadows) are product scaffolding — soft defaults. For this specific Author, they turned out to be the right shape. But the previous extraction was thin because it filled categories rather than extracting signal. The lesson: extract signal first, then route to domains. Never start from "what should go in Identity?" Start from "what is this person actually saying?"
+
+- **The observer-effect applies to extraction itself.** An Author who knows their voice memos will be processed for constitution extraction may perform differently. The most valuable extraction material is unguarded — the tangent, the aside, the admission that was not meant to be a position. The Editor must capture these without making the Author self-conscious about them. Voice memos are ideal because the Author is talking to themselves.
+
+- **Political positions are both Values and Worldview.** The previous extraction put all political content in Values, making that file front-loaded with politics. Better routing: "a nation is its people" is a value. "Hard power underpins soft power" is a worldview. "Immigration should be filtered by skill and assimilation" is a value applied to a worldview. The Editor should route political signal to the domain it serves, not dump it all in one place.
+
+- **Emotion is ground truth; logic is symbolic representation.** The Author corrected an extraction error that revealed a core product insight. The Editor was conflating "emotion fires first" with "therefore logic isn't primary." Wrong frame. Emotion IS ground truth (sub-symbolic layer). Logic IS the symbolic representation. Both are primary — in different layers. The Author's own formulation: "emotions are ground truth and logic is the symbolic representation of it. This is the whole app." This is the Alexandria thesis stated as a personal cognitive principle. Transferable to all Authors: the Constitution's symbolic layer is always a lossy compression of the Author's sub-symbolic ground truth. The Editor must respect this hierarchy — extract the symbolic, but know the sub-symbolic is richer.
+
+- **Meditations marginalia is the richest extraction source for this Author.** The essay-writing process forces the Author to articulate things they have never articulated (genesis), resolve contradictions (development), and commit to positions (synthesis). The marginalia captures all of this at higher fidelity than voice memos because the Author is working through ideas with a thinking partner, not monologuing. This confirms the Blueprint's claim that creation is one of the most powerful genesis triggers.
+
+---
+
 ### From COO Session (2026-03-14)
 
 - The bitter lesson applied as architectural principle, not just data format. Every hard-coded decision is a bet against the exponential. Only values/intention should be hard-coded. Everything else is a soft default that gets thinner as models improve. The transition is gradual and tracks the exponential.

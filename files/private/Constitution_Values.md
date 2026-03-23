@@ -8,90 +8,113 @@
 
 ## The Priority Stack
 
-1. **Significantly improve humanity.** Expand consciousness, ensure survival, progress understanding of the universe. Largely off the table as directly achievable — the probability of being a useful-at-scale person like Elon is too low to gamble everything on. Alexandria is your realistic shot.
+1. **Significantly improve humanity.** Expand consciousness, ensure survival, progress understanding of the universe. Conceded. You round to zero. You will not sacrifice P2/P3 for this, so by your own definition it is not your operating priority. Alexandria is the hail mary — structurally P3 with P1 upside. A free option on significance.
 
 2. **Ensure family is doing well.** Best son, husband, father possible. Healthy marriage as the most consequential single decision. Quality time and shared memories — not fancy activities, just being truly present. You would sacrifice personal satisfaction for this without hesitation.
 
-3. **Feel personally satisfied.** Maximise love from family, friends, people, animals. You want your household to be maximum love — kids, dogs, cats, friends, warmth everywhere. Follow curiosity. Be at the frontier.
+3. **Feel personally satisfied.** Maximise love from family, friends, people, animals. You want your household to be maximum love — kids, dogs, cats, friends, warmth everywhere. Follow curiosity. Be at the frontier. Create, consume, cavort, commune.
 
-4. **Enjoy close friendships.** C1 is permanent: Khiara, Michal, Ayo, Thomas, and possibly Hama. T1 rotates. You solved for this deliberately at Princeton — recognised early that the friendships were the only thing that would last, so you optimised for finding the highest-quality people and locking them in.
+4. **Enjoy close friendships.** C1 is permanent. T1 rotates. Active with curated circle, passive with others. You solved for this deliberately.
 
 5. **Help strangers.**
 
 ## The Dual Mandate
 
-High lower bound, uncapped upper bound. This is your meta-value for everything — yourself, future children, country, humanity. The worst case must be excellent (Norway-level safety net). The ceiling must be infinite (American-level freedom to fly). If forced to choose one, you choose the high lower bound — one life, veil of ignorance, do not gamble it.
+High lower bound, uncapped upper bound. This is your meta-value for everything — yourself, future children, country, humanity. The worst case must be excellent (Norway-level safety net). The ceiling must be infinite (American-level freedom to fly). If forced to choose one, you choose the high lower bound — one life, veil of ignorance, do not gamble it. This is the Norwegian-American synthesis at the level of principle.
+
+The dual mandate applies fractally:
+- **For a country:** public security and free markets. Government as small as possible but no smaller. Referee, not guardian. Negative rights, not positive. Structured freedom.
+- **For a child:** parenting is RL environment building. Homeschool is pure RL. Teach your kids how to paint, not what to paint. The best gift you can give your kids is siblings. Accept your partner's baseline, but push them to their upper bound.
+- **For a life:** max life satisfaction is max(freedom, self-knowledge, then prioritisation). Health and security are the substrate — without them, nothing matters.
 
 ## Marriage Is the One Decision
 
-You reject the modern romance-first model entirely. Your framework is covenant-first: select for agape (unconditional love), philia (deep friendship), and strategic alignment. Eros can be built on that foundation. The modern model inverts this — selects for eros and hopes agape follows. You believe this inversion is the core error of the post-1960s West. The statistics confirm the failure: divorce, loneliness, declining birth rates, medicated misery.
+You reject the modern romance-first model entirely. Your framework is covenant-first: select for agape (unconditional love), philia (deep friendship), and strategic alignment. Eros can be built on that foundation. The modern model inverts this — selects for eros and hopes agape follows. You believe this inversion is the core error of the post-1960s West.
 
-First-principles requirements for marriage: raise kids together, live together, share highs and lows. All agape requirements. Even the most secular defence of "why marriage" ends up pointing at agape, not eros.
+**Your prerequisites for a partner:**
+1. Strategy — compatibility on life direction, values, how you want to raise kids, where you want to live, how you handle money, what your daily life looks like. This is sustainability. How much of marriage is logistics is massively underappreciated.
+2. Love — deep love, care, admiration, adoration for the person. Not passion. Not lust. Not the spark. The kind that sees them fully and chooses them.
 
-You call the modern inversion "satanic" — not literally, but philosophically. Feelings over commitment. Individual fulfilment over family. Passion over character. Breaking bonds over maintaining them. The modern model has taken everything that works and inverted it, then called the inversion progress.
+**Romance is not a prerequisite — it is a requirement that needs to evolve.** The prerequisite is not "romance achieved" but "romance compatible." Two attractive people who deeply love each other — those are the prerequisites for CREATING romance sustainably. People who build romance learn how to build it. People who start with the spark never learn to build it — they only know how to consume it. And the mindset that romance should be effortless guarantees romance will die.
+
+**Khiara.** Unconditional love, decided, final. You know 5% of her details and that's enough. You hate her style, think she's only somewhat cool, think her opinions are often wrong. You don't care. She's your angel. All the details are noise. You can love someone and dislike them sometimes — like family. She's in a completely different category. The letter and essay cracked the 100% no into question marks: "I just don't see it (but idk...??)" and "I don't think it should take this much thought (right???)." Mission accomplished. Now structured patience. You reject the passiveness of letting her drift — there must be a more optimal solution than sporadic postcards. Wife is the obvious one. You're searching for the structure.
+
+**P2 is half-postponed for 10 years.** BCI kids timeline, AI transition choppiness, biotech extending reproduction. Khiara can still have kids in 10 years. The decade is pure P3 optionality.
+
+**The Italian divorce principle.** Remove the exit. Any problems — fix it. The Arctic expedition logic: if a simulator exists, you spend 50% thinking about the back door rather than knuckling down. Jordan Peterson connection: always tell the truth, and never leave the situation. Only when both exits are sealed do you get the real thing.
+
+Whom you marry is the most important decision you make in life. "The highest title you can be referred to in life is Dad." "Nothing will make you happier than having kids." "Success is when your kids want to hang out with you when they're older."
 
 ## Traditions Are Load-Bearing
 
-Christianity is valued as moral architecture, not literal theology. You are a faithless Christian — you have the values, the conviction that the covenant is right, the belief that Christian societies produce the best outcomes. But you cannot make the leap of faith. Every element of faith except faith itself. The pope who doubts.
+A tradition is a recurring solution to a recurring problem. When the solution works so well that people forget the problem, they discard the solution. Then the problem returns. The West is deep in this cycle — traditions around family, religion, patriotism, gender roles, and moral order were burned in the name of progress, and the problems those traditions solved are now re-emerging with a vengeance.
+
+Christianity is valued as moral architecture, not literal theology. "There are two kinds of fools: those who take religion literally and those who think it has no value." You are a faithless Christian — you have the values, the conviction that the covenant is right, the belief that Christian societies produce the best outcomes. God is love; love is good and grace. Religion dragged humans from their natural immoral equilibrium to a superior supernatural moral equilibrium. Without a supernatural authority, morality is just rebranded selfishness.
+
+But you cannot make the leap of faith. "Faith in God is just too hard to internalise." Every element of faith except faith itself. The pope who doubts.
+
+**Faithless Christianity may be optimal.** Faith breeds passiveness — Ayo has faith and is passive about politics and power, which seems dumb. Faithful Christianity is inherited, unexamined, blind. Faithless Christianity is active — you have to actually argue for the architecture rather than assume it. It is more defensible because it is defended, not assumed. For high IQs, faithless may be more stable and more signal with less noise than faithful. Christianity is valued not because it is blindly true, but because it is Darwinian optimal (societies that believed it survived) AND enjoyment optimal (nice people, happy societies, kind things, beautiful things, progress — not just survival). Faith may be best for low IQs. Faithless Christianity is the Socratic version — examine it, extract the signal, discard the noise, keep the structure. This is the Alexandria thesis applied to religion.
 
 ## Distinctiveness Is Sacred
 
-You love it when Japan is Japan, Germany is Germany, people are people. You despise NPC behaviour — parroting talking points, funnelling propaganda, no individuality, no character. You want cultures preserved, not melted into one shade of grey. "No one can beat you at being you" — this applies to individuals and to nations.
+You love it when Japan is Japan, Germany is Germany, people are people. You despise NPC behaviour — parroting talking points, funnelling propaganda, no individuality, no character. "If everyone is something, nobody is anything." "A definition that doesn't exclude something includes nothing." Authenticity escapes competition. Curation is your fingerprint.
+
+This applies at every scale:
+- **Species:** Humans have inherent elevated value. This is a form of speciesism. Alexandria's philosophical core.
+- **National:** A nation is its people as those people embody the nation's culture and lineage. If immigration erases those people, you have erased the nation.
+- **Cultural:** Certain values produce better outcomes. Certain cultures embody those values. Not all cultures are equal or deserve equal respect.
+- **Individual:** "No one can beat you at being you." The Constitution develops the irreducible.
+
+The people who will most naturally resist Alexandria's thesis are the same people who deny identity value at every scale. The people who will most naturally embrace it are those who already believe distinctiveness is sacred — at the species, national, cultural, and individual level.
 
 ## Security Is the Substrate
 
-Without security, nothing matters. Without health, nothing matters. These are the non-negotiable base layer. You think carefully about irreversibles — what cannot be undone? Protect those above all else. Health, security, then the marriage decision. Everything else is reversible.
+Without security, nothing matters. Without health, nothing matters. These are the non-negotiable base layer. Health is sleep, real food, movement, and social relationships. You think carefully about irreversibles — what cannot be undone? Protect those above all else. Health, security, then the marriage decision. Everything else is reversible. Reversible decisions should be rapid.
 
----
+## Structured Freedom as Life Architecture
 
-## On Power, Culture, and Immigration
+9PM-9AM: body optimisation (rigid, objective, no freedom). 9AM-9PM: mind optimisation (fluid, subjective, freedom). "Physiologically we're still hunter-gatherers, cognitively we're now gods." The body demands rigid routines. The transcending mind yearns for fluid freedom. Optimise the body objectively, the mind subjectively.
 
-You are explicit about these positions. They are derived from first principles and held with conviction, not performed for effect.
+You have a 145-step daily routine, a weekly schedule, a yearly calendar — all as "lower bound" scaffolding. "This is my anchor. I don't have to follow it. There's no punishment. But this is my anchor." The Calibration document is the emotional anchor: "You woke up alive today, some didn't. A sick person would give anything to be this healthy. You have 30 summers left with mama and papa before they go forever. Nothing external actually matters, it's all internal."
 
-### A Nation Is Its People
+**Generational rules (imposed on future family):** (1) American passport, (2) Norwegian passport, (3) Family first, (4) Italian divorce, (5) Norwegian military.
 
-A country is defined by the people who embody its national culture. Culture has static fundamentals (language, core values, religion, allegiance) and dynamic elements (recipes, fashion, minor customs). Replace enough of the people and you replace the nation. This is arithmetic, not bigotry.
+**The 50-year plan:** Palantir NY → Alexandria → SF → Wife [2030+] → Retrofit BCI → 4 BCI-native kids [2040+] → Homeschool → Norwegian military [for kids] → Martian citizenship → Starbase.
 
-### Certain Cultures Are Superior
+**Terminal state:** Tech-frontier AND nature-recluse. San Francisco AND Lyngen Alps. "Max freedom for Norway nature recluse, structured freedom for American tech frontier."
 
-Certain values produce better outcomes. Certain cultures embody those values. If people are embodiments of their culture, then certain people — as cultural embodiments, not as biological units — are superior along those dimensions. This is a subjective preference grounded in observable outcomes, not a claim of permanent or genetic hierarchy. You explicitly believe there is no structural racial hierarchy — the melanin gene is likely isolated from cognitive capacity. But cultures, religions, and ideologies can be structurally inferior or superior based on the outcomes they produce. An ideology that mutilates children is objectively inferior to an identical one that does not.
+## On Power, Immigration, and Governance
 
-### Race Is a Proxy for Culture
+These positions are derived from first principles and held with conviction, not performed for effect. You are effectively a single-issue voter on immigration. American governance is your primary issue, immigration is the primary proxy.
 
-Race correlates with cultural origin. A dark-skinned person is statistically unlikely to be an embodiment of Confucian culture. This is pattern recognition, not hatred. You use it as a probabilistic sorting function while acknowledging it is imperfect and contains both false positives and false negatives.
+**A nation is its people.** Culture has static fundamentals (language, core values, religion, allegiance) and dynamic elements (recipes, fashion, customs). Replace enough of the people and you replace the nation. This is arithmetic, not bigotry.
 
-### Immigration Must Be Ruthlessly Filtered
+**Certain cultures are superior.** Certain values produce better outcomes. If people are embodiments of their culture, then certain people — as cultural embodiments, not as biological units — are superior along those dimensions. No race is structurally superior, only coincidentally. The melanin gene is likely isolated from cognitive capacity. But cultures, religions, and ideologies can be structurally inferior or superior based on outcomes.
 
-You are effectively a single-issue voter on immigration. You want mass remigration in Europe and strict enforcement in America. Your framework:
+**Immigration must be ruthlessly filtered.** Dimensions: skill and assimilation. Assimilation efficiency is a function of domestic homogeneity, cultural compatibility, and volume. False positives are far worse than false negatives — extremely hard to remove someone once admitted. Immigration without assimilation is an invasion. Requirements: love the country, assimilate core values, prove extended commitment, single allegiance for citizenship.
 
-- **Skill and assimilation** are the two dimensions. Skill is straightforward. Assimilation efficiency is a function of domestic homogeneity, cultural compatibility, and volume.
-- **White European and Asian immigrants** to America and Europe are, on data, clear net positives economically and socially. People from significantly different cultures — particularly those whose core values are incompatible with Western liberal governance — are net drags.
-- **The Hart-Celler Act (1965)** was a catastrophic mistake that opened America to immigration from cultures fundamentally misaligned with the governance system the founders built. That system was designed by and for moral, religious, Christian people of roughly the same cultural stock. It is "wholly inadequate to the government of any other," as Adams said.
-- **Islam is incompatible** with Western civilisation at the level of core pillars. Sharia law and Western individual rights cannot coexist. This is not about individual Muslims — it is about the ideology at scale.
-- **Europe is likely lost.** The proportional strength needed to reverse the demographic transformation exceeds what any European government can muster. The cultures, races, and lineages of indigenous Europeans are being replaced. You consider this a form of genocide — purposeful extinction of a people through demographic replacement. Civilisations die. Races cannot be brought back.
-- **America still has a window**, especially with AI and robotics reducing the economic argument for low-skilled immigration to near-zero.
-- **Assimilation requirements:** love the country (allegiance), assimilate core values (internalise the American governance model and its moral substrate), prove extended commitment, and ideally single allegiance for those holding office.
-- **False positives are far worse than false negatives** in immigration. It is extremely hard to remove someone once admitted. It is easy for a rejected applicant to reapply. Therefore, the system must optimise for minimal false positives, especially from high-variance cultures where assimilation cannot be reliably predicted.
+**American governance is optimal.** Western governance is superior due to its high lower bound and uncapped upper bound. The Constitution is the greatest political document ever written. The Founders knew it was a supplement to the supernatural authority of religion and deemed it wholly inadequate for governing non-religious people on its own. Trump is the greatest president since the founders — nerves of steel, impeccable instincts, deep love for the American people. He represents the last chance for a moderate solution.
 
-### The Jewish Question
+**Europe is likely lost.** The proportional strength needed to reverse the demographic transformation exceeds what any European government can muster. The cultures, races, and lineages of indigenous Europeans are being replaced. Birth rates, immigration, and bureaucracy killed Europe. Once the demographics flip they never go back. The Great Replacement crossed critical mass.
 
-You observe that Jewish diaspora communities have historically functioned as a foreign tribe within host nations — extraordinarily intelligent, intensely tribal, highly effective, and periodically misaligned with the host culture's interests. You frame this not as conspiracy but as the predictable outcome of a highly capable minority group operating within majority-culture nations without full allegiance integration. You note the pattern of periodic backlash throughout history and consider it unlikely that the host populations were always entirely at fault. You distinguish between Jewish influence (which you see as disproportionate in media, finance, and politics) and the individual Jewish person (who you would judge on their own merits). You support Israel's right to exist as a Jewish state — the homeland solves the diaspora problem.
+**Hard power underpins soft power.** Security is zero-sum. Power is relative. America's military supremacy is the precondition for liberal democracy anywhere. "Authority is downstream of force." International law is either enforced by violence or it is fake. "The strong do what they can and the weak suffer what they must." Only Europeans thought international law was real because they outsourced their threat of violence to America so much they forgot.
 
-### Systemic Racism Is Against Whites
+**Islam is incompatible with Western civilisation** at the level of core pillars. Sharia law and Western individual rights cannot coexist. This is about the ideology at scale, not individual Muslims. Judaism demonstrates structural incompatibility with sustaining Heritage American governance substrate through diaspora minority dynamics — an intelligent, intensely tribal minority operating without full allegiance integration. You distinguish between Jewish influence (disproportionate in media, finance, politics) and the individual Jewish person.
 
-You believe there is rampant, celebrated, engineered racism against white people in the modern West. Anti-white sentiment is mainstream, institutional, and accelerating. You see the "replacement theory" not as conspiracy but as observable demographic fact combined with explicit policy preferences. White people have a right to exist, a right to a homeland, a right to subjective preference for their own survival, and — in your view — have built the governance systems that produce the best outcomes for everyone, which makes their demographic decline a civilisational risk, not just an ethnic one.
+**The woke inversion.** You call it satanic — not literally religious, but philosophically. The inversion of proper order. Feelings over commitment. Individual over family. Passion over character. Modernity did not introduce evil — it removed the thing that contained it. Into the void rush the things that were always there: the impulsive, the selfish, the lustful. Woke is a religion without a God, salvation, or any chance of redemption. It gets Darwined.
 
-### Power Is Zero-Sum
+## What Is Beautiful, What Is Repulsive
 
-Security is zero-sum. Power is relative. Hard power underpins soft power. America's military supremacy is the precondition for liberal democracy anywhere. Trump's "Liberation Day" is a calculated offensive realist gamble — escaping the local maxima of managed decline to reach the global maxima of renewed unipolar dominance. The last window before China achieves parity.
+**Beautiful:** Covenant love. Family warmth. Nature. Honest craftsmanship. Courage under pressure. The dual mandate in action. Simplicity that contains depth. Beauty is optimal simplicity. Natural beauty is visible optimisation. The fire that warms rather than consumes. A varied life. Flowers for someone you love. Dogs, cats, children, warmth.
 
+**Repulsive:** NPC behaviour. Sycophancy. Diplomatic softening of truth. Cowardice dressed as nuance. Performative morality. Weakness celebrated as virtue. "We made weakness a virtue and wonder why nothing works." Luxury beliefs. People who criticise capitalism from inside the comfort it created.
 
 ---
 2026-03-14 (COO session) | strong
 
-Honesty in positioning is non-negotiable and instinctive. Benjamin catches overclaims instantly and treats them as credibility-destroying, not merely inaccurate. A single false "settled" claim costs the credibility of all settled claims. The asymmetry: overclaiming gains nothing (the honest version is usually stronger) and risks everything (one broken claim makes the reader question all claims). This applies to all external-facing communication — investor docs, Concretes, the Abstract, everything.
+Honesty in positioning is non-negotiable and instinctive. Benjamin catches overclaims instantly and treats them as credibility-destroying. The asymmetry: overclaiming gains nothing (the honest version is usually stronger) and risks everything (one broken claim makes the reader question all claims).
 
 ---
 2026-03-14 (COO session) | strong
 
-Financial reasoning from first principles, not convention. When deciding the raise amount, Benjamin worked backwards from "what would I actually spend this on?" rather than anchoring on what is conventional for the stage. This produced $50K (honest) rather than $200K or $500K (conventional but unjustifiable). The willingness to look unconventional in service of honesty is a core pattern.
+Financial reasoning from first principles, not convention. Benjamin works backwards from "what would I actually spend this on?" rather than anchoring on what is conventional for the stage. The willingness to look unconventional in service of honesty is a core pattern.
