@@ -38,7 +38,7 @@ An MCP server. The user adds one connector to their AI account. Five tools activ
 
 **Layer 3 — Living Library (purpose).** Users share their developed perspective. Others query it and pay. At institutional scale, AI labs access a pool of opt-in structured cognitive representations for alignment research, personalisation, and human modelling — the only sovereignty-compatible dataset of its kind.
 
-All three layers are the same product, same architecture, same user at different depths of engagement — a natural funnel, not three separate businesses. Three pillars: freedom (own it), humanity (develop it), purpose (use it).
+All three layers are the same product, same architecture, same user at different depths of engagement — a natural funnel, not three separate businesses. Root value: humanity. Three pillars: freedom (own it), authenticity (develop it), purpose (use it).
 
 ---
 
@@ -56,7 +56,7 @@ All three layers are the same product, same architecture, same user at different
 
 ## The Numbers
 
-**Cost base: near-zero.** No payroll. No compute (user's own AI subscription covers inference). No storage (user's own cloud). No database. Solo founder. All employees are AI agents. Company opex: $101/month — Claude Max $100, Railway $1. Everything else is free tier or owned: GitHub, Google Drive, Vercel, Fly.io, UptimeRobot, Google Cloud Console, Claude Code, domain. Two paid services and an entire free stack. Founder living costs (~$300/month + rent) are separate. Payment processing optimised: Sovereignty tier uses ACH (0.8% flat), Examined Life uses Stripe cards (2.9% + $0.30) — blended processing cost ~1.4% of revenue. Billing frequency options (monthly default, quarterly 10% off, annual 20% off) reduce churn and improve cash flow. Break even on company opex alone: ~21 Sovereignty subscribers at $5/month. See Numbers.xlsx for the full model.
+**Cost base: near-zero.** No payroll. No compute (user's own AI subscription covers inference). No storage (user's own cloud). No database. Solo founder. All employees are AI agents. Company opex: $101/month — Claude Max $100, Railway $1. Everything else is free tier or owned: GitHub, Google Drive, Vercel, Fly.io, UptimeRobot, Google Cloud Console, Claude Code, domain. Two paid services and an entire free stack. Founder living costs ($228/month + rent) are separate. Payment processing optimised: Sovereignty tier uses ACH (0.8% flat), Examined Life uses Stripe cards (2.9% + $0.30) — blended processing cost ~1.4% of revenue. Billing frequency options (monthly default, quarterly 10% off, annual 20% off) reduce churn and improve cash flow. Break even on company opex alone: ~21 Sovereignty subscribers at $5/month. See Numbers.xlsx for the full model.
 
 **Break-even: ~21 Sovereignty subscribers.** That is the real number — 21 people paying $5/month covers company opex plus payment processing fees. With kin mechanic active (blended ~$7 ARPU): ~15. With Examined Life ($15-20): as few as 6. Reachable within weeks of launch. Full financial model in Numbers.xlsx.
 

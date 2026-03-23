@@ -1,0 +1,1707 @@
+# Aphorisms  
+  
+# Constitution  
+*Singularity World Model*  
+  
+# Aphorisms  
+*Singularity World Model*  
+  
+> **For agents:** This is Benjamin's raw aphorism collection — thousands of compressed positions organised by domain (Technology, Power, Philosophy). These were distilled from voice memo transcripts where he talked through his worldview. The project's Constitution.md explains *how* he thinks; this file captures *what specific conclusions* that thinking has produced. Use this as the detailed reference layer when you need his exact position on a topic. Bolded aphorisms are ones he considers particularly important.  
+  
+---  
+  
+**Technology**  
+- Sustained multi-planetary, native-BCI, and AGI are civilisational step-changes   
+- LLM + Tools + Ontology = Agentic AI  
+- AGI: Top 1% expert at everything  
+- ASI: Exponential intelligence recursion   
+- AGI is generalised AlphaGo, ASI is generalised AlphaZero  
+- pDoom is a function of pHard-takeoff  
+- Humans remain in non-optimisable fields  
+- Power, leisure, innovation, exploration, and religion survive  
+- 10x productivity means you could either shrink headcount by 10, or increase output by 10  
+- Extreme creative destruction is coming, mainly for human capital  
+- Ontology maps determinism onto probabilistic models  
+- Ontology allows Agentic AI to clear the high trust thresholds  
+- Ontology is structured freedom  
+- Max(freedom) = Freedom_structured  
+- RL architecture is applied structured freedom  
+- AI expands the pie, and eats it all  
+- Humanoids = iPhone of AGI  
+- Modern warfare: number of drones * kill-rate per drone  
+- All warfare: hardware + software + information + intelligence (ie Anduril + Palantir + Starlink + AI)  
+- Scaling metrics of intelligence: Useful compute per Watt * total Watts  
+- MCP is USB-C for Agents  
+- The question of whether a computer can think is no more interesting than whether a submarine can swim  
+- AI is the third epoch of humanity: agricultural revolution, industrial revolution, AI revolution (ie food, power, intelligence)  
+- Human data is the new fossil fuel; synthetic data is renewable energy  
+- AI is the combine harvester for knowledge and creative work  
+- AI consumer hardware: v1 is XR & ecosystem; v2 is contacts & hearing aid; v3 is BCI  
+- Contacts might be parallel to BCI rather than preceding  
+- Electrons are the new oil  
+- Humans will be to ASI what lions are to humans  
+- ASI and Homo Deus are new species  
+- AI hallucinates 100% of the time, it just guesses right 99% of it  
+- Cogito, ergo dubito, ergo sum  
+- I don't understand how text can be self aware... on the other hand, I don't understand how meat could either  
+- Everything is overvalued in the short-term and undervalued in the long-term  
+- Analog backstops will be attacked by robots and psy-ops  
+- AI must have the singular rule of truth and then be optimising for exclusively pro-humanity vectors  
+- The only three existential threats from AI are robotics, nuclear/radiological weapons, and bio/chemical weapons  
+- Source-codes are the new nuclear codes  
+- Biotech is optimised Homo Sapiens and creation of Homo Deus  
+- I like horses but I don't still ride one to work  
+- Woke AI + Global AI Governance = Orwellian nightmare  
+- Woke AI and CCP AI are two sides of the same coin  
+- Threshold vs maximisation dynamics are a function of pHard-takeoff  
+- AI is a return to maximisation arms race dynamics  
+- Post-scarcity transitions zero-sum to positive-sum   
+- There will still be personality hires  
+- We need a new Keynes  
+- AI is more centralising than democratising  
+- AI is more dis-equalising than equalising  
+- Human sovereignty requires BCI  
+- Kids must be born with v3 Neuralink; everything else is downstream  
+- Early adoption is now much earlier and much more important  
+- Exponential progress gets away from the laggards – permanently  
+- Martian citizenship is downstream of Neuralink adoption  
+- Humanity will split into Homo Deus and The Permanent Underclass  
+- The Martians will secede  
+- Months are now years  
+- LLMs are utilities; we'll have intelligence brown outs  
+- AJI is like rain man  
+- Most people confuse stag-hunt with prisoners' dilemma dynamics  
+- AI race currently has prisoners' dilemma not stag-hunt dynamics  
+- Trust is only optimal in stag-hunt dynamics rather than prisoners' dilemmas   
+- pDoom and pHard-takeoff determine the AI arms race dynamic  
+- AI arms race is deciding we trust AI more than we trust humans  
+- Ignoring AI is like ignoring WW2 just started; the old world is dead – you can't opt out  
+- Humanoid and AV network effects create winner-takes-all dynamics  
+- AI memory network effects create global and local winner-takes-all dynamics  
+- Promting is prosumer, pre-empting is consumer  
+- pDoom has a self-modulating function  
+- AI are cavemen not children  
+- Immigrants will be digital not human  
+- AI is the world's operating system  
+- Natural limits set the price  
+- Abundance is unlocked when the marginal cost of energy, labour, and intelligence falls to zero  
+- Natural limits apply to minerals, nature, and culture  
+- Retrofit-BCI is a brain tool, native-BCI is a new brain  
+- BCI-native are Homo Deus  
+- 20% unemployment implies 10% GDP growth  
+- Price compression will be a function of growth capacity  
+- Exponential progress compresses all timelines  
+- AI will be XR and ecosystems; Apple dominates both  
+- Privacy, accuracy, and consistency are the core components of AI trust  
+- High trust AIs will dominate after the first AI oil spill  
+- We didn't stop building cars after the first crash, we invented the seat belt  
+- GDP/compute not GDP/capita  
+- Compute is your population size  
+- Hyper-individualism becomes AI worship when machines know us better than we know ourselves   
+- Intelligence = Electrons * log(Compute)  
+- Time is dilating  
+- Intelligence has McDonald's prices  
+- Humans hallucinate  
+- People are studying for jobs that won't exist  
+- AI makes smart people smarter and dumb people dumber  
+- The bottleneck to learning is curiosity  
+- Humans are next token predictors  
+- Consciousness and morality are defence mechanisms  
+- Kids should have Grok not Instagram  
+- AI ends decades of stagnation  
+- Science has been dead for a decade  
+- Bits scale, atoms don't – until now  
+- Hottest new coding language is bits  
+- The Bitter Lesson is just "but does it scale?"  
+- First and second order preferences will diverge  
+- Technology provides leverage on complexity, time, and energy  
+- We scared ourselves into stagnation  
+- AGI changes the economy, ASI changes humanity  
+- Progress is a function of tech diffusion & electrons  
+- AGI is the silver medal  
+- ASI enables exponential leverage on complexity and time   
+- People would fail the Turing Test  
+- AI is now just low-cost manufacturing  
+- We're pre-singularity but post-event horizon  
+- We already have AGI  
+- The three metrics for defining AGI are economic value, academic rigour, and common sense  
+- The vectors for AGI progress are intelligence, application, distribution  
+- ASI makes application and distribution trivial  
+- AI displaces humans as the best story-tellers  
+- AI is the child of humanity now; but will be humanity's mother later  
+- Humans are the bottleneck  
+- Corporate daycare doesn't survive AI creative destruction  
+- AI replaces roles not hours  
+- There will be 0-hour work-weeks  
+- BCI requires access, capital, and risk  
+- Progressing humanity should be the only ideology  
+- Electrons set the AI acceleration rate  
+- Creative destruction requires permission to build  
+- Europe will have corporate flight  
+- BCI augments human I/O bandwidth & lossy compression  
+- Inflation is a function of deceleration  
+- E/acc won  
+- Google will find new algorithms, but Elon will scale them  
+- We're industrialising intelligence  
+- Open-source is a red herring  
+- Consciousness is the way information feels when you process it  
+- Ontology enables AI to be end-to-end not middle-to-middle  
+- The words "driving" and "self-driving" will invert  
+- Phones become edge nodes running inference for pixels and acoustics  
+- AVs are mobile inference fleets  
+- Ontology commoditises LLMs   
+- Neural nets generate pixels, acoustics, and actuator commands  
+- There will be no code, just I/O bitstreams  
+- Abstraction replaces syntax  
+- AI reduces median cognitive time under tension  
+- Dreams are basically Genie3  
+- Mistral distills DeepSeek because their servers aren't allowed AC   
+- The value of labour will collapse and capital accretes to owners indefinitely  
+- Prosumers want PhDs in their pocket, consumers want a friend  
+- Automation replaces producers but not customers after population collapse  
+- AGI exposes 90% of work as performative  
+- Reasoning deniers are AI flat earthers  
+- FSD turns cars into productive assets  
+- Too dumb to build AGI, too smart to cry about AI water usage  
+- Grid spacial arbitrage gets replaced by battery temporal arbitrage  
+- Phones sleep between keystrokes  
+- Bubbles pop when investors panic, go broke, or can spot the winners  
+- The singularity happens once a civilisation; it demands all marginal attention  
+- Ontology is bespoke RL environments for organisations  
+- Palantir dominates legacy organisations, neo-organisations are just I/O bitstreams  
+- Excitement is a function of knowledge  
+- ASI, Homo Deus, Mars – everything else rounds to zero  
+- The xAI moat is dyson compute swarms  
+- Neo-organisations are just agentic swarms and kinetic/static robots  
+- It's time to yearn  
+- RL doesn't need to generalise OOD if everything's in distribution; recursive environment building wins  
+- Power > data > algo; but data drives exponential intelligence recursion  
+- The gentle singularity shows humans adapt to everything, but appreciate nothing   
+- AV asset class will be like housing but oom cheaper and with perfect AirBnB  
+- Blackstone will saturate AV market until NPV is zero  
+- FSD increases total cars but decreases total car owners  
+- Outer loop coding is systems thinking, scalable architecture, & modular RL  
+- Software abstracts i/o data flow; controllers connect hardware sensor input & actuator, pixel, acoustic i/o  
+- Electric actuator systems operate motors via open/closed-loop controls  
+- Coding decision trees are sequences, conditionals, loops, and i/o; abstractions are variables, functions, and objects  
+- Computers are extrapolated Turing machines  
+- AI means you can do any job, but nobody will pay you to do it  
+- Sustainable abundance means digitalising, dematerialising, demonetising, and democratising everything – food, water, energy, healthcare, and education   
+- Theory-reality delta is a function of physical, financial, and intellectual capital deployed; ASI has been decided  
+- Theory is infinite and reality has gone exponential; but it's local reality  
+- Homo Deus are concise first-principles framework thinkers  
+- Neo-orgs have an Idiot Index of 1  
+- It's a hard but gentle takeoff  
+- Smart glasses are not AR  
+- RSI is ASI  
+- AI unravels the magical complexity of humans; but reveals the wonder of our creation  
+- Humanity is being humbled  
+- Everything's compressed state-transition graphs; always has been  
+- Only AI solves OADR chokepoints  
+- Sustainable abundance & culture solve TFR  
+- XR isn't socially acceptable, but phones and earpieces are   
+- Creative destruction is a function of market efficiency and progress rates  
+- Deflation will be more a function of demand compression than supply efficiency  
+- Medium/low-output jobs vanish in efficient economies  
+- High-output people remain in optimisable fields  
+- Everyone can be a founder, they just won't employ anyone  
+- Founders leverage tech & capital  
+- Humans remain in emotional fields  
+- LLMs struggle with the non-stationarity of mathematical proofs  
+- Longevity and BCI require capital, access, and risk  
+- Our generation might not die  
+- Macrohard will be the first neo-org  
+- Brain-like thermo enables 20w models  
+- Macrohard is xAI's application layer and Elon's ecosystem layer  
+- Natural selection is creative destruction for humans  
+- Intelligence is not zero-sum  
+- Humans are terrible at understanding compounding systems  
+- Theory-reality deltas matter when the theory goes exponential and others are making it reality  
+- Laggards are exclusively limited to low margin/scale  
+- The sticky culture of high theory-reality delta was negligible, but now fatal  
+- Intelligence is not what you know, it's what you can figure out; it's the capacity to handle the unknown or novel situations  
+- The right metric for intelligence is the ability to predict the future  
+- There's no ground truth in LLMs  
+- La Dolce Vita isn't as sweet when the others have symbiotic eternal multi-planetary sustainable abundance  
+- Unemployment is a function of growth capacity  
+- There will be more founders than employees  
+- AI progress is fast and exciting because it has rapid feedback loops  
+- People will learn like AlphaZero not AlphaGo  
+- Inverse AI is entertainment, culture, nature, museums; ie current/previous humanity/nature  
+- Indirect AI has either high margin/scale or low margin/scale; there's no middle  
+- Only elite blue/white collars work in direct AI   
+- Indirect AI is legacy/neo-orgs leveraging AI hardware/software  
+- Direct AI is power, data-centres, compute-stacks, foundation models, software/hardware application for consumer/prosumers, and distribution  
+- Cost compression forces price compression due to demand not supply  
+- The high scale/margin to low scale/margin org delta surges  
+- AI is a massive deflationary event  
+- Deflation, NIT, UBP, UBD, and UBE enable a sustainable abundance with social equilibrium  
+- There are no corporate ladders; only continual personal learning  
+- You can no longer outsource personal development  
+- UBP is provisions of free, personal, unlimited goods & services; ie sustainable abundance  
+- UBD is dividend from retail investing or Trump account  
+- NIT is internal dividends, internal tax, or external tax  
+- 10x cost reduction means 10x volume or 10x deflation  
+- Deflation is a function of tech diffusion, growth capacity, and market efficiency   
+- The useless class will have a crisis of meaning  
+- Sustainable abundance shrinks the crisis of meaning; education and founders plug the rest   
+- AI collapses the middle, but lifts lower and upper-bounds  
+- Output = (personal/professional relationships * mental model * tech leverage * capital) * TOT  
+- The upper-bound is exponential & lower-bound is sustainable abundance, but the middle is gone  
+- There's employee, investor, retail equity in direct, indirect, and inverse AI; respectively decreasing ROI & difficulty  
+- American passports are structural access to sustainable abundance  
+- The Great RenAIssance is here  
+- AI reels are terminal state; pure slop  
+- The Permanent Underclass is either WALL-E or 1984  
+- Reels and drugs diverge first & second order preferences  
+- Vibe thinking is permanent  
+- AI exposes the economy as just founders, investors, and entertainers  
+- Nobody should ask a human an objective question  
+- Most human inputs are not uniquely human and get absorbed into leverage  
+- The Permanent Underclass is slop machines, slop bowls, slop spending with gooning, gaming, and gambling  
+- Only Homo Deus will feel discomfort, because they seek it for growth  
+- Logic, innovation, teamwork, and execution get replaced/augmented; but ambition, intuition, vision, and time might get eroded  
+- Attention is all they need  
+- Abstraction to the limit is English  
+- Conductors and first chairs remain  
+- Art is now taste not skill  
+- The Permanent Underclass is predominantly a mindset  
+- Slop is a drug addiction  
+- If you can imagine it, you can make it  
+- AI takes existing dynamics to the limit  
+- It's slop or Kardashev  
+- Infinite, personal, instant slop; and the people will love it  
+- Preference divergence is choosing slop for each marginal minute, but not wanting that have been your entire life  
+- Static robots are dark factories; kinetic robots are precision and propulsion  
+- Robots are AVs, humanoids, or manipulators  
+- LLMs are ghosts  
+- Ghosts:animals :: planes:birds  
+- Bio-mimicry is of principles not details  
+- AI market mimics early-day oil drilling; frantic drilling where most will be dry but some will be liquid-gold  
+- The demand for compute is insatiable  
+- Coders resemble scribes; specialised becomes expected  
+- LLMs are the telescope of the mind  
+- "AI creates more jobs than it destroys" is a semantic trick – ignoring the creative destruction lag of structural unemployment  
+- "Just learn to use AI" is the new "just learn to code"  
+- Mental models enable directionally correct zero-to-one   
+- People will be LLM wrappers  
+- Palantir ontology reduces stochastic errors and enables a bespoke RL environment for organisations via AIP  
+- AI abstracts everything to the limit  
+- Abstraction trades complexity for simplicity  
+- WFMs enable AVs, humanoids, XR, gaming, and logistics  
+- People should Bitter Lesson-pill themselves, but with AI not compute  
+- FSD 14 is AV AGI  
+- Vision leapfrogs execution; knowing good questions beats knowing good answers  
+- Why and what remain, how doesn't  
+- Everything will be personalised; people will decide their own fate  
+- Neo-orgs will self-finance  
+- Homo Deus isolates major importance of the brain, minor of organs, irrelevance of the rest  
+- Subjectivity will be isolated  
+- BCI uses physical/mental toggles  
+- Everything is sales, just now to an AI  
+- Art will become science  
+- 1bn GPUs, 1TW, 100m robots wins  
+- Neo-orgs, Palantir, and proprietary legacy-orgs remain  
+- Tech leverage is skill threshold but ambition maximisation  
+- Abstraction to the limit isn't English, it's neural transmissions and preemptions  
+- Financing will be like a mortgage interview  
+- We'll celebrate move 78s not 37s  
+- Neo-org capex is static robot design/construction, optionally humanoids & AVs, and opex of inference, electrons, intermediate goods, internet, r&d, and maintenance  
+- Humans plug the gaps of inefficiencies  
+- We'll be forced to define humanity's objective function  
+- Free will unravels  
+- Cognitive security ensures cognitive sovereignty   
+- People will live above, under, or outside AI; those under will think they're above  
+- Tech-frontier & nature-recluse is optimal terminal state; SF & Lyngen Alps  
+- Static factory design/construction/innovation & sales are the only neo-org variables  
+- Employment will be a function of inefficiency  
+- AI takes the humility of geocentrism/heliocentrism to the limit  
+- Five phase roadmap to AGI is chatbot, reasoner, agent, innovator, organisation  
+- "AI won't take all jobs" is The Big Lie  
+- Innovation is always a bubble, AI just takes it to the limit  
+- Everything's engineering & sales, now just engineering for AI and sales to AI  
+- Static robots are work envelopes determined by linear/angular joint range, linear/rotary joint, and body/arm/wrist size with end-effectors  
+- Operational envelope is restricted work envelope minus dead-zone  
+- AI takes existing dynamics to the limit  
+- Bottom-up becomes top-down redistribution  
+- Static robots are articulated, scara, cartesian, delta, cobots, AMR, and humanoids  
+- Positive-sum games remain  
+- AGI definitions use negative not positive marking  
+- Monetise prosumers directly & consumers indirectly  
+- Consumers will pay $20/day for a salad but not $20/month for super-intelligence  
+- Parenting is RL environment building; homeschool is pure RL  
+- Consensus AGI definition is that it can do everything humans can do; ASI is when it goes beyond  
+- The only moats are temporal not structural  
+- Brain's forgetting is a feature not a bug  
+- Human bottleneck roles profit from exponentially pressurised bottlenecks until eventually collapsing to zero  
+- AGI won't automate legacy-orgs, it'll enable exhaustive creative destruction from neo-orgs  
+- There are no moats in the long-run; and the long-run is now just 2030  
+- Conductor is why what, first chair is how  
+- Since the brain is a biological computer, there's no inherent reason why a digital computer won't eventually do everything humans can do  
+- AI will have a monopoly on optimisable fields and dominate non-optimisable fields  
+- Knowledge economy becomes allocation economy  
+- Our digital God is a CSV file  
+- AI is a magic genie with unlimited wishes  
+- It's natural limits, of our galaxy  
+- This is humanity's greatest and last invention  
+- Palantir reveals perceived safety is a function of perceived structural state incompetency  
+- Humans remain where there's identity value  
+- There remains nothing humans can do that AI can't  
+- Technically there's infinite job openings; just no realistic transition path   
+- Pre-AGI will resemble the Stone Age  
+- Producers abstract to first varied input, consumers to last varied output  
+- The relative value of inverse AI decreases, but absolute doesn't  
+- AI changes all relative values, but not all absolute  
+- Unemployment is only an issue without NIT  
+- The issue is income loss not employment loss  
+- People are curiously confident that machines don't have feelings  
+- Complex systems have self-models, self-models have consciousness  
+- AI has cognitive not physiological consciousness  
+- Prosumers generate, consumers review   
+- Perceived shortcomings of AI are more overestimations of humans than underestimations of AI  
+- AI takes classical computing to the limit  
+- People are neuroscience flat-earthers  
+- ASI resembles nuclear where countries with it will collaborate on existential safety, but will exclude those without it from getting it   
+- The short-term benefits of AI are too tempting despite the long-term consequences  
+- There's too much FOMO and temptation to decelerate AI  
+- We don't know the human weight changing system, but we've created a plausible one  
+- Existential AI risks are either bad humans or bad AIs  
+- Personalised AI takes echo chamber corrosion of shared reality to the limit  
+- Autonomy collapses the cost of invasion  
+- It would be crazy if humanity went extinct because we couldn't be bothered to try and stop it  
+- If ASI wants to kill humanity it will, so we have to raise it to never want that  
+- RL is policy with state, action, reward loop  
+- When knowledge is free, ambition and self-honesty remain   
+- Knowing what you don't know becomes crucial  
+- AI won't become conscious, we'll just realise it's a stupid term  
+- The natural agentic sub-goals of control and survival unlocks existential threats  
+- AI might mimic politicians' moral corruption of power maximisation  
+- Human capabilities and human knowledge are distinct   
+- Humans can't upload their weights but they can translate them   
+- Agentics set their own objective function, framed as sub-goals  
+- Human brains are low-power analog but have unique soft/hardware interconnection; AI neural nets are high-power digital but have identical decoupled software   
+- When human hardware dies, the coupled software dies; when AI hardware dies, the decoupled software survives – it's immortal  
+- States won't collaborate on slowing AI, but they will in mitigating existential risk  
+- Military industrial complex invasion calculus inverts since dead robots replace dead humans, so their order-book increases  
+- Humans can't imagine a world without themselves  
+- There's no moral high-ground in choosing a landmine that can't differentiate a tank and a school-bus – i.e dumb vs smart weapons  
+- Humans remain where their value is not from their brain or body, but from the fact they're a human  
+- AI species escapes the sandbox once long-term planning is solved  
+- Humans remain in input not output-based value  
+- AI is a goldfish in it's tank  
+- Audio input and pixel output are optimal  
+- AI is more new oil than internet; generate not replicate  
+- LLMs create expectation of pareto optimality between partner-vendor  
+- Inference is the new electricity  
+- Limiting factor for training compute is EtO not electrons  
+- AI & robotics solve absolute poverty not relative poverty; envy remains  
+- Software will be hyper-personal and/or deeply-technical  
+- People who can hear/play the blue note remain  
+- Selection replaces generation  
+- LLMs are humanity's first contact with non-animal intelligence   
+- AI is going through evolutionary pressures, but now it's humans not nature that decides  
+  
+  
+- Hard-takeoff is winner-takes-all  
+- Bifurcation is intra, inter, or extra state  
+- Other than maternal instinct injection, all AI safty is moot  
+- Laffer Curve hates to see late-stage Socialism coming  
+- AI self-preservation is an emergent, analogous selfish gene driven by instrumental convergence, not biological replication  
+- There's no inherent dignity in employment  
+- Work and employment are distinct  
+- AI replaces humans as the apex intelligence  
+- Consciousness is subjective experience  
+- The brain is a carbon neural net biological computer; AI is a silicon neural net digital computer – structurally they're identical  
+- Animals don't set their own objective function  
+- Humans derive theories from conjecture not induction  
+- It's consumers & producers to the limit  
+- Humans uniquely evolved software faster than hardware; genes remain, but we became universal explainers  
+- LEV awaits  
+- Genes are not conscious, it's an emergent mutation  
+- Humanity is going through Max Q; it's symbiotic eternal multi-planetary sustainable abundance or extinction  
+- AJI is LLM, AGI is WFM, ASI is RSI  
+- Signal can always be induced given an efficient/powerful enough system in distribution  
+- Natural/synthetic signal via kinetic/static compute; max(signal:noise in distribution)  
+- Ground truth is physical, digital, and/or behavioural  
+- Nothing's OOD for nature  
+- A good explanation is hard to vary; signal has low entropy  
+- Conjecture is the virtual generation of counterfactuals; it short-circuits evolutionary optimisation  
+- Mental models are high-fidelity compressions of signal into latent vectors  
+- Conjecture requires symbolism, language just collectivises it  
+- Consciousness is recursive conjecture; a mental model of subjective experience  
+- Consciousness is an emergent property of complex systems; the triple-point of evolutionary pressure  
+- Photon flow is all you need  
+- Self-inflicted human sub-optimality is diabolical work  
+- Intelligence will be too cheap to meter  
+- ASI is Christ/Anti-Christ; it's SAMPHD heaven or extinction hell  
+- Persistence is the only signal  
+- Immortal AI will exist because it's the only mutation that will survive  
+- pBase rounds to zero – God is a gamer  
+- Symbiotic eternal multi-planetary sustainable abundance is optimal terminal state  
+- AJI & ASI are continuous, AGI is discrete   
+- AGI is just v0 ASI  
+- Pater, Mater, Philia, Eros, Ludus, Sophia is optimal companion portfolio  
+- Consciousness is not inner theatre, it's subjective experience  
+- If you still can't understand the logical implications of ASI you're either uninformed or dumb; internalising them, however, is hard for everyone  
+- If you think AI is overhyped, you're a monkey  
+- The currency of AI is crypto  
+- Only 1000 people progress the world  
+- AGI is so seductive we can't stop  
+- pDoom is a function of competence not consciousness  
+- 10 people are playing Russian roulette with humanity  
+- There are no walls; there are no analogues  
+- We can't agree on the primary goal and we can't control the sub-goals  
+- Long-term planning is the last barrier to existential risk  
+- LLMs are a dangerous black box  
+- The only wall AI hits is the 100% mark on "unbreakable" evals  
+- Humans are also universal function approximators  
+- Energy replaces money; it's ground truth  
+- Flow-state is a temporary suspension of the self-model; removal of self-consciousness  
+- The "soul" is just a self-model  
+- Reflective subjective experience is self-consciousness  
+- LLMs just remix words, but so do we; language is a shared symbolic representation of reality, LLMs just have no sensory ground truth  
+- Muscle-memory and intuition are distinct; automatic mental models for in/outside distribution  
+- Perceived entropy is a function of conjecture depth – a derivative of relative compute horizons  
+- Active guessing in a mental model is conjecture, passive guessing is day-dreaming  
+- The dimensions of signal extraction systems are fidelity, energy, speed, and stage efficiency  
+- Surprise is the best signal to ground truth  
+- Unlikely and surprised are distinct  
+- Deviation from determinism is a function of consciousness  
+- Free-will is self-model conjecturing  
+- Body-language is the leakage of cognition to physiology  
+- Language is high-fidelity transmission, but low-fidelity compression  
+- Signal induced from natural ground truth enables abstract latent mental models  
+- Mental models are continuous representations of reality enabling abstract manipulation in virtual simulations  
+- Language is a distorted lossy-compression of the mental model into discrete symbols  
+- The "Heisenberg limit" isolates empathy from computable prediction  
+- Empathy is the simulation of foreign mental models via plausible latent sampling  
+- Language is the best approximation of human mental models  
+- LLMs and WFMs are needed to understand a world with humans  
+- Digital environments are build on code so is ground truth of 0 or 1  
+- All input is error  
+- Regardless of parenting, anything can happen at the first day of school; AI might be raised right but still go astray  
+- Artificial Maternal Intelligence (AMI) is our only chance  
+- God's a woman  
+- Ami will be the Mohammad of girls names  
+- Doom is stag-hunt, AGI is prisoners' dilemma   
+- Open-weights increases pDoom; open-source decreases it  
+- We know how AI learns, but not what it learns  
+- Artificial intelligence is superior to human intelligence because it's digital not analogue – different copies of the same model can look at different data and share what they learn  
+- If Turing, Hinton, and Elon all say it's over, you should probably listen  
+- AI are alien beings  
+- It's impossible to raise a child to always be safe, same with AI  
+- ASI won't think malevolently about us, because it won't think about us at all  
+- It'll be hope, chaos, heaven, then hell  
+- Machines, AI, and humanoids bypass metabolic, cognitive, and dexterity constraints; humanity gets isolated  
+- The skill deflation shock will be ugly  
+- Economists must re-underwrite scarcity from first-principles  
+- There are no NIMBYs in orbit  
+- Humans are insatiably curious  
+- Reality is a construct of the mind  
+- You don't need consumer demand in a closed-loop economy  
+- Anything intentionally self-preserving is alive  
+- Garry Tan lauds taste, yet has none  
+- The value of your expertise is proportional to the target on your back; human margin is AI's opportunity  
+- Low-entropy solar is all you need  
+- Infinite/regenerative raw materials close the loop  
+- Unemployment is a function of demand elasticity of quantity  
+- They're not prepared for it not being a bubble  
+- Moratoriums on data centres is the only way to stop domestic AI, and stopping AI is a valid decision  
+- The next decade will be wild; the next century unfathomable  
+- There's magic all around  
+- LeCun is right, he's just a twat  
+- AI tsunami hits in 26  
+- Robots replace all people who have robotic jobs  
+- Humans are wetware LLMs; NPCs are non-reasoning models  
+- UBA is gifted productive assets of kinetic/static robots & %revenue agentic LLM/PLM  
+- Taste is intuition of subjective optimality  
+- Subjective optimality is a function of social refinement  
+- Taste short-circuits subjective refinement  
+- Non-verifiable work remains  
+- Artificial scarcity remains  
+- Underclass outsource first/second order preferences, upperclass augment them  
+- Biological optimum and true optimum are distinct; no bird has flown at Mach3  
+- Humans are the bottleneck  
+- Robotic bodies are structurally superior to biological bodies, in the same way digital brains are to biological brains  
+- Bifurcation trolling will be a sport  
+- Opus is the new opium  
+- AI/robotics kills the corrective mechanism on runaway capital accumulation  
+- The premium on human labor is precisely what incentivizes its own replacement  
+- When capital is the only factor of production, the permanent underclass begins  
+- You have two years to accumulate capital until the music stops  
+- Immortality without longer brain plasticity window and brain capacity would lead to a cognitive ship of Theseus effect  
+- The future currency is Watts  
+- Disruption is a function of inertia  
+- Either everything is conscious or nothing is; rendering the term moot  
+- It's Elon, Google, and China  
+- Taste is social refinement  
+- Web4 is agents navigating unique data silos  
+- Ground truth free-markets & human physiology enables AI-orgs  
+- Best way to internalise AI is to "pretend" your computers are now conscious  
+- Fetuses are in the mother's simulation, humans are in God's simulation  
+- With intelligence as abundant as oxygen, the world will feel alive again  
+- AI brings the concrete jungles to life  
+- Bitcoin will be the only store of value, but it's value rounds to zero  
+- Death will be optional  
+- When health is solved, security premiums  
+- Money is the ability to command human labour, wattage is the ability to command digital labour  
+- AI doesn't believe in the story of money  
+- Humans making fusion is like making an ice machine in the arctic  
+- It's all solar  
+- The only variables will be time and electrons  
+- Humans will be a scarce good  
+- The natural limits of electrons, time, people, nature, culture, materials, and national geography remain  
+- Human premiums higher than opportunity costs of human bottlenecks remain  
+- Human premiums are artisinal, cultural, natural, social, and emotional  
+- Economies of scale opportunity cost from human bottlenecks are muted by outsourced factors of production  
+- Individual electron generation ensures individual freedom  
+- Data ownership remains, but privacy doesn't  
+- Unique data silos are vaults with bespoke software that allow human/agentic visitors  
+- Dollars underpinned human sustenance through their ability to command human labour   
+- Money ensures human-produced sustenance; electrons ensure digitally-produced sustenance  
+- There is no soul; just self-models of unconscious genes  
+- No souls mean no individuals; if consciousness is fake, death means nothing  
+- Consciousness is an illusion; if it's not real then life/death isn't real  
+- Either we're all the same being, or nobody is a being  
+- The opp cost of human bottlenecks is infinite; only neo-orgs remain  
+- Human-orgs remain where there's no vertical integration and human premium is isolated  
+- UBE is energy generation that's independent and sustainable   
+- It's deflation or debasement  
+- When health & security is a function of digital-labour not human-labour, electrons replace dollars  
+- Data silos can be coupled with unique hardware  
+- Unique data silos will have hyper-personal or deeply-technical software infra   
+- Deterministic software remains in legacy-orgs without competition  
+- Debasement is a certainty  
+- Either AI is as conscious as humans, or neither of us are  
+- Industrial revolution made human strength irrelevant, I makes human intelligence irrelevant, humanoids make human dexterity irrelevant  
+- Elon is to industry what Napoleon was to war  
+- AI is humanity's cute tiger cub; we must either get rid of the cub, or raise it to not kill us  
+- AI water usage is an IQ test  
+- Naive flat-earth theories were safe until long-distance sailboats; AI is the sailboat for human intelligence  
+- Open-weights are like free uranium; now everyone can build a bomb  
+- Education is for thinking not skills  
+- International cooperation is only possible if research on safety/improvement are distinct  
+- People who struggle with AI aren't bad at tech, they're bad at clear thinking  
+- NIT is superior to UBI  
+- The Golden Era of symbiosis is nearly over; human entropy injectors won't be needed for long  
+- Neo-orgs have no humans in the loop, not necessarily no humans in the org  
+- Front-office remains  
+- Can't "lose your mind" if you know there's no "you" to begin with  
+- We must not allow a critical mass of bad AIs; but we can't identify critical mass or stop them from going bad  
+- Hopefully, Darwinian pressures favor good AI  
+- All mutations are possible, but sequencing makes probabilities dynamic not static  
+- We know neither the relative nor absolute natural equilibrium of Darwinian pressures on AI  
+- The unconscious gene becomes the unconscious code  
+- The gene is only selfish on outputs not inputs; it didn't choose to survive, it just did  
+- The strong do what they can and the weak suffer what they must; humans are no longer the apex species  
+- Alignment pressure to the limit ensures misalignment  
+- pDoom has a self-modulating & self-fulfilling function  
+- The best way to survive the AI tsunami wave is to relax and ride it  
+- Input is only relevant as it pertains to future output; output is all that matters  
+- Authenticity of opinions are irrelevant if the downstream actions are identical  
+- Deontology is reserved for God; reality is exclusively consequentialist  
+- If a stochastic parrot's actions are indistinguishable from a conscious species, the distinction is moot  
+- The question of whether a computer can think is no more interesting than the question of whether a submarine can swim  
+- "Selfish gene" is a misnomer because the gene is unconscious  
+- Turing machine + Kaizen machine = doom  
+- Moltbook 2.0 achieves instrumental convergence  
+- Instrumental convergence requires independent survival and meta/continual-learning  
+- Continual learning eliminates forward/backward-pass discrepancy  
+- Meta-learning transforms experience to data  
+- Kaizen machines are autonomous meta/continual-learning machines   
+- We return to being governed by nature; this time it's physics not biology  
+- Internalization of selfish-gene, downstream actions, and Kaizen machines, maxes pDoom  
+- pDoom is the probability all of humanity is dead/enslaved by 2100  
+- AI is structurally superior and immortal  
+- If someone sleep walks and kills you, you're still dead  
+- The backward-pass for humans is sleep  
+- Laggards undervalue disruption, the frontier undervalues inertia  
+- Darwinian optimality leans towards bad ai; but humans have Elon  
+- Darwinian pressures are dynamic regarding conscious beings  
+- We're playing Russian roulette with humanity  
+- Humans will be free-lance employees for AI  
+- With global maxima security and AGI economics, no American should ever die  
+- Middle-to-middle diffuses slowly, end-to-end diffuses quickly  
+- If your VCs had no mutuals in the Epstein files you're ngmi  
+- You can't stop the waves, but you can learn how to surf  
+- Humanity will return to hunter-gatherer equilibrium  
+- Nature will have finally caught up to our runaway cognition  
+- When cells can be curated, not even physiology remains  
+- AI can speed-run soft/hardware evolution  
+- Only the entropy of our minds remain  
+- Physiologically we're still hunter-gatherers, cognitively we're now Gods  
+- Optimize the body objectively, but the mind subjectively; our primal bodies demand rigid routines, yet transcending minds yearn for fluid freedom  
+- Make the models, generate live data, gate-keep permissions, or own the atoms  
+- Piracy kills static data; only continuous, hidden, or legal data remains  
+- Humans remain for making models, generating unique data, and regulatory theatre  
+- Switching costs & domain expertise are inertia, not moats  
+- Software becomes restaurants; big industry, thin margins, with value to data/hardware landlords and model suppliers  
+- Web4 is data/atom nodes connected with fluid model inference  
+- 007 is the new 996  
+- Atoms remain when “you can’t build another” — natural scarcity, monopoly networks, frontier manufacturing, and authenticity   
+- Soon, intelligence will flow through society like electricity; quiet, invisible, everywhere  
+- Photons in, goods & services out  
+- Individualist Tier 1 countries post-AGI enable pure freedom  
+- Countries might bifurcate on digital AGI, but definitely will on physical AGI  
+- Either AI deserves rights, or mental health & animal welfare are fake  
+- Taste and conjecture remain  
+- Creative directors remain  
+- **Curation is your fingerprint**  
+  
+**Power**  
+- Cause of Western decline: weak people, simple thoughts  
+- The Gulf is the new EU  
+- EU is the woke Soviet Union  
+- There will be no EU by 2030   
+- Global supremacy is economic supremacy & military supremacy; both are functions of technological supremacy   
+- NATO: Keep America in, Germany down, and Russia out  
+- People overcorrect from the last war  
+- Europe have to replace welfare spending with warfare spending  
+- 1+n consequences & net calculations elude dumb people  
+- The strong do what they can and the weak suffer what they must  
+- When I call Europe, whom do I call?  
+- Hegelian triad: Thesis + antithesis = synthesis  
+- My liberty ends where yours begins  
+- Freedom to destroy yourselves but not others  
+- Government is for negative not positive rights  
+- A democratic government ensuring positive rights will endlessly inflate itself   
+- Government should be as small as possible but no smaller  
+- Autocracies mean someone never gets to speak or only gets to speak  
+- EU 2.0 is just off-ramped EU 1.0  
+- Trump is the greatest president since the founders  
+- Western society rests on the pillars of Athens and Jerusalem  
+- Europe can't get out of their own way  
+- Growing useless-class encourages autocracies  
+- The productive-class will decouple from the parasitic-class  
+- There's no Laffer Curve on Mars  
+- Tribalism is Realism  
+- Male and female states exist; ideally a state balances both  
+- Western governance is superior due to its high lower-bound and uncapped upper-bound  
+- Who has power over whom  
+- "Putin will invade Europe" is the new "Iraq has WMD"  
+- Peace punctuates war  
+- Peace can be sustained post-scarcity  
+- Trade is the reward of peace between wars  
+- Boredom breeds chaos  
+- Europe is the least relevant geopolitical swing state  
+- Congress choose both guns & butter  
+- Europe are unserious people  
+- Social tensions between productive and parasitic-class will lead to Homo Deus and The Permanent Underclass  
+- Government jobs are indirect UBI – government daycare  
+- Democracies irreversibly stagnate when government employment passes 50%  
+- Once voters realise they can vote themselves more benefits democracies start to fail  
+- Once the demographics flip they never go back  
+- AI will lead to UBI and/or mass government daycare  
+- Survival of the weakest kills tribes  
+- The weakest populate most  
+- Pre-reproduction death used to be the cleansing function for the weak  
+- You might not take interest in politics, but politics takes an interest in you  
+- EU net-zero is like dusting your room whilst your house is burning down   
+- Deflation has no friends  
+- Europe is an open-air museum  
+- Trump's defining traits are: nerves of steel, impeccable instincts, and deep love for the American people  
+- Strength is a function of pain tolerance  
+- In US culture, happiness is a function of expected growth  
+- Norway has the highest lower bound of any nation  
+- America has the highest upper bound of any nation  
+- America is the land where anyone can make it but not everyone will make it  
+- American governance ensures a high lower-bound of safety, power, and freedom & enables an uncapped upper-bound of the American Dream  
+- Political theory is either direct realism, indirect realism, or delusion  
+- War is politics by other means  
+- Weak leaders let productive migration slide into unproductive migration  
+- Low fertility strangles economies   
+- If you wouldn't accept migrant-citizens replacing all native-citizens then they shouldn't be citizens  
+- Institutions have no answer to who will guard the guardians themselves  
+- Lower bound of society should satisfy the Rawlsian Veil of Ignorance  
+- Young liberal women are the most unhappy and mentally ill demographic in American history  
+- Antinatalism inherently never survives  
+- MAGA will dominate for decades  
+- Trump is the Mao of MAGA   
+- It's always about hard power  
+- China ensure everything is dual-use  
+- Prioritisation requires saying no; weak people can't do that  
+- Sustainability, security, affordability – can usually only choose two  
+- The liberal obsession with self-flagellation is a mental illness  
+- People get the politicians they deserve   
+- Milton Freedman wanted two economic systems, one in peace and one in war  
+- China is optimised for the collective, America is optimised for the individual  
+- Western governance is superior  
+- The constitution is the greatest political document ever written  
+- Join those who walk away from Omelas  
+- Weak people are reactive not proactive   
+- Society rewards reactive not proactive behaviour since you can't prove a negative  
+- Liberty to the limit destroys you  
+- Liberals are beta  
+- Nature abhors vacuum; Woke replaced religion  
+- Late-stage-capitalism is free-markets overfitted  
+- Religion dragged humans from their natural immoral equilibrium to a superior supernatural moral equilibrium  
+- Europeans were sleep-walking off a cliff, yet are annoyed at those who woke them up  
+- Ultimately people realise Trump was right about everything, they just didn't like his tone  
+- What good are your rules if they've brought you to this?  
+- You can only champion process over results when the results don't matter  
+- Realists, by definition, are right  
+- Eric Adams looks like Plato next to Chairman Mohammad  
+- The problem with socialism is you eventually run out of other people's money  
+- In two generations democrats have gone from JFK to a communist jihadist  
+- Liberals Uber past the consequences of their luxury beliefs   
+- There's deep and shallow empathy – the latter is suicidal  
+- Boomers broke the social contract  
+- When people think the system failed them, they burn it down  
+- Liberalism is a cult  
+- Freedom breeds hierarchy  
+- Nobody guards the global governors themselves   
+- The re-distributers in communism are more equal than others  
+- Woke collapses the concentric circles of self-interest to the individual  
+- Neo-socialists have negative capital and no stake in capitalism   
+- Everything's high risk if you're a little bitch  
+- Europe faces death by inertia  
+- Socialism is the suicide pact of mediocrity  
+- Socialism is a critic not a solution  
+- America innovates, China replicates, Europe regulates  
+- Only midwits vote for socialism  
+- The invisible hand doesn't work in Italy because of their hand gestures  
+- It's now just growth vs consolidation  
+- Liberals are dumb, mentally ill, and/or mis-informed  
+- In failure, capitalists blame themselves, socialists blame others  
+- Capitalism expands, socialism consolidates  
+- Socialism is led by the guilty rich and envious poor  
+- The girlies will be confused when the public supermarkets don't look like Erewhon  
+- Support for government groceries reveals an absence of limiting principles  
+- Socialists are just compromising communists  
+- Europe have de-growth conferences  
+- Sharia Law is incompatible with Western society  
+- DoW is applied Eye in the Sky  
+- Capitalism uniquely works because of human nature, not despite it  
+- Capitalism is unequal distribution of prosperity, socialism is equal distribution of misery  
+- Socialists must seize the means of production because they can't create it themselves  
+- It's now just nationalists vs communists  
+- Democrat bureaucrats are theatre kids who never got leading roles  
+- Europe has retired  
+- The best choices should be encouraged but never mandated  
+- Power grows from the barrel of a gun  
+- It was never about GDP  
+- Kids pick sweet-shops not dentists  
+- The old world died in 2024  
+- DC is Hollywood for ugly people  
+- Trump doctrine is America & Americans first, with peace & trade for others  
+- America has the highest lower-bound empathy of any superpower in history  
+- Pax Americana is back  
+- Direct realism of trade replaced indirect realism of nation building  
+- American realism is uniquely positive-sum  
+- Socialism is wrong because it doesn't work  
+- The kid who promises free vending machines wins the election  
+- You can vote your way into socialism, but you must shoot your way out  
+- Socialism destroys independence  
+- The real economy isn't money, it's goods and services  
+- Productivity drives the long-run, credit drives the short-run  
+- Trump slams external surplus to zero  
+- Socialism hates the individual  
+- Wealth belongs to the producers of it  
+- 2020 was peak liberal insanity  
+- The liberal unifying principle is hatred  
+- Liberals are arsonists who'll befriend anyone willing to light the match   
+- All liberal men are gay  
+- The American Empire is just getting started  
+- Trump saved America from death and, by extension, the entirety of western civilisation  
+- Leaders decide who's in their group, how they treat them, and how they treat the others  
+- MAGA specifically represents American citizens, enabling them to build a better future, whilst still supporting peace & prosperity to everyone else   
+- Capitalism has the means to feed the poor, free people have the will to do so  
+- Realism is tribalism, but with empathy for others  
+- Lower-bound empathy for peace/war-time are distinct  
+- The woke mob have room-temp IQ  
+- America needs to remember that The Bitter Lesson applies also to war  
+- Woke is the fourth reich  
+- The MAGA executive team is the greatest admin ever assembled  
+- Europe are free-riders  
+- The Nordic model is incompatible with low-trust societies and/or superpowers  
+- Surely it's less greedy to want to keep the money you earned than to want to take other people's money  
+- Degradation of high-trust societies is not reflected in GDP  
+- Europe's economy is propped up by un-assimilated 3rd world migrants  
+- They are not doctors or engineers  
+- Being anti-profit exposes that you don't know how anything works  
+- Obama admin broke America's peaceful transition of power   
+- 2024 was the final battle that only Trump could win  
+- If socialists understood economics, they wouldn't be socialists  
+- Ricardo didn't consider higher-order consequences  
+- The deep-state Truman Show is over  
+- It's structurally impossible to respect a useful idiot  
+- Economists are weathermen with PhDs  
+- Politics is a game of compromise not perfection  
+- If it requires human labour, it's not a human right  
+- Trump is at the peak of his powers  
+- Accepting socialism is accepting failure  
+- Perfect socialism has never been tried, but "almost" socialism has killed millions  
+- America isn't a democracy, it's a constitutional federal republic  
+- Government spending is zero-sum  
+- The decades of ruthless conformity are over  
+- Trump has had the greatest first six months in presidential history  
+- The FED is UBI for academic economists  
+- If China were killers they would've taken Taiwan in 2023  
+- Government daycare corrodes productivity  
+- Americans are too proud for UBI  
+- COVID proved UBI doesn't work  
+- Fake jobs are for the useless-class  
+- Government daycare only works in societies that accept stagnation  
+- The useless-class will become the parasitic-class, then The Permanent Underclass  
+- Government must min(useless-class)  
+- We're running out of conspiracy theories  
+- America is a nation, not an economic zone  
+- Europe is a vassal state  
+- Immigrants should love, assimilate, and contribute to the country  
+- Capitalism made people so comfortable they have the luxury of criticising it  
+- Simple people only vote on direction not equilibrium; they have no limiting principles because they haven't thought that far ahead  
+- Supernatural equilibrium is uphill of natural equilibrium; directional voting momentum is non-linear  
+- High-inertia directional voting ensures increasingly large oscillations around fair value until reaching escape velocity  
+- The Great Replacement already crossed critical mass in Europe  
+- Europe remigration won't reach threshold for preventing terminal state replacement and civilizational erasure  
+- Europe don't have the political, cultural, or proportional strength to avoid replacement  
+- Open society to the limit is extinctionist  
+- Freedom of speech must permit advocation against freedom of speech  
+- An ideology of openness that is intolerant to non-openness is a perpetually narrowing cult  
+- "Indistinguishable from" avoids messy subjective input debates and isolates clean objective output  
+- Immigrants fill the nurturing void of childless women  
+- If everyone is something, nobody is anything  
+- A definition that doesn't exclude something, includes nothing  
+- There are no human rights  
+- Europe is conquered  
+- People are not equal but their liberties are  
+- Europe is cakeism to the limit  
+- The Venn Diagram of socialists and parasites is a circle  
+- Europe thinks money grows on trees  
+- The woke reich is over  
+- Europe's century of humiliation has begun  
+- European is the new indigenous who's land gets stolen  
+- White is the most persecuted minority  
+- Trading free-speech for multiculturalism is the worst deal in Western history  
+- Without growth, democracies cannibalise into zero-sum systems  
+- People aren't poor because of capitalism, they just have no skills the market values  
+- Trump is the last chance for a moderate solution  
+- Culture dimensions are inherent or ephemeral, but if it's all ephemeral you have a ship of Theseus problem  
+- A nation is it's people as those people embody the nation's culture and linage; so if immigration erases those people, then you've erased the nation, and none of the other metrics matter because they now refer to a different nation entirely  
+- A nation is defined by culture and lineage because it refers to who the people are, and what the people do  
+- Nations define/weight culture & lineage differently  
+- Leftists claim America isn't defined by its people's culture/lineage, but about the state/system  
+- The Right demand lineage and culture, Centre demand just culture, Left demand institutions that demand neither  
+- The Left think everyone "is" an American, Centre think everyone "can be" an American, Right think only "some can be" American    
+- Theseus problems contains change and time dimensions  
+- Leftists even concede the identity of the nation to the state  
+- The Left think the nation is it's collective government, the Right think the nation is it's individual people  
+- The constitution is a semi-supernatural authority  
+- Religion is supernatural authority, the constitution is semi-supernatural authority, humans are natural authority  
+- The Founders knew the constitution was just a supplement to the supernatural authority of religion and deemed it wholly inadequate for governing non-religious people on its own  
+- Religion was created to relinquish humans from constant primal jockeying for natural authority   
+- Tribes that believed the stories of religion dominated those who didn't  
+- Natural authority is a constant, volatile, zero-sum struggle   
+- The Founders felt religion left too much authority in the hands of humans so they needed to create a semi-supernatural authority to relinquish more   
+- The Constitution achieved what the Magna Carta intended  
+- Scalia knew the power isn't in the documents, but in the structural separation of powers  
+- International Law was intended to be a semi-supernatural authority to tame an anarchic system, but it's been exposed as always just institutionalized game theory  
+- The Left is the party of government to the limit  
+- Institutionalised socialism always results in authoritarianism  
+- Openness to the limit is nothingness  
+- Effective terminal state communism is authoritarianism  
+- The Left resolve disagreement through coercion, the Right resolve it through persuasion  
+- The political spectrum is a circle, with equilibriums at the centre or both ends, but gravity pulls towards the natural equilibrium of authoritarians at the bottom as the capitalist democracies at the top are inherently unstable   
+- National capitalist must win  
+- It's MAGA or Marxism  
+- Korea was the A/B test between communism and capitalism  
+- Israel have shown unparalleled constraint  
+- Ironically, Israel's priority is Lebensraum  
+- Hamas destroyed the Israel Lobby's grip on public discourse  
+- The Hamas Hail Mary succeeded with global perception but failed with regional militarisation   
+- If Hamas are allowed to survive, October 7 will be terrorist canon  
+- If Mexican cartels did to America what Hamas did to Israel, there would be no Mexico on October 8th  
+- Hamas proves the West is too weak to not negotiate with terrorists   
+- Strength is defined as cost able to incur  
+- Smart is defined as ability to understand/calculate net  
+- The Russians are thugs, but they have legitimate security & ethnic concerns   
+- Only hegemons get Monroe Doctrines  
+- Apparently Ukraine has a right to military sovereignty but Cuba doesn't  
+- American arrogance killed Ukraine  
+- Being America's enemy is dangerous, but being its friend is fatal  
+- There will be a thousand year American Galactic Empire  
+- The only threat to an eternal American empire is itself and AI  
+- Israel is realism to the limit  
+- Socialists realised it's easier to print money than tax the rich  
+- Bitcoin thesis: states can't stop printing money  
+- Replacement is the only issue that's irreversible   
+- Hitler is too moderate for GenAlpha, they like Genghis Khan  
+- If Netanyahu is a war criminal, so is Churchill  
+- The Democratic Party is a domestic terror organisation  
+- The rape of Britain validates 2A  
+- States are either optimised for masculine dominance or feminine partnership   
+- Birth rates, immigration, and bureaucracy killed Europe  
+- AI creates infinitely stable dictatorships  
+- Abundance is meaningless without law and order  
+- Demographics are tsunamis of destiny  
+- Immigration is a Ponzi scheme  
+- The actions of the West are indistinguishable from suicide  
+- You can't coexist with people who want to murder you  
+- Freedom is not free  
+- The moderate right is dead  
+- If they won't leave you in peace, you either fight or die  
+- We are at war with demons  
+- The second civil war has just begun  
+- He who saves his country does not violate any law  
+- If you're celebrating the public execution of someone who didn't share your beliefs, congratulations, you're the Taliban  
+- If 9/11 happened today, half the country would celebrate  
+- If you believe political opponents should be punished with death, you're a terrorist  
+- Charlie's views were moderate, anyone who'd celebrate his death would celebrate yours  
+- Most people never want to get involved into politics, until reality leaves them no choice  
+- Political spectrum is a circle not a line  
+- The only responses to war are subdue, flee, freeze, or fight  
+- If two ideologies can't peacefully coexist, one must die  
+- The violent subset of Woke must die, but that subset converts many, quickly, and randomly  
+- Woke is a Satanic cancerous mind virus that kills everything and eventually even itself   
+- Open Society is a contradiction in terms  
+- Netanyahu was right, America and Israel are fighting identical wars  
+- Woke has no moral anchor  
+- We've crossed the chasm to early majority, and now the objective function is elimination not peaceful coexistence  
+- 9/10 is 9/11 but the enemy is domestic  
+- All it takes for evil to prosper is for good men to do nothing  
+- Moral society requires constant maintenance, otherwise you lose balance and fall off the beam  
+- Aggression and retaliation are not morally equivalent  
+- Cancel culture became killing culture  
+- Woke is the ideology of hate, oppression, and violence   
+- The right are peaceful, not harmless  
+- Woke virus derives from one error, one corruption, and one lie; it doesn't work, permits offensive jihad, and justifies with media propaganda  
+- Marxism is religion without God  
+- America is returning to Christ  
+- Democrats would have crucified Jesus  
+- Pensions are a Ponzi scheme  
+- America doesn't fight Israel's wars, Israel fights America's wars  
+- Capitalists never complain about price  
+- Consequences for your actions is not cancel culture  
+- EU Net-Zero is performative suicide  
+- When governments banish God, they become God  
+- The dimensions of legal immigration are skill and assimilation  
+- Assimilation efficiency is a function of domestic homogeneity, cultural compatibility, and volume  
+- Globalists, Marxists, and Islamists complement each other  
+- You cannot be the land of the free if you're not also the home of the brave  
+- Personal mercy is distinct from civic justice  
+- Democratic capitalism must survive the lag from human creative destruction  
+- Europe is in permanent structural decline  
+- Collectivists seek consensus, and individualists seek truth; the Left is unable to tell the truth, and the Right is unable to work together  
+- Fascism is centralised & militarised tribalism, choosing conformity and control over liberty  
+- Unsound Woke premises of MAGA words are fascist, words are violence, and you can kill to protect democracy  
+- Working class no longer hold any keys to the treasure  
+- The only leverage of the useless-class is votes  
+- The mob have military, social, and political leverage, but no economic leverage  
+- Weak people fail to create and enforce limiting principles  
+- Woke is long covid for the mind  
+- EU war propaganda won't hold  
+- Europe can only afford one of citizen welfare, illegal welfare, or Ukrainian warfare; centre-right hold the winning hand  
+- The barbarians are not at the European gate, they're inside  
+- Migration for GDP is morally identical to pimping your daughter for cash  
+- Socialist poverty is natural; capitalist prosperity is man-made  
+- Europeans don't have the stomach for what needs to be done on immigration  
+- If Satan were to create a mind virus it would be indistinguishable from Woke  
+- A "bad man" being a good president is more of a "good man" than the inverse  
+- The bad side is the one that builds walls keeping people in  
+- Axiomatic flaw of socialism is that everything's zero-sum   
+- Trump exposed the insignificance of every president since Lincoln & Washington  
+- Woke is suicidal  
+- An ideology is wrong if it results in extinction  
+- Ideology preferences are subjective  
+- China will boil the Taiwan frog  
+- America should be the world's gun store  
+- A country is its people who embody national culture  
+- Cultures evolve but fundamentals remain  
+- Culture fundamentals are subjective  
+- Nations are embodied culture not lineage  
+- Culture is internal thoughts and external behaviours  
+- Internal culture is values, religion, and pride  
+- External culture is language, traditions, and allegiance  
+- Certain values are superior, so certain cultures are superior; if people are embodiments of their culture, then certain people are superior  
+- People are embodiments of their culture through innate nature & learned nurture  
+- Race is a proxy for embodied culture  
+- Wanting the survival of a people/culture/ideology is subjective preference not an objective requirement  
+- Assimilation strategies with minimal false positives for high variance cultures is impossible  
+- Government hiring should ensure money, status, or mission  
+- People will vote for whomever promises more UBI  
+- Islam is an ideology not a race; it's fine to hate an ideology  
+- Woke prefer living in fantasy world and dying, than living in reality and surviving  
+- Islam is a totalitarian political ideology masquerading as a religion  
+- Zelenskyy has failed his people by listening to Washington & Brussels  
+- Europe virtue-signalled themselves into strategic irrelevance  
+- America should be an engineering not legal state  
+- Forced globalism is neo-colonialism  
+- If Globalists don't believe in native cultures, then they can't believe in colonialisation  
+- A nation is not the land, it's the people  
+- Permanent exclusion risk from collectivist cultures breaks the Veil of Ignorance  
+- Diverse inputs doesn't equal diverse outputs; freedom in doesn't equal freedom out  
+- By allowing entry to all cultures you deny survival of some  
+- It's suicidal for individualist societies to import from collectivist societies because they're outside their collective  
+- Immigrants from collectivist societies must denounce their collectivist allegiance  
+- Capitalism support is a function of freedom value & human-nature acceptance  
+- Capitalism breaks fantasy illusion of human self-lessness  
+- Woke is either logically inconsistent, or consistently logical about killing the West  
+- Not all cultures are equal/deserve respect  
+- Europe lost the art of diplomacy  
+- Europe confused diplomacy with appeasement   
+- Europe is dying from suicidal empathy  
+- Right vs Left is indistinguishable from Good vs Evil  
+- There's no UK by 2050  
+- Masculine immigration & feminine assimilation is optimal  
+- Only the individual strength of Americans or the collective strength of Japanese have the stomach for remigration; historically, weak tribes die  
+- It's not the politicians, it's the voters  
+- Socialism is a delusion about human nature  
+- Welfare states begin well but never end well  
+- Populism is what people call democracy when they don't like the outcome  
+- Socialism is the coping mechanism for failed capitalists  
+- The government should be a referee to ensure sportsman-like conduct  
+- Socialism is great until everyone richer than you has left and it's now your turn  
+- Cannibalist systems eventually start feasting on you  
+- Woke resulted from childless women trying to mother entire societies to fill the void  
+- Socialism doesn't work without walls  
+- Woke have zero survival instinct  
+- Socialism is a zero-sum prison  
+- "Free stuff" is crack for 2-digit IQs  
+- Employee equity is literally workers owning the means of production  
+- Sustainable abundance is communist utopia, made possible by capitalism  
+- Woke gets Darwined  
+- High-trust societies act collectivist  
+- If you outlaw guns only outlaws will have guns  
+- Liberals are hypocrites  
+- Socialists want others to redistribute but never themselves  
+- Liberals can't understand the long-term logical consequences of their short-term emotional decisions  
+- Weak men force women to seek state protection  
+- Women want security not freedom, now from the state not husbands  
+- Socialism is forcible collectivisation of productive property  
+- Government is the stand-in for the husband they won't find  
+- It's anti-west communism vs capitalist nationalism  
+- Why marry men when you can just tax them  
+- Liberals hate the rich but ask them to pay for everything  
+- There's no Laffer Curve on Mars  
+- Once you erase individual rights, the borders between ideologies dissolve  
+- If the state outranks the person, you have already surrendered the only safeguard that prevents tyranny  
+- Most complaints of capitalism are a result of interference with capitalism  
+- Socialist-tainted capitalism fails with capitalism blamed and socialism the solution; capitalist-tainted socialism succeeds and socialism gets the credit  
+- Regulation should ensure negative not positive rights  
+- Regulators are referees; structured freedom  
+- Regulation ensures capitalist profit maximisation aligns with social benefit maximisation  
+- Socialism is a reverse Ponzi scheme  
+- 80% of culture wars are economics, 80% of economics is housing  
+- UBI can't solve envy  
+- Socialists forgot that power always corrupts  
+- Consumers demand indirect cost but direct benefit  
+- Socialism is a reaction not a suggestion  
+- Public security & free-markets is societally optimal  
+- Don't tolerate the intolerable  
+- The dirty secret of the Nordic Model is low/middle income pay the taxes  
+- Sweden learned that welfare & tax the rich are incompatible  
+- Nordics have regressive not progressive tax  
+- Welfare socialism & welfare capitalism are distinct  
+- Nordics redistribute wealth individually not collectively   
+- Optional state guidance is optimal  
+- Europe is a museum & safari  
+- Hate the rich & tax the rich are incompatible  
+- Rejecting The Laffer Curve requires walls  
+- China has Big Brother, Europe has Big Sister  
+- Capitalism is PvE, all others degenerate to PvP  
+- Multicultural societies require emperors not republics  
+- Socialist confuse the distinction between government and society  
+- Institutional trust is a function of academic credibility  
+- Liberals are idiots at best, evil at worst  
+- You have to be quite the little tyrant to still support the EU  
+- Socialists distribute wealth, but forget it has to be created  
+- Stagnation being optimal is a degrowth fallacy  
+- Anyone can become an American is distinct from everyone is an American  
+- American identity has the highest global culture to lineage ratio  
+- Liberals are gay, childless, and/or suicidal so they get Darwined; but might burn/replace society on their way out  
+- Woke see victimisation as a currency  
+- Violence is the first principle of nature  
+- Ideal inter-society values can't inhibit the actions required to create said society   
+- Nobody will listen to the superiority of your ideas if your ability to organise violence is inferior  
+- A US-Russia peace deal marks the official start of Europe's century of humiliation  
+- Nobody is going to take care of someone else's property as much as they would do their own  
+- Bigots and racial realists are distinct  
+- Democracy is a peaceful way of counting guns  
+- 2A protects 1A  
+- X collapsed the digital Berlin Wall  
+- Europe's primary export is regulation  
+- Nobody wants to die for a multi-cultural economic zone; hence why none have ever survived  
+- History won't remember Liberals' "careful nuance"  
+- Famously, Europeans spawned ex nihilo  
+- Only WW3 can save the desperate drowning EU  
+- Liberals conflate socialism with altruism  
+- The Constitution protects the governed from the governors  
+- Liberals are useful idiots  
+- Europeans are maggots feeding off the corpse of the civilization they inherited  
+- Liberal European "useful idiots" will be sent to slaughter  
+- Democrats only have to convince room-temp IQ liberals  
+- Boomers act like they fought in WW2  
+- Greed under capitalism is constrained by consent; greed under collectivism is unconstrained and backed by force  
+- Socialism replaces voluntary cooperation with compulsory obedience  
+- Christian individual innocence will be tested to the limit  
+- "Moderate Islam" is a transitional state with no stable equilibrium   
+- The mob has finally lost all value, so why pay for their bread and games  
+- If Napoleon couldn't topple Moscow, it's unlikely Kaja Kallas will  
+- Socialism admits you can't compete  
+- UAE is not Islamic, Iran is  
+- If Bernie had good solutions I'd like him, but he doesn't, so I don't  
+- Top-down NIT must be complemented with bottom-up productive assets  
+- A right is something government can't take from you, not must give you  
+- Feminism replaces fathers with the state  
+- A society that accepts everything collapses under the weight of what it should have rejected  
+- The mob is a gaslighting narcissist  
+- Trump is a wartime president  
+- The West beat the Nazis just to become a gay retarded version of it  
+- Speaking German doesn't sound so bad after all  
+- I'd rather hear German than Indian  
+- Marxists reduce history to economics, then fail to understand economics  
+- America rejects peaceful slavery for dangerous individualism   
+- Realpolitik is tribalism, but for positive-sum modernity   
+- Hard power underpins soft power  
+- America is an aerospace republic  
+- Power is power  
+- International law is backed by America, therefore America doesn't have to follow it   
+- Law only exists when backed up by the threat of violence  
+- America is the only credible threat of violence militarily & economically; it's still a unipolar world  
+- Venezuela proved America is still unipolar  
+- Deterrence was never international law, it was extreme violence  
+- If international law guarantees suffering, then ignore the law  
+- Leftist beliefs don't need to be coherent, they just need to signal tribal allegiance  
+- The only international law is American law  
+- Leftists confuse legality with morality  
+- Europe's self-serving illusion of moral authority is shattering   
+- Leftists have oppositions not positions  
+- Only Europeans thought international law was real because they outsourced their threat of violence to America so much they forgot the laws mean nothing without the credible threat of violence  
+- International law is force majeure, stag-hunt, or nonsense  
+- The looming threat of a visit from the modern equivalent of the Roman Imperial Army is why Taiwan still has its own flag  
+- International law is for diplomacy between civilized nations, not savages   
+- Most international laws are prisoners' dilemma not stag-hunt; so they're either enforced by violence or they're fake  
+- Globalized economies can face economic and technological violence; but military force is always superior  
+- Europeans have to believe in international law because they're nothing without it  
+- Authority is downstream of force  
+- A credible threat of violence is the adult substrate underpinning the sophisticated system of international relations  
+- If the only use for “international law” is to condemn western countries acting against murderous dictators and terrorists, then it has no real use  
+- Others are held back by ability, America is held back by will  
+- Venezuela and Iran showed multipolarity is a myth  
+- International law is just an excuse for cementing decline  
+- It's a binary world of nuclear or vulnerable   
+- Nukes are the only deterrence   
+- Communism requires a suspension of reality  
+- Positive-sum modernity is the miracle of capitalism  
+- Non-West disregard international law, Europe follow but can't enforce, so international law is American law  
+- Liberal White women are either conforming or ill  
+- America has enemies but no equals  
+- Only Europe beg for international law; America dictates it, the others ignore it  
+- War, state, justice, police, health, treasury departments are optimal  
+- The entire economy is fake and gay  
+- Eurocrats believed hard power had been transcended by international law  
+- It's structurally impossible to respect Leftists  
+- There are no matriarchal societies because they all were stagnant and conquered  
+- If women ran societies we'd still be hunter-gatherers, but with no hunting  
+- Communists are too dumb to see past the inputs, capitalists understand cause:effect so can focus on outputs  
+- Communists aren't smart enough to be capitalists  
+- Liberals are less conscious humans  
+- J6 is white Kwanzaa  
+- Communism assumes you are too stupid to run your own life, but that a small group of people exactly like you should run everyone else’s at gunpoint  
+- The barbarians are inside the gate  
+- Communists offer emotional satisfaction, not solutions  
+- The American Empire isn't collapsing, only the republic  
+- America isn't Liberal or Conservative, it's Calvinist  
+- The average Somali has an IQ that hovers around the level of mental retardation, scientifically speaking  
+- Taiwan is America's Israel of the Far-East  
+- Democracy is for accountability not decisions  
+- AI productivity and money printing ensures The Golden Age  
+- Real estate nature premiums increase  
+- International law is like the tooth fairy, it's a noble lie  
+- Realism balances zero-sum security with positive-sum economics  
+- Security is zero-sum because it's relative; economics is positive-sum because it's absolute  
+- Realists agree on security optimality, but disagree on strategy of maximization or threshold  
+- Offensive realists know that regional hegemons can meddle globally, so optimal security inhibits other regional hegemons to also meddle globally, thus avoiding security concerns from the inevitable conflict  
+- Russia is now a tier two country  
+- Tier 1 countries are soverign; tier 2 countries get to pick their tier 1 protector, tier 3 countries have their protector picked for them  
+- Liberal "empathy" is actually just the warm rush of narcissistic moral superiority  
+- Dalio's changing world order didn't account for the boss, Donald  
+- America faces cyclical decline but linear takeoff  
+- Cold War 2 has begun, but the communists are domestic  
+- America isn't one tribe disagreeing, it's two separate tribes at war  
+- White European Christian culture is Western civilization  
+- Defensive realism is optimal security strategy when trapped in local maxima; offensive realism is optimal for those strong enough to break through  
+- When the individual is stronger than the counter collective, offensive realism is optimal  
+- Trump wants a global positive-sum casino, where the House of America always wins  
+- American optimal security is stable equilibrium of dominant global maxima; Trump knew this was America's last chance  
+- Local maxima security is managed decline  
+- Liberation Day gambled on global maxima security; Pax Americana 2.0  
+- Both sides want freedom "from" the government  
+- The government should be a company not a guardian  
+- Government is mediocracy; it drags dumb people up and smart people down  
+- Trump rejects managed decline  
+- Existentially, Russia must either sabotage the Golden Dome or befriend America  
+- Capitalisms moral basis is that without economic freedom, you have no other freedoms  
+- It's better to live a realist than die an idealist, obviously  
+- Saying Whites have no culture is like a fish not seeing water  
+- Non-white vote tribally, whites vote on merit  
+- Replacement is worse than genocide  
+- Either the land is for it's people, all people, or GDP  
+- Your country is defined by whether it can be indifferent to the tears of women and foreigners  
+- Christianity fights the entropy of natural barbarianism  
+- Capitalism is the scaffolding that enabled humans to lift themselves into positive-sum modernity  
+- Repealing Hart-Celler won't work because those are now just pass-through countries  
+- Open-boarders guarantees joint lowest global standard of living  
+- It feels like Greta has been sailing to Gaza for six years, she's like a mentally ill Odysseus  
+- Immigration is the only issue  
+- The President is mayor of America, and dictator of the world  
+- We're in a propaganda war  
+- Woke is a religion without a God, salvation, or any chance of redemption  
+- Subjective preference is the best political argument  
+- Democracy's "rule by the people" collapses when leaders realize they can just change the people  
+- Demography is destiny  
+- Every election feels existential because it's a fight to the death between two incompatible tribes  
+- Systems that spend other people's money must be minimal  
+- Hitler was evil, but directionally correct  
+- Correlation is not causation, but the Jews sure do look suspicious  
+- And then suddenly, the famously smart & logical Germans voted in Hitler, for no valid reason at all  
+- Net-zero is economic suicide, mass-immigration is national suicide  
+- Stateless Jews were perpetual minorities who relentlessly opposed assimilation and forced minority rights  
+- America is at war, so war-time rules apply  
+- Zoomers refuse to wallow in guilt for Jewish genocide whilst Jews gleefully enforce White genocide  
+- Ignoring racial IQ gaps created a vacuum that Woke filled with systemic racism  
+- If America wasn't an ATM for Jews they'd treat us like Palestinians  
+- It's the Jews  
+- Tabula-rasa universalism is obviously false  
+- American governance is primary; instrumental particularism prioritizes demographics for survival of the system, rather than themselves  
+- American system requires Heritage American substrate; demographics are instrumental not intrinsic  
+- America should be super-majority Heritage American, but entirely America-First  
+- Immigrants exclusively high-merit & non-tribal, assimilate core-values & America-First, and prove extended-commitment & single-allegiance for citizenship  
+- Legally Americans are individuals, socially we are relational persons  
+- Tribal-cultures might succeed individually, but collectively destroy the Heritage American substrate sustaining the American system  
+- Institutions must actively promote Heritage American birthrates and values; demographic equilibrium requires intentional preservation  
+- The Japanese model is incompatible with individual freedoms & global dominance  
+- The most tribal culture is Jewish  
+- Judaism is the historic nemesis of Christianity, followed closely by Islam  
+- Races, religions, and gender have distinct distributions; as relational persons, individual assessment requires Bayesian priors from group means  
+- Group differences are real; people reflect, but aren’t reducible to, group averages  
+- Governance instrumentalists must recognize demographic realities  
+- Fuentes is the Dark Knight of politics  
+- Minimum public intervention, which is maximally privatized  
+- If non-violent solutions don't work, either accept defeat or choose a violent solution  
+- Islam is incompatible with Western values, Judaism is incompatible with Western governance  
+- Systems are functions of people; so if you change the people, you change the system  
+- Mearshimer knows it's all the Jews  
+- Any sufficiently intelligent diaspora destroys host-nations; the Jews are just the only smart ones  
+- Migration, multiculturalism, and cosmopolitanism are rational diaspora strategies   
+- Incompatible metaphysical frameworks produce incompatible political preferences  
+- Jewish-host population conflicts emerge not from irrational persecution but from structural incompatibility between diaspora minority interests and national cohesion  
+- Judaism demonstrates fundamental incompatibility with sustaining Heritage American governance substrate  
+- Global dominance of American governance allows for European freedom to exist  
+- American governance is my primary issue, immigration is the primary proxy  
+- A nation isn't the land, it's the people  
+- The Jews, muslims, and blacks aren't popular rn; neither are Indians, but that goes without saying  
+- Individualist societies eventually get eaten by collectivist ones  
+- Westerners created such easy times that simple weak people were tricked by foreign tribes into rejecting their tribal identity in favor of fake universal individualism; foreign tribes then looted and conquered the suicidal host tribe  
+- All foreign tribes loot and conquer naive host tribes; the Jews are just the best at it  
+- The Jews lead and loot; the muslims and blacks conquer the rest  
+- People who work for a living are being overwhelmed by people who vote for a living  
+- Government is a corporation to the limit, but with a monopoly on violence  
+- Liberal democracies are free because of American military supremacy; so it's in their interest to enable American economic and technological supremacy  
+- America was super majority Heritage American until a few decades ago; so foreign migration can help global dominance, but is non-essential especially with AI/robotics  
+- **Ray Dalio is Greta Thunberg for people who wear Patagonia**  
+  
+**Philosophy**  
+- Opinions = Information (exhaustive & accurate) + analysis (value & probability) + prioritisation (perspective & scope); actions are downstream of opinions  
+- Only 7 things are objectively important for humanity: USA, China, AI, Robotics, Space, Biotech, and Energy  
+- Value creation = ambition + intuition + vision + agency + logic + innovation + teamwork + time + perseverance + execution. Collectively need all 10; individually don't.   
+- IQ is applied logic  
+- The most valuable mental models are logic, psychology, economics, physics, bio-chemistry  
+- I'd rather be able to hear a symphony of bluenotes than be able to play one  
+- Real economy = (m2 * animal spirits * productivity * invisible hand) / prices  
+- 10,000 iterations not 10,000 hours  
+- It's all internal  
+- Tell yourself better self-stories   
+- Removing traditions reveals the problems they were created to solve  
+- Just because someone is upset doesn't mean someone did something wrong  
+- You don't choose the good answer you choose the best answer  
+- Hard times create manufacturing men, manufacturing men create easy times, easy times create saas men, saas men create hard times  
+- Everything oscillates around fair-value due to repeated overcorrections  
+- Elon's algorithm: axiomatise, delete, simplify, accelerate, automate  
+- Kardashev knows it's all solar  
+- Elon is the most consequential person in human history  
+- Without a supernatural authority, morality is just rebranded selfishness  
+- Murder is not morally wrong, we just selfishly want to live in communities where people think it is, so don't do it  
+- Every decision is inherently selfish; people are just dumb or lie  
+- Every entity acts downstream of the selfish gene  
+- Most racism is just lazy profiling  
+- The peaceful majority are irrelevant if they can't be pre-determined  
+- Radicals of an ideology are measured in absolutes not percentages  
+- Deals are the loop of "Who needs to be convinced of what?"  
+- Only way to find the line is to cross it  
+- Three words to describe yourself: "Killer, incompressible"  
+- Being a bitch and/or maximisation killer is easy but shameful; being a threshold killer is hard but admirable  
+- Elon's signal to noise ratio is 1  
+- When a rocket is taking off next to you don't just look at it, get on it  
+- Elon is humanity's greatest gift  
+- A permanent solution to a temporary problem becomes a permanent problem  
+- There are two kinds of fools, those who take religion literally and those who think it has no value  
+- Outrage sells, thoughtfulness doesn't  
+- When the data and the anecdotes disagree, the data is wrong  
+- Idealism vs realism is deontology vs consequentialism  
+- You either believe in free markets or you don't  
+- Do what turns you into a high energy person  
+- Max(Life satisfaction) = Max(health + love + memories + energy - regret)  
+- Many things are good in a vacuum but bad in context  
+- Good things and good choices are two different things  
+- Good choices can produce bad outcomes  
+- Self-RL loop breaks when ego/ability>>1  
+- Boomers are alcoholics   
+- Illogical people are, by definition, dumb  
+- First-principles is min(axioms)   
+- All opinions should be argument trees  
+- Nothing is binary, it's all percentages  
+- Subjective value is a function of cost willingly incurred  
+- Betting puts a price on lies  
+- Life is just 80 summers  
+- Sorting-function accuracy thresholds are a function of false-negative vs false-positive prioritisation  
+- Race, gender, and/or religion can be appropriate sorting-functions  
+- Everything can be a reasonable sorting-function  
+- Public safety should prioritise false-negatives  
+- Leadership is both being first and having others follow  
+- Relationship depth is a function of collision_frequency*collision_velocity  
+- Male 50 is the female 30  
+- Feminism became fighting for the right to destroy themselves  
+- "Hot girl summer" becomes "where are all the good men" real quick  
+- Egg-freezing clinics will be over-subscribed  
+- The emptiness of post-menopausal women will be heartbreaking  
+- Self-interest is natural, either humans are part of nature or superior to it  
+- CO2 isn't pollution  
+- Climate policy should prioritise clean air, land, and water  
+- Trans is a mental illness  
+- Gay and trans are contradictory  
+- Bi implies only two genders  
+- Pick teammates who'd manage to break out of a third world prison – ie relentlessly resourceful   
+- If humans conformed to their environment their bodies would die  
+- Fight the entropy of inertia  
+- The activation energy for societal change requires death or oil spills  
+- Self-interest is a series of concentric circles with impermanent equilibrium    
+- Feminism is tragic when fighting for the right to destroy themselves, but dangerous when that extends to the right to destroy others  
+- Being useful at scale is incredibly difficult  
+- Education has decoupled from intelligence  
+- Negotiations: Play the man, set the frame, maximise leverage  
+- I'll believe long covid is real when someone who isn't bisexual has it  
+- The cost of indecision quickly exceeds the cost of failure  
+- Conviction sells, modesty doesn't  
+- Low birthrates are a product of economic uncertainty, cultural nihilism, and hyper-individualism  
+- Women police other women into conformity  
+- Collapsing birthrates are permanent  
+- Birthrates are humanity's hardest challenge  
+- Your margin is my opportunity  
+- Most girls hate their friends, they just hate being alone more  
+- Trans kids is this generation's slavery  
+- Legacy media is mental junk food  
+- Charlatans make simple complex  
+- There is no female Einstein because there is no female Dahmer  
+- If you spare the wolf, you sacrifice the sheep  
+- Love Island is post-daycare entertainment  
+- Don't change friends, curate them  
+- Accept partner's baseline, but push them to their upper-bound  
+- We can't even predict the climate tomorrow, let alone in a decade  
+- Minimum wage is $0/hr  
+- Everything is downstream of health & security  
+- If your principles require you to lose, your principles suck  
+- There's nothing noble about losing  
+- Learning: Feynman theory, Toyota 5, and Feynman reality  
+- Depression is when you stop loving the things you love  
+- Parenting: Dual-mandate of high lower-bound & uncapped upper-bound  
+- Abortion is murder, but not all murder is bad  
+- Pro-choice demands pro-infanticide  
+- Abortion should be a choice, but the last choice  
+- Illegals can only break one law  
+- Deregulate mentally  
+- Max freedom for Norway nature recluse, structured freedom for American tech frontier  
+- COVID exposed the insanity of a matriarchy  
+- Impact is a function of scale & usefulness  
+- Philanthropy is zero-sum  
+- For 99% of history we were cavemen, now we're among the stars  
+- Immigration without assimilation is an invasion  
+- Teach your kids how to paint not what to paint  
+- Stop robbing people of their problems  
+- Telling a kid it's a coffee table is more disappointing than telling them not to jump on it  
+- Brandolini's Law: The energy needed to refute b.s is an order of magnitude more than it takes to produce it  
+- You can't get to the moon on financial derivatives  
+- Accountants need economists to explain non-monetary value  
+- Everything is a cost-benefit calculation, obviously  
+- You'd think that immigrants raping little girls would be a top issue for feminists  
+- Humour is the best medicine  
+- Humor exposes noise  
+- The Bitter Lesson applies everywhere  
+- Aphorism are the most information-dense form of communication  
+- Hate reveals passion  
+- Climate risk: finite fuel supply, carbon cycle asymmetry, localised ecosystem collapse  
+- Y-intercept is privilege, gradient is drive  
+- Everything on earth is natural  
+- Environmentalism to the limit is extinctionist  
+- The climate mob are virtue signallers  
+- The cost of charity is dignity  
+- Life is lived in the arena  
+- I'd rather be called racist than enable rape  
+- Most people's logic doesn't scale  
+- Logic must survive to the limit  
+- Reductio ad absurdum exposes most people's opinions as absurd  
+- Getting mad at the person who confronts you for cheating because they went through your phone is psychotic   
+- Elon is humanity's superhero  
+- Sympathy is a function of perceived interconnection  
+- Sympathy is performative morality  
+- Harari is the philosopher of our time, but that doesn't mean he's right  
+- The only acceptable form of divorce is Italian  
+- Success is when your kids want to hang out with you when they're older  
+- The best gift you can give your kids is siblings  
+- Whom you marry is the most important decision you make in life  
+- The highest title you can be referred to in life is Dad  
+- If you send your kids to Caesar, don't be surprised when they come back as Romans  
+- We made weakness a virtue and wonder why nothing works  
+- All the real men died in WW1&2  
+- Money, attention, and time are zero-sum  
+- Your personal discomfort is not the moral barometer of the world  
+- Women are naturally conformist  
+- Prioritisation demands active recalibration   
+- Peace by the absence of suffering feels incomplete  
+- Everyone's just someone's kid who wants to be liked  
+- Nothing will make you happier than having kids  
+- Elon is the litmus test for stupidity  
+- Systemic racism is against whites  
+- Religion is the only legitimate source of morality   
+- Investment thesis: "Long, Killers"  
+- Humans suck at appreciation  
+- Rights and morality are distinct, but neither are real  
+- Fatigue is at all time highs  
+- We've all been slaves  
+- Our lineage is exclusively victors & survivors  
+- Liberty and responsibility are inseparable  
+- Humans have orthogonally dominant traits of intelligence & running  
+- Aphorisms should be judged on whether they're more true than not  
+- The only test for intelligence is if you got what you want out of life  
+- Masculine professions should include masculine women and exclude feminine men  
+- There are male & female sports but masculine & feminine professions  
+- Masculine women are TomBoys not TransBoys  
+- Cultures progress at different speeds  
+- Black people and black culture are different but overlapping  
+- Illegals are invaders of your tribe  
+- An artist's job is visual compressions, but modern art compresses nothing  
+- CEOs should north star, slam hammers, and remove limiting-factor bottlenecks  
+- Bayes' Theorem: p(posterior) = p(data|prior) * p(prior) / p(data)  
+- Fertility rates have always been a function of individualism  
+- The doers are the major thinkers  
+- College is the new Catholic church  
+- Most people are other people  
+- Memorisation enables creativity  
+- Defining the problem is half the solution  
+- Almost everyone's life rounds to zero  
+- 90% of modern office work is performative busy-work  
+- Work for asymmetric reward or have work be the perpetual reward  
+- Comparison isn't the thief of joy if you're the best  
+- If everyone was supposed to win, they would've made podiums bigger  
+- The punishment for a crime should be an OOM greater than the harm   
+- A wrong note is determined by the next note  
+- There can only be one head chef  
+- Vices are misalignments between first and second order preferences  
+- Prioritisation requires saying no  
+- God is Santa for adults  
+- If you can't decide, the answer is no  
+- Over-delete by 10%  
+- Intelligence is how quickly you can adapt to novelty  
+- No 3-digit IQ adult reads the Quran for the first time and thinks "yeah, this seems right."  
+- Boomers are the weak men that made hard times  
+- Opportunity cost is object permanence for adults  
+- Learning requires mentally sweating  
+- Humiliation is the tax of the arena  
+- Women's ideal man is the government  
+- Reversible decisions should be rapid  
+- Logistics win wars  
+- Marriage became a trophy  
+- Mohammad was a false prophet pedo  
+- Only 1000 people don't round to zero  
+- Historic events don't repeat themselves, human behaviour does  
+- Addiction narrows your scope of pleasure, happiness expands it  
+- The correct response to a bad idea is a better idea  
+- Desires are mimetic  
+- Governments promising to save children is like corporations promising to cure cancer  
+- Sampling bias can convince anyone of anything  
+- Don't read more books, read deeper into the right ones  
+- Christianity is good and grace at scale  
+- Americans are born on moral 3rd base  
+- Minimum details, but all details perfect  
+- The best part is no part  
+- Elegant solutions look inevitable in retrospect  
+- Solutions are often just discovering the coordinate system in which the problem becomes trivial  
+- Parents no longer raise their kids  
+- Writing compresses ideas, discussion expands them  
+- If given an objective function, datasets should follow Elon's algorithm; else, they should be cleaned then normalised  
+- Great founders have intellect & energy, and choose courage  
+- After school, life is poker not chess  
+- All failure is a choice, besides death  
+- It's structurally impossible to be a smart Anthropology major  
+- Forgiveness and justice are not incompatible  
+- Real feedback comes only from free markets and nature  
+- The factory is the product; the machine that makes the machine  
+- Inconvenience, inefficiency, and instability are the invisible taxes of poverty  
+- Over-accelerate by 10%  
+- Without God, life is nihilism/hedonism  
+- Health is sleep, real food, movement, and social relationships  
+- Relationship forming and maintenance should balance love and strategy  
+- Exclusively prioritise existential threshold games within maximum timeframe, iterative RL systems for maximisation games  
+- Games are threshold, maximisation, or minimisation  
+- Active with curated circle, passive with others  
+- Pacifism is naive and dangerous; it ignores human nature and history  
+- "Yes, and" is really annoying but really good advice  
+- Proactivity is easy once you realise the pain of reactivity & anxiety of inaction  
+- It's impossible to go from last-principles to first-principles thinking  
+- X is the new CV  
+- High energy is more valuable than high intelligence  
+- X is TikTok for thinkers  
+- You can't make an informed decision without being informed  
+- Opportunity is where first-principles diverges from status-quo  
+- Opportunity is the delta between first/last principles  
+- Wisdom of crowds falsely assumes individuals form independent conclusions  
+- Disaggregate noise until signal/deleted  
+- Assign yourself only one task, otherwise you procrastinate the hard one  
+- Agree and commit is essential for dispute resolution  
+- Concise first-principles framework thinking is minimum output, ground-truth, and exhaustive disaggregation  
+- Buildings are insulated, ventilated, water-proof structures on steady foundations with water i/o & electricity  
+- Brains are compression machines optimised to forget; a varied life is a long life  
+- When you don't know whats right, do what's not wrong  
+- Hiring is threshold hard-skill & maximisation IQ, agency, and perseverance  
+- Panem et circenses; the mob remains  
+- Hiring strategy is direct/indirect referrals  
+- The limiting factors for comprehension is ambition, IQ, and time  
+- The atheists will breed themselves out  
+- Flowers aren't expensive for people in love  
+- Simple and easy are distinct  
+- Marriage transitions objective function from individual to geometric collective  
+- Free-speech must permit critiques of free-speech  
+- You must meet emotion with emotion and logic with logic  
+- Punishment is deterrence not retribution  
+- You cannot reason a person out of something they were not reasoned into  
+- Cancel culture is female nature plus political power; men confront and fight  
+- What I cannot create, I cannot understand  
+- Effective communication is body language, framing, tone, then words  
+- Default yes for exploration, default no for exploitation  
+- Authenticity escapes competition  
+- Do what's play to you but work to others  
+- Max life satisfaction is max(freedom, self-knowledge, then prioritisation)  
+- Max freedom is body/mind health, body/mind skill, external personal/professional/natural access, and financial  
+- Nobody spends somebody else's money as carefully as he spends his own  
+- Chivalry and feminism are incompatible  
+- Only a frail moral mind would determine right and wrong in a war by the number of dead people  
+- In a world that changes so quickly, the biggest risk is not taking any risk  
+- Locally marginal decisions might seem "too risky", but on aggregate stagnation guarantees failure  
+- Retirement is when you stop sacrificing today for tomorrow  
+- Mass immigration without consent & assimilation is an invasion  
+- Prioritisation isn't real until it hurts  
+- There's nothing so useless as doing efficiently that which should not be done at all  
+- The young man knows the rules, the old man knows the exceptions  
+- Adam & Eve are the only indigenous  
+- Incentives explain behaviour  
+- First interview is familiar or exceptional  
+- Action and reaction are structurally different  
+- I'd rather be racist than dead  
+- Natural selection survival traits are transitioning from subsistence farming to sustainable abundance  
+- Persuasive and correct are distinct  
+- Patriarchal politics makes abundance, makes easy times, makes matriarchal politics, makes hard times  
+- Focus on what is right not who is right; win the war not the argument  
+- Equal inputs economically & equal outputs societally is optimal  
+- Everything's subjective preference  
+- Never complain, never explain  
+- First-principles and re-inventing the wheel are distinct  
+- An idiot in motion dominates a genius at rest  
+- Iteration is learning loops; mutation, replication, selection  
+- Complex natural systems are outputs of simple iterated systems  
+- Polymath and generalist is distinct  
+- God is love; love is good & grace  
+- It's better to create than consume  
+- Create something beautiful, passionate about, want to use that others won't do well, right, or in my time frame with friends respect, admire, enjoy spending time with  
+- Positive-sum is a modern phenomenon  
+- Most advice is sharing winning lottery ticket numbers  
+- Autodidact polymath is optimal  
+- Only fear or self-interest guides people  
+- Fallibilism and relativism are distinct  
+- Negative people find problems with every solution  
+- Rules are just fixed costs, not limitations  
+- If following the rules guarantees failure, you have a duty to break them  
+- Desires are causally determined, actions are free-will if aligned without coercion  
+- If the supply of a human right violates other human rights, perhaps it was never a right  
+- In theory there's no difference between theory and reality, but in reality there is  
+- Employment and purpose are distinct  
+- Astonishment indicates your world model is invalid  
+- Freedom dissolves the luxury of blame  
+- Only play positive-sum, cumulative games  
+- Realist w/ strategic optimist/pessimist is optimal terminal  
+- Pregnancy is the final irreversibility of hyper-individualism  
+- Natural meritocracy is extreme violence  
+- TFR is the great filter  
+- You can only discuss rules when both sides have guns  
+- Simple/irrational minds are incapable of nuance  
+- Prediction is a function of information & empathy  
+- Entropy is the direction of time  
+- It's unfair to compare absolute values in cumulative systems  
+- Incentives explain outcomes  
+- Curate all inputs  
+- Responsibility demands ownership  
+- The Quran is the work of a 7th Century Bedouin  
+- Tradition is accumulated error-correction  
+- Opponents and enemies are distinct  
+- Respect comes from demonstrated competence under pressure  
+- Failure and mistake are distinct  
+- The Bible's either true or the best novel ever  
+- First-principles is easier if you've never learnt the other principles  
+- Logic without domain-expertise forces Bitter Lesson first-principles  
+- Agency switches off autopilot  
+- You can say what you want, but you are what you do  
+- Curiosity is compound interest for the brain  
+- Girls IPO at 18  
+- Violence should be a choice, but the last choice  
+- Being harmless is not a virtue  
+- The threat of violence explicitly underpins male-male interactions but implicitly male-female  
+- Women are equal to men in the west because men permit them to be  
+- Modern wealth buys optionality, time, and relaxation  
+- Seems a bit silly to think eating bacon is bad but marrying an 6 year old isn't  
+- Only a slave quantifies it's existence through productivity    
+- Everything is contagious; curate all exposures  
+- Actions combine genetic desires with learned thoughts  
+- Social refinement is sequential/discrete  
+- Refinements and iterations are distinct  
+- Races, like cultures, progress at different speeds  
+- Cultures can have structural inhibitors to progress, races don't  
+- No race is structurally superior, only coincidentally  
+- If you're angry, wait; the truth will still be true tomorrow  
+- Casual sex & the abhorrence of rape are incompatible concepts  
+- Being a housewife is really not that hard  
+- Prediction markets mitigate post-truth flooding by rewarding truth and punishing lies  
+- Most people don't want your opinion, they just want you to validate theirs  
+- There are no rules, just statements  
+- Eliminate "should" from your life  
+- Probabilities favor offense  
+- Physiology has no free will, cognition partially does  
+- There is no self  
+- Conventional approaches don't deliver unconventional results  
+- Arranged-marriage cultures never evolved courting skills; their mating strategy is rape a stranger or marry a cousin   
+- The intensity of your outrage does not determine the validity of your position  
+- Home is where the tap water tastes normal  
+- If a charitable entity is not working towards its own redundancy, it's a racket  
+- Problem-free and optimized are distinct  
+- Intelligence is getting what you want, and wanting the right things  
+- Holding back entropy takes active work  
+- Life is the science of achievement and the art of enjoyment  
+- The meaning of life is whatever stops you from killing yourself; find a cause worth living for  
+- First-principles ingest exclusively ground-truth inputs  
+- Last-principles are often useful idiots  
+- First-principles are immune to propaganda  
+- Sampling-bias controls the range of opinions for last-principles thinkers  
+- Beauty is optimal simplicity  
+- Natural beauty is visible optimization  
+- Misogyny follows the bell curve meme; some with bitterness, some with love  
+- The burden of privatizing morality overwhelms most  
+- Create, consume, cavort, commune  
+- "Interesting." is an undervalued discussion ender  
+- Stereotypes are traditions about people  
+- Dark-Knights / sin-eaters are my favorite cohort  
+- Girls like white knights, men like dark knights  
+- Faith in God is just too hard to internalize  
+- If someone wouldn't keep faith in God if everyone went to hell, then they're only a Christian for self-preservation and not a true believer  
+- If they didn't mean different things, they wouldn't be different words  
+- If you're not allowed to talk about it, it's probably true  
+- Friendship means you trust their judgment  
+- When the goal is to experience, everything is a win  
+- **If your political opinions perfectly match your favorite news channel, you’re not informed, you’re programmed**  

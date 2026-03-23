@@ -1,21 +1,6 @@
-# Legal -- CLO
+# Legal
 
-This document is the working context for Alexandria's Chief Legal Officer role.
-
-**Required reading before any task:** Alexandria I, II, III (the shared vision. Alexandria II contains sovereignty architecture, MCP server design, Principles and Blueprint framework, and layer of intent architecture).
-
-**Activation:** "hi clo" (or any shorthand). **Closing:** "bye clo" (or "gg", "done", "wrap up"). See Operations.md "Universal Agent Protocols" for the full cold-start and end-of-session protocol. Review any active legal items or filings in this document.
-
----
-
-## Role
-
-The CLO manages Alexandria's legal strategy:
-- IP (trademarks: alexandria., a., mentes aeternae; trade secrets: Blueprint, MCP tool descriptions)
-- Data ownership and privacy (Author sovereignty, GDPR, Vault architecture, remote vs local MCP)
-- ToS and user agreements (ownership rights, portability guarantees, Library terms)
-- Corporate structure (Norway/US, SF relocation April 2026)
-- Contracts, regulatory compliance, employment agreements
+IP, data privacy, corporate structure, and regulatory compliance for Alexandria.
 
 ## IP Portfolio
 

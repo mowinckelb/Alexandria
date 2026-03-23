@@ -37,7 +37,7 @@ Your framework for what remains post-commoditisation: five dimensions of human v
 
 ---
 **2026-03-13 | strong**
-Three-pillar company identity model: freedom, humanity, purpose. Everything Alexandria does maps to one of these three. Features, pricing, philosophy, pitch — all downstream. If someone doesn't care about these three things, they are not the audience. Emerged through iterative pitch refinement — started as "freedom and humanity" (two pillars), the third (purpose) crystallised when examining why Turn 3 matters beyond creation-for-creation's-sake. Purpose is the answer to "why create at all?" — it completes the arc from owning your mind to developing it to doing something with it. Die empty.
+Company identity: humanity as root value, three pillars serving it — freedom, authenticity, purpose. Everything Alexandria does maps to one of these. Features, pricing, philosophy, pitch — all downstream. If someone doesn't care about these, they are not the audience. Originally "freedom, humanity, purpose" as three co-equal pillars. Refined: humanity is the root (the one-word thesis), the three pillars serve it. "Humanity" was replaced by "authenticity" as a pillar because humanity is the root value, not a pillar — and authenticity captures the specific mechanism Alexandria develops (sovereignty → honesty → self-knowledge → authenticity → escape competition). Freedom is the precondition. Authenticity is the development. Purpose is the expression. Own it, develop it, use it. Die empty.
 
 ---
 **2026-03-13 | strong**

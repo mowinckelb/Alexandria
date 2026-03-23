@@ -54,7 +54,7 @@ jobs:
 
           READ FIRST:
           - CLAUDE.md (your role, the architecture, the philosophy)
-          - docs/Blueprint.md (the philosophical framework)
+          - files/private/Blueprint.md (the philosophical framework)
           - server/src/tools.ts, server/src/modes.ts (current soft defaults)
           - server/factory-learnings.md (your accumulated learnings from prior runs)
 

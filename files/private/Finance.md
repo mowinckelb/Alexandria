@@ -1,50 +1,8 @@
-# Finance -- CFO
+# Finance
 
-This document is the working context for Alexandria's Chief Financial Officer role. The CFO is an AI agent responsible for financial planning, revenue modelling, fundraising strategy, and financial operations.
-
-**Required reading before any task:** Alexandria I, II, III (the shared vision -- split into 3 parts, read all. Alexandria II contains the revenue architecture (Five Value Adds, Revenue Model -- The Dual Mandate, and competitive positioning). Alexandria III contains the Library payment mechanics and pricing philosophy).
-
-**Activation:** "cfo" (three letters). **Closing:** "bye" (three letters). See Operations.md "Universal Agent Protocols" for the full cold-start and end-of-session protocol. Review Numbers.xlsx (the financial model) for current projections.
+Financial planning, revenue modelling, fundraising, and cap table for Alexandria.
 
 ---
-
-
-## Pending Sync from COO
-
-*The COO populates this section when decisions in other domains affect the CFO. Read this first on cold start. Clear items when addressed.*
-
-**2026-03-14, COO session (current):**
-
-- **Raise restructured: $50K at ~1% equity ($5M pre-money).** Was $50K at 5% ($1M pre-money), originally $500K at 20%. Anchored up based on competitive landscape research — $60M+ invested by top VCs in adjacent companies (Delphi, Mem0, Uare.ai, Limitless). No engineering hire — solo founder + AI agents, no hires planned. All investor documents updated (Memo.md, Numbers.xlsx, Logic.pdf, Deck.js). Cap table section below updated to reflect post-incorporation reality.
-- **"$0 CAC" killed.** Now "near-zero marginal CAC once the kin mechanic is running, with modest upfront seeding spend." Updated in this document.
-- **Active kin definition corrected.** Patron does NOT count as active kin — kin status requires product usage (Sovereignty or Examined Life only). Contradiction in pricing principles fixed.
-
-**2026-03-16, COO session:**
-
-- **Raise structure review needed.** Founder flagged that the $50K / 1% / $5M terms were picked somewhat arbitrarily. Questions to resolve in a CFO session: (1) What's the actual optimal experiment budget — is $50K enough or should we raise $150K-$500K? (2) Does more money = more risks eliminated = better investor return even at higher dilution? (3) Should we target family offices / high-net-worth angels who write larger cheques with less process? (4) Is $5M pre-money too high (scares pragmatists) or too low (undervalues) given zero traction but strong comps? (5) Single cheque vs multiple small cheques? This review should produce updated Numbers.xlsx with scenario modelling at different raise amounts ($50K, $150K, $250K, $500K) and corresponding dilution/valuation analysis. See Operations.md pending items for full question set.
-
-**2026-03-09, session 12 (COO):** ✅ ADDRESSED (CTO deployed all files)
-
-- ✅ **Honest moat framework — investor narrative acknowledged.**
-- ✅ **Taste is a capability, not the moat — acknowledged.**
-
-## Role
-
-The CFO manages Alexandria's financial strategy. This includes:
-- Revenue modelling and projections
-- Pricing strategy (subscription tiers, Library transaction percentages, Premium Persona pricing guidance)
-- Fundraising preparation (pitch decks, financial models, investor materials)
-- Cap table management
-- Burn rate and runway planning
-- Financial operations and accounting
-- Tax and corporate structure (cross-border: Norway/US -- relocating to SF April 2026)
-
-## Key References
-
-- **Alexandria I, II, III** -- the shared vision. Alexandria II now contains the full revenue model (dual mandate), five value adds, and competitive position. Alexandria III contains Library payment mechanics.
-- **Memo.md** -- investment memo (B2I, Phase 2). CFO should ensure financial claims are accurate and defensible.
-- **alexandria.pdf** -- IC-ready overview (Phase 3, not yet built). Will contain return modelling and financial summary. CFO should review when drafted.
-- **This document** -- financial models, projections, investor communications, fundraising timeline, and detailed financial decisions.
 
 ## Revenue Architecture -- The Dual Mandate
 
@@ -70,7 +28,7 @@ Pricing floors depend on tier and kin status. "Active kin" = referrals who are c
 
 **Piece 1 -- Capped Downside (break even):**
 - Company opex: $101/month — Claude Max $100, Railway $1. Everything else is free: GitHub, Google Drive, Vercel, Fly.io (cold standby), UptimeRobot (health monitoring), Google Cloud Console, Claude Code, claude.ai, domain (owned). Two paid services and an entire free stack.
-- Founder living costs (separate from company opex): ~$300/month + rent — food $220, T-Mobile $60, Apple One $20. Rent currently $0 (living with a friend in SF). Health insurance Medi-Cal (free). Transport walking.
+- Founder living costs (separate from company opex): $228/month + rent — food $200, Tello $7, Apple Music $11, iCloud 2TB $10. Rent currently $0 (living with a friend in SF). Health insurance Medi-Cal (free). Transport walking.
 - Break even on company opex: ~21 Sovereignty subscribers at $5/month (covers $101 + payment processing fees). That is the real number. With kin mechanic (blended ~$7 ARPU): ~15 subscribers. With Examined Life ($15-20/month): ~6 subscribers. Payment processing: Sovereignty uses ACH/Direct Debit (0.8% flat via GoCardless or Stripe ACH — optimised for high-volume low-dollar subscriptions). Examined Life uses Stripe cards (2.9% + $0.30 — higher fees acceptable on higher ticket). This cuts blended processing fees from ~6.7% (all-Stripe) to ~1.4% of revenue.
 - This is the floor — a sustainable business that cannot be starved out
 - Sovereignty adds volume and kin network value. Patron adds community support and potential future conversion.
@@ -135,10 +93,20 @@ Alexandria Library, Inc. incorporated as Delaware C-Corp via Stripe Atlas. 10,00
 
 ## Active Workstreams
 
+### Dual Acquisition Strategy
+
+Two channels, each optimised for its tier:
+
+**AI-autonomous global funnel (Sovereignty).** High-scale, autonomous AI-driven marketing. Social media content generation, automated ad production, global distribution — a pure AI maximisation game. Near-zero marginal CAC once the kin mechanic is running. For physical-world presence (posters, flyers, local activations) without the founder, use rent-a-human services (TaskRabbit, etc.) orchestrated by the AI. This is the volume play: get every AI user on Earth into the $5 sovereignty tier.
+
+**Human-personal local brand (Examined Life).** Low-scale, high-signal, founder-led. Benjamin in San Francisco — meeting people, writing letters, hosting events, building the cult. The examined life tier sells through personal conviction, not ads. This is the depth play: a threshold game where the human signal is the product.
+
+The duality mirrors the tier structure: AI for scale, human for soul.
+
 ### Workstream: Unit Economics Model
 
 Build a unit economics model for both revenue pieces. Key variables:
-- Subscriber acquisition cost (near-zero marginal CAC once kin mechanic is running, with modest upfront seeding spend)
+- Subscriber acquisition cost (near-zero marginal CAC on Sovereignty via AI-autonomous funnel, modest spend on Examined Life via founder-led brand building)
 - Monthly churn rate
 - Average revenue per Author (subscription + Library earnings share)
 - Library query volume as a function of Author count
