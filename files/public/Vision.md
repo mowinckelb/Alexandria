@@ -1,6 +1,6 @@
 # Alexandria — The Vision
 
-*The full philosophy in plain English. No pitch, no compression, no art. Just the argument, clearly explained, for someone who wants to understand everything.*
+*The full philosophy in plain English. Just the argument, clearly explained, for someone who wants to understand everything.*
 
 ---
 
@@ -44,6 +44,8 @@ No. You already knew that. Not because the alien's version is worse — it is be
 
 The alien thought experiment isolates the fifth thing perfectly. Strip away every capability advantage — intelligence, skill, taste, empathy — and the feeling is still there. That proves it is not about capability. It is about who made it.
 
+If you think humans will eventually stop feeling this way — that the instinct to value our own kind will fade as people grow up alongside AI — then none of this matters. But that is a bet against every feeling you have ever had about your own children, your own friendships, your own species. It is a bet against biology. You can make it. We would not.
+
 ## The fifth thing has two levels
 
 There is "a human made this" — general, anonymous. A human-made product carries something that a machine-made product does not, simply because a human made it. That is general property five.
@@ -52,11 +54,11 @@ And there is "THIS human made this" — specific, personal. The grandmother's bo
 
 Specific is always stronger than general. The grandmother's bowl is more valuable than an anonymous human-made bowl. Because you know her. Because it is hers.
 
-This is why self-knowledge matters. The more distinctly, authentically, recognisably yourself you are, the stronger your specific property five. A generic human competes with every other human and every machine. A specific human — someone who knows who they are, has developed taste, has a perspective — competes with no one. Authenticity escapes competition.
+This is why self-knowledge matters. The more distinctly, authentically, recognisably yourself you are, the stronger that feeling becomes. A generic human competes with every other human and every machine. A specific human — someone who knows who they are, has developed taste, has a perspective — competes with no one. Authenticity escapes competition.
 
 ## The game
 
-The fifth thing is real, but it does not work alone. You still have to be good enough at what you do for anyone to care. Nobody hires a warm waiter who drops every plate. Nobody buys a handmade bowl that leaks. Property five only matters once you have cleared the bar on capability.
+The fifth thing is real, but it does not work alone. You still have to be good enough at what you do for anyone to care. Nobody hires a warm waiter who drops every plate. Nobody buys a handmade bowl that leaks. That feeling only matters once you have cleared the bar on capability.
 
 This is where AI becomes your ally, not your enemy. AI helps you clear the bar. You use AI the way humans have always used tools — to get good enough. The alien clears the bar too. Same bar, both clear it.
 
@@ -76,13 +78,13 @@ Not all games are equal for humans. Three things determine how strong the human 
 
 **Time.** Live, in-person, real-time games are the strongest for humans. A live musician on stage. A friend across the table. Presence. These are hard to augment in the moment — your mind, your warmth, your taste have to be there already, internalised. That is where a developed mind matters most. On the other hand, writing a book or designing something gives you time to iterate with AI. Both are valid — but live games have the strongest human premium because you cannot fake presence.
 
-**Proximity.** How close is the human to the person experiencing the value? The waiter is visible, felt, emotionally connected. The dish cleaner is invisible. Property five only generates a premium if someone experiences the human. If the human is invisible, nobody is there to care.
+**Proximity.** How close is the human to the person experiencing the value? The waiter is visible, felt, emotionally connected. The dish cleaner is invisible. That feeling only generates a premium if someone experiences the human. If the human is invisible, nobody is there to care.
 
 **Authenticity.** This is the biggest one. If you are being yourself — genuinely, not performing — nobody can compete with you. The kid's drawing. The random voice note. An undistorted expression of who you are. AI can wear a better mask than you can. The moment you perform — imitate, approximate, pretend to be someone else — you are competing on approximation, and AI wins that game. The only escape from competition is being authentically yourself. Nobody can approximate you better than you.
 
 The human advantage is strongest when the game is live, visible, and authentic. It is weakest when the game is asynchronous, invisible, and performed.
 
-## Nested loops
+## The conductor
 
 Most real situations are not a single game but many games stacked together. An athlete's career includes training, promotion, performance, recovery, sponsorship. Each of these is a different game — some are best handled by AI, some by the human.
 
@@ -114,9 +116,9 @@ The root value is humanity. Three pillars serve it:
 
 **Freedom.** You cannot develop your humanity without owning it. Alexandria builds a structured file about who you are — how you think, what you care about, what you like, your blind spots, your values. This file is stored on your own device. Not on a company's server. Alexandria has no database. There is literally nowhere on the system for your data to exist. You own it completely. No one can read it, sell it, delete it, or hold it over you. This is not a feature — it is the foundation. Without sovereignty, you perform instead of being honest. Without honesty, development cannot happen.
 
-**Authenticity.** You cannot express your humanity without knowing yourself. The mental gym develops your self-knowledge — surfaces things about yourself you did not know, sharpens what you believe, spots contradictions, pushes you to articulate what you have never put into words. The more you know yourself, the more authentically you can express yourself. And authenticity is the thing that escapes competition. A developed mind — someone who knows who they are, has refined taste, has a genuine perspective — competes with no one. They are irreplaceable not because humans are special in the abstract, but because THIS human is specific in the concrete.
+**Authenticity.** You cannot express your humanity without knowing yourself. The mental gym develops your self-knowledge — surfaces things about yourself you did not know, sharpens what you believe, pushes you to articulate what you have never put into words. The more you know yourself, the more authentically you can express yourself. And as you already read — authenticity escapes competition.
 
-**Purpose.** You cannot sustain your humanity without creating. Knowing yourself is not enough. You have to get it out. Write, build, cook, teach, make — whatever your medium. Creation is how your humanity becomes visible and valuable. Without creation, your inner development is invisible to the world. Alexandria provides the mindset (create, get it out), the tools (creative iteration calibrated to your taste), and eventually the medium (the Library — where others can encounter your mind and pay for depth).
+**Purpose.** You cannot sustain your humanity without creating. Knowing yourself is not enough. You have to get it out. Write, build, cook, teach, make — whatever your medium. Creation is how your humanity becomes visible and valuable. Without creation, your inner development is invisible to the world.
 
 The product works across every AI you use. One connection, five minutes, five dollars a month. The file it builds gets better every day — every conversation with any AI makes it sharper. And because it is stored on your device, you keep it forever. It compounds. The earlier you start, the stronger your position.
 
@@ -132,7 +134,7 @@ Alexandria provides meaning. At the individual level — develop yourself, know 
 
 The product is the vehicle. The philosophy is the thing.
 
-Every AI that gets better makes Alexandria more valuable, not less. Better AI means better extraction, better development, better augmentation to threshold. The product rides the exponential instead of fighting it. And the philosophy becomes more urgent with every capability advance — because the more AI can do, the more tempting it is to stop thinking for yourself, and the more important it is that you do not.
+Every AI that gets better makes Alexandria more valuable, not less. Better AI means better self-knowledge, better development, better help getting you above the bar. The product rides the exponential instead of fighting it. And the philosophy becomes more urgent with every capability advance — because the more AI can do, the more tempting it is to stop thinking for yourself, and the more important it is that you do not.
 
 Freedom. Authenticity. Purpose. Own it, develop it, use it.
 

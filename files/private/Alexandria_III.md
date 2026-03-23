@@ -643,6 +643,39 @@ The overall feeling: quiet confidence. Not minimalist for minimalism’s sake �
   
 Visual motifs — the natural elements: water, light, fire, wind. These are the recurring visual and philosophical themes across all Alexandria media. Water is the primary motif — the mind as liquid, the droplet, the ink, the river, the surface tension of the Constitution. Light is illumination — the fog clearing, the north star, the telescope, refraction through a prism. Fire is transformation — the forge, the creative act, warmth, controlled danger. Wind is the force that changed everything — AI and robotics as the invisible current that caught the droplet and changed its trajectory. These are elemental, not technological. They express the thesis that humans are part of nature — not above it, not below it, not separate from it. The elements act on the droplet. The droplet persists within them. The motifs appear when they serve the content, not as mandatory brand elements. When they do appear, they should feel inevitable. See the Art Guide’s “Natural Elements” section for the full symbolic vocabulary.  
   
+NATURAL ELEMENTS — PRODUCT MAPPINGS
+
+The universal philosophy of the natural elements lives in Constitution_Taste.md. Below are the specific creative mappings to Alexandria's product, brand, and visual language.
+
+Water → Alexandria product mappings:
+- The dot as ink droplet. The "a." has a dot. That dot is a droplet of ink. A quill dips into ink and touches the page — the first mark it leaves is a dot. That dot is the period in "alexandria." That dot is the logo. The dot is where contact happens — where the quill meets the page, where thought meets medium, where carbon meets silicon.
+- Constitution as surface tension. The Constitution is the surface tension of the Author's mind. Inside: chaotic molecules bouncing and colliding — scattered fragments, contradictions, half-formed thoughts. But the droplet holds its shape. The Constitution — soft, flexible, not rigid — maintains coherence. It can deform, split, recombine. But the values, the core reasoning patterns, the identity persist. The interior is messy. The surface holds.
+- Constitution as ink on page (PLM at the horizon). The living mind — always in motion, always changing — becomes a permanent mark. The Constitution captures this in structured, sovereign form. At the horizon, the PLM extends this further — human cognition that persists in silicon after the biological substrate is gone. The droplet moves with grace. The ink endures.
+- Gold to aery thinness beat. John Donne: two souls like gold beaten so thin it expands to cover everything without breaking. The PLM stretches the Author's cognition across unlimited simultaneous interactions, remaining essentially itself. The gold is still gold no matter how thin.
+- The tsunami and the ink. AI and robotics as a supersonic wave. The ink does not fight the wave — it dissolves into it and colours it. The water carries the ink. The ink gives the water meaning. They move together. Alexandria is the ink in the water.
+- The living Constitution as river. Version 274 is not a replacement of version 273. It is the same droplet, one moment later in its journey. The river is defined by the fact that it flows and is never the same. Model agnosticism is water's indifference to the shape of the vessel.
+
+Light → Alexandria product mappings:
+- Editor clearing fog. The Editor clears the fog — what is revealed is light. The Author's inner world, now visible. Fog is the state of most people's minds before the fragments are woven.
+- Library as prism. Light passes through water and refracts into a spectrum. The Library is a prism: one mind entering, its full spectrum emerging for others to see. Each Author refracts differently.
+- Galileo telescope. The outward telescope revealed the cosmos (terrifying, then magical). AI is the same telescope pointed inward at the mind. It will reveal that human intelligence is a sliver of what intelligence can be. Terrifying for many. But on the other side: the discovery that the inner theatre of a single mind is as vast as the cosmos.
+
+Fire → Alexandria product mappings:
+- The Author's creative process as forge. Fire transforms raw material into something new. The scattered fragments, heated by the Editor's weaving, become finished work.
+- Human warmth vs cold technical systems. Alexandria should feel warm, not sterile. The campfire, the hearth.
+
+Wind → Alexandria product mappings:
+- AI as the wind that changed the trajectory. The droplet was on a fixed path. The wind caught it. Alexandria exists in this moment of changed trajectory — building tools for a droplet that no longer knows its destination but knows it is still itself.
+- Alexandria captures everything the wind blows through. Every fragment, every touchpoint, every stray thought caught in the current.
+
+Core visual motif — The Eye + Mercury Mind: the warm human eye (brown skin, blue iris, imperfect, alive) containing a silver mercury pool inside — the Mercury Mind visible within. Subtle motion: tiny surface ripples, merging droplets, faint ink-like threads. Photorealistic but with the slightest artistic shimmer. This single image is as canonical as the "a." mark. It is the thesis in one frame: warm human exterior, silver mind within. Use as: hero image, loading state, Vision video centrepiece, social media anchor, presentation opener. The eye+mercury IS Alexandria's visual identity alongside the "a."
+
+Mercury visual direction (confirmed 2026-03-03): the mercury visual should NOT be an opaque block of silver. It should be liquid-glass-like: translucent, prismatic, shimmering, light-catching. Think of water droplets as liquid glass — light comes in and refracts into the full spectrum. The word stays "mercury." The visual goes liquid glass. Opaque or translucent. Shimmering. Beautiful. Not just metal — alive.
+
+Companion Portfolio visual opportunity (exploratory): five companions — Pater, Mater, Philia, Eros, Sophia. Each could have a distinct visual treatment or colour association within the Alexandria palette. Warm gold (Mater), cool silver (Sophia), deep red (Eros), steady grey (Pater), warm amber (Philia). Not confirmed — design direction to explore.
+
+-----
+
 ALEXANDRIA MEDIA STRATEGY  
   
 This section describes how Alexandria specifically presents itself across mediums. For the universal creative principles (craft, techniques, foundations), see the Art Guide — a separate document. This section assumes the Art Guide has been read and applies its principles to Alexandria’s specific needs.  
@@ -711,6 +744,58 @@ Hyperrealism as artistic standard: great art does not merely depict reality. It 
   
 Physical robot embodiment of the Persona is an eventual possibility at the far horizon.  
   
+ACTIVE CREATIVE PROJECTS
+
+The Vision — Mercury Mind. MP4, ~60-120 seconds. Music: "November" by Two Lanes (classical piano, slow, contemplative — same energy as the GoT @calufern edit). Style reference: GoT @calufern edit — non-linear thematic collage, 1-2 second clips synced to music, eyes and faces as primary content, light as emotion. Status: briefing/concepting.
+
+The brief: the viewer watches and feels something they cannot name. They do not understand what Alexandria is. They understand what it is about. They sit in silence after. They want to know more. 100% emotion, 0% explanation.
+
+Core visual language: Eyes (the primary image — close-ups, different people, different ages, Benjamin's blue eyes against brown skin, reflections of fire/water/storms/stars in the eyes). The mercury mind (warm human eyes against the silver mercury pool within — not a brain, a shifting pool of liquid mercury, alive, shimmering, liquid glass. The contrast between human exterior and mercury interior IS the thesis). Rain (raindrops on water, the rings, the temporality, dissolving into the ocean — the droplet concept in nature). Scale (one drop, many drops, rain, rivers, ocean — all the same substance). Hands (holding, tension visible in the grip, releasing). Breathing (rhythm, rise and fall, the inhale before something begins). Fire (the burning of the Library of Alexandria — the original destruction we are undoing, flame reflected in eyes, candlelight, the forge). The storm/tsunami (AI arriving, the wind changing trajectory — fear, then grace, then relaxation, then faith). Ink and liquid (dispersing in water, the bloom, the mercury pool moving and alive). Space and stars (the outward telescope, the vastness the inward telescope mirrors).
+
+Emotional arc: quiet opening (eyes, stillness, a single droplet) → building (rain, many eyes, many people, the wind rising) → tension (the storm, fire, the grip tightening, the tsunami approaching) → release (hands relaxing, eyes closing, breath, the sails coming down) → grace (the droplet moving through the storm, the ink colouring the water, the mercury pool alive and shifting) → silence → "a."
+
+What this is NOT: not a product demo, not text on screen (earn any text), not an explainer, not safe/corporate/expected.
+
+Open questions: AI-generated vs sourced vs combination footage? Benjamin's own eyes as recurring motif? Voiceover or pure music? (Instinct: pure music. The silence IS the voice.) The "a." reveal — ink forming on wet paper? A raindrop landing and leaving a mark?
+
+-----
+
+The Ones and Zeros — Conductor Video. MP4, ~90 seconds. Status: brief from COO (session 8), workshop needed. Purpose: the Demo layer in the sensory stack (Vision → Abstract → Demo → Reference).
+
+The argument: humans used to provide value across four dimensions (intelligence, strength, dexterity, humanity). AI and robotics will be infinitely better at the first three. If you compete directly on those alone, your number drops toward zero — not because your intelligence disappeared, but because unfiltered intelligence is interchangeable with the machine. Humanity is the multiplier. The lens. If your capabilities pass through your humanity — your taste, your perspective, your specific way of seeing things — you get to keep your number. Most people's multiplier is below one. They haven't examined it. Haven't developed it. Haven't polished the lens. Alexandria makes the multiplier above one.
+
+The visual concept: the conductor and the orchestra. Humans were on stage. AI arrives — each section starts playing itself, better than any human. The humans get moved off stage into the audience. One person walks back on stage. Not just to conduct — to play through the lens. Their specific taste directs what they play, how they play it. The music changes — not because they're better at any instrument, but because the music is theirs now. Filtered through their humanity. Without the lens: replaceable. With it: irreplaceable.
+
+Possible visual treatments: abstract/numerical (four dimensions as floating numbers, the collapse, the leading digit glowing), orchestral (literal conductor footage), hybrid (numbers overlaid on orchestral narrative), mercury mind (conductor's mind as liquid mercury, orchestra as zeros flowing through it).
+
+Emotional arc: abundance (the orchestra is incredible) → honesty (you're not on stage anymore) → choice (you can stay in the audience) → agency (but there's one position) → power (the conductor raises the baton, the music becomes theirs) → "a."
+
+-----
+
+CREATIVE IDEAS LOG
+
+Running capture of stray thoughts, images, connections, phrases for Alexandria's creative output. Pre-task — raw material that might become a video, an Abstract section, a visual, a phrase. The scattered fragments before the loom gets to them.
+
+From the Palantir Application — Aphorisms as Raw Material (some may become on-screen text, seed essay sections, or just sit here until they find their moment):
+
+On intelligence: IQ is applied logic. First-principles is min(axioms). Most people's logic doesn't scale. Logic must survive to the limit. Solutions are often just discovering the coordinate system in which the problem becomes trivial. Elegant solutions look inevitable in retrospect. Defining the problem is half the solution. Writing compresses ideas, discussion expands them.
+
+On courage: Great founders have intellect & energy, and choose courage. The cost of indecision quickly exceeds the cost of failure. There's nothing noble about losing. If your principles require you to lose, your principles suck. After school, life is poker not chess.
+
+On humanity: Self-interest is a series of concentric circles with impermanent equilibrium. AI unravels the magical complexity of humans. The gentle singularity shows humans adapt to everything but appreciate nothing. Freedom breeds hierarchy.
+
+On systems: Minimum details, but all details perfect. The best part is no part. A permanent solution to a temporary problem becomes a permanent problem. Opportunity cost is object permanence for adults. The Bitter Lesson applies everywhere. Everything's compressed state-transition graphs.
+
+-----
+
+DESIGN DECISIONS LOG
+
+2026-02-28 — Foundational Session: logo confirmed (a. in Playfair Display 400). Colour palette confirmed. Natural elements motif system established (water primary). "Droplets of grace" established as primary phrase alongside mentes aeternae. PDF closing convention. Abstract versioning: Roman numerals. Mastery of range principle: axiomatic quality, not fixed aesthetic. Influence log started: GoT @calufern, Cloudflare, Airbnb "Bonnie & Clyde." Handwritten letter to first 100 Authors: numbered, async, family paper, wax seal.
+
+2026-03-03 — Mercury Visual Direction: Mercury visual goes liquid glass (translucent, prismatic, shimmering). Companion Portfolio visual opportunity (exploratory colour associations). Library app design is now a priority — cathedral not marketplace. Access tier design question open (how Constitution content appears at different visibility levels).
+
+-----
+
 PRIORS — PHYSICAL ALEXANDRIA  
   
 The digital Editor and Library are the core product. But there is something irreplaceable about thinking with people in a room. The Socratic method was never meant to be done alone — it was done in the agora, in public, with witnesses, with friction. Priors are physical Alexandria locations: where mercury minds meet other mercury minds and create something neither could alone.  

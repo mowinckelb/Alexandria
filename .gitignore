@@ -42,3 +42,5 @@ next-env.d.ts
 
 .vercel
 files/private/Vault/
+.claude/worktrees/
+.font_cache/

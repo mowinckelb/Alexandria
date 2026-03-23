@@ -1,6 +1,7 @@
 'use client';
 
 import { useTheme } from '../components/ThemeProvider';
+import WaitlistSection from '../components/WaitlistSection';
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
@@ -37,9 +38,12 @@ export default function OnboardingPage() {
             </p>
           </a>
 
-          <p className="mt-14 text-[0.85rem] sm:text-[0.9rem] leading-[1.9] tracking-wide" style={{ color: 'var(--text-muted)' }}>
-<span className="italic">coming soon.</span>
-          </p>
+          <div className="mt-14 flex items-baseline justify-center gap-3">
+            <p className="text-[0.72rem] tracking-wide" style={{ color: 'var(--text-ghost)' }}>
+              join waitlist
+            </p>
+            <WaitlistSection inline source="onboarding" />
+          </div>
 
         </div>
       </section>

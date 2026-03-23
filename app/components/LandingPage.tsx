@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from 'react';
 import { useTheme } from './ThemeProvider';
-import WaitlistSection from './WaitlistSection';
 import FooterSection from './FooterSection';
 import ScrollPhilosophy from './ScrollPhilosophy';
 
@@ -122,19 +121,22 @@ export default function LandingPage() {
 
       <ScrollPhilosophy />
 
-      {/* After the frame */}
-      <section className="px-8 py-16 sm:py-24">
-        <div className="max-w-[520px] mx-auto flex flex-col items-center gap-10 text-[0.78rem] tracking-wide">
-
-          <div className="text-center pt-4" style={{ color: 'var(--text-ghost)' }}>
-            <span className="text-[0.6rem] tracking-widest uppercase" style={{ letterSpacing: '0.2em' }}>investors</span>
-            <p className="mt-3 text-[0.75rem] tracking-wide" style={{ color: 'var(--text-muted)' }}>
-              <a href="tel:+4746643844" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-muted)' }}>call</a>
-              {' / '}
-              <a href="mailto:benjamin@mowinckel.com" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-muted)' }}>email</a>
-            </p>
-          </div>
-
+      {/* Investor — natural continuation */}
+      <section className="px-8 py-20 sm:py-28">
+        <div className="max-w-[520px] mx-auto flex flex-col items-center gap-6 text-center">
+          <p className="text-[0.82rem] sm:text-[0.88rem] tracking-wide italic" style={{ color: 'var(--text-muted)' }}>
+            believe in this?
+          </p>
+          <a
+            href="tel:+4746643844"
+            className="text-[1rem] sm:text-[1.1rem] tracking-wide font-medium no-underline transition-opacity hover:opacity-60"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            call
+          </a>
+          <p className="text-[0.65rem] tracking-wide" style={{ color: 'var(--text-ghost)' }}>
+            if you have five minutes, call me right now.
+          </p>
         </div>
       </section>
 

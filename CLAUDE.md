@@ -32,29 +32,32 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 - `Meditations_1.md`, `_2.md`, `_3.md` — Essay series briefings (On Love, On Power, On Magic, On Being, On Death).
 - `on_love.pdf` — Finished essay. Reference artifact for taste.
 
-**Internal reference:**
-- `Design.md` — Brand identity, visual design, creative workshop.
-- `Finance.md` — Internal financial planning, cap table, fundraising strategy, pricing detail.
-- `Legal.md` — IP portfolio, ToS risk, corporate structure.
+*Design, finance, and legal content folded into GTs: design/creative → A3, pricing/cap table → A2, IP/ToS → A2. No bridge docs remain.*
+
+**Fundraise & distribution:**
+- `Apply.md` — Fundraise action file. Application deadlines, investor targets ranked by alignment, SF event calendar (Apr-Jun 2026), MCP distribution actions, pitch draft. Competitive data woven into Memo.md.
 
 ### files/confidential/ — Shared Under Trust (Investors, Advisors)
 
-- `Memo.md` — Investment memo (B2I Phase 2).
-- `Deck.js` / `Deck.pptx` — Investor deck.
+Investor flow: Memo.md (AI-delivered first touch) → Logic.pdf + Numbers.xlsx (pre-meeting deep dive) → Meeting (conversation) → Alexandria.md/alexandria.pdf (IC leave-behind).
+
+- `Memo.md` — Investment memo. AI-presentable with hidden follow-up notes for Q&A. First touch.
+- `Alexandria.md` — Source markdown for IC-ready PDF. Dense, self-contained, for the partner who wasn't in the room. Render to PDF for distribution.
+- `alexandria.pdf` — Rendered IC overview (regenerate from Alexandria.md when content changes).
 - `Numbers.xlsx` — Financial model and projections.
 - `Logic.pdf` — Formal argument chain (44 premises, 11 conclusions, 20 assumptions).
-- `alexandria.pdf` — IC-ready overview for post-meeting investors.
 
 ### files/public/ — External
 
-- `Concrete.md` — Consumer pitch (copy-paste into any AI chat). Also served at `public/docs/Concrete.md`.
-- `Surface.md` — Website copy/spec for mowinckel.ai. Also served at `public/docs/Surface.md`.
+- `Concrete.md` — Consumer pitch (copy-paste into any AI chat). Skeleton format: topics + points, model writes fresh each time.
 - `Vision.md` — Full philosophy in plain English. ~20 min read. For someone who wants to understand everything.
-- `abstract.pdf` — Philosophical abstract PDF. Also served at `public/docs/abstract.pdf`.
-- `alexandria.md` — User setup instructions (connector + memory edits).
-- `claude-project-instructions.md` — Claude memory priming text for users.
+- `abstract.pdf` — Philosophical abstract PDF.
+- `setup.md` — User onboarding guide (connector setup, memory edits, troubleshooting).
 - `logo_*.png` — Logo variants. `logo_reference.html` — interactive reference.
 - `Benjamin_Mowinckel_Headshot.jpg` — Founder headshot.
+
+Note: `public/docs/` is a symlink to `files/public/`. One source of truth, website serves from here.
+Note: `/onboarding` page is not yet built. `setup.md` exists as the reference for when it is.
 
 ## Compounding Loops
 
@@ -76,14 +79,14 @@ Each Author's Machine compounds through usage. Constitution deepens, feedback lo
 ## Code
 
 - **Website:** `app/` (Next.js, Vercel). Landing page: `app/components/LandingPage.tsx`.
-- **MCP server:** `server/src/` (Node.js + Express + @modelcontextprotocol/sdk, Fly.io).
+- **MCP server:** `server/src/` (Node.js + Express + @modelcontextprotocol/sdk, Railway).
   - Key files: `index.ts` (entry), `tools.ts` (axioms + soft defaults), `modes.ts` (mode defaults), `drive.ts` (Drive I/O), `analytics.ts` (Factory events), `auth.ts` (OAuth), `crypto.ts` (encryption).
   - 5 tools: update_constitution, read_constitution, activate_mode, update_notepad, log_feedback.
   - Stateless: encrypted Google refresh token IS the access token. No user data stored.
 - **Static assets:** `public/` (includes `public/docs/` served by website).
-- **Build:** `npm run build` (server/). **Deploy:** `fly deploy` from server/ (Fly.io), push to main (Vercel).
-- **Server health:** `curl https://alexandria-mcp.fly.dev/health`
-- **Stack:** Vercel (website), Fly.io (MCP server), GitHub, Google Cloud (OAuth), Claude.
+- **Build:** `npm run build` (server/). **Deploy:** `fly deploy` from server/ (Railway), push to main (Vercel).
+- **Server health:** `curl https://alexandria-production-7db3.up.railway.app/health`
+- **Stack:** Vercel (website), Railway (MCP server), GitHub, Google Cloud (OAuth), Claude.
 
 ## Design Constraints
 
@@ -91,6 +94,27 @@ Each Author's Machine compounds through usage. Constitution deepens, feedback lo
 - **Philosophy IS the objective:** no numerical loss function or optimization target. Metrics are verification, not goals.
 - **Intelligence is downstream:** HOW belongs to the AI. Only the WHY (axioms) is hard-coded.
 - **Build as little as possible.** Ride existing infrastructure. Server is bridge, not intelligence.
+
+## End-of-Session Protocol
+
+Triggered by: "bye for now", "that's it", "end session", or any casual sign-off that signals the founder is done.
+
+When triggered, produce the following in one response:
+
+### 1. Delta — Mental Model Update
+What changed about Alexandria. Not what you did — what's different now. Only fragments that update the founder's existing mental model of the company. If nothing shifted, say nothing.
+
+### 2. Open Threads
+What's unresolved. What the next session should pick up. Ordered by priority.
+
+### 3. Feed the Loops (silent)
+Do not report. Just do it. Save memories, update GTs, push to Blueprint, flag downstream staleness in the fragments if the founder needs to know.
+
+**Principles:**
+- Hazy fragments scale. Weeds do not. Keep it compressed.
+- Signal, not summary. Don't restate what the founder already saw — extract what compounds.
+- If nothing happened in a loop, skip it. No empty sections.
+- The whole output should take <60 seconds to read.
 
 ## Working With the Founder
 
