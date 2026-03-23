@@ -9,7 +9,12 @@
       "Bash(rm:*)",
       "Bash(npx tsc:*)",
       "Bash(npx vercel:*)",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "Bash(cp:*)",
+      "Bash(cd:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(python generate_vision_pdf.py)",
+      "Bash(python -c \":*)"
     ]
   }
 }

@@ -36,18 +36,18 @@ export default function WaitlistSection({ inline = false, source = 'public' }: W
   const form = (
     <form onSubmit={handleSubmit} className="flex items-center gap-0">
       {status === 'success' ? (
-        <span className="italic" style={{ color: 'var(--text-muted)', fontSize: '16px', transform: 'scale(0.72)', transformOrigin: 'left center', display: 'inline-block' }}>
+        <span className="italic" style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>
           noted.
         </span>
       ) : (
-        <div className="relative" style={{ width: `${Math.max(3, email.length * 0.45 + 1)}rem` }}>
+        <div className="relative" style={{ width: `${Math.max(2, email.length * 0.32 + 0.7)}rem` }}>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="email"
+            placeholder=""
             required
-            className="w-full px-0 py-0.5 bg-transparent outline-none origin-left"
+            className="w-full px-0 py-0.5 bg-transparent outline-none"
             style={{
               color: 'var(--text-primary)',
               border: 'none',
@@ -55,9 +55,7 @@ export default function WaitlistSection({ inline = false, source = 'public' }: W
               fontFamily: 'var(--font-eb-garamond)',
               borderRadius: 0,
               opacity: 0.55,
-              fontSize: '16px',
-              transform: 'scale(0.72)',
-              transformOrigin: 'left center',
+              fontSize: '0.72rem',
             }}
           />
           {email.trim() && status === 'idle' && (
