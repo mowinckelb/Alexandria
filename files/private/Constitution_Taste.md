@@ -1,6 +1,6 @@
 # Constitution — Taste
 
-*How I create and what I create toward. Creative taste, aesthetic judgment, voice DNA, standing director's notes, consumption fingerprint, iteration patterns. This domain captures both the consumption side (what resonates and why) and the production side (how to get from vision to finished work). Finished works are themselves Constitution artifacts — they demonstrate taste in a way that described principles never can.*
+*How I create and what I create toward. Creative taste, aesthetic judgment, voice DNA, standing director's notes, iteration patterns. This domain captures both the consumption side (what resonates and why) and the production side (how to get from vision to finished work). Finished works are themselves Constitution artifacts — they demonstrate taste in a way that described principles never can.*
 
 *This domain is what the Publisher function reads most heavily. It deepens primarily through creating — every iteration, every note, every correction accumulates into a richer model of the Author's creative taste.*
 
@@ -23,6 +23,20 @@ You are not writing a document. You are composing a page. Your instinct will be 
 Taste is the intuition of subjective optimality — a shortcut through the refinement process that allows you to jump to the right answer without testing every option. Social refinement is sequential, sometimes discrete. Nature and simplicity are reliable convergence indicators: beauty is optimal simplicity, natural beauty is visible optimisation. When something looks right, feels simple and inevitable, resembles nature's solutions — those are signals the refinement has landed on something real.
 
 Taste is a capability — a very high-order one, perhaps the last to be commoditised. AI can approximate taste, including specific personal taste given enough data. But developing your taste still matters: it makes you a better conductor (sharper touchpoints, more precise sense-checks, better final calls). And the process of developing taste — the examined life applied to aesthetics — is part of what keeps you psychologically alive. Taste development is core to what Alexandria does. It is just not the thing that makes you irreplaceable. The thing that makes you irreplaceable is being you.
+
+---
+
+## Art Evaluation Framework
+
+Three formal criteria for evaluating art. These move beyond taste-as-intuition into evaluable dimensions:
+
+1. **Scarcity of vision.** How many people could have imagined AND executed the exact same thing? The fewer, the better. This is not technical difficulty alone — it is the intersection of conception and realisation. A million people can imagine it. A thousand can execute it. How many can do both, in exactly this form?
+
+2. **Reach x fidelity.** How successfully does the artist evoke what they intend, and to how many people? Reach without fidelity is populism. Fidelity without reach is a diary. The greatest art maximises both — it lands exactly as intended, and it lands on millions.
+
+3. **Medium-specificity.** How many other mediums could this same evocation have occurred in? The fewer, the better. If a film could have been a podcast, it failed as film. If a painting could have been a photograph, it failed as painting. The art should be inseparable from its medium — the form IS the content.
+
+These three dimensions — scarcity, reach, and medium-specificity — give you a formal evaluation framework that complements the intuitive taste layer above.
 
 ---
 
@@ -152,10 +166,13 @@ Every element chosen, not defaulted to. High intention density = every square in
 This guide should NOT produce the same output every time. Benjamin values range. Sometimes classical, sometimes electronic. The constant is not aesthetic — it is quality, excellence, depth, and mastery.
 
 ### Hyperrealism
-Great art compresses reality into a more concentrated form — more real than real. Higher resolution than casual conversation.
+Great art compresses reality into a more concentrated form — more real than real. Higher resolution than casual conversation. Fiction compresses realistic emotions into a hyper-realistic state, allowing larger concepts to exist in smaller form. "Good writing allows a book to be more than the sum of its pages." This applies across all art mediums — the compression is what makes art more real than reality. A novel distils a lifetime into hours. A painting freezes a moment that never existed but feels truer than any photograph. The compression is not loss — it is amplification.
 
 ### Borderline Too Much
 The best version is always at the edge. If comfortable, too little. If unhinged, too much. The target is the narrow zone between.
+
+### Curation as Remaining Human Value
+AI has read everything, so the curation is the uniqueness. Shakespeare just put words in an order. Anyone could have. The value is which iteration you choose. "The personal curation of which touchpoints do I mention." In a world of infinite generation, the fingerprint IS the curation. This is the irreducible human contribution: not creation from nothing, but selection from everything. The taste to say "this one, not that one" — that is the art now.
 
 ---
 
@@ -186,23 +203,53 @@ Completeness over consolidation. Never summarise away. Structure for retrieval. 
 
 ---
 
+## Romance as Creative Medium
+
+Mode 1 taste applied to romance. The same intention density, the same refusal to default, the same commitment to evocation — but the audience is one person. Every gesture is a creative work — conceived, designed, earned.
+
+Principle: mathematical proofs of love in LaTeX, composing symphonies, grand masked balls, suits lined with handwritten letters. The structure IS the content — a proposal where 14 letters' first characters spell the message.
+
+Long-game gestures: daily letters saved for the wedding. The compounding romantic gesture — daily investment with deferred reveal.
+
+Three-tier wedding: technical nuclear family only, formal ceremony adults, party close friends. Self-financed. "She made me fall in love with myself before making me fall in love with her."
+
+Romance is not a separate domain from creative taste — it is the purest expression of it. The audience of one demands the highest fidelity.
+
+---
+
+## Papillon — The Formal Dinner as Art
+
+Papillon is the embodiment of intention density applied to hospitality. Every element chosen, nothing defaulted to. The dinner table as canvas.
+
+Handwritten invitations with wax seal. Polished silver, fresh flowers, old playlist, candles, cream napkins and tablecloth, crystal glasses and decanter, branded plates, slippers for guests, table-side sauce from copper saucer. Piano concert for entertainment.
+
+Papillon is Mode 1 taste applied to the dinner table. The guests are the content. The evening is the evocation.
+
+---
+
 ## Consumption Fingerprint
 
 **Movies (Top 5):** Interstellar, Dark Knight, Gladiator, Dune 2, Dune 1. Pixar: Ratatouille, Toy Story 2, Cars, Up, Inside Out.
 
 **TV (Top 5):** Game of Thrones, Peaky Blinders, Breaking Bad, Prison Break, Money Heist. Favourite character: Tommy Shelby (temporal control, full intentionality).
 
+**TV Characters (Top 5):** (1) Tommy Shelby, (2) T-Bag, (3) Frank Underwood, (4) Berlin, (5) The Punisher.
+
 **Heroes / Admired Figures:** Elon (algorithm, first principles, risk-taking — "the most consequential person in human history"), Trump (nerves of steel, instincts, love for Americans), Kanye/Ye (truly free, mental deregulation), Naval (no routine, pure freedom, sprint/rest), Hitchens (wit, full use of English), Bestefar (role model, moral compass, "what would Bestefar think?"). Historical: Churchill, Lincoln, Vasili Arkhipov (#1 GOAT — the man who prevented nuclear war), Todd Beamer ("let's roll"), the Birkebeinerne.
 
-**Food:** Deep passion. Mowinckels restaurant brand with 9+ themed dinner formats (Papillon for formal, Da Louisa for pizza, Sangrita for Spanish outdoor, Beni's for BBQ smoker). Top food cities: Shanghai, Tokyo, Paris, London, New York. Makes pizza, gelato, smoked meats, fine dining. The food obsession is identity-level — "when travelling, it's literally the only thing I care about."
+**Favourite living:** Elon, Kanye, Trump. Jesus as historical GOAT.
 
-**Books:** Curated list of ~100 optimal books. "Don't read more books, just read the best books deeper." Complete Western canon (Plato through Harari), Eastern philosophy (Tao Te Ching, Confucius, Bhagavad Gita), political theory (Federalist Papers, Communist Manifesto), literature (Dostoevsky, Shakespeare, Marquez). Both Trump's Art of the Deal and Mein Kampf on the shelf.
+**Food:** Deep passion. Mowinckels restaurant brand with 9+ themed dinner formats. Top food cities: Shanghai, Tokyo, Paris, London, New York. The food obsession is identity-level — "when travelling, it's literally the only thing I care about."
 
-**Visual art:** Water and light, ideally both. "Magisterial and deep" — baroque, classical, neoclassical. Likes them big. Norwegian painters: Hans Dahl, JC Dahl. Favourite paintings: Coronation, Birkebeiner, Fall of Rome.
-
-**Scent:** The one area of maximum personality investment. "Scent is the most powerful and most linked to memories." Everything else stays minimal.
+**Scent:** The one area of maximum personality investment, most linked to memory. Everything else stays minimal.
 
 **Music:** Morning concerts and reggaeton. Night R&B. DJ set ownership. Spanish music. Wants lights synced with music.
+
+**Books:** Curated canonical bookshelf of 106 books. "Don't read more books, just read the best books deeper." Complete Western canon, Eastern philosophy, political theory, literature. Deliberately includes dictator texts alongside founding documents. The shelf is a map of how power, beauty, and meaning have been understood across civilisations.
+
+**Visual art:** Water and light, ideally both. "Magisterial and deep" — baroque, classical, neoclassical. Likes them big. Norwegian landscape art.
+
+**Entertainment gaps (deliberate).** Has NOT seen: Harry Potter, Star Wars, Disney (animated), Pixar (animated), Lord of the Rings, Marvel/Avengers, Titanic, Twilight, Blade Runner. Wants to watch: Billions, Succession, Yes Minister, Barry, Better Call Saul, True Detective.
 
 ## Influence Reference Log
 

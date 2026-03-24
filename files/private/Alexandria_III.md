@@ -240,7 +240,7 @@ The Author interacts with Alexandria through three functions running through the
   
 Editor function — The biographer. Runs through the Author’s normal Claude conversations, guided by the Blueprint. It asks Socratic questions, requests feedback on Constitution drafts, proactively surfaces gaps and contradictions. The Author can message it anything — thoughts, reactions, updates on their day — and it weaves everything into the Constitution and Vault. The Author can also send it files: voice memos, photos, PDFs, notes, links. The Editor function is the Author’s primary mode of interaction with Alexandria during Turn 1.  
   
-Mercury function — The amplifier. Activates as the Constitution deepens. The Author engages with it for thought partnership that pushes higher, day-to-day representation tasks, and proactive suggestions. It draws on the Constitution and Vault to respond with higher fidelity than the default LLM alone.
+Mercury function — The amplifier. Activates as the Constitution deepens. The Author engages with it as a mental gym that pushes higher, day-to-day representation tasks, and proactive suggestions. It draws on the Constitution and Vault to respond with higher fidelity than the default LLM alone.
 
 Publisher function — The creator. When the Author wants to make something — an essay, a film, a presentation, art — the Publisher reads the taste domain of the Constitution and iterates with the Author. The Author provides vision, direction, and taste. The Publisher provides structure, execution, and craft. Each project deepens the taste domain, making future first drafts closer to final.  
   

@@ -17,6 +17,8 @@
 
 Alexandria builds sovereign tools that capture, develop, and preserve individual human cognition through the AI transition. One MCP connector added to the user's AI account. Five tools activate across all conversations. The user's cognitive identity — how they think, what they value, how they reason — builds over time on their own storage, fully portable, fully owned.
 
+The objection: people do not think in words. Correct. Most cognition is pre-linguistic. Alexandria does not claim to represent thought — it claims to make thought compoundable. The process of forcing cognition through language restructures the cognition itself (Lieberman 2007, Kross 2014). Pre-verbal cognition does not compound, does not transfer, cannot interface with AI. The compression is lossy. The compounding benefit exceeds the loss.
+
 No startup is building the full stack. Top-tier VCs have invested $100M+ in adjacent companies building fragments of the thesis. The company does not need the money — company opex is $101/month. Capital accelerates the experiment, it does not enable the company.
 
 ## Why Now
@@ -103,7 +105,7 @@ The company has four unresolved risks, each with a price tag:
 
 **Rung 2 (~$200K-500K):** Scales what works. Pour fuel on the flywheel if kin compounds. Pivot distribution if it doesn't. First 1,000 Authors. No hires — invest in brand, community, and the founding lineage.
 
-**Rung 3 (~$1M+):** Mental Gym conversion at scale. Library for Labs pilot with one lab partner. International expansion. The round where the dataset becomes the moat.
+**Rung 3 (~$1M+):** Mental Gym conversion at scale. International expansion. Brand as category-defining standard. If the Library has traction, explore it. If not, the subscription business is the business.
 
 Each rung purchases the next tier of de-risking. The company does not need the money — $101/month opex. The founder builds regardless. Capital accelerates the experiment, it does not enable the company.
 

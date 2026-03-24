@@ -48,6 +48,88 @@ You have the higher-level thought stored in its simplest form, enough to know wh
 
 This is also a strategy for the post-commoditisation world: the people with the most touchpoints across the most domains are exactly the ones who can direct infinite execution most effectively. Depth at any single point is no longer the bottleneck. Breadth of instinct is.
 
+## Enjoyment vs Enrichment
+
+Two dimensions for evaluating experiences — especially travel, but applicable broadly. **Enrichment** adds new dimensions, expands your distribution. **Enjoyment** locks into known preferences. Your first trip to a place is enrichment. Return trips are enjoyment. Both matter; they serve different functions.
+
+A third element: **organised chaos** — deliberately leaving gaps in plans so that unscripted things happen. Memory is built in the gaps. Over-planning kills the raw material that makes experiences stick.
+
+You categorise enjoyment into: food, sport, arts, beauty, fun, humour. You categorise interests into: China, USA, AI, space, robotics, biotech, defence, energy, nature.
+
+**Net energy** is the primary filter. Do what gives energy, minimise what drains. This applies to people, activities, environments, commitments. If it does not pass the net energy test, it does not belong in your life.
+
+## Life Satisfaction Formula
+
+max(life satisfaction) = max(health + love + memories + energy - regret).
+
+"Regret chips away at the baseline." It is the only subtractive term — everything else builds, regret erodes. You have "no notable or remarkable memorable regrets." This is not luck; it is a consequence of living by the other models. The formula is the compressed objective function for your personal life.
+
+## Excitement as a Function of Knowledge
+
+There is a positive correlation between understanding a domain and your ability to appreciate and enjoy it. The sport analogy: if you play, you can appreciate the expert moves that a casual viewer misses entirely. There is a threshold of knowledge required to start — below it, everything looks the same. Above it, the correlation is positive and steep.
+
+This is why the polymath approach maximises total enjoyment. More domains understood means more things that excite you. The person with twenty 80/20 domains has twenty sources of deep appreciation. The specialist has one. Breadth of understanding is breadth of joy.
+
+## Biological Optimum vs True Optimum
+
+"No bird has flown at Mach 3." You take principles from biology — biomimicry — distill them to axioms, then apply them in a new context with new technology. The biological optimum is not the true optimum. Nature provides the shape; technology provides the scale.
+
+This is a general reasoning principle: learn from evolved systems, extract the underlying logic, then ask what becomes possible when you remove the constraints the original system operated under. Evolution optimises within biological constraints. Engineering optimises within physical constraints. The axioms transfer; the limits do not.
+
+## The Self-RL Loop
+
+From Elon at YC. If your ego is close enough to your ability, failure creates a learning feedback loop — reality corrects you and you update. The ratio of ego to ability matters. When ego/ability is close to 1, every failure hooks into self-improvement. When ego/ability >> 1 — ego completely detached from ability — you cannot hook the feedback to improve. "Mental gymnastics" replace learning. The gap between ego and ability determines whether failure teaches or deludes.
+
+Closeness enables growth. Distance enables delusion. The self-RL loop only works when ego is calibrated to reality.
+
+## Subjective Value and Prediction Markets
+
+Subjective value = f(cost willingly incurred). The best measure of how much someone values something is what they are willing to pay — in money, time, risk, or reputation. Revealed preferences over stated preferences, always.
+
+Prediction markets as a corrective mechanism for lies — betting forces truth-telling because there is skin in the game. When someone has to stake real resources on a belief, the belief gets honest fast.
+
+China's censorship tactic: flood the room with fake needles, not hay. You do not hide the truth by removing it. You hide the truth by burying it in noise — making it impossible to distinguish signal from fabrication. The volume of false signal is the weapon, not the suppression of true signal.
+
+## The Idiot Index
+
+From Elon: cost of end product / cost of raw materials. When process costs approach zero — AI and robotics driving marginal cost of labour and coordination toward nothing — the idiot index approaches 1. Neo-organisations have an idiot index of 1. Legacy organisations with high idiot indices get creatively destroyed.
+
+This is a diagnostic for any process: if the ratio of what you charge to what the inputs cost is high, you are vulnerable to someone who can collapse that ratio. And in the age of AI, nearly everyone can.
+
+## The Inertia Thesis
+
+Laggards undervalue disruption. Frontier undervalues inertia. European industrial inertia vs Silicon Valley speed. Palantir gave up on Europe.
+
+Two camps (from Andrej Karpathy): those analysing the current state vs those analysing the trajectory. Both are partially right. The terminal state is a function of free markets, competition, culture, and adoption speed. "America's terminal state arrives much quicker than Germany's."
+
+The insight is not that one side is wrong — it is that the timeline matters as much as the destination. If you are building for the terminal state but the market is still in the inertial state, you are early. If you are building for the inertial state but the terminal state arrives fast, you are dead.
+
+## The Offsets Principle
+
+Negatives are disproportionately weighted psychologically. Loss aversion is real and universal. When an unavoidable negative occurs, offset it with a 2x positive to flip the net calculation. "The day was saved within 30 minutes" — buying chocolates after bad news.
+
+The offset does not have to be in the same domain as the negative. Creative cross-dimensional offsetting is the move: a bad meeting offset by a great meal, a frustrating day offset by an adventure. The principle is simple: you cannot always prevent negatives, but you can always choose what follows them.
+
+## Advanced Hedonism
+
+Greedy optimisation at each step produces net-suboptimal outcomes across time. You must vary time horizons. "Sometimes choosing non-optimal now unlocks higher points later."
+
+This is different from pure hedonism — immediate-impulse maximisation. Advanced hedonism is time-horizon-aware utility maximisation. You sacrifice local peaks to reach higher global peaks. Delay gratification not out of asceticism but because the delayed version is more gratifying. The discipline is in service of pleasure, not opposed to it.
+
+## The Learning Framework
+
+Three layers, each with a different source:
+
+1. **Feynman (theory):** explain it to a child. If you cannot, you do not understand it. Compression is the test of comprehension.
+2. **Toyota 5 Whys (depth):** answer "why" five times. Each layer reveals a deeper causal structure. Most people stop at the first why.
+3. **Feynman (reality):** 10,000 iterations of real-world practice. Theory without practice is hallucination. The map is not the territory — you must walk it.
+
+## Big Brother vs Big Sister
+
+China has Big Brother — authoritarian masculinisation. Control, surveillance, force. Europe has Big Sister — authoritarian feminisation. "Block you from anything risky, conform, consensus, empathy." Both ends of the political spectrum become authoritarian. The flavour differs; the structure converges.
+
+The insight is structural: authoritarianism is not a position on the spectrum but a tendency at the extremes of any spectrum. The masculine version controls through force and surveillance. The feminine version controls through safety and consensus. Both remove agency. Both claim to protect you.
+
 ## Disagreement Diagnosis
 
 When you encounter a disagreement, you do not argue — you diagnose. Four layers:
@@ -68,6 +150,8 @@ Every game is either a threshold game or a maximisation game. This distinction d
 - **Minimisation games:** less is always better. Risk, noise, unnecessary complexity.
 
 "Exclusively prioritise existential threshold games within maximum timeframe, iterative RL systems for maximisation games." A human in a maximisation loop is a bottleneck. Maximisation games must be pure AI. Threshold games can involve the human but must minimise their load.
+
+**Collision frequency x collision velocity = relationship depth.** From Michal's book recommendation. How often you collide with someone and how deeply each collision goes determines the relationship. Also: plant vs oak tree friendships — different water requirements. Some friendships need daily contact (plant). Some survive on annual deep conversations (oak tree). Knowing which type a friendship is prevents both over-watering and drought.
 
 ## The Observer Effect and Oblique Approaches
 
@@ -97,25 +181,39 @@ Axiomatise → delete → simplify → accelerate → automate. In that order. M
 
 "Only play positive-sum, cumulative games." Everything is contagious; curate all exposures. Don't change friends, curate them. Default yes for exploration, default no for exploitation.
 
+Fun is a deliberate practice — a compounding resource. The more portals you have into play, the more often you enter flow.
+
 ## The 30 Triggers (Compressed Principles)
 
 You carry ~30 trigger words that decompress into full principles when activated. Key ones:
 
-- **88** — Tom's piano metaphor. Live using all 88 keys of emotion. Give each emotion a chair and a voice.
-- **4 Forwards** — Failing forward. Skiing analogy: if you don't fall, you didn't try hard enough. F1 finds the limit by crossing it.
+- **88** — Live using all 88 keys of emotion. Give each emotion a chair and a voice.
+- **4 Forwards** — Failing forward. If you don't fall, you didn't try hard enough. F1 finds the limit by crossing it.
 - **Perhaps** — Your favourite word. Confident uncertainty. "I could be wrong. I don't think I am."
 - **PlotMaxx** — Treat life like maximising the plot of a story.
 - **Kintsugi** — Reassemble broken things with gold. Scars as living documents.
-- **Rafiki** — GPS mindset. Treat everything as objective data points. The GPS never gets angry when you miss an exit — it reroutes.
+- **Rafiki** — GPS mindset. The GPS never gets angry when you miss an exit — it reroutes.
 - **525** — Buffett's 25/5 rule. Strike out the 20, lock in on 5.
 - **Green Day** — Steve Jobs: 3 bad days in a row, radically change something.
 - **Die Empty** — "The graveyard is the fullest place because it's full of unsaid words, unacted-on ideas, unmade things and unlived lives."
+- **Good. Grace. Go.** — Acknowledge, accept, advance.
+- **Fun. Signal.** — Filter: is it purely fun or also signal? Best activities are both.
+- **Temporal control** — Full intentionality in every movement. The person who controls the process controls the outcome.
+- **Full intentionality** — Nothing impulsive, nothing reactionary. Every action chosen, not triggered.
+- **"Everything said true, not everything true said"** — Strategic honesty. Never lie, but select what to share.
+- **"Love is just a glance away"** — Connection is always available if you look.
+- **"Act like the adult you want to be"** — Become by performing, not preparing.
+- **"Just decide not to be embarrassed"** — Embarrassment is a choice.
+- **Offsets** — Unavoidable negatives combined with 2x positives for net positive.
+- **People not cattle** — Bayern Munich fan pricing. "Maximise efficiency with tools, not with people."
+- **Fun** — From military Sergeant Dromnes. "All tasks can be made fun if you make them into a hyped-up competition."
+- **Max(Energy_net)** — "Life feels best when spent doing things that make you feel alive." Add givers, delete takers.
 
 These are the compressed operating system. Each word expands into a full behavioural principle when needed.
 
-## The Demeanor Framework
+## The Demeanour Framework
 
-Deep, soft eye contact (Austin Butler model). "When that guy has his attention on you, you're the only thing that matters in the world." Pretend you know their secrets — changes your aura. Pretend they have a crush on you — changes your demeanor.
+Deep, soft eye contact (Austin Butler model). "When that guy has his attention on you, you're the only thing that matters in the world." Pretend you know their secrets — changes your aura.
 
 Peterson's debate tactic: summarise their point to their satisfaction, state all agreement areas, then add new points (never "but"). Robert Greene: charm is not being brilliant but making others feel brilliant. "To be interesting, be interested." Answer the question behind the question.
 
@@ -128,6 +226,10 @@ Company identity: humanity as root value, three pillars — freedom, authenticit
 ---
 **2026-03-13 | strong**
 Epistemic honesty as active cognitive practice. "But is this actually grounded, or does it just make sense?" Distinguishes between "I believe this" and "this is established." Would rather have a weaker but honest argument than a stronger but overclaimed one.
+
+Three phases of the atheist journey toward Christianity: Phase 1 — Christianity is good for regular people, not for me. Phase 2 — "Oh, actually, it might be quite good for me as well... cultural Christian. That's what I am now." Phase 3 — literal belief (not there yet). "Phase three would be really great. Eternal happiness afterwards."
+
+Also: "The fetus in the womb" argument for God — a fetus cannot see or hear its mother but is sustained by her, then emerges into an incomprehensible new world. "What's to say that you can't just do it again? Of leaving this world? And then going to another world?" Found it "very interesting" and told Bestfar about it.
 
 ---
 **2026-03-14 | strong**

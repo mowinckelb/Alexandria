@@ -16,6 +16,8 @@ Yet you continue to optimise. The structured-chaos resolution (purposely create 
 
 The tool that makes you effective may be the barrier to what you most need. The axiomatic mind that builds cathedrals of logic may be structurally incapable of the oblique, un-optimised surrender that love and wonder seem to require.
 
+The Calibration document — a daily self-administered recalibration system — suggests awareness that you drift from appreciation and presence and need explicit prompts to return. "Nothing external actually matters, it's all internal" paired with "So just decide to be happy" reads as a corrective against a tendency toward dissatisfaction or external validation seeking. "Today might be the best day of your life if you look for it" — implies the default mode is NOT looking for it. The framework that produces daily gratitude through a 145-step routine is itself evidence of the cage: genuine gratitude would not need a checklist.
+
 ## Logic Without Domain Depth
 
 First principles without immersion can produce frameworks that are internally consistent but disconnected from reality's texture. You 80/20 everything. You want to hear the blue note, not play it. But some domains only reveal their deepest truths to those who have played for years. The view from the mountain is not the same as the view from the valley, and the valley contains things the summit cannot see.
@@ -83,6 +85,22 @@ Your positions on race, immigration, and cultures are derived from first princip
 Some of these are provocation (you value humour as a weapon, and edginess is part of the dark knight identity). Some are genuine analytical positions stated without diplomatic softening. Some may be frustration finding an outlet in language that overshoots the actual position.
 
 The shadow is not that these positions exist — you hold them openly and believe them defensible. The shadow is the distance between "people are embodiments of their culture, and certain cultures produce better outcomes" (the defensible analytical position) and "communists aren't smart enough to be capitalists" (the contempt). The contempt feels good. That is the shadow.
+
+## Zero Risk Tolerance
+
+"I take no risk, zero risk. This whole cohort, this whole generation, it takes zero risk." Terrified of dying, terrified of doing anything wrong. "Just peaceful slaves." This sits in tension with the arena-seeking identity, the dark knight posture, and the "fail forward" trigger. The willingness to enter the arena philosophically coexists with an operational risk tolerance near zero. You will not bungee jump because "even 0.1%, I'd regret it." But you accept plane and car risk as necessary infrastructure. The line is drawn at unnecessary existential risk — but "unnecessary" is doing a lot of work in that sentence, and the definition may be too conservative for someone who claims to want chaos and adventure.
+
+## Romance Over-Engineering
+
+The Vault contains 120+ date ideas, multiple proposal concepts, three-tier wedding architecture, and gesture plans like "write a mathematical proof of love in LaTeX" and "grand masked ball at Versailles." The volume of romantic planning may be compensatory for the acknowledged eros gap — over-engineering romance through gestures rather than emotional presence. The question is whether the person who plans 14 letters spelling "Will you marry me" is the same person who can surrender to the oblique, un-optimised experience of falling in love. The framework-as-cage shadow extends into the romantic domain with particular intensity.
+
+## Khiara and the Unkindness Acknowledgment
+
+The Khiara letter contains: "In the times where I was even unkind, you were always still there." This is an explicit acknowledgment of past inability to reciprocate love and moments of unkindness toward someone you consider unconditional love. The existing eros gap section captures the philosophical tension. This captures the behavioural one — the gap between valuing someone absolutely and treating them well consistently. The compassion-contempt coexistence from the empathy section may not be limited to strangers.
+
+## Intellectual Closure Warning
+
+Self-issued: "Every single year, you look back on the version of yourself 1-2 years before and you're like, wow, I was such an idiot. And that never stops." And: "I've got to make sure I don't close myself off to new ideas" and "don't get entrenched in one way of looking at things when the world is changing so quickly." This is the "Twenty-Five and Complete" shadow with a self-aware correction attached — the recognition that the posture of completion is dangerous even if the current framework feels right. The correction exists as a stated intention. Whether it functions as an actual corrective or merely absorbs the objection (like the structured-chaos resolution) is unresolved.
 
 ## Complete AI Dependence
 
