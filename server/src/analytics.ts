@@ -170,6 +170,13 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
     extractionsByStrength[s] = (extractionsByStrength[s] || 0) + 1;
   }
 
+  // Extractions by target (vault vs constitution vs replace)
+  const extractionsByTarget: Record<string, number> = {};
+  for (const e of events.filter(ev => ev.e === 'extraction')) {
+    const t = e.target || 'unknown';
+    extractionsByTarget[t] = (extractionsByTarget[t] || 0) + 1;
+  }
+
   // 2. Constitution depth score
   // Proxy: total extractions, domain coverage (how many of 6 domains have entries),
   // strength distribution (more "strong" = more mature)
@@ -245,6 +252,7 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
       total: extractions,
       by_domain: extractionsByDomain,
       by_strength: extractionsByStrength,
+      by_target: extractionsByTarget,
     },
 
     depth: {
@@ -253,6 +261,7 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
     },
 
     sessions: sessionCount,
+    captures_per_session: sessionCount > 0 ? Math.round(extractions / sessionCount * 10) / 10 : null,
 
     feedback: {
       total: totalFeedback,
