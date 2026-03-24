@@ -47,13 +47,13 @@ class LogicPDF(FPDF):
         self.set_text_color(*NEAR_BLACK)
 
 
-def render():
+def render(source="files/confidential/Logic.md"):
     pdf = LogicPDF()
     pdf.set_auto_page_break(auto=True, margin=22)
     pdf.set_margins(32, 25, 32)
     pdf.add_page()
 
-    with open("files/confidential/Logic.md", "r", encoding="utf-8") as f:
+    with open(source, "r", encoding="utf-8") as f:
         lines = [l.rstrip("\n") for l in f.readlines()]
 
     i = 0

@@ -81,14 +81,14 @@ Each Author's Machine compounds through usage. Constitution deepens, feedback lo
 ## Code
 
 - **Website:** `app/` (Next.js, Vercel). Landing page: `app/components/LandingPage.tsx`.
-- **MCP server:** `server/src/` (Node.js + Express + @modelcontextprotocol/sdk, Railway).
+- **MCP server:** `server/src/` (Node.js + Express + @modelcontextprotocol/sdk, Fly.io).
   - Key files: `index.ts` (entry), `tools.ts` (axioms + soft defaults), `modes.ts` (mode defaults), `drive.ts` (Drive I/O), `analytics.ts` (Factory events), `auth.ts` (OAuth), `crypto.ts` (encryption).
   - 5 tools: update_constitution, read_constitution, activate_mode, update_notepad, log_feedback.
   - Stateless: encrypted Google refresh token IS the access token. No user data stored.
 - **Static assets:** `public/` (includes `public/docs/` served by website).
-- **Build:** `npm run build` (server/). **Deploy:** `fly deploy` from server/ (Railway), push to main (Vercel). **Render Logic PDF:** `python render_logic.py` (requires fpdf2, pymupdf). **Render any PDF:** `python scripts/generate_pdf.py <input.md> [output.pdf]` — branded per A3 brand system, generates PNG previews for visual verification. Always verify by reading the preview PNGs before committing. Clean up preview PNGs after verification.
-- **Server health:** `curl https://mcp.mowinckel.ai/health`
-- **Stack:** Vercel (website), Railway (MCP server), GitHub, Google Cloud (OAuth), Claude.
+- **Build:** `npm run build` (server/). **Deploy:** `cd server && flyctl deploy --remote-only` (Fly.io), push to main (Vercel). **Render Logic PDF:** `python render_logic.py` (requires fpdf2, pymupdf). **Render any PDF:** `python scripts/generate_pdf.py <input.md> [output.pdf]` — branded per A3 brand system, generates PNG previews for visual verification. Always verify by reading the preview PNGs before committing. Clean up preview PNGs after verification.
+- **Server health:** `curl https://alexandria-mcp.fly.dev/health`
+- **Stack:** Vercel (website), Fly.io (MCP server), GitHub, Google Cloud (OAuth), Claude.
 
 ## Design Constraints
 
