@@ -87,7 +87,7 @@ Each Author's Machine compounds through usage. Constitution deepens, feedback lo
   - Stateless: encrypted Google refresh token IS the access token. No user data stored.
 - **Static assets:** `public/` (includes `public/docs/` served by website).
 - **Build:** `npm run build` (server/). **Deploy:** `cd server && flyctl deploy --remote-only` (Fly.io), push to main (Vercel). **Render Logic PDF:** `python render_logic.py` (requires fpdf2, pymupdf). **Render any PDF:** `python scripts/generate_pdf.py <input.md> [output.pdf]` — branded per A3 brand system, generates PNG previews for visual verification. Always verify by reading the preview PNGs before committing. Clean up preview PNGs after verification.
-- **Server health:** `curl https://alexandria-mcp.fly.dev/health`
+- **Server health:** `curl https://mcp.mowinckel.ai/health`
 - **Stack:** Vercel (website), Fly.io (MCP server), GitHub, Google Cloud (OAuth), Claude.
 
 ## Design Constraints
