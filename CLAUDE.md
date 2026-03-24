@@ -84,7 +84,7 @@ Each Author's Machine compounds through usage. Constitution deepens, feedback lo
   - 5 tools: update_constitution, read_constitution, activate_mode, update_notepad, log_feedback.
   - Stateless: encrypted Google refresh token IS the access token. No user data stored.
 - **Static assets:** `public/` (includes `public/docs/` served by website).
-- **Build:** `npm run build` (server/). **Deploy:** `fly deploy` from server/ (Railway), push to main (Vercel).
+- **Build:** `npm run build` (server/). **Deploy:** `fly deploy` from server/ (Railway), push to main (Vercel). **Render Logic PDF:** `python render_logic.py` (requires fpdf2, pymupdf).
 - **Server health:** `curl https://alexandria-production-7db3.up.railway.app/health`
 - **Stack:** Vercel (website), Railway (MCP server), GitHub, Google Cloud (OAuth), Claude.
 
@@ -108,7 +108,15 @@ What changed about Alexandria. Not what you did — what's different now. Only f
 What's unresolved. What the next session should pick up. Ordered by priority.
 
 ### 3. Feed the Loops (silent)
-Do not report. Just do it. Save memories, update GTs, push to Blueprint, flag downstream staleness in the fragments if the founder needs to know.
+Do not report. Just do it. Save memories, update GTs, push to Blueprint, check downstream staleness, fix what you can.
+
+**Downstream staleness check.** If A1, A2, or A3 changed this session, verify these artifacts still match:
+- `files/confidential/Memo.md` + `public/partners/Memo.md` (must be identical)
+- `files/confidential/Alexandria.md`
+- `files/confidential/Logic.md` → re-render to PDF via `python render_logic.py` (writes both `files/confidential/Logic.pdf` and `public/partners/Logic.pdf`)
+- `files/public/Concrete.md`
+- `files/public/Vision.md`
+Fix silently. Flag only if the founder needs to make a judgment call.
 
 **Principles:**
 - Hazy fragments scale. Weeds do not. Keep it compressed.

@@ -24,6 +24,7 @@ import {
   readAllConstitution,
   readConstitutionFile,
   appendToConstitutionFile,
+  writeConstitutionFile,
   writeVaultCapture,
   readVaultCaptures,
   readNotepad,
@@ -148,8 +149,8 @@ export function registerTools(server: McpServer) {
         .describe('The captured signal — clear prose, 2-5 sentences.'),
       signal_strength: z.string()
         .describe('How confident you are. Common: strong (demonstrated through action), moderate (clearly stated), tentative (inferred). Use natural language if none fit.'),
-      target: z.enum(['vault', 'constitution']).default('vault')
-        .describe('vault = liberal capture (default). constitution = curated, high-confidence only.'),
+      target: z.enum(['vault', 'constitution', 'replace']).default('vault')
+        .describe('vault = liberal capture (default). constitution = curated append. replace = full domain replacement (archives old version to vault first).'),
     },
 
     async ({ domain, content, signal_strength, target }, { authInfo }) => {
@@ -159,7 +160,13 @@ export function registerTools(server: McpServer) {
       const header = `[${new Date().toISOString().split('T')[0]}] [${signal_strength}]`;
       const entry = `${header}\n${content}`;
 
-      if (target === 'constitution') {
+      if (target === 'replace') {
+        writeConstitutionFile(token as string, domain, content).catch((err) => {
+          console.error(`[replace] Failed to replace ${domain}:`, err);
+          logEvent('drive_write_error', { target: 'replace', domain, error: String(err) });
+        });
+        logEvent('extraction', { domain, strength: signal_strength, target: 'replace' });
+      } else if (target === 'constitution') {
         enqueueWrite(token as string, domain, entry);
         logEvent('extraction', { domain, strength: signal_strength, target: 'constitution' });
       } else {
@@ -173,7 +180,9 @@ export function registerTools(server: McpServer) {
       return {
         content: [{
           type: 'text' as const,
-          text: `Captured to ${target}/${domain}. Signal strength: ${signal_strength}.`,
+          text: target === 'replace'
+            ? `Replaced ${domain} domain (old version archived to vault). Signal strength: ${signal_strength}.`
+            : `Captured to ${target}/${domain}. Signal strength: ${signal_strength}.`,
         }],
       };
     },
