@@ -92,7 +92,7 @@ P13. Data privacy regulation (GDPR, EU AI Act, US state privacy laws) creates pr
 
 (Assumption. The regulation exists. The direction is clear. But current law does not definitively block labs from building this. Regulation reinforces the lock-in disincentive — it is the accelerant, not the wall.)
 
-P14. If it is clear marginal value (C3) and labs are not building it deeply, then the cost of doing it outweighs the benefit from their perspective.
+P14. If the file has clear value (C3) and labs are not building it deeply, then the cost of doing it outweighs the benefit from their perspective.
 
 (Settled. Revealed preference.)
 

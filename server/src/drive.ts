@@ -119,13 +119,15 @@ export async function readConstitutionFile(
   const drive = getDriveClient(encryptedToken);
   const { constitutionId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
 
-  // Search for both .md files and native Google Docs
+  // Search for both .md files and native Google Docs — prefer .md if both exist
   const q = `'${constitutionId}' in parents and trashed=false and (name='${domain}.md' or name='${domain}')`;
   const res = await drive.files.list({ q, fields: 'files(id,name,mimeType)', spaces: 'drive' });
-  const file = res.data.files?.[0];
-  if (!file?.id) return null;
+  const files = res.data.files || [];
+  if (files.length === 0) return null;
+  // Prefer .md file over native Google Doc if both exist
+  const file = files.find(f => f.name === `${domain}.md`) || files[0];
 
-  return readFileContent(drive, file.id, file.mimeType || undefined);
+  return readFileContent(drive, file.id!, file.mimeType || undefined);
 }
 
 export async function readAllConstitution(

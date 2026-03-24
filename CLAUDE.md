@@ -84,7 +84,7 @@ Each Author's Machine compounds through usage. Constitution deepens, feedback lo
   - 5 tools: update_constitution, read_constitution, activate_mode, update_notepad, log_feedback.
   - Stateless: encrypted Google refresh token IS the access token. No user data stored.
 - **Static assets:** `public/` (includes `public/docs/` served by website).
-- **Build:** `npm run build` (server/). **Deploy:** `fly deploy` from server/ (Railway), push to main (Vercel). **Render Logic PDF:** `python render_logic.py` (requires fpdf2, pymupdf). **Render any PDF:** `python scripts/generate_pdf.py <input.md> [output.pdf]` — branded (cream, Playfair, EB Garamond, gold rules), generates PNG previews for visual verification. Always verify by reading the preview PNGs before committing. Clean up preview PNGs after verification.
+- **Build:** `npm run build` (server/). **Deploy:** `fly deploy` from server/ (Railway), push to main (Vercel). **Render Logic PDF:** `python render_logic.py` (requires fpdf2, pymupdf). **Render any PDF:** `python scripts/generate_pdf.py <input.md> [output.pdf]` — branded per A3 brand system, generates PNG previews for visual verification. Always verify by reading the preview PNGs before committing. Clean up preview PNGs after verification.
 - **Server health:** `curl https://alexandria-production-7db3.up.railway.app/health`
 - **Stack:** Vercel (website), Railway (MCP server), GitHub, Google Cloud (OAuth), Claude.
 
