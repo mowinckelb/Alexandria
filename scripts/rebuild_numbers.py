@@ -126,7 +126,7 @@ r = 28; w(ws, r, 2, 'Monthly churn \u2014 Examined Life', fi); w(ws, r, 3, 0.02,
 r = 30; section(ws, r, 'Company Opex (Monthly)')
 # These are green — current known costs
 r = 31; w(ws, r, 2, 'Claude Max'); w(ws, r, 3, 100, fe, D, align=ar); w(ws, r, 4, 'anthropic.com', fs)
-r = 32; w(ws, r, 2, 'Railway'); w(ws, r, 3, 1, fe, D, align=ar); w(ws, r, 4, 'railway.com', fs)
+r = 32; w(ws, r, 2, 'Fly.io'); w(ws, r, 3, 2, fe, D, align=ar); w(ws, r, 4, 'fly.io', fs)
 r = 33; w(ws, r, 2, 'Total monthly opex', fb); w(ws, r, 3, '=C31+C32', fn, D, align=ar)
 total_border(ws, 33)
 r = 34; w(ws, r, 2, 'Annual opex', fb); w(ws, r, 3, '=C33*12', fn, D, align=ar)

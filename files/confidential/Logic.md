@@ -228,7 +228,7 @@ P38. All three layers are the same product, same architecture, same user at diff
 
 (Settled. The funnel is structural.)
 
-P39. The cost base is near-zero. Solo founder. All employees are AI agents. Company opex: $101/month — Claude Max $100, Railway $1. Everything else is free tier or owned. As models improve, every function of the company improves.
+P39. The cost base is near-zero. Solo founder. All employees are AI agents. Company opex: $102/month — Claude Max $100, Fly.io ~$2. Everything else is free tier or owned. As models improve, every function of the company improves.
 
 (Settled. Factual.)
 
@@ -250,7 +250,7 @@ P42. Each risk has a price tag. Rung 1 (~$50K) answers all four existential ques
 
 (Settled. The structure is factual. Whether the answers are positive is the experiment.)
 
-P43. The company does not need the money. $101/month opex. The founder builds regardless. Capital accelerates the experiment, it does not enable the company.
+P43. The company does not need the money. $102/month opex. The founder builds regardless. Capital accelerates the experiment, it does not enable the company.
 
 (Settled. Factual.)
 
