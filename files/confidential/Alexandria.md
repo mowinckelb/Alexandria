@@ -19,7 +19,7 @@ Alexandria builds sovereign tools that capture, develop, and preserve individual
 
 The objection: people do not think in words. Correct. Most cognition is pre-linguistic. Alexandria does not claim to represent thought — it claims to make thought compoundable. The process of forcing cognition through language restructures the cognition itself (Lieberman 2007, Kross 2014). Pre-verbal cognition does not compound, does not transfer, cannot interface with AI. The compression is lossy. The compounding benefit exceeds the loss.
 
-No startup is building the full stack. Top-tier VCs have invested $100M+ in adjacent companies building fragments of the thesis. The company does not need the money — company opex is $101/month. Capital accelerates the experiment, it does not enable the company.
+No startup is building the full stack. Top-tier VCs have invested $100M+ in adjacent companies building fragments of the thesis. The company does not need the money — company opex is $102/month. Capital accelerates the experiment, it does not enable the company.
 
 ## Why Now
 
@@ -51,7 +51,7 @@ All three layers are the same product, same architecture, same user at different
 
 Pre-revenue. Product live and working. Honest about what exists and what does not.
 
-MCP server deployed on Railway — five tools, Google Drive OAuth, stateless pass-through. Working extraction across taste, values, identity, and worldview domains. Constitution building demonstrated in live daily usage. Cross-model tested: extraction triggers fire correctly in Claude conversations. Surface (mowinckel.ai) live. Abstract (19-page philosophy) and Logic.pdf (formal argument: 51 premises, 14 conclusions, 17 assumptions) shipped. Concrete (AI-readable conversion document) tested on Claude, GPT, Gemini, Grok — all four execute correctly. Incorporated as Delaware C-Corp via Stripe Atlas.
+MCP server deployed on Fly.io at mcp.mowinckel.ai — five tools, Google Drive OAuth, stateless pass-through. Working extraction across taste, values, identity, and worldview domains. Constitution building demonstrated in live daily usage. Cross-model tested: extraction triggers fire correctly in Claude conversations. Surface (mowinckel.ai) live. Abstract (19-page philosophy) and Logic.pdf (formal argument: 51 premises, 14 conclusions, 17 assumptions) shipped. Concrete (AI-readable conversion document) tested on Claude, GPT, Gemini, Grok — all four execute correctly. Incorporated as Delaware C-Corp via Stripe Atlas.
 
 No revenue. No external users. Distribution has not started. The product works. The kin mechanic handles organic growth once seeded.
 
@@ -75,7 +75,7 @@ No funded company combines all four: sovereign (user owns data), cognitive ident
 
 ## Business Model
 
-**Cost base: near-zero.** No payroll. No compute (user's AI subscription covers inference). No storage (user's cloud). No database. Solo founder with AI agents. Company opex: $101/month — Claude Max $100, Railway $1. Everything else is free tier or owned. Payment processing optimised: Sovereignty tier uses ACH (0.8% flat), Examined Life uses Stripe cards (2.9% + $0.30) — blended processing cost ~1.4% of revenue.
+**Cost base: near-zero.** No payroll. No compute (user's AI subscription covers inference). No storage (user's cloud). No database. Solo founder with AI agents. Company opex: $102/month — Claude Max $100, Fly.io ~$2. Everything else is free tier or owned. Payment processing optimised: Sovereignty tier uses ACH (0.8% flat), Examined Life uses Stripe cards (2.9% + $0.30) — blended processing cost ~1.4% of revenue.
 
 **Break-even: ~21 Sovereignty subscribers at $5/month.** With kin mechanic active (blended ~$7 ARPU): ~15. With Examined Life ($15-20): as few as 6.
 
@@ -107,7 +107,7 @@ The company has four unresolved risks, each with a price tag:
 
 **Rung 3 (~$1M+):** Mental Gym conversion at scale. International expansion. Brand as category-defining standard. If the Library has traction, explore it. If not, the subscription business is the business.
 
-Each rung purchases the next tier of de-risking. The company does not need the money — $101/month opex. The founder builds regardless. Capital accelerates the experiment, it does not enable the company.
+Each rung purchases the next tier of de-risking. The company does not need the money — $102/month opex. The founder builds regardless. Capital accelerates the experiment, it does not enable the company.
 
 ---
 
