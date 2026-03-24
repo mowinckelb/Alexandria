@@ -28,7 +28,7 @@ const tools: Anthropic.Tool[] = [
         domain: { type: 'string', description: 'Domain for this signal.' },
         content: { type: 'string', description: 'The captured signal.' },
         signal_strength: { type: 'string', description: 'Confidence level.' },
-        target: { type: 'string', enum: ['vault', 'constitution'], default: 'vault' },
+        target: { type: 'string', enum: ['vault', 'constitution', 'replace'], default: 'vault' },
       },
       required: ['domain', 'content', 'signal_strength'],
     },
