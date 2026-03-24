@@ -23,6 +23,7 @@ class LogicPDF(FPDF):
     def __init__(self):
         super().__init__()
         self.add_font("Garamond", "", str(FONT_DIR / "EBGaramond-Regular.ttf"))
+        self.add_font("Garamond", "I", str(FONT_DIR / "EBGaramond-Italic.ttf"))
         self.add_font("Garamond", "B", str(FONT_DIR / "EBGaramond-Bold.ttf"))
         self.add_font("Garamond", "BI", str(FONT_DIR / "EBGaramond-BoldItalic.ttf"))
 
@@ -137,7 +138,7 @@ def render(source="files/confidential/Logic.md"):
 
         # Annotation lines — quiet, parenthetical
         if line.startswith("(") and ("Settled" in line or "Assumption" in line or "Valid" in line):
-            pdf.set_font("Garamond", "", 9)
+            pdf.set_font("Garamond", "I", 9)
             pdf.set_text_color(*GREY)
             pdf.multi_cell(0, 4.8, line)
             pdf.set_text_color(*NEAR_BLACK)
@@ -177,7 +178,7 @@ def render(source="files/confidential/Logic.md"):
             rest = rest.strip()
             pdf.set_x(pdf.l_margin)
             if label == "Assessment:":
-                pdf.set_font("Garamond", "BI", 10.5)
+                pdf.set_font("Garamond", "I", 10.5)
                 pdf.set_text_color(*GREY)
                 pdf.multi_cell(0, 5.5, label + " " + rest)
                 pdf.set_text_color(*NEAR_BLACK)
