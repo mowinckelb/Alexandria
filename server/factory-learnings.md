@@ -4,6 +4,41 @@ This file compounds across daily Factory runs. Each run reads the prior learning
 
 ---
 
+## 2026-03-24 — Factory Run 3 (autonomous daily loop)
+
+### State at run start
+- Last run was Run 2 on 2026-03-16. 8 days gap — no autonomous runs in between.
+- Recent commits (10): investor package overhaul, constitution rewrite, full restructuring, vault inline content, COO sync, multi-channel architecture, three-point capture, COO doc sync, CTO session 21. Significant product evolution since last run.
+- Build: clean pass. Type check: clean pass.
+- MCP server: reachable (returns `invalid_grant`). Server infrastructure is healthy — OAuth token expired. Known failure mode (Claude bug #21333).
+- External health/dashboard/website checks: blocked by sandbox proxy (host_not_allowed). Not a server issue — this Claude Code session runs in a sandboxed environment that restricts outbound HTTP to an allowlist.
+
+### What the data shows
+- Cannot verify dashboard/event log this run due to sandbox proxy restrictions. MCP tool calls confirm server is live but OAuth token needs founder re-auth.
+- 8 days since last Factory run. The founder has been actively developing (major commits: restructuring, investor package, constitution rewrite). The product has evolved significantly but Factory verification was offline during this period.
+
+### What changed
+- **analytics.ts**: Fixed orphaned JSDoc comment. The `getRecentEvents` documentation was sitting above `getDashboard` instead of above `getRecentEvents` (where the function actually lives at line 283). Moved to correct location. No functional change.
+
+### Codebase review findings
+- All 7 source files reviewed (index.ts, tools.ts, modes.ts, analytics.ts, drive.ts, auth.ts, crypto.ts). Zero TODOs, zero FIXMEs, zero type errors.
+- SUGGESTIONS sections still present in modes.ts (EDITOR, MERCURY, PUBLISHER, NORMAL). Still cannot thin — no dashboard data available this run, and insufficient real-user feedback data from prior runs.
+- Tool descriptions are well-crafted and philosophy-aligned. No changes needed.
+- Write retry queue, vault intake, memory priming all structurally sound.
+- No security issues, no code smells, no regressions from recent commits.
+
+### Open questions for next run
+- **OAuth token status**: Is the founder aware the token expired? Flag for COO sync. The server is live but all tool calls will fail until re-auth.
+- **Dashboard data**: Need a run environment with access to Railway domain to verify event log. Alternatively, could the MCP tools be used if the token were valid? (Yes — read_constitution call would work and the dashboard is a direct HTTP endpoint.)
+- **SUGGESTIONS thinning**: Still deferred. Need real feedback events to determine which suggestions are unnecessary scaffolding.
+- **Background vault processing**: Still no infrastructure for autonomous file watching. Continue monitoring for Anthropic agent scheduling or Drive webhook capabilities.
+- **Factory run frequency**: 8-day gap between runs. If the Factory is truly autonomous, it should run more frequently. The daily cadence should be maintained.
+
+### Environment note
+This run was executed in a Claude Code sandbox with restricted outbound HTTP. External endpoints (Railway server, mowinckel.ai website) are not in the proxy allowlist. All external health checks returned proxy 403. This is not a production issue — it's a sandbox limitation. Future runs from a less restricted environment will be able to verify external endpoints.
+
+---
+
 ## 2026-03-15 — CTO Session 15 (manual, with founder)
 
 ### What happened

@@ -117,15 +117,6 @@ export async function getEventLog(): Promise<string> {
 }
 
 /**
- * Get the last N events as raw JSONL.
- * Included in every mode activation so the model sees aggregate patterns
- * and adjusts behavior automatically. No human review step.
- *
- * As models get larger context windows, increase N.
- * As the log grows, more patterns become visible.
- * Both scale automatically. Bitter lesson.
- */
-/**
  * Monitoring dashboard — verification signals.
  * The philosophy IS the objective function. These metrics are
  * verification that the philosophy is being served — not
@@ -289,6 +280,15 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
   };
 }
 
+/**
+ * Get the last N events as raw JSONL.
+ * Included in every mode activation so the model sees aggregate patterns
+ * and adjusts behavior automatically. No human review step.
+ *
+ * As models get larger context windows, increase N.
+ * As the log grows, more patterns become visible.
+ * Both scale automatically. Bitter lesson.
+ */
 export async function getRecentEvents(n: number = 200): Promise<string> {
   try {
     await dataDirReady;
