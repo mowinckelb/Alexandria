@@ -220,7 +220,7 @@ P36. Layer 1 — Sovereignty ($5-10/month). Sovereign portable cognitive identit
 
 (Settled on the product. Assumption on adoption.)
 
-P37. Layer 2 — The Examined Life ($15-20/month). Active cognitive development. Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. The mental gym. The product is the changed person.
+P37. Layer 2 — The Mental Gym ($15-20/month). Active cognitive development. Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. The examined life. The product is the changed person.
 
 (Settled on the analogy. Assumption on whether the market materialises.)
 
