@@ -51,7 +51,7 @@ All three layers are the same product, same architecture, same user at different
 
 Pre-revenue. Product live and working. Honest about what exists and what does not.
 
-MCP server deployed on Railway — five tools, Google Drive OAuth, stateless pass-through. Working extraction across taste, values, identity, and worldview domains. Constitution building demonstrated in live daily usage. Cross-model tested: extraction triggers fire correctly in Claude conversations. Surface (mowinckel.ai) live. Abstract (19-page philosophy) and Logic.pdf (formal argument: 44 premises, 11 conclusions, 20 assumptions) shipped. Concrete (AI-readable conversion document) tested on Claude, GPT, Gemini, Grok — all four execute correctly. Incorporated as Delaware C-Corp via Stripe Atlas.
+MCP server deployed on Railway — five tools, Google Drive OAuth, stateless pass-through. Working extraction across taste, values, identity, and worldview domains. Constitution building demonstrated in live daily usage. Cross-model tested: extraction triggers fire correctly in Claude conversations. Surface (mowinckel.ai) live. Abstract (19-page philosophy) and Logic.pdf (formal argument: 51 premises, 14 conclusions, 17 assumptions) shipped. Concrete (AI-readable conversion document) tested on Claude, GPT, Gemini, Grok — all four execute correctly. Incorporated as Delaware C-Corp via Stripe Atlas.
 
 No revenue. No external users. Distribution has not started. The product works. The kin mechanic handles organic growth once seeded.
 
@@ -143,7 +143,7 @@ Regardless of rung, capital goes to three buckets:
 
 **What happens when models get better at personalisation?** Better models make Alexandria better, not obsolete. The value is in the structured data and extraction methodology. A model release cannot replicate years of accumulated cognitive profiles. One of the few AI investments that improves with every model release rather than being absorbed by it.
 
-**What's the formal argument?** Logic.pdf — 44 premises, 11 conclusions, 20 assumptions. Every settled premise cannot reasonably be denied. The only conversation is about the assumptions.
+**What's the formal argument?** Logic.pdf — 51 premises, 14 conclusions, 17 assumptions. Every settled premise cannot reasonably be denied. The only conversation is about the assumptions.
 
 ---
 

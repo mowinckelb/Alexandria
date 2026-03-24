@@ -26,7 +26,7 @@ Labs already have memory features — Claude offers roughly 800 words of lightly
 
 By the time the value is obvious enough that a lab would accept the cost, Alexandria has already been compounding the dataset, the accumulated signal, and the Library.
 
-This is the formal argument. Logic.pdf lays out the full chain: 44 premises, 11 conclusions, 20 assumptions. Every settled premise cannot reasonably be denied. The only conversation is about the assumptions.
+This is the formal argument. Logic.pdf lays out the full chain: 51 premises, 14 conclusions, 17 assumptions. Every settled premise cannot reasonably be denied. The only conversation is about the assumptions.
 
 ---
 
@@ -192,7 +192,7 @@ mowinckel.ai
 *- Why labs won't build this: structural incentives, not inability. Labs are incentivised to build golden cages, not open doors. Every memory feature they ship validates the thesis. This is a bet about rational behaviour, not a wall.*
 *- Not pure software: Alexandria is not a software company. The software is trivial. The product is the data (live, unique, unsynthesizable Constitutions) and the philosophy (intent layer, methodology). Four positions survive the software collapse: make models, generate live data, gatekeep permissions, own atoms. Alexandria is position two.*
 *- Demand is the only existential question: every framework confirms Alexandria occupies a survivable position. The sole remaining question is whether enough people want structured cognitive identity to pay $5-20/month. Answerable for ~$15K by seeding 25 users.*
-*- The formal argument: Logic.pdf — 44 premises, 11 conclusions, 20 assumptions. Every settled premise cannot reasonably be denied. The only conversation is the blue assumptions.*
+*- The formal argument: Logic.pdf — 51 premises, 14 conclusions, 17 assumptions. Every settled premise cannot reasonably be denied. The only conversation is the blue assumptions.*
 *- Taste development as the real product ($15/mo, the examined life, the mental gym)*
 *- Break-even at ~21 subscribers paying $5/month — company opex is $101/month. Structurally unkillable.*
 *- Growth mechanic: kin pricing, founding lineage, frame imposition as distribution*
