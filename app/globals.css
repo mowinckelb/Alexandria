@@ -177,3 +177,209 @@ html.app-shell input:focus {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ============================================
+   Partners document pages — base
+   ============================================ */
+.pdoc-h1 {
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0 0 0.15rem;
+}
+.pdoc-h2 {
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin: 0 0 2rem;
+  letter-spacing: 0.01em;
+}
+.pdoc-h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 2.8rem 0 0.8rem;
+  letter-spacing: 0.005em;
+}
+.pdoc-h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 2rem 0 0.6rem;
+}
+.pdoc-hr {
+  margin: 2.2rem 0;
+  height: 1px;
+  background: var(--border-light);
+}
+.pdoc-p {
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  margin: 0.7rem 0;
+  letter-spacing: 0.003em;
+}
+.pdoc-strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.pdoc-bq {
+  border-left: 2px solid var(--border-dashed);
+  margin: 1.2rem 0;
+  padding: 0.2rem 0 0.2rem 1.2rem;
+}
+.pdoc-bq .pdoc-p {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Lists */
+.pdoc ul, .pdoc ol {
+  padding-left: 1.3rem;
+  margin: 0.5rem 0;
+}
+.pdoc li {
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  margin: 0.35rem 0;
+  letter-spacing: 0.003em;
+}
+.pdoc li strong {
+  color: var(--text-primary);
+}
+
+/* Tables — clean, minimal */
+.pdoc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.4rem 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.pdoc-table thead { display: none; }
+.pdoc-table td {
+  padding: 0.4rem 0;
+  color: var(--text-secondary);
+  vertical-align: baseline;
+  border: none;
+}
+.pdoc-table tr {
+  border-bottom: 1px solid var(--border-light);
+}
+.pdoc-table tr:last-child { border-bottom: none; }
+.pdoc-table td:first-child {
+  color: var(--text-primary);
+  padding-right: 1.5rem;
+}
+.pdoc-table td:nth-child(2) {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  padding-left: 1rem;
+}
+.pdoc-table td:nth-child(3) {
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  padding-left: 1.2rem;
+}
+
+/* ============================================
+   Long-form documents (Memo, Logic, Alexandria)
+   The --- is a door between rooms.
+   ============================================ */
+.pdoc-longform .pdoc-h1 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0 0 0.2rem;
+}
+
+/* Section headings — chapter entrances */
+.pdoc-longform .pdoc-h2 {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 1.8rem;
+  padding-bottom: 0;
+}
+
+/* First h2 (subtitle like "Alexandria") stays as-is */
+.pdoc-longform .pdoc-h1 + .pdoc-h2 {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin: 0 0 2.5rem;
+}
+
+.pdoc-longform .pdoc-h3 {
+  font-size: 1rem;
+  margin: 2rem 0 0.7rem;
+}
+
+/* The door between sections — generous breathing room */
+.pdoc-longform .pdoc-hr {
+  background: none;
+  height: auto;
+  margin: 4rem 0;
+  text-align: center;
+  position: relative;
+}
+.pdoc-longform .pdoc-hr::after {
+  content: '·';
+  color: var(--text-whisper);
+  font-size: 1.2rem;
+  letter-spacing: 0.5em;
+}
+
+/* First paragraph after title — the hook */
+.pdoc-longform .pdoc-h1 + .pdoc-p,
+.pdoc-longform .pdoc-h2 + .pdoc-p:first-of-type {
+  margin-top: 0;
+}
+
+/* Paragraphs — comfortable reading */
+.pdoc-longform .pdoc-p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin: 1rem 0;
+}
+
+/* ============================================
+   Logic document — the proof machine
+   ============================================ */
+
+/* Premises — the building blocks */
+.pdoc-premise {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--text-primary);
+  margin: 1.5rem 0 0.3rem;
+  letter-spacing: 0.003em;
+}
+
+/* Commentary — quiet scaffolding */
+.pdoc-commentary {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--text-faint);
+  margin: 0.2rem 0 1.8rem;
+  font-style: italic;
+  letter-spacing: 0.005em;
+}
+
+/* Conclusions — earned weight */
+.pdoc-conclusion {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--text-primary);
+  margin: 2rem 0 0.3rem;
+  padding: 1.2rem 0 1.2rem 1.2rem;
+  border-left: 2px solid var(--text-faint);
+}
+.pdoc-conclusion .pdoc-strong {
+  font-weight: 600;
+}

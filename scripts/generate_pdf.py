@@ -362,6 +362,8 @@ def build_pdf(md_path, pdf_path):
         rightMargin=MARGIN_RIGHT,
         topMargin=MARGIN_TOP,
         bottomMargin=MARGIN_BOTTOM,
+        title=md_path.stem.lower(),
+        author="Benjamin A. Mowinckel",
     )
 
     cover_frame = Frame(MARGIN_LEFT, MARGIN_BOTTOM, FRAME_W, FRAME_H, id="cover")
@@ -377,8 +379,9 @@ def build_pdf(md_path, pdf_path):
     # Cover page content
     flowables = parse_md(md_path)
 
-    # Extract title and subtitle, skip everything before first H2 for cover
-    body_items = []
+    # Extract title, subtitle, opening paragraphs (pre-H2), and body (H2+)
+    opening_items = []  # paragraphs before first H2 — the hook
+    body_items = []     # everything from first H2 onward
     title_text = ""
     subtitle_text = ""
     found_first_h2 = False
@@ -386,18 +389,19 @@ def build_pdf(md_path, pdf_path):
     for f in flowables:
         # Detect H1 (title)
         if hasattr(f, 'style') and getattr(f.style, 'name', '') == 'H1' and not title_text:
-            # Extract raw text from paragraph
             title_text = f.text if hasattr(f, 'text') else str(f)
             continue
         # Detect subtitle
         if hasattr(f, 'style') and getattr(f.style, 'name', '') == 'Subtitle' and not subtitle_text:
             subtitle_text = f.text if hasattr(f, 'text') else str(f)
             continue
-        # Skip tables, spacers, and gold rules before first H2 (cover material)
+        # Split at first H2
         if hasattr(f, 'style') and getattr(f.style, 'name', '') == 'H2':
             found_first_h2 = True
         if not found_first_h2:
-            # Skip cover material (tables, confidential note, first HR)
+            style_name = getattr(f.style, 'name', '') if hasattr(f, 'style') else ''
+            if style_name in ('Body', 'Bullet'):
+                opening_items.append(f)
             continue
         body_items.append(f)
 
@@ -409,7 +413,7 @@ def build_pdf(md_path, pdf_path):
     doc_name = md_path.stem.lower()
     if doc_name == "alexandria":
         cover_title = "alexandria."
-        cover_subtitle = "company overview"
+        cover_subtitle = "cognitive identity infrastructure"
     elif doc_name == "memo":
         cover_title = "alexandria."
         cover_subtitle = "investment memo"
@@ -446,7 +450,7 @@ def build_pdf(md_path, pdf_path):
     story.append(Spacer(1, 24))
     story.append(GoldRule())
     story.append(Spacer(1, 20))
-    story.append(Paragraph("Benjamin a. Mowinckel  \u2014  March 2026", S_COVER_META))
+    story.append(Paragraph("Benjamin A. Mowinckel  \u2014  March 2026", S_COVER_META))
 
     # Add confidential notice if applicable
     is_confidential = "confidential" in str(md_path).lower()
@@ -462,6 +466,13 @@ def build_pdf(md_path, pdf_path):
     # Transition to body
     story.append(NextPageTemplate("body"))
     story.append(PageBreak())
+
+    # Opening paragraphs (pre-H2 hook) get their own page with breathing room
+    if opening_items:
+        story.append(Spacer(1, FRAME_H * 0.08))
+        for item in opening_items:
+            story.append(item)
+        story.append(PageBreak())
 
     for item in body_items:
         story.append(item)

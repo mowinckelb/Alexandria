@@ -73,8 +73,8 @@ export default function JoinPage() {
     <div style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', minHeight: '100vh' }}>
       <ThemeToggle />
 
-      <section className="flex flex-col items-center justify-center px-8 min-h-screen">
-        <div className="max-w-[420px]" style={{ marginTop: '-4vh' }}>
+      <section className="flex flex-col items-center justify-center px-8 min-h-screen" style={{ paddingTop: '6vh' }}>
+        <div className="max-w-[420px]">
 
           <a href="/" className="no-underline">
             <p className="text-[1.3rem] sm:text-[1.5rem] font-normal leading-none tracking-tight text-center" style={{ color: 'var(--text-primary)' }}>
