@@ -220,4 +220,6 @@ def render():
 
 
 if __name__ == "__main__":
-    render()
+    import sys
+    src = sys.argv[1] if len(sys.argv) > 1 else "files/confidential/Logic.md"
+    render(src)
