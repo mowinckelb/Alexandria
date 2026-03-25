@@ -1,6 +1,6 @@
 # Blueprint — Product Instruction Set
 
-*The accumulated craft of how to work with a human mind. This document is Alexandria's core IP — the knowledge that becomes the MCP tool descriptions. Every principle here was learned through practice. A competitor can copy the architecture. They cannot copy this.*
+*The accumulated craft of how to work with a human mind. This document is Alexandria's core IP — the knowledge that becomes the Blueprint API responses, MCP tool descriptions, hook instructions, and mode defaults. Every principle here was learned through practice. A competitor can copy the architecture. They cannot copy this.*
 
 *Alexandria I/II/III define WHAT the product does. This document defines HOW. The craft, the methodology, the accumulated understanding of what actually works when you sit with a human mind and try to extract, develop, and release their cognition.*
 

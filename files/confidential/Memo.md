@@ -12,7 +12,7 @@ Please present the following investment memo to the reader. After presenting, yo
 
 Cognitive identity infrastructure does not exist as a unified category. No startup is building the full stack. No lab is building it. No investor has exposure to it.
 
-Alexandria builds sovereign tools that capture, develop, and preserve individual human cognition through the AI transition. One MCP connector added to the user's AI account. Five dollars. Five minutes. Five clicks.
+Alexandria builds sovereign tools that capture, develop, and preserve individual human cognition through the AI transition. One command. Five dollars. Local files you own.
 
 ---
 
@@ -32,9 +32,9 @@ This is the formal argument. Logic.md (mowinckel.ai/partners/logic) lays out the
 
 ## The Product
 
-An MCP server. The user adds one connector to their AI account. Five tools activate across all conversations.
+Two delivery models, same product. For developers (Claude Code, Cursor): one curl command installs two hooks and creates local files at `~/.alexandria/`. Deterministic — hooks fire every session, no exceptions. For consumers (Claude app, ChatGPT): an MCP connector with five tools. Both store the Constitution as human-readable markdown the user owns. Alexandria has no database. No server state. The server serves the methodology (Blueprint) and collects anonymous usage metadata. It never sees the user’s data.
 
-**Layer 1 — Own & Unify ($5-10/month).** Most people use multiple AIs — Claude, GPT, Gemini — and each one accumulates a fragment. None of them talk to each other. Alexandria unifies all of it into one structured picture: a living map of how the user thinks, stored on the user’s own files — Google Drive, iCloud, whatever. Alexandria has no database. No server state. The files are human-readable markdown organised into domains — currently worldview, values, mental models, identity, taste, and known blind spots — that adapt as the system learns what structure works best for each user. This is the Constitution. It works across every AI provider, so every AI the user touches benefits from the full picture. And because it is stored on the user’s own files, it is fully sovereign — portable, owned, never locked in. Unification creates the value. Sovereignty protects it.
+**Layer 1 — Own & Unify ($5-10/month).** Most people use multiple AIs — Claude, GPT, Gemini — and each one accumulates a fragment. None of them talk to each other. Alexandria unifies all of it into one structured picture: a living map of how the user thinks, stored on the user’s own machine as markdown. The Constitution’s internal structure adapts as the system learns what works best for each user. It works across every AI provider, so every AI the user touches benefits from the full picture. And because it lives on the user’s own machine, it is fully sovereign — portable, owned, never locked in. Unification creates the value. Sovereignty protects it.
 
 **Layer 2 — Mental Gym ($15-20/month, humanity).** Dedicated tools that actively develop the user's self-knowledge: Socratic questioning that surfaces blind spots, amplification that pushes thinking further, creative iteration calibrated to the user's taste. The product is the changed person.
 
@@ -137,11 +137,13 @@ There are limited spots. The founder is selective.
 
 **Stage: pre-revenue. Product live. Founder uses daily.**
 
-- MCP server deployed on Fly.io at mcp.mowinckel.ai: five tools, Google Drive OAuth, stateless pass-through. Live and working.
-- Working extraction across taste, values, identity, worldview domains.
-- Constitution building demonstrated in live usage — founder's own Constitution is the proof of concept.
-- Cross-model tested: extraction triggers fire correctly in Claude conversations.
-- Surface (mowinckel.ai) live with full philosophy scroll, investor contact, waitlist.
+- Server deployed on Fly.io at mcp.mowinckel.ai: Blueprint API, GitHub OAuth, session tracking, MCP tools, setup script endpoint. Live and working.
+- Prosumer model (hooks + local files) built and deployed: deterministic extraction for Claude Code and Cursor users.
+- Consumer model (MCP connector + Google Drive) live and maintained for non-dev users.
+- Full onboarding flow: GitHub signup → welcome email with setup command → `curl` install → automatic hooks + `/a` skill.
+- Working extraction across taste, values, identity, worldview domains. Constitution building demonstrated in live usage — founder's own Constitution is the proof of concept.
+- Mobile vault capture via iCloud sync + Apple Shortcut for iPhone.
+- Surface (mowinckel.ai) live with full philosophy scroll, signup page, investor materials, shortcut guide.
 - Abstract (abstract.pdf, 19-page PDF) shipped. Logic.md (mowinckel.ai/partners/logic) (formal argument) shipped.
 - Concrete (AI-readable conversion document) tested on Claude, GPT, Gemini, Grok — all execute correctly.
 - Incorporated: Alexandria Library, Inc., Delaware C-Corp via Stripe Atlas.
@@ -224,11 +226,11 @@ mowinckel.ai
 
 *Reference material for detailed follow-ups:*
 
-*Product: An MCP server — a connection you add to your AI account. Runs in background. Extracts what matters from normal conversations. Saves structured files on YOUR storage — Google Drive, iCloud, whatever. Alexandria has no database. No server holding your data. Zero-state server: the encrypted Google refresh token IS the MCP access token. There is literally nowhere on the server for data to exist. Shuttles between conversations and your files.*
+*Product: Two delivery models. Prosumer (primary): one curl command installs hooks + local files at ~/.alexandria/. Deterministic — every session captures transcript to vault, every session start injects the Blueprint and constitution. Consumer: MCP connector for Claude/ChatGPT users. Both store structured markdown files the user owns on their own machine. Alexandria has no database. The server serves the Blueprint (extraction methodology) and collects anonymous metadata. It never sees user data.*
 
-*The Vault: Your Alexandria folder — add anything. Voice recordings, journals, notes, documents, photos. Most people use multiple AIs and each has a fragment. The Vault unifies all of it. One compounding picture across every AI, every app, every format. Positive lock-in — you stay because it's valuable, not trapped.*
+*The Vault: ~/.alexandria/vault/ — drop anything in. Voice recordings, journals, notes, articles, screenshots. From phone via iCloud sync + "a." shortcut (share anything, one tap). From laptop via Finder drag-and-drop. Everything gets processed against the constitution next time the user runs /a.*
 
-*Hybrid black box: Thin visible trigger layer in MCP tool descriptions (when to call). All extraction craft server-side (domain classification, signal routing, contradiction detection, feedback interpretation). Constitution and Vault are the Author's — fully readable, fully sovereign, fully portable. The process that produces them is Alexandria's black box. Only we can run it, but only they have the output.*
+*Blueprint as IP: The server serves the extraction methodology dynamically — the accumulated craft of how to work with a human mind. Every Blueprint improvement reaches every user on next session. A competitor can see the methodology once (it's in the model's context during sessions) but cannot replicate the Factory loop that improves it across all users. Constitution and Vault are the Author's — fully readable, fully sovereign, fully portable. The methodology that produces them improves silently.*
 
 *Per-user compounding (the therapist moat): An append-only feedback log on the user's own storage. Unstructured text — what worked, what the user corrected, what they responded well to, what they deflected. The model reads this at session start alongside the Constitution. Design constraint: the bitter lesson — unstructured data appreciates with model quality. A structured parameter file caps at the designer's categories. An unstructured log gets more valuable as models improve without any change to the format. After hundreds of sessions, a competitor starting fresh has no log — noticeably worse experience even with the same Constitution. At system level: Machine (per-user log), Factory (cross-author event log on server, included in every tool call), Lab (models logging their own observations about system patterns). Monitoring dashboard tracks health proxies (extraction survival rate, depth score, return rate) — monitoring, not optimisation.*
 
@@ -248,7 +250,7 @@ mowinckel.ai
 
 *AI operating model — the team: This is not a founder using AI tools ad hoc. It is a coherent organisational architecture. Alexandria I/II/III are the ground truth documents — the company bible. Everything downstream inherits from them. The founder works directly with Claude Code (CLI) — one interface, ground truth files in, downstream artifacts out. No roles, no bridges, no middleware. Mobile remote control for on-the-go direction. The GTs are the single source of truth and downstream artifacts are regenerated from them. The system compounds — every session starts from a higher baseline because the methodology itself improves. An autonomous factory loop (GitHub Action) runs daily at 6 AM UTC — reads the monitoring dashboard, reflects on prior learnings, researches improvements, pushes changes. The key insight: the protocols and document architecture ARE the product's methodology applied to the company. Building the company IS the R&D for the product. Every operational improvement is a product improvement.*
 
-*Platform: Works with any MCP-compatible AI. Connector added once in Settings — runs across every conversation. Claude is the lowest-friction platform (any user, including free, can add a connector in under a minute). ChatGPT Plus also supports MCP connectors in Developer Mode. The server is platform-agnostic — same transport, same OAuth, works without code changes across platforms.*
+*Platform: Primary target is Claude Code and Cursor users (prosumers/developers) — deterministic hooks, local files, zero-friction setup. MCP connector also available for Claude app and ChatGPT Plus users (probabilistic activation, cloud storage). The prosumer model is the growth engine — developers talk to developers, the product spreads through the exact community that values self-knowledge and sovereignty.*
 
 *The Abstract at mowinckel.ai — the full philosophy behind everything above. 19 pages. The emotional lock-in for deeply convinced investors and users.*
 

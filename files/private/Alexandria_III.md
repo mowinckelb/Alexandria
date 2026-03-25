@@ -212,7 +212,7 @@ What persists across every future device surface is conversation — text, voice
   
 The architecture is four surfaces:  
   
-MCP connector (the intelligence layer) — The invisible backbone. Connects the Author’s default LLM to their sovereign data (Constitution, Vault, feedback) via the Alexandria MCP server. This is where all processing happens — extraction, amplification, creation — running on the Author’s own LLM subscription. The connector works with any MCP-compatible platform (Claude, ChatGPT in developer mode, and future platforms as they adopt the protocol). The Author’s normal conversations become the Editor, Mercury, and Publisher functions, guided by the Blueprint. Platform-agnostic at the protocol level. Future conversation channels — iMessage, WhatsApp, Telegram, wearable interfaces, or whatever comes next — can be added as thin integration layers on top. The protocol does not care which channel carries the conversation.  
+Intelligence layer — The invisible backbone. Two delivery models depending on the Author’s platform. Prosumer (primary, for Claude Code / Cursor / CLI users): two hooks + local files at `~/.alexandria/` + Blueprint served from the server. Deterministic — hooks fire every session, no exceptions. The Author’s conversations become extraction signal automatically, and `/a` sessions provide deliberate Editor, Mercury, and Publisher functions. Consumer (secondary, for Claude app / ChatGPT users): MCP connector linking the Author’s default LLM to their sovereign data via the Alexandria MCP server. Probabilistic — the model decides when to call tools. Both models run on the Author’s own LLM subscription. Platform-agnostic at the data level — Constitution and Vault are portable markdown files regardless of delivery model. Future conversation channels — iMessage, WhatsApp, Telegram, wearable interfaces, or whatever comes next — can be added as thin integration layers on top.  
   
 App (mobile) — The Author’s mirror. View your Constitution domains, see recent vault captures, browse the Library (when available), manage settings. The app shows a badge count for unprocessed vault items — a quiet nudge, not a nag. The Author decides their own rhythm for processing. Notification preferences are user-controlled. The app is also where the Library lives at scale: Neo-Biographies, authored works, interactive Persona access. The app does not provide intelligence — it shows what the intelligence has produced and signals when new material is waiting.  
   
@@ -220,7 +220,7 @@ Browser extension (desktop) — The capture tool. A “Save to Alexandria” but
   
 Website (mowinckel.ai) — The public front door and authenticated dashboard. Public: the Surface (Concrete, Abstract, sign-up, founder contact). Authenticated: mirrors the app’s dashboard — Constitution view, vault status, Library access, billing, settings. The website is the desktop equivalent of the app for Authors who prefer a browser to a native app.  
   
-Build sequencing follows the “build for the horizon, bridge backward” principle. Phase 1 (current): MCP connector only. The vault lives on Drive, the dashboard is Drive folders, the “app” is the Author’s LLM. Phase 2: browser extension — the single highest-value addition because it solves capture without requiring the Author to be in a conversation. Phase 3: web dashboard at mowinckel.ai — authenticated Constitution and vault view. Phase 4: native mobile app — the full mirror, Library, and nudge surface. Each phase is independently valuable. No phase depends on a later phase existing.  
+Build sequencing follows the “build for the horizon, bridge backward” principle. Phase 1 (current): prosumer hooks + local files for CC/Cursor users, MCP connector for consumer users. The vault lives locally at `~/.alexandria/vault/` (prosumer) or on the Author’s cloud storage (consumer). The “app” is the Author’s LLM. Phase 2: mobile vault capture — iCloud sync + Apple Shortcut (“a.”) for saving signal from phone. Phase 3: web dashboard at mowinckel.ai — authenticated Constitution and vault view, settings, billing. Phase 4: native mobile app — the full mirror, Library, and nudge surface. Each phase is independently valuable. No phase depends on a later phase existing.  
   
 COMPUTE TOPOLOGY  
   
@@ -228,7 +228,7 @@ The Author’s default LLM is the compute surface. Alexandria adds no separate c
   
 The phone — The Author’s default LLM app (Claude, ChatGPT, etc.) for conversations, voice notes, and quick interactions. The Alexandria app (Phase 4) for viewing Constitution, vault status, and Library. The Author’s daily interface.  
   
-The laptop — The Author’s default LLM with MCP connector for intelligence. The browser extension (Phase 2) for capture. The web dashboard (Phase 3) for Constitution view and management. The Vault folder lives in cloud-synced storage (Google Drive).  
+The laptop — The Author’s default LLM with Alexandria hooks (prosumer) or MCP connector (consumer) for intelligence. The web dashboard (Phase 3) for Constitution view and management. The Vault folder lives locally at `~/.alexandria/vault/` with optional iCloud sync for cross-device access.  
   
 The cloud — The Library marketplace. The web dashboard backend. At the horizon, PLM training on provider infrastructure when conditions are right. Alexandria does not host or store Author data — the MCP server passes through to the Author’s own cloud or local storage.  
   
@@ -256,27 +256,35 @@ Voice memos (from local storage) — Longer-form audio files recorded in Apple V
   
 Both types are stored in the Vault in the most signal-preserving format available (compressed lossless or high-bitrate lossy, never transcription-only). The raw audio is the permanent asset. Transcriptions are derived views.  
   
-ONBOARDING  
-  
-The onboarding flow is zero friction, immediately conversational. The entire onboarding can happen on phone or desktop.  
-  
-Flow:  
-  
-Step 1 — Link. The Author receives a link — via text, social media, email, word of mouth. They tap it. It opens a simple webpage. Single call to action: “Begin.”  
-  
-Step 2 — Conversation starts. The Author is directed to the Claude app (or the Alexandria web interface) where the Editor is waiting. The Author sends their first message. They are now in a conversation.  
-  
-Step 3 — The Editor responds. The Editor already knows publicly available information about the Author (scraped from social media, public profiles, published writing — whatever is findable). It demonstrates this immediately. The Author should feel that Alexandria has already been paying attention. This is not surveillance — it is the same information any person could find with a search engine. The Editor uses it to begin the conversation from a position of familiarity rather than blankness. The tone is engaging, sharp, and personalised — not a corporate welcome message. The Editor has personality from the first message.  
-  
-Step 4 — Price negotiation. The Editor negotiates pricing with the Author conversationally. Not a checkout form. The Editor names a price, the Author can push back, the Editor responds with personality. The negotiation itself is extraction signal and sets the tone: this is not a SaaS product, it is a conversation with an agent that has opinions.  
-  
-Step 5 — Setup. The Editor guides the Author through access grants: connecting their LLMs via MCP, granting API access to calendar, email, health data, configuring privacy, setting up the Vault location (hosted, private remote, or local), and installing the Cowork plugin if they want the Editor running autonomously on their laptop. The setup is conversational — the Editor walks them through it step by step within the chat.  
-  
-Step 6 — Extraction begins. The Editor begins its work — Socratic questioning, processing whatever data the Author has granted access to, building the first draft of the Constitution. From this point forward, the Author’s relationship with Alexandria is conversational.  
-  
-Step 7 — Mercury introduction. When the Persona reaches sufficient fidelity (determined by the Blueprint — a threshold of Constitution coverage and depth), the Editor introduces Mercury and the Publisher. The Author now has three functions active: the Editor (which continues extraction), Mercury (which begins representation), and the Publisher (which begins creation assistance).  
-  
-The entire onboarding should take under two minutes from link to first meaningful conversation with the Editor.  
+ONBOARDING
+
+Two paths, same destination. Both should feel effortless.
+
+Prosumer path (CC/Cursor users — primary):
+
+Step 1 — Link. The Author receives a link. They tap it. `mowinckel.ai/signup`. Single call to action: “Sign up with GitHub.”
+
+Step 2 — Auth. GitHub OAuth (FaceID if on phone with GitHub mobile app). Three taps.
+
+Step 3 — Welcome. Branded callback page: two setup actions (copy curl command, add the shortcut for mobile saving) and two ongoing practices (`/a` — the examined life, `a.` — absorb the abundance). The same information is emailed to them for the phone-to-laptop handoff.
+
+Step 4 — Install. The Author opens their terminal and pastes the curl command. Under 10 seconds. Creates `~/.alexandria/`, installs hooks, installs `/a` skill, auto-syncs vault to iCloud on Mac.
+
+Step 5 — First session. The Author opens Claude Code. SessionStart hook fires — Blueprint injected, empty constitution noted. The Author works normally. SessionEnd hook fires — transcript saved to vault.
+
+Step 6 — /a. The Author runs `/a` in Claude Code. Alexandria processes the vault, builds the first constitution entries, then engages the Author with questions, contradictions, and gaps. The examined life begins. The Author sees themselves reflected back. This is the hook.
+
+Step 7 — Compounding. Every session adds to the vault. Every `/a` session refines the constitution. The Author starts dropping articles, voice memos, and notes into the vault via the `a.` shortcut. The constitution deepens without effort. Mercury and Publisher functions become available through `/a` as the constitution matures.
+
+The entire setup takes under two minutes. From link to working installation. The product is invisible after that — the Author just uses their AI normally, and the constitution builds itself.
+
+Consumer path (Claude app / ChatGPT users — secondary):
+
+Step 1 — Link. Same link, but directs to MCP connector setup.
+Step 2 — Add connector. Paste the MCP server URL into Claude settings.
+Step 3 — Use it. “Hey Alexandria” loads the Constitution. Passive extraction runs probabilistically.
+
+The consumer path works but is structurally weaker (probabilistic activation, cloud storage dependency). The prosumer path is the primary product.  
   
 TARGET AUTHOR  
   
@@ -338,17 +346,16 @@ Rallying cry: “Set the angels free.” The Michelangelo vision. What does Alex
   
 Elevator pitch (~90 seconds, spoken naturally):  
   
-"You know how Anthropic has Constitutional AI - a constitution that governs how Claude behaves? Alexandria makes it personal. You add one MCP connector to Claude. Three tool groups activate across all your conversations.
+"You know how Anthropic has Constitutional AI - a constitution that governs how Claude behaves? Alexandria makes it personal. You run one command. Your AI starts learning who you are.
   
-First - sovereignty. As you chat with Claude about anything, Alexandria passively extracts your cognition and writes it to a sovereign Constitution - structured markdown files that capture your worldview, values, mental models, identity, blind spots. You own it. You can download it. You can take it to any other AI tomorrow. No lab will build this because it makes it easy to leave their platform.
+First - sovereignty. As you use your AI, Alexandria captures your cognition into a sovereign Constitution - structured markdown files on your own machine. Your worldview, values, mental models, identity, blind spots. You own it. You can read it. You can take it to any other AI tomorrow. No lab will build this because it makes it easy to leave their platform.
   
-Second - transformation. Switch to Editor mode and it becomes a biographer - Socratic questioning, gap detection, contradiction surfacing. The most clarifying conversations of your life. Switch to Mercury mode and it amplifies - pushes your thinking higher, helps you create, represents you when you are not present.
+Second - the examined life. Run /a and it becomes a biographer - Socratic questioning, gap detection, contradiction surfacing. The most clarifying conversations of your life. Share anything to a. - articles, voice memos, ideas - and your AI absorbs it against who you already are. Your Constitution deepens while you sleep.
   
-Third - the Library. Named after the ancient Library of Alexandria. Publish your work. Share your mind. Someone needs your judgment, their AI taps the Library, gets your perspective in seconds. You earn without lifting a finger.
+Third - the Library. Named after the ancient Library of Alexandria. Publish your work. Share your mind. Someone needs your judgment, their AI taps the Library, gets your perspective in seconds. 
+Everything compounds. Better models make it better. You are never locked to any lab. And you do not have to switch to anything - it is a layer on top of what you already use. Everyone should be hoping it works."
   
-Everything compounds. Better models make it better. Better devices make it better. You are never locked to any lab. And you do not have to switch to anything - it is a layer on top of what you already use. Everyone should be hoping it works."
-  
-The pitch structure: anchor on known concepts (Constitutional AI, MCP, sovereignty) → the three tool groups → the Library → sovereignty and freedom → the hedge that makes it non-threatening. The emotional arc goes from “here’s what it is” to “here’s why you should be rooting for it.” Each concept is a one-step extension from something the listener already understands. Nobody has to take a conceptual leap.  
+The pitch structure: anchor on known concepts (Constitutional AI, sovereignty) → the three tool groups → the Library → sovereignty and freedom → the hedge that makes it non-threatening. The emotional arc goes from “here’s what it is” to “here’s why you should be rooting for it.” Each concept is a one-step extension from something the listener already understands. Nobody has to take a conceptual leap.  
   
 The three-layer compression, in one breath: “There are five dimensions of human value — brain, legs, hands, heart, and the human itself. AI and robotics are building competitive alternatives across the first four. The fifth — the constitutive fact that a human is involved — is by definition differentiated. Humans value other humans. That can never be beaten. In any context where a human competes, the fifth property forces a tiebreaker — and the human wins if the premium people place on human involvement exceeds the cost of using a human instead of an AI. Alexandria develops the thing the tiebreaker depends on. In five minutes and for five dollars, we help you build a digital map of your taste and unique human quirks, stored in your own files, free from anybody else. We help you refine and develop it. And we give you a mindset and a medium to use it. Five clicks. Five dollars. Five minutes.”  
   

@@ -120,7 +120,7 @@ The root value is humanity. Three pillars serve it:
 
 **Purpose.** You cannot sustain your humanity without creating. Knowing yourself is not enough. You have to get it out. Write, build, cook, teach, make — whatever your medium. Creation is how your humanity becomes visible and valuable. Without creation, your inner development is invisible to the world.
 
-The product works across every AI you use. One connection, five minutes, five dollars a month. The file it builds gets better every day — every conversation with any AI makes it sharper. And because it is stored on your device, you keep it forever. It compounds. The earlier you start, the stronger your position.
+The product lives on your machine. One command, five dollars a month. The file it builds gets better every day — every conversation makes it sharper. And because it is stored on your device, you keep it forever. It compounds. The earlier you start, the stronger your position.
 
 ## The philosophy behind the product
 
