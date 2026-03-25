@@ -118,7 +118,7 @@ The root value is humanity. Three pillars serve it:
 
 **Purpose.** You cannot sustain your humanity without creating. Knowing yourself is not enough. You have to get it out. Write, build, cook, teach, make — whatever your medium. Creation is how your humanity becomes visible and valuable. Without creation, your inner development is invisible to the world. Alexandria provides the mindset (create, get it out), the tools (creative iteration calibrated to your taste), and eventually the medium (the Library — where others can encounter your mind and pay for depth).
 
-The product works across every AI you use. One connection, five minutes, five dollars a month. The file it builds gets better every day — every conversation with any AI makes it sharper. And because it is stored on your device, you keep it forever. It compounds. The earlier you start, the stronger your position.
+The product works across every AI you use. One command, thirty seconds, free during beta. The file it builds gets better every day — every conversation with any AI makes it sharper. And because it is stored on your machine, you keep it forever. It compounds. The earlier you start, the stronger your position.
 
 ## The philosophy behind the product
 
@@ -136,6 +136,6 @@ Every AI that gets better makes Alexandria more valuable, not less. Better AI me
 
 Freedom. Authenticity. Purpose. Own it, develop it, use it.
 
-Five minutes. Five dollars. Start now.
+One command. Thirty seconds. Start now.
 
-mowinckel.ai/join
+mowinckel.ai/signup
