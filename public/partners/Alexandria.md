@@ -14,19 +14,21 @@ Nobody is building the infrastructure for this.
 
 Alexandria is a medium — the way a cathedral is a medium. The stone, the glass, the organ pipes were never the point. The point was what happened inside the people who walked in. Alexandria is built the same way. The technology is the stone. The product is the changed person.
 
-One MCP connector added to the user's AI account. Five tools activate across all conversations. Alexandria extracts what matters — how the user thinks, what they value, how they reason — and builds a living map of their cognitive identity. Stored on the user's own files. Human-readable. Fully portable. Alexandria has no database, no server state. There is structurally nowhere on the server for data to exist.
+One command. Two hooks. Local markdown files. Alexandria extracts what matters — how the user thinks, what they value, how they reason — and builds a living map of their cognitive identity. Stored on the user's own machine. Human-readable. Fully portable. Alexandria has no database, no server state. The server serves the extraction methodology and collects anonymous metadata. It never sees user data.
 
-**Sovereignty ($5–10/month).** Unifies fragmented AI memories across providers into one structured picture. Works across every AI. The user owns it, not the platform.
+**The Examined Life ($5–10/month).** Socrates said the unexamined life is not worth living. Alexandria sells the examined one. One tier, everyone gets everything:
 
-**Mental Gym ($15–20/month).** Active development of self-knowledge — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste.
+**Sovereignty (Turn 1).** Unifies fragmented AI memories across providers into one structured picture. Works across every AI. The user owns it, not the platform.
 
-**Living Library (no additional cost to the author).** Users share their developed perspective. Others query it and pay. At institutional scale, labs access opt-in structured cognitive representations for alignment research and human modelling — the only sovereignty-compatible dataset of its kind.
+**Mental Gym (Turn 2).** Active development of self-knowledge — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. The product is the changed person.
 
-Same product, same architecture, same user at different depths of engagement. A natural funnel, not three separate businesses.
+**Living Gallery (Turn 3).** The mirror. Each user gets a public page with four surfaces: a monthly progress snapshot (Blurb), an AI biographer others can query (Persona), shareable quizzes generated from real cognitive data (Games), and published works with an interactive layer (Works). Cognitive transformation made visible and shareable. At institutional scale, labs access opt-in structured cognitive representations for alignment research and human modelling — the only sovereignty-compatible dataset of its kind.
 
-The product is live. The founder uses it daily. Working extraction across taste, values, identity, and worldview. Cross-model tested. MCP server deployed at mcp.mowinckel.ai. Surface at mowinckel.ai.
+Join. Train. Show. Same product, same architecture, same user at different depths of engagement.
 
-No revenue. No external users. Distribution has not started. This is honest.
+The product is live. The founder uses it daily. Working extraction across taste, values, identity, and worldview. Prosumer model (hooks + local files) deployed for Claude Code and Cursor users. MCP connector available for Claude app and ChatGPT. Full onboarding flow: GitHub signup → email → one curl command → automatic. Server at mcp.mowinckel.ai. Surface at mowinckel.ai.
+
+No revenue. Beta users onboarding. This is honest.
 
 ---
 
@@ -34,7 +36,7 @@ No revenue. No external users. Distribution has not started. This is honest.
 
 **MCP has won.** 97 million monthly SDK downloads, 10,000+ active servers, 543+ clients. Every major lab has joined. The protocol war is over. Alexandria rides the winning standard.
 
-**Distribution is free.** Claude and ChatGPT both support MCP connectors. Any user can add Alexandria in under a minute. A distribution channel that costs nothing to access.
+**Distribution is free.** For developers: one curl command. For consumers: Claude and ChatGPT both support MCP connectors. A distribution channel that costs nothing to access. Developers talk to developers — the product spreads through the community that values sovereignty most.
 
 **Regulation favours sovereignty.** GDPR enforcement is escalating — LinkedIn fined €310 million for behavioural profiling without consent. Deeper cognitive profiles attract more scrutiny, which pushes toward transparency and portability. The regulatory direction favours the sovereign architecture.
 

@@ -170,9 +170,9 @@ C7: **Alexandria is structurally different from most AI investments. It is one o
 
 (Valid. Sound on the structural point.)
 
-### 8. Sovereignty has no natural cancellation point
+### 8. The Examined Life has no natural cancellation point
 
-P28. The Sovereignty tier works across every AI the user touches — Claude, GPT, Gemini, whatever comes next. As long as the user uses AI, the layer adds value.
+P28. The Examined Life works across every AI the user touches — Claude, GPT, Gemini, whatever comes next. As long as the user uses AI, the layer adds value.
 
 (Settled. Architectural fact.)
 
@@ -184,7 +184,7 @@ P30. The only rational reasons to cancel: the user stops using AI entirely (incr
 
 (Settled on the logic. Assumption on churn magnitude.)
 
-C8: **Sovereignty has no natural cancellation point. It is a permanent subscription for as long as the user uses AI. The 4% monthly churn modelled in projections is conservative-honest for a new product; structurally, churn trends toward near-zero as Constitutions deepen.**
+C8: **The Examined Life has no natural cancellation point. It is a permanent subscription for as long as the user uses AI. The 4% monthly churn modelled in projections is conservative-honest for a new product; structurally, churn trends toward near-zero as Constitutions deepen.**
 
 (Valid. The mechanism is settled. The churn trajectory is an assumption.)
 
@@ -212,45 +212,41 @@ C9: **Buying the dataset means buying access to a marketplace of opted-in Person
 
 ### 10. How Alexandria gets there
 
-P35. Layer 1 — Sovereignty ($5-10/month). Sovereign portable cognitive identity. Unifies fragmented memory across Claude, GPT, Gemini. Stored on the user's own files. Works across every AI provider.
+P35. Layer 1 — The Examined Life ($5/month with active kin, $10/month without). Sovereign portable cognitive identity plus active cognitive development — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. One tier, everyone gets everything. The product is the changed person. Socrates said the unexamined life is not worth living. Alexandria sells the examined one.
 
 (Settled on the product. Assumption on adoption.)
 
-P36. Layer 2 — The Mental Gym ($15-20/month). Active cognitive development. Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. The examined life. The product is the changed person.
-
-(Settled on the analogy. Assumption on whether the market materialises.)
-
-P37. Layer 3 — The Library for Labs. The marketplace described in Section 9. Revenue from lab access contracts, exclusive deals, or strategic acquisition. Speculative upside the company will happily take but does not rely on.
+P36. Layer 2 — The Library for Labs. The marketplace described in Section 9. Revenue from lab access contracts, exclusive deals, or strategic acquisition. Speculative upside the company will happily take but does not rely on.
 
 (Settled on the mechanism. Assumption on lab demand.)
 
-P38. All three layers are the same product, same architecture, same user at different depths of engagement. A natural funnel — not three separate businesses.
+P37. Both layers are the same product, same architecture, same user at different depths of engagement. The subscription stands alone. The Library is upside.
 
-(Settled. The funnel is structural.)
+(Settled. The structure is architectural.)
 
-P39. The cost base is near-zero. Solo founder. All employees are AI agents. Company opex: $102/month — Claude Max $100, Fly.io ~$2. Everything else is free tier or owned. As models improve, every function of the company improves.
+P38. The cost base is near-zero. Solo founder. All employees are AI agents. Company opex: $102/month — Claude Max $100, Fly.io ~$2. Everything else is free tier or owned. As models improve, every function of the company improves.
 
 (Settled. Factual.)
 
-P40. Break-even at approximately 21 Sovereignty subscribers at $5/month. The company cannot die from cost pressure.
+P39. Break-even at approximately 21 subscribers at $5/month. The company cannot die from cost pressure.
 
 (Settled. Arithmetic.)
 
-C10: **Three revenue layers as a natural funnel on the same architecture. AI-native cost structure that improves as models improve. Break-even at 21 subscribers. The floor is survival. The ceiling depends on adoption.**
+C10: **Two revenue layers on the same architecture. AI-native cost structure that improves as models improve. Break-even at 21 subscribers. The floor is survival. The ceiling depends on adoption.**
 
 (Valid. Survival is settled. Scale is the assumption.)
 
 ### 11. The de-risk ladder
 
-P41. The company has four unresolved risks: nobody wants this (zero external users), the kin mechanic does not compound, the brand does not land, and the founder cannot sustain.
+P40. The company has four unresolved risks: nobody wants this (zero external users), the kin mechanic does not compound, the brand does not land, and the founder cannot sustain.
 
 (Settled. Honest enumeration.)
 
-P42. Each risk has a price tag. Rung 1 (~$50K) answers all four existential questions — seeds the experiment, buffers the founder. Rung 2 (~$200K-500K) scales what works. Rung 3 (~$1M+) is Mental Gym conversion at scale and Library for Labs pilot.
+P41. Each risk has a price tag. Rung 1 (~$50K) answers all four existential questions — seeds the experiment, buffers the founder. Rung 2 (~$200K-500K) scales what works. Rung 3 (~$1M+) is Library for Labs pilot and distribution at scale.
 
 (Settled. The structure is factual. Whether the answers are positive is the experiment.)
 
-P43. The company does not need the money. $102/month opex. The founder builds regardless. Capital accelerates the experiment, it does not enable the company.
+P42. The company does not need the money. $102/month opex. The founder builds regardless. Capital accelerates the experiment, it does not enable the company.
 
 (Settled. Factual.)
 
@@ -260,11 +256,11 @@ C11: **Each rung purchases the next tier of de-risking. The investor chooses whe
 
 ### 12. The founder
 
-P44. The company itself is the proof of concept. Every employee is an AI agent. The founder directs. The AI executes. Ground truth documents are the single source of truth — everything downstream is regenerated from them. The system compounds — every session starts from a higher baseline because the methodology itself improves. Building the company IS R&D for the product.
+P43. The company itself is the proof of concept. Every employee is an AI agent. The founder directs. The AI executes. Ground truth documents are the single source of truth — everything downstream is regenerated from them. The system compounds — every session starts from a higher baseline because the methodology itself improves. Building the company IS R&D for the product.
 
 (Settled. Factual. You are reading a document produced by this operating model.)
 
-P45. The founder has no technical credentials and is honest about it. The competitive advantage is not engineering — it is seeing the question clearly. The philosophy determines the engineering. The engineering is trivial. The frame is the product.
+P44. The founder has no technical credentials and is honest about it. The competitive advantage is not engineering — it is seeing the question clearly. The philosophy determines the engineering. The engineering is trivial. The frame is the product.
 
 (Assumption. Whether philosophical depth is a meaningful competitive advantage is a judgment call.)
 
@@ -274,15 +270,15 @@ C12: **The founder is the frame. The company is the proof of concept. The AI-nat
 
 ### 13. The return
 
-P46. The downside is a small, profitable business at near-zero cost. The founder loves building it. There is no scenario where the investment goes to zero — the company cannot die and the founder will not stop.
+P45. The downside is a small, profitable business at near-zero cost. The founder loves building it. There is no scenario where the investment goes to zero — the company cannot die and the founder will not stop.
 
 (Settled. Follows from the cost structure and the founder's commitment.)
 
-P47. The upside is tiered: sustainable subscription business (lower MOM, higher probability), Library for Labs B2B contracts (medium MOM, medium probability), strategic acquisition by a lab or platform company (highest MOM, lowest probability). Each tier is independently valuable.
+P46. The upside is tiered: sustainable subscription business (lower MOM, higher probability), Library for Labs B2B contracts (medium MOM, medium probability), strategic acquisition by a lab or platform company (highest MOM, lowest probability). Each tier is independently valuable.
 
 (Assumption on whether the subscription and Library revenue tiers reach meaningful scale.)
 
-P48. The entry valuation is low because the raise is small. The compounding has barely started. Every month that passes, the dataset is larger, the proof points are stronger, and the valuation is higher. An investor who waits pays more for less upside.
+P47. The entry valuation is low because the raise is small. The compounding has barely started. Every month that passes, the dataset is larger, the proof points are stronger, and the valuation is higher. An investor who waits pays more for less upside.
 
 (Settled on the compounding mechanism. Assumption on whether the valuation trajectory holds.)
 
@@ -292,15 +288,15 @@ C13: **Capped downside, tiered upside. The floor is a profitable business. The c
 
 ### 14. Why this, why now
 
-P49. Every AI investor is taking a shotgun approach — spreading bets across categories because nobody knows which will matter. Most categories have dozens of funded competitors. Cognitive identity infrastructure has zero funded competitors building the full stack.
+P48. Every AI investor is taking a shotgun approach — spreading bets across categories because nobody knows which will matter. Most categories have dozens of funded competitors. Cognitive identity infrastructure has zero funded competitors building the full stack.
 
 (Settled. Verifiable.)
 
-P50. The MCP standard has won — 97 million monthly SDK downloads, 10,000+ active servers, 543+ clients. Anthropic donated MCP to the Agentic AI Foundation under the Linux Foundation; co-founders include Anthropic, OpenAI, and Block, with AWS, Google, and Microsoft as platinum members. Claude and ChatGPT both support MCP connectors. Alexandria rides the winning standard.
+P49. The MCP standard has won — 97 million monthly SDK downloads, 10,000+ active servers, 543+ clients. Anthropic donated MCP to the Agentic AI Foundation under the Linux Foundation; co-founders include Anthropic, OpenAI, and Block, with AWS, Google, and Microsoft as platinum members. Claude and ChatGPT both support MCP connectors. Alexandria rides the winning standard.
 
 (Settled. Factual.)
 
-P51. There are limited spots. The raise is small. The founder is selective.
+P50. There are limited spots. The raise is small. The founder is selective.
 
 (Settled. Factual.)
 
@@ -327,14 +323,13 @@ The blue numbers are the assumptions. These are the only things worth discussing
 - P23 The question is non-obvious enough that competitors won't arrive at it quickly.
 - P25 Most competing AI investments will be obsoleted by model releases.
 - P30 Churn trends toward near-zero as Constitutions deepen.
-- P35 Enough people pay $5-10/month for sovereign cognitive identity.
-- P36 The mental gym market materialises.
-- P37 Labs will pay for Library access.
-- P45 The founder's philosophical depth is a meaningful advantage.
-- P47 The subscription and Library revenue tiers reach meaningful scale.
-- P48 The valuation trajectory holds — waiting costs more.
+- P35 Enough people pay $5-10/month for the examined life.
+- P36 Labs will pay for Library access.
+- P44 The founder's philosophical depth is a meaningful advantage.
+- P46 The subscription and Library revenue tiers reach meaningful scale.
+- P47 The valuation trajectory holds — waiting costs more.
 
-If these hold, three revenue layers scale on the same architecture, the marketplace becomes the asset, and early investors capture the upside.
+If these hold, two revenue layers scale on the same architecture, the marketplace becomes the asset, and early investors capture the upside.
 
 If some don't hold, you still have a company that cannot die, a founder who builds regardless, and a cost structure that improves every time a better model is released.
 
@@ -432,23 +427,15 @@ Against: Users might not perceive the compounding value. If the experience doesn
 
 Assessment: The structural argument is sound. Whether users feel the compounding is an empirical question. Moderate assumption.
 
-**P35 — Enough people pay $5-10/month for sovereign cognitive identity.**
+**P35 — Enough people pay $5-10/month for the examined life.**
 
-For: The pitch is simple: own your cognitive data, make every AI better, $5/month. Below the threshold of deliberation for most AI users. Risk-free value proposition.
+For: The pitch is simple: own your cognitive data, make every AI better, develop your thinking — $5/month with kin, $10 without. Below the threshold of deliberation for most AI users. One tier, everyone gets everything. Therapy is a $200B+ global market. Coaching is growing rapidly. Journaling and self-improvement apps have proven willingness to pay for inner development. The examined life is the AI-native version of an existing human need.
 
-Against: The pain point is not acutely felt. Most people do not know they need this. Requires frame imposition before conversion. Could be a long, slow build rather than a viral product.
+Against: The pain point is not acutely felt. Most people do not know they need this. Requires frame imposition before conversion. The examined life is a niche desire — most people do not want to be Socratically questioned about their thinking. Could be a long, slow build rather than a viral product.
 
-Assessment: Depends on distribution effectiveness and how quickly the frame spreads. Moderate assumption.
+Assessment: Depends on distribution effectiveness and how quickly the frame spreads. The $5 price point with kin removes the deliberation barrier. Moderate assumption.
 
-**P36 — The mental gym market materialises.**
-
-For: Therapy is a $200B+ global market. Coaching is growing rapidly. Journaling and self-improvement apps have proven willingness to pay for inner development. The mental gym is the AI-native version of an existing human need.
-
-Against: The examined life is a niche desire. Most people do not want to be Socratically questioned about their thinking. The market for active cognitive development may be much smaller than the market for passive wellness.
-
-Assessment: Likely a smaller market than Sovereignty, but potentially higher-value per user. The $15-20 price point self-selects for people who genuinely want this. Moderate assumption — the market exists but may be niche.
-
-**P37 — Labs will pay for Library access.**
+**P36 — Labs will pay for Library access.**
 
 For: Three ways to access internal cognitive state: (1) passive observation — shallow. (2) Surveys/RLHF — unreliable at individual resolution. (3) Structured private conversational extraction — honest because private, deep because Socratic. Only method 3 produces what labs need for alignment research at individual resolution.
 
@@ -456,7 +443,7 @@ Against: Labs may not need individual-resolution cognitive data. Aggregate behav
 
 Assessment: The data is qualitatively unique. Whether labs value it enough to pay is a market question that can only be answered by selling to them. Moderate assumption.
 
-**P45 — The founder's philosophical depth is a meaningful advantage.**
+**P44 — The founder's philosophical depth is a meaningful advantage.**
 
 For: The product is philosophical, not technical. The AI-native operating model proves the thesis. The engineering was built entirely by AI agents — one human with philosophical depth and AI leverage.
 
@@ -464,15 +451,15 @@ Against: Philosophy is replicable. A well-funded team with a philosopher and eng
 
 Assessment: True on both sides. The advantage is real but temporal. Whether the head start compounds is the question. Moderate assumption.
 
-**P47 — The subscription and Library revenue tiers reach meaningful scale.**
+**P46 — The subscription and Library revenue tiers reach meaningful scale.**
 
-For: Near-zero cost structure means even modest scale produces significant margins. 2,000 Sovereignty users at ~$7 blended ARPU is $168K/year — already a viable business. The kin mechanic compounds.
+For: Near-zero cost structure means even modest scale produces significant margins. 2,000 subscribers at ~$7 blended ARPU is $168K/year — already a viable business. The kin mechanic compounds.
 
 Against: The kin mechanic is unproven. The conversion funnel is theoretical. Growth could be much slower than modelled.
 
 Assessment: The projections are conservative on some axes (8% conversion, 4% churn) and optimistic on others (150% Y1 growth). The floor is not zero. Moderate assumption.
 
-**P48 — The valuation trajectory holds.**
+**P47 — The valuation trajectory holds.**
 
 For: Compounding is structural. Every month adds depth that cannot be replicated. The entry point is lowest now.
 

@@ -2,7 +2,7 @@
 
 *This is Alexandria III of III. Together they are the single source of truth for Alexandria. Read all parts for full context.*
 
-**This part covers:** The Library (Neo-Biography, Works, Signal, access tiers, Persona types, public figure bootstrapping, historical figures, use cases), Payment (three revenue layers, payment mechanics), Interface (MCP connector, mobile app, browser extension, website, compute topology, build sequencing, onboarding, target Author), Positioning and Pitch (elevator pitch, motto, phrases), Brand Design and Voice (logo, visual design, writing voice), Alexandria Media Strategy (sensory stack, the Abstract, Launch Video), The Horizon: Homo Deus.
+**This part covers:** The Library (V1 Library — Join Train Show: Blurb, Persona, Games, Works; Neo-Biography, Works, Signal, access tiers, Persona types, public figure bootstrapping, historical figures, use cases), Payment (two revenue layers, payment mechanics), Interface (MCP connector, mobile app, browser extension, website, compute topology, build sequencing, onboarding, target Author), Positioning and Pitch (elevator pitch, motto, phrases), Brand Design and Voice (logo, visual design, writing voice), Alexandria Media Strategy (sensory stack, the Abstract, Launch Video), The Horizon: Homo Deus.
 
 **Other parts:** Alexandria I (Thesis & Philosophy), Alexandria II (Product, Architecture & Operations).
 
@@ -176,13 +176,11 @@ Authors opt in to the Library for Labs pool. Alexandria sets the pricing, tiered
   
 PAYMENT  
   
-Alexandria’s revenue is downstream of the value it creates. The pricing philosophy is Palantir’s: revenue is a consequence of value, not the objective. Three revenue layers as a natural funnel on the same architecture — insurance, mental gym, and Library are the same product, same user, at different depths of engagement. Not three separate businesses. A user starts by storing their profile (insurance), deepens into active development (mental gym), and their accumulated depth feeds the marketplace (Library). Each step leads naturally to the next. Three user tiers feed these layers.
+Alexandria’s revenue is downstream of the value it creates. The pricing philosophy is Palantir’s: revenue is a consequence of value, not the objective. Two revenue layers on the same architecture — subscription and Library. Not two separate businesses. The subscription sustains. The Library scales. The user deepens naturally through usage — the product does the selling.
 
-THE THREE TIERS
+Patron — optional support, no product. For people who want to support Alexandria but are not yet paying for the product. Family, friends, believers in the mission, newsletter subscribers who want to give something. No minimum — can be $0 or whatever they choose. Slider, no maximum. Patrons get a monthly newsletter with behind-the-scenes updates. Three visibility levels: Public Patron (name visible on newsletter and website), Private Patron (Benjamin sees who they are, no public display), and Anonymous Patron (Benjamin does not see the name or amount). Visibility is a setting on the payment, not a separate tier — all patrons get the same perks. Patrons do NOT count as active kin — kin status requires product usage. Patron sits in the pre-paying awareness layer (State 0) alongside free newsletter subscribers and social followers.
 
-Patron — optional support, no product. For people who want to support Alexandria but are not yet paying for the product. Family, friends, believers in the mission, newsletter subscribers who want to give something. No minimum — can be $0 or whatever they choose. Slider, no maximum. Patrons get a monthly newsletter with behind-the-scenes updates. Three visibility levels: Public Patron (name visible on newsletter and website — the person who wants to be seen supporting the mission), Private Patron (Benjamin sees who they are and what they give, but no public display — the person who wants the personal connection without the spotlight), and Anonymous Patron (Benjamin does not see the name or amount — the purest form of patronage, someone who just believes in it and wants it to exist). Visibility is a setting on the payment, not a separate tier — all patrons get the same perks. Patrons do NOT count as active kin — kin status is tied to product usage (Sovereignty or Examined Life only). Patron sits in the pre-paying awareness layer (State 0) alongside free newsletter subscribers and social followers.
-
-One tier — everyone gets everything. $5/month with 3 active kin, $10/month without. Full extraction, all functions, vault, /a, Library when it launches. No feature gating.
+The Examined Life — one tier, everyone gets everything. $5/month with 3 active kin, $10/month without. Full extraction, all three functions (Editor, Mercury, Publisher), vault processing, /a sessions, /meet/ page, Library when it launches. No feature gating. Free during beta. The name is the pitch: Socrates said the unexamined life is not worth living. Alexandria sells the examined one.
 
 Active kin = anyone with a paying account. Patron does NOT count. Dynamic pricing: recalculates every billing cycle based on active kin count. 3+ kin = $5. Fewer = $10. No grace period. Clean.
 
@@ -190,35 +188,29 @@ Monthly billing receipt as nudge surface: every receipt shows what the Author pa
 
 No annual option at launch. Monthly only. Annual may be added later once price points are validated.
 
-Founding lineage (Benjamin’s ~25 seeds): both tiers immediately, $5 minimum, slider open, full package from day one.
+Founding lineage (Benjamin’s ~25 seeds): full product immediately, $5 minimum, slider open.
   
-LAYER 1 — SUSTAINABILITY (baseline)  
-  
-Subscription fee. The Author pays for Alexandria’s layer of intent: the Blueprint, the Principles, the sovereignty architecture, Library presence, and web dashboard. Alexandria does not host or store Author data — the MCP server is stateless, passing through to the Author’s own cloud or local storage. Billed monthly. The Author’s default LLM usage is on their own subscription — Alexandria does not pass through LLM costs because it does not run parallel agents. Alexandria charges for the layer itself: the accumulated knowledge of how to transform cognition (the Blueprint), the sovereignty architecture, and the Library access. The goal is sustainability, not margin. Low enough that no Author questions it. High enough that Alexandria does not burn cash on per-user economics.  
-  
-This layer keeps Alexandria alive regardless of Library traction. It scales linearly with the number of Authors. It is predictable, boring, and essential. If the Library never reaches critical mass, this layer alone sustains a focused, profitable business serving a real need.  
-  
-LAYER 2 — PROPORTIONAL (scales with usage)  
-  
-Revenue proportional to the value Alexandria creates for each Author. Premium Blueprint features, deeper Constitution architecture, advanced Mercury configurations, priority support, and — when available — PLM training as an optional premium service. This layer captures revenue from Authors who want more than the default, without making the default feel incomplete. The more value the layer creates for the Author, the more Alexandria earns. Incentives aligned.  
-  
-This layer makes Alexandria sustainable at the per-Author level. The economics work for one Author or one million.  
-  
-LAYER 3 — LIBRARY (downstream scale upside)  
-  
-The Library is the release valve for infinite scale, operating on two tracks. The Library for people (retail): when an Author’s Persona generates revenue from individual human or LLM queries — premium API access, external queries, agent-to-agent transactions — Alexandria takes a percentage. The Author earns the majority. The Author sets their own price. The Library for Labs (wholesale): institutional access to a pool of opt-in Personas. Alignment research, personalisation, product development, advertising, human modelling. Alexandria sets the pricing, tiered by Constitution quality. Authors are paid for participation. Alexandria takes a percentage. Both tracks have near-zero marginal cost (the infrastructure is already running for Layers 1 and 2). Both are sovereignty-compatible — the Author’s Constitution and Vault stay private; only the Persona output layer is accessible. Every Library transaction on either track is pure margin.
+LAYER 1 — SUBSCRIPTION (the floor)
 
-The revenue from both tracks is theoretically unbounded. If the Library reaches critical mass, this layer transforms Alexandria’s economics from sustainable to compounding. But the business does not depend on it — Layer 2 (taste development / Examined Life) is the primary revenue engine and sustains the business on its own.
+The subscription at $5-10/month. The Author pays for Alexandria’s layer of intent: the Blueprint, the Principles, the sovereignty architecture, all three functions, the /meet/ page, and Library presence. Alexandria does not host or store Author data — the server is stateless. Billed monthly. The Author’s default LLM usage is on their own subscription — Alexandria does not pass through LLM costs because it does not run parallel agents. Alexandria charges for the layer itself: the accumulated knowledge of how to transform cognition (the Blueprint), the sovereignty architecture, and the Library access. The goal is sustainability, not margin. Low enough that no Author questions it. High enough that Alexandria does not burn cash on per-user economics.
 
-The strategic value of this structure: Layers 1 and 2 sustain the business and deliver real value. The Library is where asymmetric scale upside lives, but it only activates when the ecosystem has genuine value — which means Alexandria earns big only when it has created something genuinely valuable. Revenue downstream of value creation.  
-  
-First-mover advantage compounds in the Library layer specifically. The first library with critical mass of interesting Personas becomes the library — network effects mean interesting minds attract visitors, visitors attract more minds, query revenue attracts more minds. Layers 1 and 2 buy time to reach that critical mass without requiring venture-scale growth or aggressive pricing.  
-  
+This layer keeps Alexandria alive regardless of Library traction. It scales linearly with the number of Authors. It is predictable, boring, and essential. If the Library never reaches critical mass, this layer alone sustains a focused, profitable business serving a real need. Additional tiers are an intelligence decision — revisit when there is data.
+
+LAYER 2 — LIBRARY (downstream scale upside)
+
+The Library is the release valve for infinite scale, operating on two tracks. The Library for people (retail): when an Author’s Persona generates revenue from individual human or LLM queries — premium persona access, external queries, agent-to-agent transactions — Alexandria takes a percentage. The Author earns the majority. The Author sets their own price. The Library for Labs (wholesale): institutional access to a pool of opt-in Personas. Alignment research, personalisation, product development, advertising, human modelling. Alexandria sets the pricing, tiered by Constitution quality. Authors are paid for participation. Alexandria takes a percentage. Both tracks have near-zero marginal cost (the infrastructure is already running for Layer 1). Both are sovereignty-compatible — the Author’s Constitution and Vault stay private; only the Persona output layer is accessible. Every Library transaction on either track is pure margin.
+
+The revenue from both tracks is theoretically unbounded. If the Library reaches critical mass, this layer transforms Alexandria’s economics from sustainable to compounding. But the business does not depend on it — Layer 1 (the subscription) is the primary revenue engine and sustains the business on its own.
+
+The strategic value of this structure: Layer 1 sustains the business and delivers real value. The Library is where asymmetric scale upside lives, but it only activates when the ecosystem has genuine value — which means Alexandria earns big only when it has created something genuinely valuable. Revenue downstream of value creation.
+
+First-mover advantage compounds in the Library layer specifically. The first library with critical mass of interesting Personas becomes the library — network effects mean interesting minds attract visitors, visitors attract more minds, query revenue attracts more minds. Layer 1 buys time to reach that critical mass without requiring venture-scale growth or aggressive pricing.
+
 PAYMENT MECHANICS  
   
-User expense tab — Layers 1 and 2 combined. A running account of the Author’s costs plus Alexandria’s markup. Transparent. Billed monthly. The Author sees exactly what they are paying for.  
-  
-User income tab — Layer 3. The Author’s Persona revenue from Library interactions. Alexandria’s percentage is deducted. Net income is visible, withdrawable, or can be applied against the expense tab. Many Authors will be net-positive — earning more from their Persona than they spend on their Machine.  
+User expense tab — Layer 1 (subscription). A running account of the Author’s costs. Transparent. Billed monthly. The Author sees exactly what they are paying for.
+
+User income tab — Layer 2 (Library). The Author’s Persona revenue from Library interactions. Alexandria’s percentage is deducted. Net income is visible, withdrawable, or can be applied against the expense tab. Many Authors will be net-positive — earning more from their Persona than they spend on their subscription.  
   
 Agent-to-agent transactions — Persona-to-Persona API calls (one Author’s Persona querying another’s) are a natural fit for programmable money. Agents transact autonomously, and traditional payment rails (credit cards, bank transfers) require human identity verification and are designed for human-initiated transactions. Stablecoins on fast, cheap chains (e.g. Solana, USDC) let agents hold funds and transact programmatically via agent wallets (e.g. Coinbase agent wallets). Crypto is not mandatory — traditional payment is available as an alternative — but programmable money is the native payment rail for autonomous agent commerce.  
   
@@ -342,7 +334,7 @@ Architect — believes in both the philosophy and the technology. The full tribe
   
 Philosopher — believes in the art but not (yet) the technology. Read the Abstract, something shifted, wants to be part of the community. May not have Cowork or MCP set up. Comes in through the Library side — manually contributing, engaging with other Authors' work. The technology catches up to them over time as bridges improve.  
   
-Pragmatist — believes in the technology but not (yet) the philosophy. Wants sovereignty insurance. Has not read the manifesto, does not care about the examined life — just does not want their data locked to any platform. Comes in through Sovereignty. The product demonstrates the philosophy over time.  
+Pragmatist — believes in the technology but not (yet) the philosophy. Wants sovereignty insurance. Has not read the manifesto, does not care about the examined life — just does not want their data locked to any platform. Comes in for the sovereignty value prop. The product demonstrates the philosophy over time.  
   
 Patron — supports the founder and the project. May not use the product actively. Friends, family, believers in Benjamin more than in any specific feature. Pay-what-you-want lets them do this with dignity. They are not donating — they are joining. Three visibility levels let patrons choose how much of themselves to show: public (name on newsletter/website), private (Benjamin sees, public does not), or anonymous (nobody sees — pure support).
   

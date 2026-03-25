@@ -42,21 +42,20 @@ Free stack: GitHub, Google Drive, Vercel, UptimeRobot, Google Cloud, Claude Code
 
 ### Pricing
 
-| Tier | $/mo |
+One tier. Everyone gets everything.
+
+| The Examined Life | $/mo |
 |---|---:|
-| Sovereignty — with kin | $5 |
-| Sovereignty — without kin | $10 |
-| Examined Life — with kin | $15 |
-| Examined Life — without kin | $20 |
+| With 3+ active kin | $5 |
+| Without kin | $10 |
 
 60% of users expected to have 3+ active kin.
 
 | | $/mo |
 |---|---:|
-| **Effective Sovereignty ARPU** | **$6** |
-| **Effective Examined Life ARPU** | **$15** |
+| **Blended ARPU** | **$7** |
 
-Blended after quarterly/annual discounts.
+After kin mix and quarterly/annual discounts.
 
 ---
 
@@ -64,8 +63,7 @@ Blended after quarterly/annual discounts.
 
 | | Rate | |
 |---|---:|---|
-| ACH (Sovereignty) | 0.8% | Flat, no per-txn fee |
-| Stripe % (Examined Life) | 2.9% | |
+| Stripe % | 2.9% | |
 | Stripe per-txn fee | $0.30 | Per transaction |
 
 ---
@@ -74,11 +72,8 @@ Blended after quarterly/annual discounts.
 
 | | |
 |---|---:|
-| Year 1 Sovereignty users (EOY) | 2,000 |
-| Year 1 Sov → EL conversion | 8% |
-| EL direct users (Year 1 seed) | 50 |
-| Monthly churn — Sovereignty | 4% |
-| Monthly churn — Examined Life | 2% |
+| Year 1 users (EOY) | 2,000 |
+| Monthly churn | 4% |
 
 ---
 

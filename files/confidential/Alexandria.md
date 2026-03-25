@@ -16,13 +16,15 @@ Alexandria is a medium — the way a cathedral is a medium. The stone, the glass
 
 One command. Two hooks. Local markdown files. Alexandria extracts what matters — how the user thinks, what they value, how they reason — and builds a living map of their cognitive identity. Stored on the user's own machine. Human-readable. Fully portable. Alexandria has no database, no server state. The server serves the extraction methodology and collects anonymous metadata. It never sees user data.
 
-**Sovereignty ($5–10/month).** Unifies fragmented AI memories across providers into one structured picture. Works across every AI. The user owns it, not the platform.
+**The Examined Life ($5–10/month).** Socrates said the unexamined life is not worth living. Alexandria sells the examined one. One tier, everyone gets everything:
 
-**Mental Gym (included).** Active development of self-knowledge — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. Same tier, same price — the product works best when all pieces are together.
+**Sovereignty (Turn 1).** Unifies fragmented AI memories across providers into one structured picture. Works across every AI. The user owns it, not the platform.
 
-**Living Library (no additional cost to the author).** Users share their developed perspective. Others query it and pay. At institutional scale, labs access opt-in structured cognitive representations for alignment research and human modelling — the only sovereignty-compatible dataset of its kind.
+**Mental Gym (Turn 2).** Active development of self-knowledge — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. The product is the changed person.
 
-Same product, same architecture, same user at different depths of engagement. A natural funnel, not three separate businesses.
+**Living Gallery (Turn 3).** The mirror. Each user gets a public page with four surfaces: a monthly progress snapshot (Blurb), an AI biographer others can query (Persona), shareable quizzes generated from real cognitive data (Games), and published works with an interactive layer (Works). Cognitive transformation made visible and shareable. At institutional scale, labs access opt-in structured cognitive representations for alignment research and human modelling — the only sovereignty-compatible dataset of its kind.
+
+Join. Train. Show. Same product, same architecture, same user at different depths of engagement.
 
 The product is live. The founder uses it daily. Working extraction across taste, values, identity, and worldview. Prosumer model (hooks + local files) deployed for Claude Code and Cursor users. MCP connector available for Claude app and ChatGPT. Full onboarding flow: GitHub signup → email → one curl command → automatic. Server at mcp.mowinckel.ai. Surface at mowinckel.ai.
 
