@@ -559,7 +559,7 @@ Alexandria is not a pure software company. Naval is right that pure software is 
 
 The founder's own framework predicts what survives the software collapse: make the models, generate live data, gatekeep permissions, own the atoms. Alexandria is position two — generate live data. The Constitution and Vault are unique data silos with hyper-personal software infrastructure. "Web4 is data/atom nodes connected with fluid model inference." Each Author's sovereign Constitution is a data node. The Author's default LLM is the fluid model inference. Alexandria is a Web4 company by the founder's own definition.
 
-The only remaining question is demand. Every framework — the founder's, Naval's, the adversarial analysis — confirms Alexandria occupies a survivable position. The economics work. The philosophy is right. But none of that matters if people don't want structured cognitive identity enough to pay $5-20/month. That is the sole existential question, and it can be answered for ~$15K by seeding 25 users and observing behaviour. Everything else is downstream of that answer.  
+The only remaining question is demand. Every framework — the founder's, Naval's, the adversarial analysis — confirms Alexandria occupies a survivable position. The economics work. The philosophy is right. But none of that matters if people don't want structured cognitive identity enough to pay $5-10/month. That is the sole existential question, and it can be answered for ~$15K by seeding 25 users and observing behaviour. Everything else is downstream of that answer.  
   
 WHAT COMPOUNDS: VALUE THAT ACCRUES WITH TIME
 

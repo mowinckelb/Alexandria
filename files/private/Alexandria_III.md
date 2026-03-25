@@ -158,11 +158,9 @@ THE THREE TIERS
 
 Patron — optional support, no product. For people who want to support Alexandria but are not yet paying for the product. Family, friends, believers in the mission, newsletter subscribers who want to give something. No minimum — can be $0 or whatever they choose. Slider, no maximum. Patrons get a monthly newsletter with behind-the-scenes updates. Three visibility levels: Public Patron (name visible on newsletter and website — the person who wants to be seen supporting the mission), Private Patron (Benjamin sees who they are and what they give, but no public display — the person who wants the personal connection without the spotlight), and Anonymous Patron (Benjamin does not see the name or amount — the purest form of patronage, someone who just believes in it and wants it to exist). Visibility is a setting on the payment, not a separate tier — all patrons get the same perks. Patrons do NOT count as active kin — kin status is tied to product usage (Sovereignty or Examined Life only). Patron sits in the pre-paying awareness layer (State 0) alongside free newsletter subscribers and social followers.
 
-Sovereignty — mass-market entry. Tool Group 1 only. $5/month with 3 active kin, $10/month without. No slider — clean $5 or $10. The pragmatist funnel.
+One tier — everyone gets everything. $5/month with 3 active kin, $10/month without. Full extraction, all functions, vault, /a, Library when it launches. No feature gating.
 
-The Examined Life — the full experience. Tool Groups 1 + 2 + 3 + Library. $15/month with 3 active kin, $20/month without. Slider above floor, no maximum. The philosopher funnel. Some enter directly. Most convert up from Sovereignty.
-
-Active kin = anyone with a paying Sovereignty or Examined Life account. Patron does NOT count as active kin — kin status requires product usage. Dynamic pricing: recalculates every billing cycle based on active kin count. 3+ kin = lower price. Fewer = higher price. No grace period. Clean.
+Active kin = anyone with a paying account. Patron does NOT count. Dynamic pricing: recalculates every billing cycle based on active kin count. 3+ kin = $5. Fewer = $10. No grace period. Clean.
 
 Monthly billing receipt as nudge surface: every receipt shows what the Author paid, what they would have paid with 3 active kin, and current kin count. The receipt is the kin nudge — no app needed.
 
