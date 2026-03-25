@@ -39,12 +39,12 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 
 ### files/confidential/ — Shared Under Trust (Investors, Advisors)
 
-Investor flow: Memo.md (AI-delivered first touch) → Logic.md + Numbers.md (pre-meeting deep dive, served at `/partners/logic` and `/partners/numbers`) → Meeting (conversation) → alexandria.pdf (IC leave-behind).
+Investor flow: Memo.md (AI-delivered first touch) → Logic.md + Numbers.md (pre-meeting deep dive, served at `/partners/logic` and `/partners/numbers`) → Meeting (conversation) → Alexandria.md (at `/partners/alexandria`).
 
 Each artifact has an objective function. Form serves that function. Beauty is universal; tone is not.
 
 - `Memo.md` — **Objective: make the investor want a meeting.** AI-presentable with hidden follow-up notes for Q&A. First touch. Copy-to-clipboard at `/partners`.
-- `Logic.md` — **Objective: make the investor feel the argument is airtight.** Formal proof chain. Settled premises cost no time; assumptions are the only conversation. Served at `/partners/logic` with .md download. PDF also kept at `Logic.pdf` (render via `python render_logic.py`).
+- `Logic.md` — **Objective: make the investor feel the argument is airtight.** Formal proof chain. Settled premises cost no time; assumptions are the only conversation. Served at `/partners/logic` with .md download.
 - `Numbers.md` — **Objective: let the investor see and stress-test the assumptions.** No projections — assumptions are the conversation. Served at `/partners/numbers` with .md download.
 - `Alexandria.md` — **Objective: give the IC partner who wasn't in the room enough to vote yes.** Dense, self-contained, authoritative. Served at `/partners/alexandria` with .md download.
 
@@ -86,7 +86,7 @@ Each Author's Machine compounds through usage. Constitution deepens, feedback lo
   - Stateless: encrypted Google refresh token IS the access token. No user data stored.
 - **Static assets:** `public/` (includes `public/docs/` served by website, `public/partners/` for investor artifacts).
 - **Partners:** Markdown docs (Numbers.md, Logic.md) served at `/partners/numbers` and `/partners/logic` via dynamic `[doc]` route. Sync from `files/confidential/` to `public/partners/` when content changes.
-- **Build:** `npm run build` (server/). **Deploy:** `cd server && flyctl deploy --remote-only` (Fly.io), push to main (Vercel). **Render Logic PDF:** `python render_logic.py` (requires fpdf2, pymupdf). **Render any PDF:** `python scripts/generate_pdf.py <input.md> [output.pdf]` — branded per A3 brand system, generates PNG previews for visual verification. Always verify by reading the preview PNGs before committing. Clean up preview PNGs after verification.
+- **Build:** `npm run build` (server/). **Deploy:** `cd server && flyctl deploy --remote-only` (Fly.io), push to main (Vercel). **Render PDF:** `python scripts/generate_pdf.py <input.md> [output.pdf]` — branded per A3 brand system, generates PNG previews for visual verification. Always verify by reading the preview PNGs before committing. Clean up preview PNGs after verification.
 - **Server health:** `curl https://mcp.mowinckel.ai/health`
 - **Stack:** Vercel (website), Fly.io (MCP server), GitHub, Google Cloud (OAuth), Claude.
 
@@ -116,7 +116,6 @@ Do not report. Just do it. Save memories, update GTs, push to Blueprint, check d
 - `files/confidential/Memo.md` + `public/partners/Memo.md` (must be identical)
 - `files/confidential/Numbers.md` + `public/partners/Numbers.md` (must be identical)
 - `files/confidential/Logic.md` + `public/partners/Logic.md` (must be identical)
-- `files/confidential/Logic.md` → re-render PDF via `python render_logic.py` (keep PDF in sync while it exists)
 - `files/confidential/Alexandria.md` + `public/partners/Alexandria.md` (must be identical)
 - `files/public/Concrete.md`
 - `files/public/Vision.md`

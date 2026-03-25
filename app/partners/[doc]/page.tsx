@@ -5,8 +5,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useTheme } from '../../components/ThemeProvider';
 
-const DOCS: Record<string, { file: string; confidential?: boolean; purpose: string; time: string; aiHint?: string }> = {
-  memo: { file: '/partners/Memo.md', confidential: true, purpose: 'the investment memo', time: '12 min', aiHint: 'interactive — paste into any AI to ask questions' },
+const DOCS: Record<string, { file: string; confidential?: boolean; purpose: string; time: string; aiDoc?: boolean }> = {
+  memo: { file: '/partners/Memo.md', confidential: true, purpose: 'the investment memo', time: '12 min', aiDoc: true },
   numbers: { file: '/partners/Numbers.md', confidential: true, purpose: 'the assumptions', time: '2 min' },
   logic: { file: '/partners/Logic.md', confidential: true, purpose: 'the formal argument', time: '23 min' },
   alexandria: { file: '/partners/Alexandria.md', confidential: true, purpose: 'the company overview', time: '5 min' },
@@ -136,67 +136,58 @@ export default function DocPage({ params }: { params: Promise<{ doc: string }> }
           padding: '2.5rem 2rem 0',
         }}>
           <div style={{
+            fontSize: '0.7rem',
+            color: 'var(--text-ghost)',
+            letterSpacing: '0.08em',
+            marginBottom: '0.3rem',
+          }}>
+            confidential
+          </div>
+          <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'baseline',
+            alignItems: 'center',
             flexWrap: 'wrap',
-            gap: '0.5rem 1.5rem',
+            gap: '0.4rem 1rem',
+            fontSize: '0.82rem',
+            color: 'var(--text-faint)',
           }}>
-            <div>
-              <div style={{
-                fontSize: '0.7rem',
-                color: 'var(--text-ghost)',
-                letterSpacing: '0.08em',
-                marginBottom: '0.3rem',
-              }}>
-                confidential
-              </div>
-              <div style={{
-                fontSize: '0.82rem',
-                color: 'var(--text-faint)',
-              }}>
-                {entry.purpose}. {entry.time}.
-              </div>
-            </div>
-            <div style={{
-              display: 'flex',
-              gap: '0.6rem',
-              alignItems: 'center',
-              fontSize: '0.78rem',
-              color: 'var(--text-ghost)',
-            }}>
-              <span>{entry.aiHint || 'paste into any ai'}</span>
-              <button
-                onClick={handleCopy}
-                style={{ background: 'none', border: 'none', padding: '0.2rem', color: 'var(--text-ghost)', cursor: 'pointer', display: 'flex' }}
-                className="hover:opacity-60 transition-opacity"
-                aria-label="Copy to clipboard"
-              >
-                {copied ? (
+            <span>{entry.purpose}. {entry.time}.</span>
+            {entry.aiDoc ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-ghost)', fontSize: '0.78rem' }}>
+                paste into any ai to ask questions
+                <button
+                  onClick={handleCopy}
+                  style={{ background: 'none', border: 'none', padding: '0.2rem', color: 'var(--text-ghost)', cursor: 'pointer', display: 'flex' }}
+                  className="hover:opacity-60 transition-opacity"
+                  aria-label="Copy to clipboard"
+                >
+                  {copied ? (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  )}
+                </button>
+                <a
+                  href={entry.file}
+                  download
+                  style={{ color: 'var(--text-ghost)', display: 'flex', padding: '0.2rem' }}
+                  className="hover:opacity-60 transition-opacity"
+                  aria-label="Download .md"
+                >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                )}
-              </button>
-              <a
-                href={entry.file}
-                download
-                style={{ color: 'var(--text-ghost)', display: 'flex', padding: '0.2rem' }}
-                className="hover:opacity-60 transition-opacity"
-                aria-label="Download .md"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-              </a>
-            </div>
+                </a>
+              </span>
+            ) : null}
           </div>
         </div>
 

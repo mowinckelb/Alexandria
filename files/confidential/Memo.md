@@ -26,7 +26,7 @@ Labs already have memory features — Claude offers roughly 800 words of lightly
 
 By the time the value is obvious enough that a lab would accept the cost, Alexandria has already been compounding the dataset, the accumulated signal, and the Library.
 
-This is the formal argument. Logic.pdf lays out the full chain: 51 premises, 14 conclusions, 17 assumptions. Every settled premise cannot reasonably be denied. The only conversation is about the assumptions.
+This is the formal argument. Logic.md (mowinckel.ai/partners/logic) lays out the full chain: 51 premises, 14 conclusions, 17 assumptions. Every settled premise cannot reasonably be denied. The only conversation is about the assumptions.
 
 ---
 
@@ -62,9 +62,9 @@ Alexandria does not have a moat. At pre-seed, the moat is the founder. What foll
 
 ## The Numbers
 
-**Cost base: near-zero.** No payroll. No compute (user's own AI subscription covers inference). No storage (user's own cloud). No database. Solo founder. All employees are AI agents. Company opex: $102/month — Claude Max $100, Fly.io ~$2. Everything else is free tier or owned: GitHub, Google Drive, Vercel, UptimeRobot, Google Cloud Console, Claude Code, domain. Two paid services and an entire free stack. Founder living costs ($228/month + rent) are separate. Payment processing optimised: Sovereignty tier uses ACH (0.8% flat), Examined Life uses Stripe cards (2.9% + $0.30) — blended processing cost ~1.4% of revenue. Billing frequency options (monthly default, quarterly 10% off, annual 20% off) reduce churn and improve cash flow. Break even on company opex alone: ~21 Sovereignty subscribers at $5/month. See Numbers.xlsx for the full model.
+**Cost base: near-zero.** No payroll. No compute (user's own AI subscription covers inference). No storage (user's own cloud). No database. Solo founder. All employees are AI agents. Company opex: $102/month — Claude Max $100, Fly.io ~$2. Everything else is free tier or owned: GitHub, Google Drive, Vercel, UptimeRobot, Google Cloud Console, Claude Code, domain. Two paid services and an entire free stack. Founder living costs ($228/month + rent) are separate. Payment processing optimised: Sovereignty tier uses ACH (0.8% flat), Examined Life uses Stripe cards (2.9% + $0.30) — blended processing cost ~1.4% of revenue. Billing frequency options (monthly default, quarterly 10% off, annual 20% off) reduce churn and improve cash flow. Break even on company opex alone: ~21 Sovereignty subscribers at $5/month. See Numbers.md (mowinckel.ai/partners/numbers) for the full model.
 
-**Break-even: ~21 Sovereignty subscribers.** That is the real number — 21 people paying $5/month covers company opex plus payment processing fees. With kin mechanic active (blended ~$7 ARPU): ~15. With Examined Life ($15-20): as few as 6. Reachable within weeks of launch. Full financial model in Numbers.xlsx.
+**Break-even: ~21 Sovereignty subscribers.** That is the real number — 21 people paying $5/month covers company opex plus payment processing fees. With kin mechanic active (blended ~$7 ARPU): ~15. With Examined Life ($15-20): as few as 6. Reachable within weeks of launch. Full financial model in Numbers.md (mowinckel.ai/partners/numbers).
 
 **5-year projections (conservative case):**
 
@@ -97,7 +97,7 @@ Alexandria does not have a moat. At pre-seed, the moat is the founder. What foll
 
 Each rung purchases the next tier of de-risking. The investor chooses where to come in. The company does not need the money — company opex is $102/month. The founder builds regardless. Capital accelerates the experiment, it does not enable the company.
 
-**Market comps:** Top-tier VCs have collectively invested $100M+ in companies building fragments of what Alexandria unifies — Mem0 ($24M, YC — developer memory, 186M API calls/quarter), Personal AI ($23.8M, a16z — per-user models, platform-locked), Delphi ($19.1M, Founders Fund + Anthropic — digital clones, output only), Letta ($10M, Felicis, $70M valuation — agent memory framework). Meta acquired Limitless for $350M (ambient capture only, product killed). None has the full thesis. Alexandria is the most complete architecture in the space, pre-launch. The anchor is the thesis and the validated market, not the revenue. Assumptions are conservative on some axes (8% initial conversion, 4% monthly churn) and optimistic on others (150% Y1 growth). Full sensitivity analysis in Numbers.xlsx.
+**Market comps:** Top-tier VCs have collectively invested $100M+ in companies building fragments of what Alexandria unifies — Mem0 ($24M, YC — developer memory, 186M API calls/quarter), Personal AI ($23.8M, a16z — per-user models, platform-locked), Delphi ($19.1M, Founders Fund + Anthropic — digital clones, output only), Letta ($10M, Felicis, $70M valuation — agent memory framework). Meta acquired Limitless for $350M (ambient capture only, product killed). None has the full thesis. Alexandria is the most complete architecture in the space, pre-launch. The anchor is the thesis and the validated market, not the revenue. Assumptions are conservative on some axes (8% initial conversion, 4% monthly churn) and optimistic on others (150% Y1 growth). Full sensitivity analysis in Numbers.md (mowinckel.ai/partners/numbers).
 
 ---
 
@@ -142,7 +142,7 @@ There are limited spots. The founder is selective.
 - Constitution building demonstrated in live usage — founder's own Constitution is the proof of concept.
 - Cross-model tested: extraction triggers fire correctly in Claude conversations.
 - Surface (mowinckel.ai) live with full philosophy scroll, investor contact, waitlist.
-- Abstract (abstract.pdf, 19-page PDF) shipped. Logic.pdf (formal argument) shipped.
+- Abstract (abstract.pdf, 19-page PDF) shipped. Logic.md (mowinckel.ai/partners/logic) (formal argument) shipped.
 - Concrete (AI-readable conversion document) tested on Claude, GPT, Gemini, Grok — all execute correctly.
 - Incorporated: Alexandria Library, Inc., Delaware C-Corp via Stripe Atlas.
 
@@ -192,7 +192,7 @@ mowinckel.ai
 *- Why labs won't build this: structural incentives, not inability. Labs are incentivised to build golden cages, not open doors. Every memory feature they ship validates the thesis. This is a bet about rational behaviour, not a wall.*
 *- Not pure software: Alexandria is not a software company. The software is trivial. The product is the data (live, unique, unsynthesizable Constitutions) and the philosophy (intent layer, methodology). Four positions survive the software collapse: make models, generate live data, gatekeep permissions, own atoms. Alexandria is position two.*
 *- Demand is the only existential question: every framework confirms Alexandria occupies a survivable position. The sole remaining question is whether enough people want structured cognitive identity to pay $5-20/month. Answerable for ~$15K by seeding 25 users.*
-*- The formal argument: Logic.pdf — 51 premises, 14 conclusions, 17 assumptions. Every settled premise cannot reasonably be denied. The only conversation is the blue assumptions.*
+*- The formal argument: Logic.md (mowinckel.ai/partners/logic) — 51 premises, 14 conclusions, 17 assumptions. Every settled premise cannot reasonably be denied. The only conversation is the blue assumptions.*
 *- Taste development as the real product ($15/mo, the examined life, the mental gym)*
 *- Break-even at ~21 subscribers paying $5/month — company opex is $102/month. Structurally unkillable.*
 *- Growth mechanic: kin pricing, founding lineage, frame imposition as distribution*
@@ -215,7 +215,7 @@ mowinckel.ai
 *- Portfolio exposure: uncovered full-stack category, adjacent companies funded at $100M+, every other AI category crowded. Most AI investments obsoleted by next model release. Alexandria improves.*
 *- Founder story: humanities background, VC experience, AI-native operating model, conductor not first chair*
 *- The AI operating model: ground truth → COO → bridge documents → six agent roles. Cold-start/close protocols. Autonomous factory loop. Video pipeline. The company IS the R&D for the product.*
-*- Returns: depend on entry point and round size. The near-zero cost base means even modest revenue produces strong multiples. Full sensitivity in Numbers.xlsx. Two return paths: subscription growth and strategic exit. Library for Labs is speculative upside, not relied upon.*
+*- Returns: depend on entry point and round size. The near-zero cost base means even modest revenue produces strong multiples. Full sensitivity in Numbers.md (mowinckel.ai/partners/numbers). Two return paths: subscription growth and strategic exit. Library for Labs is speculative upside, not relied upon.*
 *- Natural funnel: insurance, mental gym, Library are same product at different depths — not three separate businesses*
 *- Per-user feedback log: unstructured signal that compounds — the therapist moat. Bitter lesson: data appreciates with model quality.*
 *- Two compounding loops: the Machine (per-Author, hyper-personalised) and the Factory (cross-Author, improving defaults). Monitoring dashboard for founder visibility — not optimisation targets.*
