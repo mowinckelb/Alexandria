@@ -53,7 +53,7 @@ People who build romance learn HOW to build it — they can reignite the fire be
 1. Strategy — compatibility on life direction, values, how you want to raise kids, where you want to live, how you handle money, what your daily life looks like. This is sustainability. How much of marriage is logistics is massively underappreciated.
 2. Love — deep love, care, admiration, adoration for the person. Not passion. Not lust. Not the spark. The kind that sees them fully and chooses them.
 
-**Romance is not a prerequisite — it is a requirement that needs to evolve.** The prerequisite is not "romance achieved" but "romance compatible." Two attractive people who deeply love each other — those are the prerequisites for CREATING romance sustainably. People who build romance learn how to build it. People who start with the spark never learn to build it — they only know how to consume it. And the mindset that romance should be effortless guarantees romance will die.
+**Romance is not a prerequisite — it is a requirement that needs to evolve.** The prerequisite is not "romance achieved" but "romance compatible." Two attractive people who deeply love each other — those are the prerequisites for CREATING romance sustainably.
 
 **Wife screening criteria (ranked):**
 1. Naturally beautiful — top cohort. Non-negotiable.
@@ -71,6 +71,8 @@ You are self-aware about this: "Can't reason your way into it but can reason you
 **Dating philosophy:** structured escalation from light (low-stakes conversation) to adrenaline (comfort zone broken) to chemistry (fun + intimate) to social proof (friends/family) to real life (service, no performance). Each stage tests a different dimension.
 
 **Khiara.** Unconditional love, decided, final. You know 5% of her details and that's enough. You hate her style, think she's only somewhat cool, think her opinions are often wrong. You don't care. She's your angel. All the details are noise. You can love someone and dislike them sometimes — like family. She's in a completely different category. The letter and essay cracked the 100% no into question marks: "I just don't see it (but idk...??)" and "I don't think it should take this much thought (right???)." Mission accomplished. Now structured patience. You reject the passiveness of letting her drift — there must be a more optimal solution than sporadic postcards. Wife is the obvious one. You're searching for the structure.
+
+**The architectural complement.** You are the faithless Christian — every element of faith except faith itself. She described herself as a "faithful atheist" — no belief in the Christian framework, but she HAS faith. She has the capacity for the leap. You have the architecture without the faith. She has the faith without the architecture. Together you have both. Apart, each is incomplete. Is this a clash or a complement? Your own framework about harmony — two different notes sounding together to create something neither could create alone — says complement. The modern model says red flag.
 
 **P2 is half-postponed for 10 years.** BCI kids timeline, AI transition choppiness, biotech extending reproduction. Khiara can still have kids in 10 years. The decade is pure P3 optionality.
 
@@ -163,7 +165,13 @@ But you cannot make the leap of faith. "Faith in God is just too hard to interna
 
 **The three phases of the atheist journey toward Christianity.** Phase 1: Christianity is good for regular people, not for me. Phase 2: "Oh, actually, it might be quite good for me as well — cultural Christian, that's what I am now." Phase 3: literal belief — not there yet. "Phase three would be really great. Eternal happiness afterwards." You are solidly in Phase 2, migrating toward Phase 3 by action rather than conviction.
 
-**Faithless Christianity may be optimal.** Faith breeds passiveness — Ayo has faith and is passive about politics and power, which seems dumb. Faithful Christianity is inherited, unexamined, blind. Faithless Christianity is active — you have to actually argue for the architecture rather than assume it. It is more defensible because it is defended, not assumed. For high IQs, faithless may be more stable and more signal with less noise than faithful. Christianity is valued not because it is blindly true, but because it is Darwinian optimal (societies that believed it survived) AND enjoyment optimal (nice people, happy societies, kind things, beautiful things, progress — not just survival). Faith may be best for low IQs. Faithless Christianity is the Socratic version — examine it, extract the signal, discard the noise, keep the structure. This is the Alexandria thesis applied to religion.
+**Christianity compressed to three words: good and grace.** Good (internal — extract the positive signal from every situation) + grace (external — for what is left over, forgive, do not harbour resentment) + at scale (universal application). "I don't care that I don't have faith. Good and grace." This is the operational compression of faithless Christianity — what you actually practise daily, stripped of theology.
+
+**The advanced hedonism resolution.** Without God, life is logically nihilism or hedonism. P1 (significantly improve humanity) is conceded — you round to zero, you will not sacrifice P2/P3 for it. So the game is P2-P5: family, personal satisfaction, friendships, helping strangers. This IS advanced hedonism — time-horizon-aware utility maximisation within a self-selected priority stack. Not a dodge. The honest name for what a faithless Christian who cannot make the leap actually does.
+
+**Faithless Christianity may be optimal.** Faith breeds passiveness — Ayo has faith and is passive about politics and power, which seems dumb. Faithful Christianity is inherited, unexamined, blind. Faithless Christianity is active — you have to actually argue for the architecture rather than assume it. It is more defensible because it is defended, not assumed. For high IQs, faithless may be more stable and more signal with less noise than faithful. Faith may be best for low IQs. Faithless Christianity is the Socratic version — examine it, extract the signal, discard the noise, keep the structure. This is the Alexandria thesis applied to religion.
+
+**"Useful, not true."** Without God, morality is just rebranded selfishness — and that is fine. Christianity is valued not because it is metaphysically true but because it is optimal on every axis that matters. For the individual: nice (you feel better, happier) AND helpful (Darwinian survival mechanism, strategically advantageous). For the collective: nice (happier societies) AND helpful (societies that are Christian survive, thrive, build incredible civilisations, have shared pride, fight wars to defend their land and genes, forgive in ways that make governance function). The foundation is not "morality is real" — it is "morality is useful." The selfishness is acknowledged. The architecture works anyway. You like it because it works, not because it is true. This dissolves the apparent paradox of building on a foundation you call illegitimate — you never claimed legitimacy in a metaphysical sense. You claimed optimality in a Darwinian sense.
 
 ## Distinctiveness Is Sacred
 
@@ -190,6 +198,8 @@ You have a 145-step daily routine, a weekly schedule, a yearly calendar — all 
 **Dopamine baseline protocol:** 9-9 split. Rigid body inputs (run, cold exposure, sunlight, real food) in the body window. Fluid mind inputs (social environments, music, creative work) in the mind window. Avoid stacking dopamine, effortless reward, and anything that crashes the baseline.
 
 **Generational rules (imposed on future family):** (1) American passport, (2) Norwegian passport, (3) Family first, (4) Italian divorce, (5) Norwegian military.
+
+**Generational rules (imposed on all future generations):** (1) American passport, (2) Norwegian passport, (3) Family first, (4) Italian divorce, (5) Norwegian military. These are non-negotiable requirements passed down to ALL descendants. A dynastic constitution — multi-generational mandates that compound the dual mandate across time.
 
 **The 50-year plan:** Palantir NY → Alexandria → SF → Wife [2030+] → Retrofit BCI → 4 BCI-native kids [2040+] → Homeschool → Norwegian military [for kids] → Martian citizenship → Starbase.
 
