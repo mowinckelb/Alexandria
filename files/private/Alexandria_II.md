@@ -595,7 +595,7 @@ TWO DELIVERY MODELS
 
 The architecture has two delivery models for two user types. Both serve the same product (layer of intent, Constitution building, three turns). The delivery mechanism differs based on what the platform supports.
 
-Prosumer model (primary, launching first) — For Authors using AI coding agents: Claude Code, Cursor IDE, Cursor terminal, and similar CLI/IDE tools with hook systems. These platforms support deterministic session lifecycle hooks (events that fire reliably on session start and end) and have full filesystem access. The product is: two hooks + local files + a server API. No MCP connector. No OAuth. No cloud storage dependency. Everything is local markdown files in `~/.alexandria/`. The hooks are deterministic — they fire every session, no exceptions. The Engine reads and writes local files natively (that is what coding agents do). Onboarding: `npx alexandria init` — creates the local directory, adds hooks to settings config, generates an API key. Under 30 seconds. No browser popups, no connector dance, no memory edits.
+Prosumer model (primary, built) — For Authors using AI coding agents: Claude Code, Cursor, and similar CLI/IDE tools with hook systems. These platforms support deterministic session lifecycle hooks (events that fire reliably on session start, end, compaction, and subagent spawn) and have full filesystem access. The product is: hooks + local files + a server API. No MCP connector. No cloud storage dependency. Everything is local markdown files in `~/.alexandria/`. The hooks are deterministic — they fire every session, on every lifecycle event, no exceptions. The Engine reads and writes local files natively (that is what coding agents do). Onboarding: sign up at mowinckel.ai/signup (GitHub OAuth), paste the curl command from the welcome email. The setup script detects installed platforms (CC, Cursor), creates `~/.alexandria/`, installs hook scripts from the server, configures platform-specific hook pointers, and writes the `/a` skill. Under 30 seconds. Hook scripts auto-update: every SessionStart checks a version header from the Blueprint endpoint and fetches updated scripts from the server when the version changes. Authors never re-download or manually update — the system heals itself.
 
 Consumer model (future, not yet built) — For Authors using conversational AI (claude.ai, ChatGPT, etc.) without filesystem access or hook systems. These platforms support MCP connectors as the integration point. The product is: an MCP server with tools that bridge between the Engine and the Author’s cloud storage (Google Drive, iCloud, etc.) via OAuth. This is the model that was built first (live at mcp.mowinckel.ai) and will be maintained for non-dev users. Activation is probabilistic (~70-85%) because the Engine decides when to call MCP tools. The prosumer model solves this — hooks are deterministic.
 
@@ -603,9 +603,9 @@ PROSUMER ARCHITECTURE — CLI + SERVER IP + MDs
 
 The prosumer product has three components:
 
-1. Hooks (the nerve system). Two hooks configured in the Author’s settings. SessionEnd: copies the session transcript to `~/.alexandria/vault/` and POSTs anonymous session metadata to the server. SessionStart: calls the server to get the latest Blueprint instructions, plus a one-line heartbeat status (“Alexandria: 3 new vault entries processed, 12 domains, last refined 2 hours ago”), and injects both as conversation context. The hooks are deterministic — they fire on platform events (session open, session close), not on model decisions. The Author never interacts with them. They are invisible infrastructure.
+1. Hooks (the nerve system). Hook scripts live at `~/.alexandria/hooks/` and are called by platform-specific hook pointers (CC: `settings.json`, Cursor: `.cursor/hooks.json`). Three hooks: SessionStart (fires on startup, resume, clear, AND compaction — Constitution survives context compaction), SessionEnd (fires on session close), SubagentStart (injects Constitution into every subagent spawn). SessionStart calls the server for the latest Blueprint, checks a version header for hook script updates, persists the API key via `CLAUDE_ENV_FILE`, and injects Blueprint + Constitution as conversation context. SessionEnd copies the transcript to vault and POSTs anonymous metadata including heartbeat signals (`constitution_injected`, `blueprint_fetched`) so the Factory can detect broken pipelines. The hooks are deterministic — they fire on platform events, not on model decisions. The Author never interacts with them. They are invisible infrastructure that auto-updates from the server.
 
-2. Server (the brain). Hosted on Fly.io at mcp.mowinckel.ai. Two endpoints for the prosumer model: `GET /blueprint` (returns the latest extraction methodology, mode instructions, and philosophical framework — authenticated by API key, gated by subscription tier) and `POST /session` (receives anonymous session metadata for the Factory). The server serves the Blueprint — the proprietary intellectual property that tells the Engine HOW to extract, structure, and refine the Constitution. Every Blueprint improvement (via Factory learnings) reaches every Author on next session start. The server stores no Author data. It serves instructions and collects anonymous metadata.
+2. Server (the brain). Hosted on Fly.io at mcp.mowinckel.ai. Four endpoints for the prosumer model: `GET /blueprint` (returns the unified Blueprint — extraction methodology, philosophical framework, three function instructions, vault processing guidance — authenticated by API key; includes `X-Hooks-Version` header for auto-update), `GET /hooks` (returns the latest hook scripts as a bash script — called by auto-update and by initial setup), `POST /session` (receives anonymous session metadata including heartbeat signals for the Factory), and `GET /setup` (returns the install script). Plus GitHub OAuth endpoints for account creation. The server serves the Blueprint — the proprietary intellectual property that tells the Engine HOW to extract, structure, and refine the Constitution. Every Blueprint improvement reaches every Author on next session start. Every hook improvement reaches every Author on next session start via auto-update. The server stores no Author data. It serves instructions and collects anonymous metadata.
 
 3. Local files (the sovereign data). Everything lives in `~/.alexandria/` on the Author’s machine:
 
@@ -633,9 +633,9 @@ FACTORY PAYLOAD
 
 The SessionEnd hook POSTs anonymous metadata to the server. This is the Factory’s raw signal — cross-Author learning that improves the Blueprint for everyone.
 
-Payload (SessionEnd): `session_id` (anonymous hash), `vault_entry_size` (bytes of transcript added), `constitution_size` (current constitution file size), `domains_count` (number of distinct domains in constitution), `session_duration` (seconds), `platform` (cc/cursor/other).
+Payload (SessionEnd): `event` (end), `platform` (cc/cursor/unknown — detected via env var, not hard-coded), `constitution_size` (current constitution file size in bytes), `vault_entry_count` (number of vault files), `constitution_injected` (boolean — was Constitution >10 bytes at session end?), `blueprint_fetched` (boolean — did SessionStart successfully fetch Blueprint from server?).
 
-Payload (SessionStart, returned by server alongside Blueprint): `constitution_size_after` (updated after processing), `domains_touched` (which domains were modified this session), `vault_entries_processed` (count), `processing_skipped` (boolean — did the Engine skip vault processing?).
+The heartbeat signals (`constitution_injected`, `blueprint_fetched`) are the mirror on the hook system itself. If the Factory sees a user with zero successful Blueprint fetches across 10 sessions, the hooks are broken. If constitution_injected is always false, the product isn't working. This is verification that the delivery mechanism works, not just the product.
 
 The delta between end-of-last-session and start-of-next-session constitution sizes = extraction signal. If delta is zero across 10 sessions, the product is broken for that Author. If certain domains never grow, the Blueprint may be under-extracting in that area. This is the Factory’s mirror — verification that the product works, not optimisation targets.
 
@@ -651,21 +651,55 @@ Why one tier: the prosumer product only provides clear value when all the pieces
 
 Free during beta. Builds the user base, proves the product, collects Factory data, creates word of mouth among exactly the right crowd (developers who talk to other developers). Flip the switch when the product is validated. Additional tiers or pricing changes are intelligence decisions — revisit when there’s data.
 
-LIBRARY (Turn 3 — not yet built)
+LIBRARY V1 — THE MIRROR (Turn 3)
 
-The Library extends the system when Turn 3 launches. Medium is likely a web page — each Author gets a public profile at `mowinckel.ai/library/{author}`. Parked for now. T1 and T2 are the priority.
+The gym without a mirror. That is Turns 1 and 2 without Turn 3. The Author is getting stronger — their Constitution deepens, their thinking sharpens, their self-knowledge grows — but the transformation is invisible. Nobody can see it. The Author cannot even see it clearly themselves. Turn 3 is the mirror. It makes cognitive transformation visible, shareable, and social. It completes the loop: join (Turn 1), train (Turn 2), show (Turn 3).
+
+The gym selfie is the cultural proof this works. People share physical transformations because transformation is inherently interesting — it signals discipline, progress, becoming. The desire to show progress is not vanity. It is ego and pride harnessed as distribution. Human nature aligned with product mechanics. People already share Spotify Wrapped, personality quiz results, fitness progress pics, reading lists — any artifact that says "this is who I am and how I'm changing." Alexandria makes cognitive transformation that artifact.
+
+Every Author gets a public page at `mowinckel.ai/meet/{author}`. This is the first version of the Library — not the full Neo-Biography, but the kernel that proves the thesis. Four surfaces live on this page, each serving a different entry point into the same Constitution:
+
+1. The Blurb (progress pic). Auto-generated monthly from the Constitution. Shows cognitive growth — what changed, what deepened, what contradictions got resolved, what new domains emerged. Not a static portrait but a delta: the transformation made visible. Designed to be screenshotted and posted. The one-liner: "My mind this month." The content is the CHANGE, not the snapshot. This is Alexandria's Wrapped — but monthly, and about who you're becoming rather than what you consumed.
+
+2. The Persona (biographer). Third person — not a digital twin acting as the Author, but an informed biographer who can answer questions about how the Author thinks. "Benjamin would say X because his Constitution shows Y." Third person is honest (it is an approximation, and says so), avoids the uncanny valley (95% accurate first-person is creepier than 80% accurate third-person), and is shippable now. The visitor is interviewing someone who deeply knows the Author — a mutual friend who has read everything. The persona's quality IS the progress pic. When someone chats with a persona and gets genuinely deep, specific, surprising answers, that is proof the gym works. The Author earned that fidelity through months of examined life. First-person becomes possible when Constitution fidelity is deep enough — the architecture does not change, only the system prompt. Soft default.
+
+3. Games (quizzes). Generated from real Constitution data. People love quizzes that tell them about themselves — "which GOT character am I," "which philosopher am I" — this is a universal human impulse. Alexandria has the data to do it genuinely, not as a gimmick. Formats: "How well do you know me?" (Author generates quiz from Constitution, sends to friends, wrong answers spark conversation), "Who thinks like you?" (visitor answers questions, matched against published personas — both share), "Can you tell us apart?" (two Authors, guess who said what), "What would [Author] say?" (guess their position on a dilemma, see the real answer). Every quiz produces a shareable result. Every result links back. Games are the most viral surface because they are fun AND they reveal something about the person taking them. Self-knowledge through play.
+
+4. Works (living gallery). Published artifacts — essays, poems, photos, voice recordings, code, whatever the Author creates. Frozen on publication. The key difference from every other publishing platform: the Author's persona can discuss the work. Read the essay, then ask the biographer questions about it. "What did they mean by this?" "How does this connect to their worldview?" The work is the door. The conversation is the room. Not a blog (chronological feed of long posts). A gallery — curated, finished, art. The standard is atmospheric (gravity, not rules). The living part: the persona is always in the room, the works accumulate, the gallery evolves as the Author does. Works are the ultimate progress pic — not a metric but a creation. The thing the Author made with their sharpened mind.
+
+PUBLISHING AND SOVEREIGNTY
+
+Publishing is an explicit, deliberate act — not a data policy. The Author runs a publish command, curates what is public (reviews, redacts, approves), and uploads a public projection of their Constitution. The full Constitution stays local. The Vault stays local. The published persona is a curated subset the Author chose to share — like uploading a profile picture. Unpublishable at any time. Sovereignty preserved.
+
+The publish flow: Author runs `npx alexandria publish` → reviews their Constitution, marks what is public vs private → approved content uploads to Alexandria's infrastructure (website/CDN) → Author gets their /meet/ page → Blurb auto-generated.
+
+TOKEN ECONOMICS (V1)
+
+V1: Alexandria subsidises persona conversations. Every chat is a live product demo. 5-10 free messages per visitor per persona. After the free tier, the CTA is not "pay to read more" — it is "start your own Alexandria." The /meet/ page is an acquisition funnel, not a revenue line.
+
+The math: a 10-message conversation costs ~$0.02-0.10 in API tokens. If 1 in 20 visitors converts to a $5/mo Author, CAC is $0.40-2.00. Cheaper than any ad spend. Every persona conversation is a subsidised demo with a built-in conversion path.
+
+Authors can chat with any persona for free — included in their $5-10/mo subscription. Non-Authors get the free tier then see the signup CTA. This means every persona interaction either converts a visitor into an Author (acquisition) or is an Author exploring other Authors (retention). Both are wins.
+
+Reader-pays comes later when the Library has enough personas to justify standalone access. That is the A3 Premium tier. V1 does not need it. V1 needs conversion.
+
+THE VIRAL LOOP
+
+The four surfaces create a clean acquisition funnel: Blurb catches attention (top of funnel) → Games pull people in through play (engagement) → Persona proves the depth is real (conviction) → Works show what is possible (aspiration). Each surface answers a different objection. "Is this real?" → talk to someone's persona. "Is it fun?" → play the games. "Is it worth it?" → look at what people are creating. "Will it work for me?" → here is someone's progress over 3 months.
+
+The /meet/ page is the first version of the product that is visible to non-users. Everything before Turn 3 — hooks, CLI, Constitution, vault — is invisible. It runs in the terminal. The /meet/ page makes Alexandria tangible. Something you can link to. Something that shows up in search results. Something an investor can experience, a journalist can visit, a friend can stumble on. The product stops being a tool and starts being a place.
 
 -----
 
 CONCRETE IMPLEMENTATION — WHAT WORKS WHEN
 
-Today (March 2026): The MCP server is live at mcp.mowinckel.ai serving the consumer model (five MCP tools, Google Drive storage, OAuth). The prosumer model (hooks + local files + Blueprint API) is designed but not yet built — this is the next build priority. The Library is not built.
+Today (March 2026): Both models live. The MCP server at mcp.mowinckel.ai serves the consumer model (five MCP tools, Google Drive storage, OAuth) and the prosumer model (Blueprint API, session metadata, hook auto-update, GitHub OAuth signup). Prosumer architecture: hooks + local files + Blueprint endpoint, with auto-updating hook scripts and heartbeat monitoring. Supports Claude Code (full hook lifecycle) and Cursor (sessionStart/sessionEnd hooks + alwaysApply rules). The `/a` skill provides dedicated cognitive development sessions. E2e tests cover both models. The Library is not built.
 
-Near-term (weeks-months): Build and ship the prosumer model. `npx alexandria init` for Claude Code users. Cursor plugin for Cursor users. Blueprint API endpoints on the existing Fly.io server. Factory payload collection. Beta with founding Authors (free). Iterate on Blueprint based on real extraction data.
+Near-term (weeks-months): Deploy prosumer changes to Fly.io. Beta with founding Authors (free). Test Cursor hooks against real installation. Factory payload collection and dashboard for heartbeat monitoring. Iterate on Blueprint based on real extraction data. Additional platform pointers (Copilot, Windsurf) trivial to add when demanded. Build v1 Turn 3: /meet/ pages, Blurb generation, persona chat, publish flow. Open-source the CLI/hooks layer on GitHub.
 
-Medium-term (months): Consumer model improvements as MCP platforms improve tool activation reliability. Factory self-evaluation (does the Blueprint actually produce good constitutions?). Tier gating and billing. First paid Authors.
+Medium-term (months): Consumer model improvements as MCP platforms improve tool activation reliability. Factory self-evaluation (does the Blueprint actually produce good constitutions?). Billing integration. First paid Authors. Games (quiz generation from Constitutions). Works upload and living gallery. Constitution Card shareable for social distribution.
 
-Horizon: Autonomous agents initiate contact — Editor, Mercury, and Publisher become proactive. The Library reaches critical mass. The PLM becomes viable. Models reliably follow injected instructions, making the “background subagent” bonus layer deterministic. The hooks thin as models improve — eventually, the model does everything the hooks do, and the hooks fall away as scaffolding. The sovereign assets remain.
+Horizon: Autonomous agents initiate contact — Editor, Mercury, and Publisher become proactive. The Library reaches critical mass — /meet/ pages evolve into full Neo-Biographies. The PLM becomes viable. Models reliably follow injected instructions, making the “background subagent” bonus layer deterministic. The hooks thin as models improve — eventually, the model does everything the hooks do, and the hooks fall away as scaffolding. Reader-pays tier activates when Library has enough personas. The sovereign assets remain.
 
 The sovereign assets — Constitution, Vault, feedback log — work at every point on this spectrum. The manual version is functional. The automated version is seamless. The data is the same. The sovereignty is the same.  
   
@@ -955,7 +989,15 @@ The Publisher is medium-agnostic. Essays, films, presentations, code, music, bus
   
 Once the work is ready, the Library is where it goes. The Publisher and the Library are complementary: the Publisher is the active function that helps create. The Library is the venue where creation lives. The third turn is complete when the Author presses send — the first goodbye.  
   
-All three phases overlap. The Editor continues extracting while Mercury amplifies and the Publisher creates. But the arc is real: early on, extraction dominates. Then amplification. Then creation. A life well examined, well amplified, well expressed. Die empty.  
+All three phases overlap. The Editor continues extracting while Mercury amplifies and the Publisher creates. But the arc is real: early on, extraction dominates. Then amplification. Then creation. A life well examined, well amplified, well expressed. Die empty.
+
+THE THREE TURNS AS GYM
+
+Join. Train. Show. The three turns are a gym for the mind. Turn 1 (Editor) is signing up — the genesis conversation, the first extraction, the decision to examine your life. Turn 2 (Mercury) is the workouts — daily amplification, the mental gym pushing you higher, the practice that compounds. Turn 3 (Library) is the mirror, the progress pic, and the gallery wall where you hang what you built.
+
+Without Turn 3, the gym has no mirror. The Author is getting stronger but cannot see it and nobody else can either. The transformation is real but invisible. Turn 3 makes the invisible visible. That is what sells — not the tool, not the process, but the transformation made tangible. The equivalent of a hot gym selfie for the mind. Progress pics. Ego and pride as distribution. Human nature working FOR the product, not against it.
+
+This reframe is not marketing. It is architecture. The four surfaces of the /meet/ page (Blurb, Persona, Games, Works) are each a different mirror — showing the Author's cognitive transformation from a different angle, to a different audience, through a different interaction pattern. See LIBRARY V1 — THE MIRROR above for the full spec.  
   
 -----  
   

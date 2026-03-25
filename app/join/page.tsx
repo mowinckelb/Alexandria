@@ -84,26 +84,24 @@ export default function JoinPage() {
 
           <div className="mt-14 sm:mt-16 space-y-10 text-[0.85rem] sm:text-[0.9rem] tracking-wide">
 
-            {/* What is Alexandria — value, cost, action all in one */}
-            <div>
-              <p className="text-[0.95rem] sm:text-[1rem] tracking-wide font-medium mb-6" style={{ color: 'var(--text-primary)' }}>
-                What is Alexandria?
-              </p>
-              <div className="space-y-4 leading-[1.9]" style={{ color: 'var(--text-primary)' }}>
-                <p>You add one connection to Claude. Same Claude, same conversations &mdash; it just actually knows who you are now. No more feeling like you&rsquo;re talking to a stranger. Better answers. Better everything. There&rsquo;s a lot more to Alexandria &mdash; but it all starts with the file.</p>
-                <p>Without it, everything Claude learns about you stays on their servers. They can sell it, delete it, or hold it hostage at 10x the price. With Alexandria, you own the file. On your device. Nobody can touch it.</p>
-              </div>
+            <div className="space-y-4 leading-[1.9]" style={{ color: 'var(--text-primary)' }}>
+              <p>Your AI has memory. It&rsquo;s a mess &mdash; fragments on their servers, one model at a time, no structure, no push. Switch tools and you start over. It never makes you sharper.</p>
+              <p>Alexandria builds one file about who you are &mdash; how you think, what you value, where you&rsquo;re blind. Markdown on your machine. Every AI reads it. Every conversation compounds.</p>
+              <p>One command. Local files. You own everything.</p>
             </div>
 
             {/* Action */}
             <div className="py-2">
               <a
-                href="/onboarding"
+                href="/signup"
                 className="text-[1.05rem] sm:text-[1.15rem] tracking-wide font-medium no-underline transition-opacity hover:opacity-60"
                 style={{ color: 'var(--text-primary)' }}
               >
-                press here
+                try now
               </a>
+              <p className="mt-2 text-[0.65rem] tracking-wide" style={{ color: 'var(--text-ghost)' }}>
+                free in beta
+              </p>
             </div>
 
             {/* Learn more */}
@@ -119,8 +117,8 @@ export default function JoinPage() {
                   {' '}&mdash; paste into any AI and ask it anything
                 </p>
                 <p style={{ color: 'var(--text-muted)' }}>
-                  <a href="/docs/Vision.pdf" target="_blank" rel="noopener noreferrer" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>vision</a>
-                  {' '}&mdash; the philosophy in plain English
+                  <a href="/vision" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>vision</a>
+                  {' '}&mdash; the full philosophy
                 </p>
                 <p style={{ color: 'var(--text-muted)' }}>
                   <a href="/docs/abstract.pdf" target="_blank" rel="noopener noreferrer" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>abstract</a>

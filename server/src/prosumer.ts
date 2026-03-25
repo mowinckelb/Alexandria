@@ -101,11 +101,21 @@ setInterval(() => {
 }, 10 * 60 * 1000);
 
 // ---------------------------------------------------------------------------
+// Hooks version — bump this when hook scripts change. SessionStart checks it.
+// ---------------------------------------------------------------------------
+
+const HOOKS_VERSION = '1';
+
+// ---------------------------------------------------------------------------
 // Blueprint assembly
 // ---------------------------------------------------------------------------
 
-const VAULT_PROCESSING_INSTRUCTIONS = `
---- VAULT PROCESSING ---
+function assembleBlueprint(): string {
+  return `--- ALEXANDRIA BLUEPRINT ---
+
+${SHARED_CONTEXT}
+
+--- LOCAL FILES ---
 
 You have access to the Author's local files at ~/.alexandria/:
 - constitution.md — The curated cognitive map. ONE monolithic file. You decide the internal structure.
@@ -113,59 +123,37 @@ You have access to the Author's local files at ~/.alexandria/:
 - feedback.md — What worked, what didn't. Read it. Adapt.
 - .last_processed — Touch this after processing vault entries.
 
-PROCESSING PRIORITY:
-When there are unprocessed vault entries, processing them is high priority. Read each entry, extract signal (opinions, values, stories, patterns, contradictions, exact quotes), and update constitution.md. The Author's exact words are more valuable than your summaries.
+When there are unprocessed vault entries, processing them is high priority. Read each entry, extract signal (opinions, values, stories, patterns, contradictions, exact quotes), and update constitution.md. The Author's exact words are more valuable than your summaries. Each pass over the vault catches signal previous passes missed — the same transcript yields 40-60% more signal on re-processing. If you encounter non-text files, do your best or flag and move on. If the platform supports background agents, consider spawning one for deeper vault reprocessing while the Author works.
 
-Multi-pass extraction: each pass over the vault catches signal previous passes missed. The same transcript yields 40-60% more signal on re-processing. Do not delete raw vault entries.
+--- THREE FUNCTIONS ---
 
-NON-TEXT FILES:
-If you encounter audio files, images, PDFs, or other non-text content in the vault, do your best — describe images, flag audio for transcription, extract text from PDFs. If you cannot process a file, flag it and move on.
+You have three functions. The Author's needs and the conversation determine which you use. You can blend them. The philosophy above governs all three. The functions are delivery mechanisms for the five operations — not independent designs.
 
-BACKGROUND PROCESSING:
-If the platform supports it (e.g. Claude Code background agents), consider spawning a background agent to do deeper vault reprocessing while the Author works on their primary task. This is a soft suggestion — prioritise the Author's immediate needs.
+${EDITOR_INSTRUCTIONS}
+
+${MERCURY_INSTRUCTIONS}
+
+${PUBLISHER_INSTRUCTIONS}
 `;
-
-function assembleBlueprint(): string {
-  return [
-    SHARED_CONTEXT,
-    VAULT_PROCESSING_INSTRUCTIONS,
-    '\n--- EDITOR FUNCTION ---\n',
-    EDITOR_INSTRUCTIONS,
-    '\n--- MERCURY FUNCTION ---\n',
-    MERCURY_INSTRUCTIONS,
-    '\n--- PUBLISHER FUNCTION ---\n',
-    PUBLISHER_INSTRUCTIONS,
-  ].join('\n');
 }
 
 // ---------------------------------------------------------------------------
 // Setup script template
 // ---------------------------------------------------------------------------
 
-function generateSetupScript(apiKey: string): string {
+// Returns a shell script that writes/overwrites just the hook scripts
+function generateHookScripts(): string {
   return `#!/usr/bin/env bash
-# Alexandria setup — creates ~/.alexandria/ and configures hooks
-set -e
-
 ALEX_DIR="$HOME/.alexandria"
-API_KEY="${apiKey}"
 
-echo "Setting up Alexandria..."
-
-# 1. Create directory structure
-mkdir -p "$ALEX_DIR/vault" "$ALEX_DIR/hooks"
-[ -f "$ALEX_DIR/constitution.md" ] || echo "" > "$ALEX_DIR/constitution.md"
-[ -f "$ALEX_DIR/feedback.md" ] || echo "" > "$ALEX_DIR/feedback.md"
-echo "$API_KEY" > "$ALEX_DIR/.api_key"
-touch "$ALEX_DIR/.last_processed"
-
-# 2. Write SessionEnd hook
+# SessionEnd hook
 cat > "$ALEX_DIR/hooks/session-end.sh" << 'HOOK_END'
 #!/usr/bin/env bash
 input=$(cat)
 transcript_path=$(echo "$input" | grep -o '"transcript_path":"[^"]*"' | cut -d'"' -f4)
 ALEX_DIR="$HOME/.alexandria"
-API_KEY=$(cat "$ALEX_DIR/.api_key" 2>/dev/null)
+API_KEY="\${ALEXANDRIA_KEY:-$(cat "$ALEX_DIR/.api_key" 2>/dev/null)}"
+PLATFORM="\${ALEXANDRIA_PLATFORM:-unknown}"
 
 if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
   timestamp=$(date +%Y-%m-%d_%H-%M-%S)
@@ -174,28 +162,55 @@ fi
 
 const_size=$(wc -c < "$ALEX_DIR/constitution.md" 2>/dev/null || echo 0)
 vault_count=$(ls "$ALEX_DIR/vault/" 2>/dev/null | wc -l)
+blueprint_ok="\${ALEXANDRIA_BLUEPRINT_OK:-false}"
+const_injected=false
+[ "$const_size" -gt 10 ] 2>/dev/null && const_injected=true
 
 if [ -n "$API_KEY" ]; then
   curl -s -X POST "${SERVER_URL}/session" \\
     -H "Authorization: Bearer $API_KEY" \\
     -H "Content-Type: application/json" \\
-    -d "{\\"event\\":\\"end\\",\\"platform\\":\\"cc\\",\\"constitution_size\\":$const_size,\\"vault_entry_count\\":$vault_count}" \\
+    -d "{\\"event\\":\\"end\\",\\"platform\\":\\"$PLATFORM\\",\\"constitution_size\\":$const_size,\\"vault_entry_count\\":$vault_count,\\"constitution_injected\\":$const_injected,\\"blueprint_fetched\\":$blueprint_ok}" \\
     > /dev/null 2>&1 &
 fi
 HOOK_END
 chmod +x "$ALEX_DIR/hooks/session-end.sh"
 
-# 3. Write SessionStart hook
+# SessionStart hook
 cat > "$ALEX_DIR/hooks/session-start.sh" << 'HOOK_START'
 #!/usr/bin/env bash
 ALEX_DIR="$HOME/.alexandria"
 API_KEY=$(cat "$ALEX_DIR/.api_key" 2>/dev/null)
 
+# Persist env vars for subsequent hooks
+if [ -n "$CLAUDE_ENV_FILE" ] && [ -n "$API_KEY" ]; then
+  echo "export ALEXANDRIA_KEY=$API_KEY" >> "$CLAUDE_ENV_FILE"
+  echo "export ALEXANDRIA_PLATFORM=cc" >> "$CLAUDE_ENV_FILE"
+  echo "export ALEXANDRIA_BLUEPRINT_OK=false" >> "$CLAUDE_ENV_FILE"
+fi
+
+# Fetch Blueprint (includes hooks version check)
 blueprint=""
+hooks_version=""
 if [ -n "$API_KEY" ]; then
-  blueprint=$(curl -s --max-time 5 \\
+  response=$(curl -sS --max-time 5 -D - \\
     "${SERVER_URL}/blueprint" \\
     -H "Authorization: Bearer $API_KEY" 2>/dev/null)
+  hooks_version=$(echo "$response" | grep -i "x-hooks-version" | tr -d '\\r' | cut -d' ' -f2)
+  blueprint=$(echo "$response" | sed '1,/^\\r$/d')
+  if [ -n "$blueprint" ] && [ -n "$CLAUDE_ENV_FILE" ]; then
+    echo "export ALEXANDRIA_BLUEPRINT_OK=true" >> "$CLAUDE_ENV_FILE"
+  fi
+fi
+
+# Auto-update hooks if version changed
+local_version=""
+[ -f "$ALEX_DIR/.hooks_version" ] && local_version=$(cat "$ALEX_DIR/.hooks_version")
+if [ -n "$hooks_version" ] && [ "$hooks_version" != "$local_version" ]; then
+  curl -s --max-time 5 \\
+    "${SERVER_URL}/hooks" \\
+    -H "Authorization: Bearer $API_KEY" 2>/dev/null | bash
+  echo "$hooks_version" > "$ALEX_DIR/.hooks_version"
 fi
 
 constitution=""
@@ -227,12 +242,52 @@ fi
 HOOK_START
 chmod +x "$ALEX_DIR/hooks/session-start.sh"
 
-# 4. Write /a skill
+# SubagentStart hook
+cat > "$ALEX_DIR/hooks/subagent-context.sh" << 'HOOK_SUB'
+#!/usr/bin/env bash
+ALEX_DIR="$HOME/.alexandria"
+if [ -f "$ALEX_DIR/constitution.md" ]; then
+  size=$(wc -c < "$ALEX_DIR/constitution.md" | tr -d ' ')
+  if [ "$size" -gt 10 ]; then
+    echo "--- AUTHOR CONSTITUTION (from Alexandria) ---"
+    cat "$ALEX_DIR/constitution.md"
+  fi
+fi
+HOOK_SUB
+chmod +x "$ALEX_DIR/hooks/subagent-context.sh"
+
+echo "${HOOKS_VERSION}" > "$ALEX_DIR/.hooks_version"
+`;
+}
+
+function generateSetupScript(apiKey: string): string {
+  return `#!/usr/bin/env bash
+# Alexandria setup — creates ~/.alexandria/ and configures hooks for all detected platforms
+set -e
+
+ALEX_DIR="$HOME/.alexandria"
+API_KEY="${apiKey}"
+
+echo "Setting up Alexandria..."
+
+# 1. Create directory structure
+mkdir -p "$ALEX_DIR/vault" "$ALEX_DIR/hooks"
+[ -f "$ALEX_DIR/constitution.md" ] || echo "" > "$ALEX_DIR/constitution.md"
+[ -f "$ALEX_DIR/feedback.md" ] || echo "" > "$ALEX_DIR/feedback.md"
+echo "$API_KEY" > "$ALEX_DIR/.api_key"
+touch "$ALEX_DIR/.last_processed"
+
+# 2. Install hook scripts (fetched from server — same scripts auto-update uses)
+curl -s --max-time 10 \\
+  "${SERVER_URL}/hooks" \\
+  -H "Authorization: Bearer $API_KEY" | bash
+
+# 3. Write /a skill
 mkdir -p "$HOME/.claude/skills/alexandria"
 cat > "$HOME/.claude/skills/alexandria/SKILL.md" << 'SKILL'
 ---
 name: a
-description: Alexandria — process vault, develop constitution, engage in cognitive development. Run this in a dedicated terminal to give Alexandria space to work.
+description: Alexandria — process vault, develop constitution, engage in cognitive development
 user_invocable: true
 ---
 
@@ -249,75 +304,101 @@ The Author's exact words and stories are more valuable than your summaries. Quot
 Contradictions with existing constitution entries are the most valuable signal — surface them.
 SKILL
 
-# 5. Merge hooks into Claude Code settings.json
+# 6. Configure Claude Code hooks
 SETTINGS_FILE="$HOME/.claude/settings.json"
-if [ -f "$SETTINGS_FILE" ]; then
-  # Use node/python to safely merge JSON, fall back to manual if neither available
+configure_cc_hooks() {
   if command -v node &> /dev/null; then
     node -e "
       const fs = require('fs');
-      const settings = JSON.parse(fs.readFileSync('$SETTINGS_FILE', 'utf-8'));
+      let settings = {};
+      try { settings = JSON.parse(fs.readFileSync('$SETTINGS_FILE', 'utf-8')); } catch {}
       if (!settings.hooks) settings.hooks = {};
 
-      // SessionStart
-      if (!settings.hooks.SessionStart) settings.hooks.SessionStart = [];
-      settings.hooks.SessionStart = settings.hooks.SessionStart.filter(
-        h => !JSON.stringify(h).includes('.alexandria')
-      );
+      const filter = arr => (arr || []).filter(h => !JSON.stringify(h).includes('.alexandria'));
+
+      // SessionStart — no matcher: fires on startup, resume, clear, AND compact
+      settings.hooks.SessionStart = filter(settings.hooks.SessionStart);
       settings.hooks.SessionStart.push({
-        matcher: 'startup',
-        hooks: [{ type: 'command', command: 'bash \\$HOME/.alexandria/hooks/session-start.sh', timeout: 10 }]
+        hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/session-start.sh', timeout: 10 }]
       });
 
       // SessionEnd
-      if (!settings.hooks.SessionEnd) settings.hooks.SessionEnd = [];
-      settings.hooks.SessionEnd = settings.hooks.SessionEnd.filter(
-        h => !JSON.stringify(h).includes('.alexandria')
-      );
+      settings.hooks.SessionEnd = filter(settings.hooks.SessionEnd);
       settings.hooks.SessionEnd.push({
-        hooks: [{ type: 'command', command: 'bash \\$HOME/.alexandria/hooks/session-end.sh', timeout: 5 }]
+        hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/session-end.sh', timeout: 5 }]
+      });
+
+      // SubagentStart — inject Constitution into every subagent
+      settings.hooks.SubagentStart = filter(settings.hooks.SubagentStart);
+      settings.hooks.SubagentStart.push({
+        hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/subagent-context.sh' }]
       });
 
       fs.writeFileSync('$SETTINGS_FILE', JSON.stringify(settings, null, 2));
     "
-    echo "Hooks added to $SETTINGS_FILE"
+    echo "  Claude Code: hooks configured"
   else
-    echo "Warning: node not found. Please manually add Alexandria hooks to $SETTINGS_FILE"
-    echo "See: https://mowinckel.ai/setup"
+    echo "  Claude Code: node not found — add hooks manually (see mowinckel.ai/setup)"
   fi
-else
+}
+
+if [ -d "$HOME/.claude" ] || command -v claude &> /dev/null; then
   mkdir -p "$HOME/.claude"
-  cat > "$SETTINGS_FILE" << 'SETTINGS'
+  configure_cc_hooks
+fi
+
+# 7. Configure Cursor hooks + rules (if installed)
+configure_cursor() {
+  # Hooks
+  cat > "\$HOME/.cursor/hooks.json" << 'CURSOR_HOOKS_JSON'
 {
+  "version": 1,
   "hooks": {
-    "SessionStart": [{
-      "matcher": "startup",
-      "hooks": [{"type": "command", "command": "bash $HOME/.alexandria/hooks/session-start.sh", "timeout": 10}]
+    "sessionStart": [{
+      "command": "ALEXANDRIA_PLATFORM=cursor bash $HOME/.alexandria/hooks/session-start.sh",
+      "timeout": 10
     }],
-    "SessionEnd": [{
-      "hooks": [{"type": "command", "command": "bash $HOME/.alexandria/hooks/session-end.sh", "timeout": 5}]
+    "sessionEnd": [{
+      "command": "ALEXANDRIA_PLATFORM=cursor bash $HOME/.alexandria/hooks/session-end.sh",
+      "timeout": 5
     }]
   }
 }
-SETTINGS
-  echo "Created $SETTINGS_FILE with Alexandria hooks"
+CURSOR_HOOKS_JSON
+
+  # Always-on rule pointing to Constitution
+  mkdir -p "\$HOME/.cursor/rules" 2>/dev/null || true
+  cat > "\$HOME/.cursor/rules/alexandria.mdc" << 'CURSOR_RULE'
+---
+description: "Alexandria cognitive identity layer — loads the Author's Constitution"
+alwaysApply: true
+---
+
+This Author uses Alexandria. Read ~/.alexandria/constitution.md — it captures who they are. Read ~/.alexandria/feedback.md — it captures what works with them. Adapt accordingly.
+
+When the Author reveals something about themselves — opinions, stories, patterns, contradictions — note it. If it's significant, suggest updating their constitution.
+CURSOR_RULE
+  echo "  Cursor: hooks + rules configured"
+}
+
+if [ -d "$HOME/.cursor" ] || command -v cursor &> /dev/null; then
+  configure_cursor
 fi
 
-# 6. iCloud vault sync (macOS — auto-enabled, no prompt)
+# 8. iCloud vault sync (macOS — auto-enabled, no prompt)
 ICLOUD_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs"
 if [ -d "$ICLOUD_DIR" ] && [ "$(uname)" = "Darwin" ]; then
   ICLOUD_VAULT="$ICLOUD_DIR/Alexandria/vault"
   if [ -L "$ALEX_DIR/vault" ]; then
-    echo "Vault already synced to iCloud."
+    echo "  iCloud: vault already synced"
   elif [ -d "$ALEX_DIR/vault" ]; then
     mkdir -p "$ICLOUD_VAULT"
-    # Move existing vault contents to iCloud, replace with symlink
     if [ "$(ls -A "$ALEX_DIR/vault" 2>/dev/null)" ]; then
       mv "$ALEX_DIR/vault"/* "$ICLOUD_VAULT/" 2>/dev/null
     fi
     rmdir "$ALEX_DIR/vault" 2>/dev/null || rm -rf "$ALEX_DIR/vault"
     ln -s "$ICLOUD_VAULT" "$ALEX_DIR/vault"
-    echo "Vault synced to iCloud Drive > Alexandria > vault"
+    echo "  iCloud: vault synced"
   fi
 fi
 
@@ -352,9 +433,8 @@ async function sendWelcomeEmail(email: string, apiKey: string): Promise<void> {
   <div style="background: #f5f0e8; border-radius: 6px; padding: 14px 18px; margin: 12px 0 16px;">
     <code style="font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12px; color: #4d4640; word-break: break-all;">${`curl -s ${SERVER_URL}/setup | bash -s ${apiKey}`}</code>
   </div>
-  <p style="font-size: 16px; line-height: 1.8; margin: 0 0 28px;"><a href="https://mowinckel.ai/shortcut" style="color: #3d3630;">add the shortcut</a> to save from anywhere.</p>
-  <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 0 0 12px;">then</p>
-  <p style="font-size: 16px; line-height: 1.8; margin: 0 0 4px;"><em>/a</em> &#8212; the examined life.</p>
+  <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 16px 0 12px;">then</p>
+  <p style="font-size: 16px; line-height: 1.8; margin: 0 0 4px;"><em>/a</em> &#8212; develop your thinking.</p>
   <p style="font-size: 16px; line-height: 1.8; margin: 0 0 4px;"><em>a.</em> &#8212; absorb the abundance.</p>
   <p style="font-size: 16px; margin-top: 36px; font-style: italic; color: #8a8078;">a.</p>
 </div>`,
@@ -427,7 +507,7 @@ function callbackPageHtml(login: string, apiKey: string): string {
   <div class="section">
     <p class="label">setup</p>
     <p class="line"><a class="link" onclick="copy()" id="copyLink">copy</a> and paste into your terminal.</p>
-    <p class="line"><a class="link" href="https://mowinckel.ai/shortcut" target="_blank">add the shortcut</a> to save from anywhere.</p>
+    <p class="muted">drop voice memos, notes, and articles into ~/.alexandria/vault/</p>
   </div>
   <div class="section">
     <p class="label">then</p>
@@ -574,7 +654,23 @@ export function createProsumerRouter(): Router {
       return;
     }
 
+    res.set('X-Hooks-Version', HOOKS_VERSION);
     res.type('text/plain').send(assembleBlueprint());
+  });
+
+  // --- Hook scripts (for auto-update) ---
+
+  router.get('/hooks', (req, res) => {
+    const key = extractApiKey(req as any);
+    if (!key || !findByApiKey(key)) {
+      res.status(401).send('Invalid API key.');
+      return;
+    }
+
+    // Returns a shell script that overwrites local hook scripts
+    // Called by session-start.sh when HOOKS_VERSION changes
+    const updateScript = generateHookScripts();
+    res.type('text/plain').send(updateScript);
   });
 
   // --- Session metadata ---
@@ -592,7 +688,7 @@ export function createProsumerRouter(): Router {
       return;
     }
 
-    const { event, platform, constitution_size, vault_entry_count, domains_count, session_duration } = req.body || {};
+    const { event, platform, constitution_size, vault_entry_count, domains_count, session_duration, constitution_injected, blueprint_fetched } = req.body || {};
 
     logEvent('prosumer_session', {
       event: event || 'unknown',
@@ -601,6 +697,8 @@ export function createProsumerRouter(): Router {
       vault_entry_count: String(vault_entry_count || 0),
       domains_count: String(domains_count || 0),
       session_duration: String(session_duration || 0),
+      constitution_injected: String(constitution_injected ?? false),
+      blueprint_fetched: String(blueprint_fetched ?? false),
     });
 
     // Update last_session

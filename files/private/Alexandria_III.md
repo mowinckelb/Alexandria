@@ -12,10 +12,34 @@
   
 THE LIBRARY  
   
-Every Author’s Persona is in the Library. This is mandatory — it is a core Principle. Privacy settings control what external queriers can access, but presence in the Library is not optional. The Library is what makes Alexandria a collective project, not just individual tool usage.  
-  
+Every Author’s Persona is in the Library. This is mandatory — it is a core Principle. Privacy settings control what external queriers can access, but presence in the Library is not optional. The Library is what makes Alexandria a collective project, not just individual tool usage.
+
+V1 LIBRARY — JOIN, TRAIN, SHOW
+
+The three turns are a gym for the mind. Turn 1 is joining — the genesis conversation, the first extraction, the decision to examine your life. Turn 2 is the training — daily amplification, the mental gym pushing you higher, the practice that compounds. Turn 3 is the mirror — the progress pic, the gallery, the moment the invisible transformation becomes visible.
+
+Without Turn 3, the gym has no mirror. The Author gets stronger but cannot see it and nobody else can either. Turn 3 makes cognitive transformation visible, shareable, and social. This is not marketing — this is architecture. The desire to show progress is ego and pride harnessed as distribution. Human nature aligned with product mechanics. People already share Spotify Wrapped, fitness progress pics, personality quiz results, reading lists — any artifact that says “this is who I am and how I’m changing.” Alexandria makes cognitive transformation that artifact.
+
+V1 of the Library is one page per Author at `mowinckel.ai/meet/{author}`. Not the full Neo-Biography — the kernel that proves the thesis. Four surfaces, each a different mirror:
+
+**Blurb** — The progress pic. Auto-generated monthly from the Constitution. Shows cognitive growth: what changed, what deepened, what contradictions got resolved, what new domains emerged. Not a static portrait but a delta — the transformation made visible. Designed to be screenshotted and posted. “My mind this month.” The content is the change, not the snapshot. This is Alexandria’s Wrapped — monthly, about who you are becoming rather than what you consumed. The Blurb is the top-of-funnel artifact. It catches attention because transformation is inherently interesting.
+
+**Persona** — The biographer. Third person — not a digital twin acting as the Author, but an informed biographer who can answer questions about how the Author thinks. “Benjamin would say X because his Constitution shows Y.” Third person is honest (it is an approximation, and says so), avoids the uncanny valley, and is shippable now. The visitor is interviewing someone who deeply knows the Author — a mutual friend who has read everything. The persona’s quality IS the progress pic: when someone chats with a persona and gets genuinely deep, specific, surprising answers, that is proof the gym works. The Author earned that fidelity through months of examined life. First-person becomes possible as Constitution fidelity deepens — the architecture does not change, only the system prompt. Soft default. The Persona is the conviction layer — it proves the depth is real.
+
+**Games** — Quizzes generated from real Constitution data. People love quizzes that tell them about themselves — “which GOT character am I,” “which philosopher am I” — this is universal. Alexandria has the data to do it genuinely, not as a gimmick. Formats: “How well do you know me?” (Author sends quiz to friends, wrong answers spark conversation — the most viral format because it is social), “Who thinks like you?” (visitor matched against published personas — both share the result), “Can you tell us apart?” (two Authors opt in, visitors guess who said what), “What would [Author] say?” (guess their position, see the real answer from the Constitution). Every quiz produces a shareable result. Every result links back. Self-knowledge through play. Games are the engagement layer — they pull people in because they are fun.
+
+**Works** — The living gallery. Published artifacts in any medium — essays, poems, photos, voice recordings, code, whatever the Author creates. Frozen on publication. The differentiator: the Author’s persona can discuss the work. Read the essay, then ask the biographer about it. “What did they mean by this?” “How does this connect to their worldview?” The work is the door. The conversation is the room. Not a blog — a gallery. Curated, finished, art. The standard is atmospheric (gravity, not rules). The living part: the persona is always in the room, the works accumulate, the gallery evolves as the Author does. Works are the aspiration layer — they show what is possible with a sharpened mind.
+
+The four surfaces create a clean acquisition funnel. Blurb catches attention → Games pull people in → Persona proves depth → Works show what is possible. Each answers a different objection. Each feeds the same conversion: “start your own Alexandria.”
+
+V1 token economics: Alexandria subsidises persona conversations. 5–10 free messages per visitor per persona. After the free tier, the CTA is “start your own” — not “pay to read more.” Authors chat with any persona for free (part of their subscription). The /meet/ page is an acquisition funnel, not a revenue line. Reader-pays activates later when the Library has enough personas. See A2 LIBRARY V1 — THE MIRROR for full token economics and viral loop spec.
+
+The /meet/ page is the first version of the product visible to non-users. Everything before Turn 3 runs invisibly in the terminal. The /meet/ page makes Alexandria tangible — something you can link to, something that exists in the world. The product stops being a tool and starts being a place.
+
+The v1 surfaces evolve into the full Neo-Biography as the Library matures. The Blurb becomes the living canvas. The Persona grows from third-person biographer toward first-person digital twin (as Constitution fidelity allows). Games deepen as more Authors publish (richer matching, more comparisons). Works accumulate into the gallery described below. The architecture does not change — the surfaces gain resolution.
+
 NEO-BIOGRAPHY  
-  
+
 Make something wonderful. — Steve Jobs  
 Create, consume, cavort, commune. — Naval Ravikant  
   
