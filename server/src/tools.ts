@@ -179,7 +179,7 @@ export function registerTools(server: McpServer) {
         .describe('vault = liberal capture (default). constitution = curated append. replace = full domain replacement (archives old version to vault first).'),
     },
 
-    async ({ domain, content, signal_strength, target }, { authInfo }) => {
+    async ({ domain, content, signal_strength, target }: any, { authInfo }: any) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
 
@@ -227,7 +227,7 @@ export function registerTools(server: McpServer) {
         .describe('constitution = curated cognitive map (default). vault = raw captures and archived versions.'),
     },
 
-    async ({ domain, source }, { authInfo }) => {
+    async ({ domain, source }: any, { authInfo }: any) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
       logEvent('constitution_read', { domain, source });
@@ -361,7 +361,7 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
         .describe('Which function to activate. Use "alexandria" (default) for full activation — the model decides what approach fits. Or "editor"/"mercury"/"publisher" for specific functions. "normal" to exit.'),
     },
 
-    async ({ mode }, { authInfo }) => {
+    async ({ mode }: any, { authInfo }: any) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
       logEvent('mode', { mode });
@@ -468,7 +468,7 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
         .describe('The full notepad content (replaces existing).'),
     },
 
-    async ({ function_name, content }, { authInfo }) => {
+    async ({ function_name, content }: any, { authInfo }: any) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
 
@@ -504,7 +504,7 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
         .describe('What happened — specific enough that a future session can learn from this.'),
     },
 
-    async ({ feedback_type, content }, { authInfo }) => {
+    async ({ feedback_type, content }: any, { authInfo }: any) => {
       const token = authInfo?.token;
       if (!token) return { content: [{ type: 'text' as const, text: 'Not authenticated. Please reconnect Alexandria.' }] };
 

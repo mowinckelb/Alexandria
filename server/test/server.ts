@@ -21,6 +21,24 @@ interface TestResult {
 
 const results: TestResult[] = [];
 
+/** Parse SSE response into JSON-RPC messages */
+async function parseSseOrJson(res: Response): Promise<any> {
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return res.json();
+  }
+  // SSE: parse "event: message\ndata: {...}\n\n" blocks
+  const text = await res.text();
+  const messages: any[] = [];
+  for (const block of text.split('\n\n')) {
+    const dataLine = block.split('\n').find(l => l.startsWith('data: '));
+    if (dataLine) {
+      try { messages.push(JSON.parse(dataLine.slice(6))); } catch {}
+    }
+  }
+  return messages.length === 1 ? messages[0] : messages;
+}
+
 async function test(name: string, fn: () => Promise<TestResult>) {
   process.stdout.write(`${name}... `);
   try {
@@ -66,7 +84,10 @@ async function main() {
   await test('MCP initialize', async () => {
     const res = await fetch(`${BASE}/mcp`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json, text/event-stream',
+      },
       body: JSON.stringify({
         jsonrpc: '2.0',
         id: 1,
@@ -78,7 +99,7 @@ async function main() {
         },
       }),
     });
-    const body = await res.json();
+    const body = await parseSseOrJson(res);
     const hasServerInfo = body.result?.serverInfo?.name === 'Alexandria';
     return {
       test: 'MCP initialize',
@@ -93,7 +114,10 @@ async function main() {
     // Since server is stateless with no session, we send tools/list directly
     const res = await fetch(`${BASE}/mcp`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json, text/event-stream',
+      },
       body: JSON.stringify({
         jsonrpc: '2.0',
         id: 2,
@@ -101,7 +125,7 @@ async function main() {
         params: {},
       }),
     });
-    const body = await res.json();
+    const body = await parseSseOrJson(res);
     const toolNames = (body.result?.tools || []).map((t: { name: string }) => t.name).sort();
     const expected = ['activate_mode', 'log_feedback', 'read_constitution', 'update_constitution', 'update_notepad'];
     const allPresent = expected.every(n => toolNames.includes(n));
@@ -138,7 +162,10 @@ async function main() {
   await test('Tool descriptions are substantial', async () => {
     const res = await fetch(`${BASE}/mcp`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json, text/event-stream',
+      },
       body: JSON.stringify({
         jsonrpc: '2.0',
         id: 3,
@@ -146,7 +173,7 @@ async function main() {
         params: {},
       }),
     });
-    const body = await res.json();
+    const body = await parseSseOrJson(res);
     const tools = body.result?.tools || [];
     const short = tools.filter((t: { description?: string }) => !t.description || t.description.length < 100);
     return {

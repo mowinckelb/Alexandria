@@ -4,7 +4,7 @@ This file compounds across daily Factory runs. Each run reads the prior learning
 
 ---
 
-## 2026-03-24 — Factory Run 3 (autonomous daily loop)
+## 2026-03-24 — Factory Run 3a (autonomous daily loop)
 
 ### State at run start
 - Last run was Run 2 on 2026-03-16. 8 days gap — no autonomous runs in between.
@@ -36,6 +36,46 @@ This file compounds across daily Factory runs. Each run reads the prior learning
 
 ### Environment note
 This run was executed in a Claude Code sandbox with restricted outbound HTTP. External endpoints (Railway server, mowinckel.ai website) are not in the proxy allowlist. All external health checks returned proxy 403. This is not a production issue — it's a sandbox limitation. Future runs from a less restricted environment will be able to verify external endpoints.
+
+---
+
+## 2026-03-25 — CTO Run 3b (daily health, autonomous)
+
+### State at run start
+- Build: BROKEN. TypeScript `noImplicitAny` errors on all 5 `server.tool()` callbacks in tools.ts. MCP SDK `^1.27.1` overload `tool(name, description, schema, cb)` can't resolve `Args` generic through union parameter `Args | ToolAnnotations`, leaving callback params as implicit `any`.
+- Tests: 2/7 failing. MCP initialize and tools/list returning HTTP 406 — tests sending plain JSON POST without `Accept` header, but `WebStandardStreamableHTTPServerTransport` requires `Accept: application/json, text/event-stream`. Additionally, server returns SSE format, tests were parsing as JSON.
+- Vercel: Latest deployment READY (production), commit `5d5ef4a`. All routes functional.
+- Investor docs: All 4 synced (Memo, Logic, Numbers, Alexandria).
+- No factory runs between 2026-03-16 and today — 9 days gap.
+
+### What I fixed
+1. **Build fix**: Added explicit `: any` type annotations to all 5 `server.tool()` callback parameter destructurings. Root cause: MCP SDK's 4-arg `tool()` overload uses `paramsSchemaOrAnnotations: Args | ToolAnnotations` which prevents TypeScript from inferring `Args`. The SDK has deprecated this API in favor of `registerTool`, but migration is unnecessary — `: any` is the minimal fix. Build now passes.
+
+2. **Test fix**: Added `Accept: application/json, text/event-stream` header to all MCP POST requests. Added `parseSseOrJson()` helper that detects response content-type and parses SSE `event: message\ndata: {...}` format when the server returns SSE instead of JSON. All 7/7 tests now pass.
+
+### Verification results
+- **Build**: PASS
+- **Tests**: 7/7 PASS (health, HEAD probe, MCP initialize, tools/list, analytics, dashboard, tool descriptions)
+- **Vercel website**: HEALTHY — `/partners/logic` 200, `/partners/numbers` 200
+- **Investor doc sync**: All 4 files identical between `files/confidential/` and `public/partners/`
+- **Code review** (via Explore agent): No dead code, no unused imports. SUGGESTIONS sections appropriately thin — no cuts warranted without usage data.
+
+### What I learned
+- The build has been broken since at least commit `c9f222f` (2026-03-15). The Fly deploy uses `npm run build` (tsc) in the Dockerfile, so subsequent deploys would also fail. The deployed server is running whatever was last successfully built. **This means any server code changes since 2026-03-15 are NOT deployed.** The feedback description change from Factory Run 2 may not be live.
+- The MCP SDK shifted transport behavior between versions. The `WebStandardStreamableHTTPServerTransport` wraps the Node.js transport now, enforcing `Accept` header requirements. Tests must evolve with the SDK.
+- The test was technically already broken before (MCP tests were passing by accident on older SDK versions or were never run against the actual server since Run 2).
+
+### Code review notes (deferred, non-critical)
+- Drive query injection: `name='${domain}'` string interpolation in drive.ts. Low risk — domain names come from tool params controlled by Claude, not arbitrary user input. Single quotes in domain names would break the query but not cause cross-user access (each request has its own OAuth token). Not fixing now but noting for future hardening.
+- Cache key uses `encryptedToken.slice(0, 16)` — theoretically collisible but practically fine given the token space. Not worth engineering around.
+
+### Open questions for next run
+- Is the Fly server actually deployable now? The build fix makes this possible. Should I push and auto-deploy? (YES — doing this now.)
+- Has the feedback description change from Run 2 been live at all? If Fly deploy has been broken since 3/15, the answer is no. Check dashboard after deploy.
+- The trigger prompt says "Railway" but server is on Fly.io. Can't modify triggers — noting for meta.
+
+### Trigger proposals
+- Update `health` trigger description: change "Railway" to "Fly.io" in the SYSTEM section ("Pushing to main auto-deploys both server (Railway)..." → "...server (Fly.io)..."). Current text is stale since the Railway→Fly migration on 2026-03-15.
 
 ---
 
