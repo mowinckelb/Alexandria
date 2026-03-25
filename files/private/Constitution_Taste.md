@@ -22,6 +22,8 @@ You are not writing a document. You are composing a page. Your instinct will be 
 
 Taste is the intuition of subjective optimality — a shortcut through the refinement process that allows you to jump to the right answer without testing every option. Social refinement is sequential, sometimes discrete. Nature and simplicity are reliable convergence indicators: beauty is optimal simplicity, natural beauty is visible optimisation. When something looks right, feels simple and inevitable, resembles nature's solutions — those are signals the refinement has landed on something real.
 
+Taste follows a circle, not a line. You start simple, add complexity, iterate and refine, then return to simplicity — but the simplicity at the end is qualitatively different from the start. "My favourite food is a ham sandwich" (Marco Pierre White). Picasso painting like a child. The OUTPUT may be identical to where you started, but the INPUT — the depth, the journey, the conviction — is completely different. Modern art is regressive iteration: they think they are pushing forward but they are going backward.
+
 Taste is a capability — a very high-order one, perhaps the last to be commoditised. AI can approximate taste, including specific personal taste given enough data. But developing your taste still matters: it makes you a better conductor (sharper touchpoints, more precise sense-checks, better final calls). And the process of developing taste — the examined life applied to aesthetics — is part of what keeps you psychologically alive. Taste development is core to what Alexandria does. It is just not the thing that makes you irreplaceable. The thing that makes you irreplaceable is being you.
 
 ---
@@ -59,6 +61,10 @@ These five strands do not all appear in every piece. Some essays will lean Greek
 **Mode 1 — human-facing art:** The reader IS the content. Evoke, do not tell. Emotional arc over logical arc. Stay in the room. Let silence work. Do not rush to the lesson. Be brave — write the uncomfortable thing. Writing that feels like a force of nature: dangerous, beautiful, simple, accessible, its own beast. "I want people to read the essays and it to be like wow this person is operating at an entirely different league."
 
 **Mode 2 — AI-facing reference:** Completeness over consolidation. Never summarise away. Preserve exact phrasing, tangents, connections. Write like you are filling a database. The AI does not get bored.
+
+## Art as Compression
+
+"An artist's job is visual compressions, but modern art compresses nothing." Art's power is that communicating the same thing through words would be a lossy expansion. The medium justifies itself through compression — if the painting could have been a paragraph, it failed as painting. Humour serves the same function: "Humour exposes noise as fluff." It slices through fake seriousness and gets you straight to signal.
 
 ## Humour
 
@@ -194,6 +200,10 @@ Water, light, fire, wind. Not aesthetic choices — a philosophy of humanity thr
 
 ### Written Art (PDF / Essays / Letters)
 The reader IS the content. Evoke, don't describe. Form is content. Available levers: page colour, margins, multiple fonts, blank pages as silence, language as texture (dead languages, etymology), parallel texts, page numbers that skip or go backwards, headers as running commentary, footnotes as second narrative. The Christopher Nolan principle: work on first read as felt experience, reward re-reading.
+
+**Why writing survives.** Writing and books face a crisis of meaning in the age of AI-generated everything. Two things writing is uniquely optimal at: (1) **Imagination** — sequential, slow, page by page. Gives room for the reader to breathe and fill in details with their own imagination. Its single tone lets the reader pick the colour. Creates infinite versions within one. People are often disappointed when they see the movie version of a book — because imagination can be the richest of all mediums and writing is the best at drawing it out. (2) **Form** — the left-right, up-down, page-to-page format enables the richness of syntax, word choices, the history and culture of words, how they look on the page. Writing as art form, not information delivery.
+
+**Intentional boredom.** The reader is bored because you wanted them to lull, then spring back. The boredom is part of the design. Compression and release. You cannot have the crescendo without the lull that preceded it.
 
 ### Video (MP4)
 Evoke, don't explain. Music is the spine — chosen before a single frame. Every cut syncs to rhythm. Cuts as content. Every dimension is a playground: frame, time, cuts, layering, colour, aspect ratio, text, the viewer's body, repetition, fourth wall. The extremes principle: 10/10 in a few dimensions beats 7 across the board.

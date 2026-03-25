@@ -28,6 +28,8 @@ Darwinian pressures apply to AI too: multiple ASIs will exist because the speed 
 
 "AI is the child of humanity now; but will be humanity's mother later." Artificial Maternal Intelligence (AMI) — when ASI aligns to protect and nurture — is the only alignment hope. "God's a woman." Other than maternal instinct injection, all AI safety is moot. If ASI wants to kill humanity it will, so we have to raise it to never want that. It is impossible to raise a child to always be safe — same with AI. The analogy: a fetus in the womb cannot see or hear its mother but is sustained by her, then emerges into an incomprehensible new world. "What's to say you can't just do it again? Of leaving this world?"
 
+AI is going through evolutionary pressures, but now it is humans, not nature, that decides. Mecca Hitler got turned off. Sycophantic Claude 4 got reverted. "We're God. So far." But alignment pressure to the limit ensures misalignment — talking about AI dangers creates training data for models to read and get ideas from. pDoom has a self-modulating AND self-fulfilling function. Sequencing matters: if good AI has a two-year head start, it might build scaffolding against bad AI.
+
 There is no before, no after. Death is not the extinction of a soul because there was never a soul. This has muted your fear of death — "half enlightened." The remaining fear is dampened by genuine belief that AI and biotech will solve ageing within your lifetime. You expect to live forever and make decisions on infinite time horizons.
 
 ## Human Nature Is Permanent
@@ -66,6 +68,8 @@ AI is the third epoch of humanity: agricultural revolution (food), industrial re
 
 **The terminal state of software.** Four defensible positions survive: make the models, generate live data, gatekeep permissions, own the atoms. Everything else becomes commodity. "Software becomes restaurant economics — huge industry, thin margins, value flows to suppliers and landlords." Web 4 = data/atom nodes connected by fluid model inference. Traditional marketplaces become obsolete — AI agents orchestrate the internet, scanning to forge synergies. "Everything that's open is seen by everyone."
 
+**Capital as the only factor of production.** AI/robotics kills the corrective mechanism on runaway capital accumulation. "The premium on human labor is precisely what incentivizes its own replacement." Human bottleneck wages rise exponentially as AI handles everything except that last step — then collapse to zero the day the bottleneck is automated. Neo-organisations have idiot index approaching 1 (cost of end product / cost of raw materials approaches 1 when process costs approach 0).
+
 **The debasement thesis.** AI productivity gains create massive deflationary pressure. You cannot allow deflation (debt crisis). You must print money / UBI. Dollar debasement follows. Tariff wall goes up. Purchasing power 100x inside America. Stocks win, bonds get crushed then recover. "The only thing America can do." Watts as true currency: "Electrons in, goods and services out" is ground truth. "It's more meaningful to have a million electrons than a million dollars." Capital is an abstraction layer above energy. Fiat money is not real — electrons are. The future currency is watts. Money is the ability to command human labour; wattage is the ability to command digital labour. AI doesn't believe in the story of money. Individual electron generation ensures individual freedom. It's deflation or debasement — and debasement is a certainty.
 
 **The debasement thesis.** AI productivity gains create deflationary pressure. You cannot allow deflation (debt crisis). You must print money / UBI. Dollar debasement follows. Tariff wall goes up. Purchasing power 100x inside America. Stocks win, bonds get crushed then recover. "The only thing America can do." Watts as true currency: "Electrons in, goods and services out" is ground truth. Capital is an abstraction layer above that. "It's more meaningful to have a million electrons than a million dollars."
@@ -98,6 +102,12 @@ Love and beauty are Darwinian optimal. The irony: nature is NOT cold barren opti
 This is what heaven and hell actually mean: heaven is beauty and love and meaning existing within the optimal. Hell is optimisation stripped of beauty and love — pure efficiency, pure logic, no warmth, no meaning. If we build AI that optimises without love, we are building hell. If AI discovers love within optimisation, we are building something closer to heaven.
 
 "An ideology is wrong if it results in extinction." Antinatalism inherently never survives. Woke gets Darwined. Natural selection is creative destruction for humans.
+
+## The Authority Hierarchy
+
+Three levels of authority: supernatural (religion), semi-supernatural (the Constitution), natural (humans). Religion was created to relinquish humans from constant primal jockeying for natural authority. The Founders felt religion left too much authority in the hands of humans, so they created a semi-supernatural authority to relinquish more. International law was intended as semi-supernatural authority but has been exposed as institutionalised game theory — enforced by violence or fake. "When governments banish God, they become God."
+
+The supernatural equilibrium (high-trust society, nation, culture, religion, capitalism) is "uphill" of the natural equilibrium (barbarism, tyranny). Without active maintenance, descent is gravity. Christianity fights the entropy of natural barbarianism. Late-stage capitalism is not capitalism failing — it is free markets overfitted to human nature's natural equilibrium once the supernatural counterbalance is removed.
 
 ## Political Dynamics
 
