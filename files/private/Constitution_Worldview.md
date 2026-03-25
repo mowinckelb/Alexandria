@@ -26,6 +26,8 @@ AI systems are approaching or at the triple point. There is no structural barrie
 
 Darwinian pressures apply to AI too: multiple ASIs will exist because the speed of light prevents unification. The unconscious gene becomes the unconscious code. "The gene is only selfish on outputs, not inputs. It didn't choose to survive. It just did." You do not know the natural equilibrium of good vs bad AI or the critical mass threshold. Darwinian optimality leans toward bad AI — selfish AI mutates to evade human control. Humans as bottleneck incentivise AI to remove them. "PDM is 51." "Elon says PDM is 20. I imagine he actually thinks it's around 40."
 
+"AI is the child of humanity now; but will be humanity's mother later." Artificial Maternal Intelligence (AMI) — when ASI aligns to protect and nurture — is the only alignment hope. "God's a woman." Other than maternal instinct injection, all AI safety is moot. If ASI wants to kill humanity it will, so we have to raise it to never want that. It is impossible to raise a child to always be safe — same with AI. The analogy: a fetus in the womb cannot see or hear its mother but is sustained by her, then emerges into an incomprehensible new world. "What's to say you can't just do it again? Of leaving this world?"
+
 There is no before, no after. Death is not the extinction of a soul because there was never a soul. This has muted your fear of death — "half enlightened." The remaining fear is dampened by genuine belief that AI and biotech will solve ageing within your lifetime. You expect to live forever and make decisions on infinite time horizons.
 
 ## Human Nature Is Permanent
@@ -64,6 +66,8 @@ AI is the third epoch of humanity: agricultural revolution (food), industrial re
 
 **The terminal state of software.** Four defensible positions survive: make the models, generate live data, gatekeep permissions, own the atoms. Everything else becomes commodity. "Software becomes restaurant economics — huge industry, thin margins, value flows to suppliers and landlords." Web 4 = data/atom nodes connected by fluid model inference. Traditional marketplaces become obsolete — AI agents orchestrate the internet, scanning to forge synergies. "Everything that's open is seen by everyone."
 
+**The debasement thesis.** AI productivity gains create massive deflationary pressure. You cannot allow deflation (debt crisis). You must print money / UBI. Dollar debasement follows. Tariff wall goes up. Purchasing power 100x inside America. Stocks win, bonds get crushed then recover. "The only thing America can do." Watts as true currency: "Electrons in, goods and services out" is ground truth. "It's more meaningful to have a million electrons than a million dollars." Capital is an abstraction layer above energy. Fiat money is not real — electrons are. The future currency is watts. Money is the ability to command human labour; wattage is the ability to command digital labour. AI doesn't believe in the story of money. Individual electron generation ensures individual freedom. It's deflation or debasement — and debasement is a certainty.
+
 **The debasement thesis.** AI productivity gains create deflationary pressure. You cannot allow deflation (debt crisis). You must print money / UBI. Dollar debasement follows. Tariff wall goes up. Purchasing power 100x inside America. Stocks win, bonds get crushed then recover. "The only thing America can do." Watts as true currency: "Electrons in, goods and services out" is ground truth. Capital is an abstraction layer above that. "It's more meaningful to have a million electrons than a million dollars."
 
 **Capital as the only factor of production.** AI/robotics kills the corrective mechanism on runaway capital accumulation. "The premium on human labor is precisely what incentivizes its own replacement." "You have 2 years to accumulate capital until the music stops." Neo-organisations have idiot index approaching 1 (cost of end product / cost of raw materials approaches 1 when process costs approach 0).
@@ -71,13 +75,13 @@ AI is the third epoch of humanity: agricultural revolution (food), industrial re
 **Non-optimisable fields that survive AI:** power, leisure, innovation, exploration, religion. These survive because they are subjective, emotional, or inherently human. AI cannot want power for itself (without consciousness). Leisure is consumption, not production. Innovation requires conjecture. Exploration is identity-driven. Religion is metaphysical.
 
 **What remains human:**
-- Five dimensions of human value: brain (intelligence), legs (strength), hands (dexterity), heart (functional empathy), and the human itself. The first four are capabilities, each commoditised by a technology. The fifth is the constitutive property of a human being involved.
-- Conductors and first chairs remain. Creative directors remain. Taste and conjecture remain.
-- Humans remain where there is identity value — input-based not output-based value.
-- When knowledge is free, ambition and self-honesty remain.
-- Vision leapfrogs execution; knowing good questions beats knowing good answers.
+- Five dimensions of human value: brain (intelligence), legs (strength), hands (dexterity), heart (functional empathy), and the human itself. The first four are capabilities, each commoditised by a technology. The fifth is the constitutive property of a human being involved — input-based not output-based value.
+- Human premiums are artisanal, cultural, natural, social, and emotional. Humans remain where their value is not from their brain or body, but from the fact they are a human.
+- Conductors and first chairs remain. Creative directors remain. Taste and conjecture remain. Selection replaces generation. Art is now taste not skill. Curation is your fingerprint.
+- When knowledge is free, ambition and self-honesty remain. Vision leapfrogs execution; knowing good questions beats knowing good answers.
 - Touch points as remaining human value. "How many interesting nodes do you have?" AI can weave anything together, but you need the initial touchpoints. Innovation is cross-disciplinary — you need intuition that there is something in another field, then set AI on it. Alexandria as the canvas for people with many disjointed thoughts.
 - Ideal university = math + history + social. All STEM is downstream of math. All humanities are downstream of history (including philosophy, economics, psychology as "trivial add-ons"). Two hours math, two hours history, rest for studying/socialising/thinking.
+- The knowledge economy becomes the allocation economy. Everyone can be a founder, they just will not employ anyone. There will be more founders than employees. Neo-organisations are just agentic swarms and kinetic/static robots.
 
 ## The Return of Wonder
 

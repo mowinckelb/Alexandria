@@ -49,8 +49,8 @@ export default function SignupPage() {
             </a>
 
             <p className="text-[0.75rem] tracking-wide text-center leading-[1.9]" style={{ color: 'var(--text-muted)' }}>
-              we&rsquo;ll email you one command.<br />
-              paste it in your terminal. that&rsquo;s it.
+              you&rsquo;ll get one command to paste in your terminal.<br />
+              we&rsquo;ll also email it so you don&rsquo;t lose it.
             </p>
           </div>
 

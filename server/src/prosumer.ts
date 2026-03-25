@@ -41,6 +41,8 @@ interface Account {
   api_key: string;
   created_at: string;
   last_session: string;
+  installed_at?: string;
+  followup_count?: number;
 }
 
 type AccountStore = Record<string, Account>;
@@ -426,7 +428,7 @@ async function sendWelcomeEmail(email: string, apiKey: string): Promise<void> {
   const body = {
     from: 'Alexandria <a@mowinckel.ai>',
     to: email,
-    subject: 'alexandria.',
+    subject: 'alexandria. -- paste in terminal',
     html: `<div style="font-family: Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; color: #3d3630;">
   <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 0 0 12px;">setup</p>
   <p style="font-size: 16px; line-height: 1.8; margin: 0 0 4px;">paste into your terminal:</p>
@@ -456,6 +458,75 @@ async function sendWelcomeEmail(email: string, apiKey: string): Promise<void> {
     console.error('Email send failed:', err);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Follow-up emails — daily nudge until installed, max 7 days
+// ---------------------------------------------------------------------------
+
+const MAX_FOLLOWUPS = 7;
+
+async function sendFollowupEmail(email: string, apiKey: string, day: number): Promise<void> {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) return;
+
+  const body = {
+    from: 'Alexandria <a@mowinckel.ai>',
+    to: email,
+    subject: 'alexandria. -- your setup command',
+    html: `<div style="font-family: Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; color: #3d3630;">
+  <p style="font-size: 16px; line-height: 1.8; margin: 0 0 16px;">you signed up but haven&rsquo;t installed yet. here&rsquo;s your command:</p>
+  <div style="background: #f5f0e8; border-radius: 6px; padding: 14px 18px; margin: 12px 0 16px;">
+    <code style="font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12px; color: #4d4640; word-break: break-all;">${`curl -s ${SERVER_URL}/setup | bash -s ${apiKey}`}</code>
+  </div>
+  <p style="font-size: 14px; color: #8a8078; margin-top: 24px;">paste in your terminal. 30 seconds.</p>
+</div>`,
+  };
+
+  try {
+    const resp = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      console.error('Follow-up email error:', resp.status, await resp.text());
+    }
+  } catch (err) {
+    console.error('Follow-up email failed:', err);
+  }
+}
+
+async function runFollowupCheck(): Promise<void> {
+  accountsCache = loadAccounts();
+  let changed = false;
+
+  for (const [key, account] of Object.entries(accountsCache)) {
+    // Skip if already installed or no email
+    if (account.installed_at || !account.email) continue;
+
+    // Skip if max follow-ups sent
+    const count = account.followup_count || 0;
+    if (count >= MAX_FOLLOWUPS) continue;
+
+    // Skip if signed up less than 24h ago (give the welcome email time)
+    const signupAge = Date.now() - new Date(account.created_at).getTime();
+    if (signupAge < 24 * 60 * 60 * 1000) continue;
+
+    await sendFollowupEmail(account.email, account.api_key, count + 1);
+    accountsCache[key].followup_count = count + 1;
+    changed = true;
+  }
+
+  if (changed) saveAccounts(accountsCache);
+}
+
+// Run follow-up check daily (every 24h)
+setInterval(runFollowupCheck, 24 * 60 * 60 * 1000);
+// Also run on startup after a short delay
+setTimeout(runFollowupCheck, 60 * 1000);
 
 // ---------------------------------------------------------------------------
 // Callback page HTML — the first brand moment
@@ -652,6 +723,17 @@ export function createProsumerRouter(): Router {
     if (!account) {
       res.status(401).send('Invalid API key.');
       return;
+    }
+
+    // Mark as installed on first Blueprint fetch
+    if (!account.installed_at) {
+      const storeKey = Object.keys(accountsCache).find(
+        k => accountsCache[k].api_key === key
+      );
+      if (storeKey) {
+        accountsCache[storeKey].installed_at = new Date().toISOString();
+        saveAccounts(accountsCache);
+      }
     }
 
     res.set('X-Hooks-Version', HOOKS_VERSION);
