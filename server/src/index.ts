@@ -16,6 +16,7 @@ import { mcpAuthRouter } from '@modelcontextprotocol/sdk/server/auth/router.js';
 import { registerTools } from './tools.js';
 import { AlexandriaOAuthProvider, registerGoogleCallbackRoute } from './auth.js';
 import { initializeFolderStructure } from './drive.js';
+import { createProsumerRouter } from './prosumer.js';
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const SERVER_URL = process.env.SERVER_URL || `http://localhost:${PORT}`;
@@ -51,6 +52,12 @@ registerGoogleCallbackRoute(app);
 // extract more from the same log. Bitter lesson.
 
 import { getAnalytics, getEventLog, getDashboard } from './analytics.js';
+
+// ---------------------------------------------------------------------------
+// Prosumer API — hooks + local files + Blueprint
+// ---------------------------------------------------------------------------
+
+app.use(createProsumerRouter());
 
 // ---------------------------------------------------------------------------
 // Health check
