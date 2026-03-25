@@ -141,7 +141,7 @@ export default function ScrollPhilosophy() {
             </Body>
 
             <Body>
-              And it compounds. The earlier you start, the stronger your position. Five&nbsp;dollars. Five&nbsp;minutes.
+              And it compounds. The earlier you start, the stronger your position. One&nbsp;command. Thirty&nbsp;seconds.
             </Body>
           </div>
         </div>
@@ -149,11 +149,11 @@ export default function ScrollPhilosophy() {
         <Fade>
           <div className="flex flex-col items-center gap-8 py-12 sm:py-16">
             <a
-              href="/onboarding"
+              href="/signup"
               className="text-[0.95rem] sm:text-[1.05rem] tracking-wide no-underline transition-opacity hover:opacity-60"
               style={{ color: 'var(--text-primary)' }}
             >
-              join now
+              try now
             </a>
             <div className="flex flex-col gap-3 text-[0.72rem] tracking-wide">
               <span style={{ color: 'var(--text-ghost)' }}>still not convinced?</span>
@@ -163,7 +163,7 @@ export default function ScrollPhilosophy() {
                   {' '}&mdash; what it is in one page
                 </p>
                 <p style={{ color: 'var(--text-muted)' }}>
-                  <a href="/docs/Vision.pdf" target="_blank" rel="noopener noreferrer" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>vision</a>
+                  <a href="/vision" className="no-underline transition-opacity hover:opacity-40" style={{ color: 'var(--text-primary)' }}>vision</a>
                   {' '}&mdash; the philosophy in plain English
                 </p>
                 <p style={{ color: 'var(--text-muted)' }}>
