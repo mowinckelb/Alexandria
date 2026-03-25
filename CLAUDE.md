@@ -99,7 +99,7 @@ Each Author's Machine compounds through usage. Constitution deepens, feedback lo
 
 ## End-of-Session Protocol
 
-Triggered by: "bye for now", "that's it", "end session", or any casual sign-off that signals the founder is done.
+Triggered by: "a.", "bye for now", "that's it", "end session", or any casual sign-off that signals the founder is done.
 
 When triggered, produce the following in one response:
 

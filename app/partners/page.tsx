@@ -75,7 +75,6 @@ function CopyMemo() {
       }}
       aria-label="Copy memo to clipboard"
     >
-      <span>{copied ? 'copied' : 'memo'}</span>
       <svg
         width="14"
         height="14"
@@ -168,12 +167,12 @@ export default function PartnersPage() {
             gap: '1.6rem',
           }}>
 
-            <Item n={1} hint="copy into any AI, or read"><span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.8rem' }}><CopyMemo /><Link href="/partners/memo">read</Link></span></Item>
-            <Item n={2} hint="schedule a conversation"><Link href="tel:+14155038178">call</Link></Item>
+            <Item n={1} hint="the investment memo"><span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.8rem' }}><Link href="/partners/memo">memo</Link><CopyMemo /></span></Item>
+            <Item n={2} hint="schedule a meeting"><Link href="tel:+14155038178">call</Link></Item>
             <Item n={3} hint="the formal argument"><Link href="/partners/logic">logic</Link></Item>
             <Item n={4} hint="the assumptions"><Link href="/partners/numbers">numbers</Link></Item>
             <Item n={5} hint="in person, san francisco"><span style={{ color: 'var(--text-secondary)', fontSize: '1.05rem' }}>meet</span></Item>
-            <Item n={6} hint="for your team"><Link href="/partners/alexandria">alexandria</Link></Item>
+            <Item n={6} hint="the company overview"><Link href="/partners/alexandria">alexandria.</Link></Item>
 
           </div>
 
