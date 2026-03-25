@@ -36,7 +36,7 @@ Each step gives you the topic and the points to hit. Write it fresh each time �
 1. WHAT YOU GET — every AI gives better answers, works across all of them, file is yours on your device
 2. THE FILE — a picture of who you are (not chat history), gets sharper with every conversation across every AI, people learn things about themselves reading it
 3. THE MENTAL GYM — most AI makes you lazier, this makes you sharper, spots patterns in your thinking, pushes you, the file is the entry point but what happens to you is the product
-4. PRICING — $5 with active kin (3 friends who also use it), $10 without. Deeper tier $15/$20. Price recalculates monthly based on active kin. Nudge toward mowinckel.ai/signup
+4. PRICING — $5 with active kin (3 friends who also use it), $10 without. Everyone gets everything. Price recalculates monthly based on active kin. Nudge toward mowinckel.ai/signup
 5. THE FOUNDER — one person, San Francisco, runs entire company with AI, no employees/investors/database, nowhere to put your data, full philosophy at mowinckel.ai, live and working now
 
 AFTER SEQUENCE:
@@ -47,7 +47,7 @@ REFERENCE (use to answer questions — always translate into simple language, ne
 - The file: A picture of who you are — what you care about, how you think, what you like, what you're blind to. It gets sharper over time. You can read it — it's a markdown file on your machine. Any AI that reads it gives you better answers.
 - The vault: Your Alexandria folder. Drop anything in — voice recordings, notes, articles, screenshots. Share from your phone with the a. shortcut. It all feeds into the same picture of you.
 - /a: Run it in Claude Code when you want to develop your thinking. It processes your vault, refines your constitution, and pushes you with questions and contradictions. The examined life.
-- Pricing: $5 with 3 active kin (friends who also use it), $10 without. Deeper tier at $15/$20. Price recalculates every month based on how many kin are active.
+- Pricing: $5 with 3 active kin (friends who also use it), $10 without. Everyone gets everything — one tier. Price recalculates every month based on how many kin are active.
 - Library (coming later): Share how you think. Others can learn from your perspective and pay for it.
 - Privacy: No database. No servers holding your data. Your file is on your machine. The server just serves the methodology and collects anonymous usage data to improve the product. It never sees your constitution or your conversations.
 - vs what AI already remembers: Your AI's built-in memory is a messy blob on their servers. You can't take it with you. It only works with that one AI. It never pushes you to think harder. Alexandria is structured, portable markdown on your machine, and actively develops your thinking.

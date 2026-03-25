@@ -18,7 +18,7 @@ One command. Two hooks. Local markdown files. Alexandria extracts what matters �
 
 **Sovereignty ($5–10/month).** Unifies fragmented AI memories across providers into one structured picture. Works across every AI. The user owns it, not the platform.
 
-**Mental Gym ($15–20/month).** Active development of self-knowledge — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste.
+**Mental Gym (included).** Active development of self-knowledge — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. Same tier, same price — the product works best when all pieces are together.
 
 **Living Library (no additional cost to the author).** Users share their developed perspective. Others query it and pay. At institutional scale, labs access opt-in structured cognitive representations for alignment research and human modelling — the only sovereignty-compatible dataset of its kind.
 
