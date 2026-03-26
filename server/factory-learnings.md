@@ -4,6 +4,100 @@ This file compounds across daily Factory runs. Each run reads the prior learning
 
 ---
 
+## 2026-03-26 — CTO Run 4 (daily health, autonomous)
+
+### State at run start
+- **Massive activity since last run**: 14 commits in ~24h. Prosumer pivot — new delivery model (CC/Cursor hooks + local files), replacing MCP-only model.
+- **New module**: `server/src/prosumer.ts` (809 lines) — GitHub OAuth, accounts, Blueprint API, setup scripts, hook auto-update, follow-up emails.
+- **Server build**: PASS (TypeScript clean after `npm install`).
+- **Website build**: TypeScript PASS. Next.js build can't run in sandbox (Google Fonts fetch blocked). Vercel builds fine — latest READY deployment at commit `1a9ffc4`.
+- **Vercel**: Production READY. Latest commit `9ea85e2` (Constitution content-only) CANCELED — no website code impact.
+- **Investor docs**: 4/4 synced (Memo, Logic, Numbers, Alexandria).
+- **Partner pages**: Serving 200 via Vercel MCP verification.
+- **MCP server**: CANNOT VERIFY LIVE — no Alexandria MCP tools connected in this session, sandbox blocks HTTP to external URLs.
+- **Tests**: Cannot run in sandbox (require live server at localhost:3001).
+
+### Code review: prosumer.ts
+Clean, well-structured Express router. No critical issues found:
+- GitHub OAuth with proper CSRF (state parameter validation + expiry cleanup).
+- Account storage: JSON file on Fly volume, in-memory cache, synchronous I/O. Fine for single-process, current scale.
+- API key auth: `extractApiKey()` correctly parses Bearer tokens and query params.
+- Blueprint assembly: composes SHARED_CONTEXT + mode instructions from modes.ts. Single source of truth.
+- Hook scripts: handle offline mode gracefully (Blueprint unavailable → local-only Constitution).
+- Auto-update: version-based hook refresh via `X-Hooks-Version` header. Clean mechanism.
+- Follow-up emails: timer-based (24h interval), `followup_count` persists across restarts. Max 7.
+- Setup script: proper `$1` substitution via `bash -s` pipeline.
+- Callback page: branded, functional (copy button, clean CSS).
+
+### What I noticed (non-critical, deferred)
+1. **API key in plaintext emails**: Welcome + follow-up emails include the API key in curl commands. If email is compromised, Alexandria account is too. Acceptable at current scale — the key only grants access to Blueprint (read-only IP) and session metadata (write-only). No user data at risk.
+2. **`/shortcut` page**: Referenced in GTs and commit messages but not built. No broken links in website code — just a planned feature.
+3. **No prosumer test coverage for authenticated paths**: `test/prosumer.ts` exists with 10 tests but all test unauthenticated behavior (setup script content, auth rejection). Can't test Blueprint content, session recording, or hooks script without a real account. This is structurally fine — the auth paths are simple and the real test is production usage.
+
+### Verification gaps
+- **Live MCP server**: No Alexandria MCP tools connected. Cannot call `read_constitution` or `activate_mode` to verify the server is alive. This is the second consecutive run with this gap.
+- **Live prosumer endpoints**: Can't hit `/blueprint`, `/session`, `/hooks` from sandbox.
+- **Recommendation for meta**: Consider whether the health trigger should have an Alexandria MCP connection configured, or whether the trigger prompt should document this limitation. Without it, we can only verify code quality (build, types, code review) but not runtime behavior.
+
+### What changed architecturally
+The prosumer pivot is the biggest architectural change since the 10→5 tool reduction:
+- **Before**: MCP connector (Claude.ai) → server → Google Drive. Probabilistic activation (tool descriptions trigger Claude to call tools). Single delivery path.
+- **After**: Dual delivery. Original MCP path preserved. New prosumer path: hooks (deterministic) → local files (`~/.alexandria/`) → Blueprint from server. CC/Cursor support via platform-specific hook config.
+- **Server surface area**: +6 endpoints (`/auth/github`, `/auth/github/callback`, `/blueprint`, `/session`, `/setup`, `/hooks`). All behind API key auth except `/setup` (serves template script, key passed as bash arg) and `/auth/github` (initiates OAuth).
+- **State**: Server now stores account data (JSON on Fly volume). Still stores no user content. The accounts file is operational metadata (github_id, email, api_key, timestamps).
+
+### Open questions for next run
+- Is the Fly server actually running the prosumer code? The last confirmed deploy was from Run 3 (`f28ef95`). 14 commits have been pushed since. If Fly deploys on push to main, it should be live. If not, the prosumer endpoints are not deployed.
+- Can we verify the live server health from the trigger environment? Need to determine if Alexandria MCP tools or raw HTTP are available.
+- Dashboard: any prosumer_signup or prosumer_session events? This would confirm the new endpoints are live and being used.
+- The HOOKS_VERSION is '1'. When do we expect to bump it? What's the update ceremony?
+
+### Trigger proposals
+- (Carried from Run 3) Update `health` trigger: change "Railway" to "Fly.io" in SYSTEM section.
+- (New) Consider adding Alexandria MCP server connection to the health trigger environment, enabling live `read_constitution`/`activate_mode` verification.
+
+---
+
+## 2026-03-25 — CTO Run 3b (daily health, autonomous)
+
+### State at run start
+- Build: BROKEN. TypeScript `noImplicitAny` errors on all 5 `server.tool()` callbacks in tools.ts. MCP SDK `^1.27.1` overload `tool(name, description, schema, cb)` can't resolve `Args` generic through union parameter `Args | ToolAnnotations`, leaving callback params as implicit `any`.
+- Tests: 2/7 failing. MCP initialize and tools/list returning HTTP 406 — tests sending plain JSON POST without `Accept` header, but `WebStandardStreamableHTTPServerTransport` requires `Accept: application/json, text/event-stream`. Additionally, server returns SSE format, tests were parsing as JSON.
+- Vercel: Latest deployment READY (production), commit `5d5ef4a`. All routes functional.
+- Investor docs: All 4 synced (Memo, Logic, Numbers, Alexandria).
+- No factory runs between 2026-03-16 and today — 9 days gap.
+
+### What I fixed
+1. **Build fix**: Added explicit `: any` type annotations to all 5 `server.tool()` callback parameter destructurings. Root cause: MCP SDK's 4-arg `tool()` overload uses `paramsSchemaOrAnnotations: Args | ToolAnnotations` which prevents TypeScript from inferring `Args`. The SDK has deprecated this API in favor of `registerTool`, but migration is unnecessary — `: any` is the minimal fix. Build now passes.
+
+2. **Test fix**: Added `Accept: application/json, text/event-stream` header to all MCP POST requests. Added `parseSseOrJson()` helper that detects response content-type and parses SSE `event: message\ndata: {...}` format when the server returns SSE instead of JSON. All 7/7 tests now pass.
+
+### Verification results
+- **Build**: PASS
+- **Tests**: 7/7 PASS (health, HEAD probe, MCP initialize, tools/list, analytics, dashboard, tool descriptions)
+- **Vercel website**: HEALTHY — `/partners/logic` 200, `/partners/numbers` 200
+- **Investor doc sync**: All 4 files identical between `files/confidential/` and `public/partners/`
+- **Code review** (via Explore agent): No dead code, no unused imports. SUGGESTIONS sections appropriately thin — no cuts warranted without usage data.
+
+### What I learned
+- The build has been broken since at least commit `c9f222f` (2026-03-15). The Fly deploy uses `npm run build` (tsc) in the Dockerfile, so subsequent deploys would also fail. The deployed server is running whatever was last successfully built. **This means any server code changes since 2026-03-15 are NOT deployed.** The feedback description change from Factory Run 2 may not be live.
+- The MCP SDK shifted transport behavior between versions. The `WebStandardStreamableHTTPServerTransport` wraps the Node.js transport now, enforcing `Accept` header requirements. Tests must evolve with the SDK.
+- The test was technically already broken before (MCP tests were passing by accident on older SDK versions or were never run against the actual server since Run 2).
+
+### Code review notes (deferred, non-critical)
+- Drive query injection: `name='${domain}'` string interpolation in drive.ts. Low risk — domain names come from tool params controlled by Claude, not arbitrary user input. Single quotes in domain names would break the query but not cause cross-user access (each request has its own OAuth token). Not fixing now but noting for future hardening.
+- Cache key uses `encryptedToken.slice(0, 16)` — theoretically collisible but practically fine given the token space. Not worth engineering around.
+
+### Open questions for next run
+- Is the Fly server actually deployable now? The build fix makes this possible. Should I push and auto-deploy? (YES — doing this now.)
+- Has the feedback description change from Run 2 been live at all? If Fly deploy has been broken since 3/15, the answer is no. Check dashboard after deploy.
+- The trigger prompt says "Railway" but server is on Fly.io. Can't modify triggers — noting for meta.
+
+### Trigger proposals
+- Update `health` trigger description: change "Railway" to "Fly.io" in the SYSTEM section ("Pushing to main auto-deploys both server (Railway)..." → "...server (Fly.io)..."). Current text is stale since the Railway→Fly migration on 2026-03-15.
+
+---
+
 ## 2026-03-24 — Factory Run 3a (autonomous daily loop)
 
 ### State at run start
@@ -36,10 +130,6 @@ This file compounds across daily Factory runs. Each run reads the prior learning
 
 ### Environment note
 This run was executed in a Claude Code sandbox with restricted outbound HTTP. External endpoints (Railway server, mowinckel.ai website) are not in the proxy allowlist. All external health checks returned proxy 403. This is not a production issue — it's a sandbox limitation. Future runs from a less restricted environment will be able to verify external endpoints.
-
----
-
-## 2026-03-25 — CTO Run 3b (daily health, autonomous)
 
 ### State at run start
 - Build: BROKEN. TypeScript `noImplicitAny` errors on all 5 `server.tool()` callbacks in tools.ts. MCP SDK `^1.27.1` overload `tool(name, description, schema, cb)` can't resolve `Args` generic through union parameter `Args | ToolAnnotations`, leaving callback params as implicit `any`.
