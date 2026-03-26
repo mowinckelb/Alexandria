@@ -26,7 +26,7 @@ Everything else is automatic. Every Claude Code session captures your transcript
 
 ## Where your data lives
 
-Your cognitive profile is a file on **your machine** at `~/.alexandria/constitution.md`. Your vault is at `~/.alexandria/vault/`. Alexandria has no database. We serve the methodology (Blueprint) and collect anonymous usage metadata. We never see your constitution, your vault, or your conversations.
+Your cognitive profile lives on **your machine** at `~/.alexandria/constitution/` — a folder of markdown files. Your vault is at `~/.alexandria/vault/`. Alexandria has no database. We serve the methodology (Blueprint) and collect anonymous usage metadata. We never see your constitution, your vault, or your conversations.
 
 You own everything. You can read it, edit it, move it, delete it. It's markdown. It's yours.
 
@@ -41,4 +41,4 @@ You own everything. You can read it, edit it, move it, delete it. It's markdown.
 - Check `~/.alexandria/vault/` has `.jsonl` files from your sessions
 
 **"I want to start fresh"**
-- Delete `~/.alexandria/constitution.md` and it starts over. Your vault is preserved.
+- Delete the files in `~/.alexandria/constitution/` and it starts over. Your vault is preserved.
