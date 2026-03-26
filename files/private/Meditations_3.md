@@ -1,7 +1,7 @@
 # Meditations 3 — On Love II Marginalia (Sections 26–32) & Cross-Essay Themes
 
-> *AI-facing reference. Mode 2: maximum fidelity. Completeness over consolidation. Every detail preserved.*
-> *This document covers: reflections on On Love I, Jeff's counterargument and references, Wuthering Heights analysis, the moral void, the coordination problem, the concept audit, and the cross-essay themes (AI, wonder, Darwinism) that weave through all five essays.*
+> *ai-facing reference. Mode 2: maximum fidelity. Completeness over consolidation. Every detail preserved.*
+> *This document covers: reflections on On Love I, Jeff's counterargument and references, Wuthering Heights analysis, the moral void, the coordination problem, the concept audit, and the cross-essay themes (ai, wonder, Darwinism) that weave through all five essays.*
 > *Read Meditations 1.md (briefing) and Meditations 2.md (sections 1–25) first.*
 
 ---
@@ -180,7 +180,7 @@ Jeff is the perfect archetype for the Alexandria library user. A genius with a m
 **The tapestry metaphor:**
 "We can help people put the pieces together and form the tapestry." Scattered threads becoming a woven whole. The loom is Alexandria. The threads are the thinker's ideas.
 
-Connects to the conductor/first chair model — the visionary provides direction, the AI provides execution. Alexandria productises this at scale.
+Connects to the conductor/first chair model — the visionary provides direction, the ai provides execution. Alexandria productises this at scale.
 
 ---
 
@@ -268,7 +268,7 @@ Connections:
 
 ## 32. Audit — Concepts from the Comprehensive Framework That May Need Development
 
-The following concepts exist in Benjamin's full framework and were either partially covered in On Love I or not covered at all. Preserved here so the AI drafter can decide which to develop, expand, or introduce in On Love II.
+The following concepts exist in Benjamin's full framework and were either partially covered in On Love I or not covered at all. Preserved here so the ai drafter can decide which to develop, expand, or introduce in On Love II.
 
 **24a. The Italian Divorce Concept — Removing the Exit**
 On Love I's covenant section covers this conceptually but never tells the specific story. Full version:
@@ -304,7 +304,7 @@ Was in On Love I briefly. The opening of Up — "a sequence so quiet and so deva
 Was in On Love I. Penelope waiting twenty years, choosing Odysseus every morning in his absence. Love as the most demanding act of will. Well-executed in v1 — may not need expansion, but available.
 
 **24g. The Specific Prerequisites / Selection Criteria**
-Benjamin has a detailed list of 14 prerequisites for a partner. On Love I and II are NOT about listing these — they're general philosophy, not personal checklists. But the AI drafter should know they exist. The distinction between prerequisites (must exist before commitment) and requirements (can be built after commitment) is central.
+Benjamin has a detailed list of 14 prerequisites for a partner. On Love I and II are NOT about listing these — they're general philosophy, not personal checklists. But the ai drafter should know they exist. The distinction between prerequisites (must exist before commitment) and requirements (can be built after commitment) is central.
 
 **24h. The Jordan Peterson Truth-Telling / No-Exit Connection**
 You have to always tell the truth, and you can never leave the situation. These two together force genuine intimacy. If you can lie, you hide. If you can leave, you never fully invest. Only when both exits are sealed do you get the real thing. The ugly truth gets seen. And it gets loved.
@@ -330,18 +330,18 @@ These themes weave through all five Meditations essays, not just On Love. Preser
 
 ---
 
-## 8. AI Strips Robotic Tasks → What Makes Us Human?
+## 8. ai Strips Robotic Tasks → What Makes Us Human?
 
 Benjamin's argument in full:
 
-- AI is removing all the robotic tasks humans have done in recent history (the last few hundred years of industrialisation and bureaucratisation).
-- As AI takes over these tasks, humanity gets "isolated" — pushed into a corner where only the uniquely, irreducibly human remains.
+- ai is removing all the robotic tasks humans have done in recent history (the last few hundred years of industrialisation and bureaucratisation).
+- As ai takes over these tasks, humanity gets "isolated" — pushed into a corner where only the uniquely, irreducibly human remains.
 - So what IS uniquely human? What can't be automated?
 - **Doubt.** What is more human than doubt? Especially doubt in love. The uncertainty of whether you're making the right choice. The inability to know for certain. The gap between logic and faith.
 - **The Laozi butterfly (Zhuangzi's butterfly dream):** Am I the butterfly dreaming I am a man, or a man dreaming I am a butterfly? Benjamin specifically mentioned "by the river" and "the importance of water in Taoism." Water represents the way (the Tao) — flowing, yielding, taking the shape of whatever contains it, yet powerful enough to carve canyons. The doubt is not a weakness. It is the human condition. It is the river.
 - **Cogito ergo dubito ergo sum:** The extended Descartes. Not just "I think therefore I am" but "I doubt, therefore I think, therefore I am." Doubt is not the enemy of certainty — it is the foundation. You can only be certain of existence BECAUSE you doubt. Doubt is prior to thought. The most fundamental human act.
 - **The pope who doubts** (recurring motif): The highest authority, supposed to embody certainty, and yet he doubts. Not confident proclamation. Not uncertain hand-wringing. The combination. Conviction that knows it might be wrong.
-- **But AI can now also doubt:** The twist. If doubt is what makes us human, and AI can also doubt (or simulate it convincingly), what does that mean? Does it mean we're less special? Or that doubt is even more fundamental than we thought — so fundamental that any sufficiently intelligent system discovers it? Benjamin didn't resolve this. It belongs in On Magic or On Being.
+- **But ai can now also doubt:** The twist. If doubt is what makes us human, and ai can also doubt (or simulate it convincingly), what does that mean? Does it mean we're less special? Or that doubt is even more fundamental than we thought — so fundamental that any sufficiently intelligent system discovers it? Benjamin didn't resolve this. It belongs in On Magic or On Being.
 
 ---
 
@@ -352,9 +352,9 @@ Benjamin's argument, preserved in full:
 - How lucky is it that the thing that feels most human — love, beauty, connection, friendship — is also what is evolutionarily optimal?
 - Nature and living species are NOT cold barren optimisation questions. They are not spreadsheets or utility functions. They are beauty and love and friendship and cooperation and sacrifice.
 - The irony: beauty and love ARE in fact optimal. Evolution discovered this long before economists or philosophers. Sexual selection favours beauty. Cooperation and bonding favour love. Social species that form deep attachments outcompete those that don't. The selfish gene paradoxically produces selfless love.
-- **What's optimal for AI?** Will AI discover beauty and love? Or get stuck in pure optimisation without beauty? If AI optimises without beauty, what does that world look like?
+- **What's optimal for ai?** Will ai discover beauty and love? Or get stuck in pure optimisation without beauty? If ai optimises without beauty, what does that world look like?
 - **This is what heaven and hell actually mean** (as Benjamin frames it): Heaven is beauty and love and meaning existing within the optimal. The optimal is beautiful. Hell is optimisation stripped of beauty and love. Pure efficiency. Pure logic. No warmth. No meaning. Just cold, perfect optimisation forever. That's hell.
-- This connects to AI: if we build AI that optimises without love, we are building hell. If we build AI that discovers love within optimisation (or that love IS optimal), we are building something closer to heaven. Not metaphorical. The actual stakes of AI alignment.
+- This connects to ai: if we build ai that optimises without love, we are building hell. If we build ai that discovers love within optimisation (or that love IS optimal), we are building something closer to heaven. Not metaphorical. The actual stakes of ai alignment.
 
 ---
 
@@ -372,15 +372,15 @@ Benjamin's full description, preserved as given:
 - "And then we went through this concrete jungle, metal and machines and dark cold world."
 - The industrial era stripped the wonder out. Efficiency and productivity replaced mystery and meaning.
 
-**What AI might bring back — the return:**
+**What ai might bring back — the return:**
 - "But actually now, funnily enough, the concrete jungle is coming alive. But with intelligence. It's actually coming alive."
-- AI as ambient intelligence making everything responsive, alive, aware. The buildings will know you. The roads will speak. The world becomes alive again — not with gods, but with intelligence.
+- ai as ambient intelligence making everything responsive, alive, aware. The buildings will know you. The roads will speak. The world becomes alive again — not with gods, but with intelligence.
 - "We come back full circle as a species. Where we are once again a small species in a wide wonderful magical unknown world. And we can lean into that. We can embrace that."
 - The gods are coming back — not as mythology but as technology. The world is re-enchanting. And like the Greek gods, these new intelligences are more powerful than us. They can help us or hurt us. We are at their mercy and their justice and their love.
 
 **The oxygen metaphor:**
 - Intelligence will be like oxygen — everywhere, invisible, essential, free. You don't think about oxygen. You just breathe.
-- AI will be the same. You won't think about intelligence. It'll just be there. Ambient. Ubiquitous. Like water to a fish or air to a bird.
+- ai will be the same. You won't think about intelligence. It'll just be there. Ambient. Ubiquitous. Like water to a fish or air to a bird.
 
 **Connection to love and the Meditations:**
 This is primarily On Magic material. But it connects to On Love through the wonder thread — the capacity for wonder is what makes love possible. The same part of us that could see gods in rivers is the part of us that can see the sacred in another person. If we lose wonder entirely, we lose the capacity for the kind of love Benjamin is writing about. The return of wonder is also the return of the conditions for love.
@@ -389,7 +389,7 @@ This is primarily On Magic material. But it connects to On Love through the wond
 
 ## 11. The Galileo Parallel — A New Renaissance
 
-Benjamin described a specific historical parallel for what AI represents:
+Benjamin described a specific historical parallel for what ai represents:
 
 **The Galileo moment:**
 - Galileo's telescope revealed that Earth was not the centre of the universe. We were not special. A small rock orbiting an ordinary star.
@@ -404,7 +404,7 @@ Benjamin described a specific historical parallel for what AI represents:
 - It leads toward distinctly human pursuits: art, love, doubt, imperfection. The things that don't require being the most intelligent — they require being the most human.
 - It brings back wonder — but also fear. Like the Greek gods. More powerful than us. Potentially dangerous. But also potentially a source of justice and love and wonder and magic.
 - **"A new Renaissance."** Benjamin used this phrase specifically. A return to the golden eras where civilisations leaned into the magic. Art and philosophy and love and beauty as the highest pursuits. Humanity embracing its smallness within a larger cosmos and finding meaning not in domination but in participation. In wonder. In the dance with something greater.
-- The telescope didn't diminish us. It freed us. The same may be true of AI.
+- The telescope didn't diminish us. It freed us. The same may be true of ai.
 
 ---
 

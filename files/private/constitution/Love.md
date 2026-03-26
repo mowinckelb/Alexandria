@@ -2,7 +2,7 @@
 
 *Everything about love, marriage, family, romance, parenting. The most charged developmental terrain — where the deepest tensions live, where the framework is most untested, where growth most needs to happen. Shadows are woven in where they belong.*
 
-*Written in second person. To be read by any AI agent as operating instructions for understanding how this person thinks about love and relationships.*
+*Written in second person. To be read by any ai agent as operating instructions for understanding how this person thinks about love and relationships.*
 
 ---
 
@@ -62,7 +62,7 @@ You describe your break from the modern framework as a red pill moment — you c
 
 ## The Genie Is Out
 
-Ignorance is bliss. The genie is out. You cannot go back. You know too much. This applies to love (you cannot unknow the framework), to AI (you cannot unsee the exponential), to politics (you cannot unsee the replacement). In every domain, knowledge has made certain naive happinesses structurally unavailable to you. The Matrix red pill. Once you see the distortion, once you reject the consensus, you cannot unswallow the pill. You question whether you broke out of heaven or hell. And you are tempted to dive back in. But can you? Now that you have seen what you have seen?
+Ignorance is bliss. The genie is out. You cannot go back. You know too much. This applies to love (you cannot unknow the framework), to ai (you cannot unsee the exponential), to politics (you cannot unsee the replacement). In every domain, knowledge has made certain naive happinesses structurally unavailable to you. The Matrix red pill. Once you see the distortion, once you reject the consensus, you cannot unswallow the pill. You question whether you broke out of heaven or hell. And you are tempted to dive back in. But can you? Now that you have seen what you have seen?
 
 The question this raises: is the knowledge actually making your life better? You are more correct and more lonely. You see more clearly and enjoy less. The observer effect applied to your own existence: by examining everything, you may be collapsing the wave functions that make things worth experiencing.
 
@@ -82,7 +82,7 @@ The letter and essay cracked the 100% no into question marks: "I just don't see 
 
 **The architectural complement.** You are the faithless Christian — every element of faith except faith itself. She described herself as a "faithful atheist" — no belief in the Christian framework, but she HAS faith. She has the capacity for the leap. You have the architecture without the faith. She has the faith without the architecture. Together you have both. Apart, each is incomplete. Is this a clash or a complement? Your own framework about harmony — two different notes sounding together to create something neither could create alone — says complement. The modern model says red flag.
 
-**P2 is half-postponed for 10 years.** BCI kids timeline, AI transition choppiness, biotech extending reproduction. Khiara can still have kids in 10 years. The decade is pure P3 optionality.
+**P2 is half-postponed for 10 years.** BCI kids timeline, ai transition choppiness, biotech extending reproduction. Khiara can still have kids in 10 years. The decade is pure P3 optionality.
 
 ---
 

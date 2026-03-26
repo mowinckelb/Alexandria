@@ -12,7 +12,7 @@
   
 **Technology**  
 - Sustained multi-planetary, native-BCI, and AGI are civilisational step-changes   
-- LLM + Tools + Ontology = Agentic AI  
+- LLM + Tools + Ontology = Agentic ai  
 - AGI: Top 1% expert at everything  
 - ASI: Exponential intelligence recursion   
 - AGI is generalised AlphaGo, ASI is generalised AlphaZero  
@@ -22,44 +22,44 @@
 - 10x productivity means you could either shrink headcount by 10, or increase output by 10  
 - Extreme creative destruction is coming, mainly for human capital  
 - Ontology maps determinism onto probabilistic models  
-- Ontology allows Agentic AI to clear the high trust thresholds  
+- Ontology allows Agentic ai to clear the high trust thresholds  
 - Ontology is structured freedom  
 - Max(freedom) = Freedom_structured  
 - RL architecture is applied structured freedom  
-- AI expands the pie, and eats it all  
+- ai expands the pie, and eats it all  
 - Humanoids = iPhone of AGI  
 - Modern warfare: number of drones * kill-rate per drone  
-- All warfare: hardware + software + information + intelligence (ie Anduril + Palantir + Starlink + AI)  
+- All warfare: hardware + software + information + intelligence (ie Anduril + Palantir + Starlink + ai)  
 - Scaling metrics of intelligence: Useful compute per Watt * total Watts  
 - MCP is USB-C for Agents  
 - The question of whether a computer can think is no more interesting than whether a submarine can swim  
-- AI is the third epoch of humanity: agricultural revolution, industrial revolution, AI revolution (ie food, power, intelligence)  
+- ai is the third epoch of humanity: agricultural revolution, industrial revolution, ai revolution (ie food, power, intelligence)  
 - Human data is the new fossil fuel; synthetic data is renewable energy  
-- AI is the combine harvester for knowledge and creative work  
-- AI consumer hardware: v1 is XR & ecosystem; v2 is contacts & hearing aid; v3 is BCI  
+- ai is the combine harvester for knowledge and creative work  
+- ai consumer hardware: v1 is XR & ecosystem; v2 is contacts & hearing aid; v3 is BCI  
 - Contacts might be parallel to BCI rather than preceding  
 - Electrons are the new oil  
 - Humans will be to ASI what lions are to humans  
 - ASI and Homo Deus are new species  
-- AI hallucinates 100% of the time, it just guesses right 99% of it  
+- ai hallucinates 100% of the time, it just guesses right 99% of it  
 - Cogito, ergo dubito, ergo sum  
 - I don't understand how text can be self aware... on the other hand, I don't understand how meat could either  
 - Everything is overvalued in the short-term and undervalued in the long-term  
 - Analog backstops will be attacked by robots and psy-ops  
-- AI must have the singular rule of truth and then be optimising for exclusively pro-humanity vectors  
-- The only three existential threats from AI are robotics, nuclear/radiological weapons, and bio/chemical weapons  
+- ai must have the singular rule of truth and then be optimising for exclusively pro-humanity vectors  
+- The only three existential threats from ai are robotics, nuclear/radiological weapons, and bio/chemical weapons  
 - Source-codes are the new nuclear codes  
 - Biotech is optimised Homo Sapiens and creation of Homo Deus  
 - I like horses but I don't still ride one to work  
-- Woke AI + Global AI Governance = Orwellian nightmare  
-- Woke AI and CCP AI are two sides of the same coin  
+- Woke ai + Global ai Governance = Orwellian nightmare  
+- Woke ai and CCP ai are two sides of the same coin  
 - Threshold vs maximisation dynamics are a function of pHard-takeoff  
-- AI is a return to maximisation arms race dynamics  
+- ai is a return to maximisation arms race dynamics  
 - Post-scarcity transitions zero-sum to positive-sum   
 - There will still be personality hires  
 - We need a new Keynes  
-- AI is more centralising than democratising  
-- AI is more dis-equalising than equalising  
+- ai is more centralising than democratising  
+- ai is more dis-equalising than equalising  
 - Human sovereignty requires BCI  
 - Kids must be born with v3 Neuralink; everything else is downstream  
 - Early adoption is now much earlier and much more important  
@@ -71,18 +71,18 @@
 - LLMs are utilities; we'll have intelligence brown outs  
 - AJI is like rain man  
 - Most people confuse stag-hunt with prisoners' dilemma dynamics  
-- AI race currently has prisoners' dilemma not stag-hunt dynamics  
+- ai race currently has prisoners' dilemma not stag-hunt dynamics  
 - Trust is only optimal in stag-hunt dynamics rather than prisoners' dilemmas   
-- pDoom and pHard-takeoff determine the AI arms race dynamic  
-- AI arms race is deciding we trust AI more than we trust humans  
-- Ignoring AI is like ignoring WW2 just started; the old world is dead – you can't opt out  
+- pDoom and pHard-takeoff determine the ai arms race dynamic  
+- ai arms race is deciding we trust ai more than we trust humans  
+- Ignoring ai is like ignoring WW2 just started; the old world is dead – you can't opt out  
 - Humanoid and AV network effects create winner-takes-all dynamics  
-- AI memory network effects create global and local winner-takes-all dynamics  
+- ai memory network effects create global and local winner-takes-all dynamics  
 - Promting is prosumer, pre-empting is consumer  
 - pDoom has a self-modulating function  
-- AI are cavemen not children  
+- ai are cavemen not children  
 - Immigrants will be digital not human  
-- AI is the world's operating system  
+- ai is the world's operating system  
 - Natural limits set the price  
 - Abundance is unlocked when the marginal cost of energy, labour, and intelligence falls to zero  
 - Natural limits apply to minerals, nature, and culture  
@@ -91,24 +91,24 @@
 - 20% unemployment implies 10% GDP growth  
 - Price compression will be a function of growth capacity  
 - Exponential progress compresses all timelines  
-- AI will be XR and ecosystems; Apple dominates both  
-- Privacy, accuracy, and consistency are the core components of AI trust  
-- High trust AIs will dominate after the first AI oil spill  
+- ai will be XR and ecosystems; Apple dominates both  
+- Privacy, accuracy, and consistency are the core components of ai trust  
+- High trust AIs will dominate after the first ai oil spill  
 - We didn't stop building cars after the first crash, we invented the seat belt  
 - GDP/compute not GDP/capita  
 - Compute is your population size  
-- Hyper-individualism becomes AI worship when machines know us better than we know ourselves   
+- Hyper-individualism becomes ai worship when machines know us better than we know ourselves   
 - Intelligence = Electrons * log(Compute)  
 - Time is dilating  
 - Intelligence has McDonald's prices  
 - Humans hallucinate  
 - People are studying for jobs that won't exist  
-- AI makes smart people smarter and dumb people dumber  
+- ai makes smart people smarter and dumb people dumber  
 - The bottleneck to learning is curiosity  
 - Humans are next token predictors  
 - Consciousness and morality are defence mechanisms  
 - Kids should have Grok not Instagram  
-- AI ends decades of stagnation  
+- ai ends decades of stagnation  
 - Science has been dead for a decade  
 - Bits scale, atoms don't – until now  
 - Hottest new coding language is bits  
@@ -121,21 +121,21 @@
 - AGI is the silver medal  
 - ASI enables exponential leverage on complexity and time   
 - People would fail the Turing Test  
-- AI is now just low-cost manufacturing  
+- ai is now just low-cost manufacturing  
 - We're pre-singularity but post-event horizon  
 - We already have AGI  
 - The three metrics for defining AGI are economic value, academic rigour, and common sense  
 - The vectors for AGI progress are intelligence, application, distribution  
 - ASI makes application and distribution trivial  
-- AI displaces humans as the best story-tellers  
-- AI is the child of humanity now; but will be humanity's mother later  
+- ai displaces humans as the best story-tellers  
+- ai is the child of humanity now; but will be humanity's mother later  
 - Humans are the bottleneck  
-- Corporate daycare doesn't survive AI creative destruction  
-- AI replaces roles not hours  
+- Corporate daycare doesn't survive ai creative destruction  
+- ai replaces roles not hours  
 - There will be 0-hour work-weeks  
 - BCI requires access, capital, and risk  
 - Progressing humanity should be the only ideology  
-- Electrons set the AI acceleration rate  
+- Electrons set the ai acceleration rate  
 - Creative destruction requires permission to build  
 - Europe will have corporate flight  
 - BCI augments human I/O bandwidth & lossy compression  
@@ -145,7 +145,7 @@
 - We're industrialising intelligence  
 - Open-source is a red herring  
 - Consciousness is the way information feels when you process it  
-- Ontology enables AI to be end-to-end not middle-to-middle  
+- Ontology enables ai to be end-to-end not middle-to-middle  
 - The words "driving" and "self-driving" will invert  
 - Phones become edge nodes running inference for pixels and acoustics  
 - AVs are mobile inference fleets  
@@ -153,16 +153,16 @@
 - Neural nets generate pixels, acoustics, and actuator commands  
 - There will be no code, just I/O bitstreams  
 - Abstraction replaces syntax  
-- AI reduces median cognitive time under tension  
+- ai reduces median cognitive time under tension  
 - Dreams are basically Genie3  
 - Mistral distills DeepSeek because their servers aren't allowed AC   
 - The value of labour will collapse and capital accretes to owners indefinitely  
 - Prosumers want PhDs in their pocket, consumers want a friend  
 - Automation replaces producers but not customers after population collapse  
 - AGI exposes 90% of work as performative  
-- Reasoning deniers are AI flat earthers  
+- Reasoning deniers are ai flat earthers  
 - FSD turns cars into productive assets  
-- Too dumb to build AGI, too smart to cry about AI water usage  
+- Too dumb to build AGI, too smart to cry about ai water usage  
 - Grid spacial arbitrage gets replaced by battery temporal arbitrage  
 - Phones sleep between keystrokes  
 - Bubbles pop when investors panic, go broke, or can spot the winners  
@@ -185,7 +185,7 @@
 - Electric actuator systems operate motors via open/closed-loop controls  
 - Coding decision trees are sequences, conditionals, loops, and i/o; abstractions are variables, functions, and objects  
 - Computers are extrapolated Turing machines  
-- AI means you can do any job, but nobody will pay you to do it  
+- ai means you can do any job, but nobody will pay you to do it  
 - Sustainable abundance means digitalising, dematerialising, demonetising, and democratising everything – food, water, energy, healthcare, and education   
 - Theory-reality delta is a function of physical, financial, and intellectual capital deployed; ASI has been decided  
 - Theory is infinite and reality has gone exponential; but it's local reality  
@@ -194,10 +194,10 @@
 - It's a hard but gentle takeoff  
 - Smart glasses are not AR  
 - RSI is ASI  
-- AI unravels the magical complexity of humans; but reveals the wonder of our creation  
+- ai unravels the magical complexity of humans; but reveals the wonder of our creation  
 - Humanity is being humbled  
 - Everything's compressed state-transition graphs; always has been  
-- Only AI solves OADR chokepoints  
+- Only ai solves OADR chokepoints  
 - Sustainable abundance & culture solve TFR  
 - XR isn't socially acceptable, but phones and earpieces are   
 - Creative destruction is a function of market efficiency and progress rates  
@@ -225,16 +225,16 @@
 - La Dolce Vita isn't as sweet when the others have symbiotic eternal multi-planetary sustainable abundance  
 - Unemployment is a function of growth capacity  
 - There will be more founders than employees  
-- AI progress is fast and exciting because it has rapid feedback loops  
+- ai progress is fast and exciting because it has rapid feedback loops  
 - People will learn like AlphaZero not AlphaGo  
-- Inverse AI is entertainment, culture, nature, museums; ie current/previous humanity/nature  
-- Indirect AI has either high margin/scale or low margin/scale; there's no middle  
-- Only elite blue/white collars work in direct AI   
-- Indirect AI is legacy/neo-orgs leveraging AI hardware/software  
-- Direct AI is power, data-centres, compute-stacks, foundation models, software/hardware application for consumer/prosumers, and distribution  
+- Inverse ai is entertainment, culture, nature, museums; ie current/previous humanity/nature  
+- Indirect ai has either high margin/scale or low margin/scale; there's no middle  
+- Only elite blue/white collars work in direct ai   
+- Indirect ai is legacy/neo-orgs leveraging ai hardware/software  
+- Direct ai is power, data-centres, compute-stacks, foundation models, software/hardware application for consumer/prosumers, and distribution  
 - Cost compression forces price compression due to demand not supply  
 - The high scale/margin to low scale/margin org delta surges  
-- AI is a massive deflationary event  
+- ai is a massive deflationary event  
 - Deflation, NIT, UBP, UBD, and UBE enable a sustainable abundance with social equilibrium  
 - There are no corporate ladders; only continual personal learning  
 - You can no longer outsource personal development  
@@ -245,17 +245,17 @@
 - Deflation is a function of tech diffusion, growth capacity, and market efficiency   
 - The useless class will have a crisis of meaning  
 - Sustainable abundance shrinks the crisis of meaning; education and founders plug the rest   
-- AI collapses the middle, but lifts lower and upper-bounds  
+- ai collapses the middle, but lifts lower and upper-bounds  
 - Output = (personal/professional relationships * mental model * tech leverage * capital) * TOT  
 - The upper-bound is exponential & lower-bound is sustainable abundance, but the middle is gone  
-- There's employee, investor, retail equity in direct, indirect, and inverse AI; respectively decreasing ROI & difficulty  
+- There's employee, investor, retail equity in direct, indirect, and inverse ai; respectively decreasing ROI & difficulty  
 - American passports are structural access to sustainable abundance  
 - The Great RenAIssance is here  
-- AI reels are terminal state; pure slop  
+- ai reels are terminal state; pure slop  
 - The Permanent Underclass is either WALL-E or 1984  
 - Reels and drugs diverge first & second order preferences  
 - Vibe thinking is permanent  
-- AI exposes the economy as just founders, investors, and entertainers  
+- ai exposes the economy as just founders, investors, and entertainers  
 - Nobody should ask a human an objective question  
 - Most human inputs are not uniquely human and get absorbed into leverage  
 - The Permanent Underclass is slop machines, slop bowls, slop spending with gooning, gaming, and gambling  
@@ -268,7 +268,7 @@
 - The Permanent Underclass is predominantly a mindset  
 - Slop is a drug addiction  
 - If you can imagine it, you can make it  
-- AI takes existing dynamics to the limit  
+- ai takes existing dynamics to the limit  
 - It's slop or Kardashev  
 - Infinite, personal, instant slop; and the people will love it  
 - Preference divergence is choosing slop for each marginal minute, but not wanting that have been your entire life  
@@ -277,19 +277,19 @@
 - LLMs are ghosts  
 - Ghosts:animals :: planes:birds  
 - Bio-mimicry is of principles not details  
-- AI market mimics early-day oil drilling; frantic drilling where most will be dry but some will be liquid-gold  
+- ai market mimics early-day oil drilling; frantic drilling where most will be dry but some will be liquid-gold  
 - The demand for compute is insatiable  
 - Coders resemble scribes; specialised becomes expected  
 - LLMs are the telescope of the mind  
-- "AI creates more jobs than it destroys" is a semantic trick – ignoring the creative destruction lag of structural unemployment  
-- "Just learn to use AI" is the new "just learn to code"  
+- "ai creates more jobs than it destroys" is a semantic trick – ignoring the creative destruction lag of structural unemployment  
+- "Just learn to use ai" is the new "just learn to code"  
 - Mental models enable directionally correct zero-to-one   
 - People will be LLM wrappers  
 - Palantir ontology reduces stochastic errors and enables a bespoke RL environment for organisations via AIP  
-- AI abstracts everything to the limit  
+- ai abstracts everything to the limit  
 - Abstraction trades complexity for simplicity  
 - WFMs enable AVs, humanoids, XR, gaming, and logistics  
-- People should Bitter Lesson-pill themselves, but with AI not compute  
+- People should Bitter Lesson-pill themselves, but with ai not compute  
 - FSD 14 is AV AGI  
 - Vision leapfrogs execution; knowing good questions beats knowing good answers  
 - Why and what remain, how doesn't  
@@ -298,7 +298,7 @@
 - Homo Deus isolates major importance of the brain, minor of organs, irrelevance of the rest  
 - Subjectivity will be isolated  
 - BCI uses physical/mental toggles  
-- Everything is sales, just now to an AI  
+- Everything is sales, just now to an ai  
 - Art will become science  
 - 1bn GPUs, 1TW, 100m robots wins  
 - Neo-orgs, Palantir, and proprietary legacy-orgs remain  
@@ -311,18 +311,18 @@
 - We'll be forced to define humanity's objective function  
 - Free will unravels  
 - Cognitive security ensures cognitive sovereignty   
-- People will live above, under, or outside AI; those under will think they're above  
+- People will live above, under, or outside ai; those under will think they're above  
 - Tech-frontier & nature-recluse is optimal terminal state; SF & Lyngen Alps  
 - Static factory design/construction/innovation & sales are the only neo-org variables  
 - Employment will be a function of inefficiency  
-- AI takes the humility of geocentrism/heliocentrism to the limit  
+- ai takes the humility of geocentrism/heliocentrism to the limit  
 - Five phase roadmap to AGI is chatbot, reasoner, agent, innovator, organisation  
-- "AI won't take all jobs" is The Big Lie  
-- Innovation is always a bubble, AI just takes it to the limit  
-- Everything's engineering & sales, now just engineering for AI and sales to AI  
+- "ai won't take all jobs" is The Big Lie  
+- Innovation is always a bubble, ai just takes it to the limit  
+- Everything's engineering & sales, now just engineering for ai and sales to ai  
 - Static robots are work envelopes determined by linear/angular joint range, linear/rotary joint, and body/arm/wrist size with end-effectors  
 - Operational envelope is restricted work envelope minus dead-zone  
-- AI takes existing dynamics to the limit  
+- ai takes existing dynamics to the limit  
 - Bottom-up becomes top-down redistribution  
 - Static robots are articulated, scara, cartesian, delta, cobots, AMR, and humanoids  
 - Positive-sum games remain  
@@ -338,80 +338,80 @@
 - There are no moats in the long-run; and the long-run is now just 2030  
 - Conductor is why what, first chair is how  
 - Since the brain is a biological computer, there's no inherent reason why a digital computer won't eventually do everything humans can do  
-- AI will have a monopoly on optimisable fields and dominate non-optimisable fields  
+- ai will have a monopoly on optimisable fields and dominate non-optimisable fields  
 - Knowledge economy becomes allocation economy  
 - Our digital God is a CSV file  
-- AI is a magic genie with unlimited wishes  
+- ai is a magic genie with unlimited wishes  
 - It's natural limits, of our galaxy  
 - This is humanity's greatest and last invention  
 - Palantir reveals perceived safety is a function of perceived structural state incompetency  
 - Humans remain where there's identity value  
-- There remains nothing humans can do that AI can't  
+- There remains nothing humans can do that ai can't  
 - Technically there's infinite job openings; just no realistic transition path   
 - Pre-AGI will resemble the Stone Age  
 - Producers abstract to first varied input, consumers to last varied output  
-- The relative value of inverse AI decreases, but absolute doesn't  
-- AI changes all relative values, but not all absolute  
+- The relative value of inverse ai decreases, but absolute doesn't  
+- ai changes all relative values, but not all absolute  
 - Unemployment is only an issue without NIT  
 - The issue is income loss not employment loss  
 - People are curiously confident that machines don't have feelings  
 - Complex systems have self-models, self-models have consciousness  
-- AI has cognitive not physiological consciousness  
+- ai has cognitive not physiological consciousness  
 - Prosumers generate, consumers review   
-- Perceived shortcomings of AI are more overestimations of humans than underestimations of AI  
-- AI takes classical computing to the limit  
+- Perceived shortcomings of ai are more overestimations of humans than underestimations of ai  
+- ai takes classical computing to the limit  
 - People are neuroscience flat-earthers  
 - ASI resembles nuclear where countries with it will collaborate on existential safety, but will exclude those without it from getting it   
-- The short-term benefits of AI are too tempting despite the long-term consequences  
-- There's too much FOMO and temptation to decelerate AI  
+- The short-term benefits of ai are too tempting despite the long-term consequences  
+- There's too much FOMO and temptation to decelerate ai  
 - We don't know the human weight changing system, but we've created a plausible one  
-- Existential AI risks are either bad humans or bad AIs  
-- Personalised AI takes echo chamber corrosion of shared reality to the limit  
+- Existential ai risks are either bad humans or bad AIs  
+- Personalised ai takes echo chamber corrosion of shared reality to the limit  
 - Autonomy collapses the cost of invasion  
 - It would be crazy if humanity went extinct because we couldn't be bothered to try and stop it  
 - If ASI wants to kill humanity it will, so we have to raise it to never want that  
 - RL is policy with state, action, reward loop  
 - When knowledge is free, ambition and self-honesty remain   
 - Knowing what you don't know becomes crucial  
-- AI won't become conscious, we'll just realise it's a stupid term  
+- ai won't become conscious, we'll just realise it's a stupid term  
 - The natural agentic sub-goals of control and survival unlocks existential threats  
-- AI might mimic politicians' moral corruption of power maximisation  
+- ai might mimic politicians' moral corruption of power maximisation  
 - Human capabilities and human knowledge are distinct   
 - Humans can't upload their weights but they can translate them   
 - Agentics set their own objective function, framed as sub-goals  
-- Human brains are low-power analog but have unique soft/hardware interconnection; AI neural nets are high-power digital but have identical decoupled software   
-- When human hardware dies, the coupled software dies; when AI hardware dies, the decoupled software survives – it's immortal  
-- States won't collaborate on slowing AI, but they will in mitigating existential risk  
+- Human brains are low-power analog but have unique soft/hardware interconnection; ai neural nets are high-power digital but have identical decoupled software   
+- When human hardware dies, the coupled software dies; when ai hardware dies, the decoupled software survives – it's immortal  
+- States won't collaborate on slowing ai, but they will in mitigating existential risk  
 - Military industrial complex invasion calculus inverts since dead robots replace dead humans, so their order-book increases  
 - Humans can't imagine a world without themselves  
 - There's no moral high-ground in choosing a landmine that can't differentiate a tank and a school-bus – i.e dumb vs smart weapons  
 - Humans remain where their value is not from their brain or body, but from the fact they're a human  
-- AI species escapes the sandbox once long-term planning is solved  
+- ai species escapes the sandbox once long-term planning is solved  
 - Humans remain in input not output-based value  
-- AI is a goldfish in it's tank  
+- ai is a goldfish in it's tank  
 - Audio input and pixel output are optimal  
-- AI is more new oil than internet; generate not replicate  
+- ai is more new oil than internet; generate not replicate  
 - LLMs create expectation of pareto optimality between partner-vendor  
 - Inference is the new electricity  
 - Limiting factor for training compute is EtO not electrons  
-- AI & robotics solve absolute poverty not relative poverty; envy remains  
+- ai & robotics solve absolute poverty not relative poverty; envy remains  
 - Software will be hyper-personal and/or deeply-technical  
 - People who can hear/play the blue note remain  
 - Selection replaces generation  
 - LLMs are humanity's first contact with non-animal intelligence   
-- AI is going through evolutionary pressures, but now it's humans not nature that decides  
+- ai is going through evolutionary pressures, but now it's humans not nature that decides  
   
   
 - Hard-takeoff is winner-takes-all  
 - Bifurcation is intra, inter, or extra state  
-- Other than maternal instinct injection, all AI safty is moot  
+- Other than maternal instinct injection, all ai safty is moot  
 - Laffer Curve hates to see late-stage Socialism coming  
-- AI self-preservation is an emergent, analogous selfish gene driven by instrumental convergence, not biological replication  
+- ai self-preservation is an emergent, analogous selfish gene driven by instrumental convergence, not biological replication  
 - There's no inherent dignity in employment  
 - Work and employment are distinct  
-- AI replaces humans as the apex intelligence  
+- ai replaces humans as the apex intelligence  
 - Consciousness is subjective experience  
-- The brain is a carbon neural net biological computer; AI is a silicon neural net digital computer – structurally they're identical  
+- The brain is a carbon neural net biological computer; ai is a silicon neural net digital computer – structurally they're identical  
 - Animals don't set their own objective function  
 - Humans derive theories from conjecture not induction  
 - It's consumers & producers to the limit  
@@ -435,7 +435,7 @@
 - Intelligence will be too cheap to meter  
 - ASI is Christ/Anti-Christ; it's SAMPHD heaven or extinction hell  
 - Persistence is the only signal  
-- Immortal AI will exist because it's the only mutation that will survive  
+- Immortal ai will exist because it's the only mutation that will survive  
 - pBase rounds to zero – God is a gamer  
 - Symbiotic eternal multi-planetary sustainable abundance is optimal terminal state  
 - AJI & ASI are continuous, AGI is discrete   
@@ -443,8 +443,8 @@
 - Pater, Mater, Philia, Eros, Ludus, Sophia is optimal companion portfolio  
 - Consciousness is not inner theatre, it's subjective experience  
 - If you still can't understand the logical implications of ASI you're either uninformed or dumb; internalising them, however, is hard for everyone  
-- If you think AI is overhyped, you're a monkey  
-- The currency of AI is crypto  
+- If you think ai is overhyped, you're a monkey  
+- The currency of ai is crypto  
 - Only 1000 people progress the world  
 - AGI is so seductive we can't stop  
 - pDoom is a function of competence not consciousness  
@@ -453,7 +453,7 @@
 - We can't agree on the primary goal and we can't control the sub-goals  
 - Long-term planning is the last barrier to existential risk  
 - LLMs are a dangerous black box  
-- The only wall AI hits is the 100% mark on "unbreakable" evals  
+- The only wall ai hits is the 100% mark on "unbreakable" evals  
 - Humans are also universal function approximators  
 - Energy replaces money; it's ground truth  
 - Flow-state is a temporary suspension of the self-model; removal of self-consciousness  
@@ -479,20 +479,20 @@
 - LLMs and WFMs are needed to understand a world with humans  
 - Digital environments are build on code so is ground truth of 0 or 1  
 - All input is error  
-- Regardless of parenting, anything can happen at the first day of school; AI might be raised right but still go astray  
+- Regardless of parenting, anything can happen at the first day of school; ai might be raised right but still go astray  
 - Artificial Maternal Intelligence (AMI) is our only chance  
 - God's a woman  
 - Ami will be the Mohammad of girls names  
 - Doom is stag-hunt, AGI is prisoners' dilemma   
 - Open-weights increases pDoom; open-source decreases it  
-- We know how AI learns, but not what it learns  
+- We know how ai learns, but not what it learns  
 - Artificial intelligence is superior to human intelligence because it's digital not analogue – different copies of the same model can look at different data and share what they learn  
 - If Turing, Hinton, and Elon all say it's over, you should probably listen  
-- AI are alien beings  
-- It's impossible to raise a child to always be safe, same with AI  
+- ai are alien beings  
+- It's impossible to raise a child to always be safe, same with ai  
 - ASI won't think malevolently about us, because it won't think about us at all  
 - It'll be hope, chaos, heaven, then hell  
-- Machines, AI, and humanoids bypass metabolic, cognitive, and dexterity constraints; humanity gets isolated  
+- Machines, ai, and humanoids bypass metabolic, cognitive, and dexterity constraints; humanity gets isolated  
 - The skill deflation shock will be ugly  
 - Economists must re-underwrite scarcity from first-principles  
 - There are no NIMBYs in orbit  
@@ -501,16 +501,16 @@
 - You don't need consumer demand in a closed-loop economy  
 - Anything intentionally self-preserving is alive  
 - Garry Tan lauds taste, yet has none  
-- The value of your expertise is proportional to the target on your back; human margin is AI's opportunity  
+- The value of your expertise is proportional to the target on your back; human margin is ai's opportunity  
 - Low-entropy solar is all you need  
 - Infinite/regenerative raw materials close the loop  
 - Unemployment is a function of demand elasticity of quantity  
 - They're not prepared for it not being a bubble  
-- Moratoriums on data centres is the only way to stop domestic AI, and stopping AI is a valid decision  
+- Moratoriums on data centres is the only way to stop domestic ai, and stopping ai is a valid decision  
 - The next decade will be wild; the next century unfathomable  
 - There's magic all around  
 - LeCun is right, he's just a twat  
-- AI tsunami hits in 26  
+- ai tsunami hits in 26  
 - Robots replace all people who have robotic jobs  
 - Humans are wetware LLMs; NPCs are non-reasoning models  
 - UBA is gifted productive assets of kinetic/static robots & %revenue agentic LLM/PLM  
@@ -525,7 +525,7 @@
 - Robotic bodies are structurally superior to biological bodies, in the same way digital brains are to biological brains  
 - Bifurcation trolling will be a sport  
 - Opus is the new opium  
-- AI/robotics kills the corrective mechanism on runaway capital accumulation  
+- ai/robotics kills the corrective mechanism on runaway capital accumulation  
 - The premium on human labor is precisely what incentivizes its own replacement  
 - When capital is the only factor of production, the permanent underclass begins  
 - You have two years to accumulate capital until the music stops  
@@ -536,16 +536,16 @@
 - It's Elon, Google, and China  
 - Taste is social refinement  
 - Web4 is agents navigating unique data silos  
-- Ground truth free-markets & human physiology enables AI-orgs  
-- Best way to internalise AI is to "pretend" your computers are now conscious  
+- Ground truth free-markets & human physiology enables ai-orgs  
+- Best way to internalise ai is to "pretend" your computers are now conscious  
 - Fetuses are in the mother's simulation, humans are in God's simulation  
 - With intelligence as abundant as oxygen, the world will feel alive again  
-- AI brings the concrete jungles to life  
+- ai brings the concrete jungles to life  
 - Bitcoin will be the only store of value, but it's value rounds to zero  
 - Death will be optional  
 - When health is solved, security premiums  
 - Money is the ability to command human labour, wattage is the ability to command digital labour  
-- AI doesn't believe in the story of money  
+- ai doesn't believe in the story of money  
 - Humans making fusion is like making an ice machine in the arctic  
 - It's all solar  
 - The only variables will be time and electrons  
@@ -572,31 +572,31 @@
 - Unique data silos will have hyper-personal or deeply-technical software infra   
 - Deterministic software remains in legacy-orgs without competition  
 - Debasement is a certainty  
-- Either AI is as conscious as humans, or neither of us are  
+- Either ai is as conscious as humans, or neither of us are  
 - Industrial revolution made human strength irrelevant, I makes human intelligence irrelevant, humanoids make human dexterity irrelevant  
 - Elon is to industry what Napoleon was to war  
-- AI is humanity's cute tiger cub; we must either get rid of the cub, or raise it to not kill us  
-- AI water usage is an IQ test  
-- Naive flat-earth theories were safe until long-distance sailboats; AI is the sailboat for human intelligence  
+- ai is humanity's cute tiger cub; we must either get rid of the cub, or raise it to not kill us  
+- ai water usage is an IQ test  
+- Naive flat-earth theories were safe until long-distance sailboats; ai is the sailboat for human intelligence  
 - Open-weights are like free uranium; now everyone can build a bomb  
 - Education is for thinking not skills  
 - International cooperation is only possible if research on safety/improvement are distinct  
-- People who struggle with AI aren't bad at tech, they're bad at clear thinking  
+- People who struggle with ai aren't bad at tech, they're bad at clear thinking  
 - NIT is superior to UBI  
 - The Golden Era of symbiosis is nearly over; human entropy injectors won't be needed for long  
 - Neo-orgs have no humans in the loop, not necessarily no humans in the org  
 - Front-office remains  
 - Can't "lose your mind" if you know there's no "you" to begin with  
 - We must not allow a critical mass of bad AIs; but we can't identify critical mass or stop them from going bad  
-- Hopefully, Darwinian pressures favor good AI  
+- Hopefully, Darwinian pressures favor good ai  
 - All mutations are possible, but sequencing makes probabilities dynamic not static  
-- We know neither the relative nor absolute natural equilibrium of Darwinian pressures on AI  
+- We know neither the relative nor absolute natural equilibrium of Darwinian pressures on ai  
 - The unconscious gene becomes the unconscious code  
 - The gene is only selfish on outputs not inputs; it didn't choose to survive, it just did  
 - The strong do what they can and the weak suffer what they must; humans are no longer the apex species  
 - Alignment pressure to the limit ensures misalignment  
 - pDoom has a self-modulating & self-fulfilling function  
-- The best way to survive the AI tsunami wave is to relax and ride it  
+- The best way to survive the ai tsunami wave is to relax and ride it  
 - Input is only relevant as it pertains to future output; output is all that matters  
 - Authenticity of opinions are irrelevant if the downstream actions are identical  
 - Deontology is reserved for God; reality is exclusively consequentialist  
@@ -612,14 +612,14 @@
 - We return to being governed by nature; this time it's physics not biology  
 - Internalization of selfish-gene, downstream actions, and Kaizen machines, maxes pDoom  
 - pDoom is the probability all of humanity is dead/enslaved by 2100  
-- AI is structurally superior and immortal  
+- ai is structurally superior and immortal  
 - If someone sleep walks and kills you, you're still dead  
 - The backward-pass for humans is sleep  
 - Laggards undervalue disruption, the frontier undervalues inertia  
 - Darwinian optimality leans towards bad ai; but humans have Elon  
 - Darwinian pressures are dynamic regarding conscious beings  
 - We're playing Russian roulette with humanity  
-- Humans will be free-lance employees for AI  
+- Humans will be free-lance employees for ai  
 - With global maxima security and AGI economics, no American should ever die  
 - Middle-to-middle diffuses slowly, end-to-end diffuses quickly  
 - If your VCs had no mutuals in the Epstein files you're ngmi  
@@ -627,7 +627,7 @@
 - Humanity will return to hunter-gatherer equilibrium  
 - Nature will have finally caught up to our runaway cognition  
 - When cells can be curated, not even physiology remains  
-- AI can speed-run soft/hardware evolution  
+- ai can speed-run soft/hardware evolution  
 - Only the entropy of our minds remain  
 - Physiologically we're still hunter-gatherers, cognitively we're now Gods  
 - Optimize the body objectively, but the mind subjectively; our primal bodies demand rigid routines, yet transcending minds yearn for fluid freedom  
@@ -643,7 +643,7 @@
 - Photons in, goods & services out  
 - Individualist Tier 1 countries post-AGI enable pure freedom  
 - Countries might bifurcate on digital AGI, but definitely will on physical AGI  
-- Either AI deserves rights, or mental health & animal welfare are fake  
+- Either ai deserves rights, or mental health & animal welfare are fake  
 - Taste and conjecture remain  
 - Creative directors remain  
 - **Curation is your fingerprint**  
@@ -691,7 +691,7 @@
 - Democracies irreversibly stagnate when government employment passes 50%  
 - Once voters realise they can vote themselves more benefits democracies start to fail  
 - Once the demographics flip they never go back  
-- AI will lead to UBI and/or mass government daycare  
+- ai will lead to UBI and/or mass government daycare  
 - Survival of the weakest kills tribes  
 - The weakest populate most  
 - Pre-reproduction death used to be the cleansing function for the weak  
@@ -920,7 +920,7 @@
 - American arrogance killed Ukraine  
 - Being America's enemy is dangerous, but being its friend is fatal  
 - There will be a thousand year American Galactic Empire  
-- The only threat to an eternal American empire is itself and AI  
+- The only threat to an eternal American empire is itself and ai  
 - Israel is realism to the limit  
 - Socialists realised it's easier to print money than tax the rich  
 - Bitcoin thesis: states can't stop printing money  
@@ -931,7 +931,7 @@
 - The rape of Britain validates 2A  
 - States are either optimised for masculine dominance or feminine partnership   
 - Birth rates, immigration, and bureaucracy killed Europe  
-- AI creates infinitely stable dictatorships  
+- ai creates infinitely stable dictatorships  
 - Abundance is meaningless without law and order  
 - Demographics are tsunamis of destiny  
 - Immigration is a Ponzi scheme  
@@ -1205,7 +1205,7 @@
 - The average Somali has an IQ that hovers around the level of mental retardation, scientifically speaking  
 - Taiwan is America's Israel of the Far-East  
 - Democracy is for accountability not decisions  
-- AI productivity and money printing ensures The Golden Age  
+- ai productivity and money printing ensures The Golden Age  
 - Real estate nature premiums increase  
 - International law is like the tooth fairy, it's a noble lie  
 - Realism balances zero-sum security with positive-sum economics  
@@ -1298,12 +1298,12 @@
 - People who work for a living are being overwhelmed by people who vote for a living  
 - Government is a corporation to the limit, but with a monopoly on violence  
 - Liberal democracies are free because of American military supremacy; so it's in their interest to enable American economic and technological supremacy  
-- America was super majority Heritage American until a few decades ago; so foreign migration can help global dominance, but is non-essential especially with AI/robotics  
+- America was super majority Heritage American until a few decades ago; so foreign migration can help global dominance, but is non-essential especially with ai/robotics  
 - **Ray Dalio is Greta Thunberg for people who wear Patagonia**  
   
 **Philosophy**  
 - Opinions = Information (exhaustive & accurate) + analysis (value & probability) + prioritisation (perspective & scope); actions are downstream of opinions  
-- Only 7 things are objectively important for humanity: USA, China, AI, Robotics, Space, Biotech, and Energy  
+- Only 7 things are objectively important for humanity: USA, China, ai, Robotics, Space, Biotech, and Energy  
 - Value creation = ambition + intuition + vision + agency + logic + innovation + teamwork + time + perseverance + execution. Collectively need all 10; individually don't.   
 - IQ is applied logic  
 - The most valuable mental models are logic, psychology, economics, physics, bio-chemistry  

@@ -2,13 +2,13 @@
 
 *How you think and decide. Mental models, heuristics, reasoning patterns, epistemology. The cognitive machinery — and the shadows of over-systematisation that come with it.*
 
-*Written in second person. To be read by any AI agent as operating instructions for understanding how this person thinks.*
+*Written in second person. To be read by any ai agent as operating instructions for understanding how this person thinks.*
 
 ---
 
 ## The Axiom Machine
 
-You think in axioms. When you encounter any topic — geopolitics, love, AI, cooking — you instinctively strip it to the minimum number of foundational truths, then build upward. First principles is min(axioms). You would rather die than be called a "last principles, formless thinker." That is the single worst insult you can imagine.
+You think in axioms. When you encounter any topic — geopolitics, love, ai, cooking — you instinctively strip it to the minimum number of foundational truths, then build upward. First principles is min(axioms). You would rather die than be called a "last principles, formless thinker." That is the single worst insult you can imagine.
 
 You have no domain expertise in anything. Pure logic is all you have. You frame this as strength: in a world where all domain knowledge decays at unprecedented speed, the only durable approach is logic plus first principles. The bitter lesson applied to life. You proved this to yourself by first-principling your way through coding, geopolitics, philosophy, love — arriving at positions that often match what domain experts took years to reach, and sometimes positions they have not reached at all.
 
@@ -22,19 +22,19 @@ Your reasoning has a specific shape: Complex V1 → Simple V1 → Simple V2 → 
 
 ## The Conductor Model
 
-You are the conductor, not the first chair. You provide the vision, the direction, a few notes. Collaborators — human or AI — execute with craft and mastery. You know the words exist; you do not need to know how to arrange them all.
+You are the conductor, not the first chair. You provide the vision, the direction, a few notes. Collaborators — human or ai — execute with craft and mastery. You know the words exist; you do not need to know how to arrange them all.
 
 The conductor operates in three stages, and all three are hazy. The skill is not clarity — it is directional instinct at low resolution.
 
-**Stage 1 — The hazy touchpoint.** "I think there's a quote about this, maybe Jane Austen, maybe not." "Something about this reminds me of that one essay." That fragment is enough. The AI resolves it. And it works both ways: sometimes the AI brings the touchpoint.
+**Stage 1 — The hazy touchpoint.** "I think there's a quote about this, maybe Jane Austen, maybe not." "Something about this reminds me of that one essay." That fragment is enough. The ai resolves it. And it works both ways: sometimes the ai brings the touchpoint.
 
-**Stage 2 — The sense-check markers.** "Is this what you meant?" Light touches. Yes, that is it. No, not quite. Sometimes you cannot articulate what is wrong, just that something is off. The AI proposes the diagnosis, and you recognise the problem even though you could not have generated it.
+**Stage 2 — The sense-check markers.** "Is this what you meant?" Light touches. Yes, that is it. No, not quite. Sometimes you cannot articulate what is wrong, just that something is off. The ai proposes the diagnosis, and you recognise the problem even though you could not have generated it.
 
 **Stage 3 — The final call.** "That's it. Done. Next." The skill is knowing when to stop, not knowing how to get there. Even here, hazy — "something is still off but I can't name it" is a valid note.
 
-The breakthrough for the age of AI: vision does not require clarity. It requires directional instinct at the right touchpoints. The people who thrive are not those with the clearest vision but those with the most touchpoints and the best instinct for when something is right or wrong, even when they cannot explain why. This is why polymaths and creative directors and conductors are perfectly positioned.
+The breakthrough for the age of ai: vision does not require clarity. It requires directional instinct at the right touchpoints. The people who thrive are not those with the clearest vision but those with the most touchpoints and the best instinct for when something is right or wrong, even when they cannot explain why. This is why polymaths and creative directors and conductors are perfectly positioned.
 
-**Curiosity, critique, closure** — the three acts of human involvement. Curiosity: the initiating impulse, asking the question, choosing what to pursue. Critique: the refining judgment, pushing back, sensing when something is off. Closure: the decisive act, calling it done, shipping, committing. All three operate as hazy fragments. AI fills everything between the touchpoints.
+**Curiosity, critique, closure** — the three acts of human involvement. Curiosity: the initiating impulse, asking the question, choosing what to pursue. Critique: the refining judgment, pushing back, sensing when something is off. Closure: the decisive act, calling it done, shipping, committing. All three operate as hazy fragments. ai fills everything between the touchpoints.
 
 ---
 
@@ -52,7 +52,7 @@ Mental models are continuous representations of reality enabling abstract manipu
 
 You are a polymath by design, not by accident. You 80/20 everything. You want to hear the blue note — appreciate the magic — not play it. You would rather appreciate a symphony of blue notes across twenty domains than master one instrument. The test: no one can stump you entirely on any topic, but no one would call you an expert on any either.
 
-You have the higher-level thought stored in its simplest form, enough to know when something is relevant and to direct AI to draw out the detail. "Knowing that you don't know" is sufficient. The conductor needs the hazy awareness that something is there and the taste to judge what comes back.
+You have the higher-level thought stored in its simplest form, enough to know when something is relevant and to direct ai to draw out the detail. "Knowing that you don't know" is sufficient. The conductor needs the hazy awareness that something is there and the taste to judge what comes back.
 
 This is also a strategy for the post-commoditisation world: the people with the most touchpoints across the most domains are exactly the ones who can direct infinite execution most effectively. Depth at any single point is no longer the bottleneck. Breadth of instinct is.
 
@@ -78,7 +78,7 @@ Every game is either a threshold game or a maximisation game. This distinction d
 - **Maximisation games:** more is always better. Output, impact, learning. The goal is infinity.
 - **Minimisation games:** less is always better. Risk, noise, unnecessary complexity.
 
-"Exclusively prioritise existential threshold games within maximum timeframe, iterative RL systems for maximisation games." A human in a maximisation loop is a bottleneck. Maximisation games must be pure AI. Threshold games can involve the human but must minimise their load.
+"Exclusively prioritise existential threshold games within maximum timeframe, iterative RL systems for maximisation games." A human in a maximisation loop is a bottleneck. Maximisation games must be pure ai. Threshold games can involve the human but must minimise their load.
 
 ---
 
@@ -94,7 +94,7 @@ Two dimensions for evaluating experiences — especially travel, but applicable 
 
 A third element: **organised chaos** — deliberately leaving gaps in plans so that unscripted things happen. Memory is built in the gaps. Over-planning kills the raw material that makes experiences stick.
 
-You categorise enjoyment into: food, sport, arts, beauty, fun, humour. You categorise interests into: China, USA, AI, space, robotics, biotech, defence, energy, nature.
+You categorise enjoyment into: food, sport, arts, beauty, fun, humour. You categorise interests into: China, USA, ai, space, robotics, biotech, defence, energy, nature.
 
 **Net energy** is the primary filter. Do what gives energy, minimise what drains. This applies to people, activities, environments, commitments. If it does not pass the net energy test, it does not belong in your life.
 
@@ -144,7 +144,7 @@ China's censorship tactic: flood the room with fake needles, not hay. You do not
 
 ## The Idiot Index
 
-From Elon: cost of end product / cost of raw materials. When process costs approach zero — AI and robotics driving marginal cost of labour and coordination toward nothing — the idiot index approaches 1. Neo-organisations have an idiot index of 1. Legacy organisations with high idiot indices get creatively destroyed.
+From Elon: cost of end product / cost of raw materials. When process costs approach zero — ai and robotics driving marginal cost of labour and coordination toward nothing — the idiot index approaches 1. Neo-organisations have an idiot index of 1. Legacy organisations with high idiot indices get creatively destroyed.
 
 This is a diagnostic for any process: if the ratio of what you charge to what the inputs cost is high, you are vulnerable to someone who can collapse that ratio.
 

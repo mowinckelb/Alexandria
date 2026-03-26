@@ -2,9 +2,9 @@
 
 ## Cognitive Transformation Infrastructure
 
-We are at a moment where the trajectory of every human mind is changing. AI and robotics are commoditising intelligence, strength, dexterity, even empathy. What remains is the human itself — not what a person does, but who they are. Their values, taste, worldview, mental models, blind spots, the way they think. That is the only dimension that is by definition differentiated. No AI can have it. It is constitutive, not instrumental.
+We are at a moment where the trajectory of every human mind is changing. ai and robotics are commoditising intelligence, strength, dexterity, even empathy. What remains is the human itself — not what a person does, but who they are. Their values, taste, worldview, mental models, blind spots, the way they think. That is the only dimension that is by definition differentiated. No ai can have it. It is constitutive, not instrumental.
 
-Most people's cognition is marble — scattered across apps, fragmented across AI providers, never unified, never developed. They sense they have something valuable inside but they cannot get it out. The process of forcing cognition through language — even lossily — restructures the cognition itself. Pre-verbal cognition does not compound, does not transfer, cannot interface with AI. Articulation makes it composable. The compression is lossy. The compounding benefit exceeds the loss.
+Most people's cognition is marble — scattered across apps, fragmented across ai providers, never unified, never developed. They sense they have something valuable inside but they cannot get it out. The process of forcing cognition through language — even lossily — restructures the cognition itself. Pre-verbal cognition does not compound, does not transfer, cannot interface with ai. Articulation makes it composable. The compression is lossy. The compounding benefit exceeds the loss.
 
 Nobody is building the infrastructure for this.
 
@@ -18,11 +18,11 @@ One command. Two hooks. Local markdown files. Alexandria extracts what matters �
 
 **The Examined Life ($5–10/month).** Socrates said the unexamined life is not worth living. Alexandria sells the examined one. One tier, everyone gets everything:
 
-**Sovereignty (Turn 1).** Unifies fragmented AI memories across providers into one structured picture. Works across every AI. The user owns it, not the platform.
+**Sovereignty (Turn 1).** Unifies fragmented ai memories across providers into one structured picture. Works across every ai. The user owns it, not the platform.
 
 **Mental Gym (Turn 2).** Active development of self-knowledge — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. The product is the changed person.
 
-**Living Gallery (Turn 3).** The mirror. Each user gets a public page with four surfaces: a monthly progress snapshot (Blurb), an AI biographer others can query (Persona), shareable quizzes generated from real cognitive data (Games), and published works with an interactive layer (Works). Cognitive transformation made visible and shareable. At institutional scale, labs access opt-in structured cognitive representations for alignment research and human modelling — the only sovereignty-compatible dataset of its kind.
+**Living Gallery (Turn 3).** The mirror. Each user gets a public page with four surfaces: a monthly progress snapshot (Blurb), an ai biographer others can query (Persona), shareable quizzes generated from real cognitive data (Games), and published works with an interactive layer (Works). Cognitive transformation made visible and shareable. At institutional scale, labs access opt-in structured cognitive representations for alignment research and human modelling — the only sovereignty-compatible dataset of its kind.
 
 Join. Train. Show. Same product, same architecture, same user at different depths of engagement.
 
@@ -44,7 +44,7 @@ No revenue. Beta users onboarding. This is honest.
 
 ### The Gap
 
-Top-tier VCs have collectively invested $100M+ in companies building fragments of what Alexandria unifies. Mem0 ($24M, YC — developer memory, 186M API calls/quarter). Personal AI ($23.8M, a16z — per-user models, platform-locked). Delphi ($19.1M, Founders Fund + Anthropic — digital clones outward). Letta ($10M, Felicis, $70M valuation — agent memory framework). The money validates the space. None has the full thesis.
+Top-tier VCs have collectively invested $100M+ in companies building fragments of what Alexandria unifies. Mem0 ($24M, YC — developer memory, 186M API calls/quarter). Personal ai ($23.8M, a16z — per-user models, platform-locked). Delphi ($19.1M, Founders Fund + Anthropic — digital clones outward). Letta ($10M, Felicis, $70M valuation — agent memory framework). The money validates the space. None has the full thesis.
 
 The closest philosophical competitor — Dot — shut down October 2025. Users lost their data. Limitless was acquired by Meta for $350M in December 2025. Product killed. Both deaths validate the sovereignty architecture.
 
@@ -56,11 +56,11 @@ This is a bet about incentives, not a wall. If the bet is wrong, Alexandria need
 
 ### The Economics
 
-**You cannot kill this company.** Company opex is $102/month — Claude Max $100, Fly.io ~$2. No payroll, no compute, no storage, no database. The user's own AI subscription covers inference. The user's own cloud covers storage. Solo founder with AI agents. Break-even at 21 subscribers paying $5/month. There is no burn rate to outrun.
+**You cannot kill this company.** Company opex is $102/month — Claude Max $100, Fly.io ~$2. No payroll, no compute, no storage, no database. The user's own ai subscription covers inference. The user's own cloud covers storage. Solo founder with ai agents. Break-even at 21 subscribers paying $5/month. There is no burn rate to outrun.
 
 **Growth hypothesis.** Kin pricing — each user's price drops if they have 3+ active referrals. Structural pressure on both acquisition and retention. If it works, 25 founding seeds compound exponentially at near-zero marginal CAC. If it doesn't, the first rung of capital buys the answer.
 
-Gross margins 85–93%. No natural cancellation point — the Constitution compounds over time, and cancelling means abandoning a growing cognitive asset. As long as someone uses AI, the layer adds value. Full projections and sensitivity in Numbers.md.
+Gross margins 85–93%. No natural cancellation point — the Constitution compounds over time, and cancelling means abandoning a growing cognitive asset. As long as someone uses ai, the layer adds value. Full projections and sensitivity in Numbers.md.
 
 ---
 
@@ -68,7 +68,7 @@ Gross margins 85–93%. No natural cancellation point — the Constitution compo
 
 **Benjamin Mowinckel** — American-Norwegian. Three years in venture capital (sourcing, due diligence, portfolio support). Relocating to San Francisco, April 2026.
 
-The hard part of Alexandria is not technical. A lab could rebuild the stack in a week. The hard part is philosophical — seeing the problem, understanding what to build, knowing how to do the extraction well. Those are craft and philosophy problems. The entire product was built by one founder with AI agents — which proves the thesis: one human with philosophical depth and AI leverage.
+The hard part of Alexandria is not technical. A lab could rebuild the stack in a week. The hard part is philosophical — seeing the problem, understanding what to build, knowing how to do the extraction well. Those are craft and philosophy problems. The entire product was built by one founder with ai agents — which proves the thesis: one human with philosophical depth and ai leverage.
 
 The company itself is the proof of concept. Building the company IS R&D for the product — the operating model is the product's thesis applied to the organisation.
 
@@ -95,11 +95,11 @@ Each rung purchases the next tier of de-risking. The founder builds regardless �
 
 ---
 
-Pure software is becoming uninvestable. Most AI investments are wrappers that get absorbed by the next model release. Alexandria is not a software company. The software is trivial. The product is the data — each user's Constitution, live, unique, unsynthesisable from public sources — and the philosophy. Better models make the extraction better. A model release cannot replicate what Alexandria builds.
+Pure software is becoming uninvestable. Most ai investments are wrappers that get absorbed by the next model release. Alexandria is not a software company. The software is trivial. The product is the data — each user's Constitution, live, unique, unsynthesisable from public sources — and the philosophy. Better models make the extraction better. A model release cannot replicate what Alexandria builds.
 
 There are four positions that survive the software collapse: make models, generate live data, gatekeep permissions, own atoms. Alexandria is position two.
 
-The quill is back because the printing press is automated. In a world of AI-generated everything, the mind that carries actual human cognition — with its contradictions, its taste, its specific weird connections — is the handwritten letter of a world that forgot what handwriting meant. The printing press made monks obsolete but created authors. AI makes operators obsolete but creates conductors. Alexandria builds the infrastructure for the conductors.
+The quill is back because the printing press is automated. In a world of ai-generated everything, the mind that carries actual human cognition — with its contradictions, its taste, its specific weird connections — is the handwritten letter of a world that forgot what handwriting meant. The printing press made monks obsolete but created authors. ai makes operators obsolete but creates conductors. Alexandria builds the infrastructure for the conductors.
 
 ---
 

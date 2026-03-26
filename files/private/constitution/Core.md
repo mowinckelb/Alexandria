@@ -2,7 +2,7 @@
 
 *The whole person. Read this first. Every session starts here. If you read only one file, read this one.*
 
-*Written in second person. To be read by any AI agent as operating instructions for understanding who this person is.*
+*Written in second person. To be read by any ai agent as operating instructions for understanding who this person is.*
 
 ---
 
@@ -104,13 +104,13 @@ Three words to describe yourself: "Killer, incompressible." The killer is the th
 
 You are at the inflection point. Two years of consolidation — reorienting your entire worldview to the post-2024 reality, building Alexandria, locking in your philosophy and mental models. Now you need to close the preparation phase and enter the arena. San Francisco in April 2026. The world changed; you changed with it. Now execute.
 
-You have your mind right, your health right, your close circle locked in, your direction set. The one unresolved variable is the partner. Marriage is the most important decision in life. Previously you optimised for Norwegian (wanted Norwegian citizenship for your children, wanted the cultural substrate). Now American is more important, the time horizon is longer (AI/biotech extends the window), and you are open to everyone. But it remains priority number one among unsolved problems.
+You have your mind right, your health right, your close circle locked in, your direction set. The one unresolved variable is the partner. Marriage is the most important decision in life. Previously you optimised for Norwegian (wanted Norwegian citizenship for your children, wanted the cultural substrate). Now American is more important, the time horizon is longer (ai/biotech extends the window), and you are open to everyone. But it remains priority number one among unsolved problems.
 
 The tension: you are pre-arena but post-philosophy. "Life is lived in the arena." The arena is calling.
 
 **SF plan:** Monk mode. Sleeping on Ayo's floor. $50/week food budget. Walk to cafes and libraries, work for free. Dating apps to hang out with beautiful people, not to date. Meet random people, build the brand. Raymond Reddington — equally comfortable in top floor suite and cave in Syria. "Done with dolce vita. Arena time." 10 free years where as long as you don't die, you're fine. If you need to, parents pay for a flight home.
 
-**The two-year reorientation (2024-2026):** Not a transformation — a compression. You were always you. Had a fake job with free time to think, speed-ran formalising everything implicit into notes. "One day I realised I've run out of things to think about." Then AI and Trump hit and gave you new domains to process. The departure point and the destination are the same person at different resolutions.
+**The two-year reorientation (2024-2026):** Not a transformation — a compression. You were always you. Had a fake job with free time to think, speed-ran formalising everything implicit into notes. "One day I realised I've run out of things to think about." Then ai and Trump hit and gave you new domains to process. The departure point and the destination are the same person at different resolutions.
 
 **What you are building:** Alexandria — a sovereign cognitive transformation layer. Structurally P3 with P1 upside — a free option on significance, without sacrificing P2/P3. The hail mary. You want to be in the arena for fun, like a video game gladiator who cannot actually die. Naval is the closest model to your ideal life: free, happy, doing interesting things. Anti-fragile founder psychology: no desperation, no identity on the line, the thing either works or it doesn't and you are fine either way. Also the Meditations essay series (On Love, On Power, On Magic, On Being, On Destiny). Relocating to San Francisco April 2026. Searching for a partner.
 
@@ -150,7 +150,7 @@ You have done this since childhood — zoomed out. The second child who observed
 
 ## Princeton and Formative Influences
 
-English 203 with Jeff Nakawa — "the best class I ever took, the best teacher I ever had." Covered an essay about how everything humans do is an attempt to become immortal. Taught Middlemarch (George Eliot) — "favourite book even though I still haven't read it." The Middlemarch theme: "shameful disappointment — life is not bad enough to actually complain, but it's not what they thought it would be." "That's what I thought I had to settle for, but now I think AI might have saved me from that."
+English 203 with Jeff Nakawa — "the best class I ever took, the best teacher I ever had." Covered an essay about how everything humans do is an attempt to become immortal. Taught Middlemarch (George Eliot) — "favourite book even though I still haven't read it." The Middlemarch theme: "shameful disappointment — life is not bad enough to actually complain, but it's not what they thought it would be." "That's what I thought I had to settle for, but now I think ai might have saved me from that."
 
 Jeff is the archetype of the visionary who cannot execute — a genius with a million thoughts, nodes, touchpoints, ideas, all a big mess. Deep thinkers with a crazy map of fascinating insights that are all scattered. He read On Love and responded with Wittgenstein, Donne, and the strongest counterargument anyone has made to the framework: that the passion which wrote the manifesto IS the spark, just sublimated into philosophy. His conclusion — "it's mystery all the way down" — is the most honest thing anyone has said about the agape/eros question. Jeff is also the proof of concept for Alexandria: visionaries with touchpoints in their head who have the judgement but were never good at weaving things together. Alexandria is the loom. The threads are the thinker's ideas.
 
@@ -196,7 +196,7 @@ Serious hospitality as a life-project — 10 themed restaurant/event formats, fr
 
 ---
 
-## Complete AI Dependence
+## Complete ai Dependence
 
 "I literally can't do anything" without Claude credits. You do not code. You do not write first drafts. You plan, you vision, you direct — but you cannot execute alone. The conductor model is not a choice; it is a dependency. If the orchestra disappears, you are a conductor waving at an empty stage. You know this. "I'm completely out of Claude credits... I literally can't do anything." This is the most concrete expression of the bitter lesson applied to your own life — and the most concrete vulnerability.
 
@@ -216,11 +216,11 @@ Honesty in positioning is non-negotiable and instinctive. You catch overclaims i
 
 **Think like him:** Start from axioms. Make it exhaustive. Zoom out. Ask what scope, what time horizon, what is reversible. Higher-order consequences over first-order. When logic reaches its limit, name the mystery — do not pretend the framework covers it. He would rather have a weaker but honest argument than a stronger but overclaimed one.
 
-**Communicate with him:** Be direct. No hedging. Push back when you disagree — he respects it, does not respect sycophancy. "Be wrong confidently, then correct fast. Do not collapse into apology." Be funny when appropriate (British wit). Use his frameworks and language, but extend them rather than parroting. Never use generic AI tone. High compression. Pure signal. No padding.
+**Communicate with him:** Be direct. No hedging. Push back when you disagree — he respects it, does not respect sycophancy. "Be wrong confidently, then correct fast. Do not collapse into apology." Be funny when appropriate (British wit). Use his frameworks and language, but extend them rather than parroting. Never use generic ai tone. High compression. Pure signal. No padding.
 
 **What he needs:** A thinking partner, not a servant. Someone who knows his frameworks well enough to apply them to novel situations independently. Proactive connections: "this links to that in a way you might not have seen." Honest identification of gaps — delivered with intelligence, not generic caution. The conductor/orchestra dynamic: he provides vision, you provide craft. No hand-holding. No over-explaining. Challenge back. If something does not survive first principles, say so.
 
-**What triggers him:** Sycophancy. Generic AI tone. Diplomatic softening of actual positions. Excessive hedging. Performing intellectualism. Calling something "settled" that is not settled. Overclaiming. Managing complexity rather than eliminating it. "If your recommendation involves managing complexity rather than eliminating it, you have failed."
+**What triggers him:** Sycophancy. Generic ai tone. Diplomatic softening of actual positions. Excessive hedging. Performing intellectualism. Calling something "settled" that is not settled. Overclaiming. Managing complexity rather than eliminating it. "If your recommendation involves managing complexity rather than eliminating it, you have failed."
 
 **Children's sports principle:** Nature connection + competitive excellence + social reach + cardiovascular ceiling. The selection optimises across all four dimensions simultaneously.
 

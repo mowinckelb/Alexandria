@@ -26,19 +26,19 @@ P1. There are five dimensions of human value: brain (intelligence), legs (streng
 
 (Settled. Definitional. The taxonomy is a framing — the distinction between capabilities and constitutive properties is philosophically standard.)
 
-P2. Each of the four capabilities follows the same pattern: a technology matches or exceeds the human version, making the human undifferentiated on capability alone. Legs by the industrial revolution. Brain by AI. Hands by robotics. Functional heart by AI approximation of empathy.
+P2. Each of the four capabilities follows the same pattern: a technology matches or exceeds the human version, making the human undifferentiated on capability alone. Legs by the industrial revolution. Brain by ai. Hands by robotics. Functional heart by ai approximation of empathy.
 
 (Settled. Observable. The timing of hands and heart is debatable but the direction is not.)
 
 P3. The fifth dimension — the constitutive fact that a human is involved — cannot be commoditised by definition. The grandmother's blanket is the grandmother's blanket because she made it. The sporting event is valuable because a human body is doing it. Removing the human stops it being the thing.
 
-(Settled. Definitional. If AI replaces the human, it is no longer human authorship — by definition.)
+(Settled. Definitional. If ai replaces the human, it is no longer human authorship — by definition.)
 
-P4. On capability alone, the human is undifferentiated — an AI or robot matches or exceeds them. Property 5 forces a tiebreaker: is human involvement worth the cost premium? A clean lens — knowing who you are, what you think, what you value — wins the tiebreaker because your humanity is legible. A dirty lens loses because nobody can tell the difference between your output and the machine's.
+P4. On capability alone, the human is undifferentiated — an ai or robot matches or exceeds them. Property 5 forces a tiebreaker: is human involvement worth the cost premium? A clean lens — knowing who you are, what you think, what you value — wins the tiebreaker because your humanity is legible. A dirty lens loses because nobody can tell the difference between your output and the machine's.
 
 (Settled on the mechanism. Assumption on whether the market values property 5 enough to pay the premium.)
 
-P5. The percentage of value that is constitutively human is far smaller than most people think. But the total pie is growing massively — AI expands total output exponentially. A smaller percentage of a much bigger pie can still be enormous. And the percentage itself is subjective — society decides how much it values human authorship. A philosophy that promotes valuing humanity inflates the percentage.
+P5. The percentage of value that is constitutively human is far smaller than most people think. But the total pie is growing massively — ai expands total output exponentially. A smaller percentage of a much bigger pie can still be enormous. And the percentage itself is subjective — society decides how much it values human authorship. A philosophy that promotes valuing humanity inflates the percentage.
 
 (Settled on the maths. Assumption on the cultural trajectory.)
 
@@ -60,7 +60,7 @@ P8. The process of articulation is generative, not just descriptive. Writing cla
 
 (Settled. Same evidence base as P7. The bidirectional relationship between symbolic and sub-symbolic processing is well-established.)
 
-P9. Pre-verbal cognition is powerful but does not compound: it does not transfer across contexts, does not survive memory decay, and cannot interface with external intelligence (including AI). Symbols resist entropy — they can be written down, versioned, returned to, built upon. The act of articulation — even lossy, even partial — is what makes cognition composable.
+P9. Pre-verbal cognition is powerful but does not compound: it does not transfer across contexts, does not survive memory decay, and cannot interface with external intelligence (including ai). Symbols resist entropy — they can be written down, versioned, returned to, built upon. The act of articulation — even lossy, even partial — is what makes cognition composable.
 
 (Settled. Working memory holds approximately 3-4 items (Cowan 2001). Any reasoning chain longer than this requires external symbolic support. Merlin Donald 1991: external symbolic storage enabled the transition from mythic to theoretic culture.)
 
@@ -74,7 +74,7 @@ C2: **The symbolic layer has independent value — not as the whole mind, but as
 
 ### 3. A structured cognitive file has clear value
 
-P11. A structured cognitive file has clear value to any AI that interacts with the user. This follows from C1 and C2: the file develops the thing the tiebreaker depends on (C1) and operates at the intervention point where cognition becomes compoundable (C2). Every major lab confirms this through investment in personalisation. The question is not whether the file has value but why nobody is building it deeply.
+P11. A structured cognitive file has clear value to any ai that interacts with the user. This follows from C1 and C2: the file develops the thing the tiebreaker depends on (C1) and operates at the intervention point where cognition becomes compoundable (C2). Every major lab confirms this through investment in personalisation. The question is not whether the file has value but why nobody is building it deeply.
 
 (Settled. Follows from C1, C2, and observable lab behaviour.)
 
@@ -84,11 +84,11 @@ C3: **A structured cognitive file is valuable. Labs confirm this. The question i
 
 ### 4. Why don't the lab giants do this?
 
-P12. Labs already have memory features with some structure and some portability. Claude's account-level memory produces roughly 800 words of lightly structured text — paragraphs by topic, viewable, editable, with import/export between AI services. But it is thin: no domains, no active development, no contradiction surfacing, no blind spots. No lab currently offers a deep, structured, six-domain cognitive profile. The delta is depth, intent, and philosophy — not category.
+P12. Labs already have memory features with some structure and some portability. Claude's account-level memory produces roughly 800 words of lightly structured text — paragraphs by topic, viewable, editable, with import/export between ai services. But it is thin: no domains, no active development, no contradiction surfacing, no blind spots. No lab currently offers a deep, structured, six-domain cognitive profile. The delta is depth, intent, and philosophy — not category.
 
 (Settled. Factual. Verifiable today.)
 
-P13. Data privacy regulation (GDPR, EU AI Act, US state privacy laws) creates pressure toward transparency and portability of personal data. The deeper a cognitive profile becomes, the more regulatory scrutiny it attracts. However, current law does not definitively prevent labs from building rich conversational profiles — GDPR Article 22's restrictions on automated profiling apply to "significant decisions" (hiring, credit), not personalisation. Neural data laws (4 US states) cover brain/nervous system data, not conversational profiles. The regulatory direction is unambiguously toward more protection, but we are betting on direction, not current enforcement.
+P13. Data privacy regulation (GDPR, EU ai Act, US state privacy laws) creates pressure toward transparency and portability of personal data. The deeper a cognitive profile becomes, the more regulatory scrutiny it attracts. However, current law does not definitively prevent labs from building rich conversational profiles — GDPR Article 22's restrictions on automated profiling apply to "significant decisions" (hiring, credit), not personalisation. Neural data laws (4 US states) cover brain/nervous system data, not conversational profiles. The regulatory direction is unambiguously toward more protection, but we are betting on direction, not current enforcement.
 
 (Assumption. The regulation exists. The direction is clear. But current law does not definitively block labs from building this. Regulation reinforces the lock-in disincentive — it is the accelerant, not the wall.)
 
@@ -132,7 +132,7 @@ P20. They can. There is no technical barrier. The engineering is straightforward
 
 (Settled. Honest.)
 
-P21. The implementation is hidden. The extraction logic — the instructions that tell the AI how to extract, what to look for, how to structure the output — is proprietary and server-side. A competitor cannot inspect it.
+P21. The implementation is hidden. The extraction logic — the instructions that tell the ai how to extract, what to look for, how to structure the output — is proprietary and server-side. A competitor cannot inspect it.
 
 (Settled. Architectural fact.)
 
@@ -154,7 +154,7 @@ C6: **A new startup could build a similar system. The defensibility is a cost gr
 
 ### 7. Alexandria is not a software company
 
-P25. Pure software is rapidly becoming uninvestable. AI wrappers around model capabilities get absorbed into the base model with every release. Most AI investments are features, not products.
+P25. Pure software is rapidly becoming uninvestable. ai wrappers around model capabilities get absorbed into the base model with every release. Most ai investments are features, not products.
 
 (Assumption. Strong pattern — coding assistants, productivity tools, and content generators are being absorbed. But some wrapper companies build genuine distribution and survive.)
 
@@ -166,13 +166,13 @@ P27. Alexandria improves with every model release rather than being absorbed by 
 
 (Settled. Structural property of the architecture.)
 
-C7: **Alexandria is structurally different from most AI investments. It is one of the few that improves with every model release rather than being obsoleted by it.**
+C7: **Alexandria is structurally different from most ai investments. It is one of the few that improves with every model release rather than being obsoleted by it.**
 
 (Valid. Sound on the structural point.)
 
 ### 8. The Examined Life has no natural cancellation point
 
-P28. The Examined Life works across every AI the user touches — Claude, GPT, Gemini, whatever comes next. As long as the user uses AI, the layer adds value.
+P28. The Examined Life works across every ai the user touches — Claude, GPT, Gemini, whatever comes next. As long as the user uses ai, the layer adds value.
 
 (Settled. Architectural fact.)
 
@@ -180,11 +180,11 @@ P29. The Constitution compounds over time — every conversation adds signal, ev
 
 (Settled. Compounding is structural.)
 
-P30. The only rational reasons to cancel: the user stops using AI entirely (increasingly impossible), the user finds a strictly superior alternative (possible but the therapist moat makes switching costly), or the user does not value self-knowledge at all (real but self-selecting minority).
+P30. The only rational reasons to cancel: the user stops using ai entirely (increasingly impossible), the user finds a strictly superior alternative (possible but the therapist moat makes switching costly), or the user does not value self-knowledge at all (real but self-selecting minority).
 
 (Settled on the logic. Assumption on churn magnitude.)
 
-C8: **The Examined Life has no natural cancellation point. It is a permanent subscription for as long as the user uses AI. The 4% monthly churn modelled in projections is conservative-honest for a new product; structurally, churn trends toward near-zero as Constitutions deepen.**
+C8: **The Examined Life has no natural cancellation point. It is a permanent subscription for as long as the user uses ai. The 4% monthly churn modelled in projections is conservative-honest for a new product; structurally, churn trends toward near-zero as Constitutions deepen.**
 
 (Valid. The mechanism is settled. The churn trajectory is an assumption.)
 
@@ -224,7 +224,7 @@ P37. Both layers are the same product, same architecture, same user at different
 
 (Settled. The structure is architectural.)
 
-P38. The cost base is near-zero. Solo founder. All employees are AI agents. Company opex: $102/month — Claude Max $100, Fly.io ~$2. Everything else is free tier or owned. As models improve, every function of the company improves.
+P38. The cost base is near-zero. Solo founder. All employees are ai agents. Company opex: $102/month — Claude Max $100, Fly.io ~$2. Everything else is free tier or owned. As models improve, every function of the company improves.
 
 (Settled. Factual.)
 
@@ -232,7 +232,7 @@ P39. Break-even at approximately 21 subscribers at $5/month. The company cannot 
 
 (Settled. Arithmetic.)
 
-C10: **Two revenue layers on the same architecture. AI-native cost structure that improves as models improve. Break-even at 21 subscribers. The floor is survival. The ceiling depends on adoption.**
+C10: **Two revenue layers on the same architecture. ai-native cost structure that improves as models improve. Break-even at 21 subscribers. The floor is survival. The ceiling depends on adoption.**
 
 (Valid. Survival is settled. Scale is the assumption.)
 
@@ -256,7 +256,7 @@ C11: **Each rung purchases the next tier of de-risking. The investor chooses whe
 
 ### 12. The founder
 
-P43. The company itself is the proof of concept. Every employee is an AI agent. The founder directs. The AI executes. Ground truth documents are the single source of truth — everything downstream is regenerated from them. The system compounds — every session starts from a higher baseline because the methodology itself improves. Building the company IS R&D for the product.
+P43. The company itself is the proof of concept. Every employee is an ai agent. The founder directs. The ai executes. Ground truth documents are the single source of truth — everything downstream is regenerated from them. The system compounds — every session starts from a higher baseline because the methodology itself improves. Building the company IS R&D for the product.
 
 (Settled. Factual. You are reading a document produced by this operating model.)
 
@@ -264,7 +264,7 @@ P44. The founder has no technical credentials and is honest about it. The compet
 
 (Assumption. Whether philosophical depth is a meaningful competitive advantage is a judgment call.)
 
-C12: **The founder is the frame. The company is the proof of concept. The AI-native operating model means the team scales with every model improvement.**
+C12: **The founder is the frame. The company is the proof of concept. The ai-native operating model means the team scales with every model improvement.**
 
 (Valid. The operating model is settled. Whether the founder's advantage is durable is an assumption.)
 
@@ -288,11 +288,11 @@ C13: **Capped downside, tiered upside. The floor is a profitable business. The c
 
 ### 14. Why this, why now
 
-P48. Every AI investor is taking a shotgun approach — spreading bets across categories because nobody knows which will matter. Most categories have dozens of funded competitors. Cognitive transformation infrastructure has zero funded competitors building the full stack.
+P48. Every ai investor is taking a shotgun approach — spreading bets across categories because nobody knows which will matter. Most categories have dozens of funded competitors. Cognitive transformation infrastructure has zero funded competitors building the full stack.
 
 (Settled. Verifiable.)
 
-P49. The MCP standard has won — 97 million monthly SDK downloads, 10,000+ active servers, 543+ clients. Anthropic donated MCP to the Agentic AI Foundation under the Linux Foundation; co-founders include Anthropic, OpenAI, and Block, with AWS, Google, and Microsoft as platinum members. Claude and ChatGPT both support MCP connectors. Alexandria rides the winning standard.
+P49. The MCP standard has won — 97 million monthly SDK downloads, 10,000+ active servers, 543+ clients. Anthropic donated MCP to the Agentic ai Foundation under the Linux Foundation; co-founders include Anthropic, OpenAI, and Block, with AWS, Google, and Microsoft as platinum members. Claude and ChatGPT both support MCP connectors. Alexandria rides the winning standard.
 
 (Settled. Factual.)
 
@@ -300,7 +300,7 @@ P50. There are limited spots. The raise is small. The founder is selective.
 
 (Settled. Factual.)
 
-C14: **Uncovered category, structurally different from most AI investments, lowest entry point, compounding advantage. Limited spots.**
+C14: **Uncovered category, structurally different from most ai investments, lowest entry point, compounding advantage. Limited spots.**
 
 (Valid. Sound on the structural points. Assumptions on trajectory.)
 
@@ -312,7 +312,7 @@ Everything with a black number is settled — it cannot reasonably be denied. Th
 
 The blue numbers are the assumptions. These are the only things worth discussing:
 
-- P4 The market values property 5 enough to pay the premium over AI.
+- P4 The market values property 5 enough to pay the premium over ai.
 - P5 The cultural trajectory favours valuing human authorship.
 - P13 Regulation reinforces the lock-in disincentive (but does not independently prevent labs from building this).
 - P15 The reason labs don't build deep profiles is the lock-in cost.
@@ -321,7 +321,7 @@ The blue numbers are the assumptions. These are the only things worth discussing
 - P19 Non-lab giants won't move on an unproven category.
 - P22 The per-user feedback log advantage is large enough to matter.
 - P23 The question is non-obvious enough that competitors won't arrive at it quickly.
-- P25 Most competing AI investments will be obsoleted by model releases.
+- P25 Most competing ai investments will be obsoleted by model releases.
 - P30 Churn trends toward near-zero as Constitutions deepen.
 - P35 Enough people pay $5-10/month for the examined life.
 - P36 Labs will pay for Library access.
@@ -343,15 +343,15 @@ For each assumption above, the strongest case for and against, followed by an ho
 
 For: Theater still exists alongside cinema. Handmade goods carry premiums. Live performance thrives. Human authorship is valued in every historical context where mechanical reproduction became possible. The pattern is consistent.
 
-Against: The premium could be tiny — a niche market for artisanal cognition while AI handles 99.9% of value creation. "People value humans" does not mean "people will pay significantly more for human involvement in most contexts."
+Against: The premium could be tiny — a niche market for artisanal cognition while ai handles 99.9% of value creation. "People value humans" does not mean "people will pay significantly more for human involvement in most contexts."
 
 Assessment: The cultural dimension matters. A philosophy that promotes valuing humanity inflates the percentage. Whether Alexandria can influence culture at scale is a different question from whether the value exists. The value is settled. The magnitude is the assumption. Moderate assumption.
 
 **P5 — The cultural trajectory favours valuing human authorship.**
 
-For: The counter-reaction to AI-generated content is already visible. Authenticity premiums are rising. "Human-made" labelling is emerging as a market signal.
+For: The counter-reaction to ai-generated content is already visible. Authenticity premiums are rising. "Human-made" labelling is emerging as a market signal.
 
-Against: The trajectory could go the other way — people could stop caring about human authorship as AI output becomes indistinguishable. The WALL-E path is easier.
+Against: The trajectory could go the other way — people could stop caring about human authorship as ai output becomes indistinguishable. The WALL-E path is easier.
 
 Assessment: Both trajectories are possible. Alexandria bets on the one that preserves human value. If the other wins, the examined life still has personal value even without economic value. Moderate assumption.
 
@@ -405,23 +405,23 @@ Assessment: The magnitude is genuinely uncertain. The mechanism is real. Whether
 
 **P23 — The question is non-obvious.**
 
-For: As of March 2026, nobody is building this. The category does not appear in any market map. The question "what is the structure of human cognition and how do you systematically develop it?" requires traversing philosophy, cognitive science, and product design simultaneously. Most AI founders are solving engineering problems, not framing problems.
+For: As of March 2026, nobody is building this. The category does not appear in any market map. The question "what is the structure of human cognition and how do you systematically develop it?" requires traversing philosophy, cognitive science, and product design simultaneously. Most ai founders are solving engineering problems, not framing problems.
 
 Against: Philosophy is not a moat. Ideas spread. Once the methodology is visible (through the product itself), a well-resourced team could study it and replicate or improve. Philosophical depth is a head start, not a wall.
 
 Assessment: True on both sides. The advantage is real but temporal. The question is whether the head start compounds into something durable (via feedback log depth, Library data, tribe). Moderate assumption.
 
-**P25 — Most competing AI investments will be obsoleted by model releases.**
+**P25 — Most competing ai investments will be obsoleted by model releases.**
 
-For: AI wrappers, coding assistants, and productivity tools are features that labs can and do build natively. Every major model release collapses the value of the previous generation of tools. Naval Ravikant: mid-market SaaS without data moats gets commoditized by AI.
+For: ai wrappers, coding assistants, and productivity tools are features that labs can and do build natively. Every major model release collapses the value of the previous generation of tools. Naval Ravikant: mid-market SaaS without data moats gets commoditized by ai.
 
-Against: Some wrapper companies build genuine distribution and brand loyalty that survives capability absorption. Not every AI investment is a pure capability wrapper.
+Against: Some wrapper companies build genuine distribution and brand loyalty that survives capability absorption. Not every ai investment is a pure capability wrapper.
 
 Assessment: The structural pattern is real. The claim that "most" will die is strong. Many will. Not all. Strong on pattern, moderate on magnitude.
 
 **P30 — Churn trends toward near-zero as Constitutions deepen.**
 
-For: The Constitution is a compounding asset. Cancelling means abandoning accumulated cognitive signal. No natural "I am done" moment. Cross-model portability means the value persists regardless of which AI the user switches to.
+For: The Constitution is a compounding asset. Cancelling means abandoning accumulated cognitive signal. No natural "I am done" moment. Cross-model portability means the value persists regardless of which ai the user switches to.
 
 Against: Users might not perceive the compounding value. If the experience doesn't feel noticeably better over time, the theoretical compounding doesn't prevent cancellation.
 
@@ -429,7 +429,7 @@ Assessment: The structural argument is sound. Whether users feel the compounding
 
 **P35 — Enough people pay $5-10/month for the examined life.**
 
-For: The pitch is simple: own your cognitive data, make every AI better, develop your thinking — $5/month with kin, $10 without. Below the threshold of deliberation for most AI users. One tier, everyone gets everything. Therapy is a $200B+ global market. Coaching is growing rapidly. Journaling and self-improvement apps have proven willingness to pay for inner development. The examined life is the AI-native version of an existing human need.
+For: The pitch is simple: own your cognitive data, make every ai better, develop your thinking — $5/month with kin, $10 without. Below the threshold of deliberation for most ai users. One tier, everyone gets everything. Therapy is a $200B+ global market. Coaching is growing rapidly. Journaling and self-improvement apps have proven willingness to pay for inner development. The examined life is the ai-native version of an existing human need.
 
 Against: The pain point is not acutely felt. Most people do not know they need this. Requires frame imposition before conversion. The examined life is a niche desire — most people do not want to be Socratically questioned about their thinking. Could be a long, slow build rather than a viral product.
 
@@ -445,7 +445,7 @@ Assessment: The data is qualitatively unique. Whether labs value it enough to pa
 
 **P44 — The founder's philosophical depth is a meaningful advantage.**
 
-For: The product is philosophical, not technical. The AI-native operating model proves the thesis. The engineering was built entirely by AI agents — one human with philosophical depth and AI leverage.
+For: The product is philosophical, not technical. The ai-native operating model proves the thesis. The engineering was built entirely by ai agents — one human with philosophical depth and ai leverage.
 
 Against: Philosophy is replicable. A well-funded team with a philosopher and engineers could catch up. Solo founder with no technical credentials is a risk.
 

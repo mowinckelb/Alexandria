@@ -1,6 +1,6 @@
 # Meditations 1 — The Briefing
 
-> *For AI drafters. Maximum fidelity. Completeness over consolidation. Every detail preserved.*
+> *For ai drafters. Maximum fidelity. Completeness over consolidation. Every detail preserved.*
 > *Read this document before touching any essay. Read Constitution_Taste.md before drafting anything.*
 
 ---
@@ -11,7 +11,7 @@ Five essays. Independent. Evolving. Published to the Alexandria library.
 
 1. **On Love** — relationships, family, romance, commitment, marriage, the covenant, agape vs eros
 2. **On Power** — ambition, leadership, politics, influence, hierarchy, courage, masculinity
-3. **On Magic** — technology, AI, leverage, tools, the re-enchantment of the world, intelligence as oxygen
+3. **On Magic** — technology, ai, leverage, tools, the re-enchantment of the world, intelligence as oxygen
 4. **On Being** — philosophy, consciousness, doubt, identity, what it means to be human, the pope who doubts
 5. **On Destiny** — humanity's trajectory, legacy, species-level questions, civilisational arcs, the future, natural selection, the new Renaissance
 
@@ -27,14 +27,14 @@ These themes are not assigned to specific essays. They weave through whichever e
 - **Darwinian selection** — societies that abandon family and meaning will be outcompeted. Love and beauty are Darwinian optimal. The selfish gene paradoxically producing selfless love. Nature is not cold barren optimisation — it is beauty and love and cooperation and sacrifice. The irony: beauty and love ARE in fact optimal. Evolution discovered this long before economists.
 - **The modern inversion** — Benjamin uses "satanic" to describe the inversion of proper order: feelings over commitment, individual over family, passion over character. Not a new evil introduced but the old darkness uncontained — what happens when you strip the moral architecture and the entropy takes over.
 - **The pope who doubts** — the emotional register of the entire series. Conviction paired with vulnerability. Leading while uncertain. Faith that contains its own questioning. The faithless Christian. The highest authority who is supposed to embody certainty, and yet he doubts. Not blind faith. Not confident certainty. Faith that knows it might be wrong and chooses anyway.
-- **The return of wonder** — Greek gods, Norse gods, the world feeling alive. AI as ambient intelligence bringing the world alive again. Coming full circle as a species. The concrete jungles coming alive. Intelligence everywhere like oxygen. We return to being a small species in a wide, wonderful, magical unknown world.
-- **AI as telescope of the mind** — the Galileo parallel (Jonathan Ross / Groq). Humanity no longer the most intelligent species. The terror and then the liberation. A new Renaissance. If you break past the existential dread, it becomes MORE magical. You learn to love your insignificance.
-- **Naval's basics** — life is about nailing who you marry, where you live, what you do. The rest is noise. Most advice is people sharing their winning lottery ticket numbers. Who you marry is by far the biggest of the three. AI perhaps returns civilisation to this simplicity.
+- **The return of wonder** — Greek gods, Norse gods, the world feeling alive. ai as ambient intelligence bringing the world alive again. Coming full circle as a species. The concrete jungles coming alive. Intelligence everywhere like oxygen. We return to being a small species in a wide, wonderful, magical unknown world.
+- **ai as telescope of the mind** — the Galileo parallel (Jonathan Ross / Groq). Humanity no longer the most intelligent species. The terror and then the liberation. A new Renaissance. If you break past the existential dread, it becomes MORE magical. You learn to love your insignificance.
+- **Naval's basics** — life is about nailing who you marry, where you live, what you do. The rest is noise. Most advice is people sharing their winning lottery ticket numbers. Who you marry is by far the biggest of the three. ai perhaps returns civilisation to this simplicity.
 - **The thing you cannot look in the eye** — things that disappear when pursued directly. The observer effect. Structured chaos. Oblique approaches to love, confidence, flow, meaning. Horses, sports, overfitting, quantum physics, children, the Groundhog Day problem.
 - **Agape vs eros** — the core tension of On Love and potentially the whole series. Agape as prerequisite, eros as requirement that evolves. The modern model demands eros first. Benjamin's framework inverts this. The Greek love taxonomy (agape, philia, eros, storge) vs. English's single impoverished word.
 - **Relativism vs fallibilism** — the modern West practises relativism (no right or wrong). Benjamin practises fallibilism (I have convictions but might be wrong). The difference between having no anchor and having an anchor that shakes. Fallibilism is the faithless Christian. Relativism is the faithless atheist. Fallibilism gives you something to stand on, even if it shakes. Relativism gives you nothing.
 - **The coordination problem** — being right and alone is worse than being wrong and together. The social media dilemma applied to love, morality, and civilisational values. One person rejecting the modern dating model doesn't help if every potential partner is still inside it. A Nash equilibrium where everyone is stuck in a suboptimal state because no individual can profitably deviate alone.
-- **The identity value parallel — speciesism, nationalism, individualism as the same philosophical move.** The same logic that leads to extinctionism and transhumanism in the AI context (denying inherent human value) is the same logic that leads to cultural relativism and open-borders globalism in the political context (denying inherent national/cultural value). The philosophical root is identical: the rejection of inherent identity value at any scale. On the species axis: "What makes humans more important than nature?" → extinctionism. "What makes humans more important than AI?" → transhumanism. On the national axis: "What makes one culture superior to another?" → cultural relativism. "What makes a nation more than its geography?" → erasure through demographic replacement framed as progress. On the individual axis: "Why should your perspective matter when AI knows more?" → cognitive outsourcing, the WALL-E path. Alexandria's position — that humans have inherent elevated value — is a form of speciesism. It is pro-human in the same structural way that nationalism is pro-nation and individualism is pro-person. The people who will most naturally resist Alexandria's thesis are the same people who deny identity value at every other scale. The people who will most naturally embrace it are the ones who already believe distinctiveness is sacred — at the species, national, cultural, and individual level. The alien waiter example (in Alexandria I) crystallises this: "What, you're a bigot because you prefer a human server?" is structurally identical to "What, you're a racist because you prefer your own culture?" The answer in both cases: no. It is the recognition that identity has constitutive value that transcends capability comparison. This theme connects On Power (nationalism, hierarchy, cultural superiority), On Being (consciousness, what makes humans special, speciesism), and On Destiny (humanity's trajectory, whether distinctiveness survives the singularity). It is the political expression of Alexandria's philosophical core. The three camps (extinctionist, transhumanist, humanist) map directly to political positions: extinctionists ↔ self-hating progressives who want to dissolve all identity. Transhumanists ↔ globalists who think distinctiveness is an obstacle to progress. Humanists ↔ those who believe identity — at every scale — has inherent value worth preserving.
+- **The identity value parallel — speciesism, nationalism, individualism as the same philosophical move.** The same logic that leads to extinctionism and transhumanism in the ai context (denying inherent human value) is the same logic that leads to cultural relativism and open-borders globalism in the political context (denying inherent national/cultural value). The philosophical root is identical: the rejection of inherent identity value at any scale. On the species axis: "What makes humans more important than nature?" → extinctionism. "What makes humans more important than ai?" → transhumanism. On the national axis: "What makes one culture superior to another?" → cultural relativism. "What makes a nation more than its geography?" → erasure through demographic replacement framed as progress. On the individual axis: "Why should your perspective matter when ai knows more?" → cognitive outsourcing, the WALL-E path. Alexandria's position — that humans have inherent elevated value — is a form of speciesism. It is pro-human in the same structural way that nationalism is pro-nation and individualism is pro-person. The people who will most naturally resist Alexandria's thesis are the same people who deny identity value at every other scale. The people who will most naturally embrace it are the ones who already believe distinctiveness is sacred — at the species, national, cultural, and individual level. The alien waiter example (in Alexandria I) crystallises this: "What, you're a bigot because you prefer a human server?" is structurally identical to "What, you're a racist because you prefer your own culture?" The answer in both cases: no. It is the recognition that identity has constitutive value that transcends capability comparison. This theme connects On Power (nationalism, hierarchy, cultural superiority), On Being (consciousness, what makes humans special, speciesism), and On Destiny (humanity's trajectory, whether distinctiveness survives the singularity). It is the political expression of Alexandria's philosophical core. The three camps (extinctionist, transhumanist, humanist) map directly to political positions: extinctionists ↔ self-hating progressives who want to dissolve all identity. Transhumanists ↔ globalists who think distinctiveness is an obstacle to progress. Humanists ↔ those who believe identity — at every scale — has inherent value worth preserving.
 
 This list will grow. Don't treat it as exhaustive.
 
@@ -83,7 +83,7 @@ The bar: not good writing. Not impressive writing. Writing that feels like a for
 
 ## 6. The Crisis of Writing as a Medium
 
-Writing and books have almost a crisis of meaning now. Why can't it be a movie or a TV show or a YouTube video? What's the point in reading if AI can make everything into perfect art or video? Compared to books, which are slow, rigid, old.
+Writing and books have almost a crisis of meaning now. Why can't it be a movie or a TV show or a YouTube video? What's the point in reading if ai can make everything into perfect art or video? Compared to books, which are slow, rigid, old.
 
 **What remains — two things writing is uniquely optimal at:**
 
@@ -301,7 +301,7 @@ Everything lives under one Alexandria project folder. Meditations essays, margin
 - Overarching project: **Meditations** — cross-essay context and series-level decisions
 
 ### Aesthetic / Tone
-- Greek depth and Roman directness, with a futurist AI element woven through
+- Greek depth and Roman directness, with a futurist ai element woven through
 - Poetic grandeur grounded in classical tradition but looking forward to the post-singularity ascension
 - "The pope who doubts" as emotional register across all five
 - Form is content. Lora font, cream backgrounds, section dot separators as base aesthetic, but each essay should have its own character
@@ -319,9 +319,9 @@ Everything lives under one Alexandria project folder. Meditations essays, margin
 
 ---
 
-## 16. For AI Drafters — Mode 1 vs Mode 2
+## 16. For ai Drafters — Mode 1 vs Mode 2
 
-**This document and all marginalia are Mode 2**: AI-facing reference files. Maximum fidelity. Completeness over consolidation. Every detail preserved.
+**This document and all marginalia are Mode 2**: ai-facing reference files. Maximum fidelity. Completeness over consolidation. Every detail preserved.
 
 **The essays themselves are Mode 1**: Human-facing art. The reader is the content. Evoke. Break rules from mastery. Form is content. Be alive.
 

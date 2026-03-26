@@ -1,6 +1,6 @@
 # Meditations 2 — On Love II Marginalia (Sections 1–25)
 
-> *AI-facing reference. Mode 2: maximum fidelity. Completeness over consolidation. Every detail preserved.*
+> *ai-facing reference. Mode 2: maximum fidelity. Completeness over consolidation. Every detail preserved.*
 > *This document contains the creative raw material for On Love II — the metaphors, threads, expansions, and new sections. Read Meditations 1.md (the briefing) first.*
 
 ---
@@ -14,7 +14,7 @@ Benjamin mentioned Jane Eyre as a book that could have been included in v1 along
 - Jane Eyre also has the class/strategy dimension — Jane is poor, plain, a governess. Rochester is wealthy, landed. The strategic calculus says this match makes no sense. But the character alignment is deep and real.
 - The novel was published in 1847, right in the hinge period Benjamin identifies between strategic and romantic marriage. It belongs in the same conversation as Middlemarch (1871-72), Emma (1815), Pride and Prejudice (1813), and Vanity Fair (1847-48).
 
-Benjamin didn't give detailed instructions on Jane Eyre — he just said "I wonder if the Jane Eyre book could have been added." So the AI drafting v2 should explore this and propose how to weave it in, possibly as part of the "What the Novelists Understood" section or as a standalone addition.
+Benjamin didn't give detailed instructions on Jane Eyre — he just said "I wonder if the Jane Eyre book could have been added." So the ai drafting v2 should explore this and propose how to weave it in, possibly as part of the "What the Novelists Understood" section or as a standalone addition.
 
 ---
 
@@ -63,7 +63,7 @@ This is a call to arms. The framework means nothing if you don't have the courag
 
 Benjamin sees this as connected to the broader woke/modern degeneracy diagnosis — the same forces that have made men weak (comfort, individualism, the death of duty and honour, the removal of all risk and challenge) are the same forces that have broken the love/marriage framework.
 
-**Note for AI drafter:** Benjamin wants this included but the tone needs calibration. In On Love specifically, this might be too aggressive or alienating for some readers. Consider whether this belongs in On Love or in On Power. Or whether it can be woven in more subtly — the courage required to reject the consensus, the loneliness of leading — without the explicit combative language which works in conversation but might undermine the literary gravitas.
+**Note for ai drafter:** Benjamin wants this included but the tone needs calibration. In On Love specifically, this might be too aggressive or alienating for some readers. Consider whether this belongs in On Love or in On Power. Or whether it can be woven in more subtly — the courage required to reject the consensus, the loneliness of leading — without the explicit combative language which works in conversation but might undermine the literary gravitas.
 
 ---
 
@@ -76,7 +76,7 @@ Benjamin's argument in full:
 - Natural selection. Societies and cultures that abandon family, covenant, reproduction, and meaning will be outcompeted by those that don't. The cultures that remember how to love and reproduce will inherit the earth. Birth rates in secular Western countries are far below replacement level. The societies that are growing are religious, family-oriented, covenant-based.
 - Benjamin uses "satanic" to describe the modern inversion — not literally religious, but in the sense of inverting the proper order. Feelings over commitment. Individual over family. Passion over character. The modern model has taken everything that works and inverted it, and called the inversion "progress."
 
-**Note for AI drafter:** The woke/degeneracy/Darwinian frame is fair game but needs literary gravitas that earns it rather than sounding like a podcast rant. The essay should feel like it's coming from grief and concern, not anger and contempt.
+**Note for ai drafter:** The woke/degeneracy/Darwinian frame is fair game but needs literary gravitas that earns it rather than sounding like a podcast rant. The essay should feel like it's coming from grief and concern, not anger and contempt.
 
 ---
 
@@ -382,7 +382,7 @@ The bar: not good writing. Not impressive writing. Writing that feels like a for
 ## 20. The Crisis of Writing as a Medium — Why Books Still Matter
 
 **The crisis:**
-Writing and books have almost a crisis of meaning now. Why can't it be a movie or a TV show? What's the point in reading if AI can make everything into perfect art or video?
+Writing and books have almost a crisis of meaning now. Why can't it be a movie or a TV show? What's the point in reading if ai can make everything into perfect art or video?
 
 **What remains — two things writing is uniquely optimal at:**
 
