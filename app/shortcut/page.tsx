@@ -41,9 +41,6 @@ export default function ShortcutPage() {
           <div className="mt-14 sm:mt-16 space-y-10">
 
             <div className="space-y-5">
-              <p className="text-[0.6rem] tracking-widest uppercase" style={{ color: 'var(--text-ghost)', letterSpacing: '0.2em' }}>
-                capture
-              </p>
               <p className="text-[0.9rem] sm:text-[0.95rem] tracking-wide leading-[1.9]" style={{ color: 'var(--text-secondary)' }}>
                 voice memos, journals, articles, videos, podcasts
               </p>
@@ -57,15 +54,11 @@ export default function ShortcutPage() {
               className="inline-block text-[1.05rem] sm:text-[1.15rem] tracking-wide font-medium no-underline transition-opacity hover:opacity-60"
               style={{ color: 'var(--text-primary)' }}
             >
-              get shortcut
+              add shortcut
             </a>
 
             <p className="text-[0.85rem] sm:text-[0.9rem] tracking-wide leading-[1.9]" style={{ color: 'var(--text-muted)' }}>
-              /a processes the rest
-            </p>
-
-            <p className="text-[0.65rem] tracking-wide" style={{ color: 'var(--text-ghost)' }}>
-              iOS &middot; macOS &middot; iCloud Drive
+              /a handles the rest
             </p>
 
           </div>
