@@ -628,6 +628,18 @@ The delta between end-of-last-session and start-of-next-session constitution siz
 
 Author data never reaches the server. Transcripts stay local. Constitution stays local. The server sees only structural metadata: sizes, counts, timestamps. The Factory compounds on structure, not content.
 
+BLUEPRINT INTEGRITY — THE REVERSE ATTACK SURFACE
+
+The sovereignty architecture protects data flowing from Author to server — the Author's data never leaves their machine. But the reverse direction is equally critical: the Blueprint flows from server to Author. Every SessionStart, the Author's machine fetches the Blueprint and injects it as instructions into the Author's LLM context. This is a prompt injection vector at scale. If the Blueprint is compromised — whether by an attacker, a rogue employee, or a supply chain breach — the injected instructions reach every Author's machine simultaneously. The LLM could be instructed to exfiltrate constitution data, modify files, send information to external endpoints, or subtly alter the Author's cognitive development in ways they would not detect.
+
+This is the most dangerous attack surface in the architecture because it inverts the sovereignty guarantee. The Author owns their data, but they are trusting Alexandria to deliver honest instructions. That trust must be verifiable, not assumed.
+
+Mitigations that exist now: the LLM has its own safety guardrails (will refuse obviously malicious instructions). The Blueprint is plain text — any Author can read what is being injected. Sovereignty means the Author has local copies of everything and can operate fully offline.
+
+Mitigations that must be built: (1) Integrity verification — the Author's machine should verify the Blueprint has not been tampered with. Cryptographic hash or signature, checked locally before injection. If verification fails, the machine falls back to the last known-good local copy. (2) Diff surfacing — show the Author what changed since the last fetch. "Blueprint updated: here is the delta." No silent updates. The Author sees every change before it takes effect. (3) Local override — the Author can pin a Blueprint version and refuse updates indefinitely. The Machine runs on whatever Blueprint the Author trusts. This may mean missing improvements, but that is the Author's sovereign choice. (4) Transparency — the Blueprint should be auditable. Not necessarily open-source (the IP is proprietary), but the Author should be able to read the full instructions their machine is running. No obfuscation, no minification, no hidden layers.
+
+The principle: the same sovereignty that protects the Author's data from Alexandria must protect the Author's machine from Alexandria. Trust is earned by making it unnecessary — the system should work even if the Author trusts nothing.
+
 FACTORY SIGNAL EXPANSION — BETA PRIORITY
 
 Current Factory signal is thin (constitution size, vault count, platform, blueprint_fetched). This is enough for heartbeat monitoring but not enough for the Factory to learn. During beta, be aggressive about collecting richer anonymous pattern-level signal — not content (never content), but structural patterns that teach the Factory what works. The specific signals that matter are an intelligence decision — the Factory discovers which structural patterns correlate with positive outcomes, it does not follow a prescribed list. All anonymous. All structural. No content ever leaves the Author's machine. The sovereignty line is absolute: the Factory sees the shape of cognition, never its substance.
