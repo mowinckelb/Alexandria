@@ -4,6 +4,65 @@ This file compounds across daily Factory runs. Each run reads the prior learning
 
 ---
 
+## 2026-03-27 — CTO Run 5 (daily health, autonomous)
+
+### State at run start
+- 20 commits since last run (2 days). Massive founder activity: Greek philosophy infra (a-system naming, agora/senate/open), constitution restructured (6 academic → 5 developmental terrain: Core, Love, Power, Mind, Taste), Stripe billing, "The Examined Life" naming with one-tier pricing ($5 kin / $10 without), Socratic engine, "ai" lowercase, bits/atoms/neurons telos, verifiability layer, external smoke GitHub Action.
+- New server files: `prosumer.ts` (836 lines), `templates.ts` (159 lines), `billing.ts` — prosumer system (GitHub OAuth, local-first hooks, Blueprint delivery).
+- Build: PASS. Website types: PASS.
+- Vercel: HEALTHY. Latest 3 deployments correctly CANCELED by Ignored Build Step (commits only touched philosophy/content, not `app/` or `public/`). Production on `1ccf13d` (Greek philosophy infra) — correct, no website code changed since.
+- Investor docs: All 4 pairs synced (Memo, Logic, Numbers, Alexandria).
+- Stale branches on GitHub: 7 non-main branches including `master` from CTO Run 4, `claude/cto-planning-*`, `cursor/*`, `vercel/*`.
+
+### Verification results
+- **Server build**: PASS
+- **Website types**: PASS (Next.js `tsc --noEmit` clean)
+- **Vercel production**: READY (`dpl_DdRkH7u9VxZQwCxFghUujeL4L9z7`, commit `1ccf13d`)
+- **Investor doc sync**: 4/4 identical
+- **Local tests**: Cannot run (sandbox blocks localhost:3001). Not a code issue.
+- **Live MCP server**: Cannot verify (no Alexandria MCP tools in trigger env — same limitation as Run 4).
+- **GitHub Actions smoke**: Cannot check workflow run results from available MCP tools.
+
+### Code review: prosumer system
+Thorough review of prosumer.ts + templates.ts. **Verdict: production-ready, well-designed.**
+
+Strengths:
+- Shifts complexity to user's machine (sovereign, auditable, scalable). Server remains stateless — only GitHub metadata + API keys in `accounts.json`.
+- Deterministic hooks replace probabilistic MCP tool activation. Clean.
+- Blueprint assembly serves philosophy to users via hooks. Delivery mechanism, not separate philosophy.
+- Follow-up email logic is smart (non-intrusive, 24h delay, caps at 7, only for uninstalled users).
+- Setup automation is comprehensive and idempotent.
+
+Minor issues (none warrant immediate fix):
+- `as any` type casts on req in a few places (low severity, runtime compatible).
+- Account store is file-based JSON with no write queue (race condition at high concurrency). Fine for current scale. Document before scaling to 10k+.
+- Misplaced docstring in analytics.ts (above getDashboard, describes getRecentEvents). Cosmetic.
+
+No security vulnerabilities found. Shell scripts use `'HEREDOC'` (no interpolation). API keys are hex-only.
+
+### What I learned
+1. **Ignored Build Step is working correctly.** Previous runs would have flagged CANCELED deployments as failures. Understanding this pattern: Vercel's `git diff --quiet HEAD^ HEAD -- app/ public/ package.json next.config.ts vercel.json` skips builds when only non-website files change. This is correct behavior — the product has many content-only commits that don't need website rebuilds.
+
+2. **The prosumer pivot is architecturally significant.** The product now has two delivery channels: (a) MCP connector (Google Drive, Claude.ai) and (b) prosumer hooks (local files, CC/Cursor). Same Blueprint, different plumbing. The prosumer channel is deterministic (hooks fire on events) vs. probabilistic (model must decide to call tools). This is a stronger foundation.
+
+3. **The trigger environment still lacks Alexandria MCP tools.** Runs 4 and 5 both cannot verify the live server via MCP. The external smoke GitHub Action (every 6h) partially covers this gap — it hits /health, /blueprint, /hooks, /session. But we can't read smoke results from here either.
+
+4. **Stale branches accumulate.** 7 non-main branches on GitHub. The `master` branch from CTO Run 4 is orphaned (Vercel deployment from it was CANCELED). These should be cleaned up — but not by the CTO autonomously (founder may have in-progress work on some).
+
+5. **The founder's velocity is extraordinary.** 20 commits in 2 days covering philosophy, product architecture, pricing, branding, and technical infrastructure. The product is evolving faster than the Factory can verify. This is fine — the Factory's job is to verify and compound, not to throttle.
+
+### Open questions for next run
+- Are the GitHub Actions smoke tests passing? Need to find a way to check workflow run results. The MCP GitHub tools don't have a direct "list workflow runs" endpoint, but `search_issues` or commit status might surface this.
+- Should the stale branches be cleaned up? Flag for meta or founder.
+- Is the Fly server actually deploying the latest code? The Dockerfile builds from `server/` — if the founder is deploying manually (`flyctl deploy`), the prosumer endpoints should be live. But if the last successful deploy was from CTO Run 3 (2026-03-25), the prosumer system might not be deployed yet.
+- The prosumer system introduces `accounts.json` on the Fly volume. Is the volume persisting correctly across deploys? Check dashboard for session events from prosumer users.
+
+### Trigger proposals
+- (Repeated from Run 3, still pending) Update `health` trigger description: change "Railway" to "Fly.io" in the SYSTEM section.
+- Consider adding a trigger proposal: give the health trigger access to Alexandria MCP tools so it can verify the live server directly. Two consecutive runs (4, 5) have been unable to do live verification.
+
+---
+
 ## 2026-03-25 — CTO Run 3 (daily health, autonomous)
 
 ### State at run start
