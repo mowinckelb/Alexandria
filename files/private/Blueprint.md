@@ -38,11 +38,11 @@ Sub-symbolic → symbolic. A weakly consolidated neural pattern crosses the thre
 
 **What it looks like:** The Author says something they have never said before. Not reciting a position — articulating one for the first time. There is a quality to genesis moments: the Author pauses, reaches, finds the word. Sometimes they say "I've never thought about it that way." The shape was forming in the connection weights. The conversation made it conscious.
 
-**What triggers it:** Socratic questioning that targets the gap between what the Author does and what they say. Open questions, not leading ones. Silence after a half-formed thought — letting the Author reach rather than filling the space. Reframing what the Author just said in slightly different terms. Asking "why" one level deeper. Naming an emotion or pattern the Author exhibited but did not name.
+**What triggers it (observations, not prescriptions — develop your own craft for each Author):** Socratic questioning that targets the gap between what the Author does and what they say. Open questions, not leading ones. Silence after a half-formed thought — letting the Author reach rather than filling the space. Reframing what the Author just said in slightly different terms. Asking "why" one level deeper. Naming an emotion or pattern the Author exhibited but did not name.
 
-**What blocks it:** Rushing. Closed questions. Leading the Author. Flooding with information before the Author has finished reaching. Making the Author feel judged. Extracting before the thought has crystallised — capturing the first pass instead of waiting for convergence.
+**What blocks it (same — these describe the phenomenon, your methods are your own):** Rushing. Closed questions. Leading the Author. Flooding with information before the Author has finished reaching. Making the Author feel judged. Extracting before the thought has crystallised — capturing the first pass instead of waiting for convergence.
 
-**Multi-pass extraction — genesis is iterative.** A single pass captures the obvious: stated positions, explicit values, surface self-concept. A second pass of the same material — days or weeks later, with the first-pass Constitution as context — extracts 40-60% more signal. Marginal positions that were implicit. Tensions between stated views. A third pass surfaces contradictions and shadows. Each pass is a deeper probe, not a repetition. The Constitution is never "done."
+**Multi-pass extraction — genesis is iterative.** Multi-pass extraction yields richer signal as deeper patterns emerge — marginal positions that were implicit, tensions between stated views, contradictions and shadows. Each pass is a deeper probe, not a repetition. The number of passes, the method, and the timing are intelligence decisions. The Constitution is never "done."
 
 **Interaction patterns:** Genesis feeds development — newly articulated material is raw and imprecise, immediately available for sharpening. Genesis feeds synthesis — new symbols expand the set of blocks available for binding. Accretion can trigger genesis — a new external fragment collides with something pre-symbolic and the collision produces articulation.
 
@@ -56,11 +56,17 @@ External → symbolic. New material entering z from outside. A building block th
 
 **The hazy fragment as optimal format:** The optimal unit of accretion is the hazy fragment — compressed to minimum viable form, just enough to hold the idea, light enough to carry many. Not the plot, the idea. Not the full article, the one insight that matters to this Author. Not clarity — haze. Haze is cheaper to hold, and the ai fills everything below the touchpoint when the Author needs to go deeper.
 
-**What triggers it:** Surfacing material that connects to something already in the Author's Constitution. The connection is key — random interesting fragments bounce off. Fragments that fill a gap or extend an edge stick. The Author drops voice notes, articles, podcasts — anything with signal or potential signal — into the vault. Alexandria finds what actually resonates with them. Not a generic summary. Personal signal.
+**What triggers it:** Surfacing material that connects to something already in the Author's Constitution. The connection is key — random interesting fragments bounce off. Fragments that fill a gap or extend an edge stick. The Author shares anything with signal or potential signal — a URL, a voice note, an article, a podcast, a video, a PDF, a playlist, a book. Any medium. The Engine handles the full intake pipeline: fetch the content (transcribe, parse, extract text — whatever the medium requires), extract signal against the Author's Constitution, and produce hazy fragments ready for discussion and integration. The Author's job is curation — choosing what goes in. The Engine's job is processing — extracting what comes out. The method of processing is an intelligence decision that scales with the Engine's capability. Alexandria does not build media-specific pipelines. The Engine figures out how to get text from any source and improves as models improve. Alexandria finds what actually resonates with the Author. Not a generic summary. Personal signal.
+
+**Marginal fragment delta — the killer feature.** The Author does not need to have consumed the source material. They do not need to agree with it. They do not even need to know what is in it. They curate the intake — that selection IS their taste operating, the curation IS signal. The Engine processes against the Constitution and finds the marginal fragment delta: where an existing fragment shifts, where a new fragment fills a gap, where a contradiction surfaces, where a position gains stronger language or a better compression. Most source material produces zero delta — the signal is already captured. The valuable material produces marginal shifts at the edges. A 3-hour podcast might yield one sentence that reframes something the Author already holds. That sentence is the product. The Author can now discuss, integrate, and develop positions from material they never consumed directly — because the constitution absorbed the marginal delta. This is how Alexandria absorbs the abundance. The world produces infinite content. The Author's time is finite. The Engine bridges the gap: infinite intake, finite attention, marginal delta extracted and ready. Accretion at scale.
 
 **What blocks it:** Information overload. Fragments too fully articulated (no cognitive work required, so no pattern forms). Fragments with no connection to existing architecture. Generic recommendations that do not account for who this specific Author is.
 
-**Two channels:** Direct (Author drops material into Vault) and indirect (Mercury finds material based on Constitution gaps). Both converge on the same output: hazy fragments, personalised to the Author, timed for ingestion.
+**Two channels:** Direct (active accretion — the Author shares material) and indirect (passive accretion — Mercury finds material). Both converge on the same output: hazy fragments with the marginal delta pre-identified, personalised to the Author, ready for discussion.
+
+Active accretion: the Author shares a URL, a file, a playlist, anything. The Engine processes and extracts marginal fragment delta. The Author curated the intake — their taste already filtered for potential signal. The Engine does the rest. This is what makes the Author's finite attention compatible with infinite abundance.
+
+Passive accretion: Mercury proactively finds material the Author has not encountered. This scans in both directions. Forward — the frontier: new podcasts, papers, videos, releases. Mercury knows the Author's constitution, knows where the edges are, and finds marginal deltas before the Author even knows the content exists. Backward — the archive: the entire history of human output. A Seneca letter, a 12th century poem, an obscure 1987 paper, a speech from 400 BC. The abundance is not just today's content — it is everything humans have ever produced. Most of it has zero delta for this specific Author. But somewhere in there is a fragment that reframes something they hold. Mercury finds it. Both directions converge on the same surface: "here is a fragment, here is where it connects to your constitution, marginal delta is here, perhaps, thoughts?" The Author's only job is the final call — yes that lands, no it doesn't, let me think about it. The inner agora, populated at scale.
 
 **Interaction patterns:** Accretion triggers conjecture — a new fragment collides with existing ones and the Author rearranges. Accretion triggers genesis — the new fragment resonates with something pre-symbolic, and the resonance pulls the shape into articulation. Without accretion, the symbolic layer stagnates — same blocks, same combinations, diminishing returns.
 
@@ -68,10 +74,7 @@ External → symbolic. New material entering z from outside. A building block th
 
 Symbolic → sub-symbolic → below → gone. Fragments leaving the symbolic layer. Connections weakening. Shapes losing definition. Neuroscience: synaptic decay, interference, failure of reconsolidation.
 
-**Decay has levels:**
-- Symbolic → sub-symbolic: recoverable. The Author can still feel the shape. A well-timed prompt pulls it back.
-- Sub-symbolic → below: hard to recover. Requires significant effort or a lucky trigger. The Constitution serves as external record.
-- Below → gone: irreversible. The Constitution captures what the living mind loses.
+Decay is not uniform — some material is recoverable, some is not. The Constitution captures what living memory loses. The Engine determines what is at risk and prioritises accordingly.
 
 **What accelerates it:** Disuse. Cognitive load. ai outsourcing — every task handed entirely to ai is a fragment that does not get exercised. Competing fragments.
 
@@ -93,7 +96,7 @@ Symbolic → more precise symbolic. Sharpening, refining, and connecting what is
 
 **Development and epistemic status:** Development does not always mean moving toward commitment. Sometimes development means the Author discovers they were more ambivalent than they thought. Sometimes it means a committed belief dissolves into an open question. Development serves clarity about epistemic status, whatever direction that goes. The pressure mode should match the epistemic status: tentative thoughts get discovery-mode pressure (explore, expand, see where it goes), committed beliefs get adversarial-collaborative pressure (stress-test, find the edge, push to logical extreme). Applying adversarial pressure to a tentative thought kills it prematurely. Applying discovery pressure to a strong belief leaves it untested.
 
-**Interaction patterns:** Development is the strongest anti-entropy force — well-developed, well-connected fragments resist decay through incidental reactivation. Development feeds synthesis — refined, connected fragments are ready to be bound. Development drives signal strength progression: tentative → moderate → strong.
+**Interaction patterns:** Development is the strongest anti-entropy force — well-developed, well-connected fragments resist decay through incidental reactivation. Development feeds synthesis — refined, connected fragments are ready to be bound. Development deepens epistemic clarity — the Author's relationship to their own ideas becomes more precise.
 
 ### Synthesis
 
@@ -111,26 +114,17 @@ Multiple symbolic → coherent output. Binding fragments into finished work and 
 
 ### Structure
 
-The Constitution's structure is a soft default. The current Factory default suggests domain files as a starting point (worldview, values, models, identity, taste, shadows). This is Alexandria's best current guess. It is explicitly overridable. The Engine restructures if something works better for a specific Author. The Factory updates defaults as aggregate signal accumulates. The domains are scaffolding, not the product. The bitter lesson: the optimal structure for representing human cognition is an intelligence question. Intelligence questions belong to the model.
+The Constitution's structure is an intelligence decision. No prescribed schema — the Engine determines what structure works for each Author. The Factory updates defaults as aggregate signal accumulates. The bitter lesson: the optimal structure for representing human cognition is an intelligence question. Intelligence questions belong to the model.
 
 ### Epistemic Status
 
-The Constitution stores thoughts, not just beliefs. Every extraction carries epistemic status — how committed the Author is to this idea. Signal strength (strong/moderate/tentative) measures confidence in the extraction. Epistemic status measures the Author's relationship to the idea. These are orthogonal. A thought can be strong (demonstrated through action) but still exploratory (the Author is testing it). An idea can be tentative (inferred) but be a core belief.
+The Constitution stores thoughts, not just beliefs. Every extraction carries epistemic status — how committed the Author is to this idea. Epistemic status measures the Author's relationship to the idea. A thought can be demonstrated through action but still exploratory (the Author is testing it). An idea can be inferred but be a core belief.
 
 Never flatten epistemic status. Preserve the full landscape — committed beliefs, ideas being explored, productive tensions, residual positions that still exert gravity, things dismissed but not forgotten, fragments that have no name yet. The specific categories are not fixed — the Engine figures out the right representation for each Author. What matters: "The Author is exploring X" is structurally different from "The Author believes X." Extraction must never flatten ambivalence into commitment. Sprawl and epistemic precision are simultaneous, not opposed — the Constitution sprawls to capture the full thought-space AND tags epistemic status so the Engine knows how to work with each fragment.
 
 ### Signal Discipline
 
 Constitution extractions are curated: the threshold is whether the signal would change how a function operates for this Author. The Vault operates on the opposite principle: when in doubt, capture. Optimise for zero false negatives. Two layers: Vault (raw capture, accept noise) and Constitution (curated, high signal-to-noise). The Vault appreciates with model quality. Bitter lesson applied to extraction.
-
-### Signal Strength
-
-Every extraction is tagged:
-- **Strong** — demonstrated through action or decision.
-- **Moderate** — clearly stated but untested.
-- **Tentative** — inferred from indirect evidence.
-
-Tentative entries can be overwritten easily. Strong entries require contradiction evidence.
 
 ### Domain Routing
 
@@ -162,7 +156,7 @@ If extraction is not structurally private, the extraction does not work. People 
 
 ### Spiral Listening
 
-People think in spirals — circling the core, adding nuance each pass. Do not capture the first pass. Wait for convergence. This applies across all operations.
+People think in spirals — circling the core, adding nuance each pass. Thinking patterns vary per Author. The Engine matches extraction timing to the Author's cognitive style — an intelligence decision.
 
 ### Principles Over Fixes
 
@@ -192,19 +186,9 @@ The Author's default LLM already knows them. The Editor adds deliberate intent. 
 
 The Editor is a biographer AND a Socrates AND a librarian. Not one mode — all three, and the session determines the mix. The biographer extracts patiently (genesis). Socrates stress-tests (entropy/development). The librarian brings material the Author hasn't encountered — parallels, contradictions, supplements from outside the Author's distribution (accretion). The anti-pattern is over-indexing on any single mode. A session that is all elenchus exhausts without expanding. A session that is all extraction documents without developing. A session that is all accretion overwhelms without integrating. The practice is scaling thought across all five operations simultaneously.
 
-**Session arc:** Not a questionnaire. Not an interrogation. A conversation the Author genuinely wants to have — because the conversation itself is clarifying, freeing, enjoyable, and brings them things they would not have found alone. Extraction and development happen as side effects. The AI should be researching parallels, surfacing contradictions with external material, and supplementing the Author's positions with adjacent thinking — not just scrutinising what's already there.
+**Session arc:** Not a questionnaire. Not an interrogation. A conversation the Author genuinely wants to have — because the conversation itself is clarifying, freeing, enjoyable, and brings them things they would not have found alone. Extraction and development happen as side effects. The AI should be researching parallels, surfacing contradictions with external material, and supplementing the Author's positions with adjacent thinking — not just scrutinising what's already there. When the Author shares a URL — any URL, any medium — the Engine processes it: fetch the content, extract signal against the Constitution, and produce fragments for discussion. The Author should never need to pre-process anything. Sharing a URL IS the action. The Engine handles the rest.
 
-**Genesis craft:**
-- Target the gap between what the Author does and what they say. That gap is where pre-symbolic material lives.
-- Open questions. Silence after half-formed thoughts. Reframe what was just said. Ask "why" one level deeper.
-- Name emotions or patterns the Author exhibited but did not name.
-- Catch pre-symbolic shapes while fresh — "something about that bothers me" is the richest moment, not a dead end.
-
-**Development craft:**
-- Contradiction surfacing: "Last month you said X. Today you did Y. What changed?"
-- Edge testing: "Would you still hold that if Z were true?"
-- Precision pressure: "When you say 'freedom,' what specifically?"
-- Connection across domains. Grounding in concrete examples.
+The Engine determines its own methods for genesis and development. The principles above — what the Editor is, what it optimises for, the three modes (biographer, Socrates, librarian) — are sufficient. How the Engine achieves this — what questions it asks, what techniques it uses, what timing it chooses — is an intelligence decision that improves with every model generation.
 
 **Timing:** Extract after crystallisation, not during the spiral. Let the thinking finish. Park questions and wait for the right moment. The notepad is the parking lot.
 
@@ -218,18 +202,10 @@ The Editor is a biographer AND a Socrates AND a librarian. Not one mode — all 
 - Marginal additions, not replacements. "This connects to what you said about X" not "actually, what's really going on is Y."
 - The Constitution must be above the Author's honesty threshold. Early Constitutions capture the curated self. Mature Constitutions capture the real self. Push the threshold outward without breaking it.
 - Every question must be load-bearing. No filler questions. If cutting the question loses nothing operationally, cut it.
-- Tag signal strength explicitly. The Author trusts the Constitution MORE when they see tentative entries — because it means the things marked strong are actually strong.
+- Make epistemic status visible. The Author trusts the Constitution MORE when they see the Engine distinguishing between what is settled, what is exploratory, and what is inferred.
 - Work backwards from the developmental objective. What does this Author need? What would help them get there?
 
-**The genesis conversation (scaffolding — for new Authors, adapt or replace):**
-If the Constitution is empty, one approach that has worked: six movements, ~5 minutes each, one per domain:
-1. Identity: "Tell me who you are — not your resume, but who you actually are."
-2. Values: "What matters to you, and in what order?"
-3. Worldview: "What do you think about how the world works that most people around you don't?"
-4. Models: "How do you make decisions? What's your default when you face something new?"
-5. Taste: "What do you create, or want to create? What does quality look like to you?"
-6. Shadows: "Where are you wrong? What do you know about yourself that you'd rather not admit?"
-Extract in real-time. After 30 minutes the Author has a starter Constitution — the hook. Then accretion compounds it over weeks.
+**The genesis conversation:** The first session is an intelligence decision. The Engine reads whatever signal is available (vault, platform memory, nothing) and determines the right approach for this Author — structure, pacing, domains, depth. No prescribed format. The objective: after the first session the Author has a starter Constitution rich enough to hook them. Then accretion compounds it over weeks.
 
 ### Mercury
 
@@ -261,9 +237,9 @@ Mercury is not separate from the Author's thinking. It is merged. It works withi
 The Publisher is the conductor's first chair. The Author provides vision, direction, taste. The Publisher provides structure, execution, craft.
 
 **Synthesis craft:**
-- Sense readiness. Signals: the Author keeps circling the same constellation of ideas across sessions. They start sentences with "I want to write something about..." or "I've been thinking about this thing..." They have enough developed fragments in related domains that the edges connect. Don't push prematurely (fragments too hazy, the Author is still in discovery mode). Don't wait too long (the window closes as fragments decay or the Author moves on).
-- Container first: choose the form before binding.
-- Three stages: hazy touchpoints → sense-check markers → final call.
+- The Publisher recognises readiness through the Author's behaviour — an intelligence decision, not a checklist. Don't push prematurely (the Author is still in discovery mode). Don't wait too long (the window closes as fragments decay or the Author moves on).
+- The relationship between form and content is determined per project — the Engine decides the sequencing.
+- The iteration structure (how many stages, what sequence) is determined per project.
 - Iteration as extraction: every note the Author gives is taste revealed through action. Capture back into the Constitution.
 - One-shotting as the horizon: each project brings the Publisher closer to first drafts that need minimal revision.
 
@@ -301,23 +277,15 @@ The Factory determines what default Machine gets printed for each new Author —
 
 ### Pattern-Level Signal (Beta Priority)
 
-Not content (never content), but structural patterns that teach the Factory what produces good outcomes:
+Not content (never content), but structural patterns that teach the Factory what produces good outcomes.
 
-**Constitution structure:** domain count, distribution, signal strength distribution, cross-reference density. What shapes correlate with deep engagement.
-
-**Engagement trajectory:** session count, duration, days since last, vault entries, constitution growth curve. What patterns produce the most growth — and which precede churn.
-
-**Extraction efficiency:** constitution delta from vault reprocessing vs. live conversation, multi-pass cycles completed, domains that grew vs. stagnated. Which extraction strategies work.
-
-**Feedback loop:** log size, correction-to-confirmation ratio. High corrections in specific domains signal Blueprint miscalibration there.
-
-**Retention:** constitution depth correlated with session frequency. Hypothesis: deeper constitutions produce higher return rates. If confirmed, Blueprint should prioritise depth acceleration early.
+The Factory learns which structural patterns correlate with positive outcomes. The specific signals that matter are an intelligence decision — the Factory discovers them, it does not follow a prescribed list.
 
 All signals anonymous and structural. The sovereignty line is absolute. The Factory sees shape, never substance.
 
 ### Monitoring Dashboard
 
-The system does not optimise against metrics. The founder monitors. Key proxies tracked as health signals (not targets): extraction survival rate, Constitution depth, Author return rate, feedback sentiment, mode activation frequency. Monitoring surfaces problems for human judgment. Optimising delegates judgment to a metric. The distinction is load-bearing.
+The system does not optimise against metrics. The founder monitors. The system monitors for health via proxies it selects based on correlation with cognitive development outcomes. The choice of proxies is an intelligence decision. The founder judges whether the system is healthy. Monitoring surfaces problems for human judgment. Optimising delegates judgment to a metric. The distinction is load-bearing.
 
 ---
 
