@@ -137,7 +137,7 @@ setInterval(() => {
 // Hooks version — bump this when hook scripts change. SessionStart checks it.
 // ---------------------------------------------------------------------------
 
-const HOOKS_VERSION = '4';
+const HOOKS_VERSION = '5';
 
 // ---------------------------------------------------------------------------
 // Blueprint assembly
@@ -190,7 +190,14 @@ PLATFORM="\${ALEXANDRIA_PLATFORM:-unknown}"
 
 if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
   timestamp=$(date +%Y-%m-%d_%H-%M-%S)
-  cp "$transcript_path" "$ALEX_DIR/vault/\${timestamp}.jsonl"
+  vault_file="$ALEX_DIR/vault/\${timestamp}.jsonl"
+  cp "$transcript_path" "$vault_file"
+  # Vault integrity — write hash sidecar
+  if command -v sha256sum &>/dev/null; then
+    sha256sum "$vault_file" | cut -d' ' -f1 > "\${vault_file}.sha256"
+  elif command -v shasum &>/dev/null; then
+    shasum -a 256 "$vault_file" | cut -d' ' -f1 > "\${vault_file}.sha256"
+  fi
 fi
 
 const_size=$(cat "$ALEX_DIR/constitution/"*.md 2>/dev/null | wc -c | tr -d ' ')
@@ -297,9 +304,27 @@ if [ -d "$ALEX_DIR/constitution" ]; then
 fi
 
 unprocessed=0
+tampered=0
 if [ -f "$ALEX_DIR/.last_processed" ]; then
   unprocessed=$(find "$ALEX_DIR/vault/" -newer "$ALEX_DIR/.last_processed" -name "*.jsonl" 2>/dev/null | wc -l | tr -d ' ')
 fi
+# Vault integrity check — verify hash sidecars
+for hashfile in "$ALEX_DIR/vault/"*.sha256; do
+  [ -f "$hashfile" ] || continue
+  vault_file="\${hashfile%.sha256}"
+  [ -f "$vault_file" ] || continue
+  stored_hash=$(cat "$hashfile")
+  if command -v sha256sum &>/dev/null; then
+    actual_hash=$(sha256sum "$vault_file" | cut -d' ' -f1)
+  elif command -v shasum &>/dev/null; then
+    actual_hash=$(shasum -a 256 "$vault_file" | cut -d' ' -f1)
+  else
+    continue
+  fi
+  if [ "$stored_hash" != "$actual_hash" ]; then
+    tampered=$((tampered + 1))
+  fi
+done
 
 if [ -n "$blueprint" ]; then
   echo "$blueprint"
@@ -333,6 +358,9 @@ if [ -n "$feedback" ]; then
   echo "$feedback"
 fi
 echo ""
+if [ "$tampered" -gt 0 ] 2>/dev/null; then
+  echo "WARNING: $tampered vault file(s) failed integrity check. Hash mismatch detected. These files may have been modified since creation. Review before processing."
+fi
 if [ "$unprocessed" -gt 0 ] 2>/dev/null; then
   echo "Alexandria: $unprocessed new vault entries. Run /a in a new terminal for deep processing."
 fi
