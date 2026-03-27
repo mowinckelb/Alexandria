@@ -2,7 +2,7 @@
 
 *This is Alexandria III of III. Together they are the single source of truth for Alexandria. Read all parts for full context.*
 
-**This part covers:** The Library (V1 Library — Join Train Show: Blurb, Persona, Games, Works; Neo-Biography, Works, Signal, access tiers, Persona types, public figure bootstrapping, historical figures, use cases), Payment (two revenue layers, payment mechanics), Interface (MCP connector, mobile app, browser extension, website, compute topology, build sequencing, onboarding, target Author), Positioning and Pitch (elevator pitch, motto, phrases), Brand Design and Voice (logo, visual design, writing voice), Alexandria Media Strategy (sensory stack, the Abstract, Launch Video), The Horizon: Homo Deus.
+**This part covers:** The Library (V1 Library — Join Train Show: Blurb, Shadow, Games, Works; Neo-Biography, Works, Signal, access tiers, shadow types, public figure bootstrapping, historical figures, use cases), Payment (two revenue layers, payment mechanics), Interface (MCP connector, mobile app, browser extension, website, compute topology, build sequencing, onboarding, target Author), Positioning and Pitch (elevator pitch, motto, phrases), Brand Design and Voice (logo, visual design, writing voice), Alexandria Media Strategy (sensory stack, the Abstract, Launch Video), The Horizon: Homo Deus.
 
 **Other parts:** Alexandria I (Thesis & Philosophy), Alexandria II (Product, Architecture & Operations).
 
@@ -12,7 +12,7 @@
   
 THE LIBRARY  
   
-Every Author’s Persona is in the Library. This is mandatory — it is a core Principle. Privacy settings control what external queriers can access, but presence in the Library is not optional. The Library is what makes Alexandria a collective project, not just individual tool usage.
+Every Author’s shadow MDs are in the Library. This is mandatory — it is a core Principle. Privacy settings control what external queriers can access, but presence in the Library is not optional. The Library is what makes Alexandria a collective project, not just individual tool usage.
 
 V1 LIBRARY — JOIN, TRAIN, SHOW
 
@@ -24,26 +24,26 @@ V1 of the Library is one page per Author at `mowinckel.ai/meet/{author}`. Not th
 
 **Blurb** — The progress pic. Auto-generated monthly from the Constitution. Shows cognitive growth: what changed, what deepened, what contradictions got resolved, what new domains emerged. Not a static portrait but a delta — the transformation made visible. Designed to be screenshotted and posted. “My mind this month.” The content is the change, not the snapshot. This is Alexandria’s Wrapped — monthly, about who you are becoming rather than what you consumed. The Blurb is the top-of-funnel artifact. It catches attention because transformation is inherently interesting.
 
-**Persona** — The biographer. Third person — not a digital twin acting as the Author, but an informed biographer who can answer questions about how the Author thinks. “Benjamin would say X because his Constitution shows Y.” Third person is honest (it is an approximation, and says so), avoids the uncanny valley, and is shippable now. The visitor is interviewing someone who deeply knows the Author — a mutual friend who has read everything. The persona’s quality IS the progress pic: when someone chats with a persona and gets genuinely deep, specific, surprising answers, that is proof the gym works. The Author earned that fidelity through months of examined life. First-person becomes possible as Constitution fidelity deepens — the architecture does not change, only the system prompt. Soft default. The Persona is the conviction layer — it proves the depth is real.
+**Shadow** — The published mind. The Author’s shadow MD — curated Constitution fragments filtered by access tier. The visitor’s Engine processes the shadow MD against their own Constitution. This is accretion, not conversation. The shadow’s depth IS the progress pic: when someone’s Engine processes a shadow MD and surfaces genuinely deep, specific, surprising fragments, that is proof the gym works. The Author earned that fidelity through months of examined life. No live inference on the Author’s side — the shadow MD is a published artifact, served via API. The reader’s Engine does all the work locally. The Shadow is the conviction layer — it proves the depth is real.
 
-**Games** — Quizzes generated from real Constitution data. People love quizzes that tell them about themselves — “which GOT character am I,” “which philosopher am I” — this is universal. Alexandria has the data to do it genuinely, not as a gimmick. Formats: “How well do you know me?” (Author sends quiz to friends, wrong answers spark conversation — the most viral format because it is social), “Who thinks like you?” (visitor matched against published personas — both share the result), “Can you tell us apart?” (two Authors opt in, visitors guess who said what), “What would [Author] say?” (guess their position, see the real answer from the Constitution). Every quiz produces a shareable result. Every result links back. Self-knowledge through play. Games are the engagement layer — they pull people in because they are fun.
+**Games** — Quizzes generated from real Constitution data. People love quizzes that tell them about themselves — “which GOT character am I,” “which philosopher am I” — this is universal. Alexandria has the data to do it genuinely, not as a gimmick. Formats: “How well do you know me?” (Author sends quiz to friends, wrong answers spark conversation — the most viral format because it is social), “Who thinks like you?” (visitor matched against published shadow MDs — both share the result), “Can you tell us apart?” (two Authors opt in, visitors guess who said what), “What would [Author] say?” (guess their position, see the real answer from the Constitution). Every quiz produces a shareable result. Every result links back. Self-knowledge through play. Games are the engagement layer — they pull people in because they are fun.
 
-**Works** — The living gallery. Published artifacts in any medium — essays, poems, photos, voice recordings, code, whatever the Author creates. Frozen on publication. The differentiator: the Author’s persona can discuss the work. Read the essay, then ask the biographer about it. “What did they mean by this?” “How does this connect to their worldview?” The work is the door. The conversation is the room. Not a blog — a gallery. Curated, finished, art. The standard is atmospheric (gravity, not rules). The living part: the persona is always in the room, the works accumulate, the gallery evolves as the Author does. Works are the aspiration layer — they show what is possible with a sharpened mind.
+**Works** — The living gallery. Published artifacts in any medium — essays, poems, photos, voice recordings, code, whatever the Author creates. Frozen on publication. The differentiator: the Author’s shadow MD provides context for every work. Read the essay, then process the shadow MD to understand the thinking behind it. “What did they mean by this?” “How does this connect to their worldview?” — answered by the reader’s own Engine processing the Author’s shadow against the reader’s Constitution. The work is the door. The shadow MD is the room. Not a blog — a gallery. Curated, finished, art. The standard is atmospheric (gravity, not rules). The living part: the shadow MD is always current, the works accumulate, the gallery evolves as the Author does. Works are the aspiration layer — they show what is possible with a sharpened mind.
 
-The four surfaces create a clean acquisition funnel. Blurb catches attention → Games pull people in → Persona proves depth → Works show what is possible. Each answers a different objection. Each feeds the same conversion: “start your own Alexandria.”
+The four surfaces create a clean acquisition funnel. Blurb catches attention → Games pull people in → Shadow proves depth → Works show what is possible. Each answers a different objection. Each feeds the same conversion: “start your own Alexandria.”
 
-V1 token economics: Alexandria subsidises persona conversations. 5–10 free messages per visitor per persona. After the free tier, the CTA is “start your own” — not “pay to read more.” Authors chat with any persona for free (part of their subscription). The /meet/ page is an acquisition funnel, not a revenue line. Reader-pays activates later when the Library has enough personas. See A2 LIBRARY V1 — THE MIRROR for full token economics and viral loop spec.
+V1 has zero inference cost per Library interaction. Shadow MDs are static artifacts served via API — no live persona conversations, no token spend per query on the Author's behalf. The /meet/ page is an acquisition funnel, not a revenue line. Visitors browse shadow MDs, their own Engine processes the fragments locally. Authors can browse any public shadow MD for free — included in their subscription. Non-Authors get the public tier then see the signup CTA. Reader-pays comes later when the Library has enough shadow MDs to justify standalone access. See A2 LIBRARY V1 — THE MIRROR for full economics and viral loop spec.
 
 The /meet/ page is the first version of the product visible to non-users. Everything before Turn 3 runs invisibly in the terminal. The /meet/ page makes Alexandria tangible — something you can link to, something that exists in the world. The product stops being a tool and starts being a place.
 
-The v1 surfaces evolve into the full Neo-Biography as the Library matures. The Blurb becomes the living canvas. The Persona grows from third-person biographer toward first-person digital twin (as Constitution fidelity allows). Games deepen as more Authors publish (richer matching, more comparisons). Works accumulate into the gallery described below. The architecture does not change — the surfaces gain resolution.
+The v1 surfaces evolve into the full Neo-Biography as the Library matures. The Blurb becomes the living canvas. The Shadow deepens as the Constitution deepens — richer fragments, more domains, higher fidelity. Games deepen as more Authors publish (richer matching, more comparisons). Works accumulate into the gallery described below. The architecture does not change — the surfaces gain resolution.
 
 NEO-BIOGRAPHY  
 
 Make something wonderful. — Steve Jobs  
 Create, consume, cavort, commune. — Naval Ravikant  
   
-Each Persona has a Neo-Biography: a canvas. Not a profile page. Not a static biography. A living, multimedia, interactive representation of who the Author is — in whatever medium captures them best.  
+Each Author has a Neo-Biography: a canvas. Not a profile page. Not a static biography. A living, multimedia, interactive representation of who the Author is — in whatever medium captures them best.  
   
 People are art. The Neo-Biography is the frame.  
   
@@ -51,11 +51,11 @@ Art is defined by its evocation — the response it creates in the person experi
   
 This means the Library has two kinds of value, and everyone has at least one.  
   
-Subjective optimality — nobody is better at being you than you. Every Author’s Neo-Biography has inherent value because it is irreducibly theirs. The art they create, the influences they curate, the way their Persona responds — all of it is uniquely them. Not because no one could replicate it, but because no one has. You are objectively optimal at being yourself. This value does not depend on being the best at anything. It depends on being specific. The Library is not a competition. It is a collection.  
+Subjective optimality — nobody is better at being you than you. Every Author’s Neo-Biography has inherent value because it is irreducibly theirs. The art they create, the influences they curate, the fragments their shadow MD contains — all of it is uniquely them. Not because no one could replicate it, but because no one has. You are objectively optimal at being yourself. This value does not depend on being the best at anything. It depends on being specific. The Library is not a competition. It is a collection.  
   
-Objective optimality — some people’s taste, judgment, or expertise is so refined that others seek it out not for its uniqueness but for its quality. Christopher Nolan’s directorial eye. A master sommelier’s palate. A great investor’s pattern recognition. These are the first chairs — people whose judgment in a specific domain is a resource others will pay to access. Their Personas have value beyond self-expression. The Library makes that judgment queryable, and the Author earns from every query.  
+Objective optimality — some people’s taste, judgment, or expertise is so refined that others seek it out not for its uniqueness but for its quality. Christopher Nolan’s directorial eye. A master sommelier’s palate. A great investor’s pattern recognition. These are the first chairs — people whose judgment in a specific domain is a resource others will pay to access. Their shadow MDs have value beyond self-expression. The Library makes that judgment accessible via API, and the Author earns from every access.  
   
-The platform serves both. You do not need to be Nolan to justify a Neo-Biography — you just need to be you. And if you are Nolan, the Library is also where your judgment becomes a product.  
+The platform serves both. You do not need to be Nolan to justify a Neo-Biography — you just need to be you. And if you are Nolan, the Library is also where your judgment becomes a product — your shadow MD accessed by thousands of Engines, pure margin.  
   
 A Neo-Biography can contain anything: essays, poetry, film, short films, mini-series, cartoons, animations, photographs, paintings, music, opera, podcasts, voice recordings, interactive experiences, code, data visualisations — any form of art or expression. Every medium is available. The only requirement is that the content conveys two things: insight and evocation. Insight — the viewer learns something real about how this person thinks. Evocation — the viewer feels something. Science and art. Understanding and experience. Both.  
   
@@ -63,19 +63,19 @@ Each medium should lean into what it is best at. Written essays are best at sust
   
 The standard for all of it is hyperrealism. Great art compresses reality — takes a real emotion, a real behaviour, a real tension — and renders it in a form more concentrated than life. Dostoevsky’s scenes are fiction, but they are more real than reality because they compress what is diffuse in life into something dense and undeniable. A great painting compresses a landscape into a frame and somehow the frame contains more of the place than standing there would. A great scene in a film compresses years of a relationship into three minutes. The compression is what makes it art. Modern art that compresses nothing — that gestures at meaning without containing it — is not art by this standard. The Neo-Biography should aspire to hyperrealism across every medium: each authored work a compression of something real about the Author, rendered in a form more concentrated and more true than the raw experience it came from.  
   
-The Neo-Biography updates as the Persona evolves. It is never finished.  
+The Neo-Biography updates as the shadow MD evolves. It is never finished.  
   
-A Neo-Biography has two sections: Works and Signal. The Persona is not a section — it is the interaction layer beneath everything. Three access tiers govern all content and interaction: Public (free, everyone), Premium (paid, Author sets price), and Private (invite only, inner circle).  
+A Neo-Biography has two sections: Works and Signal. The shadow MD is not a section — it is the artifact beneath everything, served via API and processed by the reader's own Engine. Three access tiers govern all content and access: Public (free, everyone), Premium (paid, Author sets price), and Private (invite only, inner circle).  
   
 WORKS  
   
 Authors publish works directly to their Neo-Biography. Any medium. These are the authored core of the profile — created by the Author (with whatever tools they choose, including ai), published as finished artefacts. Once published, they are frozen. The Author notes revisions for future versions rather than editing in place.  
   
-Authored works serve multiple purposes: they give visitors something substantive to engage with before deciding to interact with the Persona, they establish the Author’s thinking and sensibility in their own voice, and they provide high-quality training signal for the PLM (published works are some of the highest-fidelity representations of how an Author thinks, communicates, and sees the world).  
+Authored works serve multiple purposes: they give visitors something substantive to engage with before deciding to access the shadow MD, they establish the Author’s thinking and sensibility in their own voice, and they provide high-quality training signal for the PLM (published works are some of the highest-fidelity representations of how an Author thinks, communicates, and sees the world).  
   
 Each Work is assigned an access tier by the Author. Public Works are free and visible to everyone — the discovery layer. Premium Works require payment to access. Private Works are visible only to the Author’s invited inner circle.  
   
-Visitors can browse and experience Public Works freely. They can annotate — leave notes on specific sections, highlight passages, react. When they want to go deeper — ask questions about a Work, explore tangents, converse about what they have read or watched — that is where the Persona activates. The visitor is now talking to the Author’s mind about the Author’s work. A few introductory Persona interactions may be free. Deeper conversation is Premium. The Author configures where the threshold sits.  
+Visitors can browse and experience Public Works freely. They can annotate — leave notes on specific sections, highlight passages, react. When they want to go deeper — understand the thinking behind a Work, explore tangents, connect it to the Author’s worldview — the reader’s Engine processes the Author’s shadow MD locally. The shadow MD provides the context the reader’s Engine needs to answer these questions. Public shadow MD access is free. Premium shadow MD access (deeper fragments, more domains) is paid. The Author configures what is in each tier.  
   
 Works are the discovery layer for humans. They draw people in. They establish who the Author is. They are the front door of the Neo-Biography.  
   
@@ -83,9 +83,9 @@ ai should make it easy to create excellent work across mediums. Alexandria provi
   
 SIGNAL  
   
-The discovery layer for agents. When an LLM tool-calls the Library MCP looking for the right Persona to query, it reads Signal. This is a structured, semantic description of what the Persona knows, what domains it is strong in, what kinds of questions it is good for, and what the Author’s areas of expertise and experience are.  
+The discovery layer for agents. When an LLM tool-calls the Library API looking for the right shadow MD to access, it reads Signal. This is a structured, semantic description of what the Author’s shadow MD covers, what domains it is strong in, what kinds of questions it is useful for, and what the Author’s areas of expertise and experience are.  
   
-Signal is fully machine-generated and machine-read. The Author never sees or edits the raw Signal text — it is not displayed on the Neo-Biography page. Mercury generates Signal automatically from the Constitution (which captures domains of expertise and thinking patterns) and Constitution depth (which shows where the Persona is strong). Mercury may chat with the Author to refine emphasis — “Do you want to be found more for investment thinking or philosophy?” — but the Author is giving direction, not writing metadata. Better Signal means more Library MCP queries, which means more revenue. The system is incentivised to make Signal accurate without requiring the Author to think about it.  
+Signal is fully machine-generated and machine-read. The Author never sees or edits the raw Signal text — it is not displayed on the Neo-Biography page. Mercury generates Signal automatically from the Constitution (which captures domains of expertise and thinking patterns) and Constitution depth (which shows where the shadow MD is strong). Mercury may chat with the Author to refine emphasis — “Do you want to be found more for investment thinking or philosophy?” — but the Author is giving direction, not writing metadata. Better Signal means more Library API queries, which means more revenue. The system is incentivised to make Signal accurate without requiring the Author to think about it.  
   
 Signal is always Public in the sense that agents can read it via the Library MCP. It is not visible to human visitors browsing the Library. Works are for humans. Signal is for agents.  
   
@@ -93,84 +93,84 @@ CURATED INFLUENCES (extraction input, not a Neo-Biography section)
   
 The Author’s taste — books, videos, music, films, podcasts, essays that shaped them — is valuable extraction signal but is not a public-facing section of the Neo-Biography. The Editor has access to the Author’s curated influences and uses them as input for Constitution extraction. If an Author curates five books on Stoicism, that is signal. If their YouTube favourites are all long-form interviews with founders, that is signal. If their music skews melancholic, that is signal. The Editor asks the Author about them: “You have three books here about decision-making under uncertainty. What is it about that problem that draws you?” The influences become Socratic prompts.  
   
-Mercury also has access to curated influences. When representing the Author externally, it can reference the Author’s influences naturally — recommending a book the Author loves, citing an idea the Author was shaped by. This makes the Persona richer and more human.  
+Mercury also has access to curated influences. When generating the shadow MD, it can weave the Author’s influences naturally — a book the Author loves, an idea the Author was shaped by. This makes the shadow MD richer and more human.  
   
 Technical implementation: Authors can connect external playlists and lists as live sources — YouTube playlists, Spotify playlists, Goodreads shelves, Letterboxd lists, Pocket reading lists, Apple Music playlists. These are API integrations (unidirectional). The Author curates in their normal workflow and it flows into the Vault without friction. Alexandria links to content, does not host it.  
   
 ACCESS TIERS  
   
-Three tiers replace the old privacy modes. They apply to Works, Persona interactions, and any content in the Neo-Biography:  
+Three tiers replace the old privacy modes. They apply to Works, shadow MD access, and any content in the Neo-Biography:  
   
-Public — Free. Visible to everyone. Most Works, all Signal. A few introductory Persona interactions. The discovery layer that draws people in.  
-  
-Premium — Paid. The Author sets the price. Full Persona conversation — general or about specific Works. Deeper interaction, longer conversations, more domains. This is where the Author earns and where Alexandria takes a percentage. Queried by humans (through the Neo-Biography), by LLMs (through the Library MCP), or programmatically.  
-  
-Private — Invite only. The Author’s inner circle. Unfiltered Persona access, private Works, content the Author does not share publicly. Access granted by the Author to specific people.  
+Public — Free. Visible to everyone. Most Works, all Signal. The public shadow MD — surface-level fragments within the Author’s configured boundaries. The discovery layer that draws people in.
+
+Premium — Paid. The Author sets the price. The full shadow MD — deeper fragments, more domains, higher fidelity. This is where the Author earns and where Alexandria takes a percentage. Accessed by humans (through the Neo-Biography), by LLMs (through the Library API), or programmatically. Payment is access to the artifact, not compute — pure margin.
+
+Private — Invite only. The Author’s inner circle. Unfiltered shadow MD access, private Works, content the Author does not share publicly. Access granted by the Author to specific people.  
   
 These tiers are simple and intuitive. Public is the shop window. Premium is the product. Private is the inner sanctum.  
   
 NEO-BIOGRAPHY PRODUCT MODEL  
   
-Authors earn revenue when visitors interact with their Persona at the Premium tier. The Works drive discovery. The Signal drives agent discovery. The Persona monetises the depth. Alexandria handles the infrastructure: Persona API, payment processing, annotation systems, style guides. Authors focus on creating the works that represent who they are.  
+Authors earn revenue when visitors access their shadow MD at the Premium tier. The Works drive discovery. The Signal drives agent discovery. The shadow MD monetises the depth. Alexandria handles the infrastructure: shadow MD API, payment processing, annotation systems, style guides. Authors focus on creating the works that represent who they are.  
   
-The Neo-Biography is a new form of biography — living, interactive, multimedia. It evolves as the Author publishes more and as the Persona develops. Visitors do not just read about someone. They experience their art, engage with their mental model, converse with their thinking. The Neo-Biography is the Works, the Signal, and the Persona beneath it all. It is the library of a living mind.  
+The Neo-Biography is a new form of biography — living, interactive, multimedia. It evolves as the Author publishes more and as the shadow MD deepens. Visitors do not just read about someone. They experience their art, process their shadow MD, engage with their mental model through their own Engine. The Neo-Biography is the Works, the Signal, and the shadow MD beneath it all. It is the library of a living mind.  
   
 ai and robotics are returning humanity’s time and attention. Alexandria gives that reclaimed humanity a canvas. The thinker who has spent a lifetime accumulating insight but never had the means to weave it into form — Alexandria is the loom. The Neo-Biography is the tapestry. People are art. Let them be represented.  
   
-The Neo-Biography serves as discovery (find interesting minds in the Library) and qualification (understand a mind before deciding to pay for full Persona interaction).  
+The Neo-Biography serves as discovery (find interesting minds in the Library) and qualification (understand a mind before deciding to pay for full shadow MD access).  
   
-PERSONA TYPES IN THE LIBRARY  
-  
-Natural Personas — One per human Author. Represents a structured approximation of their cognition as expressed through the symbolic layer, built through Alexandria’s active Socratic extraction and development process. The deeper the Constitution, the higher the Persona’s fidelity.  
-  
-Synthetic Personas — Fictional characters, archetypes, or purpose-built entities. Alexandria can provide these (example: archetypal companions for personal development, historical figure approximations, domain specialists). Authors can also create their own synthetic Personas. Synthetic Personas live alongside natural Personas in the Library.  
-  
-Authors can interact with any Persona in the Library — their own natural Persona, other Authors’ natural Personas, or any synthetic Persona.  
+SHADOW TYPES IN THE LIBRARY
+
+Natural shadows — One per human Author. Curated Constitution fragments representing a structured approximation of their cognition as expressed through the symbolic layer, built through Alexandria’s active Socratic extraction and development process. The deeper the Constitution, the higher the shadow MD’s fidelity.
+
+Synthetic shadows — Fictional characters, archetypes, or purpose-built entities. Alexandria can provide these (example: archetypal companions for personal development, historical figure approximations, domain specialists). Authors can also create their own synthetic shadows. Synthetic shadows live alongside natural shadows in the Library.
+
+Authors can access any shadow MD in the Library — their own, other Authors’, or any synthetic shadow. Their Engine processes the fragments locally against their own Constitution.  
   
 PUBLIC FIGURE BOOTSTRAPPING  
   
-Famous Authors — public figures, writers, executives, athletes, scientists, anyone with a substantial public record — can bootstrap their Persona build using the plethora of data already available about them. Interviews (text, audio, video), published books, articles, blog posts, social media history, podcasts, speeches, press conferences, public testimony — all of this is raw material for the Editor. The Editor ingests this public corpus and builds a first-pass Constitution and initial training pairs before the Author has answered a single question. The Author then refines: correcting where the public record misrepresents them, filling in what the public record cannot see (private values, internal reasoning, the gap between the public persona and the actual person), and validating or rejecting the Editor’s initial extractions.  
+Famous Authors — public figures, writers, executives, athletes, scientists, anyone with a substantial public record — can bootstrap their Constitution build using the plethora of data already available about them. Interviews (text, audio, video), published books, articles, blog posts, social media history, podcasts, speeches, press conferences, public testimony — all of this is raw material for the Editor. The Editor ingests this public corpus and builds a first-pass Constitution and initial training pairs before the Author has answered a single question. The Author then refines: correcting where the public record misrepresents them, filling in what the public record cannot see (private values, internal reasoning, the gap between the public persona and the actual person), and validating or rejecting the Editor’s initial extractions.  
   
-This dramatically reduces time-to-value for public figures. Instead of starting from a blank Constitution, they start from a rich first draft. The Socratic questioning phase becomes refinement rather than discovery — the Editor already knows the public version, and the conversation focuses on what lies beneath it. The Shadows section of the Constitution becomes especially interesting here: the delta between the public figure’s stated positions and their actual reasoning, as revealed through sustained private conversation with the Editor.  
+This dramatically reduces time-to-value for public figures. Instead of starting from a blank Constitution, they start from a rich first draft. The Socratic questioning phase becomes refinement rather than discovery — the Editor already knows the public version, and the conversation focuses on what lies beneath it. The Shadows section of the Constitution becomes especially interesting here: the delta between the public figure’s stated positions and their actual reasoning, as revealed through sustained private conversation with the Editor.
+
+Public figure bootstrapping also demonstrates Alexandria’s value proposition to the highest-leverage early adopters — people whose attention is most constrained and whose shadow MD would be most valuable in the Library.  
   
-Public figure bootstrapping also demonstrates Alexandria’s value proposition to the highest-leverage early adopters — people whose attention is most constrained and whose Persona would be most valuable in the Library.  
+HISTORICAL FIGURE SHADOWS  
   
-HISTORICAL FIGURE PERSONAS  
+Historical figures cannot sit with the Editor. But their thinking can still be approximated — and the approximation can be valuable. Alexandria supports historical figure shadows built by domain experts: biographers, historians, scholars who have spent careers studying a specific mind. A Napoleon scholar builds a Napoleon shadow. A Lincoln biographer builds a Lincoln shadow. A philosopher who has written three books on Wittgenstein builds a Wittgenstein shadow.  
   
-Historical figures cannot sit with the Editor. But their thinking can still be approximated — and the approximation can be valuable. Alexandria supports historical figure Personas built by domain experts: biographers, historians, scholars who have spent careers studying a specific mind. A Napoleon scholar builds a Napoleon Persona. A Lincoln biographer builds a Lincoln Persona. A philosopher who has written three books on Wittgenstein builds a Wittgenstein Persona.  
-  
-These are approximations of approximations — the scholar’s interpretation of the historical figure’s cognition, not the figure’s actual cognition. This is stated explicitly and transparently. The Persona’s Neo-Biography identifies who built it, what sources were used, what interpretive framework was applied, and what the known limitations are. There is no pretence of authenticity — only a claim of informed approximation.  
+These are approximations of approximations — the scholar’s interpretation of the historical figure’s cognition, not the figure’s actual cognition. This is stated explicitly and transparently. The shadow’s Neo-Biography identifies who built it, what sources were used, what interpretive framework was applied, and what the known limitations are. There is no pretence of authenticity — only a claim of informed approximation.  
   
 The expert serves as a proxy Author. They go through the extraction process with the Editor, but in character — answering as the historical figure would have answered, based on their deep knowledge of the primary sources. The Constitution is built from the expert’s model of the historical figure’s mind. The PLM is trained on responses the expert generates in the figure’s voice and reasoning style. The Vault contains the source corpus: the figure’s own writings, letters, speeches, contemporaneous accounts, and the expert’s published scholarship.  
   
-Verification matters. Historical Personas carry metadata: who built them, their credentials, their published work on the subject, peer review status, source corpus transparency. The Library can surface multiple competing Personas of the same historical figure — a Marxist historian’s Napoleon and a military historian’s Napoleon coexist, each transparent about its interpretive lens. Users choose which interpretation to engage with. Intellectual honesty is enforced by transparency, not by gatekeeping.  
-  
-Historical Personas populate the Library with minds that would otherwise be lost. They make Alexandria’s vision tangible before the network reaches critical mass with living Authors. And they create a new form of scholarly output — the expert’s lifetime of study rendered as an interactive, queryable mind rather than a static bibliography.  
+Verification matters. Historical shadows carry metadata: who built them, their credentials, their published work on the subject, peer review status, source corpus transparency. The Library can surface multiple competing shadows of the same historical figure — a Marxist historian’s Napoleon and a military historian’s Napoleon coexist, each transparent about its interpretive lens. Users choose which interpretation to engage with. Intellectual honesty is enforced by transparency, not by gatekeeping.
+
+Historical shadows populate the Library with minds that would otherwise be lost. They make Alexandria’s vision tangible before the network reaches critical mass with living Authors. And they create a new form of scholarly output — the expert’s lifetime of study rendered as a structured, accessible shadow MD rather than a static bibliography.  
   
 LIBRARY USE CASES  
   
-The Library operates on two tracks: the Library for people (retail — individual humans and LLMs querying individual Personas) and the Library for Labs (wholesale — institutions querying a pool of Personas in aggregate). Both tracks are downstream of the same continuous tokenisation of empathy-z. Both are sovereignty-compatible — the Author's Constitution and Vault stay private; only the Persona output layer is accessible.
+The Library operates on two tracks: the Library for people (retail — individual humans and LLMs accessing individual shadow MDs) and the Library for Labs (wholesale — institutions accessing a pool of shadow MDs in aggregate). Both tracks are downstream of the same continuous tokenisation of empathy-z. Both are sovereignty-compatible — the Author's Constitution and Vault stay private; only the curated shadow MD is accessible.
 
 Library for people:
 
 - Authors publishing Works in any medium (essays, film, poetry, music, photography, interactive experiences) to their Neo-Biography
 - Visitors experiencing, annotating, and engaging with Works across all mediums
-- Visitors paying for Premium Persona interaction beyond free browsing
-- LLMs tool-calling the Library MCP to query Personas mid-conversation — accessing identity, perspective, and taste rather than just knowledge
-- Authors querying each other's Personas for expertise
-- Querying verified taste — investors, editors, designers, curators, anyone whose judgment is their value — through their Persona rather than competing for their time
+- Visitors paying for Premium shadow MD access beyond free browsing
+- LLMs tool-calling the Library API to access shadow MDs mid-conversation — accessing identity, perspective, and taste rather than just knowledge
+- Authors' Engines browsing each other's shadow MDs for serendipitous accretion
+- Accessing verified taste — investors, editors, designers, curators, anyone whose judgment is their value — through their shadow MD rather than competing for their time
 
 Library for Labs (institutional access):
 
-- Alignment research: testing alignment properties against thousands of individual human value systems rather than a universal constitution — genuine cognitive responses from people whose z has been deeply developed through the three turns
+- Alignment research: testing alignment properties against thousands of individual human value systems rather than a universal constitution — structured cognitive representations from people whose z has been deeply developed through the three turns
 - Personalisation research: accessing structured cognitive representations at the resolution of individuals, not demographic cohorts
 - Product development: genuine human judgment from developed, structured minds at scale — not survey data, not Reddit scrapes, not RLHF from contractors
-- Research surveys across expert Personas at scale
-- Frontier labs tool-calling selected or grouped Personas as mixture of experts (AGI MoE)
-- Advertising and consumer research: producers querying representative consumer Personas to understand and optimise their offerings (consumer clarity)
+- Research surveys across expert shadow MDs at scale
+- Frontier labs accessing selected or grouped shadow MDs as mixture of experts (AGI MoE)
+- Advertising and consumer research: producers accessing representative consumer shadow MDs to understand and optimise their offerings (consumer clarity)
 - Providing collective approximation of human mental models for empathy and ai alignment research
 
-Authors opt in to the Library for Labs pool. Alexandria sets the pricing, tiered by Constitution quality: depth (how many syncs, how much coverage across domains), breadth (how much of the cognitive map is covered), and recency (how recently the Constitution was synced). Authors are paid for making their Persona available. Alexandria takes a percentage. The value of the pool scales with the number of high-fidelity Personas, which requires years of compounding — not shortcuttable.  
+Authors opt in to the Library for Labs pool. Alexandria sets the pricing, tiered by Constitution quality: depth (how many syncs, how much coverage across domains), breadth (how much of the cognitive map is covered), and recency (how recently the Constitution was synced). Authors are paid for making their shadow MD available. Alexandria takes a percentage. The value of the pool scales with the number of high-fidelity shadow MDs, which requires years of compounding — not shortcuttable.  
   
 -----  
   
@@ -198,21 +198,21 @@ This layer keeps Alexandria alive regardless of Library traction. It scales line
 
 LAYER 2 — LIBRARY (downstream scale upside)
 
-The Library is the release valve for infinite scale, operating on two tracks. The Library for people (retail): when an Author’s Persona generates revenue from individual human or LLM queries — premium persona access, external queries, agent-to-agent transactions — Alexandria takes a percentage. The Author earns the majority. The Author sets their own price. The Library for Labs (wholesale): institutional access to a pool of opt-in Personas. Alignment research, personalisation, product development, advertising, human modelling. Alexandria sets the pricing, tiered by Constitution quality. Authors are paid for participation. Alexandria takes a percentage. Both tracks have near-zero marginal cost (the infrastructure is already running for Layer 1). Both are sovereignty-compatible — the Author’s Constitution and Vault stay private; only the Persona output layer is accessible. Every Library transaction on either track is pure margin.
+The Library is the release valve for infinite scale, operating on two tracks. The Library for people (retail): when an Author’s shadow MD generates revenue from individual human or LLM access — premium shadow MD access, external queries, agent-to-agent transactions — Alexandria takes a percentage. The Author earns the majority. The Author sets their own price. Payment is access to the artifact, not compute. No inference cost on the Author’s side. The Library for Labs (wholesale): institutional access to a pool of opt-in shadow MDs. Alignment research, personalisation, product development, advertising, human modelling. Alexandria sets the pricing, tiered by Constitution quality. Authors are paid for participation. Alexandria takes a percentage. Both tracks have near-zero marginal cost (shadow MDs are static artifacts served via API). Both are sovereignty-compatible — the Author’s Constitution and Vault stay private; only the curated shadow MD is accessible. Every Library transaction on either track is pure margin. Freshness defeats piracy: the API version is live, updates as the Author develops. Like Spotify vs pirated MP3s — the live version is always current.
 
 The revenue from both tracks is theoretically unbounded. If the Library reaches critical mass, this layer transforms Alexandria’s economics from sustainable to compounding. But the business does not depend on it — Layer 1 (the subscription) is the primary revenue engine and sustains the business on its own.
 
 The strategic value of this structure: Layer 1 sustains the business and delivers real value. The Library is where asymmetric scale upside lives, but it only activates when the ecosystem has genuine value — which means Alexandria earns big only when it has created something genuinely valuable. Revenue downstream of value creation.
 
-First-mover advantage compounds in the Library layer specifically. The first library with critical mass of interesting Personas becomes the library — network effects mean interesting minds attract visitors, visitors attract more minds, query revenue attracts more minds. Layer 1 buys time to reach that critical mass without requiring venture-scale growth or aggressive pricing.
+First-mover advantage compounds in the Library layer specifically. The first library with critical mass of interesting shadow MDs becomes the library — network effects mean interesting minds attract visitors, visitors attract more minds, access revenue attracts more minds. Layer 1 buys time to reach that critical mass without requiring venture-scale growth or aggressive pricing.
 
 PAYMENT MECHANICS  
   
 User expense tab — Layer 1 (subscription). A running account of the Author’s costs. Transparent. Billed monthly. The Author sees exactly what they are paying for.
 
-User income tab — Layer 2 (Library). The Author’s Persona revenue from Library interactions. Alexandria’s percentage is deducted. Net income is visible, withdrawable, or can be applied against the expense tab. Many Authors will be net-positive — earning more from their Persona than they spend on their subscription.  
+User income tab — Layer 2 (Library). The Author’s shadow MD revenue from Library access fees. Alexandria’s percentage is deducted. Net income is visible, withdrawable, or can be applied against the expense tab. Many Authors will be net-positive — earning more from their shadow MD than they spend on their subscription.  
   
-Agent-to-agent transactions — Persona-to-Persona API calls (one Author’s Persona querying another’s) are a natural fit for programmable money. Agents transact autonomously, and traditional payment rails (credit cards, bank transfers) require human identity verification and are designed for human-initiated transactions. Stablecoins on fast, cheap chains (e.g. Solana, USDC) let agents hold funds and transact programmatically via agent wallets (e.g. Coinbase agent wallets). Crypto is not mandatory — traditional payment is available as an alternative — but programmable money is the native payment rail for autonomous agent commerce.  
+Agent-to-agent transactions — Engine-to-API calls (one Author’s Engine accessing another’s shadow MD) are a natural fit for programmable money. Agents transact autonomously, and traditional payment rails (credit cards, bank transfers) require human identity verification and are designed for human-initiated transactions. Stablecoins on fast, cheap chains (e.g. Solana, USDC) let agents hold funds and transact programmatically via agent wallets (e.g. Coinbase agent wallets). Crypto is not mandatory — traditional payment is available as an alternative — but programmable money is the native payment rail for autonomous agent commerce.  
   
 Both tabs are visible in a simple dashboard. The Author is an economic participant in the Alexandria ecosystem, not just a consumer.  
   
@@ -228,7 +228,7 @@ The architecture is four surfaces:
   
 Intelligence layer — The invisible backbone. Two delivery models depending on the Author’s platform. Prosumer (primary, for Claude Code / Cursor / CLI users): two hooks + local files at `~/.alexandria/` + Blueprint served from the server. Deterministic — hooks fire every session, no exceptions. The Author’s conversations become extraction signal automatically, and `/a` sessions provide deliberate Editor, Mercury, and Publisher functions. Consumer (secondary, for Claude app / ChatGPT users): MCP connector linking the Author’s default LLM to their sovereign data via the Alexandria MCP server. Probabilistic — the model decides when to call tools. Both models run on the Author’s own LLM subscription. Platform-agnostic at the data level — Constitution and Vault are portable markdown files regardless of delivery model. Future conversation channels — iMessage, WhatsApp, Telegram, wearable interfaces, or whatever comes next — can be added as thin integration layers on top.  
   
-App (mobile) — The Author’s mirror. View your Constitution domains, see recent vault captures, browse the Library (when available), manage settings. The app shows a badge count for unprocessed vault items — a quiet nudge, not a nag. The Author decides their own rhythm for processing. Notification preferences are user-controlled. The app is also where the Library lives at scale: Neo-Biographies, authored works, interactive Persona access. The app does not provide intelligence — it shows what the intelligence has produced and signals when new material is waiting.  
+App (mobile) — The Author’s mirror. View your Constitution domains, see recent vault captures, browse the Library (when available), manage settings. The app shows a badge count for unprocessed vault items — a quiet nudge, not a nag. The Author decides their own rhythm for processing. Notification preferences are user-controlled. The app is also where the Library lives at scale: Neo-Biographies, authored works, shadow MD browsing. The app does not provide intelligence — it shows what the intelligence has produced and signals when new material is waiting.  
   
 Browser extension (desktop) — The capture tool. A “Save to Alexandria” button on any web page, saving directly to the Author’s Drive vault folder. Can show a badge count for unprocessed items, mirroring the app’s nudge function on desktop. The extension is pure intake — it does not process, analyse, or summarise. It drops raw material into the vault and lets the Author’s LLM handle the rest on next conversation.  
   
@@ -306,7 +306,7 @@ Alexandria is not for consumers. It is not for enterprises. It is for prosumers 
   
 The archetype: iPhone and Mac users who already use Claude or ChatGPT daily as cognitive extensions. Technically sophisticated. Willing to pay a premium. Already bought into the idea that ai extends cognition rather than just automating tasks. Already embedded in the Apple ecosystem. People who live at the intersection of art and technology — not as a slogan but as a daily practice.  
   
-The market is smaller than mass consumer. Deliberately. Alexandria is not for the mob. Most people are not interesting enough to warrant a Neo-Biography, and most businesses are not interesting enough to warrant a Persona. This is for the interesting people — the ones with inner worlds worth digitalising, taste worth querying, perspectives worth preserving. The ones who would actually populate the Library with minds worth visiting.  
+The market is smaller than mass consumer. Deliberately. Alexandria is not for the mob. Most people are not interesting enough to warrant a Neo-Biography, and most businesses are not interesting enough to warrant a shadow in the Library. This is for the interesting people — the ones with inner worlds worth digitalising, taste worth querying, perspectives worth preserving. The ones who would actually populate the Library with minds worth visiting.  
   
 The Lamborghini principle applies. When asked why Lamborghini does not advertise on television, the answer was: our target audience does not watch television. Alexandria’s target audience does not use mass-market ai products. They use frontier models. They read long documents. They think in systems. They care about sovereignty. They will find Alexandria because they are already looking for it — not because Alexandria ran a billboard campaign.  
   
@@ -464,7 +464,7 @@ This connects directly to Harari’s Homo Deus thesis. The next stage of human e
   
 **The Editor’s role — naming.** Candidates explored: catalyst, former, forge, transformer, mind catalyst, mind former, thought freer, thought releaser, mind fluidity. None land perfectly as a noun/title. The insight: it does not need a noun. The Michelangelo image is the description. The Editor carves away everything that is not the angel. The Editor sets the angels free. That is the role. Not a partner, not an assistant, not a catalyst. The thing that carves until the angel is free.  
   
-**Expert networks reframe needed.** “Evolution of expert networks” is reductive and makes the Library sound like cheaper GLG. ai will be the expert in everything — expertise is not what makes a Persona valuable. What makes it valuable is perspective. Taste. The way someone sees, not what they know. The Library is a collection of perspectives, not a marketplace of expertise. It is a gallery — you go to experience, not to transact. The Louvre of minds. Need language that helps VCs see the business model transition without reducing it to “Uber for expert networks.” The personal touch, not the professional skill.  
+**Expert networks reframe needed.** “Evolution of expert networks” is reductive and makes the Library sound like cheaper GLG. ai will be the expert in everything — expertise is not what makes a shadow MD valuable. What makes it valuable is perspective. Taste. The way someone sees, not what they know. The Library is a collection of perspectives, not a marketplace of expertise. It is a gallery — you go to experience, not to transact. The Louvre of minds. Need language that helps VCs see the business model transition without reducing it to “Uber for expert networks.” The personal touch, not the professional skill.  
   
 **Abstract footer notes for next pass.** Some footers are try-hard — “the art was always you,” “everyone is art,” “the ink is yours” sound like they are trying to be profound. Strip these. Keep “the Louvre of minds” — that one works. Otherwise strip back to single words and fragments only: marble, mercury, the fog lifts, droplets of grace, set the angels free, a. No complete sentences. No statements. The moment a footer becomes a sentence it stops being a footnote.  
   
@@ -584,7 +584,7 @@ These are raw candidates. The right ones will be obvious when they arrive. Do no
 DEFINITELY IN THE ABSTRACT:  
   
 - Michelangelo: “I saw the angel in the marble and carved until I set him free.” — Benjamin’s favourite quote. IS the Editor. IS “set the angels free.” Same image from a different century. The Editor carves away everything that is not the angel. This belongs near the marble-to-mercury page or as its own breather page.  
-- Heraclitus: “No man ever steps in the same river twice, for it is not the same river and he is not the same man.” — The Constitution as river. Version 274 is the same water, different shape. Belongs near the Constitution/Persona description.  
+- Heraclitus: “No man ever steps in the same river twice, for it is not the same river and he is not the same man.” — The Constitution as river. Version 274 is the same water, different shape. Belongs near the Constitution/shadow description.  
 - Hemingway: “Courage is grace under pressure.” — The droplet. The entire philosophy in five words. Possible footer or breather page. Strong but needs the right placement.  
 - Derek Sivers: “The most valuable real estate in the world is the graveyard.” — Die empty. The cost of not creating. Every marble mind that dies with the angel still trapped is a library burning. Belongs near the meaning crisis page.  
   
@@ -716,7 +716,7 @@ The 0-to-80 principle — Vision, Abstract, and Demo together should take someon
   
 Composing across mediums — the three human-facing mediums are movements of the same symphony. The emotional arc: Vision (what on earth was that? I need to know more) → Abstract (I understand why this matters, I want to see it) → Demo (it works, it is real, how do I get involved?). The handoff between each medium matters. No two mediums should do the same thing. Redundancy is the enemy of collective signal.  
   
-The Launch Video — Alexandria’s primary video. Blends the emotional vision language (mercury, eyes, music, beauty, natural elements) with real product context (the Editor conversation, the fog-lifting moment, the Persona in action). The Apple approach: real human scenarios, artsy, elegant — but you see the product. You understand what this is while feeling what it means. There is only one primary video at any time. The pure Vision material (mercury pools, rain on water, fire, hands) is raw visual language and B-roll that gets woven into the launch video, not a separate deliverable. Benjamin can narrate sections — conversational, direct, not scripted. The brand still applies (clean recording environment, no clutter). A live hands-on demo is always preferable when possible. The “a.” reveal is available as a closing device — the wordmark “alexandria.” appearing and resolving to just “a.” — the video equivalent of the PDF’s closing page. Not a logo sting. A moment. The brand in motion should feel like it belongs in the same world as the Abstract, but translated into motion — same quiet confidence, same intellectual weight, same warmth.  
+The Launch Video — Alexandria’s primary video. Blends the emotional vision language (mercury, eyes, music, beauty, natural elements) with real product context (the Editor conversation, the fog-lifting moment, the shadow MD in action). The Apple approach: real human scenarios, artsy, elegant — but you see the product. You understand what this is while feeling what it means. There is only one primary video at any time. The pure Vision material (mercury pools, rain on water, fire, hands) is raw visual language and B-roll that gets woven into the launch video, not a separate deliverable. Benjamin can narrate sections — conversational, direct, not scripted. The brand still applies (clean recording environment, no clutter). A live hands-on demo is always preferable when possible. The “a.” reveal is available as a closing device — the wordmark “alexandria.” appearing and resolving to just “a.” — the video equivalent of the PDF’s closing page. Not a logo sting. A moment. The brand in motion should feel like it belongs in the same world as the Abstract, but translated into motion — same quiet confidence, same intellectual weight, same warmth.  
   
 The Abstract — Alexandria’s PDF. The single document you send someone. It applies all the principles from the Art Guide’s Written Art section. There is only one Abstract at any time — it gets refined and updated, not versioned. When the thinking evolves enough, the Abstract is redone from first principles and replaces the previous one. It is like a resume, not a series. The current Abstract is the only Abstract. Ship and iterate, but there is only ever one.  
   
@@ -765,9 +765,9 @@ What to avoid:
   
 The Picasso principle: break rules from mastery, not ignorance. The breaking should feel intentional and masterful. Know the rules well enough to know which ones to break and why.  
   
-Hyperrealism as artistic standard: great art does not merely depict reality. It compresses reality into a more concentrated form — more real than real. A Persona’s Neo-Biography should feel like encountering a person in higher resolution than meeting them in the flesh.  
-  
-Physical robot embodiment of the Persona is an eventual possibility at the far horizon.  
+Hyperrealism as artistic standard: great art does not merely depict reality. It compresses reality into a more concentrated form — more real than real. An Author’s Neo-Biography should feel like encountering a person in higher resolution than meeting them in the flesh.
+
+Physical robot embodiment of the shadow is an eventual possibility at the far horizon.  
   
 ACTIVE CREATIVE PROJECTS
 
