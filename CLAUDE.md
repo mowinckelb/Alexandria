@@ -19,7 +19,9 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 - `Alexandria_III.md` (a3) — Library, interface & brand. Neo-Biography, Works, Signal, payment mechanics, interface surfaces, onboarding, positioning, brand design, media strategy. Read for: Library, brand, creative direction, marketing, onboarding.
 
 **Product IP:**
-- `Blueprint.md` — The product instruction set. Five operations on the symbolic layer (genesis, accretion, entropy, development, synthesis). This is the accumulated craft that becomes MCP tool descriptions. Read for: product methodology, extraction design, mode behavior.
+- `Axioms.md` — The sacred layer. What Alexandria IS and WHY. Five operations, five-layer pipeline (vault→ontology→constitution→shadow→library), objective function, sovereignty, neutral infrastructure. Fixed — changes only when the founder changes them. Read for: philosophical questions, what's non-negotiable.
+- `Blueprint.md` — The variable methodology. HOW to develop human cognition. Function assemblies (Editor/Mercury/Publisher craft), constitution data architecture, meta-principles, compounding architecture. Factory output — improves with every Author. Read for: product methodology, extraction design, mode behavior.
+- `Machine.md` — Per-Author engine memory template. The Engine's evolving model of how to work with a specific Author. Living document, rewritten as the Engine learns. Read for: per-Author calibration, therapist moat.
 
 **Founder's Constitution (lives at `~/.alexandria/constitution/` — the product, used as designed):**
 - `Core.md` — The whole person. Identity, priority stack, dual mandate, people, life architecture. READ FIRST for any task.
@@ -91,7 +93,7 @@ Each Author's Machine compounds through usage. Constitution deepens, feedback lo
 - **Partners:** Markdown docs (Numbers.md, Logic.md) served at `/partners/numbers` and `/partners/logic` via dynamic `[doc]` route. Sync from `files/confidential/` to `public/partners/` when content changes.
 - **Build:** `npm run build` (server/). **Deploy:** `cd server && flyctl deploy --remote-only && bash server/test/smoke.sh` (Fly.io), push to main (Vercel). **Render abstract PDF:** `python scripts/generate_pdf.py <input.md> [output.pdf]` — only abstract.pdf uses this pipeline now. Verify preview PNGs before committing.
 - **Server health:** `curl https://mcp.mowinckel.ai/health`
-- **Stack:** Vercel (website), Fly.io (MCP server), GitHub, Google Cloud (OAuth), Claude.
+- **Stack:** Vercel (website), Fly.io (server), GitHub (code + OAuth), Google Cloud (OAuth), Stripe (billing), Mercury (banking, API), Cloudflare (DNS — migration in progress), Claude (intelligence). All hybrid (CLI or API-controllable). Zero external dependencies. Dependency alarm: max internal, min hybrid, zero external.
 
 ## Style
 
