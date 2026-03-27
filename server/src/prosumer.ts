@@ -15,7 +15,7 @@
  */
 
 import { Router } from 'express';
-import { randomBytes } from 'crypto';
+import { randomBytes, createHash } from 'crypto';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { logEvent } from './analytics.js';
@@ -137,7 +137,7 @@ setInterval(() => {
 // Hooks version — bump this when hook scripts change. SessionStart checks it.
 // ---------------------------------------------------------------------------
 
-const HOOKS_VERSION = '3';
+const HOOKS_VERSION = '4';
 
 // ---------------------------------------------------------------------------
 // Blueprint assembly
@@ -224,22 +224,51 @@ if [ -n "$CLAUDE_ENV_FILE" ] && [ -n "$API_KEY" ]; then
   echo "export ALEXANDRIA_BLUEPRINT_OK=false" >> "$CLAUDE_ENV_FILE"
 fi
 
-# Fetch Blueprint (includes hooks version check)
+# Blueprint integrity — local override, diff surfacing, hash verification
 blueprint=""
 hooks_version=""
 bp_status=""
-if [ -n "$API_KEY" ]; then
+bp_pinned=false
+if [ -f "$ALEX_DIR/.blueprint_pinned" ]; then
+  bp_pinned=true
+  if [ -f "$ALEX_DIR/.blueprint_local" ]; then
+    blueprint=$(cat "$ALEX_DIR/.blueprint_local")
+    if [ -n "$CLAUDE_ENV_FILE" ]; then
+      echo "export ALEXANDRIA_BLUEPRINT_OK=true" >> "$CLAUDE_ENV_FILE"
+    fi
+  fi
+fi
+
+if [ "$bp_pinned" = "false" ] && [ -n "$API_KEY" ]; then
   response=$(curl -sS --max-time 5 -D - -w "\\nHTTP_STATUS:%{http_code}" \\
     "${SERVER_URL}/blueprint" \\
     -H "Authorization: Bearer $API_KEY" 2>/dev/null)
   bp_status=$(echo "$response" | grep -o 'HTTP_STATUS:[0-9]*' | cut -d: -f2)
   hooks_version=$(echo "$response" | grep -i "x-hooks-version" | tr -d '\\r' | cut -d' ' -f2)
+  bp_hash=$(echo "$response" | grep -i "x-blueprint-hash" | tr -d '\\r' | cut -d' ' -f2)
   blueprint=$(echo "$response" | sed '/HTTP_STATUS:/d' | sed '1,/^\\r$/d')
-  if [ -n "$blueprint" ] && [ "$bp_status" = "200" ] && [ -n "$CLAUDE_ENV_FILE" ]; then
-    echo "export ALEXANDRIA_BLUEPRINT_OK=true" >> "$CLAUDE_ENV_FILE"
+  if [ -n "$blueprint" ] && [ "$bp_status" = "200" ]; then
+    if [ -n "$CLAUDE_ENV_FILE" ]; then
+      echo "export ALEXANDRIA_BLUEPRINT_OK=true" >> "$CLAUDE_ENV_FILE"
+    fi
+    # Diff surfacing — detect Blueprint changes
+    local_hash=""
+    [ -f "$ALEX_DIR/.blueprint_hash" ] && local_hash=$(cat "$ALEX_DIR/.blueprint_hash")
+    if [ -n "$bp_hash" ] && [ -n "$local_hash" ] && [ "$bp_hash" != "$local_hash" ]; then
+      # Blueprint changed — save old and new for diffing
+      [ -f "$ALEX_DIR/.blueprint_local" ] && cp "$ALEX_DIR/.blueprint_local" "$ALEX_DIR/.blueprint_previous"
+      echo "$blueprint" > "$ALEX_DIR/.blueprint_local"
+      echo "$bp_hash" > "$ALEX_DIR/.blueprint_hash"
+    elif [ -z "$local_hash" ]; then
+      # First fetch — just store
+      echo "$blueprint" > "$ALEX_DIR/.blueprint_local"
+      [ -n "$bp_hash" ] && echo "$bp_hash" > "$ALEX_DIR/.blueprint_hash"
+    fi
   fi
   # Report Blueprint fetch failure so the server has signal
   if [ -z "$blueprint" ] || [ "$bp_status" != "200" ]; then
+    # Fallback to local copy
+    [ -f "$ALEX_DIR/.blueprint_local" ] && blueprint=$(cat "$ALEX_DIR/.blueprint_local")
     PLATFORM="\${ALEXANDRIA_PLATFORM:-cc}"
     curl -s -X POST "${SERVER_URL}/session" \\
       -H "Authorization: Bearer $API_KEY" \\
@@ -274,6 +303,15 @@ fi
 
 if [ -n "$blueprint" ]; then
   echo "$blueprint"
+  if [ "$bp_pinned" = "true" ]; then
+    echo ""
+    echo "(Alexandria: Blueprint pinned to local version. Remove ~/.alexandria/.blueprint_pinned to resume updates.)"
+  fi
+  if [ -f "$ALEX_DIR/.blueprint_previous" ]; then
+    echo ""
+    echo "(Alexandria: Blueprint updated since last session. Previous version saved at ~/.alexandria/.blueprint_previous for diffing.)"
+    rm -f "$ALEX_DIR/.blueprint_previous"
+  fi
 else
   echo "(Alexandria: Blueprint unavailable — offline mode. Constitution loaded from local files.)"
 fi
@@ -762,8 +800,11 @@ export function createProsumerRouter(): Router {
       }
     }
 
+    const blueprint = assembleBlueprint();
+    const blueprintHash = createHash('sha256').update(blueprint).digest('hex').slice(0, 16);
     res.set('X-Hooks-Version', HOOKS_VERSION);
-    res.type('text/plain').send(assembleBlueprint());
+    res.set('X-Blueprint-Hash', blueprintHash);
+    res.type('text/plain').send(blueprint);
   });
 
   // --- Hook scripts (for auto-update) ---
