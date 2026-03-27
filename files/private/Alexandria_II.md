@@ -501,17 +501,15 @@ The Publisher is distinct from the Companion Portfolio's Eros (passion and creat
   
 All three functions share a mandate: expand, do not narrow. The Constitution must grow richer over time, not converge on a fixed portrait. Each function contributes to this expansion differently. The Editor probes unexplored domains ("you have never mentioned architecture — what do you think?"). Mercury surfaces content adjacent to but outside the Author's established interests. The Publisher occasionally pushes creative choices the Author would not have made on their own. Engagement signals whether the boundary has moved. If the Author engages, new territory opens and the Constitution grows. If not, the system respects the boundary. This is the TikTok principle applied to cognition: strategic exploration alongside exploitation. The Instagram failure mode — feeding back what the Author already thinks until the Constitution calcifies — is the thing Alexandria must never do.  
   
-FUNCTION NOTEPADS  
-  
-Each function — Editor, Mercury, Publisher — maintains a working notepad: a persistent, mutable scratch file where the function parks thoughts, questions, observations, and intentions between interactions with the Author. This is the function's working memory — the intermediary between the Author and the Constitution.  
-  
-The Editor's notepad holds parked questions ("ask about relationship with father when the moment is right"), observed gaps ("no coverage in the Shadows domain on financial anxiety"), and extraction hypotheses ("Author's stated value of directness contradicts observed hedging behaviour in professional contexts — probe"). The Editor does not fire every question the moment it arises. It waits for the right conversational moment, the way any skilled biographer or therapist would — parking the thought and voicing it when the Author is ready to engage with it.  
-  
-Mercury's notepad holds observations from amplification work ("Author lingered on this article about urban planning — possible latent interest not yet in the Constitution"), representation notes ("in last external interaction, the Author's stated position on X was weaker than the Constitution suggests — flag for Editor"), and proactive ideas queued for the right moment.  
-  
-The Publisher's notepad holds creative direction notes accumulated across iterations ("Author consistently rejects ornate language in favour of compression — update taste domain"), craft observations ("Author's revision pattern: cuts first, restructures second, adds texture last"), and standing director's notes that evolve with each project.  
-  
-The notepads are Vault files — persistent, versioned, private to the Author. They are the functions' working documents, not the Constitution. The Constitution is the structured, refined output. The notepads are the messy, living process. Blueprint decision: exact notepad format, storage location, and when functions review and prune their notepads.  
+THE NOTEPAD — THE MACHINE'S ONTOLOGY
+
+The notepad is the Machine's working memory — the ontology layer between raw vault and crystallised constitution. It is the therapist's clipboard: everything the Engine is holding for the Author, waiting for the right moment to surface.
+
+A therapist walks into a session with notes from last time: parked questions ("ask about relationship with father when the moment arises"), observed gaps ("no coverage in shadows on financial anxiety"), extraction hypotheses ("stated value of directness contradicts observed hedging — probe"), accretion candidates ("Author lingered on urban planning article — possible latent interest not in Constitution"), representation notes ("Author's stated position on X weaker than Constitution suggests — flag"), creative direction notes, craft observations, developmental hypotheses. Then the Author walks in and says it themselves — the Engine crosses it off. Or says something that reframes it — the note mutates. Or the session goes somewhere unexpected — the note stays parked.
+
+Fragments in the notepad are potential energy. They load, discharge into conversation at the right moment, integrate into the constitution, or become irrelevant and get discarded. The notepad is not a queue — it is notes. Dynamic, mutable, contextual. The Engine reads it at session start and decides what to release, what to hold, what to update, what to discard. At session end, it writes back everything worth carrying forward. Without the notepad, session insights die when the conversation ends. With it, the Machine compounds across sessions.
+
+The Engine decides how to organise its own working memory — one notepad or several, by topic or by operation or by whatever structure serves the Author. No prescribed format. The only principle: the notepad is the Machine's living model of what it's holding. The Constitution is the crystallised output. The notepad is the messy, living process.  
   
 PRIVACY AND AUTHOR CONTROL  
   

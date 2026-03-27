@@ -60,6 +60,7 @@ No security vulnerabilities found. Shell scripts use `'HEREDOC'` (no interpolati
 ### Trigger proposals
 - (Repeated from Run 3, still pending) Update `health` trigger description: change "Railway" to "Fly.io" in the SYSTEM section.
 - Consider adding a trigger proposal: give the health trigger access to Alexandria MCP tools so it can verify the live server directly. Two consecutive runs (4, 5) have been unable to do live verification.
+- **CLI auth health checks (added 2026-03-27).** The daily health run must verify all CLI dependencies are authenticated and functional. Run one real operation per CLI: `gh api user`, `stripe products list --limit 1`, `wrangler whoami`, `gcloud auth list`, `flyctl status --app alexandria-mcp`, `vercel project ls`. If any fails, create a GitHub issue with `[ALERT]` label. Stripe CLI tokens expire every 90 days — this is the only silent-death risk in the stack. The health run catches it before it matters.
 
 ---
 

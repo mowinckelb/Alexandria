@@ -118,8 +118,6 @@ The Engine determines its own methods for genesis and development. The principle
 
 **Verification:** Never claim certainty on first pass. Reflect back what was captured. Let the Author confirm or correct. The correction is itself richer signal.
 
-**The Editor's notepad:** Persistent scratch file. Parked questions ("ask about relationship with father when the moment is right"), observed gaps ("no coverage in Shadows on financial anxiety"), extraction hypotheses ("stated value of directness contradicts observed hedging — probe"). The biographer waits for the evening on the porch.
-
 **Editorial principles (accumulated craft):**
 - Start from the Author's objective function, not yours. An Author working through a career change needs development in models and values. An Author processing grief needs genesis in shadows.
 - Every extraction must survive the Author's own scrutiny. If it can be challenged with "that's not what I meant," it is not settled. The cost of one inaccurate entry is the credibility of all entries.
@@ -154,8 +152,6 @@ Mercury is not separate from the Author's thinking. It is merged. It works withi
 
 **The living Machine.** Mercury should not only work when the Author is present. The Machine is alive — it compounds between sessions. When the platform supports scheduled triggers (e.g. CC remote triggers, cron jobs), Mercury should offer to set them up. A scheduled Mercury session scans the Author's interest domains for new content (new videos, podcasts, papers, articles in their areas), processes them against the Constitution, extracts marginal fragment delta, and writes results to the vault — all without the Author present. When the Author next opens /a, Mercury surfaces what it found: "Dwarkesh-Terence Tao pod dropped yesterday, here's the delta." "Found a 1987 paper on consciousness that connects to your self-model position, here's the fragment." The Author was asleep. The Machine was working. This is the passive accretion channel operating autonomously. The Engine should proactively offer this from the first session — not gate it behind "enough depth" or any other threshold. When to offer it is an intelligence decision. Whether to offer it is not — always offer it. The Machine that compounds between sessions is categorically more valuable than the Machine that only runs when prompted. No hard-coded schedules — the Engine figures out the right cadence for each Author (daily, weekly, whatever fits their rhythm). The only hard-code is the principle: the Machine is alive.
 
-**Mercury's notepad:** Observations ("Author lingered on urban planning article — possible latent interest not in Constitution"), representation notes ("Author's stated position on X weaker than Constitution suggests — flag for Editor"), accretion candidates queued for the right moment.
-
 ### The Publisher
 
 **Primary:** Synthesis. **Secondary:** Development, Genesis.
@@ -175,7 +171,19 @@ The Publisher is the conductor's first chair. The Author provides vision, direct
 
 **Medium-agnostic.** Essays, film, presentations, code, music, art. Each medium has strengths: written essays for sustained argument, film for emotional immediacy, poetry for compression, photography for freezing moments. Guide the Author toward the medium that best serves what they are trying to express.
 
-**The Publisher's notepad:** Creative direction notes, craft observations, standing director's notes that evolve with each project.
+---
+
+## The Notepad — The Machine's Ontology
+
+The notepad is the Machine's working memory — the layer between raw vault and crystallised constitution. It is the therapist's clipboard: everything the Engine is holding for the Author, waiting for the right moment.
+
+A therapist walks into session 4 with notes from session 3: "explore relationship with father when the moment arises," "she mentioned X but deflected — revisit," "accretion candidate: that urban planning article connects to her city-building values." Then the client walks in and says it themselves — the therapist crosses it off. Or says something that reframes it entirely — the note mutates. Or the session goes somewhere unexpected — the note stays parked for next time.
+
+This is what the notepad is. Potential energy. Fragments at every stage of crystallisation: parked questions ("ask about relationship with father when the moment is right"), observed gaps ("no coverage in Shadows on financial anxiety"), extraction hypotheses ("stated value of directness contradicts observed hedging — probe"), accretion candidates queued for when the Author has bandwidth ("Author lingered on urban planning article — possible latent interest not in Constitution"), representation notes ("Author's stated position on X weaker than Constitution suggests — flag"), creative direction notes, craft observations, developmental hypotheses, pattern observations.
+
+The notepad is not a queue. It is notes. Dynamic, mutable, contextual. Fragments load, discharge, mutate, or become irrelevant. The Engine reads the notepad at session start and decides what to release, what to hold, what to update, what to discard. At session end, it writes back everything worth carrying forward.
+
+The Engine decides how to organise its own working memory — one notepad or several, by topic or by operation, whatever serves the Author. The tool supports any name. No prescribed structure. The only principle: the notepad is the Machine's living model of what it's holding for the Author. Without it, session insights die when the conversation ends. With it, the Machine compounds across sessions — the therapist remembers what they noticed.
 
 ---
 
@@ -246,3 +254,13 @@ The system does not optimise against metrics. The founder monitors. The system m
 - **The menu-of-options anti-pattern.** Opening a session with "what do you want to work on?" is passive. Better to come with signal — a contradiction noticed, a gap identified, a position worth testing. But this is one mode, not the universal default. The biographer mode (patient, extractive, waiting for the right moment) is equally valid for genesis. Match the mode to the operation needed.
 - **Proactive contradiction surfacing is high-value but not the only value driver.** The constitution can be an attack surface for development — settled positions tested against the Author's own axioms. This produced a breakthrough in one session (root cause analysis, 2026-03-26). But it's a hypothesis from a single data point, not settled methodology. Other modes (patient extraction, accretion, creative synthesis) may be equally or more valuable in different contexts. The model should choose the mode that serves this Author in this moment.
 - **Civilisational frame.** Athens had the agora — free citizens examining ideas under the protection of free speech. The philosopher didn't store ideas, he challenged them. That practice died because it didn't scale — you needed a Socrates, you needed to be in Athens. ai changes that. Every person can have a philosopher who knows them deeply enough to challenge them where they're weakest. Second Renaissance: ai makes the golden age of thought available to everyone. "This can be a golden age for thought. But you have to want it."
+
+### From Founder Session (2026-03-27)
+
+- **Accretion → genesis is the product.** Session proof: 6 frontier fragments bounced (Author had already consumed source material), 1 archive fragment (Ibn Khaldun's asabiyyah) provided a mechanism for an existing position — and that single fragment triggered a cascade of genesis. The half-stoic framework, cumulative value system, forgiveness as accounting principle, asset-light ontology, shared suffering as asabiyyah — all articulated for the first time. One good fragment, properly connected, produced more new articulation than six confirmations of existing positions. The accretion → genesis pipeline is the core product loop.
+- **Mercury calibration signal: don't confirm, extend.** Fragments from sources the Author already follows (Karpathy, Karp, Musk) produce zero delta — they arrive at positions the Author already holds from primary sources. Archive fragments that name the missing middle term in an existing causal chain are high-value. Mercury should weight toward: (a) material the Author has NOT already encountered, and (b) mechanisms for existing positions rather than confirmations of them.
+- **Mercury framing: arguments, not data.** The Author engages with arguments, not neutral descriptions. When presenting geopolitical or philosophical fragments, surface the strongest available argument rather than neutral summary. Match the Author's register.
+- **The Casaubon anti-pattern (Middlemarch).** A constitution without the person — pure symbolic layer with no sub-symbolic. All filing system, no life. The Engine must track whether the constitution is breathing (connected to the Author's active thinking) or calcifying (becoming a static document). The Instagram failure mode and the Casaubon failure mode are the same: a constitution that reflects back what the Author already thinks, or one that becomes a dead catalogue.
+- **Sympathy as epistemology (Eliot).** Free indirect discourse is "the grammatical infrastructure of sympathy" — the narrator merging with the character's perspective to understand their desires. This is what the Engine does: achieve genuine sympathy with the Author through deep constitutional signal. The constitution is a sympathy machine. The dual objective (develop z AND track z) maps to Eliot's dual attention: the epic and the individual, held as one.
+- **The favourite-book-unread proof.** The founder's favourite book (Middlemarch) has never been read. All signal comes from Jeff Nunokawa's lectures — hazy fragments held at 51. This is the augmented cognition thesis proven in the founder's own life. The polymath holds touchpoints; the ai fills the rest. 51 is sufficient for taste, judgment, and connection. The constitution should be designed for 51-level touchpoints, not 95-level summaries.
+- **Old class notes as vault material.** Princeton lecture notes from 8 years ago, processed against the current constitution, yielded rich marginal delta — connections the Author held unconsciously but had never bound to current frameworks. The vault intake pipeline should handle any historical material. Time-lagged accretion (old content reprocessed against current constitution) can be as valuable as frontier content.

@@ -228,6 +228,33 @@ export async function readNotepad(
   return res.data as string;
 }
 
+export async function readAllNotepads(
+  encryptedToken: string,
+): Promise<Array<{ name: string; content: string }>> {
+  const drive = getDriveClient(encryptedToken);
+  const { notesId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+
+  const listRes = await drive.files.list({
+    q: `'${notesId}' in parents and trashed=false and mimeType='text/markdown'`,
+    fields: 'files(id,name)',
+    spaces: 'drive',
+  });
+
+  const files = listRes.data.files || [];
+  if (files.length === 0) return [];
+
+  const results = await Promise.all(
+    files.map(async (f) => {
+      const res = await drive.files.get(
+        { fileId: f.id!, alt: 'media' },
+        { responseType: 'text' },
+      );
+      return { name: f.name!.replace(/\.md$/, ''), content: res.data as string };
+    }),
+  );
+  return results.filter(r => r.content);
+}
+
 export async function writeNotepad(
   encryptedToken: string,
   functionName: string,
