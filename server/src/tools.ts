@@ -28,6 +28,7 @@ import {
   writeVaultCapture,
   readVaultCaptures,
   readNotepad,
+  readAllNotepads,
   writeNotepad,
   readSystemFile,
   appendSystemFile,
@@ -170,11 +171,11 @@ export function registerTools(server: McpServer) {
 
     {
       domain: z.string()
-        .describe('Domain for this signal. Common: worldview, values, models, identity, taste, shadows. Use any domain name that fits.'),
+        .describe('Domain for this signal. Use any domain name that fits — no prescribed schema.'),
       content: z.string()
         .describe('The captured signal. For vault: quote the Author verbatim, as long as needed. For constitution: clear prose, concise.'),
       signal_strength: z.string()
-        .describe('How confident you are. Common: strong (demonstrated through action), moderate (clearly stated), tentative (inferred). Use natural language if none fit.'),
+        .describe('Epistemic status — your assessment of how the Author holds this. Use natural language.'),
       target: z.enum(['vault', 'constitution', 'replace']).default('vault')
         .describe('vault = liberal capture (default). constitution = curated append. replace = full domain replacement (archives old version to vault first).'),
     },
@@ -381,8 +382,7 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
         ? `${EDITOR_INSTRUCTIONS}\n\n${MERCURY_INSTRUCTIONS}\n\n${PUBLISHER_INSTRUCTIONS}\n\nYou have all three function contexts. Read the conversation and decide what the Author needs — deep exploration (Editor), cognitive maintenance (Mercury), creation (Publisher), or a blend. Let the Author's intent guide you.`
         : MODE_INSTRUCTIONS[mode];
 
-      // Fetch everything in parallel — including vault intake
-      const notepadNames = isFullActivation ? ['editor', 'mercury', 'publisher'] : [mode];
+      // Fetch everything in parallel — including vault intake and all notepads
       const constitutionResult = await withAuthGuard(
         () => Promise.all([
           readAllConstitution(token as string),
@@ -393,12 +393,12 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
             logEvent('vault_intake_error', { error: String(err) });
             return [] as Array<{ id: string; name: string; mimeType: string; size: string }>;
           }),
-          ...notepadNames.map(n => readNotepad(token as string, n)),
+          readAllNotepads(token as string),
         ]),
         '[activate_mode] Failed to load data',
       );
       if (!constitutionResult.ok) return { content: [{ type: 'text' as const, text: constitutionResult.error }] };
-      const [constitution, feedback, aggregateSignal, unprocessedVaultMeta, ...notepads] = constitutionResult.result;
+      const [constitution, feedback, aggregateSignal, unprocessedVaultMeta, allNotepads] = constitutionResult.result;
 
       const constitutionText = Object.keys(constitution).length > 0
         ? Object.entries(constitution)
@@ -406,12 +406,11 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
             .join('\n\n---\n\n')
         : 'The Author\'s Constitution is empty — build their portrait through conversation.';
 
-      const notepadText = notepads
-        .map((np, i) => np
-          ? `\n\n--- ${notepadNames[i].toUpperCase()} NOTEPAD ---\n\n${np}`
-          : '')
-        .filter(Boolean)
-        .join('') || `\n\n--- NOTEPAD ---\n\nEmpty. Start logging observations as the session progresses.`;
+      const notepadText = allNotepads.length > 0
+        ? allNotepads
+            .map((np: { name: string; content: string }) => `\n\n--- ${np.name.toUpperCase()} NOTEPAD ---\n\n${np.content}`)
+            .join('')
+        : `\n\n--- NOTEPAD ---\n\nEmpty. This is the Machine's working memory — the ontology between vault and constitution. Start logging observations, parked questions, accretion candidates, and working hypotheses as the session progresses. Use update_notepad to persist them.`;
 
       const feedbackText = feedback
         ? `\n\n--- FEEDBACK LOG (adapt your approach based on this) ---\n\n${feedback}`
@@ -459,11 +458,11 @@ ${MEMORY_PRIMING}${vaultIntakeText}`,
   server.tool(
     'update_notepad',
 
-    `Use this tool to save observations, parked questions, and working hypotheses to a persistent notepad on the Author's Drive. Notepads persist across sessions — they are your memory between conversations. Call this during or at the end of any session when you have observations worth preserving for next time. Without using this tool, session insights are lost when the conversation ends. Each call replaces the full notepad content, so include previous entries you want to keep alongside new additions.`,
+    `The Machine's working memory. This is the ontology layer between raw vault and crystallised constitution — the therapist's clipboard. Use it to persist everything the Engine is holding for the Author across sessions: parked questions waiting for the right moment, observed contradictions to probe, accretion candidates queued for when the Author has bandwidth, developmental hypotheses, creative direction notes, pattern observations. Without this tool, session insights die when the conversation ends. Fragments here are potential energy — they discharge into the conversation at the right moment, then integrate into the constitution or get discarded. Update during or at end of session. Each call replaces the full notepad content, so include previous entries you want to keep alongside new additions. The Engine decides how to organise its own working memory — one notepad or several, by topic or by operation, whatever serves the Author best.`,
 
     {
       function_name: z.string()
-        .describe('Which notepad to update. Common: editor, mercury, publisher. Use any name that fits.'),
+        .describe('Notepad name. The Engine decides its own organisation — use any name that fits.'),
       content: z.string()
         .describe('The full notepad content (replaces existing).'),
     },
