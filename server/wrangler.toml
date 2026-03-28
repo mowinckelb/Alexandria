@@ -1,0 +1,24 @@
+name = "alexandria-server"
+main = "src/worker.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+# KV namespace — single namespace with key prefixes
+[[kv_namespaces]]
+binding = "DATA"
+id = "7f1153cbddfd49239a51f07d98cee37a"
+
+# Route-based binding — intercepts when DNS record is proxied
+[[routes]]
+pattern = "mcp.mowinckel.ai/*"
+zone_id = "7a1952631048380db0df21b5daa1e88e"
+
+# Cron trigger — daily follow-up email check at 9am UTC
+[triggers]
+crons = ["0 9 * * *"]
+
+[vars]
+BETA_MODE = "true"
+SERVER_URL = "https://mcp.mowinckel.ai"
+WEBSITE_URL = "https://mowinckel.ai"

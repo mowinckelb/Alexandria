@@ -3,40 +3,38 @@
  *
  * Two prices: $5/mo (with 3+ active kin) and $10/mo (without).
  * Free during beta — billing infra is ready but not gating.
- * Kin repricing runs on each billing cycle (subscription.updated webhook).
- *
- * Stripe products/prices are created lazily on first checkout if they
- * don't exist yet. No manual dashboard setup needed.
  */
 
 import Stripe from 'stripe';
-import { Router, raw } from 'express';
+import type { Hono } from 'hono';
 import { logEvent } from './analytics.js';
 import { callbackPageHtml } from './templates.js';
 
 // ---------------------------------------------------------------------------
-// Stripe client
+// Stripe client — lazy init (needs env to be populated)
 // ---------------------------------------------------------------------------
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
-
-const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
-const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
-const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!_stripe) {
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+  }
+  return _stripe;
+}
 
 // ---------------------------------------------------------------------------
 // Price IDs — resolved lazily on first use
 // ---------------------------------------------------------------------------
 
-let priceWithKin: string | null = null;   // $5/mo
-let priceWithoutKin: string | null = null; // $10/mo
+let priceWithKin: string | null = null;
+let priceWithoutKin: string | null = null;
 
 async function ensurePrices(): Promise<{ withKin: string; withoutKin: string }> {
   if (priceWithKin && priceWithoutKin) {
     return { withKin: priceWithKin, withoutKin: priceWithoutKin };
   }
 
-  // Look for existing product by metadata
+  const stripe = getStripe();
   const products = await stripe.products.list({ limit: 10 });
   let product = products.data.find(p => p.metadata.alexandria === 'examined_life');
 
@@ -48,16 +46,14 @@ async function ensurePrices(): Promise<{ withKin: string; withoutKin: string }> 
     });
   }
 
-  // Look for existing prices
   const prices = await stripe.prices.list({ product: product.id, limit: 10 });
-
   let kin = prices.data.find(p => p.metadata.tier === 'with_kin' && p.active);
   let noKin = prices.data.find(p => p.metadata.tier === 'without_kin' && p.active);
 
   if (!kin) {
     kin = await stripe.prices.create({
       product: product.id,
-      unit_amount: 500, // $5
+      unit_amount: 500,
       currency: 'usd',
       recurring: { interval: 'month' },
       metadata: { tier: 'with_kin' },
@@ -67,7 +63,7 @@ async function ensurePrices(): Promise<{ withKin: string; withoutKin: string }> 
   if (!noKin) {
     noKin = await stripe.prices.create({
       product: product.id,
-      unit_amount: 1000, // $10
+      unit_amount: 1000,
       currency: 'usd',
       recurring: { interval: 'month' },
       metadata: { tier: 'without_kin' },
@@ -80,18 +76,18 @@ async function ensurePrices(): Promise<{ withKin: string; withoutKin: string }> 
 }
 
 // ---------------------------------------------------------------------------
-// Account helpers — imported by prosumer.ts, shared state
+// Billing types
 // ---------------------------------------------------------------------------
 
 export interface BillingInfo {
   stripe_customer_id?: string;
-  subscription_status?: string; // 'active' | 'past_due' | 'canceled' | 'trialing' | 'beta'
+  subscription_status?: string;
   subscription_id?: string;
   current_period_end?: string;
 }
 
 // ---------------------------------------------------------------------------
-// Checkout — create a Stripe Checkout session
+// Checkout
 // ---------------------------------------------------------------------------
 
 export async function createCheckoutSession(opts: {
@@ -100,16 +96,16 @@ export async function createCheckoutSession(opts: {
   apiKey: string;
   stripeCustomerId?: string;
 }): Promise<string> {
-  const BETA = process.env.BETA_MODE !== 'false'; // default: beta is on
+  const stripe = getStripe();
+  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+  const BETA = process.env.BETA_MODE !== 'false';
 
   const customer = opts.stripeCustomerId
     ? { customer: opts.stripeCustomerId }
     : { customer_email: opts.email };
 
   if (BETA) {
-    // Beta: just collect payment info. No subscription, no trial language.
-    // When beta ends, create subscriptions via API for all accounts with
-    // a stored payment method. Clean checkout — no "364 days free" ugliness.
     const session = await stripe.checkout.sessions.create({
       mode: 'setup',
       currency: 'usd',
@@ -127,10 +123,7 @@ export async function createCheckoutSession(opts: {
     return session.url || '';
   }
 
-  // Post-beta: real subscription at $5/mo (with kin default).
-  // Kin repricing bumps to $10 if <3 active kin at billing cycle.
   const prices = await ensurePrices();
-
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     line_items: [{ price: prices.withKin, quantity: 1 }],
@@ -151,10 +144,12 @@ export async function createCheckoutSession(opts: {
 }
 
 // ---------------------------------------------------------------------------
-// Portal — let Authors manage their subscription
+// Portal
 // ---------------------------------------------------------------------------
 
 export async function createPortalSession(stripeCustomerId: string): Promise<string> {
+  const stripe = getStripe();
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
   const session = await stripe.billingPortal.sessions.create({
     customer: stripeCustomerId,
     return_url: `${WEBSITE_URL}/signup`,
@@ -163,38 +158,32 @@ export async function createPortalSession(stripeCustomerId: string): Promise<str
 }
 
 // ---------------------------------------------------------------------------
-// Webhook handler
+// Billing routes
 // ---------------------------------------------------------------------------
 
-export type AccountUpdater = (apiKey: string, billing: Partial<BillingInfo>) => void;
+export type AccountUpdater = (apiKey: string, billing: Partial<BillingInfo>) => Promise<void>;
 
-export function createBillingRouter(onAccountUpdate: AccountUpdater): Router {
-  const router = Router();
+export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater) {
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
 
-  // Success — Stripe redirects here after checkout. Show the branded callback page.
-  router.get('/billing/success', async (req, res) => {
-    const sessionId = req.query.session_id as string;
+  // Success page
+  app.get('/billing/success', async (c) => {
+    const sessionId = c.req.query('session_id');
     if (!sessionId) {
-      res.redirect(`${WEBSITE_URL}/signup`);
-      return;
+      return c.redirect(`${WEBSITE_URL}/signup`);
     }
 
     try {
+      const stripe = getStripe();
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       const login = session.metadata?.github_login || '';
       const apiKey = session.metadata?.api_key || '';
 
       if (!apiKey) {
-        res.redirect(`${WEBSITE_URL}/signup`);
-        return;
+        return c.redirect(`${WEBSITE_URL}/signup`);
       }
 
-      // Update account — always set status, link customer if available.
-      // In setup mode (beta): customer may be on session or setup_intent.
-      // In subscription mode (post-beta): customer + subscription.
       let customerId = session.customer as string | null;
-
-      // Setup mode: customer might be on the setup_intent instead
       if (!customerId && session.setup_intent) {
         try {
           const intentId = typeof session.setup_intent === 'string'
@@ -210,54 +199,54 @@ export function createBillingRouter(onAccountUpdate: AccountUpdater): Router {
           ? { subscription_id: session.subscription as string, subscription_status: 'active' }
           : { subscription_status: 'beta' }),
       };
-      onAccountUpdate(apiKey, billingUpdate);
+      await onAccountUpdate(apiKey, billingUpdate);
       logEvent('billing_checkout_completed', { mode: session.mode || 'unknown' });
 
-      res.type('html').send(callbackPageHtml(login, apiKey));
+      return c.html(callbackPageHtml(login, apiKey));
     } catch (err) {
       console.error('Billing success page error:', err);
-      res.redirect(`${WEBSITE_URL}/signup`);
+      return c.redirect(`${WEBSITE_URL}/signup`);
     }
   });
 
-  // Portal — manage subscription (authenticated by API key)
-  router.post('/billing/portal', async (req, res) => {
-    const { stripe_customer_id } = req.body || {};
+  // Portal
+  app.post('/billing/portal', async (c) => {
+    const body = await c.req.json().catch(() => ({}));
+    const { stripe_customer_id } = body;
 
     if (!stripe_customer_id) {
-      res.status(400).json({ error: 'No Stripe customer ID' });
-      return;
+      return c.json({ error: 'No Stripe customer ID' }, 400);
     }
 
     try {
       const url = await createPortalSession(stripe_customer_id);
-      res.json({ url });
+      return c.json({ url });
     } catch (err) {
       console.error('Portal error:', err);
-      res.status(500).json({ error: 'Failed to create portal session' });
+      return c.json({ error: 'Failed to create portal session' }, 500);
     }
   });
 
-  // Webhook — Stripe events (raw body required for signature verification)
-  router.post('/billing/webhook', raw({ type: 'application/json' }), async (req, res) => {
-    const sig = req.headers['stripe-signature'] as string;
+  // Webhook — raw body for signature verification
+  app.post('/billing/webhook', async (c) => {
+    const stripe = getStripe();
+    const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
+    const sig = c.req.header('stripe-signature') || '';
 
-    if (!WEBHOOK_SECRET) {
-      console.warn('STRIPE_WEBHOOK_SECRET not set — accepting webhook without verification');
-    }
+    // Get raw body for signature verification
+    const rawBody = await c.req.text();
 
     let event: Stripe.Event;
-
     try {
       if (WEBHOOK_SECRET && sig) {
-        event = stripe.webhooks.constructEvent(req.body, sig, WEBHOOK_SECRET);
+        event = stripe.webhooks.constructEvent(rawBody, sig, WEBHOOK_SECRET);
       } else {
-        event = req.body as Stripe.Event;
+        console.warn('STRIPE_WEBHOOK_SECRET not set — accepting webhook without verification');
+        event = JSON.parse(rawBody) as Stripe.Event;
       }
     } catch (err) {
       console.error('Webhook signature verification failed:', err);
-      res.status(400).send('Invalid signature');
-      return;
+      return c.text('Invalid signature', 400);
     }
 
     try {
@@ -266,7 +255,7 @@ export function createBillingRouter(onAccountUpdate: AccountUpdater): Router {
           const session = event.data.object as Stripe.Checkout.Session;
           const apiKey = session.metadata?.api_key;
           if (apiKey && session.customer && session.subscription) {
-            onAccountUpdate(apiKey, {
+            await onAccountUpdate(apiKey, {
               stripe_customer_id: session.customer as string,
               subscription_id: session.subscription as string,
               subscription_status: 'active',
@@ -284,7 +273,7 @@ export function createBillingRouter(onAccountUpdate: AccountUpdater): Router {
           const apiKey = sub.metadata?.api_key;
           if (apiKey) {
             const periodEnd = sub.items?.data?.[0]?.current_period_end;
-            onAccountUpdate(apiKey, {
+            await onAccountUpdate(apiKey, {
               subscription_status: sub.status,
               ...(periodEnd ? { current_period_end: new Date(periodEnd * 1000).toISOString() } : {}),
             });
@@ -300,9 +289,7 @@ export function createBillingRouter(onAccountUpdate: AccountUpdater): Router {
           const sub = event.data.object as Stripe.Subscription;
           const apiKey = sub.metadata?.api_key;
           if (apiKey) {
-            onAccountUpdate(apiKey, {
-              subscription_status: 'canceled',
-            });
+            await onAccountUpdate(apiKey, { subscription_status: 'canceled' });
           }
           logEvent('billing_subscription_canceled', {
             customer: sub.customer as string,
@@ -312,7 +299,6 @@ export function createBillingRouter(onAccountUpdate: AccountUpdater): Router {
 
         case 'invoice.payment_failed': {
           const invoice = event.data.object as Stripe.Invoice;
-          // v21: subscription is under parent.subscription_details
           const subDetails = invoice.parent?.subscription_details;
           const subId = typeof subDetails?.subscription === 'string'
             ? subDetails.subscription
@@ -321,7 +307,7 @@ export function createBillingRouter(onAccountUpdate: AccountUpdater): Router {
             const sub = await stripe.subscriptions.retrieve(subId);
             const apiKey = sub.metadata?.api_key;
             if (apiKey) {
-              onAccountUpdate(apiKey, { subscription_status: 'past_due' });
+              await onAccountUpdate(apiKey, { subscription_status: 'past_due' });
             }
           }
           logEvent('billing_payment_failed', {
@@ -334,8 +320,6 @@ export function createBillingRouter(onAccountUpdate: AccountUpdater): Router {
       console.error('Webhook handler error:', err);
     }
 
-    res.json({ received: true });
+    return c.json({ received: true });
   });
-
-  return router;
 }

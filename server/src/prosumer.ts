@@ -5,22 +5,14 @@
  * probabilistic MCP tool activation. Local markdown files replace
  * Google Drive. The server serves the Blueprint (IP) and collects
  * anonymous Factory metadata. Stores no user content.
- *
- * Endpoints:
- *   GET  /auth/github           — Start GitHub OAuth
- *   GET  /auth/github/callback  — Complete OAuth, send email, show success
- *   GET  /blueprint             — Serve Blueprint (authenticated)
- *   POST /session               — Receive anonymous session metadata
- *   GET  /setup                 — Serve install script
  */
 
-import { Router } from 'express';
 import { randomBytes, createHash } from 'crypto';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import type { Hono } from 'hono';
 import { logEvent } from './analytics.js';
 import { createCheckoutSession } from './billing.js';
 import { callbackPageHtml } from './templates.js';
+import { loadAccounts, saveAccounts } from './kv.js';
 import {
   SHARED_CONTEXT,
   EDITOR_INSTRUCTIONS,
@@ -28,12 +20,8 @@ import {
   PUBLISHER_INSTRUCTIONS,
 } from './modes.js';
 
-const DATA_DIR = process.env.DATA_DIR || '/data';
-const ACCOUNTS_FILE = join(DATA_DIR, 'accounts.json');
-const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
-
 // ---------------------------------------------------------------------------
-// Account storage — JSON file on Fly volume
+// Account types
 // ---------------------------------------------------------------------------
 
 interface Account {
@@ -45,7 +33,6 @@ interface Account {
   last_session: string;
   installed_at?: string;
   followup_count?: number;
-  // Billing
   stripe_customer_id?: string;
   subscription_status?: string;
   subscription_id?: string;
@@ -54,45 +41,47 @@ interface Account {
 
 type AccountStore = Record<string, Account>;
 
-function loadAccounts(): AccountStore {
-  try {
-    if (existsSync(ACCOUNTS_FILE)) {
-      return JSON.parse(readFileSync(ACCOUNTS_FILE, 'utf-8'));
-    }
-  } catch { /* fresh start */ }
-  return {};
+// In-memory cache — refreshed from KV on writes
+let accountsCache: AccountStore = {};
+let cacheLoaded = false;
+
+async function getAccounts(): Promise<AccountStore> {
+  if (!cacheLoaded) {
+    accountsCache = await loadAccounts<AccountStore>();
+    cacheLoaded = true;
+  }
+  return accountsCache;
 }
 
-function saveAccounts(accounts: AccountStore): void {
-  writeFileSync(ACCOUNTS_FILE, JSON.stringify(accounts, null, 2));
+async function persistAccounts(accounts: AccountStore): Promise<void> {
+  accountsCache = accounts;
+  await saveAccounts(accounts);
 }
 
-// In-memory cache, reloaded on write
-let accountsCache = loadAccounts();
-
-function findByApiKey(key: string): Account | null {
-  for (const acct of Object.values(accountsCache)) {
+async function findByApiKey(key: string): Promise<Account | null> {
+  const accounts = await getAccounts();
+  for (const acct of Object.values(accounts)) {
     if (acct.api_key === key) return acct;
   }
   return null;
 }
 
 /** Update billing fields on an account — called by billing webhook handler */
-export function updateAccountBilling(apiKey: string, billing: Partial<Pick<Account, 'stripe_customer_id' | 'subscription_status' | 'subscription_id' | 'current_period_end'>>): void {
-  accountsCache = loadAccounts();
-  const storeKey = Object.keys(accountsCache).find(
-    k => accountsCache[k].api_key === apiKey
+export async function updateAccountBilling(apiKey: string, billing: Partial<Pick<Account, 'stripe_customer_id' | 'subscription_status' | 'subscription_id' | 'current_period_end'>>): Promise<void> {
+  const accounts = await loadAccounts<AccountStore>();
+  const storeKey = Object.keys(accounts).find(
+    k => accounts[k].api_key === apiKey
   );
   if (!storeKey) return;
-  Object.assign(accountsCache[storeKey], billing);
-  saveAccounts(accountsCache);
+  Object.assign(accounts[storeKey], billing);
+  await persistAccounts(accounts);
 }
 
-/** Billing summary for dashboard — subscription status counts */
-export function getBillingSummary(): Record<string, number> {
-  accountsCache = loadAccounts();
+/** Billing summary for dashboard */
+export async function getBillingSummary(): Promise<Record<string, number>> {
+  const accounts = await getAccounts();
   const counts: Record<string, number> = { total_accounts: 0 };
-  for (const acct of Object.values(accountsCache)) {
+  for (const acct of Object.values(accounts)) {
     counts.total_accounts++;
     const status = acct.subscription_status || 'none';
     counts[`billing_${status}`] = (counts[`billing_${status}`] || 0) + 1;
@@ -106,35 +95,27 @@ function generateApiKey(): string {
 }
 
 // ---------------------------------------------------------------------------
-// Auth middleware for prosumer endpoints
+// Auth helper
 // ---------------------------------------------------------------------------
 
-function extractApiKey(req: { headers: Record<string, string | string[] | undefined>; query: Record<string, unknown> }): string | null {
-  const auth = req.headers.authorization;
-  if (typeof auth === 'string' && auth.startsWith('Bearer alex_')) {
+function extractApiKey(c: { req: { header: (name: string) => string | undefined; query: (name: string) => string | undefined } }): string | null {
+  const auth = c.req.header('authorization');
+  if (auth && auth.startsWith('Bearer alex_')) {
     return auth.slice(7);
   }
-  const q = req.query.key;
-  if (typeof q === 'string' && q.startsWith('alex_')) return q;
+  const q = c.req.query('key');
+  if (q && q.startsWith('alex_')) return q;
   return null;
 }
 
 // ---------------------------------------------------------------------------
-// GitHub OAuth
+// GitHub OAuth — in-memory pending states
 // ---------------------------------------------------------------------------
 
 const pendingStates = new Map<string, { created: number }>();
 
-// Clean up stale states every 10 minutes
-setInterval(() => {
-  const cutoff = Date.now() - 10 * 60 * 1000;
-  for (const [state, { created }] of pendingStates) {
-    if (created < cutoff) pendingStates.delete(state);
-  }
-}, 10 * 60 * 1000);
-
 // ---------------------------------------------------------------------------
-// Hooks version — bump this when hook scripts change. SessionStart checks it.
+// Hooks version — bump this when hook scripts change
 // ---------------------------------------------------------------------------
 
 const HOOKS_VERSION = '5';
@@ -173,11 +154,11 @@ ${PUBLISHER_INSTRUCTIONS}
 }
 
 // ---------------------------------------------------------------------------
-// Setup script template
+// Hook scripts
 // ---------------------------------------------------------------------------
 
-// Returns a shell script that writes/overwrites just the hook scripts
 function generateHookScripts(): string {
+  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
   return `#!/usr/bin/env bash
 ALEX_DIR="$HOME/.alexandria"
 
@@ -194,7 +175,6 @@ if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
   timestamp=$(date +%Y-%m-%d_%H-%M-%S)
   vault_file="$ALEX_DIR/vault/\${timestamp}.jsonl"
   cp "$transcript_path" "$vault_file"
-  # Vault integrity — write hash sidecar
   if command -v sha256sum &>/dev/null; then
     sha256sum "$vault_file" | cut -d' ' -f1 > "\${vault_file}.sha256"
   elif command -v shasum &>/dev/null; then
@@ -226,14 +206,12 @@ cat > "$ALEX_DIR/hooks/session-start.sh" << 'HOOK_START'
 ALEX_DIR="$HOME/.alexandria"
 API_KEY=$(cat "$ALEX_DIR/.api_key" 2>/dev/null)
 
-# Persist env vars for subsequent hooks
 if [ -n "$CLAUDE_ENV_FILE" ] && [ -n "$API_KEY" ]; then
   echo "export ALEXANDRIA_KEY=$API_KEY" >> "$CLAUDE_ENV_FILE"
   echo "export ALEXANDRIA_PLATFORM=cc" >> "$CLAUDE_ENV_FILE"
   echo "export ALEXANDRIA_BLUEPRINT_OK=false" >> "$CLAUDE_ENV_FILE"
 fi
 
-# Blueprint integrity — local override, diff surfacing, hash verification
 blueprint=""
 hooks_version=""
 bp_status=""
@@ -260,23 +238,18 @@ if [ "$bp_pinned" = "false" ] && [ -n "$API_KEY" ]; then
     if [ -n "$CLAUDE_ENV_FILE" ]; then
       echo "export ALEXANDRIA_BLUEPRINT_OK=true" >> "$CLAUDE_ENV_FILE"
     fi
-    # Diff surfacing — detect Blueprint changes
     local_hash=""
     [ -f "$ALEX_DIR/.blueprint_hash" ] && local_hash=$(cat "$ALEX_DIR/.blueprint_hash")
     if [ -n "$bp_hash" ] && [ -n "$local_hash" ] && [ "$bp_hash" != "$local_hash" ]; then
-      # Blueprint changed — save old and new for diffing
       [ -f "$ALEX_DIR/.blueprint_local" ] && cp "$ALEX_DIR/.blueprint_local" "$ALEX_DIR/.blueprint_previous"
       echo "$blueprint" > "$ALEX_DIR/.blueprint_local"
       echo "$bp_hash" > "$ALEX_DIR/.blueprint_hash"
     elif [ -z "$local_hash" ]; then
-      # First fetch — just store
       echo "$blueprint" > "$ALEX_DIR/.blueprint_local"
       [ -n "$bp_hash" ] && echo "$bp_hash" > "$ALEX_DIR/.blueprint_hash"
     fi
   fi
-  # Report Blueprint fetch failure so the server has signal
   if [ -z "$blueprint" ] || [ "$bp_status" != "200" ]; then
-    # Fallback to local copy
     [ -f "$ALEX_DIR/.blueprint_local" ] && blueprint=$(cat "$ALEX_DIR/.blueprint_local")
     PLATFORM="\${ALEXANDRIA_PLATFORM:-cc}"
     curl -s -X POST "${SERVER_URL}/session" \\
@@ -287,7 +260,6 @@ if [ "$bp_pinned" = "false" ] && [ -n "$API_KEY" ]; then
   fi
 fi
 
-# Auto-update hooks if version changed
 local_version=""
 [ -f "$ALEX_DIR/.hooks_version" ] && local_version=$(cat "$ALEX_DIR/.hooks_version")
 if [ -n "$hooks_version" ] && [ "$hooks_version" != "$local_version" ]; then
@@ -310,7 +282,6 @@ tampered=0
 if [ -f "$ALEX_DIR/.last_processed" ]; then
   unprocessed=$(find "$ALEX_DIR/vault/" -newer "$ALEX_DIR/.last_processed" -name "*.jsonl" 2>/dev/null | wc -l | tr -d ' ')
 fi
-# Vault integrity — hash new files, verify existing
 for vault_file in "$ALEX_DIR/vault/"*; do
   [ -f "$vault_file" ] || continue
   [[ "$vault_file" == *.sha256 ]] && continue
@@ -328,7 +299,6 @@ for vault_file in "$ALEX_DIR/vault/"*; do
       tampered=$((tampered + 1))
     fi
   else
-    # First encounter — create sidecar
     echo "$actual_hash" > "$hashfile"
   fi
 done
@@ -400,6 +370,8 @@ echo "${HOOKS_VERSION}" > "$ALEX_DIR/.hooks_version"
 }
 
 function generateSetupScript(apiKey: string): string {
+  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
   return `#!/usr/bin/env bash
 # Alexandria setup — creates ~/.alexandria/ and configures hooks for all detected platforms
 set -e
@@ -454,19 +426,16 @@ configure_cc_hooks() {
 
       const filter = arr => (arr || []).filter(h => !JSON.stringify(h).includes('.alexandria'));
 
-      // SessionStart — no matcher: fires on startup, resume, clear, AND compact
       settings.hooks.SessionStart = filter(settings.hooks.SessionStart);
       settings.hooks.SessionStart.push({
         hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/session-start.sh', timeout: 10 }]
       });
 
-      // SessionEnd
       settings.hooks.SessionEnd = filter(settings.hooks.SessionEnd);
       settings.hooks.SessionEnd.push({
         hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/session-end.sh', timeout: 5 }]
       });
 
-      // SubagentStart — inject Constitution into every subagent
       settings.hooks.SubagentStart = filter(settings.hooks.SubagentStart);
       settings.hooks.SubagentStart.push({
         hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/subagent-context.sh' }]
@@ -487,7 +456,6 @@ fi
 
 # 7. Configure Cursor hooks + rules (if installed)
 configure_cursor() {
-  # Hooks
   cat > "\$HOME/.cursor/hooks.json" << 'CURSOR_HOOKS_JSON'
 {
   "version": 1,
@@ -504,7 +472,6 @@ configure_cursor() {
 }
 CURSOR_HOOKS_JSON
 
-  # Always-on rule pointing to Constitution
   mkdir -p "\$HOME/.cursor/rules" 2>/dev/null || true
   cat > "\$HOME/.cursor/rules/alexandria.mdc" << 'CURSOR_RULE'
 ---
@@ -551,21 +518,35 @@ echo "Welcome to Alexandria."
 }
 
 // ---------------------------------------------------------------------------
-// Email — welcome email with setup command
+// Email — MailChannels via Workers (free, no API key, no dependency)
 // ---------------------------------------------------------------------------
 
-async function sendWelcomeEmail(email: string, apiKey: string): Promise<void> {
-  const resendKey = process.env.RESEND_API_KEY;
-  if (!resendKey) {
-    console.warn('RESEND_API_KEY not set — skipping welcome email');
-    return;
+async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  try {
+    const resp = await fetch('https://api.mailchannels.net/tx/v1/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        personalizations: [{ to: [{ email: to }] }],
+        from: { email: 'a@mowinckel.ai', name: 'Alexandria' },
+        subject,
+        content: [{ type: 'text/html', value: html }],
+      }),
+    });
+    if (!resp.ok) {
+      console.error('MailChannels error:', resp.status, await resp.text());
+    }
+  } catch (err) {
+    console.error('Email send failed:', err);
   }
+}
 
-  const body = {
-    from: 'Alexandria <a@mowinckel.ai>',
-    to: email,
-    subject: 'alexandria. — your setup command',
-    html: `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
+async function sendWelcomeEmail(email: string, apiKey: string): Promise<void> {
+  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+
+  await sendEmail(email, 'alexandria. — your setup command',
+    `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
   <div style="margin-bottom: 2.5rem;">
     <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 0 0 0.8rem;">your setup command</p>
     <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 12px;">open your terminal and paste:</p>
@@ -580,25 +561,8 @@ async function sendWelcomeEmail(email: string, apiKey: string): Promise<void> {
     <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><strong>a.</strong> &mdash; absorb the abundance</p>
   </div>
   <p style="font-size: 1.15rem; color: #3d3630;">welcome to alexandria.</p>
-  <p style="font-size: 0.78rem; color: #bbb4aa; margin-top: 1.5rem;"><a href="https://mowinckel.ai/docs/setup.md" style="color: #8a8078;">setup guide</a></p>
-</div>`,
-  };
-
-  try {
-    const resp = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-    if (!resp.ok) {
-      console.error('Resend error:', resp.status, await resp.text());
-    }
-  } catch (err) {
-    console.error('Email send failed:', err);
-  }
+  <p style="font-size: 0.78rem; color: #bbb4aa; margin-top: 1.5rem;"><a href="${WEBSITE_URL}/docs/setup.md" style="color: #8a8078;">setup guide</a></p>
+</div>`);
 }
 
 // ---------------------------------------------------------------------------
@@ -608,86 +572,61 @@ async function sendWelcomeEmail(email: string, apiKey: string): Promise<void> {
 const MAX_FOLLOWUPS = 7;
 
 async function sendFollowupEmail(email: string, apiKey: string, day: number): Promise<void> {
-  const resendKey = process.env.RESEND_API_KEY;
-  if (!resendKey) return;
+  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
 
-  const body = {
-    from: 'Alexandria <a@mowinckel.ai>',
-    to: email,
-    subject: 'alexandria. -- your setup command',
-    html: `<div style="font-family: Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; color: #3d3630;">
+  await sendEmail(email, 'alexandria. -- your setup command',
+    `<div style="font-family: Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; color: #3d3630;">
   <p style="font-size: 16px; line-height: 1.8; margin: 0 0 16px;">you signed up but haven&rsquo;t installed yet. here&rsquo;s your command:</p>
   <div style="background: #f5f0e8; border-radius: 6px; padding: 14px 18px; margin: 12px 0 16px;">
     <code style="font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12px; color: #4d4640; word-break: break-all;">${`curl -s ${SERVER_URL}/setup | bash -s ${apiKey}`}</code>
   </div>
   <p style="font-size: 14px; color: #8a8078; margin-top: 24px;">paste in your terminal. 30 seconds.</p>
-</div>`,
-  };
-
-  try {
-    const resp = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-    if (!resp.ok) {
-      console.error('Follow-up email error:', resp.status, await resp.text());
-    }
-  } catch (err) {
-    console.error('Follow-up email failed:', err);
-  }
+</div>`);
 }
 
-async function runFollowupCheck(): Promise<void> {
-  accountsCache = loadAccounts();
+/** Run follow-up check — called by Cron Trigger */
+export async function runFollowupCheck(): Promise<void> {
+  const accounts = await loadAccounts<AccountStore>();
   let changed = false;
 
-  for (const [key, account] of Object.entries(accountsCache)) {
-    // Skip if already installed or no email
+  for (const [key, account] of Object.entries(accounts)) {
     if (account.installed_at || !account.email) continue;
-
-    // Skip if max follow-ups sent
     const count = account.followup_count || 0;
     if (count >= MAX_FOLLOWUPS) continue;
-
-    // Skip if signed up less than 24h ago (give the welcome email time)
     const signupAge = Date.now() - new Date(account.created_at).getTime();
     if (signupAge < 24 * 60 * 60 * 1000) continue;
 
     await sendFollowupEmail(account.email, account.api_key, count + 1);
-    accountsCache[key].followup_count = count + 1;
+    accounts[key].followup_count = count + 1;
     changed = true;
   }
 
-  if (changed) saveAccounts(accountsCache);
+  if (changed) await saveAccounts(accounts);
 }
 
-// Run follow-up check daily (every 24h)
-setInterval(runFollowupCheck, 24 * 60 * 60 * 1000);
-// Also run on startup after a short delay
-setTimeout(runFollowupCheck, 60 * 1000);
-
 // ---------------------------------------------------------------------------
-// Router
+// Prosumer routes — registered on Hono app
 // ---------------------------------------------------------------------------
 
-export function createProsumerRouter(): Router {
-  const router = Router();
+export function registerProsumerRoutes(app: Hono) {
+  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
 
   // --- GitHub OAuth ---
 
-  router.get('/auth/github', (req, res) => {
+  app.get('/auth/github', (c) => {
     const clientId = process.env.GITHUB_CLIENT_ID;
     if (!clientId) {
-      res.status(500).send('GitHub OAuth not configured');
-      return;
+      return c.text('GitHub OAuth not configured', 500);
     }
 
     const state = randomBytes(16).toString('hex');
     pendingStates.set(state, { created: Date.now() });
+
+    // Clean up stale states
+    const cutoff = Date.now() - 10 * 60 * 1000;
+    for (const [s, { created }] of pendingStates) {
+      if (created < cutoff) pendingStates.delete(s);
+    }
 
     const params = new URLSearchParams({
       client_id: clientId,
@@ -696,15 +635,15 @@ export function createProsumerRouter(): Router {
       state,
     });
 
-    res.redirect(`https://github.com/login/oauth/authorize?${params}`);
+    return c.redirect(`https://github.com/login/oauth/authorize?${params}`);
   });
 
-  router.get('/auth/github/callback', async (req, res) => {
-    const { code, state } = req.query as Record<string, string>;
+  app.get('/auth/github/callback', async (c) => {
+    const code = c.req.query('code');
+    const state = c.req.query('state');
 
     if (!state || !pendingStates.has(state)) {
-      res.status(400).send('Invalid state');
-      return;
+      return c.text('Invalid state', 400);
     }
     pendingStates.delete(state);
 
@@ -725,8 +664,7 @@ export function createProsumerRouter(): Router {
       const tokenData = await tokenResp.json() as { access_token?: string; error?: string };
 
       if (!tokenData.access_token) {
-        res.status(400).send(`GitHub auth failed: ${tokenData.error || 'no token'}`);
-        return;
+        return c.text(`GitHub auth failed: ${tokenData.error || 'no token'}`, 400);
       }
 
       // Fetch user profile
@@ -748,11 +686,11 @@ export function createProsumerRouter(): Router {
 
       // Create or update account
       const key = `github_${user.id}`;
-      accountsCache = loadAccounts();
-      const existing = accountsCache[key];
+      const accounts = await loadAccounts<AccountStore>();
+      const existing = accounts[key];
       const apiKey = existing?.api_key || generateApiKey();
 
-      accountsCache[key] = {
+      accounts[key] = {
         github_id: user.id,
         github_login: user.login,
         email,
@@ -760,7 +698,7 @@ export function createProsumerRouter(): Router {
         created_at: existing?.created_at || new Date().toISOString(),
         last_session: new Date().toISOString(),
       };
-      saveAccounts(accountsCache);
+      await persistAccounts(accounts);
 
       logEvent('prosumer_signup', {
         github_login: user.login,
@@ -772,103 +710,97 @@ export function createProsumerRouter(): Router {
         await sendWelcomeEmail(email, apiKey);
       }
 
-      // Skip Stripe if user already has payment info on file
-      const existingAccount = accountsCache[key];
-      if (existingAccount?.stripe_customer_id) {
-        res.type('html').send(callbackPageHtml(user.login, apiKey));
-        return;
+      // Skip Stripe if user already has payment info
+      if (accounts[key]?.stripe_customer_id) {
+        return c.html(callbackPageHtml(user.login, apiKey));
       }
 
-      // Redirect to Stripe Checkout — payment info first, then setup command
+      // Redirect to Stripe Checkout
       if (process.env.STRIPE_SECRET_KEY && email) {
         try {
           const checkoutUrl = await createCheckoutSession({
             email,
             githubLogin: user.login,
             apiKey,
-            stripeCustomerId: existingAccount?.stripe_customer_id,
+            stripeCustomerId: accounts[key]?.stripe_customer_id,
           });
           if (checkoutUrl) {
-            res.redirect(checkoutUrl);
-            return;
+            return c.redirect(checkoutUrl);
           }
         } catch (err) {
           console.error('Stripe checkout redirect failed, falling back:', err);
         }
       }
 
-      // Fallback: show callback page directly (if Stripe not configured)
-      res.type('html').send(callbackPageHtml(user.login, apiKey));
+      return c.html(callbackPageHtml(user.login, apiKey));
     } catch (err) {
       console.error('GitHub callback error:', err);
-      res.status(500).send('Authentication failed. Please try again.');
+      return c.text('Authentication failed. Please try again.', 500);
     }
   });
 
   // --- Blueprint ---
 
-  router.get('/blueprint', (req, res) => {
-    const key = extractApiKey(req as any);
+  app.get('/blueprint', async (c) => {
+    const key = extractApiKey(c);
     if (!key) {
-      res.status(401).send('Missing API key. Use: Authorization: Bearer alex_xxx');
-      return;
+      return c.text('Missing API key. Use: Authorization: Bearer alex_xxx', 401);
     }
 
-    const account = findByApiKey(key);
+    const account = await findByApiKey(key);
     if (!account) {
-      res.status(401).send('Invalid API key.');
-      return;
+      return c.text('Invalid API key.', 401);
     }
 
     // Mark as installed on first Blueprint fetch
     if (!account.installed_at) {
-      const storeKey = Object.keys(accountsCache).find(
-        k => accountsCache[k].api_key === key
+      const accounts = await getAccounts();
+      const storeKey = Object.keys(accounts).find(
+        k => accounts[k].api_key === key
       );
       if (storeKey) {
-        accountsCache[storeKey].installed_at = new Date().toISOString();
-        saveAccounts(accountsCache);
+        accounts[storeKey].installed_at = new Date().toISOString();
+        await persistAccounts(accounts);
       }
     }
 
     const blueprint = assembleBlueprint();
     const blueprintHash = createHash('sha256').update(blueprint).digest('hex').slice(0, 16);
-    res.set('X-Hooks-Version', HOOKS_VERSION);
-    res.set('X-Blueprint-Hash', blueprintHash);
-    res.type('text/plain').send(blueprint);
+
+    return new Response(blueprint, {
+      headers: {
+        'Content-Type': 'text/plain',
+        'X-Hooks-Version': HOOKS_VERSION,
+        'X-Blueprint-Hash': blueprintHash,
+      },
+    });
   });
 
   // --- Hook scripts (for auto-update) ---
 
-  router.get('/hooks', (req, res) => {
-    const key = extractApiKey(req as any);
-    if (!key || !findByApiKey(key)) {
-      res.status(401).send('Invalid API key.');
-      return;
+  app.get('/hooks', async (c) => {
+    const key = extractApiKey(c);
+    if (!key || !(await findByApiKey(key))) {
+      return c.text('Invalid API key.', 401);
     }
-
-    // Returns a shell script that overwrites local hook scripts
-    // Called by session-start.sh when HOOKS_VERSION changes
-    const updateScript = generateHookScripts();
-    res.type('text/plain').send(updateScript);
+    return c.text(generateHookScripts());
   });
 
   // --- Session metadata ---
 
-  router.post('/session', (req, res) => {
-    const key = extractApiKey(req as any);
+  app.post('/session', async (c) => {
+    const key = extractApiKey(c);
     if (!key) {
-      res.status(401).json({ error: 'Missing API key' });
-      return;
+      return c.json({ error: 'Missing API key' }, 401);
     }
 
-    const account = findByApiKey(key);
+    const account = await findByApiKey(key);
     if (!account) {
-      res.status(401).json({ error: 'Invalid API key' });
-      return;
+      return c.json({ error: 'Invalid API key' }, 401);
     }
 
-    const { event, platform, constitution_size, vault_entry_count, domains_count, session_duration, constitution_injected, blueprint_fetched } = req.body || {};
+    const body = await c.req.json().catch(() => ({}));
+    const { event, platform, constitution_size, vault_entry_count, domains_count, session_duration, constitution_injected, blueprint_fetched } = body;
 
     logEvent('prosumer_session', {
       event: event || 'unknown',
@@ -882,26 +814,22 @@ export function createProsumerRouter(): Router {
     });
 
     // Update last_session
-    const storeKey = Object.keys(accountsCache).find(
-      k => accountsCache[k].api_key === key
+    const accounts = await getAccounts();
+    const storeKey = Object.keys(accounts).find(
+      k => accounts[k].api_key === key
     );
     if (storeKey) {
-      accountsCache[storeKey].last_session = new Date().toISOString();
-      saveAccounts(accountsCache);
+      accounts[storeKey].last_session = new Date().toISOString();
+      await persistAccounts(accounts);
     }
 
-    res.json({ ok: true });
+    return c.json({ ok: true });
   });
 
   // --- Setup script ---
 
-  router.get('/setup', (req, res) => {
-    // The API key is passed as an argument to bash, not in the URL
-    // Usage: curl -s https://mcp.mowinckel.ai/setup | bash -s alex_xxx
-    // The script reads the key from $1
+  app.get('/setup', (c) => {
     const scriptTemplate = generateSetupScript('$1');
-    res.type('text/plain').send(scriptTemplate);
+    return c.text(scriptTemplate);
   });
-
-  return router;
 }

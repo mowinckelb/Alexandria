@@ -5,9 +5,17 @@
  * The server never retains any data — pure pass-through.
  */
 
-import { google, type drive_v3 } from 'googleapis';
 import { decrypt } from './crypto.js';
 import { logEvent } from './analytics.js';
+import {
+  getAccessToken,
+  driveList,
+  driveGetContent,
+  driveExport,
+  driveCreateFolder,
+  driveCreateFile,
+  driveUpdateFile,
+} from './google.js';
 
 const FOLDER_NAME = 'Alexandria';
 const CONSTITUTION_DIR = 'constitution';
@@ -15,21 +23,16 @@ const VAULT_DIR = 'vault';
 const NOTES_DIR = 'notes';
 const SYSTEM_DIR = 'system';
 
-// Cache folder IDs per token to avoid repeated lookups (in-memory, resets on restart)
+// Cache folder IDs per token to avoid repeated lookups (in-memory, resets on cold start)
 const folderCache = new Map<string, { rootId: string; constitutionId: string; vaultId: string; notesId: string; systemId: string; expires: number }>();
 
-function getDriveClient(encryptedToken: string): drive_v3.Drive {
+async function getToken(encryptedToken: string): Promise<string> {
   const refreshToken = decrypt(encryptedToken);
-  const oauth2 = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-  );
-  oauth2.setCredentials({ refresh_token: refreshToken });
-  return google.drive({ version: 'v3', auth: oauth2 });
+  return getAccessToken(refreshToken);
 }
 
 async function findOrCreateFolder(
-  drive: drive_v3.Drive,
+  accessToken: string,
   name: string,
   parentId?: string,
 ): Promise<string> {
@@ -37,23 +40,13 @@ async function findOrCreateFolder(
     ? `name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`
     : `name='${name}' and mimeType='application/vnd.google-apps.folder' and 'root' in parents and trashed=false`;
 
-  const res = await drive.files.list({ q, fields: 'files(id)', spaces: 'drive' });
-  if (res.data.files && res.data.files.length > 0) {
-    return res.data.files[0].id!;
-  }
+  const files = await driveList(accessToken, q, 'files(id)');
+  if (files.length > 0) return files[0].id;
 
-  const create = await drive.files.create({
-    requestBody: {
-      name,
-      mimeType: 'application/vnd.google-apps.folder',
-      parents: parentId ? [parentId] : undefined,
-    },
-    fields: 'id',
-  });
-  return create.data.id!;
+  return driveCreateFolder(accessToken, name, parentId);
 }
 
-async function ensureFolderStructure(drive: drive_v3.Drive, cacheKey: string): Promise<{
+async function ensureFolderStructure(accessToken: string, cacheKey: string): Promise<{
   rootId: string;
   constitutionId: string;
   vaultId: string;
@@ -65,91 +58,68 @@ async function ensureFolderStructure(drive: drive_v3.Drive, cacheKey: string): P
     return cached;
   }
 
-  const rootId = await findOrCreateFolder(drive, FOLDER_NAME);
+  const rootId = await findOrCreateFolder(accessToken, FOLDER_NAME);
   const [constitutionId, vaultId, notesId, systemId] = await Promise.all([
-    findOrCreateFolder(drive, CONSTITUTION_DIR, rootId),
-    findOrCreateFolder(drive, VAULT_DIR, rootId),
-    findOrCreateFolder(drive, NOTES_DIR, rootId),
-    findOrCreateFolder(drive, SYSTEM_DIR, rootId),
+    findOrCreateFolder(accessToken, CONSTITUTION_DIR, rootId),
+    findOrCreateFolder(accessToken, VAULT_DIR, rootId),
+    findOrCreateFolder(accessToken, NOTES_DIR, rootId),
+    findOrCreateFolder(accessToken, SYSTEM_DIR, rootId),
   ]);
   const result = { rootId, constitutionId, vaultId, notesId, systemId };
   folderCache.set(cacheKey, { ...result, expires: Date.now() + 10 * 60 * 1000 }); // 10 min cache
   return result;
 }
 
-async function findFile(
-  drive: drive_v3.Drive,
-  name: string,
-  parentId: string,
-): Promise<string | null> {
-  const q = `name='${name}' and '${parentId}' in parents and trashed=false`;
-  const res = await drive.files.list({ q, fields: 'files(id)', spaces: 'drive' });
-  if (res.data.files && res.data.files.length > 0) {
-    return res.data.files[0].id!;
-  }
-  return null;
-}
-
 // Google Docs native files require export, not binary download
 const GOOGLE_DOCS_MIME = 'application/vnd.google-apps.document';
 
 async function readFileContent(
-  drive: drive_v3.Drive,
+  accessToken: string,
   fileId: string,
   mimeType?: string,
 ): Promise<string> {
   if (mimeType === GOOGLE_DOCS_MIME) {
-    const res = await drive.files.export(
-      { fileId, mimeType: 'text/plain' },
-      { responseType: 'text' },
-    );
-    return res.data as string;
+    return driveExport(accessToken, fileId, 'text/plain');
   }
-  const res = await drive.files.get(
-    { fileId, alt: 'media' },
-    { responseType: 'text' },
-  );
-  return res.data as string;
+  return driveGetContent(accessToken, fileId);
 }
 
 export async function readConstitutionFile(
   encryptedToken: string,
   domain: string,
 ): Promise<string | null> {
-  const drive = getDriveClient(encryptedToken);
-  const { constitutionId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const accessToken = await getToken(encryptedToken);
+  const { constitutionId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
 
   // Search for both .md files and native Google Docs — prefer .md if both exist
   const q = `'${constitutionId}' in parents and trashed=false and (name='${domain}.md' or name='${domain}')`;
-  const res = await drive.files.list({ q, fields: 'files(id,name,mimeType)', spaces: 'drive' });
-  const files = res.data.files || [];
+  const files = await driveList(accessToken, q, 'files(id,name,mimeType)');
   if (files.length === 0) return null;
   // Prefer .md file over native Google Doc if both exist
   const file = files.find(f => f.name === `${domain}.md`) || files[0];
 
-  return readFileContent(drive, file.id!, file.mimeType || undefined);
+  return readFileContent(accessToken, file.id, file.mimeType || undefined);
 }
 
 export async function readAllConstitution(
   encryptedToken: string,
 ): Promise<Record<string, string>> {
-  const drive = getDriveClient(encryptedToken);
-  const { constitutionId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const accessToken = await getToken(encryptedToken);
+  const { constitutionId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
 
   // List all files in constitution folder in one API call
-  const listRes = await drive.files.list({
-    q: `'${constitutionId}' in parents and trashed=false`,
-    fields: 'files(id,name,mimeType)',
-    spaces: 'drive',
-  });
+  const files = await driveList(
+    accessToken,
+    `'${constitutionId}' in parents and trashed=false`,
+    'files(id,name,mimeType)',
+  );
 
-  const files = listRes.data.files || [];
   if (files.length === 0) return {};
 
   // Read all files in parallel (handle both .md uploads and native Google Docs)
   const reads = files.map(async (f) => {
-    const content = await readFileContent(drive, f.id!, f.mimeType || undefined);
-    const domain = f.name!.replace('.md', '');
+    const content = await readFileContent(accessToken, f.id, f.mimeType || undefined);
+    const domain = f.name.replace('.md', '');
     return [domain, content] as const;
   });
 
@@ -162,41 +132,28 @@ export async function writeConstitutionFile(
   domain: string,
   content: string,
 ): Promise<void> {
-  const drive = getDriveClient(encryptedToken);
-  const { constitutionId, vaultId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const accessToken = await getToken(encryptedToken);
+  const { constitutionId, vaultId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
   const fileName = `${domain}.md`;
 
-  const existingId = await findFile(drive, fileName, constitutionId);
+  const existing = await driveList(
+    accessToken,
+    `name='${fileName}' and '${constitutionId}' in parents and trashed=false`,
+    'files(id)',
+  );
 
-  if (existingId) {
+  if (existing.length > 0) {
+    const existingId = existing[0].id;
     // Archive and update in parallel
-    const current = await drive.files.get(
-      { fileId: existingId, alt: 'media' },
-      { responseType: 'text' },
-    );
+    const current = await driveGetContent(accessToken, existingId);
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
     await Promise.all([
-      drive.files.create({
-        requestBody: {
-          name: `${domain}_${timestamp}.md`,
-          parents: [vaultId],
-        },
-        media: { mimeType: 'text/markdown', body: current.data as string },
-      }),
-      drive.files.update({
-        fileId: existingId,
-        media: { mimeType: 'text/markdown', body: content },
-      }),
+      driveCreateFile(accessToken, `${domain}_${timestamp}.md`, vaultId, current),
+      driveUpdateFile(accessToken, existingId, content),
     ]);
   } else {
-    await drive.files.create({
-      requestBody: {
-        name: fileName,
-        parents: [constitutionId],
-      },
-      media: { mimeType: 'text/markdown', body: content },
-    });
+    await driveCreateFile(accessToken, fileName, constitutionId, content);
   }
 }
 
@@ -216,40 +173,36 @@ export async function readNotepad(
   encryptedToken: string,
   functionName: string,
 ): Promise<string | null> {
-  const drive = getDriveClient(encryptedToken);
-  const { notesId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
-  const fileId = await findFile(drive, `${functionName}.md`, notesId);
-  if (!fileId) return null;
-
-  const res = await drive.files.get(
-    { fileId, alt: 'media' },
-    { responseType: 'text' },
+  const accessToken = await getToken(encryptedToken);
+  const { notesId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
+  const files = await driveList(
+    accessToken,
+    `name='${functionName}.md' and '${notesId}' in parents and trashed=false`,
+    'files(id)',
   );
-  return res.data as string;
+  if (files.length === 0) return null;
+
+  return driveGetContent(accessToken, files[0].id);
 }
 
 export async function readAllNotepads(
   encryptedToken: string,
 ): Promise<Array<{ name: string; content: string }>> {
-  const drive = getDriveClient(encryptedToken);
-  const { notesId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const accessToken = await getToken(encryptedToken);
+  const { notesId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
 
-  const listRes = await drive.files.list({
-    q: `'${notesId}' in parents and trashed=false and mimeType='text/markdown'`,
-    fields: 'files(id,name)',
-    spaces: 'drive',
-  });
+  const files = await driveList(
+    accessToken,
+    `'${notesId}' in parents and trashed=false and mimeType='text/markdown'`,
+    'files(id,name)',
+  );
 
-  const files = listRes.data.files || [];
   if (files.length === 0) return [];
 
   const results = await Promise.all(
     files.map(async (f) => {
-      const res = await drive.files.get(
-        { fileId: f.id!, alt: 'media' },
-        { responseType: 'text' },
-      );
-      return { name: f.name!.replace(/\.md$/, ''), content: res.data as string };
+      const content = await driveGetContent(accessToken, f.id);
+      return { name: f.name.replace(/\.md$/, ''), content };
     }),
   );
   return results.filter(r => r.content);
@@ -260,24 +213,19 @@ export async function writeNotepad(
   functionName: string,
   content: string,
 ): Promise<void> {
-  const drive = getDriveClient(encryptedToken);
-  const { notesId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const accessToken = await getToken(encryptedToken);
+  const { notesId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
   const fileName = `${functionName}.md`;
-  const existingId = await findFile(drive, fileName, notesId);
+  const existing = await driveList(
+    accessToken,
+    `name='${fileName}' and '${notesId}' in parents and trashed=false`,
+    'files(id)',
+  );
 
-  if (existingId) {
-    await drive.files.update({
-      fileId: existingId,
-      media: { mimeType: 'text/markdown', body: content },
-    });
+  if (existing.length > 0) {
+    await driveUpdateFile(accessToken, existing[0].id, content);
   } else {
-    await drive.files.create({
-      requestBody: {
-        name: fileName,
-        parents: [notesId],
-      },
-      media: { mimeType: 'text/markdown', body: content },
-    });
+    await driveCreateFile(accessToken, fileName, notesId, content);
   }
 }
 
@@ -285,16 +233,16 @@ export async function readSystemFile(
   encryptedToken: string,
   fileName: string,
 ): Promise<string | null> {
-  const drive = getDriveClient(encryptedToken);
-  const { systemId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
-  const fileId = await findFile(drive, `${fileName}.md`, systemId);
-  if (!fileId) return null;
-
-  const res = await drive.files.get(
-    { fileId, alt: 'media' },
-    { responseType: 'text' },
+  const accessToken = await getToken(encryptedToken);
+  const { systemId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
+  const files = await driveList(
+    accessToken,
+    `name='${fileName}.md' and '${systemId}' in parents and trashed=false`,
+    'files(id)',
   );
-  return res.data as string;
+  if (files.length === 0) return null;
+
+  return driveGetContent(accessToken, files[0].id);
 }
 
 export async function appendSystemFile(
@@ -302,63 +250,42 @@ export async function appendSystemFile(
   fileName: string,
   content: string,
 ): Promise<void> {
-  const drive = getDriveClient(encryptedToken);
-  const { systemId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const accessToken = await getToken(encryptedToken);
+  const { systemId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
   const fullName = `${fileName}.md`;
-  const existingId = await findFile(drive, fullName, systemId);
+  const existing = await driveList(
+    accessToken,
+    `name='${fullName}' and '${systemId}' in parents and trashed=false`,
+    'files(id)',
+  );
 
-  if (existingId) {
-    const current = await drive.files.get(
-      { fileId: existingId, alt: 'media' },
-      { responseType: 'text' },
-    );
-    const updated = `${current.data as string}\n\n${content}`;
-    await drive.files.update({
-      fileId: existingId,
-      media: { mimeType: 'text/markdown', body: updated },
-    });
+  if (existing.length > 0) {
+    const current = await driveGetContent(accessToken, existing[0].id);
+    const updated = `${current}\n\n${content}`;
+    await driveUpdateFile(accessToken, existing[0].id, updated);
   } else {
-    await drive.files.create({
-      requestBody: {
-        name: fullName,
-        parents: [systemId],
-      },
-      media: { mimeType: 'text/markdown', body: content },
-    });
+    await driveCreateFile(accessToken, fullName, systemId, content);
   }
 }
 
 /**
  * Read all vault captures for a domain (or all domains).
- * Returns array of {domain, timestamp, content} sorted by time.
- * This closes the reprocessing loop: future models read vault
- * captures and promote the best material to Constitution.
  */
 export async function readVaultCaptures(
   encryptedToken: string,
   domain?: string,
 ): Promise<Array<{ name: string; content: string }>> {
-  const drive = getDriveClient(encryptedToken);
-  const { vaultId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const accessToken = await getToken(encryptedToken);
+  const { vaultId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
 
-  // List vault files, optionally filtered by domain prefix
   const q = domain
     ? `'${vaultId}' in parents and name contains '${domain}_' and trashed=false`
     : `'${vaultId}' in parents and trashed=false`;
 
-  const listRes = await drive.files.list({
-    q,
-    fields: 'files(id,name,mimeType)',
-    spaces: 'drive',
-    orderBy: 'name',
-  });
-
-  const files = listRes.data.files || [];
+  const files = await driveList(accessToken, q, 'files(id,name,mimeType)', { orderBy: 'name' });
   if (files.length === 0) return [];
 
-  // Blacklist known-binary mimeTypes. Everything else we attempt to read
-  // as text — biased toward reading, consistent with zero false negatives.
-  // (Google Drive sometimes assigns application/octet-stream to .md files.)
+  // Blacklist known-binary mimeTypes
   const BINARY_PREFIXES = ['image/', 'video/', 'audio/'];
   const BINARY_TYPES = new Set([
     'application/pdf', 'application/zip', 'application/gzip',
@@ -375,16 +302,12 @@ export async function readVaultCaptures(
   const binary = files.filter(f => isBinary(f.mimeType || ''));
 
   const reads = readable.map(async (f) => {
-    const res = await drive.files.get(
-      { fileId: f.id!, alt: 'media' },
-      { responseType: 'text' },
-    );
-    return { name: f.name!, content: res.data as string };
+    const content = await driveGetContent(accessToken, f.id);
+    return { name: f.name, content };
   });
 
-  // Include binary files as metadata-only entries so the Engine knows they exist
   const binaryEntries = binary.map(f => ({
-    name: f.name!,
+    name: f.name,
     content: `[Binary file — ${f.mimeType || 'unknown type'}. Cannot be read as text. The Author placed this in the Vault; acknowledge it but note it cannot be processed directly.]`,
   }));
 
@@ -393,27 +316,18 @@ export async function readVaultCaptures(
 
 /**
  * Write a raw capture directly to the Vault.
- * Liberal capture — zero false negatives. Cost of noise is trivial
- * (bigger MD file). Cost of lost signal is permanent.
- * Future models reprocess the Vault and promote signal to Constitution.
  */
 export async function writeVaultCapture(
   encryptedToken: string,
   domain: string,
   content: string,
 ): Promise<void> {
-  const drive = getDriveClient(encryptedToken);
-  const { vaultId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const accessToken = await getToken(encryptedToken);
+  const { vaultId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const fileName = `${domain}_${timestamp}.md`;
 
-  await drive.files.create({
-    requestBody: {
-      name: fileName,
-      parents: [vaultId],
-    },
-    media: { mimeType: 'text/markdown', body: content },
-  });
+  await driveCreateFile(accessToken, fileName, vaultId, content);
 
   // Record this filename so vault intake knows the server created it
   recordVaultCreated(encryptedToken, fileName).catch((err) => {
@@ -423,35 +337,29 @@ export async function writeVaultCapture(
 }
 
 /**
- * List vault files with metadata (name, size, mimeType) without downloading content.
- * Used to detect unprocessed user-dropped files vs tool-created captures.
+ * List vault files with metadata without downloading content.
  */
 export async function listVaultFiles(
   encryptedToken: string,
 ): Promise<Array<{ id: string; name: string; mimeType: string; size: string }>> {
-  const drive = getDriveClient(encryptedToken);
-  const { vaultId } = await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const accessToken = await getToken(encryptedToken);
+  const { vaultId } = await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
 
-  const listRes = await drive.files.list({
-    q: `'${vaultId}' in parents and trashed=false`,
-    fields: 'files(id,name,mimeType,size)',
-    spaces: 'drive',
-    orderBy: 'createdTime desc',
-    pageSize: 100,
-  });
+  const files = await driveList(
+    accessToken,
+    `'${vaultId}' in parents and trashed=false`,
+    'files(id,name,mimeType,size)',
+    { orderBy: 'createdTime desc', pageSize: 100 },
+  );
 
-  return (listRes.data.files || []).map(f => ({
-    id: f.id!,
-    name: f.name!,
+  return files.map(f => ({
+    id: f.id,
+    name: f.name,
     mimeType: f.mimeType || 'unknown',
     size: f.size || '0',
   }));
 }
 
-/**
- * Read a system tracker file (vault-created or vault-processed).
- * Returns a Set of filenames stored as newline-separated entries.
- */
 async function readVaultTracker(
   encryptedToken: string,
   trackerName: string,
@@ -461,9 +369,6 @@ async function readVaultTracker(
   return new Set(content.split('\n').map(l => l.trim()).filter(Boolean));
 }
 
-/**
- * Append filenames to a system tracker file.
- */
 async function appendVaultTracker(
   encryptedToken: string,
   trackerName: string,
@@ -473,11 +378,6 @@ async function appendVaultTracker(
   await appendSystemFile(encryptedToken, trackerName, fileNames.join('\n'));
 }
 
-/**
- * Record a vault filename as server-created.
- * Called by writeVaultCapture so we can distinguish tool-created files
- * from Author-dropped files without pattern matching.
- */
 export async function recordVaultCreated(
   encryptedToken: string,
   fileName: string,
@@ -485,9 +385,6 @@ export async function recordVaultCreated(
   await appendVaultTracker(encryptedToken, 'vault-created', [fileName]);
 }
 
-/**
- * Mark vault files as processed (already surfaced to the Engine).
- */
 export async function markVaultFilesProcessed(
   encryptedToken: string,
   fileNames: string[],
@@ -495,14 +392,6 @@ export async function markVaultFilesProcessed(
   await appendVaultTracker(encryptedToken, 'vault-processed', fileNames);
 }
 
-/**
- * Detect unprocessed vault files — files the Author dropped directly,
- * not created by the server and not yet surfaced to the Engine.
- *
- * Uses two trackers: vault-created (files the server wrote) and
- * vault-processed (files already surfaced). No pattern matching —
- * zero false negatives guaranteed.
- */
 export async function getUnprocessedVaultFiles(
   encryptedToken: string,
 ): Promise<Array<{ id: string; name: string; mimeType: string; size: string }>> {
@@ -520,6 +409,6 @@ export async function getUnprocessedVaultFiles(
 export async function initializeFolderStructure(
   encryptedToken: string,
 ): Promise<void> {
-  const drive = getDriveClient(encryptedToken);
-  await ensureFolderStructure(drive, encryptedToken.slice(0, 16));
+  const accessToken = await getToken(encryptedToken);
+  await ensureFolderStructure(accessToken, encryptedToken.slice(0, 16));
 }

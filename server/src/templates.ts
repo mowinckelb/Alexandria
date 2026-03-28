@@ -3,8 +3,8 @@
  * Extracted to break circular dependency between prosumer.ts and billing.ts.
  */
 
-const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
-const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+function getServerUrl() { return process.env.SERVER_URL || 'https://mcp.mowinckel.ai'; }
+function getWebsiteUrl() { return process.env.WEBSITE_URL || 'https://mowinckel.ai'; }
 
 // ---------------------------------------------------------------------------
 // Inline SVG icons — small enough to inline, no external deps
@@ -20,6 +20,8 @@ const ICON_INFO = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" s
 // ---------------------------------------------------------------------------
 
 export function callbackPageHtml(login: string, apiKey: string): string {
+  const SERVER_URL = getServerUrl();
+  const WEBSITE_URL = getWebsiteUrl();
   const curlCmd = `curl -s ${SERVER_URL}/setup | bash -s ${apiKey}`;
   return `<!DOCTYPE html>
 <html lang="en">

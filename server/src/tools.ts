@@ -48,44 +48,7 @@ import { logEvent, getRecentEvents } from './analytics.js';
 // Write retry queue — bridge plumbing
 // ---------------------------------------------------------------------------
 
-interface PendingWrite {
-  token: string;
-  domain: string;
-  content: string;
-  attempts: number;
-}
-
-const writeQueue: PendingWrite[] = [];
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 5000;
-
-async function processWriteQueue() {
-  if (writeQueue.length === 0) return;
-
-  const item = writeQueue.shift()!;
-  try {
-    await appendToConstitutionFile(item.token, item.domain, item.content);
-    console.log(`[retry-queue] Written to ${item.domain} (attempt ${item.attempts + 1})`);
-  } catch (err) {
-    if (item.attempts < MAX_RETRIES) {
-      item.attempts++;
-      writeQueue.push(item);
-      console.error(`[retry-queue] Failed ${item.domain} attempt ${item.attempts}, will retry:`, err);
-    } else {
-      console.error(`[retry-queue] DROPPED write to ${item.domain} after ${MAX_RETRIES} attempts:`, err);
-      logEvent('write_dropped', { domain: item.domain, attempts: String(item.attempts), error: String(err) });
-    }
-  }
-}
-
-setInterval(processWriteQueue, RETRY_DELAY_MS);
-
-function enqueueWrite(token: string, domain: string, content: string) {
-  appendToConstitutionFile(token, domain, content).catch(() => {
-    writeQueue.push({ token, domain, content, attempts: 1 });
-    console.error(`[write] Failed initial write to ${domain}, queued for retry`);
-  });
-}
+// Write retry queue removed — withAuthGuard handles errors inline.
 
 // ---------------------------------------------------------------------------
 // Auth error detection — catches expired Google tokens
