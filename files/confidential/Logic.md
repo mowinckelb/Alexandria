@@ -224,7 +224,7 @@ P37. Both layers are the same product, same architecture, same user at different
 
 (Settled. The structure is architectural.)
 
-P38. The cost base is near-zero. Solo founder. All employees are ai agents. Company opex: $102/month — Claude Max $100, Fly.io ~$2. Everything else is free tier or owned. As models improve, every function of the company improves.
+P38. The cost base is near-zero. Solo founder. All employees are ai agents. Company opex: $100/month — one Claude subscription. Everything else is free tier. Seven dependencies, all CLI-controllable by ai agents. The entire company runs autonomously — deploys, DNS, monitoring, email, billing — with zero human intervention. As models improve, every function of the company improves.
 
 (Settled. Factual.)
 
@@ -246,7 +246,7 @@ P41. Each risk has a price tag. Rung 1 (~$50K) answers all four existential ques
 
 (Settled. The structure is factual. Whether the answers are positive is the experiment.)
 
-P42. The company does not need the money. $102/month opex. The founder builds regardless. Capital accelerates the experiment, it does not enable the company.
+P42. The company does not need the money. $100/month opex. The founder builds regardless. Capital accelerates the experiment, it does not enable the company.
 
 (Settled. Factual.)
 

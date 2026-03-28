@@ -14,12 +14,11 @@
 | Food | $260 | OMAD-1 (one fasted day/week), $10/day |
 | Claude Max | $100 | anthropic.com |
 | iCloud, Apple Music, Tello | $28 | |
-| Fly.io | $2 | shared-cpu-1x + 1GB volume |
-| **Bare minimum** | **$390** | |
+| **Bare minimum** | **$388** | |
 | **Safe monthly (incl. buffer)** | **$5,000** | Covers rent (when needed), travel, unexpected |
 | **Safe annual** | **$60,000** | |
 
-Free stack: GitHub, Vercel, Cloudflare, Resend, Stripe, Claude Code.
+Free stack: GitHub, Vercel, Cloudflare (Workers + KV + DNS + email), Stripe, Google Cloud, Claude Code. Company opex = Claude Max ($100). Everything else is free tier. Seven dependencies, all CLI-controllable.
 
 ---
 

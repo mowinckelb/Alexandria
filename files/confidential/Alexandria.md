@@ -56,7 +56,7 @@ This is a bet about incentives, not a wall. If the bet is wrong, Alexandria need
 
 ### The Economics
 
-**You cannot kill this company.** Company opex is $102/month — Claude Max $100, Fly.io ~$2. No payroll, no compute, no storage, no database. The user's own ai subscription covers inference. The user's own cloud covers storage. Solo founder with ai agents. Break-even at 21 subscribers paying $5/month. There is no burn rate to outrun.
+**You cannot kill this company.** Company opex is $100/month — one Claude subscription. Everything else is free tier. No payroll, no compute, no storage costs, no database. The user's own ai subscription covers inference. The user's own cloud covers storage. Solo founder with ai agents that autonomously handle deploys, DNS, monitoring, email, and billing infrastructure. Break-even at 21 subscribers paying $5/month. There is no burn rate to outrun.
 
 **Growth hypothesis.** Kin pricing — each user's price drops if they have 3+ active referrals. Structural pressure on both acquisition and retention. If it works, 25 founding seeds compound exponentially at near-zero marginal CAC. If it doesn't, the first rung of capital buys the answer.
 
@@ -91,7 +91,7 @@ The company has four unresolved risks. Each has a price tag.
 
 **~$1M+** is Mental Gym conversion at scale and international expansion.
 
-Each rung purchases the next tier of de-risking. The founder builds regardless — $102/month opex. Capital accelerates the experiment.
+Each rung purchases the next tier of de-risking. The founder builds regardless — $100/month opex. Capital accelerates the experiment.
 
 ---
 
