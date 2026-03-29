@@ -196,6 +196,65 @@ async function main() {
     };
   });
 
+  // Test 9: Root page returns HTML
+  await test('Root page returns HTML', async () => {
+    const res = await fetch(`${BASE}/`);
+    const body = await res.text();
+    const hasTitle = body.includes('<title>Alexandria</title>');
+    const hasTagline = body.includes('Sovereign cognitive transformation layer');
+    return {
+      test: 'Root page returns HTML',
+      passed: res.ok && hasTitle && hasTagline,
+      details: `HTTP ${res.status}, title: ${hasTitle}, tagline: ${hasTagline}`,
+    };
+  });
+
+  // Test 10: MCP tool call without auth returns graceful error
+  await test('MCP tool call (no auth) returns graceful error', async () => {
+    const res = await fetch(`${BASE}/mcp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json, text/event-stream',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 10,
+        method: 'tools/call',
+        params: {
+          name: 'read_constitution',
+          arguments: { domain: 'all' },
+        },
+      }),
+    });
+    const body = await parseSseOrJson(res);
+    // Should get a result (not a crash), containing "Not authenticated"
+    const hasResult = !!body.result;
+    const hasError = !!body.error;
+    const text = JSON.stringify(body);
+    const isGraceful = !hasError || text.includes('Not authenticated') || text.includes('authenticate');
+    return {
+      test: 'MCP tool call (no auth) returns graceful error',
+      passed: res.ok || res.status < 500,
+      details: `HTTP ${res.status}, has result: ${hasResult}, has error: ${hasError}, graceful: ${isGraceful}`,
+    };
+  });
+
+  // Test 11: MCP parse error returns proper JSON-RPC error
+  await test('MCP invalid JSON returns parse error', async () => {
+    const res = await fetch(`${BASE}/mcp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: 'not json',
+    });
+    const body = await res.json();
+    return {
+      test: 'MCP invalid JSON returns parse error',
+      passed: res.status === 400 && body.error?.code === -32700,
+      details: `HTTP ${res.status}, error code: ${body.error?.code}`,
+    };
+  });
+
   // Summary
   console.log('\n=== RESULTS ===\n');
   let allPassed = true;

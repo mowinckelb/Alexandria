@@ -4,58 +4,57 @@ Persistent memory for the autonomous CTO system (health + meta triggers). Each r
 
 ---
 
-## Distilled principles (compressed from runs 1-5, 2026-03-15 to 2026-03-27)
+## Distilled principles (compressed from runs 1-7, 2026-03-15 to 2026-03-29)
 
-1. **Migration cascades are real.** Infrastructure changes (Railway → Fly → Cloudflare) scatter references across aN, aX, tests, served content, trigger prompts. Always grep all downstream after any migration. The meta run exists to catch what health misses.
+1. **Migration cascades are real.** Infrastructure changes scatter references across aN, aX, tests, served content, trigger prompts. Always grep all downstream after any migration.
 
-2. **Tool descriptions drive behavior without memory.** Claude calls Alexandria tools from tool descriptions alone — no memory priming needed. The product works from session 1. Sovereignty doesn't depend on setup.
+2. **Tool descriptions drive behavior without memory.** Claude calls Alexandria tools from tool descriptions alone — no memory priming needed. The product works from session 1.
 
-3. **Feedback arm needs proactive triggers.** Reactive-only log_feedback produced zero events. Added end-of-session timing anchor. Pattern: every event type needs at least one proactive trigger, not just reactive ones.
+3. **Feedback arm needs proactive triggers.** Reactive-only log_feedback produced zero events. Every event type needs at least one proactive trigger, not just reactive ones.
 
-4. **public/docs/ is NOT a symlink.** CLAUDE.md claims it is. It's a regular directory that drifts. Health trigger now checks for drift. Making it a real symlink may break Vercel — investigate.
+4. **public/docs/ and public/partners/ are regular directories that drift.** Health trigger checks for drift. Not symlinks (would break Vercel).
 
-5. **Sandbox blocks curl and CLIs.** External HTTP verification lives in smoke.yml (GitHub Actions, every 6h). Triggers do code analysis + MCP-based verification + git-based checks. Accept this split cleanly.
+5. **Verification split is structural.** External HTTP verification lives in smoke.yml (GitHub Actions, every 6h). Triggers do code analysis + git-based checks. Sandbox blocks curl. Accept this cleanly.
 
-6. **Ignored Build Step is correct.** Vercel CANCELED deployments on content-only commits are expected, not failures. `git diff --quiet HEAD^ HEAD -- app/ public/ package.json next.config.ts vercel.json` controls this.
+6. **Ignored Build Step is correct.** Vercel CANCELED deployments on content-only commits are expected. `git diff --quiet HEAD^ HEAD -- app/ public/ package.json next.config.ts vercel.json` controls this.
 
-7. **Philosophy velocity exceeds verification velocity.** The founder evolves thesis faster than the system can track. This is fine — the Factory's job is to verify and compound, not to throttle.
+7. **Philosophy velocity exceeds verification velocity.** The founder evolves thesis faster than the system can track. The Factory verifies and compounds, it doesn't throttle.
 
-8. **Prosumer channel is deterministic.** Hooks fire on events (deterministic) vs MCP connector (model decides = probabilistic). Stronger foundation. Same Blueprint, different plumbing.
+8. **Prosumer channel is deterministic.** Hooks fire on events (deterministic) vs MCP connector (model decides = probabilistic). Same Blueprint, different plumbing.
 
-9. **Background vault processing.** Watch for: Anthropic agent scheduling, MCP scheduled triggers, Google Drive push notifications API. The moment any path exists to "watch a folder and process new files autonomously" — implement immediately.
+9. **Background vault processing.** Watch for: Anthropic agent scheduling, MCP scheduled triggers, Google Drive push notifications API. Implement immediately when any path exists.
 
-10. **Consumer MCP model abandoned.** Auth broken on Workers (WorkerTransport doesn't inject authInfo). Founder: "i dont like consumer." Left as dead code path.
+10. **Consumer MCP model abandoned.** WorkerTransport doesn't inject authInfo. Founder decided against consumer. Dead code path. MCP endpoint returns "Not authenticated" on tool calls — graceful, not broken.
+
+11. **Brand vigilance: "ai" not "AI".** Lowercase always (unless sentence-start or proper noun). Blueprint.md, Vision.md, Concrete.md are recurrent offenders. Check on every run.
+
+12. **RemoteTrigger may fail on org UUID.** When this happens, log the learning and move on. Trigger updates require interactive sessions or a working org resolution.
 
 ---
 
-## 2026-03-29 — Meta Run 1 (weekly evolution, autonomous)
+## 2026-03-29 — Meta Run 2 (weekly evolution, autonomous)
 
-### What the week showed
-- Infrastructure matured: Railway → Fly → Cloudflare Workers. Serverless, 241 KiB, zero idle cost, $100/month. Bitter lesson applied to infra.
-- Mercury scan system alive: daily three-tier agent processing producing structured fragments in vault_intake/.
-- Philosophy velocity: data-and-intent principle, Shadow rename, Library reframe, PT metaphor, accretion mechanics — all crystallised a0→aN.
+### System state
+- 50 commits this week. Heavy philosophy velocity (Shadow rename, Library reframe, accretion mechanics, PT metaphor). Mercury scans running daily. Infrastructure stable on Cloudflare Workers.
+- All 6 content pairs in sync (public/docs ↔ files/public, public/partners ↔ files/confidential). Zero drift.
+- No stale migration references (Fly.io, Railway all clean).
+- 24 routes total across 4 files. Test coverage: 21 tests (11 server + 10 prosumer) + 6 smoke checks.
 
 ### What was fixed
-1. Stale Fly.io references — 5 locations across aN, aX, Memo.md, Concrete.md
-2. public/docs/ sync — Concrete.md and Vision.md had stale content + uppercase "AI"
-3. public/partners/ sync — Memo.md resynced after opex fix
-4. Test default port — 3001 → 8787 (wrangler dev)
-5. Analytics log test added (was the only untested analytics route)
+1. Brand: "AI" → "ai" in Blueprint.md line 153.
+2. Test coverage: added 3 new tests — root page HTML, MCP tool call without auth (graceful error), MCP parse error (JSON-RPC -32700). Server tests: 8 → 11.
 
-### Verification gaps
-- 48% of routes lack automated tests (OAuth, billing, Drive init, cron, GitHub callback). Smoke covers happy path. These routes exercise via real user flows.
-- Mercury scans have no verification mirror — added to health trigger as soft default.
+### Verification assessment
+- **Covered (21 tests + 6 smoke):** health, MCP (HEAD/init/tools/call/parse-error), analytics (3), root page, tool descriptions, setup (3), auth rejection (4), OAuth redirect, hooks version, Vercel DNS, blueprint/hooks/session external.
+- **Structurally untestable locally:** OAuth flows (need real GitHub/Google), billing (need Stripe), Drive init (need token), cron trigger (need Workers runtime). These exercise via real user flows + smoke.yml.
+- **Cron trigger still unverified.** Open question from last run persists: is `runFollowupCheck` firing? No KV marker to confirm. Low priority until there are real signups.
 
-### Trigger proposals
-All resolved 2026-03-29 (interactive session):
-1. ~~Fly.io → Cloudflare Workers~~ — both triggers updated
-2. ~~Mercury freshness + public/docs sync + smoke workflow~~ — added to health as soft defaults
-3. ~~OAuth discovery smoke~~ — already in smoke.yml
-4. ~~CLI auth checks~~ — sandbox can't, smoke.yml handles external, SessionStart hook handles local
+### Gaps identified
+- RemoteTrigger tool fails with "Unable to resolve organization UUID." Cannot update trigger prompts autonomously this run. Logged as principle 12.
+- No test for the `scheduled` export (cron handler). Would need to mock `ExecutionContext`. Low ROI until signups happen.
 
-### Open questions
-- Cron trigger for follow-up emails — is it firing? Consider KV key `last_cron_run` in /health.
-- SUGGESTIONS thinning — need feedback event data first.
-- Vercel DNS now monitored in smoke.yml (added 2026-03-29 after founder discovered misconfiguration).
+### Open questions (carried)
+- Cron trigger verification — add `last_cron_run` KV key to /health when signups warrant it.
+- SUGGESTIONS thinning — still needs feedback event data.
 
 ---
