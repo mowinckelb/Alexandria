@@ -77,7 +77,7 @@ When Benjamin develops new thinking, capture in a0 first, then crystallise into 
 The founder's experience building Alexandria mirrors what the product does for users. Lessons from working with Benjamin that are transferable to the product go into `files/private/Blueprint.md` and inform Factory soft defaults. The process of building the company IS R&D for the product.
 
 ### 4. Factory Loop (product — cross-Author)
-Alexandria gets better at working with ALL Authors. Anonymous event log → dashboard → soft default improvements → Blueprint refinement. Trigger: `.github/workflows/factory.yml` (manual `workflow_dispatch`). Dashboard: `GET /analytics/dashboard`.
+Alexandria gets better at working with ALL Authors. Anonymous event log → dashboard → soft default improvements → Blueprint refinement. Trigger: Claude Code remote trigger (daily, founder's subscription — internal tokens). Dashboard: `GET /analytics/dashboard`.
 
 ### 5. Machine Loop (product — per-Author)
 Each Author's Machine compounds through usage. Constitution deepens, feedback log accumulates, Engine improves per-Author. Data lives on Author's own Drive.
