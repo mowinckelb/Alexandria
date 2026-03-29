@@ -79,15 +79,12 @@ No automated check that mercury scans are running. The daily health trigger shou
 
 ### Trigger proposals
 
-1. **Update both trigger descriptions**: change infrastructure references from "Railway"/"Fly.io" to "Cloudflare Workers." The meta trigger (trig_016JnsH1uWgmmSBsHKKjQme9) SYSTEM section says "Pushing to main auto-deploys server (Fly.io)" — should say "Pushing to main auto-deploys server (Cloudflare Workers)." Same for health trigger (trig_015ApYg8MYDKUND1oWcM9iju). Proposed change:
-   - Trigger: `trig_016JnsH1uWgmmSBsHKKjQme9` (meta), field: `SYSTEM`, value: replace "Fly.io" with "Cloudflare Workers"
-   - Trigger: `trig_015ApYg8MYDKUND1oWcM9iju` (health), field: `SYSTEM`, value: replace "Railway" and/or "Fly.io" with "Cloudflare Workers"
-
-2. **Add mercury freshness check to health trigger.** The daily health run should check `git log --oneline --since='48 hours ago' --grep='mercury:'` and flag if no mercury commits are found. This is a thin mirror for the mercury scan system. Proposed addition to health trigger instructions.
-
-3. **Add public/docs sync check to health trigger.** Compare `files/public/*.md` against `public/docs/*.md` and flag any drift. Or better: investigate making public/docs/ an actual symlink.
-
-4. **Add OAuth discovery smoke test.** `GET /.well-known/oauth-authorization-server` should return valid JSON with `authorization_endpoint` and `token_endpoint`. No credentials needed. Add to smoke.sh and smoke.yml.
+All resolved 2026-03-29 (interactive session):
+1. ~~Fly.io → Cloudflare Workers~~ — both triggers updated.
+2. ~~Mercury freshness check~~ — added to health trigger as soft default.
+3. ~~public/docs sync check~~ — added to health trigger as soft default.
+4. ~~OAuth discovery smoke test~~ — already in smoke.yml.
+5. ~~Smoke workflow check~~ — added `gh run list` to health trigger as soft default.
 
 ### Open questions for next meta run
 - Is public/docs/ supposed to be a symlink? If Vercel serves from it, a symlink might not work (Vercel may need the actual files). Investigate.
@@ -151,9 +148,11 @@ No security vulnerabilities found. Shell scripts use `'HEREDOC'` (no interpolati
 - The prosumer system introduces `accounts.json` on the Fly volume. Is the volume persisting correctly across deploys? Check dashboard for session events from prosumer users.
 
 ### Trigger proposals
-- (Repeated from Run 3, still pending) Update `health` trigger description: change "Railway" to "Fly.io" in the SYSTEM section.
-- Consider adding a trigger proposal: give the health trigger access to Alexandria MCP tools so it can verify the live server directly. Two consecutive runs (4, 5) have been unable to do live verification.
-- **CLI auth health checks (added 2026-03-27).** The daily health run must verify all CLI dependencies are authenticated and functional. Run one real operation per CLI: `gh api user`, `stripe products list --limit 1`, `wrangler whoami`, `gcloud auth list`, `flyctl status --app alexandria-mcp`, `vercel project ls`. If any fails, create a GitHub issue with `[ALERT]` label. Stripe CLI tokens expire every 90 days — this is the only silent-death risk in the stack. The health run catches it before it matters.
+
+All resolved 2026-03-29 (interactive session):
+- ~~Railway → Fly.io → Cloudflare Workers~~ — both triggers updated.
+- ~~Alexandria MCP access~~ — health trigger already has MCP connections (confirmed).
+- ~~CLI auth checks~~ — sandbox can't run CLIs. External verification is smoke.yml (GitHub Actions). CLI auth verified locally via SessionStart hook on founder's machine. No trigger change needed.
 
 ---
 
