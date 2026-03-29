@@ -63,3 +63,19 @@ jobs:
             exit 1
           fi
           echo "✓ session OK"
+
+      - name: Vercel DNS
+        run: |
+          # Root domain should resolve to Vercel and return 200
+          status=$(curl -s -o /dev/null -w '%{http_code}' https://mowinckel.ai)
+          if [ "$status" -lt 200 ] || [ "$status" -ge 400 ]; then
+            echo "::error::mowinckel.ai returned HTTP $status — DNS or Vercel misconfigured"
+            exit 1
+          fi
+          # www should also work
+          www_status=$(curl -s -o /dev/null -w '%{http_code}' https://www.mowinckel.ai)
+          if [ "$www_status" -lt 200 ] || [ "$www_status" -ge 400 ]; then
+            echo "::error::www.mowinckel.ai returned HTTP $www_status"
+            exit 1
+          fi
+          echo "✓ vercel DNS OK (root=$status, www=$www_status)"
