@@ -37,11 +37,18 @@ export default function PatronPage() {
     setAmount(parseInt(e.target.value, 10));
   };
 
-  const handlePatron = () => {
-    // TODO: Replace with Stripe payment link or checkout session URL.
-    // Recurring monthly. Pass amount as parameter.
-    const url = `https://buy.stripe.com/placeholder?amount=${amount}`;
-    window.open(url, '_blank');
+  const [loading, setLoading] = useState(false);
+
+  const handlePatron = async () => {
+    setLoading(true);
+    const res = await fetch('/api/patron', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount }),
+    });
+    const { url } = await res.json();
+    if (url) window.location.href = url;
+    setLoading(false);
   };
 
   return (
@@ -92,10 +99,11 @@ export default function PatronPage() {
             {/* CTA */}
             <button
               onClick={handlePatron}
-              className="bg-transparent border-none cursor-pointer p-0 transition-opacity hover:opacity-60"
+              disabled={loading}
+              className="bg-transparent border-none cursor-pointer p-0 transition-opacity hover:opacity-60 disabled:opacity-30"
               style={{ color: 'var(--text-primary)', fontSize: '1.05rem', fontFamily: 'inherit', letterSpacing: '0.025em', fontWeight: 500 }}
             >
-              become a patron &mdash; ${amount}/mo
+              {loading ? '...' : `become a patron \u2014 $${amount}/mo`}
             </button>
 
           </div>
