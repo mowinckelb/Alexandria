@@ -1,6 +1,6 @@
 # Factory Learnings
 
-Persistent memory for the autonomous CTO system (health + meta triggers). Each run reads, reflects, adds. Meta compresses old runs into principles weekly — only the last 2 runs stay in full.
+Persistent memory for the autonomous CTO system (health + meta triggers). Each run reads, reflects, adds. Meta compresses old runs into principles weekly — keeps the file short enough that agents get signal, not noise.
 
 ---
 
