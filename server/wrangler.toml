@@ -18,6 +18,12 @@ zone_id = "7a1952631048380db0df21b5daa1e88e"
 [triggers]
 crons = ["0 9 * * *"]
 
+# Import .md files as text modules (source of truth for Axioms + Blueprint)
+[[rules]]
+type = "Text"
+globs = ["**/*.md"]
+fallthrough = false
+
 [vars]
 BETA_MODE = "true"
 SERVER_URL = "https://mcp.mowinckel.ai"

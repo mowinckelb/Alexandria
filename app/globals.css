@@ -383,3 +383,29 @@ html.app-shell input:focus {
 .pdoc-conclusion .pdoc-strong {
   font-weight: 600;
 }
+
+/* Patron slider */
+.patron-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1px;
+  background: var(--border-light);
+  outline: none;
+  cursor: pointer;
+}
+.patron-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  cursor: pointer;
+}
+.patron-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  border: none;
+  cursor: pointer;
+}

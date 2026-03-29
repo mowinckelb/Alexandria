@@ -37,7 +37,10 @@ export default function LandingPage() {
           <h1 className="text-[1.5rem] sm:text-[1.7rem] font-normal leading-none tracking-tight" style={{ color: 'var(--text-primary)' }}>
             alexandria.
           </h1>
-          <div className="mt-14 sm:mt-16">
+          <div className="mt-14 sm:mt-16 flex flex-col items-center gap-2">
+            <span className="text-[0.65rem] tracking-widest" style={{ color: 'var(--text-ghost)', letterSpacing: '0.15em' }}>
+              cc/cursor user?
+            </span>
             <a
               href="/join"
               className="bg-transparent border-none cursor-pointer transition-opacity hover:opacity-60 no-underline cta-float"
@@ -72,22 +75,25 @@ export default function LandingPage() {
 
       <ScrollPhilosophy />
 
-      {/* Investor — natural continuation */}
-      <section className="px-8 py-20 sm:py-28">
-        <div className="max-w-[520px] mx-auto flex flex-col items-center gap-6 text-center">
-          <p className="text-[0.82rem] sm:text-[0.88rem] tracking-wide italic" style={{ color: 'var(--text-muted)' }}>
-            believe in this?
-          </p>
-          <a
-            href="tel:+4746643844"
-            className="text-[1rem] sm:text-[1.1rem] tracking-wide font-medium no-underline transition-opacity hover:opacity-60"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            call
-          </a>
-          <p className="text-[0.65rem] tracking-wide" style={{ color: 'var(--text-ghost)' }}>
-            if you have five minutes, call me right now.
-          </p>
+      {/* Bottom — sort everyone */}
+      <section className="px-8 py-24 sm:py-32">
+        <div className="max-w-[520px] mx-auto flex flex-col items-center gap-12 text-center">
+
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-[0.6rem] tracking-widest" style={{ color: 'var(--text-ghost)', letterSpacing: '0.15em' }}>cc/cursor user?</span>
+            <a href="/join" className="text-[1rem] tracking-wide font-medium no-underline transition-opacity hover:opacity-60" style={{ color: 'var(--text-primary)' }}>join beta</a>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-[0.6rem] tracking-widest" style={{ color: 'var(--text-ghost)', letterSpacing: '0.15em' }}>don&rsquo;t code with ai yet?</span>
+            <a href="/patron" className="text-[1rem] tracking-wide font-medium no-underline transition-opacity hover:opacity-60" style={{ color: 'var(--text-primary)' }}>join tribe</a>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-[0.6rem] tracking-widest" style={{ color: 'var(--text-ghost)', letterSpacing: '0.15em' }}>investor/partner?</span>
+            <a href="tel:+14155038178" className="text-[1rem] tracking-wide font-medium no-underline transition-opacity hover:opacity-60" style={{ color: 'var(--text-primary)' }}>call me</a>
+          </div>
+
         </div>
       </section>
 

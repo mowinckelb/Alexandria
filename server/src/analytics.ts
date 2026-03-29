@@ -218,7 +218,7 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
       by_target: extractionsByTarget,
     },
     depth: {
-      domains_covered: `${domainsCovered}/6`,
+      domains_covered: domainsCovered,
       strong_ratio: strongRatio,
     },
     sessions: sessionCount,

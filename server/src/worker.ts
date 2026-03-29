@@ -165,6 +165,7 @@ class WorkerTransport implements Transport {
   }
 }
 
+// DEAD PATH: Consumer MCP model abandoned. Auth broken on Workers (WorkerTransport doesn't inject authInfo). Left for reference.
 app.all('/mcp', async (c) => {
   try {
     // HEAD probe — Claude checks if MCP server exists
@@ -216,6 +217,7 @@ app.all('/mcp', async (c) => {
 // Initialization endpoint
 // ---------------------------------------------------------------------------
 
+// DEAD PATH: Consumer MCP model abandoned. Auth broken on Workers (WorkerTransport doesn't inject authInfo). Left for reference.
 app.post('/initialize', async (c) => {
   const authHeader = c.req.header('authorization');
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
