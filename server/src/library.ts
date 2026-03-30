@@ -415,27 +415,30 @@ echo "Done."
       }
     }
 
-    // Check session-based access (from Stripe checkout success)
-    const sessionId = c.req.query('session_id');
-    if (sessionId) {
-      try {
-        const { getKV } = await import('./kv.js');
-        const kv = getKV();
-        const grant = await kv.get(`library:access:${sessionId}`);
-        if (grant) {
-          const parsed = JSON.parse(grant);
-          if (parsed.author_id === authorId) {
-            const obj = await r2.get(shadow.r2_key);
-            if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
-            recordAccess('shadow_view', authorId, sessionId, shadow.id, 'paid');
-            logEvent('library_paid_access', { author: authorId, accessor: 'session', artifact_type: 'shadow' });
-            return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
-          }
+    // Token-based access (for AI agents — the primary access method)
+    const token = c.req.query('token');
+    if (token) {
+      const tokenRow = await db.prepare(
+        'SELECT * FROM shadow_tokens WHERE token = ? AND author_id = ? AND revoked_at IS NULL'
+      ).bind(token, authorId).first<{ id: string; access_count: number }>();
+      if (tokenRow) {
+        // Rate limit: 100 reads per day
+        if (tokenRow.access_count > 100) {
+          return c.json({ error: 'Rate limit exceeded. Try again tomorrow.' }, 429);
         }
-      } catch {}
+        await db.prepare(
+          'UPDATE shadow_tokens SET access_count = access_count + 1, last_used_at = ? WHERE id = ?'
+        ).bind(new Date().toISOString(), tokenRow.id).run();
+
+        const obj = await r2.get(shadow.r2_key);
+        if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
+        recordAccess('shadow_view', authorId, token, shadow.id, 'paid');
+        return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'), 'no-store');
+      }
+      return c.json({ error: 'Invalid or revoked token' }, 401);
     }
 
-    // Non-Author, no valid session — return 402 with checkout info
+    // Non-Author, no token — return 402 with checkout info
     const author = await db.prepare('SELECT settings FROM authors WHERE id = ?').bind(authorId).first<{ settings: string }>();
     const settings = JSON.parse(author?.settings || '{}');
     const priceCents = settings.paid_price_cents;
@@ -449,6 +452,51 @@ echo "Done."
   });
 
   // Checkout — create Stripe session for paid shadow (slider: min price, reader can pay more)
+  // Generate personal access token after Stripe payment
+  app.get('/library/:author/access', async (c) => {
+    const authorId = c.req.param('author');
+    const sessionId = c.req.query('session_id');
+    if (!sessionId) return c.json({ error: 'Missing session_id' }, 400);
+
+    // Verify the session grant exists in KV
+    try {
+      const { getKV } = await import('./kv.js');
+      const kv = getKV();
+      const grant = await kv.get(`library:access:${sessionId}`);
+      if (!grant) return c.json({ error: 'No access grant found. Payment may still be processing.' }, 404);
+
+      const parsed = JSON.parse(grant);
+      if (parsed.author_id !== authorId) return c.json({ error: 'Access grant does not match author' }, 403);
+
+      // Check if token already exists for this session
+      const db = getDB();
+      const existing = await db.prepare('SELECT token FROM shadow_tokens WHERE session_id = ?').bind(sessionId).first<{ token: string }>();
+      if (existing) {
+        return c.json({
+          token: existing.token,
+          api_url: `${process.env.SERVER_URL || 'https://mcp.mowinckel.ai'}/library/${authorId}/shadow/paid?token=${existing.token}`,
+        });
+      }
+
+      // Generate new token
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      const token = 'shadow_' + Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+
+      await db.prepare(
+        'INSERT INTO shadow_tokens (id, token, author_id, session_id, created_at) VALUES (?, ?, ?, ?, ?)'
+      ).bind(generateId(), token, authorId, sessionId, new Date().toISOString()).run();
+
+      logEvent('shadow_token_created', { author: authorId });
+      return c.json({
+        token,
+        api_url: `${process.env.SERVER_URL || 'https://mcp.mowinckel.ai'}/library/${authorId}/shadow/paid?token=${token}`,
+      });
+    } catch (e) {
+      console.error('[library] Token generation failed:', e);
+      return c.json({ error: 'Failed to generate access token' }, 500);
+    }
+  });
+
   app.post('/library/:author/checkout/shadow', async (c) => {
     const authorId = c.req.param('author');
     const db = getDB();

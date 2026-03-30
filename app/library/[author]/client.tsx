@@ -49,6 +49,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
   const [data, setData] = useState<AuthorData | null>(null);
   const [shadow, setShadow] = useState<string>('');
   const [paidShadow, setPaidShadow] = useState<string>('');
+  const [accessToken, setAccessToken] = useState<{ token: string; api_url: string } | null>(null);
   const [pulse, setPulse] = useState<string>('');
   const [openInfo, setOpenInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,13 +69,13 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
         .then(r => { if (r.ok) return r.text(); return ''; })
         .then(text => setPulse(text))
         .catch(() => {});
-      // Check for paid access via session_id
+      // Check for paid access via session_id — get API token
       const urlParams = new URLSearchParams(window.location.search);
       const sessionId = urlParams.get('session_id');
       if (sessionId) {
-        fetch(`${SERVER_URL}/library/${author}/shadow/paid?session_id=${sessionId}`)
-          .then(r => { if (r.ok) return r.text(); return ''; })
-          .then(text => { if (text && !text.startsWith('{')) setPaidShadow(text); })
+        fetch(`${SERVER_URL}/library/${author}/access?session_id=${sessionId}`)
+          .then(r => { if (r.ok) return r.json(); return null; })
+          .then(data => { if (data?.token) setAccessToken(data); })
           .catch(() => {});
       }
     });
@@ -195,38 +196,26 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
               )}
             </div>
 
-            {paidShadow ? (
+            {accessToken ? (
               <div>
-                <div style={{ position: 'relative', maxHeight: '12em', overflow: 'hidden', marginBottom: '1rem' }}>
-                  <article className="pdoc pdoc-longform" style={{ opacity: 0.6 }}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{paidShadow}</ReactMarkdown>
-                  </article>
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '4em', background: 'linear-gradient(to bottom, transparent, var(--bg-primary))' }} />
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: '0 0 1.5rem', lineHeight: 1.7 }}>
+                  your access token. give this url to any ai.
+                </p>
+                <div
+                  onClick={() => {
+                    navigator.clipboard.writeText(accessToken.api_url);
+                    const el = document.getElementById('url-copied');
+                    if (el) { el.textContent = 'copied'; setTimeout(() => { el.textContent = 'click to copy'; }, 2000); }
+                  }}
+                  style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '4px', cursor: 'pointer', margin: '0 0 0.5rem' }}
+                >
+                  <code style={{ fontSize: '0.7rem', color: 'var(--text-primary)', wordBreak: 'break-all', fontFamily: 'monospace' }}>
+                    {accessToken.api_url}
+                  </code>
                 </div>
-                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'baseline' }}>
-                  <a
-                    href={`data:text/markdown;charset=utf-8,${encodeURIComponent(paidShadow)}`}
-                    download={`${authorId}.md`}
-                    style={{ fontSize: '0.85rem', color: 'var(--text-primary)', textDecoration: 'none', transition: 'opacity 0.15s' }}
-                    className="hover:opacity-60"
-                  >
-                    download .md
-                  </a>
-                  <span
-                    onClick={() => {
-                      navigator.clipboard.writeText(paidShadow);
-                      const el = document.getElementById('copy-confirm');
-                      if (el) { el.textContent = 'copied'; setTimeout(() => { el.textContent = 'copy to clipboard'; }, 2000); }
-                    }}
-                    id="copy-confirm"
-                    style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', cursor: 'pointer', transition: 'opacity 0.15s' }}
-                    className="hover:opacity-60"
-                  >
-                    copy to clipboard
-                  </span>
-                </div>
-                <p style={{ fontSize: '0.68rem', color: 'var(--text-whisper)', margin: '1rem 0 0', fontStyle: 'italic' }}>
-                  paste into any ai. it will know this person.
+                <p id="url-copied" style={{ fontSize: '0.68rem', color: 'var(--text-ghost)', margin: '0 0 1.5rem' }}>click to copy</p>
+                <p style={{ fontSize: '0.72rem', color: 'var(--text-whisper)', margin: '0', lineHeight: 1.7, fontStyle: 'italic' }}>
+                  paste the url into any ai chat. it will read the shadow and know this person. the token is yours — rate-limited, logged, revocable. always serves the latest version.
                 </p>
               </div>
             ) : (
