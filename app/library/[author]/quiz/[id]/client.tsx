@@ -27,9 +27,10 @@ interface QuizData {
   quiz_id: string;
   author_id: string;
   title: string;
+  subtitle?: string;
   questions: Array<{ id: string; question: string; text?: string; options: string[]; correct?: string; reveal?: string }>;
   result_tiers?: Array<{ min_pct: number; label: string; message: string }>;
-  [key: string]: unknown; // flexible format
+  [key: string]: unknown;
 }
 
 interface QuizResult {
@@ -47,6 +48,7 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
   const [quiz, setQuiz] = useState<QuizData | null>(null);
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [skipped, setSkipped] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<QuizResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -63,45 +65,48 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
     });
   }, [params]);
 
-  const [revealed, setRevealed] = useState<string | null>(null);
-  const [skipped, setSkipped] = useState<Set<string>>(new Set());
-
   const skipQuestion = () => {
-    if (revealed) return;
-    setSkipped(prev => new Set(prev).add(quiz!.questions[currentQ].id));
-    if (quiz && currentQ < quiz.questions.length - 1) {
+    if (!quiz) return;
+    setSkipped(prev => new Set(prev).add(quiz.questions[currentQ].id));
+    if (currentQ < quiz.questions.length - 1) {
       setCurrentQ(prev => prev + 1);
+    } else {
+      // last question skipped — auto-submit
+      setTimeout(() => submit(), 100);
     }
   };
 
   const selectAnswer = (questionId: string, optionIndex: number) => {
-    if (revealed) return; // prevent double-tap during reveal
+    if (answers[questionId]) return; // already answered
     const letter = ['A', 'B', 'C', 'D'][optionIndex];
     setAnswers(prev => ({ ...prev, [questionId]: letter }));
-    setRevealed(questionId);
-    // Show correct answer + reveal text, then auto-advance
-    setTimeout(() => {
-      setRevealed(null);
-      if (quiz && currentQ < quiz.questions.length - 1) {
-        setCurrentQ(prev => prev + 1);
-      }
-    }, 3500);
+    // auto-advance or auto-submit
+    if (quiz && currentQ < quiz.questions.length - 1) {
+      setTimeout(() => setCurrentQ(prev => prev + 1), 500);
+    } else {
+      // last question — auto-submit
+      setTimeout(() => {
+        submitWithAnswers({ ...answers, [questionId]: letter });
+      }, 500);
+    }
   };
 
-  const submit = async () => {
-    if (!quiz) return;
+  const submitWithAnswers = async (finalAnswers: Record<string, string>) => {
+    if (!quiz || submitting) return;
     setSubmitting(true);
     try {
       const res = await fetch(`${SERVER_URL}/library/${authorId}/quiz/${quizId}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers, skipped: Array.from(skipped) }),
+        body: JSON.stringify({ answers: finalAnswers, skipped: Array.from(skipped) }),
       });
       setResult(await res.json());
     } catch {
       setSubmitting(false);
     }
   };
+
+  const submit = async () => submitWithAnswers(answers);
 
   const shareResult = () => {
     if (!result) return;
@@ -122,15 +127,11 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
     </main>
   );
 
-  // Result — the reveal
+  // Result
   if (result) return (
     <>
       <ThemeToggle />
       <main style={{ maxWidth: '480px', margin: '0 auto', padding: '8rem 2rem 4rem', fontFamily: 'var(--font-eb-garamond)', textAlign: 'center' }}>
-
-        <p style={{ fontSize: '0.7rem', color: 'var(--text-whisper)', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '0 0 3rem' }}>
-          {quiz.title}
-        </p>
 
         <p style={{ fontSize: '4rem', fontWeight: 400, color: 'var(--text-primary)', margin: '0', lineHeight: 1 }}>
           {result.score_pct}%
@@ -148,22 +149,32 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
           </p>
         )}
 
-        <p style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', margin: '2.5rem 0 3rem' }}>
-          {result.correct} of {result.total}
+        <p style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', margin: '2.5rem 0 0' }}>
+          {result.correct} of {result.total} aligned
         </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
+        <div style={{ margin: '3rem 0', display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
           <a onClick={shareResult} style={{ color: 'var(--text-primary)', textDecoration: 'none', cursor: 'pointer', fontSize: '0.92rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
-            {copied ? 'link copied' : 'share your score'}
-          </a>
-          <a href={`/library/${authorId}`} style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.85rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
-            read this mind
+            {copied ? 'link copied' : 'share'}
           </a>
         </div>
 
-        <div style={{ margin: '4rem 0 0', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
+        <div style={{ margin: '2rem 0', padding: '1.5rem 0', borderTop: '1px solid var(--border-light)' }}>
+          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0 0 0.5rem' }}>
+            want to see how he actually answered?
+          </p>
+          <a
+            href={`/library/${authorId}`}
+            style={{ color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.88rem', transition: 'opacity 0.15s' }}
+            className="hover:opacity-60"
+          >
+            read the shadow
+          </a>
+        </div>
+
+        <div style={{ margin: '2rem 0 0', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
           <a href="/join" style={{ color: 'var(--text-ghost)', textDecoration: 'none', fontSize: '0.78rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
-            build your own
+            make your own
           </a>
           <a href="/" style={{ color: 'var(--text-whisper)', textDecoration: 'none', fontSize: '0.72rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
             what is this?
@@ -174,10 +185,8 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
     </>
   );
 
-  // The quiz — one question at a time, intimate
+  // The quiz — one question at a time
   const q = quiz.questions[currentQ];
-  const allAnswered = quiz.questions.every(question => answers[question.id] || skipped.has(question.id));
-  const isLast = currentQ === quiz.questions.length - 1;
 
   return (
     <>
@@ -187,9 +196,9 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
         <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: '0 0 0.5rem' }}>
           {quiz.title}
         </p>
-        {(quiz as any).subtitle && (
+        {quiz.subtitle && (
           <p style={{ fontSize: '0.75rem', color: 'var(--text-ghost)', margin: '0 0 3rem', fontStyle: 'italic' }}>
-            {(quiz as any).subtitle}
+            {quiz.subtitle}
           </p>
         )}
 
@@ -203,10 +212,6 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
           {q.options.map((option, i) => {
             const letter = ['A', 'B', 'C', 'D'][i];
             const selected = answers[q.id] === letter;
-            const isRevealed = revealed === q.id;
-            const isCorrect = letter === (q as any).correct;
-            const wasWrong = isRevealed && selected && !isCorrect;
-            const showAsCorrect = isRevealed && isCorrect;
             return (
               <button
                 key={i}
@@ -214,17 +219,16 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
                 style={{
                   background: 'none',
                   border: 'none',
-                  borderBottom: showAsCorrect ? '1px solid var(--text-primary)' : wasWrong ? '1px solid var(--text-whisper)' : selected && !isRevealed ? '1px solid var(--text-primary)' : '1px solid transparent',
-                  cursor: isRevealed ? 'default' : 'pointer',
-                  color: showAsCorrect ? 'var(--text-primary)' : wasWrong ? 'var(--text-whisper)' : selected ? 'var(--text-primary)' : 'var(--text-muted)',
+                  borderBottom: selected ? '1px solid var(--text-primary)' : '1px solid transparent',
+                  cursor: answers[q.id] ? 'default' : 'pointer',
+                  color: selected ? 'var(--text-primary)' : 'var(--text-muted)',
                   fontSize: '0.95rem',
                   padding: '0.7rem 0',
                   fontFamily: 'var(--font-eb-garamond)',
                   textAlign: 'left',
-                  transition: 'all 0.3s',
-                  opacity: isRevealed && !showAsCorrect && !wasWrong ? 0.3 : 1,
+                  transition: 'all 0.2s',
                 }}
-                className={isRevealed ? '' : 'hover:opacity-70'}
+                className={answers[q.id] ? '' : 'hover:opacity-70'}
               >
                 {option}
               </button>
@@ -232,21 +236,7 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
           })}
         </div>
 
-        {/* reveal text */}
-        {revealed === q.id && q.reveal && (
-          <p style={{
-            fontSize: '0.82rem',
-            color: 'var(--text-muted)',
-            lineHeight: 1.8,
-            fontStyle: 'italic',
-            margin: '0 0 2rem',
-            transition: 'opacity 0.5s',
-          }}>
-            {q.reveal}
-          </p>
-        )}
-
-        {/* navigation — minimal */}
+        {/* navigation */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span
             onClick={() => currentQ > 0 && setCurrentQ(prev => prev - 1)}
@@ -260,26 +250,14 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
             back
           </span>
 
-          <span
-            onClick={!revealed && !answers[q.id] ? skipQuestion : undefined}
-            style={{
-              color: !revealed && !answers[q.id] ? 'var(--text-whisper)' : 'transparent',
-              fontSize: '0.75rem', cursor: !revealed && !answers[q.id] ? 'pointer' : 'default',
-              transition: 'opacity 0.15s',
-            }}
-            className="hover:opacity-60"
-          >
-            boring
-          </span>
-
-          {/* progress — dots not numbers */}
+          {/* progress dots */}
           <div style={{ display: 'flex', gap: '6px' }}>
             {quiz.questions.map((_, i) => (
               <div
                 key={i}
                 style={{
                   width: '4px', height: '4px', borderRadius: '50%',
-                  background: answers[quiz.questions[i].id]
+                  background: answers[quiz.questions[i].id] || skipped.has(quiz.questions[i].id)
                     ? 'var(--text-primary)'
                     : i === currentQ
                       ? 'var(--text-muted)'
@@ -290,21 +268,17 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
             ))}
           </div>
 
-          {isLast && allAnswered ? (
-            <span
-              onClick={submit}
-              style={{
-                color: submitting ? 'var(--text-whisper)' : 'var(--text-primary)',
-                fontSize: '0.8rem', cursor: submitting ? 'default' : 'pointer',
-                transition: 'opacity 0.15s',
-              }}
-              className="hover:opacity-60"
-            >
-              {submitting ? '...' : 'done'}
-            </span>
-          ) : (
-            <span style={{ color: 'transparent', fontSize: '0.8rem' }}>done</span>
-          )}
+          <span
+            onClick={!answers[q.id] ? skipQuestion : undefined}
+            style={{
+              color: !answers[q.id] ? 'var(--text-whisper)' : 'transparent',
+              fontSize: '0.75rem', cursor: !answers[q.id] ? 'pointer' : 'default',
+              transition: 'opacity 0.15s',
+            }}
+            className="hover:opacity-60"
+          >
+            boring
+          </span>
         </div>
 
       </main>
