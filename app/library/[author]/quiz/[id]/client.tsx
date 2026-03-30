@@ -176,7 +176,7 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
             make your own
           </a>
           <a href="/" style={{ color: 'var(--text-whisper)', textDecoration: 'none', fontSize: '0.72rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
-            alexandria
+            alexandria.
           </a>
         </div>
 

@@ -181,7 +181,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
 
         <footer style={{ margin: '6rem 0 0', display: 'flex', justifyContent: 'center', gap: '2rem' }}>
           <a href="/library" style={{ fontSize: '0.72rem', color: 'var(--text-whisper)', textDecoration: 'none' }} className="hover:opacity-60">library</a>
-          <a href="/" style={{ fontSize: '0.72rem', color: 'var(--text-whisper)', textDecoration: 'none' }} className="hover:opacity-60">alexandria</a>
+          <a href="/" style={{ fontSize: '0.72rem', color: 'var(--text-whisper)', textDecoration: 'none' }} className="hover:opacity-60">alexandria.</a>
         </footer>
 
       </main>

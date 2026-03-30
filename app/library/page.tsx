@@ -92,7 +92,7 @@ export default function LibraryPage() {
 
         <footer style={{ marginTop: '6rem', textAlign: 'center' }}>
           <p style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>
-            <a href="/" style={{ color: 'var(--text-whisper)', textDecoration: 'none' }} className="hover:opacity-60">alexandria</a>
+            <a href="/" style={{ color: 'var(--text-whisper)', textDecoration: 'none' }} className="hover:opacity-60">alexandria.</a>
           </p>
         </footer>
 
