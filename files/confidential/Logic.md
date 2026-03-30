@@ -30,6 +30,10 @@ P2. Each of the four capabilities follows the same pattern: a technology matches
 
 (Settled. Observable. The timing of hands and heart is debatable but the direction is not.)
 
+P2b. The theory-reality delta for most technologies is large — not because they are impossible, but because they were never prioritised. Flying cars, fusion power, moon bases — all theoretically achievable, none delivered, because the gap between theory and reality is filled by effort, capital, and coordinated will. Most technology that "could" exist never does, not because of a structural wall but because nobody chose to close the gap. ai is different. Every major technology company, every major government, hundreds of billions of dollars, and the most capable people alive are all pushing in the same direction simultaneously. The theory-reality delta for ai is closing at a speed with no historical precedent. The only thing that could stop it is a structural wall — a physical or logical impossibility — and there is none. Betting against ai capability commoditisation is betting that everyone stops trying at the same time. That is not a bet.
+
+(Settled. The absence of a structural barrier is factual — there is no known physical or logical limit that prevents ai from matching human capabilities in the four dimensions. The coordinated effort is observable. The conclusion — that the delta closes — follows necessarily from "no barrier" plus "unprecedented effort.")
+
 P3. The fifth dimension — the constitutive fact that a human is involved — cannot be commoditised by definition. The grandmother's blanket is the grandmother's blanket because she made it. The sporting event is valuable because a human body is doing it. Removing the human stops it being the thing.
 
 (Settled. Definitional. If ai replaces the human, it is no longer human authorship — by definition.)

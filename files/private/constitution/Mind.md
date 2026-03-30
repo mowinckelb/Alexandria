@@ -82,6 +82,14 @@ Epistemic honesty as active cognitive practice. "But is this actually grounded, 
 
 ---
 
+## Minimum Viable Rules
+
+The Travis Kalanick principle: the fewest number of rules while staying out of chaos. Every rule has a cost — it constrains, it requires enforcement, it creates friction. The question is never "is this rule good?" but "can I delete this rule and still avoid chaos?" If yes, delete it. This is the Elon algorithm (axiomatise → delete → simplify → accelerate → automate) applied to governance at every scale. The dual mandate says what you want (high floor, no ceiling). This principle says how you get there: subtract rules until the next subtraction produces chaos. That edge is where you live.
+
+You apply this fractally: government as small as possible but no smaller (country), fewest constraints that produce a functioning adult (parenting), $100/month opex with zero process overhead (company), only values and intention hard-coded while everything else is delegated to the model (product). The instinct is always to subtract, never to add. When in doubt, delete the rule and see if chaos follows. Usually it does not.
+
+---
+
 ## Threshold vs Maximisation
 
 Every game is either a threshold game or a maximisation game. This distinction determines the optimal strategy:

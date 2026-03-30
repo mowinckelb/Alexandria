@@ -1,24 +1,14 @@
 /**
- * Alexandria MCP Server — Cloudflare Workers entry point
+ * Alexandria Server — Cloudflare Workers entry point
  *
- * A stateless server that implements the Blueprint — Alexandria's
- * layer of intent. Connects to the Author's Google Drive via OAuth.
- * Stores nothing. Retains nothing. Pure pass-through.
- *
- * The tool descriptions are the product. Everything else is plumbing.
+ * Stateless server implementing the Blueprint — Alexandria's layer of intent.
+ * Serves methodology to prosumer hooks. Stores nothing user-specific.
  */
 
 import { Hono } from 'hono';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
-import { registerTools } from './tools.js';
-import { registerOAuthRoutes, verifyAccessToken } from './auth.js';
-import { initializeFolderStructure } from './drive.js';
-import { registerProsumerRoutes, updateAccountBilling, getBillingSummary, runFollowupCheck } from './prosumer.js';
+import { registerProsumerRoutes, updateAccountBilling, getBillingSummary, runFollowupCheck, runHealthDigest } from './prosumer.js';
 import { registerBillingRoutes } from './billing.js';
 import { getAnalytics, getEventLog, getDashboard } from './analytics.js';
-import { SHARED_CONTEXT } from './modes.js';
 import { setKV } from './kv.js';
 
 // ---------------------------------------------------------------------------
@@ -41,12 +31,6 @@ app.use('*', async (c, next) => {
   }
   await next();
 });
-
-// ---------------------------------------------------------------------------
-// OAuth — MCP-standard auth endpoints + Google callback
-// ---------------------------------------------------------------------------
-
-registerOAuthRoutes(app);
 
 // ---------------------------------------------------------------------------
 // Prosumer API — hooks + local files + Blueprint
@@ -85,8 +69,8 @@ app.get('/health', async (c) => {
 
   return c.json({
     status: healthy ? 'ok' : 'degraded',
-    server: 'alexandria-mcp',
-    version: '0.2.0',
+    server: 'alexandria',
+    version: '0.3.0',
     runtime: 'cloudflare-workers',
     checks,
   });
@@ -115,125 +99,11 @@ app.get('/', (c) => {
 });
 
 // ---------------------------------------------------------------------------
-// Favicon — served from KV or inline
+// Favicon
 // ---------------------------------------------------------------------------
 
-// Note: favicon.png needs to be uploaded to KV or served via static assets.
-// For now, return a 204 to prevent 404s.
 app.get('/favicon.ico', (c) => new Response(null, { status: 204 }));
 app.get('/favicon.png', (c) => new Response(null, { status: 204 }));
-
-// ---------------------------------------------------------------------------
-// MCP endpoint — Streamable HTTP transport
-// ---------------------------------------------------------------------------
-
-function createMcpServer() {
-  const server = new McpServer({
-    name: 'Alexandria',
-    version: '0.2.0',
-  });
-  registerTools(server);
-  return server;
-}
-
-/**
- * Workers-compatible MCP transport.
- * Bypasses StreamableHTTPServerTransport (which needs Node HTTP streams)
- * and implements the Transport interface directly.
- */
-class WorkerTransport implements Transport {
-  private _responseCallback: ((msg: JSONRPCMessage) => void) | null = null;
-
-  onclose?: () => void;
-  onerror?: (error: Error) => void;
-  onmessage?: (message: JSONRPCMessage) => void;
-
-  async start() {}
-  async close() { this.onclose?.(); }
-
-  async send(message: JSONRPCMessage) {
-    this._responseCallback?.(message);
-  }
-
-  /** Feed a JSON-RPC request in and get the response out. */
-  processRequest(message: JSONRPCMessage): Promise<JSONRPCMessage> {
-    return new Promise((resolve, reject) => {
-      this._responseCallback = resolve;
-      this.onerror = reject;
-      this.onmessage?.(message);
-    });
-  }
-}
-
-// DEAD PATH: Consumer MCP model abandoned. Auth broken on Workers (WorkerTransport doesn't inject authInfo). Left for reference.
-app.all('/mcp', async (c) => {
-  try {
-    // HEAD probe — Claude checks if MCP server exists
-    if (c.req.method === 'HEAD') {
-      return new Response(null, {
-        status: 200,
-        headers: { 'MCP-Protocol-Version': '2025-03-26' },
-      });
-    }
-
-    let body: unknown;
-    try {
-      body = await c.req.json();
-    } catch {
-      return c.json({ jsonrpc: '2.0', error: { code: -32700, message: 'Parse error' }, id: null }, 400);
-    }
-
-    // Parse auth and inject into request context
-    const authHeader = c.req.header('authorization');
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    let authInfo: { token: string; clientId: string; scopes: string[] } | undefined;
-    if (token) {
-      try {
-        authInfo = await verifyAccessToken(token);
-      } catch { /* Invalid token — tools will return "Not authenticated" */ }
-    }
-
-    const server = createMcpServer();
-    const transport = new WorkerTransport();
-    await server.connect(transport);
-
-    const request = body as JSONRPCMessage;
-
-    // Handle notifications (no id) — fire and forget
-    if (!('id' in request)) {
-      transport.onmessage?.(request);
-      return c.json({}, 202);
-    }
-
-    const response = await transport.processRequest(request);
-    return c.json(response);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return c.json({ jsonrpc: '2.0', error: { code: -32603, message: msg }, id: null }, 500);
-  }
-});
-
-// ---------------------------------------------------------------------------
-// Initialization endpoint
-// ---------------------------------------------------------------------------
-
-// DEAD PATH: Consumer MCP model abandoned. Auth broken on Workers (WorkerTransport doesn't inject authInfo). Left for reference.
-app.post('/initialize', async (c) => {
-  const authHeader = c.req.header('authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-
-  if (!token) {
-    return c.json({ error: 'Missing bearer token' }, 401);
-  }
-
-  try {
-    await initializeFolderStructure(token);
-    return c.json({ ok: true, message: 'Alexandria folder created in Google Drive' });
-  } catch (err) {
-    console.error('Init error:', err);
-    return c.json({ error: 'Failed to initialize folder structure' }, 500);
-  }
-});
 
 // ---------------------------------------------------------------------------
 // Analytics endpoints
@@ -273,6 +143,6 @@ export default {
       setKV(env.DATA as KVNamespace);
     }
 
-    ctx.waitUntil(runFollowupCheck());
+    ctx.waitUntil(Promise.all([runFollowupCheck(), runHealthDigest()]));
   },
 };

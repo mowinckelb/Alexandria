@@ -45,12 +45,12 @@ export default function ShortcutPage() {
                 voice memos, journals, articles, videos, podcasts
               </p>
               <p className="text-[0.85rem] sm:text-[0.9rem] tracking-wide leading-[1.9]" style={{ color: 'var(--text-muted)' }}>
-                tap share, tap alexandria &mdash; it lands in your vault
+                tap share, tap a. &mdash; it lands in your vault
               </p>
             </div>
 
             <a
-              href="https://www.icloud.com/shortcuts/PLACEHOLDER"
+              href="https://www.icloud.com/shortcuts/0ea1bb7333fd43a9881e9c7b9938a337"
               className="inline-block text-[1.05rem] sm:text-[1.15rem] tracking-wide font-medium no-underline transition-opacity hover:opacity-60"
               style={{ color: 'var(--text-primary)' }}
             >

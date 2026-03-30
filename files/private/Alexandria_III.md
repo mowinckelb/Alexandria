@@ -97,17 +97,17 @@ Mercury also has access to curated influences. When generating the shadow MD, it
   
 Technical implementation: Authors can connect external playlists and lists as live sources — YouTube playlists, Spotify playlists, Goodreads shelves, Letterboxd lists, Pocket reading lists, Apple Music playlists. These are API integrations (unidirectional). The Author curates in their normal workflow and it flows into the Vault without friction. Alexandria links to content, does not host it.  
   
-ACCESS TIERS  
-  
-Three tiers replace the old privacy modes. They apply to Works, shadow MD access, and any content in the Neo-Biography:  
-  
-Public — Free. Visible to everyone. Most Works, all Signal. The public shadow MD — surface-level fragments within the Author’s configured boundaries. The discovery layer that draws people in.
+ACCESS TIERS
 
-Premium — Paid. The Author sets the price. The full shadow MD — deeper fragments, more domains, higher fidelity. This is where the Author earns and where Alexandria takes a percentage. Accessed by humans (through the Neo-Biography), by LLMs (through the Library API), or programmatically. Payment is access to the artifact, not compute — pure margin.
+Two infrastructure-level tiers. Hard infrastructure — Alexandria needs consistent rails to aggregate, filter, and price across Authors. Everything beyond these two rails is an Engine intelligence decision per Author.
 
-Private — Invite only. The Author’s inner circle. Unfiltered shadow MD access, private Works, content the Author does not share publicly. Access granted by the Author to specific people.  
-  
-These tiers are simple and intuitive. Public is the shop window. Premium is the product. Private is the inner sanctum.  
+Free — Anyone can access. Most Works, all Signal. The public shadow MD — surface-level fragments within the Author’s configured boundaries. The discovery layer that draws people in.
+
+Paid — The Author sets the price. Deeper fragments, more domains, higher fidelity. This is where the Author earns and where Alexandria takes a percentage. Accessed by humans (through the Neo-Biography), by LLMs (through the Library API), or programmatically. Payment is access to the artifact, not compute — pure margin.
+
+How Authors organise access beyond free/paid — inner circles, professional boundaries, invite-only content — is the Engine’s intelligence decision. Some Authors will have two modes. Some will have five. The infrastructure does not prescribe social structure. It gates monetisation.
+
+Network effects: Authors browse all free-tier shadows included in their subscription. The paid tier costs money for everyone — Authors earn here, do not cannibalise it. Whether Authors get a discount on paid access is an intelligence decision, not a hard-code. More Authors = more free shadows to browse = more valuable subscription. Both sides compound. See Alexandria II for full network effect mechanics.  
   
 NEO-BIOGRAPHY PRODUCT MODEL  
   
@@ -121,7 +121,7 @@ The Neo-Biography serves as discovery (find interesting minds in the Library) an
   
 SHADOW TYPES IN THE LIBRARY
 
-Natural shadows — One per human Author. Curated Constitution fragments representing a structured approximation of their cognition as expressed through the symbolic layer, built through Alexandria’s active Socratic extraction and development process. The deeper the Constitution, the higher the shadow MD’s fidelity.
+Natural shadows — One per human Author. Curated Constitution fragments representing a structured approximation of their cognition as expressed through the symbolic layer, built through Alexandria’s active genesis and Socratic development process. The deeper the Constitution, the higher the shadow MD’s fidelity.
 
 Synthetic shadows — Fictional characters, archetypes, or purpose-built entities. Alexandria can provide these (example: archetypal companions for personal development, historical figure approximations, domain specialists). Authors can also create their own synthetic shadows. Synthetic shadows live alongside natural shadows in the Library.
 

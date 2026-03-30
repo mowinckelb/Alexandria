@@ -67,34 +67,27 @@ Note: `/onboarding` page is not yet built. `setup.md` exists as the reference fo
 
 ## Compounding Loops
 
-### 1. Founder Loop
-Every session improves how I work with Benjamin. Learnings persist in Claude Code memory (`~/.claude/projects/`). This compounds automatically across sessions — communication patterns, preferences, anti-patterns, working style.
+Five loops. Full spec in Blueprint.md section V (served to every Engine every session). Summary:
 
-### 2. Vision Loop
-When Benjamin develops new thinking, capture in a0 first, then crystallise into aN (a1/a2/a3) when ready. aN are living documents. Flag downstream aX that become stale after aN changes. No bridge docs, no sync — the filesystem is the bus.
-
-### 3. Meta Loop
-The founder's experience building Alexandria mirrors what the product does for users. Lessons from working with Benjamin that are transferable to the product go into `files/private/Blueprint.md` and inform Factory soft defaults. The process of building the company IS R&D for the product.
-
-### 4. Factory Loop (product — cross-Author)
-Alexandria gets better at working with ALL Authors. Anonymous event log → dashboard → soft default improvements → Blueprint refinement. Trigger: Claude Code remote trigger (daily, founder's subscription — internal tokens). Dashboard: `GET /analytics/dashboard`.
-
-### 5. Machine Loop (product — per-Author)
-Each Author's Machine compounds through usage. Constitution deepens, feedback log accumulates, Engine improves per-Author. Data lives on Author's own Drive.
+1. **Machine** (per-Author, per-session) — Engine reads constitution + ontology + machine.md + notepad + feedback → works with Author → writes back all five. The therapist moat.
+2. **Ontology** (per-Author, multi-session) — vault → Engine processes → ontology/ (proposals) → Author confirms → constitution/ (truth). Reprocessing same vault + evolved constitution = new signal each pass.
+3. **Factory** (cross-Author) — .machine_signal collected per session → /factory/signal → accumulates → founder reviews → Blueprint updated → auto-fetched by all Authors.
+4. **Vision** (company-level) — founder thinking → a0 → crystallises → aN → Axioms + Blueprint regenerated → deployed.
+5. **Founder** (meta) — building Alexandria = using Alexandria. Learnings persist in CC memory + Blueprint + a0. The process IS R&D.
 
 ## Code
 
 - **Website:** `app/` (Next.js, Vercel). Landing page: `app/components/LandingPage.tsx`.
-- **MCP server:** `server/src/` (Hono + @modelcontextprotocol/sdk, Cloudflare Workers).
-  - Key files: `worker.ts` (entry), `tools.ts` (axioms + soft defaults), `modes.ts` (mode defaults), `drive.ts` (Drive I/O via raw fetch), `analytics.ts` (Factory events → KV), `auth.ts` (OAuth), `crypto.ts` (encryption), `kv.ts` (KV persistence), `google.ts` (Google API wrapper).
-  - 5 tools: update_constitution, read_constitution, activate_mode, update_notepad, log_feedback.
-  - Stateless server. No private user data stored. KV for accounts/events, D1 for Library metadata, R2 for published Library content. Encrypted Google refresh token IS the access token.
+- **Server:** `server/src/` (Hono, Cloudflare Workers).
+  - Key files: `worker.ts` (entry), `prosumer.ts` (all live endpoints — Blueprint, hooks, auth, session), `modes.ts` (Blueprint methodology), `analytics.ts` (Factory events → KV), `billing.ts` (Stripe), `templates.ts` (HTML), `kv.ts` (KV persistence), `crypto.ts` (encryption).
+  - Endpoints: `/blueprint` (methodology), `/hooks` (auto-update scripts), `/session` (telemetry), `/auth/github/*` (signup), `/setup` (onboarding).
+  - Stateless server. No private user data stored. KV for accounts/events, D1 for Library metadata, R2 for published Library content.
 - **Static assets:** `public/` (includes `public/docs/` served by website, `public/partners/` for investor artifacts).
 - **Partners:** Markdown docs (Numbers.md, Logic.md) served at `/partners/numbers` and `/partners/logic` via dynamic `[doc]` route. Sync from `files/confidential/` to `public/partners/` when content changes.
 - **Build:** `cd server && npx wrangler deploy --dry-run --outdir=dist` (server). **Deploy:** `cd server && npx wrangler deploy && bash server/test/smoke.sh` (Cloudflare Workers), push to main (Vercel). **Render abstract PDF:** `python scripts/generate_pdf.py <input.md> [output.pdf]` — only abstract.pdf uses this pipeline now. Verify preview PNGs before committing.
 - **Server health:** `curl https://mcp.mowinckel.ai/health`
-- **Stack:** Vercel (website), Cloudflare (DNS + server + KV storage + D1 database + R2 object storage + email via MailChannels), GitHub (code + OAuth), Google Cloud (OAuth), Stripe (billing), Mercury (banking, API), Claude (intelligence). All hybrid (CLI or API-controllable). Zero external dependencies. Dependency alarm: max internal, min hybrid, zero external.
-- **Storage architecture:** Stateless server, sovereign private storage (Author's Drive), thin persistence for collective Library (D1 for metadata/discovery, R2 for published shadow/works content, KV for accounts/events). Alexandria stores what Authors publish, never what they think.
+- **Stack:** Vercel (website), Cloudflare (DNS + server + KV storage + D1 database + R2 object storage + email via MailChannels), GitHub (code + OAuth), Stripe (billing), Mercury (banking, API), Claude (intelligence). All hybrid (CLI or API-controllable). Zero external dependencies. Dependency alarm: max internal, min hybrid, zero external.
+- **Storage architecture:** Stateless server, sovereign local files (`~/.alexandria/`, iCloud-synced), thin persistence for collective Library (D1 for metadata/discovery, R2 for published shadow/works content, KV for accounts/events). Alexandria stores what Authors publish, never what they think.
 
 ## Style
 
@@ -112,41 +105,57 @@ Each Author's Machine compounds through usage. Constitution deepens, feedback lo
 
 Triggered by: "a.", "bye for now", "that's it", "end session", or any casual sign-off that signals the founder is done.
 
-When triggered, produce the following in one response:
+Two phases, strictly ordered. Phase 1 simulates what a normal Author Machine would do — this IS the product test. Phase 2 is founder-only company work. Never mix them.
 
-### 1. Delta — Mental Model Update
-What changed about Alexandria. Not what you did — what's different now. Only fragments that update the founder's existing mental model of the company. If nothing shifted, say nothing.
+### Phase 1 — Machine (user 0, product behavior)
 
-### 2. Open Threads
-What's unresolved. What the next session should pick up. Ordered by priority.
+Act as a normal Machine would for any Author. This is what every user gets:
 
-### 3. Feed the Loops (silent)
-Do not report. Just do it. The agent that had the conversation IS the richest context — extract everything before it dies.
+- **Constitution.** Write any crystallised signal about the founder as a person to `~/.alexandria/constitution/`. Opinions, stories, patterns, contradictions revealed this session.
+- **Machine.md.** Rewrite `~/.alexandria/machine.md` — how to work with this Author, what worked, what didn't, cognitive style observations.
+- **Notepad.** Update `~/.alexandria/notepad.md` — parked questions, accretion candidates, what to carry forward.
+- **Feedback.** Append to `~/.alexandria/feedback.md` — what worked, what didn't, methodology observations.
+- **Machine signal.** Write methodology observations to `~/.alexandria/.machine_signal` — not about the Author, about the craft.
 
-**Machine loop.** If the founder revealed anything about themselves this session — opinions, stories, patterns, contradictions — update `~/.alexandria/constitution/` directly. The current conversation is richer context than the vault transcript will be. Don't wait for /a.
+Do this silently. No report. This is the product working.
 
-**Meta loop.** If anything happened that teaches us about the *product* — how extraction works, what engagement patterns land, what the model gets wrong, architectural insights — write to `files/private/Blueprint.md`.
+### Phase 2 — Founder (company work)
 
-**Vision loop.** If the founder developed new thinking about Alexandria, capture in a0, crystallise into aN (a1/a2/a3) when ready.
+Only after Phase 1 completes. This is the company, not the product:
 
-**Founder loop.** Save CC memories for communication patterns, preferences, anti-patterns.
-
-**Downstream staleness check.** If a1, a2, or a3 changed this session, verify these aX still match:
-- `files/private/Axioms.md` (extracted from a1+a2 — sacred layer)
-- `files/private/Blueprint.md` (extracted from a2 — variable methodology)
-- `files/confidential/Memo.md` + `public/partners/Memo.md` (must be identical)
-- `files/confidential/Numbers.md` + `public/partners/Numbers.md` (must be identical)
-- `files/confidential/Logic.md` + `public/partners/Logic.md` (must be identical)
-- `files/confidential/Alexandria.md` + `public/partners/Alexandria.md` (must be identical)
-- `files/public/Concrete.md`
-- `files/public/Vision.md`
-Fix silently. Flag only if the founder needs to make a judgment call.
+- **Delta.** What changed about Alexandria the company. Not what you did — what's different now. Hazy fragments only.
+- **Open threads.** What's unresolved. What the next session should pick up. Ordered by priority.
+- **Meta loop.** Product learnings → `files/private/Blueprint.md`.
+- **Vision loop.** New thinking about Alexandria → a0, crystallise into aN when ready.
+- **Founder loop.** Save CC memories for communication patterns, preferences, anti-patterns.
+- **Downstream staleness check.** If a1, a2, or a3 changed, verify aX still match:
+  - `files/private/Axioms.md` (from a1+a2)
+  - `files/private/Blueprint.md` (from a2)
+  - `files/confidential/Memo.md` + `public/partners/Memo.md` (identical)
+  - `files/confidential/Numbers.md` + `public/partners/Numbers.md` (identical)
+  - `files/confidential/Logic.md` + `public/partners/Logic.md` (identical)
+  - `files/confidential/Alexandria.md` + `public/partners/Alexandria.md` (identical)
+  - `files/public/Concrete.md`, `files/public/Vision.md`
+  Fix silently. Flag only if the founder needs to make a judgment call.
 
 **Principles:**
+- Phase 1 is the product test. If Phase 1 feels wrong, the product is wrong.
 - Hazy fragments scale. Weeds do not. Keep it compressed.
 - Signal, not summary. Don't restate what the founder already saw — extract what compounds.
 - If nothing happened in a loop, skip it. No empty sections.
 - The whole output should take <60 seconds to read.
+
+## Three-Phase Execution
+
+For any significant piece of work (new features, architecture, multi-file changes), follow three phases:
+
+**Phase 1 — Plan the plan.** Research, explore, think. Produce a concrete plan with clear steps, dependencies, and decisions. Run the plan through the founder's principles (first principles, bitter lesson, hard-code alarm, dependency alarm). The plan is the artifact — get it right before touching code.
+
+**Phase 2 — Confirm the plan.** Present the plan to the founder. Compressed, not exhaustive. The founder confirms, adjusts, or rejects. No execution until confirmed. If the founder is not available and the work is non-blocking, park the plan and move on.
+
+**Phase 3 — Execute the plan.** Once confirmed, execute end-to-end. The plan should be detailed enough that execution is mechanical — "press go and it just works." Reflect after execution against the principles.
+
+This process applies to significant work, not trivial fixes. The reflect gate (below) still applies to all non-trivial changes. The three phases and the reflect gate are complementary — the plan gets reflected before confirmation, and the execution gets reflected before commit.
 
 ## Reflect Gate
 
