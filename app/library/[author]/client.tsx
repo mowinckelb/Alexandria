@@ -196,9 +196,39 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
             </div>
 
             {paidShadow ? (
-              <article className="pdoc pdoc-longform">
-                <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{paidShadow}</ReactMarkdown>
-              </article>
+              <div>
+                <div style={{ position: 'relative', maxHeight: '12em', overflow: 'hidden', marginBottom: '1rem' }}>
+                  <article className="pdoc pdoc-longform" style={{ opacity: 0.6 }}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{paidShadow}</ReactMarkdown>
+                  </article>
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '4em', background: 'linear-gradient(to bottom, transparent, var(--bg-primary))' }} />
+                </div>
+                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'baseline' }}>
+                  <a
+                    href={`data:text/markdown;charset=utf-8,${encodeURIComponent(paidShadow)}`}
+                    download={`${authorId}.md`}
+                    style={{ fontSize: '0.85rem', color: 'var(--text-primary)', textDecoration: 'none', transition: 'opacity 0.15s' }}
+                    className="hover:opacity-60"
+                  >
+                    download .md
+                  </a>
+                  <span
+                    onClick={() => {
+                      navigator.clipboard.writeText(paidShadow);
+                      const el = document.getElementById('copy-confirm');
+                      if (el) { el.textContent = 'copied'; setTimeout(() => { el.textContent = 'copy to clipboard'; }, 2000); }
+                    }}
+                    id="copy-confirm"
+                    style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                    className="hover:opacity-60"
+                  >
+                    copy to clipboard
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.68rem', color: 'var(--text-whisper)', margin: '1rem 0 0', fontStyle: 'italic' }}>
+                  paste into any ai. it will know this person.
+                </p>
+              </div>
             ) : (
               <>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
