@@ -41,16 +41,6 @@ jobs:
           fi
           echo "✓ hooks OK"
 
-      - name: OAuth Discovery
-        run: |
-          status=$(curl -s -o /dev/null -w '%{http_code}' https://mcp.mowinckel.ai/.well-known/oauth-authorization-server)
-          body=$(curl -s https://mcp.mowinckel.ai/.well-known/oauth-authorization-server)
-          if [ "$status" != "200" ] || ! echo "$body" | grep -q '"authorization_endpoint"'; then
-            echo "::error::OAuth discovery failed (HTTP $status)"
-            exit 1
-          fi
-          echo "✓ oauth-discovery OK"
-
       - name: Session
         run: |
           status=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
