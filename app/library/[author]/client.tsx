@@ -129,9 +129,6 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                 className="hover:opacity-60"
               >
                 <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>{quiz.title}</span>
-                {quiz.subtitle && (
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-ghost)', marginLeft: '0.6rem' }}>{quiz.subtitle}</span>
-                )}
               </a>
             ))}
           </section>
