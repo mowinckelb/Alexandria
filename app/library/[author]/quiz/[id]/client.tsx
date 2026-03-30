@@ -27,7 +27,7 @@ interface QuizData {
   quiz_id: string;
   author_id: string;
   title: string;
-  questions: Array<{ id: string; question: string; text?: string; options: string[] }>;
+  questions: Array<{ id: string; question: string; text?: string; options: string[]; correct?: string; reveal?: string }>;
   result_tiers?: Array<{ min_pct: number; label: string; message: string }>;
   [key: string]: unknown; // flexible format
 }
@@ -79,13 +79,13 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
     const letter = ['A', 'B', 'C', 'D'][optionIndex];
     setAnswers(prev => ({ ...prev, [questionId]: letter }));
     setRevealed(questionId);
-    // Show correct answer, then auto-advance
+    // Show correct answer + reveal text, then auto-advance
     setTimeout(() => {
       setRevealed(null);
       if (quiz && currentQ < quiz.questions.length - 1) {
         setCurrentQ(prev => prev + 1);
       }
-    }, 1200);
+    }, 3500);
   };
 
   const submit = async () => {
@@ -184,9 +184,14 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
       <ThemeToggle />
       <main style={{ maxWidth: '480px', margin: '0 auto', padding: '8rem 2rem 4rem', fontFamily: 'var(--font-eb-garamond)' }}>
 
-        <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: '0 0 3rem' }}>
+        <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: '0 0 0.5rem' }}>
           {quiz.title}
         </p>
+        {(quiz as any).subtitle && (
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-ghost)', margin: '0 0 3rem', fontStyle: 'italic' }}>
+            {(quiz as any).subtitle}
+          </p>
+        )}
 
         {/* the question */}
         <p style={{ fontSize: '1.1rem', color: 'var(--text-primary)', lineHeight: 1.8, margin: '0 0 2rem' }}>
@@ -226,6 +231,20 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
             );
           })}
         </div>
+
+        {/* reveal text */}
+        {revealed === q.id && q.reveal && (
+          <p style={{
+            fontSize: '0.82rem',
+            color: 'var(--text-muted)',
+            lineHeight: 1.8,
+            fontStyle: 'italic',
+            margin: '0 0 2rem',
+            transition: 'opacity 0.5s',
+          }}>
+            {q.reveal}
+          </p>
+        )}
 
         {/* navigation — minimal */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
