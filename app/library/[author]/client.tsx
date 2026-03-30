@@ -173,8 +173,9 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                     el.style.animation = 'none';
                     void el.offsetHeight;
                     el.style.animation = 'shake 0.4s ease';
-                  } : undefined}
-                  style={{ margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: isLocked ? 'default' : 'pointer' }}
+                  } : !isLocked ? () => window.open(`${SERVER_URL}/library/${authorId}/work/${work.id}`, '_blank') : undefined}
+                  style={{ margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
                 >
                   <span style={{ fontSize: '0.95rem', color: isLocked ? 'var(--text-ghost)' : 'var(--text-primary)' }}>{work.title}</span>
                   {isPaid && (

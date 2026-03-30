@@ -136,16 +136,21 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
           {result.correct} of {result.total}
         </p>
 
-        <a onClick={shareResult} style={{ color: 'var(--text-primary)', textDecoration: 'none', cursor: 'pointer', fontSize: '0.88rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
-          {copied ? 'copied' : 'share'}
-        </a>
-
-        <div style={{ margin: '4rem 0 0', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
-          <a href={`/library/${authorId}`} style={{ color: 'var(--text-ghost)', textDecoration: 'none', fontSize: '0.82rem' }} className="hover:opacity-60">
-            {authorId}'s mind
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
+          <a onClick={shareResult} style={{ color: 'var(--text-primary)', textDecoration: 'none', cursor: 'pointer', fontSize: '0.92rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
+            {copied ? 'link copied' : 'share your score'}
           </a>
-          <a href="/join" style={{ color: 'var(--text-whisper)', textDecoration: 'none', fontSize: '0.78rem' }} className="hover:opacity-60">
-            want your own?
+          <a href={`/library/${authorId}`} style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.85rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
+            read this mind
+          </a>
+        </div>
+
+        <div style={{ margin: '4rem 0 0', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
+          <a href="/join" style={{ color: 'var(--text-ghost)', textDecoration: 'none', fontSize: '0.78rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
+            build your own
+          </a>
+          <a href="/" style={{ color: 'var(--text-whisper)', textDecoration: 'none', fontSize: '0.72rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
+            what is this?
           </a>
         </div>
 

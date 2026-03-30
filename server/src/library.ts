@@ -16,11 +16,12 @@ import { extractApiKey, findByApiKey } from './prosumer.js';
 // CORS-safe R2 response (Hono middleware headers don't carry through new Response)
 // ---------------------------------------------------------------------------
 
-function r2Response(body: ReadableStream | null, contentType: string, cache?: string): Response {
+function r2Response(body: ReadableStream | null, contentType: string, reqOrigin?: string | null, cache?: string): Response {
   const allowed = ['https://mowinckel.ai', 'https://www.mowinckel.ai'];
+  const origin = reqOrigin && allowed.includes(reqOrigin) ? reqOrigin : allowed[0];
   const headers: Record<string, string> = {
     'Content-Type': contentType,
-    'Access-Control-Allow-Origin': allowed.join(', '),
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Vary': 'Origin',
@@ -351,7 +352,7 @@ echo "Done."
     recordAccess('shadow_view', authorId, accessorKey, shadow.id, 'free');
     logEvent('library_shadow_view', { author: authorId, tier: 'free' });
 
-    return r2Response(obj.body, 'text/markdown; charset=utf-8', 'public, max-age=300');
+    return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'), 'public, max-age=300');
   });
 
   // Read paid shadow (requires auth + payment)
@@ -371,7 +372,7 @@ echo "Done."
       if (accessor && accessor.github_login === authorId) {
         const obj = await r2.get(shadow.r2_key);
         if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
-        return r2Response(obj.body, 'text/markdown; charset=utf-8');
+        return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
       }
 
       // Authenticated Author — add to billing tab
@@ -397,7 +398,7 @@ echo "Done."
         recordAccess('shadow_view', authorId, accessor.github_login, shadow.id, 'paid');
         logEvent('library_paid_access', { author: authorId, accessor: accessor.github_login, artifact_type: 'shadow', amount_cents: String(priceCents) });
 
-        return r2Response(obj.body, 'text/markdown; charset=utf-8');
+        return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
       }
     }
 
@@ -435,7 +436,7 @@ echo "Done."
     recordAccess('pulse_view', authorId, extractApiKey(c), null, null);
     logEvent('library_pulse_view', { author: authorId });
 
-    return r2Response(obj.body, 'text/markdown; charset=utf-8', 'public, max-age=300');
+    return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'), 'public, max-age=300');
   });
 
   // Read delta (Author-only)
@@ -628,7 +629,7 @@ echo "Done."
     recordAccess('work_view', authorId, extractApiKey(c), workId, work.tier);
     logEvent('library_work_view', { author: authorId, work_id: workId, tier: work.tier });
 
-    return r2Response(obj.body, 'text/markdown; charset=utf-8', 'public, max-age=300');
+    return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'), 'public, max-age=300');
   });
 
   // Author earnings summary
