@@ -100,6 +100,7 @@ Five loops. Full spec in Blueprint.md section V (served to every Engine every se
 - **Bitter lesson:** general methods leveraging computation beat hand-engineered solutions. No structured parameters, fixed schemas, or hand-crafted rules. Unstructured text/JSONL. Let the model figure it out.
 - **Philosophy IS the objective:** no numerical loss function or optimization target. Metrics are verification, not goals.
 - **Build as little as possible.** Ride existing infrastructure. Server is intent layer, not intelligence layer.
+- **Live the philosophy.** Every artifact — Blueprint, investor docs, code, brand — must visibly carry the human edge Alexandria claims is the tiebreaker. The test: could a competing team write the same thing from first principles without reading aN? If yes, it has failed. Generic = interchangeable = dead.
 
 ## End-of-Session Protocol
 
