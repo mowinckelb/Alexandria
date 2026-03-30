@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ author: s
     if (!res.ok) return { title: 'the library — alexandria.' };
     const data = await res.json();
     const name = data.author?.display_name || author;
-    const bio = data.author?.bio || 'a published mind.';
+    const bio = data.author?.bio || 'mens aeterna.';
     return {
       title: `${name} — the library`,
       description: bio,

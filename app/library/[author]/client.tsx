@@ -50,8 +50,6 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
   const [pulse, setPulse] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  const [copied, setCopied] = useState(false);
-
   useEffect(() => {
     params.then(({ author }) => {
       setAuthorId(author);
@@ -69,12 +67,6 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
         .catch(() => {});
     });
   }, [params]);
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/library/${authorId}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   if (loading) return (
     <main style={{ maxWidth: '640px', margin: '0 auto', padding: '40vh 2rem', fontFamily: 'var(--font-eb-garamond)', textAlign: 'center' }}>
@@ -170,11 +162,6 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
         )}
 
         <footer style={{ margin: '6rem 0 0', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', margin: '0 0 1.5rem' }}>
-            <a onClick={copyLink} style={{ color: 'var(--text-ghost)', textDecoration: 'none', cursor: 'pointer' }} className="hover:opacity-60">
-              {copied ? 'copied' : 'share'}
-            </a>
-          </p>
           <p style={{ fontSize: '0.72rem', color: 'var(--text-whisper)', marginTop: '3rem' }}>
             <a href="/library" style={{ color: 'var(--text-whisper)', textDecoration: 'none' }} className="hover:opacity-60">a.</a>
           </p>

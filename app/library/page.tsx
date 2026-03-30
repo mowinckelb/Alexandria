@@ -52,7 +52,7 @@ export default function LibraryPage() {
           the library
         </h1>
         <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.8, margin: '0 0 4rem' }}>
-          published minds.
+          mentes aeternae.
         </p>
 
         {loading ? (
