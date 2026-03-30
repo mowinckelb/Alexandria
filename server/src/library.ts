@@ -415,7 +415,27 @@ echo "Done."
       }
     }
 
-    // Non-Author — return 402 with checkout info
+    // Check session-based access (from Stripe checkout success)
+    const sessionId = c.req.query('session_id');
+    if (sessionId) {
+      try {
+        const { getKV } = await import('./kv.js');
+        const kv = getKV();
+        const grant = await kv.get(`library:access:${sessionId}`);
+        if (grant) {
+          const parsed = JSON.parse(grant);
+          if (parsed.author_id === authorId) {
+            const obj = await r2.get(shadow.r2_key);
+            if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
+            recordAccess('shadow_view', authorId, sessionId, shadow.id, 'paid');
+            logEvent('library_paid_access', { author: authorId, accessor: 'session', artifact_type: 'shadow' });
+            return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
+          }
+        }
+      } catch {}
+    }
+
+    // Non-Author, no valid session — return 402 with checkout info
     const author = await db.prepare('SELECT settings FROM authors WHERE id = ?').bind(authorId).first<{ settings: string }>();
     const settings = JSON.parse(author?.settings || '{}');
     const priceCents = settings.paid_price_cents;

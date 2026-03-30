@@ -48,6 +48,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
   const [authorId, setAuthorId] = useState<string>('');
   const [data, setData] = useState<AuthorData | null>(null);
   const [shadow, setShadow] = useState<string>('');
+  const [paidShadow, setPaidShadow] = useState<string>('');
   const [pulse, setPulse] = useState<string>('');
   const [openInfo, setOpenInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,6 +68,15 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
         .then(r => { if (r.ok) return r.text(); return ''; })
         .then(text => setPulse(text))
         .catch(() => {});
+      // Check for paid access via session_id
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+      if (sessionId) {
+        fetch(`${SERVER_URL}/library/${author}/shadow/paid?session_id=${sessionId}`)
+          .then(r => { if (r.ok) return r.text(); return ''; })
+          .then(text => { if (text && !text.startsWith('{')) setPaidShadow(text); })
+          .catch(() => {});
+      }
     });
   }, [params]);
 
@@ -171,7 +181,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
           </section>
         )}
 
-        {shadow && (
+        {(shadow || paidShadow) && (
           <section style={{ margin: '4rem 0' }}>
             <div style={{ margin: '0 0 1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -184,25 +194,34 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                 </p>
               )}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {(data.shadow_chapters || []).map((title, i) => (
-                <span key={i} style={{ fontSize: '0.88rem', color: 'var(--text-ghost)', opacity: Math.max(0.3, 1 - (i * 0.08)) }}>{title}</span>
-              ))}
-            </div>
-            <div
-              onClick={async () => {
-                try {
-                  const res = await fetch(`${SERVER_URL}/library/${authorId}/checkout/shadow`, { method: 'POST' });
-                  const data = await res.json();
-                  if (data.url) window.location.href = data.url;
-                } catch {}
-              }}
-              style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', marginTop: '1.5rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
-              className="hover:opacity-60"
-            >
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>{authorId}.md</span>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>
-            </div>
+
+            {paidShadow ? (
+              <article className="pdoc pdoc-longform">
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{paidShadow}</ReactMarkdown>
+              </article>
+            ) : (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  {(data.shadow_chapters || []).map((title, i) => (
+                    <span key={i} style={{ fontSize: '0.88rem', color: 'var(--text-ghost)', opacity: Math.max(0.3, 1 - (i * 0.08)) }}>{title}</span>
+                  ))}
+                </div>
+                <div
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(`${SERVER_URL}/library/${authorId}/checkout/shadow`, { method: 'POST' });
+                      const d = await res.json();
+                      if (d.url) window.location.href = d.url;
+                    } catch {}
+                  }}
+                  style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', marginTop: '1.5rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
+                >
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>{authorId}.md</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>
+                </div>
+              </>
+            )}
           </section>
         )}
 
