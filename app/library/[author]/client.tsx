@@ -92,13 +92,9 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
       <ThemeToggle />
       <main style={{ maxWidth: '640px', margin: '0 auto', padding: '6rem 2rem 4rem', fontFamily: 'var(--font-eb-garamond)' }}>
 
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', margin: '0 0 0.3rem' }}>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 400, margin: 0, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-            {displayName}
-          </h1>
-          <span style={{ fontSize: '0.68rem', color: 'var(--text-whisper)' }}>.md</span>
-          <span style={{ fontSize: '0.68rem', color: 'var(--text-whisper)' }}>$</span>
-        </div>
+        <h1 style={{ fontSize: '1.6rem', fontWeight: 400, margin: '0 0 0.3rem', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+          {displayName}
+        </h1>
         {author.bio && (
           <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: 1.8, margin: '0' }}>
             {author.bio}
@@ -107,9 +103,10 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
 
         {data.quizzes.length > 0 && (
           <section style={{ margin: '4rem 0' }}>
-            <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: '0 0 1.5rem' }}>
-              games
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1.5rem' }}>
+              <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: 0 }}>games</p>
+              <span title="generated from his constitution — the file that holds how he actually thinks. not buzzfeed. here's the actual product: mowinckel.ai/join" style={{ fontSize: '0.6rem', color: 'var(--text-whisper)', cursor: 'help', opacity: 0.5 }}>ⓘ</span>
+            </div>
             {data.quizzes.map(quiz => (
               <a
                 key={quiz.id}
@@ -118,23 +115,21 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                 className="hover:opacity-60"
               >
                 <span style={{ fontSize: '0.95rem' }}>{quiz.title}</span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-whisper)', marginLeft: '0.8rem' }}>play</span>
               </a>
             ))}
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', fontStyle: 'italic', margin: '2rem 0 0' }}>
-              so did he spend $100 on claude max just to vibecode buzzfeed? no. <a href="/join" style={{ color: 'var(--text-muted)', textDecoration: 'none', borderBottom: '1px solid var(--border-light)' }} className="hover:opacity-60">here's the actual product.</a>
-            </p>
           </section>
         )}
 
         {data.works.filter(w => !w.title.toLowerCase().includes('love')).length > 0 && (
           <section style={{ margin: '4rem 0' }}>
-            <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: '0 0 1.5rem' }}>
-              works
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1.5rem' }}>
+              <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: 0 }}>works</p>
+              <span title="finished pieces — essays, abstracts, creative work. published from the constitution." style={{ fontSize: '0.6rem', color: 'var(--text-whisper)', cursor: 'help', opacity: 0.5 }}>ⓘ</span>
+            </div>
             {data.works.filter(w => !w.title.toLowerCase().includes('love')).map(work => {
               const isLocked = work.tier === 'private';
               const isPaid = work.tier === 'paid';
+              const isPdf = work.title === 'droplets of grace';
               return (
                 <div
                   key={work.id}
@@ -143,21 +138,18 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                     el.style.animation = 'none';
                     void el.offsetHeight;
                     el.style.animation = 'shake 0.4s ease';
-                  } : !isLocked ? () => window.open(`${SERVER_URL}/library/${authorId}/work/${work.id}`, '_blank') : undefined}
+                  } : isPdf ? () => window.open('/docs/abstract.pdf', '_blank') : !isLocked ? () => window.open(`${SERVER_URL}/library/${authorId}/work/${work.id}`, '_blank') : undefined}
                   style={{ margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
                   className="hover:opacity-60"
                 >
                   <span style={{ fontSize: '0.95rem', color: isLocked ? 'var(--text-ghost)' : 'var(--text-primary)' }}>{work.title}</span>
-                  {isPaid && (
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>
-                  )}
+                  {isPaid && <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>}
                   {isLocked && (
                     <svg width="9" height="11" viewBox="0 0 9 11" fill="none" style={{ opacity: 0.25, flexShrink: 0 }}>
                       <rect x="0.5" y="5" width="8" height="5.5" rx="1" stroke="currentColor" strokeWidth="0.8" />
                       <path d="M2.5 5V3.5a2 2 0 0 1 4 0V5" stroke="currentColor" strokeWidth="0.8" fill="none" />
                     </svg>
                   )}
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>{work.medium}</span>
                 </div>
               );
             })}
@@ -166,9 +158,15 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
 
         {shadow && (
           <section style={{ margin: '4rem 0' }}>
-            <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: '0 0 1.5rem' }}>
-              shadow
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1.5rem' }}>
+              <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: 0 }}>shadow</p>
+              <span title="a published projection of this person's constitution — how they think, what they believe, what they've resolved and what remains unresolved. each chapter is a window into a different part of the mind." style={{ fontSize: '0.6rem', color: 'var(--text-whisper)', cursor: 'help', opacity: 0.5 }}>ⓘ</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              {['The Space Between Two Monoliths', 'Killer, Incompressible', 'The Faithless Christian Building a Cathedral', 'The Dark Knight Gets Zero Credit', 'The Grief Beneath the Positions', 'The Polymath Conductor', 'The Framework-as-Cage Shadow', 'The Priority Stack, Honestly'].map((title, i) => (
+                <span key={i} style={{ fontSize: '0.88rem', color: 'var(--text-ghost)', opacity: 1 - (i * 0.08) }}>{title}</span>
+              ))}
+            </div>
             <div
               onClick={(e) => {
                 const el = e.currentTarget;
@@ -176,27 +174,10 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                 void el.offsetHeight;
                 el.style.animation = 'shake 0.4s ease';
               }}
-              style={{ cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', marginTop: '1.5rem', cursor: 'pointer' }}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                {['The Space Between Two Monoliths', 'Killer, Incompressible', 'The Faithless Christian Building a Cathedral', 'The Dark Knight Gets Zero Credit', 'The Grief Beneath the Positions', 'The Polymath Conductor', 'The Framework-as-Cage Shadow', 'The Priority Stack, Honestly'].map((title, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      fontSize: '0.88rem',
-                      color: 'var(--text-ghost)',
-                      transition: 'opacity 0.15s',
-                      opacity: 1 - (i * 0.08),
-                    }}
-                  >
-                    {title}
-                  </span>
-                ))}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', marginTop: '1.5rem' }}>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>{authorId}.md</span>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>
-              </div>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>{authorId}.md</span>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>
             </div>
           </section>
         )}
