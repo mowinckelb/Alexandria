@@ -117,6 +117,9 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-whisper)', marginLeft: '0.8rem' }}>play</span>
               </a>
             ))}
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', fontStyle: 'italic', margin: '2rem 0 0' }}>
+              so did he spend $100 on claude max just to vibecode buzzfeed? no. <a href="/join" style={{ color: 'var(--text-muted)', textDecoration: 'none', borderBottom: '1px solid var(--border-light)' }} className="hover:opacity-60">here's the actual product.</a>
+            </p>
           </section>
         )}
 
