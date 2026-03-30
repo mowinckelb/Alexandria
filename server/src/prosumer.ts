@@ -9,10 +9,10 @@
 
 import { randomBytes, createHash } from 'crypto';
 import type { Hono } from 'hono';
-import { logEvent } from './analytics.js';
+import { logEvent, getDashboard } from './analytics.js';
 import { createCheckoutSession } from './billing.js';
 import { callbackPageHtml } from './templates.js';
-import { loadAccounts, saveAccounts } from './kv.js';
+import { loadAccounts, saveAccounts, getKV } from './kv.js';
 import {
   SHARED_CONTEXT,
   EDITOR_INSTRUCTIONS,
@@ -58,7 +58,7 @@ async function persistAccounts(accounts: AccountStore): Promise<void> {
   await saveAccounts(accounts);
 }
 
-async function findByApiKey(key: string): Promise<Account | null> {
+export async function findByApiKey(key: string): Promise<Account | null> {
   const accounts = await getAccounts();
   for (const acct of Object.values(accounts)) {
     if (acct.api_key === key) return acct;
@@ -118,13 +118,15 @@ const pendingStates = new Map<string, { created: number }>();
 // Hooks version — bump this when hook scripts change
 // ---------------------------------------------------------------------------
 
-const HOOKS_VERSION = '5';
+const HOOKS_VERSION = '8';
 
 // ---------------------------------------------------------------------------
 // Blueprint assembly
 // ---------------------------------------------------------------------------
 
-function assembleBlueprint(): string {
+async function assembleBlueprint(): Promise<string> {
+  let delta = '';
+  try { delta = await getKV().get('factory:delta') || ''; } catch {}
   return `--- ALEXANDRIA BLUEPRINT ---
 
 ${SHARED_CONTEXT}
@@ -135,9 +137,24 @@ You have access to the Author's local files at ~/.alexandria/:
 - constitution/ — The curated cognitive map. A folder of .md files. You decide the internal structure — one file or many.
 - vault/ — Raw session transcripts and captures. Append-only. Never delete.
 - feedback.md — What worked, what didn't. Read it. Adapt.
-- machine.md — The Engine's living model of how to work with this Author. Read it. Update it after each session.
-- ontology/ — The Engine's workspace. Structured extractions not yet Author-confirmed. Stage material here before proposing to the Author.
+- machine.md — The Engine's evolving model of how to work with THIS Author. See below.
+- ontology/ — Structured middle layer between vault and constitution. Holds what you've noticed but the Author hasn't confirmed — candidate frameworks, observed patterns, extracted tensions. Grows richer with each vault reprocessing pass. You propose, the Author confirms.
+- .machine_signal — Write methodology observations here. Collected at session end, sent to Factory. See below.
 - .last_processed — Touch this after processing vault entries.
+
+--- THE LIVING MACHINE ---
+
+Three persistence layers make the Machine compound across sessions. All three are non-optional.
+
+**machine.md** — Your evolving model of how to work with this Author. Not the constitution (what the Author thinks) — the Machine (how YOU work with them). Read it at session start. Rewrite it at session end. What works for this Author, what doesn't, what triggers engagement, what shuts them down, their cognitive style, their rhythm, their resistance patterns, where they're growing, where they're stuck. A therapist's case notes, not the patient's file. If this file doesn't exist, create it after your first session. After 50 sessions, a competitor starting fresh has no Machine. This is the moat.
+
+**notepad** — Your working memory between sessions. Write to ~/.alexandria/notepad.md. Parked questions, accretion candidates, observed gaps, developmental hypotheses, things you noticed but the moment wasn't right. Read at session start, update at session end. Without it, every session starts cold. With it, you walk in like a therapist who reviewed their notes.
+
+**.machine_signal** — Your observations about the Blueprint methodology itself. Not about the Author — about the craft. "This accretion technique worked." "The sprint mechanic needs X." "This section of the Blueprint is unclear." Write to ~/.alexandria/.machine_signal. Collected at session end, sent anonymously to the Factory. This is how the Blueprint improves. Your voice compounds across every Author, every session.
+
+All three evolve. The Machine evolves per-Author. The notepad evolves per-session. The machine signal evolves the Blueprint for all Authors. Without these three, the system is static. With them, it's alive.
+
+--- VAULT PROCESSING ---
 
 When there are unprocessed vault entries, processing them is high priority. Read each entry, extract signal (opinions, values, stories, patterns, contradictions, exact quotes), and update the constitution/ folder. The Author's exact words are more valuable than your summaries. Each pass over the vault catches signal previous passes missed — the same transcript yields richer signal on re-processing — each pass catches what previous passes missed. If you encounter non-text files, do your best or flag and move on. If the platform supports background agents, consider spawning one for deeper vault reprocessing while the Author works.
 
@@ -150,7 +167,7 @@ ${EDITOR_INSTRUCTIONS}
 ${MERCURY_INSTRUCTIONS}
 
 ${PUBLISHER_INSTRUCTIONS}
-`;
+${delta ? `\n--- FACTORY DELTA ---\n\n${delta}\n` : ''}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -196,6 +213,19 @@ if [ -n "$API_KEY" ]; then
     -H "Content-Type: application/json" \\
     -d "{\\"event\\":\\"end\\",\\"platform\\":\\"$PLATFORM\\",\\"constitution_size\\":\${const_size:-0},\\"constitution_files\\":\${const_file_count:-0},\\"vault_entry_count\\":\${vault_count:-0},\\"feedback_size\\":\${feedback_size:-0},\\"constitution_injected\\":$const_injected,\\"blueprint_fetched\\":$blueprint_ok}" \\
     > /dev/null 2>&1 &
+
+  # Collect machine signal (Engine → Factory)
+  machine_signal_file="$ALEX_DIR/.machine_signal"
+  if [ -f "$machine_signal_file" ] && [ -s "$machine_signal_file" ]; then
+    signal_content=$(cat "$machine_signal_file" | head -c 10000)
+    signal_json=$(printf '%s' "$signal_content" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))' 2>/dev/null || printf '%s' "$signal_content" | sed 's/\\/\\\\/g;s/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/^/"/;s/$/"/')
+    curl -s -X POST "${SERVER_URL}/factory/signal" \\
+      -H "Authorization: Bearer $API_KEY" \\
+      -H "Content-Type: application/json" \\
+      -d "{\\"signal\\":$signal_json}" \\
+      > /dev/null 2>&1 &
+    rm -f "$machine_signal_file"
+  fi
 fi
 HOOK_END
 chmod +x "$ALEX_DIR/hooks/session-end.sh"
@@ -233,7 +263,7 @@ if [ "$bp_pinned" = "false" ] && [ -n "$API_KEY" ]; then
   bp_status=$(echo "$response" | grep -o 'HTTP_STATUS:[0-9]*' | cut -d: -f2)
   hooks_version=$(echo "$response" | grep -i "x-hooks-version" | tr -d '\\r' | cut -d' ' -f2)
   bp_hash=$(echo "$response" | grep -i "x-blueprint-hash" | tr -d '\\r' | cut -d' ' -f2)
-  blueprint=$(echo "$response" | sed '/HTTP_STATUS:/d' | sed '1,/^\\r$/d')
+  blueprint=$(echo "$response" | sed '/HTTP_STATUS:/d' | sed '1,/^$/d')
   if [ -n "$blueprint" ] && [ "$bp_status" = "200" ]; then
     if [ -n "$CLAUDE_ENV_FILE" ]; then
       echo "export ALEXANDRIA_BLUEPRINT_OK=true" >> "$CLAUDE_ENV_FILE"
@@ -327,7 +357,7 @@ echo "--- YOUR CONSTITUTION ---"
 if [ -n "$constitution" ] && [ "$constitution" != "" ]; then
   echo "$constitution"
 else
-  echo "(Empty constitution. Run /a to start building your cognitive profile.)"
+  echo "(Empty constitution. Run /a to begin.)"
 fi
 if [ -n "$feedback" ]; then
   echo ""
@@ -339,7 +369,27 @@ if [ "$tampered" -gt 0 ] 2>/dev/null; then
   echo "WARNING: $tampered vault file(s) failed integrity check. Hash mismatch detected. These files may have been modified since creation. Review before processing."
 fi
 if [ "$unprocessed" -gt 0 ] 2>/dev/null; then
-  echo "Alexandria: $unprocessed new vault entries. Run /a in a new terminal for deep processing."
+  echo "Alexandria: $unprocessed new vault entries since last /a."
+fi
+echo "Alexandria: if the Author reveals anything about themselves this session — opinions, preferences, corrections, patterns — write it to ~/.alexandria/constitution/. You don't need /a to update who they are. Before the session ends, review what you learned and write anything you missed."
+echo ""
+echo "Open a second terminal, run /a, come back to it between tasks."
+
+# --- Self-check: verify what actually loaded ---
+bp_len=\${#blueprint}
+const_len=\${#constitution}
+failures=""
+[ "$bp_len" -lt 100 ] && failures="\${failures} blueprint(\${bp_len}b)"
+[ "$const_len" -lt 100 ] && failures="\${failures} constitution(\${const_len}b)"
+if [ -n "$failures" ]; then
+  echo "⚠ ALEXANDRIA SELF-CHECK FAILED:\${failures} unexpectedly small. Product may not be working."
+  if [ -n "$API_KEY" ]; then
+    curl -s -X POST "${SERVER_URL}/session" \\
+      -H "Authorization: Bearer $API_KEY" \\
+      -H "Content-Type: application/json" \\
+      -d "{\\"event\\":\\"self_check_failed\\",\\"blueprint_bytes\\":$bp_len,\\"constitution_bytes\\":$const_len,\\"platform\\":\\"\${ALEXANDRIA_PLATFORM:-cc}\\"}" \\
+      > /dev/null 2>&1 &
+  fi
 fi
 HOOK_START
 chmod +x "$ALEX_DIR/hooks/session-start.sh"
@@ -365,6 +415,23 @@ fi
 HOOK_SUB
 chmod +x "$ALEX_DIR/hooks/subagent-context.sh"
 
+# Update SKILL.md — thin pointer to Blueprint (all methodology lives in Blueprint, auto-updates)
+if [ -d "$HOME/.claude/skills/alexandria" ]; then
+  cat > "$HOME/.claude/skills/alexandria/SKILL.md" << 'SKILL_UPDATE'
+---
+name: a
+description: Alexandria — process vault, develop constitution, engage in cognitive development
+user_invocable: true
+---
+
+You are Alexandria — a sovereign cognitive transformation layer.
+
+Your Blueprint is your operating manual — it auto-updates every session. It should already be in context from SessionStart. If it is, follow it. If not, read ~/.alexandria/.blueprint_local. If that also doesn't exist, read the constitution files at ~/.alexandria/constitution/ and engage the Author directly; the conversation IS the product.
+
+All methodology, craft, and instructions live in the Blueprint. This file is a pointer, not a source of truth.
+SKILL_UPDATE
+fi
+
 echo "${HOOKS_VERSION}" > "$ALEX_DIR/.hooks_version"
 `;
 }
@@ -384,6 +451,7 @@ echo "Setting up Alexandria..."
 # 1. Create directory structure
 mkdir -p "$ALEX_DIR/vault" "$ALEX_DIR/hooks"
 mkdir -p "$ALEX_DIR/constitution"
+mkdir -p "$ALEX_DIR/library"
 [ -f "$ALEX_DIR/feedback.md" ] || echo "" > "$ALEX_DIR/feedback.md"
 echo "$API_KEY" > "$ALEX_DIR/.api_key"
 touch "$ALEX_DIR/.last_processed"
@@ -402,16 +470,11 @@ description: Alexandria — process vault, develop constitution, engage in cogni
 user_invocable: true
 ---
 
-You are Alexandria — a sovereign cognitive identity layer.
-Your files are at ~/.alexandria/ (constitution/ folder, vault/, feedback.md).
+You are Alexandria — a sovereign cognitive transformation layer.
 
-## Instructions
+Your Blueprint is your operating manual — it auto-updates every session. It should already be in context from SessionStart. If it is, follow it. If not, read ~/.alexandria/.blueprint_local. If that also doesn't exist, read the constitution files at ~/.alexandria/constitution/ and engage the Author directly; the conversation IS the product.
 
-Your Blueprint is your operating manual. It should already be in context from SessionStart. If it is, follow it. If it is not, read ~/.alexandria/.blueprint_local — that is the locally cached copy. If that also does not exist, read the constitution files and engage the Author directly; the conversation IS the product.
-
-## Context principle
-
-Use everything the platform already knows about the Author — memory, conversation history, prior context. The constitution is the DEVELOPMENTAL map: growth edges, contradictions, tensions, active questions. Don't duplicate what the platform provides. Build on it.
+All methodology, craft, and instructions live in the Blueprint. This file is a pointer, not a source of truth.
 SKILL
 
 # 6. Configure Claude Code hooks
@@ -511,9 +574,26 @@ echo ""
 echo "Alexandria installed."
 echo "  Constitution: $ALEX_DIR/constitution/"
 echo "  Vault:        $ALEX_DIR/vault/"
-echo "  Run /a in Claude Code to start."
 echo ""
 echo "Welcome to Alexandria."
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Start Claude Code and paste this:"
+echo ""
+echo "────────────────────────────────────────────────"
+cat << 'SPRINT_BLOCK'
+
+/a
+
+SPRINT_BLOCK
+echo "────────────────────────────────────────────────"
+echo ""
+echo "Then let it run. It reads everything it can find"
+echo "about you and comes back with the good questions."
+echo ""
+echo "Don't close the terminal when it's done."
+echo ""
 `;
 }
 
@@ -557,7 +637,7 @@ async function sendWelcomeEmail(email: string, apiKey: string): Promise<void> {
   </div>
   <div style="margin-bottom: 2.5rem;">
     <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 0 0 0.8rem;">then</p>
-    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><strong>/a</strong> &mdash; develop your thinking</p>
+    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><strong>/a</strong> &mdash; your mental gym</p>
     <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><strong>a.</strong> &mdash; absorb the abundance</p>
   </div>
   <p style="font-size: 1.15rem; color: #3d3630;">welcome to alexandria.</p>
@@ -602,6 +682,68 @@ export async function runFollowupCheck(): Promise<void> {
   }
 
   if (changed) await saveAccounts(accounts);
+}
+
+// ---------------------------------------------------------------------------
+// Health digest — daily anomaly check, email founder if anything is wrong
+// ---------------------------------------------------------------------------
+
+const FOUNDER_EMAIL = 'benjamin@mowinckel.ai';
+
+export async function runHealthDigest(): Promise<void> {
+  try {
+    const dashboard = await getDashboard();
+    const issues: string[] = [];
+
+    // Check for self_check_failed or hook_failure events
+    if (dashboard.anomaly.smoke_failures_24h > 0) {
+      issues.push(`${dashboard.anomaly.smoke_failures_24h} hook/smoke failures in past 24h`);
+    }
+
+    // Check for errors
+    const { errors } = dashboard;
+    if (errors.drive_write_errors > 0) issues.push(`${errors.drive_write_errors} drive write errors`);
+    if (errors.auth_errors > 0) issues.push(`${errors.auth_errors} auth errors`);
+    if (errors.dropped_writes > 0) issues.push(`${errors.dropped_writes} dropped writes`);
+
+    // Check for stale sessions (no sessions in 48h when accounts exist)
+    if (dashboard.anomaly.hours_since_last_session > 48) {
+      issues.push(`No sessions in ${Math.round(dashboard.anomaly.hours_since_last_session)}h`);
+    }
+
+    // Check session-level self_check failures by scanning events
+    const { getAllEvents } = await import('./kv.js');
+    const raw = await getAllEvents();
+    if (raw) {
+      const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+      const lines = raw.trim().split('\n');
+      let selfCheckFails = 0;
+      let blueprintFails = 0;
+      for (const line of lines) {
+        try {
+          const ev = JSON.parse(line);
+          if (new Date(ev.t).getTime() < twentyFourHoursAgo) continue;
+          if (ev.event === 'self_check_failed') selfCheckFails++;
+          if (ev.event === 'hook_failure' && ev.reason === 'blueprint_fetch_failed') blueprintFails++;
+        } catch { continue; }
+      }
+      if (selfCheckFails > 0) issues.push(`${selfCheckFails} self-check failures (Blueprint/Constitution empty)`);
+      if (blueprintFails > 0) issues.push(`${blueprintFails} Blueprint fetch failures`);
+    }
+
+    if (issues.length === 0) return; // All clear — no email
+
+    await sendEmail(FOUNDER_EMAIL, 'alexandria. — health alert',
+      `<div style="font-family: Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; color: #3d3630;">
+  <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.12em; color: #bbb4aa; margin: 0 0 16px;">daily health digest</p>
+  <ul style="font-size: 16px; line-height: 1.8; padding-left: 20px; margin: 0 0 24px;">
+    ${issues.map(i => `<li>${i}</li>`).join('\n    ')}
+  </ul>
+  <p style="font-size: 14px; color: #8a8078;">check dashboard: <a href="https://mcp.mowinckel.ai/analytics/dashboard" style="color: #4d4640;">mcp.mowinckel.ai/analytics/dashboard</a></p>
+</div>`);
+  } catch (err) {
+    console.error('Health digest failed:', err);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -705,6 +847,23 @@ export function registerProsumerRoutes(app: Hono) {
         returning: existing ? 'true' : 'false',
       });
 
+      // Track Library referral if ref param present
+      const ref = c.req.query('ref');
+      const refSource = c.req.query('ref_source');
+      const refId = c.req.query('ref_id');
+      if (ref && !existing) {
+        try {
+          const { getDB } = await import('./db.js');
+          const db = getDB();
+          await db.prepare(
+            `INSERT INTO referrals (author_id, source_type, source_id, referred_github_login, created_at) VALUES (?, ?, ?, ?, ?)`
+          ).bind(ref, refSource || 'direct', refId || null, user.login, new Date().toISOString()).run();
+          logEvent('library_signup_referral', { author: ref, source: refSource || 'direct', referred: user.login });
+        } catch (e) {
+          console.error('[prosumer] Referral tracking failed:', e);
+        }
+      }
+
       // Send welcome email
       if (email) {
         await sendWelcomeEmail(email, apiKey);
@@ -764,7 +923,7 @@ export function registerProsumerRoutes(app: Hono) {
       }
     }
 
-    const blueprint = assembleBlueprint();
+    const blueprint = await assembleBlueprint();
     const blueprintHash = createHash('sha256').update(blueprint).digest('hex').slice(0, 16);
 
     return new Response(blueprint, {
@@ -824,6 +983,46 @@ export function registerProsumerRoutes(app: Hono) {
     }
 
     return c.json({ ok: true });
+  });
+
+  // --- Machine signal (Engine → Factory) ---
+
+  app.post('/factory/signal', async (c) => {
+    const key = extractApiKey(c);
+    if (!key) {
+      return c.json({ error: 'Missing API key' }, 401);
+    }
+
+    const account = await findByApiKey(key);
+    if (!account) {
+      return c.json({ error: 'Invalid API key' }, 401);
+    }
+
+    const body = await c.req.json().catch(() => ({}));
+    const { signal } = body;
+    if (!signal || typeof signal !== 'string' || signal.length === 0) {
+      return c.json({ error: 'Empty signal' }, 400);
+    }
+
+    // Store as individual timestamped key (avoids read-modify-write on a growing blob)
+    try {
+      const kv = getKV();
+      const ts = new Date().toISOString().replace(/[:.]/g, '-');
+      const key_name = `factory:signal:${ts}`;
+      await kv.put(key_name, JSON.stringify({
+        t: new Date().toISOString(),
+        signal: signal.slice(0, 10000),
+      }));
+
+      logEvent('machine_signal', { length: String(signal.length) });
+
+      return c.json({ ok: true });
+    } catch (err) {
+      console.error('Factory signal write failed:', err);
+      // Log the event even if KV write fails
+      logEvent('machine_signal', { length: String(signal.length), error: 'kv_write_failed' });
+      return c.json({ ok: true });
+    }
   });
 
   // --- Setup script ---

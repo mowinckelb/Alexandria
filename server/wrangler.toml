@@ -9,6 +9,19 @@ workers_dev = true
 binding = "DATA"
 id = "7f1153cbddfd49239a51f07d98cee37a"
 
+# D1 database — Library metadata, access log, billing tab
+# Uncomment when R2 is enabled on the Cloudflare account
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "alexandria-library"
+# database_id = "d76e2219-dbcc-43da-b618-1b0ae0095db8"
+
+# R2 bucket — published artifacts (shadows, pulses, quizzes, works)
+# Uncomment when R2 is enabled on the Cloudflare account
+# [[r2_buckets]]
+# binding = "ARTIFACTS"
+# bucket_name = "alexandria-artifacts"
+
 # Route-based binding — intercepts when DNS record is proxied
 [[routes]]
 pattern = "mcp.mowinckel.ai/*"
@@ -16,7 +29,7 @@ zone_id = "7a1952631048380db0df21b5daa1e88e"
 
 # Cron trigger — daily follow-up email check at 9am UTC
 [triggers]
-crons = ["0 9 * * *"]
+crons = ["0 9 * * *", "0 2 1 * *"]
 
 # Import .md files as text modules (source of truth for Axioms + Blueprint)
 [[rules]]

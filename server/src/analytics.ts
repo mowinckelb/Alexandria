@@ -247,6 +247,46 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
       hours_since_last_session: hoursSinceLastSession,
       smoke_failures_24h: smokeFailures24h,
     },
+    library: await getLibraryMetrics(events),
+  };
+}
+
+/**
+ * Library metrics — pulled from D1 (structured) + event log (signal).
+ */
+async function getLibraryMetrics(events: Record<string, string>[]): Promise<Record<string, unknown>> {
+  // Event-based metrics (from JSONL log)
+  const libraryEvents = events.filter(e => e.e?.startsWith('library_'));
+  const shadowViews = libraryEvents.filter(e => e.e === 'library_shadow_view').length;
+  const pulseViews = libraryEvents.filter(e => e.e === 'library_pulse_view').length;
+  const quizzesTaken = libraryEvents.filter(e => e.e === 'library_quiz_taken').length;
+  const workViews = libraryEvents.filter(e => e.e === 'library_work_view').length;
+  const paidAccess = libraryEvents.filter(e => e.e === 'library_paid_access').length;
+  const publishes = libraryEvents.filter(e => e.e === 'library_publish_shadow').length;
+  const purchases = libraryEvents.filter(e => e.e === 'library_purchase').length;
+
+  // D1 metrics (if available)
+  let d1Metrics: Record<string, unknown> = {};
+  try {
+    const { getDB } = await import('./db.js');
+    const db = getDB();
+    const counts = await db.prepare(`
+      SELECT
+        (SELECT COUNT(*) FROM authors) as total_authors,
+        (SELECT COUNT(*) FROM shadows) as total_shadows,
+        (SELECT COUNT(*) FROM quizzes WHERE active = 1) as total_quizzes,
+        (SELECT COUNT(*) FROM works) as total_works,
+        (SELECT COUNT(*) FROM quiz_results) as total_quiz_completions,
+        (SELECT COUNT(*) FROM referrals) as total_referrals
+    `).first();
+    if (counts) d1Metrics = counts as Record<string, unknown>;
+  } catch {
+    // D1 not available — ok, just return event-based metrics
+  }
+
+  return {
+    events: { shadow_views: shadowViews, pulse_views: pulseViews, quizzes_taken: quizzesTaken, work_views: workViews, paid_access: paidAccess, publishes, purchases },
+    ...d1Metrics,
   };
 }
 
