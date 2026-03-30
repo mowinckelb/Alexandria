@@ -133,47 +133,46 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
       <ThemeToggle />
       <main style={{ maxWidth: '480px', margin: '0 auto', padding: '8rem 2rem 4rem', fontFamily: 'var(--font-eb-garamond)', textAlign: 'center' }}>
 
-        <p style={{ fontSize: '4rem', fontWeight: 400, color: 'var(--text-primary)', margin: '0', lineHeight: 1 }}>
+        <p style={{ fontSize: '3.5rem', fontWeight: 400, color: 'var(--text-primary)', margin: '0', lineHeight: 1 }}>
           {result.score_pct}%
         </p>
 
+        <p style={{ fontSize: '0.75rem', color: 'var(--text-ghost)', margin: '0.8rem 0 0' }}>
+          {result.correct} of {result.total} aligned
+        </p>
+
         {result.result_tier?.label && (
-          <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', margin: '1rem 0 0' }}>
+          <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', margin: '1.5rem 0 0' }}>
             {result.result_tier.label}
           </p>
         )}
 
         {result.result_tier?.message && (
-          <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.8, margin: '0.8rem 0 0', fontStyle: 'italic' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.8, margin: '0.5rem 0 0', fontStyle: 'italic' }}>
             {result.result_tier.message}
           </p>
         )}
 
-        <p style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', margin: '2.5rem 0 0' }}>
-          {result.correct} of {result.total} aligned
-        </p>
-
-        <div style={{ margin: '3rem 0', display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
-          <a onClick={shareResult} style={{ color: 'var(--text-primary)', textDecoration: 'none', cursor: 'pointer', fontSize: '0.92rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
+        <div style={{ margin: '3rem 0 0' }}>
+          <a onClick={shareResult} style={{ color: 'var(--text-primary)', textDecoration: 'none', cursor: 'pointer', fontSize: '0.95rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
             {copied ? 'link copied' : 'share'}
           </a>
         </div>
 
-        <div style={{ margin: '2rem 0', padding: '1.5rem 0', borderTop: '1px solid var(--border-light)' }}>
-          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0 0 0.5rem' }}>
-            want to see how he actually answered?
-          </p>
-          <a
-            href={`/library/${authorId}`}
-            style={{ color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.88rem', transition: 'opacity 0.15s' }}
-            className="hover:opacity-60"
+        <div style={{ margin: '3rem 0 0', display: 'flex', flexDirection: 'column', gap: '1.2rem', alignItems: 'center' }}>
+          <div
+            onClick={(e) => {
+              const el = e.currentTarget;
+              el.style.animation = 'none';
+              void el.offsetHeight;
+              el.style.animation = 'shake 0.4s ease';
+            }}
+            style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', cursor: 'pointer' }}
           >
-            read the shadow
-          </a>
-        </div>
-
-        <div style={{ margin: '2rem 0 0', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
-          <a href="/join" style={{ color: 'var(--text-ghost)', textDecoration: 'none', fontSize: '0.78rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>read the shadow</span>
+            <span style={{ fontSize: '0.68rem', color: 'var(--text-whisper)' }}>$</span>
+          </div>
+          <a href="/signup" style={{ color: 'var(--text-ghost)', textDecoration: 'none', fontSize: '0.78rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
             make your own
           </a>
           <a href="/" style={{ color: 'var(--text-whisper)', textDecoration: 'none', fontSize: '0.72rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
@@ -219,9 +218,10 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
                 style={{
                   background: 'none',
                   border: 'none',
-                  borderBottom: selected ? '1px solid var(--text-primary)' : '1px solid transparent',
+                  borderBottom: '1px solid transparent',
                   cursor: answers[q.id] ? 'default' : 'pointer',
-                  color: selected ? 'var(--text-primary)' : 'var(--text-muted)',
+                  color: selected ? 'var(--text-primary)' : answers[q.id] ? 'var(--text-whisper)' : 'var(--text-muted)',
+                  fontWeight: selected ? 500 : 400,
                   fontSize: '0.95rem',
                   padding: '0.7rem 0',
                   fontFamily: 'var(--font-eb-garamond)',
@@ -268,17 +268,7 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
             ))}
           </div>
 
-          <span
-            onClick={!answers[q.id] ? skipQuestion : undefined}
-            style={{
-              color: !answers[q.id] ? 'var(--text-whisper)' : 'transparent',
-              fontSize: '0.75rem', cursor: !answers[q.id] ? 'pointer' : 'default',
-              transition: 'opacity 0.15s',
-            }}
-            className="hover:opacity-60"
-          >
-            boring
-          </span>
+          <span style={{ color: 'transparent', fontSize: '0.75rem' }}>.</span>
         </div>
 
       </main>
