@@ -375,6 +375,56 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
 // Library — one-time checkout for non-Authors
 // ---------------------------------------------------------------------------
 
+export async function createLibraryCheckoutWithSlider(opts: {
+  authorId: string;
+  authorDisplayName: string;
+  artifactType: string;
+  artifactId: string;
+  minCents: number;
+}): Promise<string> {
+  const stripe = getStripe();
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+
+  // Create a product for this author's shadow (reuse if exists)
+  let product: Stripe.Product;
+  const existingProducts = await stripe.products.list({ limit: 100 });
+  const found = existingProducts.data.find(p => p.metadata.author_id === opts.authorId && p.metadata.artifact_type === 'shadow');
+  if (found) {
+    product = found;
+  } else {
+    product = await stripe.products.create({
+      name: `${opts.authorDisplayName} — shadow`,
+      description: 'the full mind, published as a file.',
+      metadata: { author_id: opts.authorId, artifact_type: opts.artifactType },
+    });
+  }
+
+  // Create a price with custom_unit_amount (slider)
+  const price = await stripe.prices.create({
+    product: product.id,
+    currency: 'usd',
+    custom_unit_amount: {
+      enabled: true,
+      minimum: opts.minCents,
+      preset: opts.minCents,
+    },
+  });
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    line_items: [{ price: price.id, quantity: 1 }],
+    metadata: {
+      library_purchase: 'true',
+      author_id: opts.authorId,
+      artifact_type: opts.artifactType,
+      artifact_id: opts.artifactId,
+    },
+    success_url: `${WEBSITE_URL}/library/${opts.authorId}?access=granted&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${WEBSITE_URL}/library/${opts.authorId}`,
+  });
+  return session.url || '';
+}
+
 export async function createLibraryCheckout(opts: {
   authorId: string;
   authorDisplayName: string;

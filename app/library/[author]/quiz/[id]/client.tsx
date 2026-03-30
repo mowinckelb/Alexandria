@@ -162,13 +162,15 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
         <div style={{ margin: '3rem 0 0', display: 'flex', flexDirection: 'column', gap: '1.2rem', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <div
-              onClick={(e) => {
-                const el = e.currentTarget;
-                el.style.animation = 'none';
-                void el.offsetHeight;
-                el.style.animation = 'shake 0.4s ease';
+              onClick={async () => {
+                try {
+                  const res = await fetch(`${SERVER_URL}/library/${authorId}/checkout/shadow`, { method: 'POST' });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                } catch {}
               }}
-              style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
+              className="hover:opacity-60"
             >
               <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>read the shadow</span>
               <span style={{ fontSize: '0.68rem', color: 'var(--text-whisper)' }}>$</span>

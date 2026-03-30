@@ -190,13 +190,15 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
               ))}
             </div>
             <div
-              onClick={(e) => {
-                const el = e.currentTarget;
-                el.style.animation = 'none';
-                void el.offsetHeight;
-                el.style.animation = 'shake 0.4s ease';
+              onClick={async () => {
+                try {
+                  const res = await fetch(`${SERVER_URL}/library/${authorId}/checkout/shadow`, { method: 'POST' });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                } catch {}
               }}
-              style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', marginTop: '1.5rem', cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', marginTop: '1.5rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
+              className="hover:opacity-60"
             >
               <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>{authorId}.md</span>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>

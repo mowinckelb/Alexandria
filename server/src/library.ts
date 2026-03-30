@@ -428,6 +428,36 @@ echo "Done."
     }, 402);
   });
 
+  // Checkout — create Stripe session for paid shadow (slider: min price, reader can pay more)
+  app.post('/library/:author/checkout/shadow', async (c) => {
+    const authorId = c.req.param('author');
+    const db = getDB();
+
+    const author = await db.prepare('SELECT * FROM authors WHERE id = ?').bind(authorId).first<{ display_name: string; settings: string }>();
+    if (!author) return c.json({ error: 'Author not found' }, 404);
+
+    const settings = JSON.parse(author.settings || '{}');
+    const minCents = settings.paid_price_cents || 2000;
+
+    const shadow = await db.prepare('SELECT id FROM shadows WHERE author_id = ? AND tier = ?').bind(authorId, 'paid').first<{ id: string }>();
+    if (!shadow) return c.json({ error: 'No paid shadow' }, 404);
+
+    try {
+      const { createLibraryCheckoutWithSlider } = await import('./billing.js');
+      const url = await createLibraryCheckoutWithSlider({
+        authorId,
+        authorDisplayName: author.display_name || authorId,
+        artifactType: 'shadow',
+        artifactId: shadow.id,
+        minCents,
+      });
+      return c.json({ url });
+    } catch (e) {
+      console.error('[library] Checkout creation failed:', e);
+      return c.json({ error: 'Checkout failed' }, 500);
+    }
+  });
+
   // Read latest or specific pulse
   app.get('/library/:author/pulse/:month?', async (c) => {
     const authorId = c.req.param('author');
