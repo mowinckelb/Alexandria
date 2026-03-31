@@ -52,6 +52,8 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
   const [accessToken, setAccessToken] = useState<{ token: string; api_url: string } | null>(null);
   const [pulse, setPulse] = useState<string>('');
   const [openInfo, setOpenInfo] = useState<string | null>(null);
+  const [promoInput, setPromoInput] = useState('');
+  const [promoError, setPromoError] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   useEffect(() => {
@@ -211,20 +213,41 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                     <span key={i} style={{ fontSize: '0.88rem', color: 'var(--text-ghost)', opacity: Math.max(0.3, 1 - (i * 0.08)) }}>{title}</span>
                   ))}
                 </div>
-                <div
-                  onClick={async () => {
-                    try {
-                      const res = await fetch(`${SERVER_URL}/library/${authorId}/checkout/shadow`, { method: 'POST' });
-                      const d = await res.json();
-                      if (d.url) window.location.href = d.url;
-                    } catch {}
-                  }}
-                  style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', marginTop: '1.5rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
-                  className="hover:opacity-60"
-                >
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>{authorId}.md</span>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '1.5rem', marginTop: '1.5rem' }}>
+                  <div
+                    onClick={async () => {
+                      try {
+                        const body = promoInput ? { promo_code: promoInput } : {};
+                        const res = await fetch(`${SERVER_URL}/library/${authorId}/checkout/shadow`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(body),
+                        });
+                        const d = await res.json();
+                        if (d.url) window.location.href = d.url;
+                      } catch {}
+                    }}
+                    style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                    className="hover:opacity-60"
+                  >
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>{authorId}.md</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <input
+                      type="text"
+                      placeholder="code"
+                      value={promoInput}
+                      onChange={e => { setPromoInput(e.target.value); setPromoError(''); }}
+                      style={{
+                        background: 'none', border: 'none', borderBottom: '1px solid var(--border-light)',
+                        color: 'var(--text-ghost)', fontSize: '0.68rem', fontFamily: 'var(--font-eb-garamond)',
+                        width: '80px', padding: '2px 0', outline: 'none',
+                      }}
+                    />
+                  </div>
                 </div>
+                {promoError && <p style={{ fontSize: '0.65rem', color: 'var(--text-whisper)', margin: '0.3rem 0 0' }}>{promoError}</p>}
               </>
             )}
           </section>
