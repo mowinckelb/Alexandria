@@ -149,17 +149,11 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
           <section style={{ margin: '4rem 0' }}>
             <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: '0 0 1.5rem' }}>works</p>
             {data.works.map(work => {
-              const isLocked = work.tier === 'private';
               const isPaid = work.tier === 'paid';
               return (
                 <div
                   key={work.id}
-                  onClick={isLocked ? (e) => {
-                    const el = e.currentTarget;
-                    el.style.animation = 'none';
-                    void el.offsetHeight;
-                    el.style.animation = 'shake 0.4s ease';
-                  } : isPaid ? (e) => {
+                  onClick={isPaid ? (e) => {
                     const el = e.currentTarget;
                     el.style.animation = 'none';
                     void el.offsetHeight;
@@ -168,14 +162,8 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                   style={{ margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
                   className="hover:opacity-60"
                 >
-                  <span style={{ fontSize: '0.95rem', color: isLocked ? 'var(--text-ghost)' : 'var(--text-primary)' }}>{work.title}</span>
+                  <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>{work.title}</span>
                   {isPaid && <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>}
-                  {isLocked && (
-                    <svg width="9" height="11" viewBox="0 0 9 11" fill="none" style={{ opacity: 0.25, flexShrink: 0 }}>
-                      <rect x="0.5" y="5" width="8" height="5.5" rx="1" stroke="currentColor" strokeWidth="0.8" />
-                      <path d="M2.5 5V3.5a2 2 0 0 1 4 0V5" stroke="currentColor" strokeWidth="0.8" fill="none" />
-                    </svg>
-                  )}
                 </div>
               );
             })}

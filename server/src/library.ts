@@ -225,6 +225,51 @@ export function registerLibraryRoutes(app: Hono): void {
     return c.json({ ok: true });
   });
 
+  // Create promo code (Author-authenticated)
+  app.post('/library/promo', async (c) => {
+    const key = extractApiKey(c);
+    if (!key) return c.json({ error: 'Missing API key' }, 401);
+    const account = await findByApiKey(key);
+    if (!account) return c.json({ error: 'Invalid API key' }, 401);
+
+    const body = await c.req.json().catch(() => null);
+    if (!body || !body.artifact_type) return c.json({ error: 'Provide artifact_type' }, 400);
+
+    const db = getDB();
+    const authorId = account.github_login;
+    const bytes = crypto.getRandomValues(new Uint8Array(6));
+    const code = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    await db.prepare(
+      'INSERT INTO promo_codes (id, code, author_id, artifact_type, artifact_id, discount_pct, uses_remaining, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).bind(
+      generateId(), code, authorId,
+      body.artifact_type, body.artifact_id || null,
+      body.discount_pct ?? 100,
+      body.uses ?? 1,
+      body.expires_at || null,
+      new Date().toISOString()
+    ).run();
+
+    logEvent('promo_code_created', { author: authorId, code });
+    return c.json({ code, discount_pct: body.discount_pct ?? 100, uses: body.uses ?? 1 });
+  });
+
+  // Validate promo code (public)
+  app.get('/library/promo/:code', async (c) => {
+    const code = c.req.param('code');
+    const db = getDB();
+
+    const promo = await db.prepare(
+      'SELECT * FROM promo_codes WHERE code = ? AND (uses_remaining > 0 OR uses_remaining IS NULL) AND (expires_at IS NULL OR expires_at > ?)'
+    ).bind(code, new Date().toISOString()).first<{
+      author_id: string; artifact_type: string; artifact_id: string | null; discount_pct: number; uses_remaining: number;
+    }>();
+
+    if (!promo) return c.json({ error: 'Invalid or expired code' }, 404);
+    return c.json({ valid: true, author_id: promo.author_id, artifact_type: promo.artifact_type, discount_pct: promo.discount_pct });
+  });
+
   // Unpublish artifact
   app.delete('/library/unpublish/:type/:id', async (c) => {
     const key = extractApiKey(c);
@@ -501,14 +546,47 @@ echo "Done."
     const authorId = c.req.param('author');
     const db = getDB();
 
+    const body = await c.req.json().catch(() => ({}));
+    const promoCode = (body as any)?.promo_code;
+
     const author = await db.prepare('SELECT * FROM authors WHERE id = ?').bind(authorId).first<{ display_name: string; settings: string }>();
     if (!author) return c.json({ error: 'Author not found' }, 404);
 
     const settings = JSON.parse(author.settings || '{}');
-    const minCents = settings.paid_price_cents || 2000;
+    let minCents = settings.paid_price_cents || 2000;
 
     const shadow = await db.prepare('SELECT id FROM shadows WHERE author_id = ? AND tier = ?').bind(authorId, 'paid').first<{ id: string }>();
     if (!shadow) return c.json({ error: 'No paid shadow' }, 404);
+
+    // Apply promo code
+    if (promoCode) {
+      const promo = await db.prepare(
+        'SELECT * FROM promo_codes WHERE code = ? AND author_id = ? AND (uses_remaining > 0 OR uses_remaining IS NULL) AND (expires_at IS NULL OR expires_at > ?)'
+      ).bind(promoCode, authorId, new Date().toISOString()).first<{ id: string; discount_pct: number; uses_remaining: number }>();
+
+      if (promo) {
+        if (promo.discount_pct >= 100) {
+          // Full discount — grant access directly, no Stripe
+          await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ?').bind(promo.id).run();
+
+          // Store access grant in KV
+          const fakeSessionId = `promo_${promoCode}_${Date.now()}`;
+          const { getKV } = await import('./kv.js');
+          const kv = getKV();
+          await kv.put(`library:access:${fakeSessionId}`, JSON.stringify({
+            author_id: authorId, artifact_type: 'shadow', artifact_id: shadow.id, granted_at: new Date().toISOString(),
+          }), { expirationTtl: 30 * 24 * 60 * 60 });
+
+          logEvent('promo_code_redeemed', { author: authorId, code: promoCode, discount: '100' });
+          const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+          return c.json({ url: `${WEBSITE_URL}/library/${authorId}?access=granted&session_id=${fakeSessionId}` });
+        }
+        // Partial discount
+        minCents = Math.round(minCents * (1 - promo.discount_pct / 100));
+        await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ?').bind(promo.id).run();
+        logEvent('promo_code_redeemed', { author: authorId, code: promoCode, discount: String(promo.discount_pct) });
+      }
+    }
 
     try {
       const { createLibraryCheckoutWithSlider } = await import('./billing.js');
@@ -517,7 +595,7 @@ echo "Done."
         authorDisplayName: author.display_name || authorId,
         artifactType: 'shadow',
         artifactId: shadow.id,
-        minCents,
+        minCents: Math.max(minCents, 100), // Stripe minimum $1
       });
       return c.json({ url });
     } catch (e) {
