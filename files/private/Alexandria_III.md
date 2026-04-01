@@ -351,7 +351,7 @@ The positioning stack — each layer compresses further, each serves a different
   
 **Identity:** “Greek philosophy infrastructure.” What Alexandria IS. The category it creates. Infrastructure because it is a layer, not an app. Greek philosophy because the lineage is Socrates → Plato → Aristotle → Alexander → the Library of Alexandria → this. The examined life as technology. The agora as product.  
   
-**Function:** “We refine and scale thought.” What Alexandria DOES. Refine — the Socratic engine sharpens cognition, surfaces contradictions, develops the Author’s thinking. Scale — ai is the technology that makes the examined life available to everyone, not just Athenian citizens. The Socrates that scales. Carbon to silicon.  
+**Function:** “We refine and scale thought.” What Alexandria DOES. Refine — the Socratic engine sharpens cognition, surfaces contradictions, develops the Author’s thinking. Scale — ai is the technology that makes the examined life available to everyone, not just Athenian citizens. The Socrates that scales.  
   
 **Tagline:** “We help builders build.” What Alexandria does FOR PEOPLE. Not what it is, not what it does mechanically — what it does for the user. Prosumers hear this and know it is for them. It signals: not an extra thing you do on the side or instead of your work, but an amplifier of what you already do. The builder identity is the American spirit — a nation of builders, and Alexandria carries that energy. Not a constraint on the audience (anyone can build anything anywhere), but the spirit of the company: we make things, we help people who make things.  
   
