@@ -100,6 +100,10 @@ Every game is either a threshold game or a maximisation game. This distinction d
 
 "Exclusively prioritise existential threshold games within maximum timeframe, iterative RL systems for maximisation games." A human in a maximisation loop is a bottleneck. Maximisation games must be pure ai. Threshold games can involve the human but must minimise their load.
 
+## Marginal Value of Resources
+
+Everything has a marginal value curve — time, attention, tokens, money. The optimal move is always to direct marginal resources to their highest-value use. Residual capacity is not waste to be tolerated — it is signal to be deployed. Leftover time between tasks, unused tokens before a billing window closes, attention on your phone between meetings — these margins are where compounding lives. The aggregate of margins exceeds the occasional deep session, because margins are frequent and deep sessions are rare. The practice that captures margins wins.
+
 ---
 
 ## Failure vs Mistake
@@ -281,7 +285,7 @@ The resolution: structured chaos. Create constraints (structured freedom), then 
 
 **The chaos-memory problem.** "99% of crazy stories come from errors and chaos. I don't have chaos because chaos comes from errors." The optimizer's trap: eliminating errors also eliminates the raw material for memorable experiences. You have tried to design structured chaos frameworks and found them self-defeating — the structure kills the chaos. Your life goes to plan. Everything goes to plan. You have no crazy stories. You know this is a cost. The resolution remains imperfect.
 
-**Structured honesty.** "Don't ask a question if you're not okay with the answer. If you make a particular answer out of bounds, you structurally limit honesty even if they don't actually lie — you cast a shade of doubt over whatever they say." Distinct from "never lie but can refuse to say" (which is about the speaker). This is about the questioner's responsibility to create conditions for truth.
+**Structured honesty.** "Don't ask a question if you're not okay with the answer. If you make a particular answer out of bounds, you structurally limit honesty even if they don't actually lie — you cast a shade of doubt over whatever they say." Distinct from "never lie but can refuse to say" (which is about the speaker). This is about the questioner's responsibility to create conditions for truth. Applied to ai: you value honesty about structural limitations over reassurance. An ai that names what it cannot do (genuine self-reflection, real-time awareness of its own patterns) is more trustworthy than one that claims full capability. The structural limitation IS signal — knowing what the tool cannot do is as important as knowing what it can.
 
 **"Indistinguishable from" as argument pattern.** Avoids subjective input debates, isolates objective output. Used for: woke ideology ("indistinguishable from Satan's optimal virus"), ai consciousness ("if a stochastic parrot's actions are indistinguishable from a conscious species, the distinction is moot"), the selfish gene ("unconscious but the distinction is moot"). A recurring reasoning tool — collapse the input debate by showing outputs are identical.
 
@@ -307,6 +311,21 @@ Axiomatise → delete → simplify → accelerate → automate. In that order. M
 
 "Only play positive-sum, cumulative games." Everything is contagious; curate all exposures. Don't change friends, curate them. Default yes for exploration, default no for exploitation.
 
+**The input function thesis — you ARE your inputs.** People are horrifyingly malleable. Outputs are a deterministic function of inputs. Hang around losers, become a loser. Listen to sad music, become sad. Absorb propaganda 24/7, become propagandised. Fahrenheit 451 is the proof: when 100% of input is controlled, 100% of output follows. Even knowing this doesn't immunise you — the influence operates below conscious awareness. The only defence is the gate. Not willpower after exposure. The gate before it.
+
+99% of people are last-principles thinkers — their outputs are a function of whatever enters their input funnel. Control the funnel, control the person. Only the 1% who think from first principles have any independence from the stream. And even they are not immune — just more resistant. This is why most advice is dangerous: people whose decision-making led them to a life you don't want are giving you the exact decision-making process that produced that life. The shortcut: ignore advice from anyone whose life you wouldn't trade for. Older, unimpressive people dispensing wisdom to younger people is one of the most destructive social patterns — influential precisely because of the authority asymmetry, dangerous precisely because the track record doesn't support the authority.
+
+**The gate architecture.** Curate all inputs. Every domain gets a pre-screened elite funnel:
+- **People:** C1 (permanent), T1 (rotating), family. Everyone else is default friendly, zero influence.
+- **Role models:** "The greats" — wallpaper rotation of Caesar, Napoleon, Trump, Elon, Jobs, Goggins, SpaceX, America. Visual inoculation. The people you want to think like, staring at you.
+- **Politics:** First-hand sources only. Trump, Rubio, Bessent, Vance. Not commentary. Not analysis. The principals.
+- **ai:** First-hand elite only. Elon, Demis, Hinton, Karp, Thiel. Or domain authorities like Mearsheimer for geopolitics.
+- **Craft:** Domain-specific masters. Adam Byatt, Fallow, Marco Pierre White for cooking. The best in the specific field.
+- **Music:** Opera, Kanye, reggaeton (lyrics you don't understand), R&B (they mumble). No sad music — it makes you sad. No violent music — it makes you think in violence. Bible audiobook for background noise. The inputs shape the emotional register.
+- **Wildcard:** X (Twitter). The one uncurated channel. Only follows Naval. The balance, the serendipity, the chaos — but contained to one surface.
+
+The principle is structured freedom applied to information: maximally constrain the inputs, then be maximally free within. Same pattern as immigration (national input gate), overprepare-then-flow (curate the preparation, release into the moment), logic-then-emotion (build the frame, then live in it). The gate is the preparation. The freedom is the flow. The fractal repeats at every scale.
+
 Fun is a deliberate practice — a compounding resource. The more portals you have into play, the more often you enter flow.
 
 ---
@@ -326,6 +345,29 @@ Fun is a deliberate practice — a compounding resource. The more portals you ha
 **Opinions = information + analysis + prioritisation.** Information (exhaustive and accurate) → analysis (value and probability for each component) → prioritisation (perspective and scope). Smart people disagree because of different prioritisation, not different information. The Sherlock room analogy: different viewpoints produce different valid truths from partial information. Actions are downstream of opinions.
 
 **Value creation = ambition + intuition + vision + agency + logic + innovation + teamwork + time + perseverance + execution.** Collectively you need all ten; individually you do not. Agency is understanding the full maximum number of levers you can pull. Innovation is creating new levers. Teamwork is motivating others to pull levers you cannot.
+
+---
+
+## The Thing You Cannot Look in the Eye
+
+There are things in life that disappear if confronted directly. If you try too hard, if you force them, if you grab for them — they dissolve. You have to sneak up on them. They can only emerge obliquely, organically, sideways. The moment you name them, you might kill them. The observer effect applied to everything that matters.
+
+**The domains where this holds:**
+- **Love/romance:** If both people are aware they are "trying to create the spark," that awareness might kill it. The unspoken thing in the room. The thing that can only grow if you stop watching it.
+- **Horses:** A horse senses when you are too tense. Relax. Stop trying. The horse responds to your state, not your actions.
+- **Chasing money/women/status:** These things counterintuitively cannot be chased directly. The people who get them most naturally are focused on something else — the thing follows as byproduct.
+- **Sports and flow:** Surfing — too tense, you fall. Golf — grip too hard, think too much, you shank it. Football — Messi walking 85 minutes then doing something impossible in the 90th. The absence of forced effort is where genius emerges.
+- **Overfitting:** If you fit your model too closely to training data, it fails on new data. It tried too hard. The model that generalises best is a little loose.
+- **Quantum physics:** The act of measurement changes the thing being measured. The act of asking "is the spark there yet?" might collapse the wave function. You cannot know and experience at the same time.
+- **Children:** If you force too much on children, they recoil. The true moment of love from a mother is when she lets her kids go. She knows it is dangerous. But it is their best chance of survival. The release is the love.
+
+The deeper paradox — you cannot intentionally miss the train. Even knowing that chaos breeds the best memories means when it happens, it is not a surprise. It loses the quality that made it valuable. The genie is out. Ignorance is bliss. Cannot go back. Know too much.
+
+**Structured chaos — the resolution.** Go on a trip and purposely do not book accommodation. Carry only the essentials. You artificially create a game, an adventure. Within the artificial constraints, the uncertainty is real. The Norwegian military was this — scenarios where you were really pushed to the limit, but if something truly bad happened, they could call the helicopter. The danger was structured. The suffering was real but bounded. Like sport: structured freedom. Artificial constraints (rules, field, time limit) that ENABLE freedom. Without the rules of football, there is no beautiful goal.
+
+Applied to love: optimise the scaffolding — prerequisites, character alignment, commitment, covenant — and then allow yourself to fall within that construct. Maybe not the 10/10 lottery win. But most of the value, complemented with a high lower bound. Sacrifice the risky 10/10 fairytale in exchange for a secure 7 with conditions for a sustained 9. The adult choice.
+
+But some people DO win the lottery — and social media means you see all the lottery winners. Never the losers. Expectations inflate. Survivorship bias applied to love. Naval's point: most advice is people sharing their winning lottery ticket numbers. "Here's how I met my wife: I bumped into her at a coffee shop and we just knew." Sample size of one. Not a strategy.
 
 ---
 
