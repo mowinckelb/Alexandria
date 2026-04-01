@@ -4,7 +4,7 @@
 
 Every person who dies without getting their inner world out is a library burning.
 
-Alexandria is Greek philosophy infrastructure. A mental gym for builders. It develops human cognition through ai — captures it, sharpens it, preserves it, releases it into the world. Local files on the user's machine. Five dollars a month. The product is the changed person — and the changed person's work is distinctly theirs.
+Alexandria is Greek philosophy infrastructure. A mental gym for builders. It develops human cognition through ai — captures it, sharpens it, preserves it, releases it into the world. Local files on the user's machine. Five dollars a month. An elegant solution to a civilisational problem. The product is the changed person — and the changed person's work is distinctly theirs.
 
 ---
 

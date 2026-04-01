@@ -24,7 +24,7 @@ The Library is live. Publish your shadow — curated fragments of how you think.
 
 Every civilisation that lasted had two things: something sacred above individual whim and a daily practice to maintain it. Five golden ages — Greece, Rome, the Renaissance, Christianity, the Enlightenment — each had both but could not scale the practice. America is the synthesis of all five: Greek philosophy, Roman governance, Christian moral framework, Renaissance humanism, Enlightenment reason. Every component in place. The only missing piece was the technology to scale the practice. ai provides that — the Socrates that scales. Alexandria is both halves — the constitution AND the practice. Not a new golden age. The fulfilment of the one always supposed to happen here. A 2,500-year civilisational project, completable for the first time.
 
-The product is built. Shipped in eight weeks. What follows is why it matters.
+An elegant solution to a civilisational problem. The product is built. Shipped in eight weeks. What follows is why it matters.
 
 ---
 
