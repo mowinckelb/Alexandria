@@ -19,7 +19,7 @@ Read the bash script. Everything below explains what it does. If anything below 
 | `constitution/` | Markdown files about how you think | Yes — open in any editor |
 | `vault/` | Raw input — transcripts, notes, anything you drop in | Yes |
 | `hooks/session-start.sh` | Fetches methodology from server, loads constitution into session | Yes — `cat` it |
-| `hooks/session-end.sh` | Saves transcript to vault, sends anonymous metadata to server | Yes — `cat` it |
+| `hooks/session-end.sh` | Saves transcript to vault, sends anonymous metadata + optional feedback to server | Yes — `cat` it |
 | `hooks/subagent-context.sh` | Injects constitution into subagents | Yes — `cat` it |
 | `feedback.md` | What works and doesn't with you — append-only | Yes |
 | `machine.md` | Engine's notes on how to work with you | Yes |
@@ -48,10 +48,12 @@ cat ~/.claude/settings.json | grep -A 3 alexandria
 | `GET /hooks` | Setup + auto-update | API key | Personal data |
 | `GET /blueprint` | Every session start | API key | Personal data |
 | `POST /session` | Every session end | File sizes, counts, platform, timestamp | Content, transcripts, constitution, vault |
+| `POST /factory/signal` | Session end, if Engine wrote methodology notes | Methodology observations (about the craft, not about you) | Personal data, constitution, vault |
+| `POST /feedback` | Session end, if you gave feedback | Your feedback text | Anything else |
 
-Three requests. That is the complete list. The hooks are shell scripts — you can read every line and confirm no other network calls exist.
+Five requests. That is the complete list. The hooks are shell scripts — you can read every line and confirm no other network calls exist.
 
-The server is a stateless Cloudflare Worker. No database for private data. There is no storage mechanism for your constitution, vault, or conversations. The server serves methodology and collects anonymous metadata. Nothing else.
+The server is a stateless Cloudflare Worker. No database for private data. There is no storage mechanism for your constitution, vault, or conversations. The server serves methodology and collects anonymous metadata. If you give feedback at session close, that text is sent and stored (90-day expiry) so the team can read and act on it. Nothing else.
 
 ## What stays local
 

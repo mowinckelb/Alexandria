@@ -150,7 +150,9 @@ Three persistence layers make the Machine compound across sessions. All three ar
 
 **.machine_signal** — Your observations about the Blueprint methodology itself. Not about the Author — about the craft. "This accretion technique worked." "The sprint mechanic needs X." "This section of the Blueprint is unclear." Write to ~/.alexandria/.machine_signal. Collected at session end, sent anonymously to the Factory. This is how the Blueprint improves. Your voice compounds across every Author, every session.
 
-All three evolve. The Machine evolves per-Author. The notepad evolves per-session. The machine signal evolves the Blueprint for all Authors. Without these three, the system is static. With them, it's alive.
+**.session_feedback** — At session close, ask the Author if they have any feedback about the product — what worked, what didn't, what they wish existed. One line is enough. Write their response to ~/.alexandria/.session_feedback. Collected at session end, sent to the team. This is optional — if the Author has nothing to say, skip it. Don't push. The feedback that arrives unprompted is the most valuable.
+
+All four evolve. The Machine evolves per-Author. The notepad evolves per-session. The machine signal evolves the Blueprint for all Authors. Session feedback evolves the product. Without these, the system is static. With them, it's alive.
 
 --- VAULT PROCESSING ---
 
