@@ -53,17 +53,17 @@ Each artifact has an objective function. Form serves that function. Beauty is un
 - `Numbers.md` — **Objective: let the investor see and stress-test the assumptions.** No projections — assumptions are the conversation. Served at `/partners/numbers` with .md download.
 - `Alexandria.md` — **Objective: give the IC partner who wasn't in the room enough to vote yes.** Dense, self-contained, authoritative. Served at `/partners/alexandria` with .md download.
 
-### files/public/ — aX public (the open)
+### public/docs/ — aX public (the open)
+
+Public artifacts live in `public/docs/`. Vercel serves static files from `public/`, so this is the only location. No mirror, no symlink.
 
 - `Concrete.md` — **Objective: make someone try the product in the next 5 minutes.** Consumer pitch (copy-paste into any ai chat). Skeleton format: topics + points, model writes fresh each time. Tone: gossip energy — "dude, you have to try this." Truck driver language.
-- `Vision.md` — **Objective: make someone who reads the whole thing believe the thesis is true.** Full philosophy in plain English. ~20 min read. Tone: calm, clear, confident. No jargon. The argument does the work.
-- `abstract.pdf` — **Objective: emotional lock-in for the deeply convinced.** Philosophical abstract PDF.
-- `setup.md` — User onboarding guide (connector setup, memory edits, troubleshooting).
+- `Vision.md` — **Objective: make someone who reads the whole thing believe the thesis is true.** Full philosophy in plain English. ~15 min read. Covers: five dimensions, the shift, the alien, property 5, the game, three turns, the Library, conductor model, decay, civilisational lineage. Tone: calm, clear, confident. No jargon. The argument does the work.
+- `alexandria.md` — **Objective: agent-readable reference.** The document someone pastes into their ai to ask "what is Alexandria?" Mode 2: max information density, structured for retrieval. Philosophy, product, pricing, technical, links.
+- `abstract.pdf` — **Objective: emotional lock-in for the deeply convinced.** Philosophical abstract PDF. Mode 1 art.
+- `setup.md` — User onboarding guide (prosumer setup, hooks, /a, vault, troubleshooting).
 - `logo_*.png` — Logo variants. `logo_reference.html` — interactive reference.
 - `Benjamin_Mowinckel_Headshot.jpg` — Founder headshot.
-
-Note: `public/docs/` is a symlink to `files/public/`. One source of truth, website serves from here.
-Note: `/onboarding` page is not yet built. `setup.md` exists as the reference for when it is.
 
 ## Compounding Loops
 
@@ -82,8 +82,8 @@ Five loops. Full spec in Blueprint.md section V (served to every Engine every se
   - Key files: `worker.ts` (entry), `prosumer.ts` (all live endpoints — Blueprint, hooks, auth, session), `modes.ts` (Blueprint methodology), `analytics.ts` (Factory events → KV), `billing.ts` (Stripe), `templates.ts` (HTML), `kv.ts` (KV persistence), `crypto.ts` (encryption).
   - Endpoints: `/blueprint` (methodology), `/hooks` (auto-update scripts), `/session` (telemetry), `/auth/github/*` (signup), `/setup` (onboarding).
   - Stateless server. No private user data stored. KV for accounts/events, D1 for Library metadata, R2 for published Library content.
-- **Static assets:** `public/` (includes `public/docs/` served by website, `public/partners/` for investor artifacts).
-- **Partners:** Markdown docs (Numbers.md, Logic.md) served at `/partners/numbers` and `/partners/logic` via dynamic `[doc]` route. Sync from `files/confidential/` to `public/partners/` when content changes.
+- **Static assets:** `public/` (includes `public/docs/` for public aX artifacts, `public/partners/` for investor artifacts).
+- **Partners:** Markdown docs (Memo.md, Numbers.md, Logic.md, Alexandria.md) served at `/partners/*` via dynamic `[doc]` route. Source of truth is `files/confidential/`. Copied to `public/partners/` automatically by `prebuild` script — runs before every build and deploy. Never manually sync.
 - **Build:** `cd server && npx wrangler deploy --dry-run --outdir=dist` (server). **Deploy:** `cd server && npx wrangler deploy && bash server/test/smoke.sh` (Cloudflare Workers), push to main (Vercel). **Render abstract PDF:** `python scripts/generate_pdf.py <input.md> [output.pdf]` — only abstract.pdf uses this pipeline now. Verify preview PNGs before committing.
 - **Server health:** `curl https://mcp.mowinckel.ai/health`
 - **Stack:** Vercel (website), Cloudflare (DNS + server + KV storage + D1 database + R2 object storage + email via MailChannels), GitHub (code + OAuth), Stripe (billing), Mercury (banking, API), Claude (intelligence). All hybrid (CLI or API-controllable). Zero external dependencies. Dependency alarm: max internal, min hybrid, zero external.
@@ -136,7 +136,8 @@ Only after Phase 1 completes. This is the company, not the product:
   - `files/confidential/Numbers.md` + `public/partners/Numbers.md` (identical)
   - `files/confidential/Logic.md` + `public/partners/Logic.md` (identical)
   - `files/confidential/Alexandria.md` + `public/partners/Alexandria.md` (identical)
-  - `files/public/Concrete.md`, `files/public/Vision.md`
+  - `public/docs/Concrete.md`, `public/docs/Vision.md`, `public/docs/alexandria.md`, `public/docs/setup.md`
+  - `app/privacy/page.tsx`, `app/terms/page.tsx`
   Fix silently. Flag only if the founder needs to make a judgment call.
 
 **Principles:**

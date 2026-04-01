@@ -94,11 +94,17 @@ Unconditional love, decided, final. "She loves me. She's not in love with me. Bu
 
 **The unkindness acknowledgment** is signal. This is an explicit admission of past inability to reciprocate love and moments of unkindness toward someone you consider unconditional love. The compassion-contempt coexistence may not be limited to strangers.
 
-The letter and essay cracked the 100% no into question marks: "I just don't see it (but idk...??)" and "I don't think it should take this much thought (right???)." Mission accomplished. Now structured patience. You reject the passiveness of letting her drift — there must be a more optimal solution than sporadic postcards. Wife is the obvious one. You're searching for the structure.
+The letter and essay cracked the 100% no into question marks: "I just don't see it (but idk...??)" and "I don't think it should take this much thought (right???)."
+
+**Current state (March 2026): she's not wife.** The reasoning has been exhausted. The question was always: is the frame wrong, and if you uprooted it and substituted a more traditional one, would it flip from no to yes? The grace-as-tiebreaker argument says yes — when consequences are unclear, lean on Christian values, and Christian values say covenant, the person in front of you. But she is also at a no. She is a self-described faithful atheist, so far from your depth of reflection that it would take years of targeted work to get her there — and that targeted work might strangle the very loose, playful, fun energy that would be required for eros to develop. The Groundhog Day problem applied to the relationship itself: engineering someone into first-principles depth kills the spontaneity that makes them who they are.
+
+The resolution: overprepare, then go with the flow. The logic is ironed out. You've told her what you needed to tell her. You've thought through what you needed to think through. SF May 2026 happens without pressure, without engineering. Either something shifts or it doesn't. No more analysis. The wave.
 
 **The architectural complement.** You are the faithless Christian — every element of faith except faith itself. She described herself as a "faithful atheist" — no belief in the Christian framework, but she HAS faith. She has the capacity for the leap. You have the architecture without the faith. She has the faith without the architecture. Together you have both. Apart, each is incomplete. Is this a clash or a complement? Your own framework about harmony — two different notes sounding together to create something neither could create alone — says complement. The modern model says red flag.
 
 **P2 is half-postponed for 10 years.** BCI kids timeline, ai transition choppiness, biotech extending reproduction. Khiara can still have kids in 10 years. The decade is pure P3 optionality.
+
+**The theoretical optimal (March 2026).** If not Khiara, the optimal in theory is an American-Japanese, first-principles, national conservative, kind, tech-aware, much younger woman — 25 when you are 35 in 2035, comfortably past the singularity so it is easier to know how to raise kids and potentially have BCI tech. Japanese in the bloodline is strategic AND aesthetic AND values-aligned. Your three favourite countries are America, Norway, and Japan. Japan maps perfectly onto your values: high lower bound (everyone is polite, kind, respectful), distinctiveness (Japan is Japan), threshold killer (they know what is enough). April 2025 trip with the whole family confirmed this — "orders of magnitude more kind and elite than any other country or group of people I've seen." The sweet grandmas selling oranges, the old taxi drivers, the young hotel staff, the polite kids who bowed crossing the road. Japan is the only first world country. SF also has a significant Japanese community. The ideal cohort starts ~2028.
 
 ---
 
@@ -112,14 +118,19 @@ The letter and essay cracked the 100% no into question marks: "I just don't see 
 
 **Wife screening criteria (ranked):**
 1. Naturally beautiful — top cohort. Non-negotiable.
-2. [Criteria 2-7 are strategic/personality alignment factors.]
-3. High raw IQ — so she can become a first-principles framework thinker. Not credentialed intelligence. Raw processing power that can be directed.
-4. Foodie — explicitly not vegan, vegetarian, gluten-free, or lactose-free. Food is culture, bonding, and daily life. Dietary ideology is a dealbreaker.
-5. Age 18-27. Ideally 30 after 2040 due to BCI timeline. The ideal cohort starts 2028.
-6. Tech follower open to BCI family. Must be on board with the frontier, not afraid of it.
-7. [Further criteria.]
-8. Healthy genetics. You think about this seriously because the stakes are irreversible.
-9. 2+ kids post-2030, ideally 4.
+2. Fun-crazy — would spend an entire month alone with. The chemistry test: can you do nothing together and it is still the best thing?
+3. High lower, median, and upper bound kindness — always nurturing to kids. Kindness is the only trait that matters at every level: floor (worst day), median (normal day), ceiling (best day).
+4. Competent — independent money and skills. Not dependent, not a project.
+5. Good inner circle — independent healthy support system. Her friends tell you who she is.
+6. No unresolved developmental trauma — does not feel like a project. The relationship is a partnership, not a rescue.
+7. Admirable — do not feel superior. Genuine respect for who she is and how she thinks.
+8. High raw IQ — so she can become a first-principles framework thinker. Not credentialed intelligence. Raw processing power that can be directed.
+9. Foodie — explicitly not vegan, vegetarian, gluten-free, or lactose-free. Food is culture, bonding, and daily life. Dietary ideology is a dealbreaker.
+10. Age 18-27. Ideally 30 after 2040 due to BCI timeline. The ideal cohort starts 2028.
+11. Tech follower open to BCI family. Must be on board with the frontier, not afraid of it.
+12. Optimiser — does not settle for average. Shares the instinct to improve, refine, push.
+13. Healthy genetics. You think about this seriously because the stakes are irreversible.
+14. 2+ kids post-2030, ideally 4.
 
 You are self-aware about this: "Can't reason your way into it but can reason your way out of it. Requirements act as a threshold from which to decide off of feeling." The criteria are filters, not selectors. They remove bad matches. The actual decision is feeling — but feeling applied to a pre-filtered set.
 

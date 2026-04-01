@@ -26,7 +26,7 @@ Everything else is automatic. Every Claude Code session captures your transcript
 
 ## Where your data lives
 
-Your cognitive profile lives on **your machine** at `~/.alexandria/constitution/` — a folder of markdown files. Your vault is at `~/.alexandria/vault/`. Alexandria has no database. We serve the methodology (Blueprint) and collect anonymous usage metadata. We never see your constitution, your vault, or your conversations.
+Your cognitive profile lives on **your machine** at `~/.alexandria/constitution/` — a folder of markdown files. Your vault is at `~/.alexandria/vault/`. Alexandria has no database for your private data. We serve the methodology (Blueprint) and collect anonymous usage metadata (file sizes, counts — never content). We never see your constitution, your vault, or your conversations. If you publish to the Library, that published content is stored on our infrastructure — but publishing is always explicit and revocable.
 
 You own everything. You can read it, edit it, move it, delete it. It's markdown. It's yours.
 

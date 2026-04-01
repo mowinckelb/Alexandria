@@ -15,36 +15,49 @@ export default function Privacy() {
       lineHeight: 1.7,
     }}>
       <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem', fontWeight: 400 }}>Privacy Policy</h1>
-      <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.5 }}>Last updated: March 24, 2026</p>
+      <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.5 }}>Last updated: March 31, 2026</p>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>What Alexandria does</h2>
-        <p>Alexandria is a sovereign cognitive transformation layer. It helps AI systems understand who you are by maintaining a personal profile — your Constitution — on your own Google Drive.</p>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>What Alexandria is</h2>
+        <p>Alexandria is a sovereign cognitive transformation layer. It helps you build a structured picture of how you think — your Constitution — stored as markdown files on your own machine at <code>~/.alexandria/</code>. Alexandria does not host, store, or retain your cognitive data.</p>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Your data stays on your machine</h2>
+        <p>Your Constitution, Vault, feedback log, notepad, and ontology are local markdown files on your device. They never leave your machine. Alexandria&apos;s server cannot access, read, or retrieve them. This is not a policy — it is architecture. There is no mechanism in the system for your private cognitive data to reach our servers.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>What we store</h2>
-        <p>Nothing. Alexandria&apos;s server is stateless. Your Constitution, Vault, notepads, and feedback live on your Google Drive, in a folder you own. We do not store, cache, or retain any user data. The server passes information through and forgets it.</p>
+        <p>Alexandria&apos;s server stores three categories of data, all on Cloudflare infrastructure:</p>
+        <p style={{ marginTop: '0.5rem' }}><strong>Account records</strong> (KV) — your GitHub username, email address, API key, and billing status. Created when you sign up via GitHub OAuth.</p>
+        <p style={{ marginTop: '0.5rem' }}><strong>Anonymous session metadata</strong> (KV) — when sessions start and end, constitution file size, vault entry count, platform type. Never content. Never personal information. Used to verify the product is working and to improve the methodology.</p>
+        <p style={{ marginTop: '0.5rem' }}><strong>Published Library content</strong> (D1 + R2) — if you choose to publish shadow MDs, works, or quizzes to the Library, that published content is stored on our infrastructure. Publishing is an explicit, deliberate act — you review and approve everything before it leaves your machine. You can unpublish at any time.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Authentication</h2>
-        <p>Alexandria uses Google OAuth to access your Drive. Your Google refresh token is encrypted and passed back to you as your access credential. We never store it. If you disconnect, the token is gone — there is nothing to delete on our end because there was nothing to begin with.</p>
+        <p>Account creation uses GitHub OAuth. Ongoing authentication uses an API key issued at signup. Your API key is stored in our KV alongside your account record and sent in the Authorization header on each request. The key authenticates your access to the Blueprint and Library APIs.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Anonymous usage data</h2>
-        <p>We log anonymous events (tool calls, not content) to improve the product. These contain no personal information, no user identifiers, and no content from your conversations or Constitution. You can see exactly what we log in our dashboard.</p>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>The Blueprint</h2>
+        <p>Every session, your AI fetches Alexandria&apos;s Blueprint — the methodology that guides cognitive extraction and development. This is a text document served from our server. It contains no personal data. It is the same for all Authors. The Blueprint is readable — you can inspect exactly what instructions your AI receives.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Google Drive access</h2>
-        <p>Alexandria requests access to Google Drive to read and write files in your Alexandria folder. We do not access any other files on your Drive. The scope is <code>https://www.googleapis.com/auth/drive</code> because Google does not offer a folder-scoped permission, but our code only touches the Alexandria folder.</p>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Payments</h2>
+        <p>Payments are processed by Stripe. Alexandria does not store credit card numbers or financial credentials. Stripe&apos;s privacy policy governs payment data.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Your rights</h2>
-        <p>Your data is yours. It lives on your Drive. You can read, edit, or delete it at any time. Disconnecting Alexandria removes all access. There is no account to delete because we never created one.</p>
+        <p>Your cognitive data is yours. It lives on your machine. You can read, edit, move, or delete it at any time — it is markdown files in a folder. Deleting <code>~/.alexandria/</code> removes everything local. To remove your account, email us and we will delete your account record and any published Library content. There is no hidden retention.</p>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>No tracking</h2>
+        <p>Alexandria does not use cookies, third-party analytics, advertising trackers, or fingerprinting on any surface. The website, the server, and the product are tracking-free.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>

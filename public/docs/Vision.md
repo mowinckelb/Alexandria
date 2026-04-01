@@ -90,7 +90,9 @@ The athlete does not need to be in every game. They need to be in the outermost 
 
 This is the conductor model. The more capable the orchestra (ai), the more valuable the conductor (human). Not less. Every inner game that ai takes over makes the human's position in the outer game more leveraged, not less relevant.
 
-You do not need to do everything. You need to be in the right game and let ai handle everything underneath.
+Your role as the conductor comes down to three things. You initiate — you have the vision, the question, the impulse that starts the whole thing moving. ai cannot want things. You have to want. You refine — you feel when something is wrong, even when you cannot say why. "This doesn't land" is enough. The feeling of wrongness is the contribution, not the diagnosis. And you close — you know when to stop. ai will iterate forever. You are the one who says "that's it, ship it."
+
+Wanting, feeling, deciding. You do not need to do everything. You need to be in the right game and let ai handle everything underneath.
 
 ## The decay
 
@@ -112,13 +114,49 @@ Alexandria is that mental gym.
 
 The root value is humanity. Three pillars serve it:
 
-**Freedom.** You cannot develop your humanity without owning it. Alexandria builds a structured file about who you are — how you think, what you care about, what you like, your blind spots, your values. This file is stored on your own device. Not on a company's server. Alexandria has no database. There is literally nowhere on the system for your data to exist. You own it completely. No one can read it, sell it, delete it, or hold it over you. This is not a feature — it is the foundation. Without sovereignty, you perform instead of being honest. Without honesty, development cannot happen.
+**Freedom.** You cannot develop your humanity without owning it. Alexandria builds a structured set of files about who you are — how you think, what you care about, what you like, your blind spots, your values. These files are stored on your own device as markdown. Not on a company's server. Alexandria has no database for private data. There is literally nowhere on the system for your cognitive data to exist except on your machine. You own it completely. If a better model appears tomorrow, your files come with you. No lock-in. No hostage-taking. The horse changes. The rider does not.
 
 **Authenticity.** You cannot express your humanity without knowing yourself. The mental gym develops your self-knowledge — surfaces things about yourself you did not know, sharpens what you believe, spots contradictions, pushes you to articulate what you have never put into words. The more you know yourself, the more authentically you can express yourself. And authenticity is the thing that escapes competition. A developed mind — someone who knows who they are, has refined taste, has a genuine perspective — competes with no one. They are irreplaceable not because humans are special in the abstract, but because THIS human is specific in the concrete.
 
-**Purpose.** You cannot sustain your humanity without creating. Knowing yourself is not enough. You have to get it out. Write, build, cook, teach, make — whatever your medium. Creation is how your humanity becomes visible and valuable. Without creation, your inner development is invisible to the world. Alexandria provides the mindset (create, get it out), the tools (creative iteration calibrated to your taste), and eventually the medium (the Library — where others can encounter your mind and pay for depth).
+**Purpose.** You cannot sustain your humanity without creating. Knowing yourself is not enough. You have to get it out. Write, build, cook, teach, make — whatever your medium. Creation is how your humanity becomes visible and valuable. Without creation, your inner development is invisible to the world. Alexandria provides the mindset (create, get it out, die empty), the tools (creative iteration calibrated to your taste), and the medium (the Library — where others can encounter your mind).
 
 The product works across every ai you use. One command, thirty seconds, free during beta. The file it builds gets better every day — every conversation with any ai makes it sharper. And because it is stored on your machine, you keep it forever. It compounds. The earlier you start, the stronger your position.
+
+## The three turns
+
+The path has three turns. Each exists for the next.
+
+**Turn 1 — set the angel free.** Michelangelo said he saw the angel in the marble and carved until he set it free. Most people's minds are marble. Not empty — full. Full of fragments, half-formed thoughts, intuitions that fire below the surface but never quite make it into words. You have said "I know what I mean but I can't explain it" more times than you can count. That is marble.
+
+The first turn changes the state. Through conversation — honest, Socratic, sometimes uncomfortable — what was trapped becomes articulate. Not because someone told you what to think. Because someone asked the right question at the right moment and you heard yourself say something you had never said before. That is the moment. The shape was always there. The conversation made it visible.
+
+You walk out seeing yourself clearly. Not a list of traits on a screen — a living map of how you actually think. Your values, your models, your taste, your contradictions, your blind spots. Marble becomes mercury. Liquid, flowing, unified. And for the first time, every ai you touch has the full picture instead of a fragment.
+
+**Turn 2 — ride the wave.** The abundance that is coming is extraordinary. More ideas, more tools, more possibilities than any generation has ever had access to. That abundance can drown you or lift you. A marble mind drowns — overwhelmed, scattered, reactive. A mercury mind surfs.
+
+The second turn keeps you in the water. It fights the natural decay of your thinking — the ideas that would otherwise quietly sink below conscious awareness, the connections that weaken, the positions that go fuzzy. And it brings new material calibrated to who you already are. Not generic recommendations. You have been circling something for weeks — three ideas that feel connected but you cannot name the thread. Then a fragment arrives. A single sentence from a thinker you have never encountered. And the thread appears. Three things that were separate click into one thing. You did not go looking for it. It found you because the system knows your map well enough to know what was missing.
+
+The temptation here is to let the ai do everything. Let it decide. Let it select. Let it think. That is the trap from the previous section — the decay happens quietly when you stop engaging. The second turn keeps you engaged not through discipline but through genuine interest. You stay sharp because the conversations are worth having. Not because someone told you to exercise.
+
+**Turn 3 — create.** Even with a mercury mind, even riding the wave — if all you do is consume, you fall. Slower, but you fall. The purpose of knowledge is action, not knowledge.
+
+You do not need to be an expert in any medium. You need the directional instinct — the hazy sense that something is right or wrong, the fragment of a vision that does not yet have edges. The ai resolves the haze into options. Your taste selects. An essay. A film. A piece of art. A decision you have been circling for weeks. A conversation you finally have because you now know what you think.
+
+The act of creating forces you to articulate things you did not know you thought. Fragments bind into form and the form surprises you. You press send. The mercury leaves the safety of your mind and enters the world. It might get blown away. It might land. You lose control the moment it leaves. That loss of control is the point.
+
+Die empty. The graveyard is the fullest place on earth — full of unsaid words, unacted ideas, unmade things, unlived lives. Get it out.
+
+## The Library
+
+The Library is where the third turn lives. Named after the ancient Library of Alexandria, which preserved not what people did but what they thought.
+
+Every Author has a page — a living gallery of their mind. Not a profile. Not a feed. Curated fragments of how you actually think, published for others to process against their own thinking. Whatever you create — essays, art, code, voice recordings — frozen on publication. Quizzes generated from real data about who you are, where friends take them and wrong answers become the most interesting conversations. A monthly snapshot of what changed in your thinking — not a portrait but a delta.
+
+Others encounter your mind through the Library. Their ai processes your thinking against their own constitution — absorbing the fragments that connect. This is how minds have always influenced each other. A book you read shifts something. A conversation with a stranger opens a door. The Library makes that transfer visible, structured, and permanent.
+
+It is not a marketplace. It is a gallery of minds. A street where painters paint in the open. The grandmother's page, visited only by her grandchildren, is no less valuable than the one visited by thousands. Everyone is art. The Library just provides the frame.
+
+You do not need to publish to get value from Alexandria. The three turns serve you even if nobody else existed. But if you do publish, others encounter your mind. You can earn from depth — readers pay for deeper access, and you keep the majority. The compound interest of self-knowledge, made visible to the world. Mentes aeternae. Eternal minds.
 
 ## The philosophy behind the product
 
@@ -130,12 +168,18 @@ Without a sense of self, without purpose, without the ability to think for thems
 
 Alexandria provides meaning. At the individual level — develop yourself, know yourself, create. At the societal level — a philosophy that values human involvement, that shifts culture toward appreciating what humans bring. At the civilisational level — a pressure valve against the meaning crisis that threatens everything when people lose purpose.
 
+Every golden age in human history happened when two things aligned: powerful tools for thought and a culture that valued the examined life. Greece had the agora and the Socratic tradition. The Renaissance had the printing press and humanist culture. The Enlightenment had the scientific method and reason as civic virtue. In every case, the tools alone were not enough. The printing press also gave us propaganda. The internet also gave us doom-scrolling. Tools without culture is capability without direction.
+
+ai is the most powerful tool for thought in human history. The culture — the conviction that the examined life matters, that your mind is worth developing, that cognitive transformation is sacred — is what is missing. Alexandria provides both layers. The tool and the culture. The gym and the reason to train.
+
 The product is the vehicle. The philosophy is the thing.
 
 Every ai that gets better makes Alexandria more valuable, not less. Better ai means better extraction, better development, better augmentation to threshold. The product rides the exponential instead of fighting it. And the philosophy becomes more urgent with every capability advance — because the more ai can do, the more tempting it is to stop thinking for yourself, and the more important it is that you do not.
 
 Freedom. Authenticity. Purpose. Own it, develop it, use it.
 
-One command. Thirty seconds. Start now.
+Perhaps.
+
+One command. Free during beta. Start now.
 
 mowinckel.ai/signup

@@ -56,7 +56,13 @@ The combination is not a compromise. It is the dual mandate as a person: high lo
 
 **The advanced hedonism resolution.** Without God, life is logically nihilism or hedonism. P1 is conceded. So the game is P2-P5: family, personal satisfaction, friendships, helping strangers. This IS advanced hedonism — time-horizon-aware utility maximisation within a self-selected priority stack. Not a dodge. The honest name for what a faithless Christian who cannot make the leap actually does.
 
-**The Epicurean happiness function.** The lottery answer reveals the actual utility function: C1 and family in rotation, ideally as roommates, worst case nearby. Just sitting with them, doing nothing. "I have lots of people to do things with, but nobody to do nothing with." The company is the vehicle that buys the couch. Solo founder, location independent, minimal overhead — the idiot index of 1 as a life principle, not just a business principle. Minimum structure, maximum presence.
+**The Epicurean happiness function — and its limit.** The lottery answer reveals the actual utility function: C1 and family in rotation, ideally as roommates, worst case nearby. Just sitting with them, doing nothing. "I have lots of people to do things with, but nobody to do nothing with." The company is the vehicle that buys the couch. Solo founder, location independent, minimal overhead — the idiot index of 1 as a life principle, not just a business principle. Minimum structure, maximum presence.
+
+But the couch is not enough. Friends are P4. You already lived the full local maxima — senior year at Princeton, "Haus" with Michal, Ayo, Nico, Kenny, Kaz, Aly. It was great. It was not enough. That is Uncle Paal at the friendship level. The step changes come from wife and kids (P2), not from optimising the couch. The Epicurean vision is the terminal state, not the current game. The current game is the frontier.
+
+**The frontier as P3 optimal.** The old world is dead. Dolce vita is dead. The magic of the singularity is alive and that is where curiosity pulls. Monk mode, SF, 5-year lock-in — this is not sacrifice, not the penguin or gladiator who will die for it. This is not P1. It is what is optimal for P3 right now. And the system might actually optimise P4 and even P2 better than the alternative — because it is pure signal on the people who matter. No pointless noisy weekends at clubs, bars, dinner parties, dance classes, travelling. Straight noise. Done all that. Completed that life. Boring. Done. Next.
+
+**The current architecture (March 2026):** Brother, parents, grandfathers, C1, T1, and you — frontier tech founder with the magic. Substrate: music, exercise, diet, style, hygiene. Ideally one clear-boundaries low-commitment girl (friends+). A moderate system of wife screening to build sample size. That is it. Everything else is fluff. The social noise that most people fill their lives with is the thing you have already graduated from.
 
 ---
 
@@ -103,6 +109,10 @@ The dark knight gets zero credit. That is the point. Most people will think you 
 - **Michal:** "pinnacle of morality" — "would Michal be proud of me?" as realistic moral compass.
 - **Mellem** (T1, older brother figure): chosen pride and cheering from distance.
 - **Hama:** "inspiration that the ideal is achievable" — all stats maxed out with no compromises.
+- **Aly:** "the importance of fun" — everywhere he goes he makes people happier. Taught you the power of humour, fun, and positive energy. Nothing beats laughing and smiling.
+- **Mutemwa:** "pinnacle of positivity" — orients your appreciation. Makes you smile at things you didn't before. Reminds you to see life in a more positive way.
+- **Nico:** "values from hardship" — depth and complexity formed through hardship rather than ideology. Validating because the same values you chose freely, he earned the hard way.
+- **Beata:** "connect with humanity" — highest emotional intelligence and maturity you have seen, combined with freedom to reach every corner of the world. Inspires connection with all types of people.
 
 **Geography:** Brother Ed in Tromsoe; parents in Lisbon; Bestefar in Bergen; Khiara in Berlin.
 
@@ -130,7 +140,7 @@ You have your mind right, your health right, your close circle locked in, your d
 
 **What you are building:** Alexandria — a sovereign cognitive transformation layer. Structurally P3 with P1 upside — a free option on significance, without sacrificing P2/P3. The hail mary. Alexandria IS the arena entry — going solo to the other side of the world to make a company with zero users, zero revenue, zero expertise. The company is the structured cathedral; being the founder is the chaos. Also the Meditations essay series (On Love, On Power, On Magic, On Being, On Destiny). Relocating to San Francisco April 2026. Searching for a partner.
 
-**LightsOut** (venture with Thomas): automated manufacturing via World Foundation Models. "Vibe manufacturing; part of sustainable abundance." Three phases: digital mapping, then simulation + RL optimisation, then physical mapping + automated construction.
+**LightsOut** (venture with Thomas): automated manufacturing via World Foundation Models. "Vibe manufacturing; part of sustainable abundance." The thesis: for every consumer good, there exists a unique optimal strategy for combining intermediate and capital goods. Currently, not all consumer goods use their optimal strategy. A system that enables optimal-terminal-state manufacturing for all consumer goods is inherently valuable. Three phases: (1) digital mapping of physical capital goods + translation to WFM, (2) simulation + RL optimisation to determine optimal configuration, (3) physical mapping + automated construction via AVs and humanoids. The key insight: optimisation requires bits not atoms. Map physical to digital, optimise in simulation, build the result. "Kaizen for WFM." Phase 1 is threshold (unlocks phase 2), phase 2 is maximisation (core value), phase 3 is natural monopoly. WFMs are 5-10 years away. Legacy orgs cannot reconfigure their factories; neo-orgs can. ai will not automate legacy orgs — it will enable exhaustive creative destruction from neo-orgs.
 
 **Priors** (absorbed into Alexandria as brand extension): social club concept for first-principles thinkers. Can be both digital and physical — linked to location, venue events. Motivated by intellectual loneliness — a "mental gym" / "third space." The digital product (Alexandria) solves the cognitive layer. Priors solves the physical layer. Same thesis, different surface.
 

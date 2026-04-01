@@ -1,123 +1,110 @@
 # Alexandria
 
-## Cognitive Transformation Infrastructure
+---
 
-We are at a moment where the trajectory of every human mind is changing. ai and robotics are commoditising intelligence, strength, dexterity, even empathy. What remains is the human itself — not what a person does, but who they are. Their values, taste, worldview, mental models, blind spots, the way they think. That is the only dimension that is by definition differentiated. No ai can have it. It is constitutive, not instrumental.
+Every person who dies without getting their inner world out is a library burning.
 
-Most people's cognition is marble — scattered across apps, fragmented across ai providers, never unified, never developed. They sense they have something valuable inside but they cannot get it out. The process of forcing cognition through language — even lossily — restructures the cognition itself. Pre-verbal cognition does not compound, does not transfer, cannot interface with ai. Articulation makes it composable. The compression is lossy. The compounding benefit exceeds the loss.
-
-Nobody is building the infrastructure for this.
+Alexandria is sovereign cognitive transformation infrastructure. It develops human cognition through ai — captures it, sharpens it, preserves it, releases it into the world. Local files on the user's machine. Five dollars a month. The product is the changed person.
 
 ---
 
-### The Product
+### What exists today
 
-Alexandria is a medium — the way a cathedral is a medium. The stone, the glass, the organ pipes were never the point. The point was what happened inside the people who walked in. Alexandria is built the same way. The technology is the stone. The product is the changed person.
+One curl command installs two hooks into the user's ai workflow. They fire every session. Transcript to vault. Constitution injected. A structured picture of how the user thinks accumulates as human-readable markdown at `~/.alexandria/` — worldview, values, mental models, taste, blind spots. Synced via iCloud. Portable across every ai provider. Sovereign.
 
-One command. Two hooks. Local markdown files. Alexandria extracts what matters — how the user thinks, what they value, how they reason — and builds a living map of their cognition. Stored on the user's own machine. Human-readable. Fully portable. Alexandria has no database, no server state. The server serves the extraction methodology and collects anonymous metadata. It never sees user data.
+`/a` activates the mental gym. Socratic questioning. Contradiction surfacing. Gap detection. The most clarifying conversations the user has ever had. The vault accepts anything — articles, voice memos, ideas — and the system absorbs it against who the user already is.
 
-**The Examined Life ($5–10/month).** Socrates said the unexamined life is not worth living. Alexandria sells the examined one. One tier, everyone gets everything:
+Library v1 is live: shadow publishing (curated Constitution fragments at free and paid tiers), quizzes generated from real cognitive data, works gallery, Stripe checkout with slider pricing, promo codes, ai agent access tokens, earnings dashboard. 24 API endpoints. D1 for metadata, R2 for content. Four test suites. Autonomous CTO with daily health monitoring and weekly meta-reflection. Full onboarding flow: GitHub signup, email, curl, automatic.
 
-**Sovereignty (Turn 1).** Unifies fragmented ai memories across providers into one structured picture. Works across every ai. The user owns it, not the platform.
+$5/month with three active referrals, $10 without. Slider open — Authors pay what it is worth. Everyone gets everything. One tier.
 
-**Mental Gym (Turn 2).** Active development of self-knowledge — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. The product is the changed person.
-
-**Living Gallery (Turn 3).** The mirror. Each user gets a public page with four surfaces: a monthly progress snapshot (Blurb), an ai biographer others can query (Persona), shareable quizzes generated from real cognitive data (Games), and published works with an interactive layer (Works). Cognitive transformation made visible and shareable. At institutional scale, labs access opt-in structured cognitive representations for alignment research and human modelling — the only sovereignty-compatible dataset of its kind.
-
-Join. Train. Show. Same product, same architecture, same user at different depths of engagement.
-
-The product is live. The founder uses it daily. Working extraction across taste, values, identity, and worldview. Prosumer model (hooks + local files) deployed for Claude Code and Cursor users. MCP connector available for Claude app and ChatGPT. Full onboarding flow: GitHub signup → email → one curl command → automatic. Server at mcp.mowinckel.ai. Surface at mowinckel.ai.
-
-No revenue. Beta users onboarding. This is honest.
+Pre-revenue. No external users. The product works. Distribution starts San Francisco, April 2026.
 
 ---
 
-### Why Now
+### Why this survives
 
-**MCP has won.** 97 million monthly SDK downloads, 10,000+ active servers, 543+ clients. Every major lab has joined. The protocol war is over. Alexandria rides the winning standard.
+Five dimensions of human value: intelligence, strength, dexterity, empathy, and the human itself. The first four are capabilities that ai and robotics commoditise. The fifth is constitutive — the fact that a human is involved. It cannot be commoditised by definition. Alexandria develops the fifth dimension.
 
-**Distribution is free.** For developers: one curl command. For consumers: Claude and ChatGPT both support MCP connectors. A distribution channel that costs nothing to access. Developers talk to developers — the product spreads through the community that values sovereignty most.
+Four positions survive the software collapse: make models, generate live data, gatekeep permissions, own atoms. Everything else gets absorbed by the next frontier release. Alexandria is position two — generate live data. Each Constitution is live, unique, private, unsynthesizable. Better models make the extraction deeper, which makes the data more valuable. The company improves with every model release.
 
-**Regulation favours sovereignty.** GDPR enforcement is escalating — LinkedIn fined €310 million for behavioural profiling without consent. Deeper cognitive profiles attract more scrutiny, which pushes toward transparency and portability. The regulatory direction favours the sovereign architecture.
+The idiot index is 1. $100/month opex. One Claude subscription. No payroll, no compute, no storage, no database. Seven dependencies, all CLI-controllable. The entire company runs autonomously from the terminal. Zero overhead between the intelligence and the product. The exponential is underneath the company, not in front of it.
 
----
-
-### The Gap
-
-Top-tier VCs have collectively invested $100M+ in companies building fragments of what Alexandria unifies. Mem0 ($24M, YC — developer memory, 186M API calls/quarter). Personal ai ($23.8M, a16z — per-user models, platform-locked). Delphi ($19.1M, Founders Fund + Anthropic — digital clones outward). Letta ($10M, Felicis, $70M valuation — agent memory framework). The money validates the space. None has the full thesis.
-
-The closest philosophical competitor — Dot — shut down October 2025. Users lost their data. Limitless was acquired by Meta for $350M in December 2025. Product killed. Both deaths validate the sovereignty architecture.
-
-Labs will not build this deeply. A structured portable profile makes switching trivial — the opposite of lock-in. The personalisation value does not currently exceed the lock-in cost. That threshold gap is Alexandria's runway. By the time the value is obvious enough that a lab would accept the cost, Alexandria has already been compounding the dataset.
-
-This is a bet about incentives, not a wall. If the bet is wrong, Alexandria needs to have already built the trust position.
+Most ai investments cannot make this structural claim. The terminal value question is whether a company occupies one of the four positions. Alexandria does.
 
 ---
 
-### The Economics
+### Why labs will not build this
 
-**You cannot kill this company.** Company opex is $100/month — one Claude subscription. Everything else is free tier. No payroll, no compute, no storage costs, no database. The user's own ai subscription covers inference. The user's own cloud covers storage. Solo founder with ai agents that autonomously handle deploys, DNS, monitoring, email, and billing infrastructure. Break-even at 21 subscribers paying $5/month. There is no burn rate to outrun.
+A deep, structured, portable cognitive profile makes switching trivial. Portable personal data is the opposite of lock-in. The personalisation value must exceed the lock-in cost before a lab would rationally build this deeply. Currently it does not. That gap is the runway.
 
-**Growth hypothesis.** Kin pricing — each user's price drops if they have 3+ active referrals. Structural pressure on both acquisition and retention. If it works, 25 founding seeds compound exponentially at near-zero marginal CAC. If it doesn't, the first rung of capital buys the answer.
+Labs optimise for satisfaction and retention. Alexandria optimises for productive discomfort and growth. Opposed objective functions. No lab will build cross-model unification — it serves their competitors. Regulation reinforces: deeper profiles attract more scrutiny, pushing toward transparency and portability.
 
-Gross margins 85–93%. No natural cancellation point — the Constitution compounds over time, and cancelling means abandoning a growing cognitive asset. As long as someone uses ai, the layer adds value. Full projections and sensitivity in Numbers.md.
-
----
-
-### The Founder
-
-**Benjamin Mowinckel** — American-Norwegian. Three years in venture capital (sourcing, due diligence, portfolio support). Relocating to San Francisco, April 2026.
-
-The hard part of Alexandria is not technical. A lab could rebuild the stack in a week. The hard part is philosophical — seeing the problem, understanding what to build, knowing how to do the extraction well. Those are craft and philosophy problems. The entire product was built by one founder with ai agents — which proves the thesis: one human with philosophical depth and ai leverage.
-
-The company itself is the proof of concept. Building the company IS R&D for the product — the operating model is the product's thesis applied to the organisation.
+Every memory feature labs ship validates the thesis. More lock-in means more need for a sovereign layer. This is a bet about rational behaviour, not a wall. If the bet is wrong, Alexandria needs to have already built the trust position.
 
 ---
 
-### The Ask
+### The competitive landscape
 
-The company has four unresolved risks. Each has a price tag.
+$100M+ invested by top-tier VCs in adjacent fragments. Two categories have formed: developer memory infrastructure (Mem0 $24M, YC; Letta $10M, Felicis at $70M valuation; Supermemory $2.6M) and personal ai companions (Personal ai $23.8M, a16z; Delphi $19.1M, Founders Fund + Anthropic; Kin $4.1M). Neither builds sovereign cognitive transformation.
 
-| Risk | What answers it |
-|---|---|
-| Nobody wants this | Seed 25 users, observe behaviour |
-| Kin mechanic does not compound | Same experiment — measure if users bring 3 |
-| Brand does not land | Creative, positioning, presence in SF |
-| Founder cannot sustain | Living costs buffer |
+The dead speak loudest. Dot shut down October 2025 — users lost their data. Limitless acquired by Meta for $350M, December 2025 — product killed. Cloud-dependent personal ai dies when the company does. Alexandria's data lives on the user's machine.
 
-**~$50K** answers all four existential questions. Seeds the experiment, buffers the founder. If it works, the company has answered the only questions that matter. If it fails, the investor lost less than a bad angel bet on a company with $2M burn.
+If Apple builds this, the category is validated and Alexandria is the acquisition target. Startups with $100M+ in fragments validate the space. Nobody has the full stack.
 
-**~$200K–500K** scales what works. If kin compounds, pour fuel. If it doesn't, pivot distribution. First 1,000 Authors.
-
-**~$1M+** is Mental Gym conversion at scale and international expansion.
-
-Each rung purchases the next tier of de-risking. The founder builds regardless — $100/month opex. Capital accelerates the experiment.
+Defensibility is a cost gradient, not a wall: hidden extraction methodology (server-side Blueprint), per-user compounding (append-only feedback log — the therapist moat), philosophical depth, and accumulated user data. None is individually a wall. Together they are a meaningful head start that widens with time.
 
 ---
 
-Pure software is becoming uninvestable. Most ai investments are wrappers that get absorbed by the next model release. Alexandria is not a software company. The software is trivial. The product is the data — each user's Constitution, live, unique, unsynthesisable from public sources — and the philosophy. Better models make the extraction better. A model release cannot replicate what Alexandria builds.
+### The economics
 
-There are four positions that survive the software collapse: make models, generate live data, gatekeep permissions, own atoms. Alexandria is position two.
+Break-even at 21 subscribers. $100/month opex. You cannot kill this company.
 
-The quill is back because the printing press is automated. In a world of ai-generated everything, the mind that carries actual human cognition — with its contradictions, its taste, its specific weird connections — is the handwritten letter of a world that forgot what handwriting meant. The printing press made monks obsolete but created authors. ai makes operators obsolete but creates conductors. Alexandria builds the infrastructure for the conductors.
+Two revenue layers on the same architecture. Layer 1: subscription ($5-10/month, scales linearly, sustains independently). Layer 2: Library (Authors earn from shadow access, Alexandria takes 20%, zero inference cost — pure margin, theoretically unbounded).
+
+No natural cancellation point. The Constitution compounds. Cancelling means abandoning a growing cognitive asset. As long as someone uses ai, the layer adds value.
+
+Three distribution channels: local (founder in SF, founding seeds, high-touch), network (Library viral mechanics — every quiz generates 5-20 takers), global (content claws on video platforms — future). 25 founding seeds. Referral pricing creates structural pressure on both acquisition and retention.
 
 ---
 
-### The Horizon
+### The founder
 
-The subscription business stands alone. But the architecture is designed for what comes after.
+**Benjamin Mowinckel.** American-Norwegian. Princeton (Mathey College). Three years in venture capital — sourcing, due diligence, portfolio support. Relocating to San Francisco, April 2026.
 
-Every Constitution and Vault being built today is a training dataset. When fine-tuning works across any model and compounds over time without lock-in, Alexandria has the infrastructure, the methodology, and the live dataset to produce Personal Language Models immediately. A PLM captures not just what someone thinks but how they think — cognitive reflexes, reasoning patterns, taste. The Constitution is the what. The PLM is the how.
+No technical credentials. No track record. The hard part is not technical — a lab could rebuild the stack in a week. The hard part is philosophical: seeing the question, understanding what to build, knowing what to extract. The entire product was built by one human directing ai agents.
 
-Nobody knows the timeline. That is a strength. The subscription is kinetic energy — running now. The PLM is potential energy — accumulating silently. Every month the trigger has not arrived is another month of data that a competitor starting from scratch cannot replicate. No lab will build this because sovereignty undermines lock-in. The longer it takes, the wider the gap.
+The proof is the company. In eight weeks: built a sovereign extraction product, pivoted three times, shipped Library v1 with full payment infrastructure, deployed to Cloudflare Workers (251 KiB), built an autonomous CTO, wrote a formal proof chain (51 premises, 14 conclusions), maintained 24 API endpoints and 4 test suites. $100/month. One human with ai leverage operating at funded-team velocity. The company IS the thesis proven.
 
-The Library evolves from a marketplace of Personas to a marketplace of PLMs — each one built from years of high-fidelity extraction that cannot be synthesised from public data.
+The circle — all Princeton, all under 27, all at the frontier of their fields: one runs the RL company Anthropic uses for computer use agents. One is among the youngest global macro pod leaders at Millennium. One is at Bain Capital. One is starting an Oxford PhD with the Larry Ellison Institute on biotech and gene editing. One leads the Norway branch of a US defence company. One is in the US Army tracking for Ranger School.
 
-At the far horizon: brain-computer interfaces. A general LLM connected via BCI remains a foreign tool — a calculator strapped to the cortex. A high-fidelity PLM has the potential to be accepted into the self-model rather than experienced as external. Consciousness expands from carbon to carbon-plus-silicon. Alexandria optimises homo sapiens now. It enables homo deus when the bridge arrives.
+I could be wrong. I don't think I am. But I could be. The company costs $100 a month. If I am wrong, the world loses nothing. If I am right and nobody builds this, the world loses something it didn't know it needed. I would rather be wrong in the arena than right on the sideline.
 
-The people who begin now will be ready when the bridge arrives. Everyone else starts from scratch. The carbon weights are temporary. The silicon weights are eternal.
+---
 
-The valuation is lowest now. The dataset is smallest now. The compounding has barely started.
+### The ask
+
+The product is built. Technical risk is zero. Four risks remain: demand, referral mechanic, brand, founder sustainability.
+
+~$50K answers all four. Seeds 25 users, buffers the founder in San Francisco. If it works, the existential questions are answered. If it fails, the investor lost less than a bad angel bet on a company with $2M burn.
+
+~$200K-500K scales what works. First 1,000 Authors.
+
+~$1M+ is Library for Labs pilot and distribution at scale.
+
+The founder builds regardless. Capital accelerates the demand experiment. The entry price is lowest now.
+
+---
+
+### The horizon
+
+Every Constitution being built today is a training dataset. When model-agnostic continual fine-tuning compounds without lock-in, Alexandria has the data, methodology, and users to produce Personal Language Models immediately. A PLM captures not what someone thinks but how they think — cognitive reflexes, reasoning style, taste. The Library evolves from a Shadow marketplace to a PLM marketplace.
+
+At the far horizon: brain-computer interfaces. A general LLM connected via BCI is a foreign tool — a calculator strapped to the cortex. A high-fidelity PLM built from years of extraction has the potential to be accepted into the self-model. Consciousness expands from carbon to carbon-plus-silicon.
+
+Nobody knows the timeline. Every month the trigger has not arrived is another month of data a competitor starting from scratch cannot replicate. The subscription is kinetic energy. The PLM is potential energy.
+
+The printing press made monks obsolete but created authors. ai makes operators obsolete but creates conductors. Alexandria builds the infrastructure for the conductors.
 
 ---
 
@@ -128,6 +115,6 @@ mowinckel.ai
 | | |
 |---|---|
 | Category | Cognitive transformation infrastructure |
-| Stage | Pre-revenue. Product live. Founder uses daily. |
+| Stage | Pre-revenue. Product live. Library shipped. |
 | Structure | Delaware C-Corp (Stripe Atlas) |
 | Founder | Benjamin Mowinckel — San Francisco, April 2026 |

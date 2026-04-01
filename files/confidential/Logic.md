@@ -158,11 +158,15 @@ C6: **A new startup could build a similar system. The defensibility is a cost gr
 
 ### 7. Alexandria is not a software company
 
-P25. Pure software is rapidly becoming uninvestable. ai wrappers around model capabilities get absorbed into the base model with every release. Most ai investments are features, not products.
+P25. Pure software is rapidly becoming uninvestable. ai wrappers around model capabilities get absorbed into the base model with every release. Most ai investments are features, not products. The terminal value assigned to these companies is fabricated — they are bridge companies being passed between funds before the music stops.
 
 (Assumption. Strong pattern — coding assistants, productivity tools, and content generators are being absorbed. But some wrapper companies build genuine distribution and survive.)
 
-P26. Four positions survive the software collapse: make models, generate live data, gatekeep permissions, own atoms. Alexandria is position two — generate live data. Each user's Constitution is live, unique, private, and unsynthesizable from public sources. Better models make the extraction better, but a model release alone cannot replicate what Alexandria builds.
+P25b. Four positions survive the software collapse: make models, generate live data, gatekeep permissions, own atoms. Everything else is absorbed. The terminal value question is whether the company occupies one of these positions. Alexandria is position two — generate live data. The data appreciates with model quality, making every model release an improvement rather than an existential threat. Most ai investments cannot make this claim.
+
+(Assumption. The four-position taxonomy is the founder's framework. Whether it is exhaustive is debatable. The structural point — that Alexandria improves with model releases rather than being absorbed — is settled.)
+
+P26. Each user's Constitution is live, unique, private, and unsynthesizable from public sources. Better models make the extraction better, but a model release alone cannot replicate what Alexandria builds.
 
 (Settled on the taxonomy. Assumption on whether the taxonomy is exhaustive.)
 
@@ -202,7 +206,7 @@ P32. Alexandria cannot sell user data. It does not have it.
 
 (Settled. Follows from P31.)
 
-P33. What Alexandria can sell is access. Users who opt in make their Persona — the public-facing output layer, not their raw data — available for querying through a marketplace. The user decides what to share. The raw data never moves. The user can revoke at any time.
+P33. What Alexandria can sell is access. Users who opt in make their Shadow — the public-facing output layer, not their raw data — available for querying through a marketplace. The user decides what to share. The raw data never moves. The user can revoke at any time.
 
 (Settled. This is the architecture.)
 
@@ -210,13 +214,13 @@ P34. If Alexandria is acquired, the acquirer gets the marketplace and the trust 
 
 (Settled. Follows from the architecture.)
 
-C9: **Buying the dataset means buying access to a marketplace of opted-in Personas. Sovereignty survives acquisition because it must — or the acquisition is worthless.**
+C9: **Buying the dataset means buying access to a marketplace of opted-in Shadows. Sovereignty survives acquisition because it must — or the acquisition is worthless.**
 
 (Valid. Sound — all settled.)
 
 ### 10. How Alexandria gets there
 
-P35. Layer 1 — The Examined Life ($5/month with active kin, $10/month without). Sovereign portable cognitive infrastructure plus active cognitive development — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. One tier, everyone gets everything. The product is the changed person. Socrates said the unexamined life is not worth living. Alexandria sells the examined one.
+P35. Layer 1 — The Examined Life ($5/month with 3+ active referrals, $10/month without; slider open — Authors pay what it's worth). Sovereign portable cognitive infrastructure plus active cognitive development — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. One tier, everyone gets everything. The product is the changed person. Socrates said the unexamined life is not worth living. Alexandria sells the examined one. The product is built: Library v1 is live with shadows, quizzes, works, payment, promo codes, 24 API endpoints, and Stripe checkout. The question is no longer whether it can be built — it is whether anyone wants it.
 
 (Settled on the product. Assumption on adoption.)
 
@@ -242,7 +246,7 @@ C10: **Two revenue layers on the same architecture. ai-native cost structure tha
 
 ### 11. The de-risk ladder
 
-P40. The company has four unresolved risks: nobody wants this (zero external users), the kin mechanic does not compound, the brand does not land, and the founder cannot sustain.
+P40. The product is built. Technical risk is zero. Four risks remain: nobody wants this (zero external users), the kin mechanic does not compound, the brand does not land, and the founder cannot sustain.
 
 (Settled. Honest enumeration.)
 
@@ -264,9 +268,9 @@ P43. The company itself is the proof of concept. Every employee is an ai agent. 
 
 (Settled. Factual. You are reading a document produced by this operating model.)
 
-P44. The founder has no technical credentials and is honest about it. The competitive advantage is not engineering — it is seeing the question clearly. The philosophy determines the engineering. The engineering is trivial. The frame is the product.
+P44. The founder has no technical credentials and is honest about it. The competitive advantage is not engineering — it is seeing the question clearly. The philosophy determines the engineering. The engineering is trivial. The frame is the product. The proof is the company itself: built and pivoted three times in eight weeks, shipped Library v1 with 24 API endpoints, maintained four test suites, $100/month opex — one human with philosophical depth and ai leverage operating at funded-team velocity.
 
-(Assumption. Whether philosophical depth is a meaningful competitive advantage is a judgment call.)
+(Assumption. Whether philosophical depth is a meaningful competitive advantage is a judgment call. The company's own execution is evidence, not proof.)
 
 C12: **The founder is the frame. The company is the proof of concept. The ai-native operating model means the team scales with every model improvement.**
 
@@ -326,6 +330,7 @@ The blue numbers are the assumptions. These are the only things worth discussing
 - P22 The per-user feedback log advantage is large enough to matter.
 - P23 The question is non-obvious enough that competitors won't arrive at it quickly.
 - P25 Most competing ai investments will be obsoleted by model releases.
+- P25b The four-position taxonomy is correct and Alexandria occupies position two (generate live data).
 - P30 Churn trends toward near-zero as Constitutions deepen.
 - P35 Enough people pay $5-10/month for the examined life.
 - P36 Labs will pay for Library access.
@@ -423,6 +428,14 @@ Against: Some wrapper companies build genuine distribution and brand loyalty tha
 
 Assessment: The structural pattern is real. The claim that "most" will die is strong. Many will. Not all. Strong on pattern, moderate on magnitude.
 
+**P25b — The four-position taxonomy is correct and Alexandria occupies position two.**
+
+For: The taxonomy — make models, generate live data, gatekeep permissions, own atoms — exhaustively covers the value chain. Alexandria generates live data (each Constitution is unique, private, unsynthesizable). Better models make the extraction more valuable, not the company obsolete. The idiot index is 1 — zero process overhead between intelligence and product. Most ai portfolios cannot make this claim about terminal value. Dead companies validate the pattern: Dot (shutdown Oct 2025, users lost data), Limitless (acquired by Meta Dec 2025, $350M, product killed) — both were software wrappers without a position in the four-position framework.
+
+Against: The taxonomy may not be exhaustive. A fifth position could exist that the framework does not capture. "Generate live data" is broad — many companies claim unique data without it being meaningfully defensible.
+
+Assessment: The taxonomy is a useful framework, not a proven law. Alexandria's position within it is strong — the data is genuinely unsynthesizable from public sources and appreciates with model quality. Whether the taxonomy itself captures all surviving positions is debatable. Moderate assumption.
+
 **P30 — Churn trends toward near-zero as Constitutions deepen.**
 
 For: The Constitution is a compounding asset. Cancelling means abandoning accumulated cognitive signal. No natural "I am done" moment. Cross-model portability means the value persists regardless of which ai the user switches to.
@@ -437,7 +450,7 @@ For: The pitch is simple: own your cognitive data, make every ai better, develop
 
 Against: The pain point is not acutely felt. Most people do not know they need this. Requires frame imposition before conversion. The examined life is a niche desire — most people do not want to be Socratically questioned about their thinking. Could be a long, slow build rather than a viral product.
 
-Assessment: Depends on distribution effectiveness and how quickly the frame spreads. The $5 price point with kin removes the deliberation barrier. Moderate assumption.
+Assessment: Depends on distribution effectiveness and how quickly the frame spreads. The $5 price point with kin removes the deliberation barrier. The product is now built — Library v1 is live with payment, quizzes, viral sharing, and promo codes. The question has shifted from "can it be built?" to "do people want it?" That question is answerable for ~$15K by seeding 25 users. Moderate assumption.
 
 **P36 — Labs will pay for Library access.**
 
@@ -449,11 +462,11 @@ Assessment: The data is qualitatively unique. Whether labs value it enough to pa
 
 **P44 — The founder's philosophical depth is a meaningful advantage.**
 
-For: The product is philosophical, not technical. The ai-native operating model proves the thesis. The engineering was built entirely by ai agents — one human with philosophical depth and ai leverage.
+For: The product is philosophical, not technical. The ai-native operating model proves the thesis. The engineering was built entirely by ai agents — one human with philosophical depth and ai leverage. The company itself is the evidence: built and pivoted three times in eight weeks, shipped Library v1 with 24 API endpoints, maintained four test suites, $100/month opex. The founder's circle — all Princeton, all under 27 — includes the founder of the RL company Anthropic uses for computer use agents, one of the youngest global macro pod leaders at Millennium, and researchers at Bain Capital, Oxford/Ellison Institute, and the US Army.
 
-Against: Philosophy is replicable. A well-funded team with a philosopher and engineers could catch up. Solo founder with no technical credentials is a risk.
+Against: Philosophy is replicable. A well-funded team with a philosopher and engineers could catch up. Solo founder with no technical credentials is a risk. The company's execution over eight weeks is evidence, not proof — eight weeks is not a track record.
 
-Assessment: True on both sides. The advantage is real but temporal. Whether the head start compounds is the question. Moderate assumption.
+Assessment: True on both sides. The advantage is real but temporal. Whether the head start compounds is the question. The execution evidence is stronger than "no evidence" but weaker than a multi-year track record. Moderate assumption.
 
 **P46 — The subscription and Library revenue tiers reach meaningful scale.**
 

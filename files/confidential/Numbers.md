@@ -47,20 +47,23 @@ Free stack: GitHub, Vercel, Cloudflare (Workers + KV + DNS + email), Stripe, Goo
 
 ### Pricing
 
-One tier. Everyone gets everything.
+One tier. Everyone gets everything. Slider open — Authors pay what it's worth.
 
 | The Examined Life | $/mo |
 |---|---:|
-| With 3+ active kin | $5 |
-| Without kin | $10 |
+| With 3+ active referrals | $5 floor |
+| Without 3 referrals | $10 floor |
+| Slider | No ceiling |
 
-60% of users expected to have 3+ active kin.
+60% of users expected to have 3+ active referrals.
 
 | | $/mo |
 |---|---:|
 | **Blended ARPU** | **$7** |
 
-After kin mix and quarterly/annual discounts.
+After referral mix and quarterly/annual discounts. Slider surplus adds to ARPU but is not modelled — pure upside.
+
+Promo codes: Author-generated. Alexandria subsidises from its 20% Library cut. Viral mechanic, not discount.
 
 ---
 
@@ -70,6 +73,21 @@ After kin mix and quarterly/annual discounts.
 |---|---:|---|
 | Stripe % | 2.9% | |
 | Stripe per-txn fee | $0.30 | Per transaction |
+
+---
+
+### Founding Cohort
+
+| | |
+|---|---:|
+| Founding seeds | 25 |
+| Pricing | $5 floor, slider open |
+| If each seed brings 3 referrals | 25 → 75 → 225 (Q1) |
+| If referral multiplier is 1.5x | 25 → 38 → 57 (slower but organic) |
+| Break-even on company opex | 21 subscribers at $5/month |
+| Break-even on founder costs | ~80 subscribers at $7 blended ARPU |
+
+Three distribution channels: local (founder in SF), network (Library viral — quizzes, shareable shadows), global (content claws — future, ai agents on video platforms).
 
 ---
 
@@ -87,3 +105,5 @@ After kin mix and quarterly/annual discounts.
 | | |
 |---|---:|
 | Average annual contract value | $50,000 |
+
+Library v1 infrastructure is live: D1 for metadata, R2 for content, Stripe for payment. Zero inference cost per Library interaction — shadow MDs are static artifacts served via API. Alexandria takes 20%, Author earns 80%.

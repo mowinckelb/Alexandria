@@ -6,10 +6,10 @@ import remarkGfm from 'remark-gfm';
 import { useTheme } from '../../components/ThemeProvider';
 
 const DOCS: Record<string, { file: string; confidential?: boolean; purpose: string; time: string; aiDoc?: boolean }> = {
-  memo: { file: '/partners/Memo.md', confidential: true, purpose: 'the investment memo', time: '12 min', aiDoc: true },
+  memo: { file: '/partners/Memo.md', confidential: true, purpose: 'the investment memo', time: '7 min', aiDoc: true },
   numbers: { file: '/partners/Numbers.md', confidential: true, purpose: 'the assumptions', time: '2 min' },
-  logic: { file: '/partners/Logic.md', confidential: true, purpose: 'the formal argument', time: '23 min' },
-  alexandria: { file: '/partners/Alexandria.md', confidential: true, purpose: 'the company overview', time: '5 min' },
+  logic: { file: '/partners/Logic.md', confidential: true, purpose: 'the formal argument', time: '25 min' },
+  alexandria: { file: '/partners/Alexandria.md', confidential: true, purpose: 'the company overview', time: '6 min' },
 };
 
 function ThemeToggle() {
