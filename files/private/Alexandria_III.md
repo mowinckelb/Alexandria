@@ -292,7 +292,7 @@ Step 7 — Compounding. Every session adds to the vault. Every `/a` session refi
 
 The entire setup takes under two minutes. From link to working installation. The product is invisible after that — the Author just uses their ai normally, and the constitution builds itself.
 
-Consumer path — ABANDONED. MCP connector for Claude app / ChatGPT users was structurally weaker (probabilistic activation, cloud storage dependency, auth broken on Workers). Left in code as dead path. The prosumer path is the only product.  
+Consumer path — ABANDONED. MCP connector for Claude app / ChatGPT users was structurally weaker (probabilistic activation, cloud storage dependency, auth broken on Workers). All consumer code deleted. The prosumer path is the only product.  
   
 TARGET AUTHOR  
   
