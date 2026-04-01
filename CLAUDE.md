@@ -60,7 +60,7 @@ Public artifacts live in `public/docs/`. Vercel serves static files from `public
 - `Concrete.md` — **Objective: make someone try the product in the next 5 minutes.** Consumer pitch (copy-paste into any ai chat). Skeleton format: topics + points, model writes fresh each time. Tone: gossip energy — "dude, you have to try this." Truck driver language.
 - `Vision.md` — **Objective: make someone who reads the whole thing believe the thesis is true.** Full philosophy in plain English. ~15 min read. Covers: five dimensions, the shift, the alien, property 5, the game, three turns, the Library, conductor model, decay, civilisational lineage. Tone: calm, clear, confident. No jargon. The argument does the work.
 - `abstract.pdf` — **Objective: emotional lock-in for the deeply convinced.** Philosophical abstract PDF. Mode 1 art.
-- `setup.md` — User onboarding guide (prosumer setup, hooks, /a, vault, troubleshooting).
+- `Trust.md` — **Objective: make the prosumer confident everything Alexandria installs is safe.** Full transparency: what the curl does, what hooks fire, what goes to the server, what stays local. They can verify every line before running it.
 - `logo_*.png` — Logo variants. `logo_reference.html` — interactive reference.
 - `Benjamin_Mowinckel_Headshot.jpg` — Founder headshot.
 
@@ -135,7 +135,7 @@ Only after Phase 1 completes. This is the company, not the product:
   - `files/confidential/Numbers.md` + `public/partners/Numbers.md` (identical)
   - `files/confidential/Logic.md` + `public/partners/Logic.md` (identical)
   - `files/confidential/Alexandria.md` + `public/partners/Alexandria.md` (identical)
-  - `public/docs/Concrete.md`, `public/docs/Vision.md`, `public/docs/setup.md`
+  - `public/docs/Concrete.md`, `public/docs/Vision.md`, `public/docs/Trust.md`
   - `app/privacy/page.tsx`, `app/terms/page.tsx`
   Fix silently. Flag only if the founder needs to make a judgment call.
 
@@ -167,9 +167,9 @@ Before committing any non-trivial change, reflect against `~/.claude/CLAUDE.md` 
 3. If genuine tradeoff (no clear best option) → ship the best option now, park the question in `files/private/a0.md` under `## Parked questions` for the founder's next session.
 4. If the fix is blocked on founder input (taste call, strategic direction) → ship what works, park the question.
 
-This is not a manual step. It's how changes get made. The founder should never need to call /reflect — it's already built into the workflow.
+This is not a manual step. It's how changes get made. The founder should never need to call /check — it's already built into the workflow.
 
-The reflect gate applies to: code commits, trigger updates, an/ax changes, architecture decisions. It does NOT apply to: trivial fixes (typos, sync), session protocol, or when the founder explicitly says to skip it.
+The check gate applies to: code commits, trigger updates, an/ax changes, architecture decisions. It does NOT apply to: trivial fixes (typos, sync), session protocol, or when the founder explicitly says to skip it.
 
 ## Working With the Founder
 
