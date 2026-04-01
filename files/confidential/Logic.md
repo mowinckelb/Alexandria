@@ -398,7 +398,7 @@ Assessment: Depends on P16. If the breathing room is large (years), even slow co
 
 **P19 — Non-lab giants won't move on an unproven category.**
 
-For: Historical pattern is strong: Palm before iPhone, BlackBerry before iPhone, Pebble before Apple Watch. Giants enter proven categories. No giant has a cognitive transformation infrastructure team or product.
+For: Historical pattern is strong: Palm before iPhone, BlackBerry before iPhone, Pebble before Apple Watch. Giants enter proven categories. No giant has a Greek philosophy infrastructure team or product.
 
 Against: Apple specifically has the brand trust, device ecosystem, and privacy positioning to build this. If any giant would break the pattern, it would be Apple. And if the category becomes hot, a giant could move faster than the pattern suggests.
 
@@ -446,9 +446,9 @@ Assessment: The structural argument is sound. Whether users feel the compounding
 
 **P35 — Enough people pay $5-10/month for the examined life.**
 
-For: The pitch is simple: own your cognitive data, make every ai better, develop your thinking — $5/month with kin, $10 without. Below the threshold of deliberation for most ai users. One tier, everyone gets everything. Therapy is a $200B+ global market. Coaching is growing rapidly. Journaling and self-improvement apps have proven willingness to pay for inner development. The examined life is the ai-native version of an existing human need.
+For: The pitch is simple: own your cognitive data, make every ai better, develop your thinking — $5/month with kin, $10 without. Below the threshold of deliberation for most ai users. One tier, everyone gets everything. Therapy is a $200B+ global market. Coaching is growing rapidly. Journaling and self-improvement apps have proven willingness to pay for inner development. The examined life is the ai-native version of an existing human need. The positive-sum attention frame sharpens the value proposition further: the target user (builders — coders, founders, creatives) knows there is marginal value in all the papers, podcasts, and books they do not have time to consume. Alexandria converts that zero-sum attention into positive-sum — the vault absorbs the material, the engine extracts only what is genuinely new against the user's constitution. The product is not an extra commitment. It is an amplifier of what the user already does.
 
-Against: The pain point is not acutely felt. Most people do not know they need this. Requires frame imposition before conversion. The examined life is a niche desire — most people do not want to be Socratically questioned about their thinking. Could be a long, slow build rather than a viral product.
+Against: The pain point is not acutely felt. Most people do not know they need this. Requires frame imposition before conversion. The examined life is a niche desire — most people do not want to be Socratically questioned about their thinking. Could be a long, slow build rather than a viral product. The positive-sum attention frame helps — "save time on reading" is felt more acutely than "develop your cognition" — but it is still an unfamiliar category.
 
 Assessment: Depends on distribution effectiveness and how quickly the frame spreads. The $5 price point with kin removes the deliberation barrier. The product is now built — Library v1 is live with payment, quizzes, viral sharing, and promo codes. The question has shifted from "can it be built?" to "do people want it?" That question is answerable for ~$15K by seeding 25 users. Moderate assumption.
 

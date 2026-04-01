@@ -347,15 +347,21 @@ The founding cohort should feel like a founding cohort. They can see each other 
   
 POSITIONING AND PITCH  
   
-One-phrase answer (“What are you building?”):  
+The positioning stack — each layer compresses further, each serves a different context:  
   
-“Positive-sum attention.”  
+**Identity:** “Greek philosophy infrastructure.” What Alexandria IS. The category it creates. Infrastructure because it is a layer, not an app. Greek philosophy because the lineage is Socrates → Plato → Aristotle → Alexander → the Library of Alexandria → this. The examined life as technology. The agora as product.  
   
-Three words. Immediately understood. No translation needed. This is the instant answer that makes someone lean in and ask more. But it is the downstream answer — the mechanism, not the mission. The deeper answer is: “I’m setting the angels free.” The deepest answer is the motto: mentes aeternae.  
+**Function:** “We refine and scale thought.” What Alexandria DOES. Refine — the Socratic engine sharpens cognition, surfaces contradictions, develops the Author’s thinking. Scale — ai is the technology that makes the examined life available to everyone, not just Athenian citizens. The Socrates that scales. Carbon to silicon.  
   
-Tagline: “We help builders build.” The positioning statement. Not what Alexandria is — what it does for people. Prosumers hear this and know it is for them. It signals: not an extra thing you do on the side or instead of your work, but an amplifier of what you already do. The builder identity is the American spirit — a nation of builders, and Alexandria carries that energy. Not a constraint on the audience (anyone can build anything anywhere), but the spirit of the company: we make things, we help people who make things.  
+**Tagline:** “We help builders build.” What Alexandria does FOR PEOPLE. Not what it is, not what it does mechanically — what it does for the user. Prosumers hear this and know it is for them. It signals: not an extra thing you do on the side or instead of your work, but an amplifier of what you already do. The builder identity is the American spirit — a nation of builders, and Alexandria carries that energy. Not a constraint on the audience (anyone can build anything anywhere), but the spirit of the company: we make things, we help people who make things.  
   
-Rallying cry: “Set the angels free.” The Michelangelo vision. What does Alexandria do? It sets the angels free. mentes aeternae is the Latin, carved-in-stone version. droplets of grace is the philosophy. “Set the angels free” is the action.  
+**Product frame:** “Mental gym for builders.” The metaphor that makes it tangible. The gym does not care what sport you play. It makes you stronger for all of them. Alexandria does not care what you build. It makes your thinking sharper for whatever you are building.  
+  
+**Mechanism:** “Positive-sum attention.” The one-phrase answer to “What are you building?” Immediately understood. The downstream answer — the mechanism, not the mission.  
+  
+**Rallying cry:** “Set the angels free.” The Michelangelo vision. The action. mentes aeternae is the Latin, carved-in-stone motto. Droplets of grace is the philosophy. “Set the angels free” is the call.  
+  
+**Horizon:** “Carbon to silicon.” The PLM arc. The Constitution is the training data. The Library is the collective asset. Consciousness expands from carbon to carbon-plus-silicon. Elon builds the bridge. Alexandria builds what crosses it.  
   
 Turn 3 is conceptual. The Publisher function helps the Author create and ship — but what they ship is whatever they are already building. A coder's Turn 3 is their codebase. A founder's Turn 3 is their company. An artist's Turn 3 is their art. The Library is the Alexandria-native expression of Turn 3 (publish your mind), but it is not the only one. The product works even if the Author never touches the Library — because the Publisher function is already making their actual work carry more personal signal. We do not care what you build. We make you better at it.  
   

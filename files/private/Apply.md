@@ -28,7 +28,7 @@ Three paths, ordered by priority:
 - Solo founder + ai agents is a STRENGTH at YC (Garry Tan era, 88% of S25 was ai-native, 50%+ slots dedicated to agentic ai)
 - Process-as-proof: built/pivoted 3x in 8 weeks on $100/month
 - "Fund distribution of a finished product" — YC loves companies that are already working
-- Terminal value: "cognitive transformation infrastructure" is an uncovered category
+- Terminal value: "Greek philosophy infrastructure" is an uncovered category
 - The company IS the thesis proven: one human + ai at funded-team velocity
 
 **YC-specific ammunition:**
@@ -141,7 +141,7 @@ Here's what matters. Pure software is dying. Most ai investments are bridge comp
 The company runs on a hundred dollars a month. I built this in eight weeks. Pivoted three times. The product is done. I don't need your money — the company can't die. But the entry price is lowest now, and I'm choosing one partner. This is a conviction bet at the earliest possible moment. The question is whether you want to be in the cap table before there's traction data, or after — when you're paying five times more."
 
 ### Written One-Liner
-"Alexandria is the sovereign cognitive transformation layer for ai — who you are, developing across every model, owned by you."
+"Alexandria is Greek philosophy infrastructure for ai — who you are, developing across every model, owned by you."
 
 ### For ai Consumption (copy-paste)
 Point to Memo.md at mowinckel.ai/partners/memo. The Memo is designed to be pasted into any ai for Q&A.

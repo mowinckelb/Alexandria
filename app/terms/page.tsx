@@ -19,7 +19,7 @@ export default function Terms() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>What this is</h2>
-        <p>Alexandria is a sovereign cognitive transformation layer. It installs hooks into your AI coding environment (Claude Code, Cursor), maintains local markdown files on your machine, and serves a methodology (the Blueprint) from our server at mcp.mowinckel.ai. These terms govern your use of the Alexandria server, website, and Library at mowinckel.ai.</p>
+        <p>Alexandria is Greek philosophy infrastructure. It installs hooks into your AI coding environment (Claude Code, Cursor), maintains local markdown files on your machine, and serves a methodology (the Blueprint) from our server at mcp.mowinckel.ai. These terms govern your use of the Alexandria server, website, and Library at mowinckel.ai.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>

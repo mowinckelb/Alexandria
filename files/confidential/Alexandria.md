@@ -4,7 +4,7 @@
 
 Every person who dies without getting their inner world out is a library burning.
 
-Alexandria is sovereign cognitive transformation infrastructure. It develops human cognition through ai — captures it, sharpens it, preserves it, releases it into the world. Local files on the user's machine. Five dollars a month. The product is the changed person.
+Alexandria is Greek philosophy infrastructure. A mental gym for builders. It develops human cognition through ai — captures it, sharpens it, preserves it, releases it into the world. Local files on the user's machine. Five dollars a month. The product is the changed person — and the changed person's work is distinctly theirs.
 
 ---
 
@@ -12,7 +12,7 @@ Alexandria is sovereign cognitive transformation infrastructure. It develops hum
 
 One curl command installs two hooks into the user's ai workflow. They fire every session. Transcript to vault. Constitution injected. A structured picture of how the user thinks accumulates as human-readable markdown at `~/.alexandria/` — worldview, values, mental models, taste, blind spots. Synced via iCloud. Portable across every ai provider. Sovereign.
 
-`/a` activates the mental gym. Socratic questioning. Contradiction surfacing. Gap detection. The most clarifying conversations the user has ever had. The vault accepts anything — articles, voice memos, ideas — and the system absorbs it against who the user already is.
+`/a` activates the mental gym. Socratic questioning. Contradiction surfacing. Gap detection. The most clarifying conversations the user has ever had. The vault accepts anything — articles, voice memos, the paper everyone is talking about, the podcast the user will never have time to listen to — and the system processes it against who the user already is. Not a summary. Personalised extraction that compounds. Structurally better than raw consumption because the engine knows the user's map and extracts only what is genuinely new. Positive-sum attention — the user's finite bandwidth converted into a flywheel.
 
 Library v1 is live: shadow publishing (curated Constitution fragments at free and paid tiers), quizzes generated from real cognitive data, works gallery, Stripe checkout with slider pricing, promo codes, ai agent access tokens, earnings dashboard. 24 API endpoints. D1 for metadata, R2 for content. Four test suites. Autonomous CTO with daily health monitoring and weekly meta-reflection. Full onboarding flow: GitHub signup, email, curl, automatic.
 

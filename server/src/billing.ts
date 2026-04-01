@@ -43,7 +43,7 @@ async function ensurePrices(): Promise<{ withKin: string; withoutKin: string }> 
   if (!product) {
     product = await stripe.products.create({
       name: 'The Examined Life',
-      description: 'Alexandria — sovereign cognitive transformation layer. One tier, everything included.',
+      description: 'Alexandria — Greek philosophy infrastructure. One tier, everything included.',
       metadata: { alexandria: 'examined_life' },
     });
   }

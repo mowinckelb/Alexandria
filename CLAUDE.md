@@ -1,6 +1,6 @@
 # Alexandria
 
-Sovereign cognitive transformation layer. Rides the user's existing ai. Does not run its own models or store user data.
+Greek philosophy infrastructure. Rides the user's existing ai. Does not run its own models or store user data.
 
 Founder: Benjamin Mowinckel. Solo founder + ai agents. Relocating to SF April 2026.
 

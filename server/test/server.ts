@@ -201,7 +201,7 @@ async function main() {
     const res = await fetch(`${BASE}/`);
     const body = await res.text();
     const hasTitle = body.includes('<title>Alexandria</title>');
-    const hasTagline = body.includes('Sovereign cognitive transformation layer');
+    const hasTagline = body.includes('Greek philosophy infrastructure');
     return {
       test: 'Root page returns HTML',
       passed: res.ok && hasTitle && hasTagline,

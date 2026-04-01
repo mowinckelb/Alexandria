@@ -16,9 +16,9 @@ Alexandria gets better when a new model ships. Not "survives" — gets better. T
 
 One curl command. Two hooks. Local files on your own machine. Five dollars a month.
 
-Alexandria installs into your ai workflow and fires every session. Your conversations become extraction signal. A structured picture of how you think accumulates as markdown — worldview, values, mental models, taste, blind spots. Portable. Sovereign. Never locked to any lab.
+Alexandria installs into your ai workflow and fires every session. Your conversations become extraction signal. A structured picture of how you think accumulates as markdown — worldview, values, mental models, taste, blind spots. Portable. Sovereign. Never locked to any lab. Your work transitions from generic ai output to something that carries your fingerprint.
 
-Run `/a` and it becomes something else. A biographer who has read everything you have ever said and asks the question you have been avoiding. Socratic questioning. Contradiction surfacing. The fog lifts and you recognise yourself. Share anything to the vault — articles, voice memos, ideas at 2am — and the system absorbs it against who you already are.
+Run `/a` and it becomes something else. A biographer who has read everything you have ever said and asks the question you have been avoiding. Socratic questioning. Contradiction surfacing. The fog lifts and you recognise yourself. Share anything to the vault — articles, voice memos, the paper you bookmarked six months ago, the podcast everyone keeps recommending — and the system processes it against who you already are. Not a summary. Personalised extraction that filters out what you already know and integrates only the fragments that are genuinely new for you. Structurally better than reading it yourself, because the system knows your map and you do not have the time.
 
 The Library is live. Publish your shadow — curated fragments of how you think. Generate quizzes from real cognitive data. Publish works. Visitors pay for depth. Authors earn. Four surfaces. Zero inference cost. Pure margin.
 
@@ -60,7 +60,7 @@ That is the opportunity cost of passing. Not zero. Everything you are currently 
 
 **The Examined Life.** $5/month with three active referrals, $10 without. Slider open. Everyone gets everything.
 
-Sovereignty: one structured picture across every ai provider. Your data, your machine. Mental gym: Socratic questioning, blind spot surfacing, creative iteration calibrated to your taste. The product is the changed person.
+Sovereignty: one structured picture across every ai provider. Your data, your machine. Mental gym: Socratic questioning, blind spot surfacing, creative iteration calibrated to your taste. Positive-sum attention: the vault absorbs everything the user does not have time to read and extracts only what changes their thinking. The product is the changed person — and the changed person's work is distinctly theirs.
 
 **The Library.** Blurb (monthly progress — Spotify Wrapped for cognition). Shadow (the published mind — free and paid tiers). Games (quizzes from real data — "how well do you know me?" is the viral loop). Works (the gallery). Authors earn 80%. Zero inference cost — static artifacts via API.
 
@@ -181,6 +181,10 @@ mowinckel.ai
 *- Not software: software is trivial. Product is data + philosophy. Four positions survive. Position two.*
 
 *- Demand is the only question: product built, philosophy written, money answers demand. ~$15K seeds 25 users.*
+
+*- Positive-sum attention: "Your users are builders — coders, founders, creatives. Their attention is zero-sum. They know there is value in all the papers, podcasts, and books they cannot get to. Alexandria turns that into positive-sum attention — the vault absorbs the material, the engine extracts only what is genuinely new against their constitution. Structurally better than reading it yourself. It compounds. Raw reading does not."*
+
+*- We help builders build: "Not an extra thing. An amplifier. The constitution makes your existing work carry your fingerprint instead of being generic ai output. Turn 3 is whatever you are already building — your codebase, your company, your art. The Library is the Alexandria-native expression, but the product works even if you never publish."*
 
 *- Logic.md: mowinckel.ai/partners/logic. 51 premises, 14 conclusions, 17 assumptions.*
 

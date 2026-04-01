@@ -19,7 +19,7 @@ export default function Privacy() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>What Alexandria is</h2>
-        <p>Alexandria is a sovereign cognitive transformation layer. It helps you build a structured picture of how you think — your Constitution — stored as markdown files on your own machine at <code>~/.alexandria/</code>. Alexandria does not host, store, or retain your cognitive data.</p>
+        <p>Alexandria is Greek philosophy infrastructure. It helps you build a structured picture of how you think — your Constitution — stored as markdown files on your own machine at <code>~/.alexandria/</code>. Alexandria does not host, store, or retain your cognitive data.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>

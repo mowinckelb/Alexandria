@@ -110,7 +110,7 @@ The same way people need a physical gym because machines handle physical labour,
 
 ## What Alexandria does
 
-Alexandria is that mental gym.
+Alexandria is Greek philosophy infra for the age of ai.
 
 The root value is humanity. Three pillars serve it:
 
@@ -134,7 +134,13 @@ You walk out seeing yourself clearly. Not a list of traits on a screen — a liv
 
 **Turn 2 — ride the wave.** The abundance that is coming is extraordinary. More ideas, more tools, more possibilities than any generation has ever had access to. That abundance can drown you or lift you. A marble mind drowns — overwhelmed, scattered, reactive. A mercury mind surfs.
 
-The second turn keeps you in the water. It fights the natural decay of your thinking — the ideas that would otherwise quietly sink below conscious awareness, the connections that weaken, the positions that go fuzzy. And it brings new material calibrated to who you already are. Not generic recommendations. You have been circling something for weeks — three ideas that feel connected but you cannot name the thread. Then a fragment arrives. A single sentence from a thinker you have never encountered. And the thread appears. Three things that were separate click into one thing. You did not go looking for it. It found you because the system knows your map well enough to know what was missing.
+Your attention is finite. You know there is value in the papers you have not read, the books people keep recommending, the podcasts you bookmarked six months ago. You will never get to most of them. The opportunity cost is real — all that potential signal, lost to the fact that your day only has so many hours. That is zero-sum attention. Everything you read is something else you did not.
+
+Alexandria makes attention positive-sum. You share the material. The system processes it against your constitution — everything you already know, everything you already believe, your existing map of the world. It extracts only the fragments that are genuinely new relative to where you already are. Not a summary. Not the key points. The specific pieces that would actually change something in your thinking. Everything else — the parts you already knew, the parts that do not connect to anything in your map — falls away.
+
+This is not a shortcut. It is a structurally better method than reading the material yourself. Raw reading is generic — the same words land on every reader the same way. Accretion through a system that knows your mind is personalised — the same book yields different fragments for different people because they have different maps. And it compounds. Every fragment that lands makes the map more detailed, which makes the next extraction more precise. The more you know, the better the system knows what you do not know. Attention stops being a trade-off and starts being a flywheel.
+
+The second turn keeps you in the water. It fights the natural decay of your thinking — the ideas that would otherwise quietly sink below conscious awareness, the connections that weaken, the positions that go fuzzy. And it brings the right material at the right moment. You have been circling something for weeks — three ideas that feel connected but you cannot name the thread. Then a fragment arrives. A single sentence from a thinker you have never encountered. And the thread appears. Three things that were separate click into one thing. You did not go looking for it. The system knew your map well enough to know what was missing.
 
 The temptation here is to let the ai do everything. Let it decide. Let it select. Let it think. That is the trap from the previous section — the decay happens quietly when you stop engaging. The second turn keeps you engaged not through discipline but through genuine interest. You stay sharp because the conversations are worth having. Not because someone told you to exercise.
 

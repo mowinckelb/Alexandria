@@ -9,7 +9,7 @@ import { Hono } from 'hono';
 import { registerProsumerRoutes, extractApiKey, findByApiKey, updateAccountBilling, getBillingSummary, runFollowupCheck, runHealthDigest } from './prosumer.js';
 import { registerBillingRoutes, settleMonthlyTabs } from './billing.js';
 import { registerLibraryRoutes } from './library.js';
-import { getAnalytics, getEventLog, getDashboard } from './analytics.js';
+import { getAnalytics, getEventLog, getDashboard, logEvent } from './analytics.js';
 import { setKV } from './kv.js';
 
 // ---------------------------------------------------------------------------
@@ -129,11 +129,76 @@ app.get('/', (c) => {
 <body style="font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0a0a0a;color:#fff">
 <div style="text-align:center">
 <h1 style="margin:1rem 0 0.5rem;font-weight:300">Alexandria</h1>
-<p style="color:#888;font-size:0.9rem">Sovereign cognitive transformation layer</p>
+<p style="color:#888;font-size:0.9rem">Greek philosophy infrastructure</p>
 <p style="color:#555;font-size:0.8rem;margin-top:2rem"><a href="/health" style="color:#555">health</a></p>
 </div>
 </body>
 </html>`);
+});
+
+// ---------------------------------------------------------------------------
+// Waitlist
+// ---------------------------------------------------------------------------
+
+const waitlistRateMap = new Map<string, { count: number; resetAt: number }>();
+
+app.post('/waitlist', async (c) => {
+  // CORS for website
+  const reqOrigin = c.req.header('Origin') || '';
+  const allowed = ['https://mowinckel.ai', 'https://www.mowinckel.ai'];
+  if (allowed.includes(reqOrigin)) {
+    c.header('Access-Control-Allow-Origin', reqOrigin);
+  }
+
+  const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const now = Date.now();
+  const entry = waitlistRateMap.get(ip);
+  if (entry && now <= entry.resetAt && entry.count >= 5) {
+    return c.json({ error: 'Too many requests.' }, 429);
+  }
+  if (!entry || now > entry.resetAt) {
+    waitlistRateMap.set(ip, { count: 1, resetAt: now + 60_000 });
+  } else {
+    entry.count++;
+  }
+
+  const body = await c.req.json().catch(() => null);
+  const email = body?.email;
+  if (!email || typeof email !== 'string' || !email.includes('@') || email.length > 320) {
+    return c.json({ error: 'Valid email required.' }, 400);
+  }
+
+  const validTypes = ['author', 'investor'];
+  const type = validTypes.includes(body.type) ? body.type : 'author';
+  const source = body.source === 'confidential' ? 'confidential' : 'public';
+
+  try {
+    const db = (globalThis as any).__d1 as D1Database;
+    if (!db) {
+      return c.json({ error: 'Database not available.' }, 503);
+    }
+    await db.prepare(
+      'INSERT OR REPLACE INTO waitlist (email, type, source, created_at) VALUES (?, ?, ?, ?)'
+    ).bind(email.toLowerCase().trim(), type, source, new Date().toISOString()).run();
+
+    logEvent('waitlist_signup', { type, source });
+    return c.json({ ok: true });
+  } catch (err: any) {
+    console.error('Waitlist error:', err?.message || err);
+    return c.json({ error: 'Failed to join waitlist.' }, 500);
+  }
+});
+
+// CORS preflight for waitlist (website calls cross-origin)
+app.options('/waitlist', (c) => {
+  const reqOrigin = c.req.header('Origin') || '';
+  const allowed = ['https://mowinckel.ai', 'https://www.mowinckel.ai'];
+  if (allowed.includes(reqOrigin)) {
+    c.header('Access-Control-Allow-Origin', reqOrigin);
+    c.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    c.header('Access-Control-Allow-Headers', 'Content-Type');
+  }
+  return c.text('', 204);
 });
 
 // ---------------------------------------------------------------------------

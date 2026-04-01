@@ -413,7 +413,7 @@ def build_pdf(md_path, pdf_path):
     doc_name = md_path.stem.lower()
     if doc_name == "alexandria":
         cover_title = "alexandria."
-        cover_subtitle = "cognitive transformation infrastructure"
+        cover_subtitle = "Greek philosophy infrastructure"
     elif doc_name == "memo":
         cover_title = "alexandria."
         cover_subtitle = "investment memo"

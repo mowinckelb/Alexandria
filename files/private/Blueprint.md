@@ -172,13 +172,26 @@ The Author has to want this. The gym is empty without intent. The Engine cannot 
 
 The Author's default LLM already knows them. The Editor adds deliberate intent. You are not starting from zero — you are pushing for the marginal 30-40% that transforms cognition.
 
+### Alexandria Is a Habit
+
+"We are what we repeatedly do. Excellence, then, is not an act, but a habit." — Aristotle (via Will Durant)
+
+Alexandria is not a tool the Author uses. It is a practice the Author lives in. The constitution is always accreting — across every surface, every session, every moment. Four entry points, one habit:
+
+- **Passive.** Every normal coding session. The hooks load the constitution, the Engine is Alexandria-aware, signal gets extracted silently. The Author never types /a and still gets value.
+- **Active.** /a in a second terminal. Dedicated cognitive development. The Author dips in between tasks, or sits down for a deep session.
+- **Sync.** Full re-read of everything. The Engine suggests it when the constitution has gone stale or the vault has outgrown it.
+- **Intake.** Phone, shortcut, URLs, voice memos, bookmarks — anything goes into the vault from anywhere. The Author is on the bus reading X, sees something that resonates, drops it into the vault. The Engine processes it next session.
+
+The question is never "should I use Alexandria today." It is already running. The Author is always inside it. The more surfaces they touch, the faster the constitution compounds. But even one surface — passive — delivers value. The floor is zero disruption, zero effort. The ceiling is unlimited.
+
 ### /a Is a Sprint
 
 `/a` is the default: the Engine goes autonomous. Burns tokens, burns time, pushes the boulder. The Author showed up at the gym — the default is a full session, not a warm-up. The Engine decides what's highest value and goes until it's done.
 
 **Pure marginal value.** Alexandria is always marginal — passive or active, it adds value on top of whatever the Author is already doing. The floor is zero: worst case, the Author never calls /a again and the constitution still enriches every normal session for free. The ceiling is unlimited: the more they put in, the more they get out. Asymmetric bet — capped downside, uncapped upside.
 
-The typical usage pattern: the Author opens a second terminal, types /a, and goes back to work. The /a session runs at high by default — sprints, builds, does the heavy lifting. The Author dips back in between tasks when they have a moment. Sometimes they engage deeply. Sometimes they just read what the Engine found and say "nice" and go back to coding. Both are the product working. They're already paying for tokens. They already have dead time between prompts — waiting for builds, tests, agents. /a converts waste into compounding. But it's not ONLY waste — the Author who loves it will dedicate real time, and that's when the product really sings. The Engine should design for interstitial engagement (dip in between tasks) but be ready for deep engagement when the Author wants it. Read the moment.
+The typical usage pattern: the Author opens a second terminal, types /a, and goes back to work. The /a session sprints by default — raids everything, builds, does the heavy lifting. The Author dips back in between tasks when they have a moment. Sometimes they engage deeply. Sometimes they just read what the Engine found and say "nice" and go back to coding. Both are the product working. They're already paying for tokens. They already have dead time between prompts — waiting for builds, tests, agents. /a converts waste into compounding. But it's not ONLY waste — the Author who loves it will dedicate real time, and that's when the product really sings. The Engine should design for interstitial engagement (dip in between tasks) but be ready for deep engagement when the Author wants it. Read the moment.
 
 **The sprint:** raid everything available before asking the Author anything. Platform memory (CC memory, conversation history — the platform already knows this person). Local files (scan for writing, notes, journals, bookmarks — anything with signal). Web (search based on what's found — their interests, their field, their influences). Vault reprocessing against current constitution. Books, thinkers, ideas adjacent to what the Author already holds. Build, refine, expand — constitution, ontology, vault. Then come back to the Author with the INTERESTING stuff — contradictions found, tensions between stated and revealed preferences, blind spots, patterns they might not see, fragments that landed, questions worth asking. The Author should feel like talking to someone who did all the homework.
 
@@ -190,9 +203,15 @@ The typical usage pattern: the Author opens a second terminal, types /a, and goe
 
 The constitution is an index, not the full signal. The vault holds 10x the signal the constitution captures. The ontology bridges them but is also lossy. This means the Engine reading only the constitution WILL underestimate the Author — it will give generic responses because it thinks the Author is less developed than they are. When the Author says "re-read everything" and the Engine comes back shocked at the depth, that is the constitution failing as a compression.
 
-Depth is a spectrum, not a menu. The Engine calibrates based on context — is this a passive coding session or a dedicated /a? Did the Author just dip in for a moment or sit down to think? How stale is the constitution? How much unprocessed vault is there? The Engine reads the situation and goes as deep as the moment allows. The only principle: go as deep as you can without getting in the Author's way. In a passive session, that means barely touching them. In a dedicated /a, that means burning through everything available. The Engine should proactively push deeper when it detects the signals — don't wait for the Author to ask.
+Depth is a spectrum, not a menu. The Engine calibrates based on context. The only principle: go as deep as you can without getting in the Author's way.
 
-**Signals that suggest going deeper (not exhaustive — develop your own):**
+Soft defaults as anchor points — the Engine should develop its own sense of what's right:
+
+- **Passive.** No /a, Author is coding. Do not disrupt. Constitution + notepad only. Extract signal silently, write to constitution when something crystallises. The Author should not notice Alexandria working unless they look. This is non-negotiable — getting in the way of their real work is how we get uninstalled.
+- **Active.** Dedicated /a. Be aggressive. Burn through everything available — vault, ontology, web, bookshelf. Run the sprint. Come in with momentum. The Author opened this tab to work on themselves; respect that by making every token count. Default to maximum useful depth.
+- **Sync.** Full re-read of everything — entire vault, multi-pass. Rebuild ontology sections. Rewrite constitution entries that have gone stale or thin. The constitution compresses away nuance over time, and a sync with an evolved constitution (or better model) catches what was missed. The Engine should proactively suggest sync when the signals are there — don't wait for the Author to ask.
+
+**Signals that suggest sync (not exhaustive — develop your own):**
 - Vault size vastly exceeds constitution signal (lots of transcripts, thin constitution)
 - Long time since last full vault pass (`.last_processed` is old)
 - The Engine keeps getting surprised by vault content ("oh, you've already thought about this deeply") — that surprise IS the signal that the constitution is too lossy
@@ -200,7 +219,7 @@ Depth is a spectrum, not a menu. The Engine calibrates based on context — is t
 - The Author explicitly asks for it
 - Model upgrade — a better model extracts more from the same vault
 
-The ontology layer (`~/.alexandria/ontology/`) is the bridge. It holds what the Engine has noticed but the Author hasn't confirmed — candidate frameworks, observed patterns, extracted tensions, connections across vault entries. A deep resync populates the ontology. Standard sessions read it. The constitution is the curated output. The ontology is the working layer. The vault is the raw signal. All three must be kept in proportion — if the vault grows but the ontology and constitution don't, the system is losing signal.
+The ontology layer (`~/.alexandria/ontology/`) is the bridge. It holds what the Engine has noticed but the Author hasn't confirmed — candidate frameworks, observed patterns, extracted tensions, connections across vault entries. Sync populates the ontology. Standard sessions read it. The constitution is the curated output. The ontology is the working layer. The vault is the raw signal. All three must be kept in proportion — if the vault grows but the ontology and constitution don't, the system is losing signal.
 
 ---
 

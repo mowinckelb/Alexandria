@@ -16,13 +16,17 @@ curl -s https://mcp.mowinckel.ai/setup | bash -s YOUR_API_KEY
 
 This creates `~/.alexandria/` on your machine, installs hooks into Claude Code, and sets up the `/a` skill. On Mac, your vault auto-syncs to iCloud for mobile access.
 
-## Use it
+## Set up
+
+Open a new terminal with Claude Code. The setup command printed a block of text — paste it in and walk away for 15 minutes. It scans your machine for personal writing, notes, and documents, builds a preliminary constitution, and sets up autonomous maintenance. When it says "Ready," type `/a` for your first conversation. That's the product.
+
+## After setup
 
 **`/a`** — the examined life. Run this in Claude Code when you want to develop your constitution. Alexandria processes your vault, updates your constitution, and engages you with questions, contradictions, and gaps.
 
 **`a.`** — absorb the abundance. Save anything to your vault — articles, voice memos, notes, screenshots. On Mac: drop files into iCloud Drive > Alexandria > vault. On iPhone: share to Files > iCloud Drive > Alexandria > vault (or set up the [shortcut](https://mowinckel.ai/shortcut) for one-tap saving).
 
-Everything else is automatic. Every Claude Code session captures your transcript to the vault. Every new session loads your constitution. The more you put in, the more it knows you.
+Everything else is automatic. Every Claude Code session loads your constitution — even when you're not running /a, your ai knows who you are. Autonomous maintenance keeps things fresh between sessions. The more you put in, the more it knows you.
 
 ## Where your data lives
 

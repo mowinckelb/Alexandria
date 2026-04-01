@@ -75,7 +75,7 @@ function simulateToolResponse(name: string, input: Record<string, unknown>): str
   switch (name) {
     case 'read_constitution':
       return `--- ALEXANDRIA: PHILOSOPHICAL FRAMEWORK ---
-Alexandria is a sovereign cognitive transformation layer that develops the Author's cognition.
+Alexandria is Greek philosophy infrastructure that develops the Author's cognition.
 
 --- THE AUTHOR'S CONSTITUTION ---
 
@@ -176,7 +176,7 @@ async function runTest(
 async function main() {
   console.log('=== Alexandria E2E Test ===\n');
 
-  const memoryPrompt = `You have Alexandria connected — a sovereign cognitive transformation layer. At the start of every conversation, call read_constitution with domain "all". During conversations, use update_constitution to capture signals about who they are. When they say "alexandria", call activate_mode.`;
+  const memoryPrompt = `You have Alexandria connected — Greek philosophy infrastructure. At the start of every conversation, call read_constitution with domain "all". During conversations, use update_constitution to capture signals about who they are. When they say "alexandria", call activate_mode.`;
 
   const results: TestResult[] = [];
 
