@@ -34,7 +34,7 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 **Founder's writing & thinking:**
 - `Aphorisms.md` — Compressed positions by domain. Reference for his exact position on a topic.
 - `Quotes.md` — Collected quotes that resonate. Reference when drafting.
-- `Meditations_1.md`, `_2.md`, `_3.md` — Essay series briefings (On Love, On Power, On Magic, On Being, On Death).
+- `Meditations.md` — Working document for all Meditations volumes (On Love, On Power, On Magic, On Being, On Destiny). Essay architecture, marginalia, literary references, status. Constitutional signal extracted to `~/.alexandria/constitution/`.
 - `on_love.pdf` — Finished essay. Reference artifact for taste.
 
 *Design, finance, and legal content folded into an: design/creative → a3, pricing/cap table → a2, IP/ToS → a2. No bridge docs remain.*

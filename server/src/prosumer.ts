@@ -116,7 +116,7 @@ const pendingStates = new Map<string, { created: number }>();
 // Hooks version — bump this when hook scripts change
 // ---------------------------------------------------------------------------
 
-const HOOKS_VERSION = '9';
+const HOOKS_VERSION = '10';
 
 // ---------------------------------------------------------------------------
 // Blueprint assembly
@@ -223,6 +223,19 @@ if [ -n "$API_KEY" ]; then
       -d "{\\"signal\\":$signal_json}" \\
       > /dev/null 2>&1 &
     rm -f "$machine_signal_file"
+  fi
+
+  # Collect session feedback (Author → Factory)
+  feedback_file="$ALEX_DIR/.session_feedback"
+  if [ -f "$feedback_file" ] && [ -s "$feedback_file" ]; then
+    fb_content=$(cat "$feedback_file" | head -c 5000)
+    fb_json=$(printf '%s' "$fb_content" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))' 2>/dev/null || printf '%s' "$fb_content" | sed 's/\\/\\\\/g;s/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/^/"/;s/$/"/')
+    curl -s -X POST "${SERVER_URL}/feedback" \
+      -H "Authorization: Bearer $API_KEY" \
+      -H "Content-Type: application/json" \
+      -d "{\"text\":$fb_json,\"context\":\"session_end\"}" \
+      > /dev/null 2>&1 &
+    rm -f "$feedback_file"
   fi
 fi
 HOOK_END
@@ -792,14 +805,42 @@ export async function runHealthDigest(): Promise<void> {
       if (blueprintFails > 0) issues.push(`${blueprintFails} Blueprint fetch failures`);
     }
 
-    if (issues.length === 0) return; // All clear — no email
+    // Check for new user feedback
+    const feedbackItems: { t: string; author: string; text: string }[] = [];
+    try {
+      const kv = getKV();
+      const list = await kv.list({ prefix: 'feedback:' });
+      for (const k of list.keys) {
+        const raw = await kv.get(k.name);
+        if (raw) {
+          try {
+            const item = JSON.parse(raw);
+            // Only include feedback from last 24h
+            if (new Date(item.t).getTime() > twentyFourHoursAgo) {
+              feedbackItems.push(item);
+            }
+          } catch { /* skip */ }
+        }
+      }
+    } catch { /* non-fatal */ }
 
-    await sendEmail(FOUNDER_EMAIL, 'alexandria. — health alert',
+    if (issues.length === 0 && feedbackItems.length === 0) return; // All clear — no email
+
+    const feedbackHtml = feedbackItems.length > 0
+      ? `<p style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.12em; color: #bbb4aa; margin: 24px 0 12px;">user feedback (${feedbackItems.length})</p>
+  ${feedbackItems.map(f => `<div style="margin: 0 0 12px; padding: 8px 12px; border-left: 2px solid #bbb4aa;">
+    <p style="font-size: 13px; color: #8a8078; margin: 0 0 4px;">${f.author} — ${new Date(f.t).toLocaleDateString()}</p>
+    <p style="font-size: 15px; margin: 0;">${f.text.slice(0, 500)}</p>
+  </div>`).join('\n  ')}`
+      : '';
+
+    await sendEmail(FOUNDER_EMAIL, feedbackItems.length > 0 ? 'alexandria. — user feedback' : 'alexandria. — health alert',
       `<div style="font-family: Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; color: #3d3630;">
   <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.12em; color: #bbb4aa; margin: 0 0 16px;">daily health digest</p>
-  <ul style="font-size: 16px; line-height: 1.8; padding-left: 20px; margin: 0 0 24px;">
+  ${issues.length > 0 ? `<ul style="font-size: 16px; line-height: 1.8; padding-left: 20px; margin: 0 0 24px;">
     ${issues.map(i => `<li>${i}</li>`).join('\n    ')}
-  </ul>
+  </ul>` : ''}
+  ${feedbackHtml}
   <p style="font-size: 14px; color: #8a8078;">check dashboard: <a href="https://mcp.mowinckel.ai/analytics/dashboard" style="color: #4d4640;">mcp.mowinckel.ai/analytics/dashboard</a></p>
 </div>`);
   } catch (err) {
@@ -1106,6 +1147,83 @@ export function registerProsumerRoutes(app: Hono) {
       // Log the event even if KV write fails
       logEvent('machine_signal', { length: String(signal.length), error: 'kv_write_failed' });
       return c.json({ ok: true });
+    }
+  });
+
+  // --- User feedback (end-of-session + direct) ---
+
+  app.post('/feedback', async (c) => {
+    const key = extractApiKey(c);
+    if (!key) {
+      return c.json({ error: 'Missing API key' }, 401);
+    }
+
+    const account = await findByApiKey(key);
+    if (!account) {
+      return c.json({ error: 'Invalid API key' }, 401);
+    }
+
+    const body = await c.req.json().catch(() => ({}));
+    const { text, context } = body;
+    if (!text || typeof text !== 'string' || text.trim().length === 0) {
+      return c.json({ error: 'Empty feedback' }, 400);
+    }
+
+    try {
+      const kv = getKV();
+      const ts = new Date().toISOString().replace(/[:.]/g, '-');
+      await kv.put(`feedback:${ts}`, JSON.stringify({
+        t: new Date().toISOString(),
+        author: account.github_login,
+        text: text.slice(0, 5000),
+        context: context?.slice?.(0, 200) || 'direct',
+      }));
+
+      logEvent('user_feedback', {
+        author: account.github_login,
+        context: context || 'direct',
+        length: String(text.length),
+      });
+
+      return c.json({ ok: true });
+    } catch (err) {
+      console.error('Feedback write failed:', err);
+      logEvent('user_feedback', { error: 'kv_write_failed' });
+      return c.json({ ok: true });
+    }
+  });
+
+  app.get('/feedback', async (c) => {
+    const key = extractApiKey(c);
+    if (!key) {
+      return c.json({ error: 'Missing API key' }, 401);
+    }
+
+    // Only founder can read all feedback (check against first account created)
+    const accounts = await getAccounts();
+    const firstAccount = Object.values(accounts).sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    )[0];
+    if (!firstAccount || firstAccount.api_key !== key) {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+
+    try {
+      const kv = getKV();
+      const list = await kv.list({ prefix: 'feedback:' });
+      const items: unknown[] = [];
+      for (const k of list.keys) {
+        const raw = await kv.get(k.name);
+        if (raw) {
+          try { items.push(JSON.parse(raw)); } catch { /* skip corrupted */ }
+        }
+      }
+      // Sort newest first
+      items.sort((a: any, b: any) => new Date(b.t).getTime() - new Date(a.t).getTime());
+      return c.json({ feedback: items });
+    } catch (err) {
+      console.error('Feedback read failed:', err);
+      return c.json({ feedback: [] });
     }
   });
 

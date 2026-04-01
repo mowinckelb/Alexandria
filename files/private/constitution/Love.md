@@ -28,11 +28,25 @@ People who build romance learn HOW to build it — they can reignite the fire be
 
 **Fish love vs real love.** A man who "loves" fish eats it. He doesn't love the fish — he loves himself and the fish serves him. Real love is loving the other person FOR themselves. The modern "spark" is often fish love — attraction to how the other person makes you FEEL, not who they ARE. Real love sees the person. Fish love sees the mirror.
 
+**The lower-bound test — made real.** Rebecca, James's girlfriend, 25, healthy, normal — suddenly fully paralysed from the neck down, March 2026. This is the thing that gets you. The burn victims. The paraplegics. Does the partner stay. Will my wife stay. My family will. My friends will to some degree. But will my wife. Would I? Would I stay. Would I resent them. You do not know your own answer. The honesty of that uncertainty is the whole point — the covenant is not "I promise I will feel no resentment." It is "I promise I will stay, and the staying IS the love, even through the resentment, even through the grief." The Anne Hathaway scene (Love & Other Drugs) is the fictional version. Rebecca is the real one. The oncology ward line — "holding your hand with the same steadiness they held it on the dance floor" — is not a metaphor anymore. It is a question addressed to you, personally, with a real face attached.
+
 **The courtly love correction:** demanding the spark as a PREREQUISITE FOR MARRIAGE is a modern invention. The spark itself is ancient — troubadours, Shakespeare, Donne. But none of the ancients thought it was the foundation for choosing a spouse. The covenant was for marriage. Passion was for poetry. They coexisted but did not merge. The modern innovation is the totalising demand that one person be EVERYTHING — strategic partner AND passionate lover AND best friend AND co-parent AND soulmate. No single human can be everything. The ancients knew this.
 
 **The de Rougemont diagnosis: troubadour eros is narcissism dressed as eros.** Denis de Rougemont (*Love in the Western World*, 1940): "They behave as if aware that whatever obstructs love must ensure and consolidate it… Tristan loves the awareness that he is loving far more than he loves Iseult the Fair." Passion needs the obstacle. Remove the obstacle and the passion dies. The Italian Divorce Principle removes the obstacle by design — sealing the exit kills the specific kind of desire that 800 years of Western culture trained the sub-symbolic to recognize as "passion." De Rougemont's deeper claim: Western eros is not just bad relationship advice — it is an anti-agape force, structurally opposed to the covenant framework. A civilizational heresy baked into the imagination. The "no spark" with Khiara may be the absence of a disease, not the absence of health — the sub-symbolic trained by culture to only register the narcissistic version as "passion," so its absence reads as a gap even when it's not.
 
 **Diotima's counter-architecture (Plato, *Symposium* 210a–212a).** The ladder of love ascends from body to soul to Beauty itself. You are near the top — you see the soul before the body. The question isn't cognition. It's whether the upper rungs reach down to the body under the right conditions. Unlike Plato, you don't leave the body behind. The interpretive fork: does the ladder *incorporate* previous rungs (the beloved becomes more beautiful as you ascend) or *abandon* them? The first reading resolves the Eros Gap. Your question — whether eros can be built on agape and still stay with the particular person — is precisely this fork.
+
+---
+
+## Modern Love Gets Darwined
+
+The modern romance-first model is failing on its own metrics. No kids. Divorce. Medicated misery. Declining birth rates below replacement. The societies that adopted it are dying — not metaphorically, demographically. Darwinian selection is playing out in real time: cultures that abandoned family, covenant, and reproduction are being outcompeted by those that did not. The cultures that remember how to love and reproduce will inherit the earth. This is not a prediction. It is arithmetic.
+
+## Men Are the Romantics
+
+Everyone thinks the opposite. Women are assumed to be the romantics. They are not. Men love more deeply. When a woman tells her friends she is in love, they are giddy — the wedding, the dresses, the ring, the surface. When a man tells his friends he is in love, the room goes quiet. "Ahhh. Here we go." Because they know what it means. They know the depth. It is not about the materialistic surface things. It is: now we have a commitment. There is nothing you can do about it. You love this person. You will give anything for them. It is heavy. You did not choose it. It is a big task. Do it right. Lock in.
+
+The modern model misreads men as unromantic because men do not perform romance the way women expect — giddiness, enthusiasm, verbal affirmation. Men perform romance through commitment, sacrifice, steadiness. The oncology ward. The hand that does not let go. The heaviness IS the romance.
 
 ---
 
@@ -151,6 +165,18 @@ The Groundhog Day problem: Bill Murray learns every detail, manufactures the per
 Three-tier wedding: technical nuclear family only, formal ceremony adults, party close friends. Self-financed. "She made me fall in love with myself before making me fall in love with her."
 
 The tension: is this creative mastery or compensatory engineering? Both, probably. The shadow is not that the gestures are inauthentic — they are deeply authentic to who you are. The shadow is whether they substitute for the thing they are meant to express.
+
+---
+
+## Harmony, Not Alignment
+
+The correct frame for compatibility is not alignment but harmony. Alignment implies sameness — two arrows parallel. Harmony implies difference that works together — two different notes creating something richer than either alone. Harmony REQUIRES difference. If both notes were the same, that is unison. Unison is fine. Harmony is richer.
+
+Modern culture treats any difference as a red flag. But difference is NOT the same as disharmony. The modern model conflates "different from me" with "wrong for me." The better framework has two axes: same/different AND harmonious/disharmonious. The best relationships might be different AND harmonious — which the modern model would filter out as "not aligned."
+
+The gender connection: the modern feminist movement decided women's progress meant trying to be men. Actual feminism is letting women be women and ensuring those traits are equally valued. In the most free societies, the difference between male and female choices is MOST stark (Jordan Peterson). Difference is good — if valued and harmonious. Yin yang.
+
+**Wuthering Heights as cultural diagnostic.** Brontë wrote Heathcliff as a WARNING about destructive passion, not a celebration of it. 178 years later, the modern audience misreads her warning as aspiration — cheering the infidelity, wishing for the "happy ending" with the affair partner. The audience has no moral anchor. No alarm bells go off. They are born into this water. No framework telling them "this is wrong." Just the immediate, primitive yearning for lust and desire, and nothing to catch them. Brontë saw this in 1847. The audience proves her right. A novelist who saw the danger, and a culture that validates the danger by mistaking destruction for desire. The same distortion the Vanity Fair diagnosis captures: rooting for exciting betrayal over steady, faithful love.
 
 ---
 

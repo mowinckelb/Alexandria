@@ -119,7 +119,7 @@ export function callbackPageHtml(login: string, apiKey: string): string {
     <p class="line">/a &mdash; your mental gym <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">processes your vault, absorbs what matters, lets you play with the ideas. not everything makes the cut. your constitution gets more refined every session.</span></span></p>
   </div>
   <p class="closing">welcome to alexandria.</p>
-  <p class="footer"><a class="action" onclick="copySetup(this)">setup.md <span class="icon">${ICON_COPY}</span></a></p>
+  <p class="footer"><a class="action" onclick="copySetup(this)">Trust.md <span class="icon">${ICON_COPY}</span></a></p>
 </div>
 <script>
 function copyCmd(el) {
@@ -133,7 +133,7 @@ function copyCmd(el) {
   });
 }
 function copySetup(el) {
-  fetch('${WEBSITE_URL}/docs/setup.md').then(function(r) { return r.text(); }).then(function(text) {
+  fetch('${WEBSITE_URL}/docs/Trust.md').then(function(r) { return r.text(); }).then(function(text) {
     navigator.clipboard.writeText(text).then(function() {
       el.querySelector('.icon').innerHTML = '${ICON_CHECK}';
       el.classList.add('done');
