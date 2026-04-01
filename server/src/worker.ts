@@ -53,8 +53,12 @@ app.use('*', async (c, next) => {
 app.use('/library/*', async (c, next) => {
   const allowed = ['https://mowinckel.ai', 'https://www.mowinckel.ai'];
   const reqOrigin = c.req.header('Origin') || '';
-  const origin = allowed.includes(reqOrigin) ? reqOrigin : allowed[0];
-  c.header('Access-Control-Allow-Origin', origin);
+  if (!allowed.includes(reqOrigin)) {
+    if (c.req.method === 'OPTIONS') return c.text('', 403);
+    // Non-browser requests (curl, hooks) won't send Origin — let them through without CORS headers
+  } else {
+    c.header('Access-Control-Allow-Origin', reqOrigin);
+  }
   c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   c.header('Vary', 'Origin');

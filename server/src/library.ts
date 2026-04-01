@@ -18,14 +18,15 @@ import { extractApiKey, findByApiKey } from './prosumer.js';
 
 function r2Response(body: ReadableStream | null, contentType: string, reqOrigin?: string | null, cache?: string): Response {
   const allowed = ['https://mowinckel.ai', 'https://www.mowinckel.ai'];
-  const origin = reqOrigin && allowed.includes(reqOrigin) ? reqOrigin : allowed[0];
   const headers: Record<string, string> = {
     'Content-Type': contentType,
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Vary': 'Origin',
   };
+  if (reqOrigin && allowed.includes(reqOrigin)) {
+    headers['Access-Control-Allow-Origin'] = reqOrigin;
+    headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
+    headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+  }
   if (cache) headers['Cache-Control'] = cache;
   return new Response(body, { headers });
 }
