@@ -220,7 +220,7 @@ C9: **Buying the dataset means buying access to a marketplace of opted-in Shadow
 
 ### 10. How Alexandria gets there
 
-P35. Layer 1 — The Examined Life ($5/month with 3+ active referrals, $10/month without; slider open — Authors pay what it's worth). Sovereign portable cognitive infrastructure plus active cognitive development — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. One tier, everyone gets everything. The product is the changed person. Socrates said the unexamined life is not worth living. Alexandria sells the examined one. The product is built: Library v1 is live with shadows, quizzes, works, payment, promo codes, 24 API endpoints, and Stripe checkout. The question is no longer whether it can be built — it is whether anyone wants it.
+P35. Layer 1 — The Examined Life ($5/month with 3+ active kin, $10/month without; slider open — Authors pay what it's worth). Sovereign portable cognitive infrastructure plus active cognitive development — Socratic questioning, blind spot surfacing, creative iteration calibrated to the user's taste. One tier, everyone gets everything. The product is the changed person. Socrates said the unexamined life is not worth living. Alexandria sells the examined one. The product is built: Library v1 is live with shadows, quizzes, works, payment, promo codes, 24 API endpoints, and Stripe checkout. The question is no longer whether it can be built — it is whether anyone wants it.
 
 (Settled on the product. Assumption on adoption.)
 
@@ -232,7 +232,7 @@ P37. Both layers are the same product, same architecture, same user at different
 
 (Settled. The structure is architectural.)
 
-P38. The cost base is near-zero. Solo founder. All employees are ai agents. Company opex: $100/month — one Claude subscription. Everything else is free tier. Seven dependencies, all CLI-controllable by ai agents. The entire company runs autonomously — deploys, DNS, monitoring, email, billing — with zero human intervention. As models improve, every function of the company improves.
+P38. The cost base is near-zero. Solo founder. All employees are ai agents. Company opex: $100/month — one Claude subscription. Everything else is free tier. Six dependencies, all CLI-controllable by ai agents. The entire company runs autonomously — deploys, DNS, monitoring, email, billing — with zero human intervention. As models improve, every function of the company improves.
 
 (Settled. Factual.)
 

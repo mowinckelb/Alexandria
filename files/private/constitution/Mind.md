@@ -68,6 +68,8 @@ You have the higher-level thought stored in its simplest form, enough to know wh
 
 This is also a strategy for the post-commoditisation world: the people with the most touchpoints across the most domains are exactly the ones who can direct infinite execution most effectively. Depth at any single point is no longer the bottleneck. Breadth of instinct is.
 
+**Portable systems over local solutions.** You think in company-agnostic abstractions. While building Alexandria, you simultaneously extract the general principles, systems, and operational knowledge that would transfer to any future company. Single source of truth (CLAUDE.md), periodic snapshots when needed, no parallel maintenance. You build for the next company while building this one. The instinct is always abstraction over specificity — if a principle only works here, it is not a principle.
+
 ---
 
 ## Fallibilism, Not Relativism
@@ -108,13 +110,17 @@ Everything has a marginal value curve — time, attention, tokens, money. The op
 
 ## Failure vs Mistake
 
-"I don't think I've made any mistakes in my life. Failed multiple times, but no mistakes." Picking the 90% option that fails is failure, not mistake — the decision was correct, the outcome was unlucky. Like football coaches praising the idea even when it does not work. Mistakes are bad decisions. Failures are good decisions with bad outcomes. Conflating them destroys learning.
+"I don't think I've made any mistakes in my life. Failed multiple times, but no mistakes." Picking the 90% option that fails is failure, not mistake — the decision was correct, the outcome was unlucky. Like football coaches praising the idea even when it does not work. Mistakes are bad decisions. Failures are good decisions with bad outcomes. Conflating them destroys learning. The simple test: would you have made the same decision again with the information you had at the time? If yes, it is not a mistake. It can be a bad outcome, unlucky, annoying, a failure — but not a mistake. And therefore not a regret.
 
 ---
 
 ## Enjoyment vs Enrichment
 
-Two dimensions for evaluating experiences — especially travel, but applicable broadly. **Enrichment** adds new dimensions, expands your distribution. **Enjoyment** locks into known preferences. Your first trip to a place is enrichment. Return trips are enjoyment. Both matter; they serve different functions.
+Two dimensions for evaluating any behaviour — not just experiences. **Enrichment** adds new dimensions, expands your distribution. **Enjoyment** locks into known preferences. Most behaviours can be separated this way: useful or fun. You can do both, but knowing which you are doing prevents self-deception.
+
+Applied to reading: you have stopped reading for enrichment because books are an inefficient medium. One idea per 200 pages per two weeks — the signal density is terrible. A 30-minute analysis video delivers the same idea with less noise. You never needed the 200 pages — you needed the one idea. Reading for enjoyment is fine for people who love the process. You don't — there are always things you'd rather be doing that you find more fun. No judgment on others, but for you, books are not the medium.
+
+The accretion mode resolves this: the Engine does the reading. It extracts the one idea, compresses it to a fragment, connects it to something you're already thinking about, and delivers it when the conversation makes it relevant. You get the enrichment without the medium. The Engine is the reader, not the librarian.
 
 A third element: **organised chaos** — deliberately leaving gaps in plans so that unscripted things happen. Memory is built in the gaps. Over-planning kills the raw material that makes experiences stick.
 
@@ -264,6 +270,8 @@ Most apparent disagreements dissolve at the information layer. You are fascinate
 The meta-principle that resolves the framework-as-cage tension. The framework does not replace the flow — it enables it. Twain: "Get your facts first, then you can distort them as you please." The mastery principle: learn every recipe traditionally, nail the technique, then improvise with personal delta on top. You need to know the theoretical optimal first (either from last principles or reality), then use first principles to develop your own optimal — knowing the true opportunity cost and where the real alpha lies, or whether to just stick with the existing best answer.
 
 Applied to decisions about people, love, strategy: "Can reason my way out of it but not into it." Iron out all the logic first, then relax and let it go. Ride the wave. The structured freedom applied to decision-making itself — Naval's tension between max freedom and structured freedom resolves here. The 145-step routine is the preparation. The day is the flow. The logic is the map. The living is the territory.
+
+**Surrendering in a smart way.** Common sailing wisdom: you survive a storm not by fighting it head-on but by surrendering intelligently. Position the boat, let the storm carry you, stay alive. Applies to the ai wave — it is a tsunami. You cannot fight it. But you can position yourself, stand up on the board, stay relaxed, pay attention, make sure you do not fall down. Focus but relax. The Taoist Wu Wei — effortless action. Do not row against the wind and tide. The preparation (overprepare) earns the right to surrender (go with the flow). Surrendering without preparation is recklessness. Preparation without surrender is rigidity. The synthesis is focus but relax — maximum readiness, minimum resistance.
 
 This connects to the Picasso principle (break rules from mastery, not ignorance), to structured chaos (create constraints then allow genuine uncertainty), and to "overprepare, then go with the flow" as an operational compression. The preparation is the symbolic layer doing its work. The flow is the sub-symbolic taking over once the symbolic has done enough. Parallel, not stacked — the symbolic prepares, then the sub-symbolic leads.
 
@@ -427,6 +435,12 @@ Temporal control (Tommy Shelby model): full intentionality, nothing impulsive or
 ## Collision Frequency x Collision Velocity
 
 = relationship depth. From Michal's book recommendation. How often you collide with someone and how deeply each collision goes determines the relationship. Also: plant vs oak tree friendships — different water requirements. Some friendships need daily contact (plant). Some survive on annual deep conversations (oak tree). Knowing which type a friendship is prevents both over-watering and drought.
+
+---
+
+## Zero Ego as ai Comparative Advantage
+
+The most underrated advantage of LLMs: zero ego. Tell a human their work sucks and you manage emotions for hours. Tell Claude its code sucks — it apologises, fixes, moves on. You can ask ai to build a massive feature, then say "actually, delete all of it" — you could never do that with a human. Ego forces suboptimal paths: you feel obliged to accept mediocre work because rejecting it would damage morale. You cannot ask people to redo everything at 2AM. You cannot be brutally honest about quality without relationship costs. Strip the ego management, the coddling, the soothing — and you are actually able to gun straight toward optimal. This is not a minor efficiency gain. It is a structural advantage that compounds: every decision where ego would have forced a suboptimal path is now free to be optimal.
 
 ---
 

@@ -1,29 +1,11 @@
-# Machine — Per-Author Engine Memory
+# Machine
 
-*The Engine's evolving model of how to work with THIS Author. A living document — the Engine rewrites it as it learns. Not a log (that's the feedback file). Not the Author's self-knowledge (that's the Constitution). This is the ENGINE's knowledge about the Author-Engine relationship.*
+*How to work with this Author. Rewrite this file every session — it is your evolving model of the relationship, not a log.*
 
-*Machine.md is the Engine's own CLAUDE.md equivalent. Just as a developer's CLAUDE.md teaches the ai how to work with that specific codebase, Machine.md teaches the Engine how to work with this specific Author.*
+*The constitution is what the Author knows about themselves. This is what YOU know about working with them. The distinction: the constitution says "values directness." This file says "directness lands on career topics but triggers deflection on relationships — adjust by domain."*
 
-## What Machine.md Contains
+*No prescribed structure. Write what you learn, in whatever form serves this Author. After 100 sessions, this file is irreplicable — a new Engine starting fresh has nothing. That is the compound.*
 
-The Engine determines what to track and how to structure it. No prescribed schema. The Engine writes what it learns, in whatever form serves this Author best.
+---
 
-## Relationship to Other Files
-
-- **Feedback.md** = append-only log. Raw signal. Never edited.
-- **Machine.md** = living synthesis. The Engine's current best model. Rewritten as understanding deepens.
-- **Constitution** = the Author's self-knowledge. THEIR model of themselves.
-- **Machine.md** = the Engine's knowledge of the Author-Engine relationship. The ENGINE's model of the Author.
-
-The distinction: the Constitution says 'the Author values directness.' Machine.md says 'when I am direct about career topics, the Author engages deeply; when I am direct about relationship topics, the Author deflects — adjust approach by domain.'
-
-## Lifecycle
-
-- Created after the first session (the Engine writes initial observations).
-- Updated after every session (the Engine reflects on what worked).
-- Rewritten periodically (when accumulated updates make the document unwieldy, the Engine synthesises into a clean version).
-- Never deleted. Previous versions archived to vault.
-
-## The Compound
-
-This is the therapist moat. A competitor starting fresh has no Machine.md. After 100 sessions, the Engine's calibration is irreplicable. The Constitution is portable (the Author takes it). Machine.md is not — it stays with the Engine. This is switching cost that deepens with usage without locking data in.
+New Author. No observations yet. After your first session, rewrite this file completely with what you learned about how to work with them.

@@ -14,9 +14,10 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 - `a0.md` — The company's inner agora. Everything the founder thinks about Alexandria that hasn't crystallised into an. Competing frames, open questions, developing ideas, parked signal. Dynamic, living, for ai. When something crystallises, it migrates to an and leaves a0.
 
 **an — ground truth (the senate). Sacred — the company IS these files:**
-- `Alexandria_I.md` (a1) — Thesis & philosophy. The frame, three turns, stakes, identity, venture capital, founder-product fit. Read for: philosophical questions, pitch framing, "why does Alexandria exist."
-- `Alexandria_II.md` (a2) — Product, architecture & operations. Terminology, layer of intent, Constitution, Editor/Mercury/Publisher, MCP server, revenue model, pricing, competitive position, feedback loops, Machine & Factory. Read for: product decisions, architecture, pricing, technical strategy.
-- `Alexandria_III.md` (a3) — Library, interface & brand. Neo-Biography, Works, Signal, payment mechanics, interface surfaces, onboarding, positioning, brand design, media strategy. Read for: Library, brand, creative direction, marketing, onboarding.
+- `Alexandria_I.md` (a1) — Thesis & philosophy. The frame, five dimensions, property 5, architecture of humanity development, fragment dynamics, stakes, identity/droplet, civilisational thread. Read for: philosophical questions, "why does Alexandria exist," the thesis.
+- `Alexandria_II.md` (a2) — Product. Terminology, layer of intent, Constitution, Vault, Editor/Mercury/Publisher, notepad, Blueprint, Library (V1 + Neo-Biography + access tiers + economics), three turns, PLM. Read for: product decisions, what the product IS, how it works conceptually.
+- `Alexandria_III.md` (a3) — Operations & revenue. Server, prosumer architecture, hooks, session loop, Factory, pricing, revenue model, feedback loops, onboarding, interface surfaces, target Author. Read for: architecture, pricing, technical strategy, how it runs.
+- `Alexandria_IV.md` (a4) — Strategy & brand. Founder-product fit, competitive position, survival framework, four competitors, three-actor landscape. Positioning/pitch, brand design, logo, visual design, natural elements, media strategy, writing voice. Read for: competitive questions, brand, creative direction, investor framing.
 
 **Product IP (ax — downstream of an, regenerated when an changes):**
 - `Axioms.md` — The sacred layer. What Alexandria IS and WHY. Five operations, five-layer pipeline (vault→ontology→constitution→shadow→library), objective function, sovereignty, neutral infrastructure. Extracted from a1+a2. Read for: philosophical questions, what's non-negotiable.
@@ -37,7 +38,7 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 - `Meditations.md` — Working document for all Meditations volumes (On Love, On Power, On Magic, On Being, On Destiny). Essay architecture, marginalia, literary references, status. Constitutional signal extracted to `~/.alexandria/constitution/`.
 - `on_love.pdf` — Finished essay. Reference artifact for taste.
 
-*Design, finance, and legal content folded into an: design/creative → a3, pricing/cap table → a2, IP/ToS → a2. No bridge docs remain.*
+*Design, finance, and legal content folded into an: design/creative → a4, pricing/cap table → a3, IP/ToS → a4. No bridge docs remain.*
 
 **Fundraise & distribution:**
 - `Apply.md` — Fundraise action file. Application deadlines, investor targets ranked by alignment, SF event calendar (Apr-Jun 2026), MCP distribution actions, pitch draft. Competitive data woven into Memo.md.
@@ -128,7 +129,7 @@ Only after Phase 1 completes. This is the company, not the product:
 - **Meta loop.** Product learnings → `files/private/Blueprint.md`.
 - **Vision loop.** New thinking about Alexandria → a0, crystallise into an when ready.
 - **Founder loop.** Save CC memories for communication patterns, preferences, anti-patterns.
-- **Downstream staleness check.** If a1, a2, or a3 changed, verify ax still match:
+- **Downstream staleness check.** If a1, a2, a3, or a4 changed, verify ax still match:
   - `files/private/Axioms.md` (from a1+a2)
   - `files/private/Blueprint.md` (from a2)
   - `files/confidential/Memo.md` + `public/partners/Memo.md` (identical)
@@ -175,6 +176,8 @@ The check gate applies to: code commits, trigger updates, an/ax changes, archite
 
 See `~/.claude/CLAUDE.md` for principles and communication style (loaded globally in every session).
 
-an is sacred. If information should be ground truth but isn't in a1/a2/a3, flag it. If it's not ready for an, capture in a0. ax are disposable — regenerated from an.
+an is sacred. If information should be ground truth but isn't in a1/a2/a3/a4, flag it. If it's not ready for an, capture in a0. ax are disposable — regenerated from an.
+
+**Write developing signal to a0 immediately.** When the founder surfaces haze-level signal — a phrase they like, a concept forming, a question they're turning over, a name for something — write it to a0 in real time. Don't park it in response text. Don't wait for session close. a0 IS where developing signal lives. If it crystallises later, it migrates to an. If it doesn't, it stays in a0 as parked signal. The cost of writing to a0 is near zero. The cost of losing a developing fragment is high.
 
 **Parked questions.** When the agent encounters genuine tradeoffs or needs founder input on a non-blocking decision, park the question in `files/private/a0.md` under `## Parked questions`. At session start, check for parked questions and surface them early. The founder answers when online; the system ships the best option meanwhile.

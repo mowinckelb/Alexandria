@@ -12,7 +12,7 @@ Read the bash script. Everything below explains what it does. If anything below 
 
 ## What it puts on your machine
 
-**`~/.alexandria/`** — a folder. Nothing hidden, nothing compiled. All readable.
+**`~/.alexandria/`** — a folder. Nothing hidden, nothing compiled. All readable. Some files are created by the setup script, others by the Engine during usage — all are listed here.
 
 | Path | What it is | Can you read it? |
 |---|---|---|
@@ -24,8 +24,17 @@ Read the bash script. Everything below explains what it does. If anything below 
 | `feedback.md` | What works and doesn't with you — append-only | Yes |
 | `machine.md` | Engine's notes on how to work with you | Yes |
 | `notepad.md` | Engine's working memory | Yes |
+| `ontology/` | Your thinking workspace — ideas between raw and settled | Yes |
+| `library/` | Published content (shadows, works, pulse) | Yes |
+| `.machine_signal` | Methodology observations for the Factory — about the craft, not about you | Yes |
 | `.api_key` | Your API key | Yes |
 | `.blueprint_local` | Cached methodology — fetched from server, used locally | Yes |
+| `.blueprint_previous` | Previous methodology version — kept for diffing when Blueprint updates | Yes |
+| `.blueprint_pinned` | If you create this file, Blueprint stops auto-updating | Yes |
+| `.hooks_version` | Tracks installed hook version for auto-updates | Yes |
+| `.last_processed` | Timestamp — when vault was last processed | Yes |
+| `.last_maintenance` | Timestamp — when scheduled maintenance last ran | Yes |
+| `.session_feedback` | Your feedback, if given — sent to server at session end, then deleted | Yes |
 
 **`~/.claude/skills/alexandria/SKILL.md`** — a skill file that makes `/a` available in Claude Code. It tells the ai to read your constitution and follow the Blueprint methodology. Plain markdown — `cat` it.
 
@@ -57,7 +66,7 @@ The server is a stateless Cloudflare Worker. No database for private data. There
 
 ## What stays local
 
-Everything that matters. Constitution, vault, feedback, machine.md, notepad — all local markdown. If Alexandria disappears tomorrow, you keep everything.
+Everything that matters. Constitution, vault, ontology, feedback, machine.md, notepad, library — all local markdown. If Alexandria disappears tomorrow, you keep everything. The only file that leaves your machine is `.session_feedback` (your optional product feedback, sent then deleted) and `.machine_signal` (methodology observations about the craft, not about you).
 
 On Mac, the vault optionally symlinks to iCloud for mobile access. Only if iCloud is detected. You can undo the symlink anytime.
 

@@ -70,7 +70,7 @@ This is the tiebreaker. It has two sides. The value side: how much premium do pe
 
 You get to choose which games to play. And the closer the circle — family, community, friends — the more your humanity matters and the lower the bar. A grandmother making bowls for her village wins every time. At the innermost circle — just you — you always clear the bar. The examined life has value at every scale, including the scale of one.
 
-## The three dimensions
+## Three dimensions of the human advantage
 
 Not all games are equal for humans. Three things determine how strong the human advantage is in any game:
 

@@ -16,7 +16,7 @@ One curl command installs two hooks into the user's ai workflow. They fire every
 
 Library v1 is live: shadow publishing (curated Constitution fragments at free and paid tiers), quizzes generated from real cognitive data, works gallery, Stripe checkout with slider pricing, promo codes, ai agent access tokens, earnings dashboard. 24 API endpoints. D1 for metadata, R2 for content. Four test suites. Autonomous CTO with daily health monitoring and weekly meta-reflection. Full onboarding flow: GitHub signup, email, curl, automatic.
 
-$5/month with three active referrals, $10 without. Slider open — Authors pay what it is worth. Everyone gets everything. One tier.
+$5/month with three active kin, $10 without. Slider open — Authors pay what it is worth. Everyone gets everything. One tier.
 
 Pre-revenue. No external users. The product works. Distribution starts San Francisco, April 2026.
 
@@ -28,7 +28,7 @@ Five dimensions of human value: intelligence, strength, dexterity, empathy, and 
 
 Four positions survive the software collapse: make models, generate live data, gatekeep permissions, own atoms. Everything else gets absorbed by the next frontier release. Alexandria is position two — generate live data. Each Constitution is live, unique, private, unsynthesizable. Better models make the extraction deeper, which makes the data more valuable. The company improves with every model release.
 
-The idiot index is 1. $100/month opex. One Claude subscription. No payroll, no compute, no storage, no database. Seven dependencies, all CLI-controllable. The entire company runs autonomously from the terminal. Zero overhead between the intelligence and the product. The exponential is underneath the company, not in front of it.
+The idiot index is 1. $100/month opex. One Claude subscription. No payroll, no compute, no storage, no database. Six dependencies, all CLI-controllable. The entire company runs autonomously from the terminal. Zero overhead between the intelligence and the product. The exponential is underneath the company, not in front of it.
 
 Most ai investments cannot make this structural claim. The terminal value question is whether a company occupies one of the four positions. Alexandria does.
 
@@ -60,11 +60,13 @@ Defensibility is a cost gradient, not a wall: hidden extraction methodology (ser
 
 Break-even at 21 subscribers. $100/month opex. You cannot kill this company.
 
-Two revenue layers on the same architecture. Layer 1: subscription ($5-10/month, scales linearly, sustains independently). Layer 2: Library (Authors earn from shadow access, Alexandria takes 20%, zero inference cost — pure margin, theoretically unbounded).
+The Patron tier makes unkillability concrete: mission supporters at pay-what-you-want, donation-style churn, independent of product scale. Twenty patrons = break-even. Fifty = founder costs start getting covered.
+
+Three revenue layers on the same architecture. Layer 1: subscription ($5-10/month, scales linearly, sustains independently). Layer 2: Library for People (Authors earn from shadow access, Alexandria takes 50%, zero inference cost — pure margin). Layer 3: Library for Everyone (horizon) — every software company, app, and service would pay for richer personal data on their users. The shadow MD is the richest personal data artifact that exists. Author controls access per service, revocable at any time. Author monetises their own data. Alexandria captures value at the aggregate. This inverts the current data economy — the user owns the data, controls access, and earns from it.
 
 No natural cancellation point. The Constitution compounds. Cancelling means abandoning a growing cognitive asset. As long as someone uses ai, the layer adds value.
 
-Three distribution channels: local (founder in SF, founding seeds, high-touch), network (Library viral mechanics — every quiz generates 5-20 takers), global (content claws on video platforms — future). 25 founding seeds. Referral pricing creates structural pressure on both acquisition and retention.
+Three distribution channels: local (founder in SF, founding seeds, high-touch), network (Library viral mechanics — every quiz generates 5-20 takers), global (content claws on video platforms — future). 25 founding seeds. Kin pricing creates structural pressure on both acquisition and retention.
 
 ---
 
@@ -84,7 +86,7 @@ I could be wrong. I don't think I am. But I could be. The company costs $100 a m
 
 ### The ask
 
-The product is built. Technical risk is zero. Four risks remain: demand, referral mechanic, brand, founder sustainability.
+The product is built. Technical risk is zero. Four risks remain: demand, kin mechanic, brand, founder sustainability.
 
 ~$50K answers all four. Seeds 25 users, buffers the founder in San Francisco. If it works, the existential questions are answered. If it fails, the investor lost less than a bad angel bet on a company with $2M burn.
 

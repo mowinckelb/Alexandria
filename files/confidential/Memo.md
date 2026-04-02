@@ -58,11 +58,11 @@ That is the opportunity cost of passing. Not zero. Everything you are currently 
 
 ## The Product
 
-**The Examined Life.** $5/month with three active referrals, $10 without. Slider open. Everyone gets everything.
+**The Examined Life.** $5/month with three active kin, $10 without. Slider open. Everyone gets everything.
 
 Sovereignty: one structured picture across every ai provider. Your data, your machine. Mental gym: Socratic questioning, blind spot surfacing, creative iteration calibrated to your taste. Positive-sum attention: the vault absorbs everything the user does not have time to read and extracts only what changes their thinking. The product is the changed person — and the changed person's work is distinctly theirs.
 
-**The Library.** Blurb (monthly progress — Spotify Wrapped for cognition). Shadow (the published mind — free and paid tiers). Games (quizzes from real data — "how well do you know me?" is the viral loop). Works (the gallery). Authors earn 80%. Zero inference cost — static artifacts via API.
+**The Library.** Blurb (monthly progress — Spotify Wrapped for cognition). Shadow (the published mind — free and paid tiers). Games (quizzes from real data — "how well do you know me?" is the viral loop). Works (the gallery). Authors earn ~47% (Alexandria takes 50%, Stripe ~3%). Zero inference cost — static artifacts via API.
 
 **Three channels.** Local: founder in San Francisco, April 2026. High-touch founding seeds. Network: every quiz generates 5-20 takers, every taker is a potential Author. Global: ai agents on video platforms. Future build.
 
@@ -106,14 +106,14 @@ I could be wrong about all of this. I don't think I am. Perhaps. The company cos
 
 ## The Numbers
 
-$100/month. No payroll, no compute, no storage, no database. Seven dependencies, all CLI-controllable by ai agents. Break-even at 21 subscribers.
+$100/month. No payroll, no compute, no storage, no database. Six dependencies, all CLI-controllable by ai agents. Break-even at 21 subscribers. The Patron tier (mission supporters, pay-what-you-want) makes this concrete — twenty patrons = break-even, independent of product traction.
 
 The product is built. Technical risk is zero. Four risks remain:
 
 | Risk | What answers it |
 |---|---|
 | Nobody wants this | Seed 25 users, observe |
-| Referral mechanic does not compound | Same experiment — measure |
+| Kin mechanic does not compound | Same experiment — measure |
 | Brand does not land | Creative, positioning, SF presence |
 | Founder cannot sustain | Living costs buffer |
 
@@ -188,7 +188,9 @@ mowinckel.ai
 
 *- Logic.md: mowinckel.ai/partners/logic. 51 premises, 14 conclusions, 17 assumptions.*
 
-*- Break-even at 21 subscribers. $100/month. Unkillable.*
+*- Break-even at 21 subscribers. $100/month. Patron tier = structural floor independent of product traction. Unkillable.*
+
+*- Library for Everyone (horizon): every software company, app, service would pay for richer personal data. Shadow MDs are the richest personal data artifact that exists. Author controls access, monetises own data. Alexandria captures value at the aggregate. Inverts the data economy.*
 
 *- Three channels: local (SF), network (Library viral — quizzes), global (content claws — future).*
 
@@ -202,7 +204,7 @@ mowinckel.ai
 
 *- De-risk ladder: product built. Technical risk zero. ~$50K answers four risks. Capital accelerates, does not enable.*
 
-*- Referrals fail? First rung buys the answer. Pivot to paid. Changes economics, doesn't kill product. Experiment IS the plan.*
+*- Kin mechanic fails? First rung buys the answer. Pivot to paid. Changes economics, doesn't kill product. Experiment IS the plan.*
 
 *- Zero-data architecture: stateless server. No user data. D1+R2 for published Library only.*
 
@@ -244,6 +246,6 @@ mowinckel.ai
 
 *Library for Labs: three ways to access cognitive state. Passive observation (shallow). Surveys/RLHF (unreliable). Structured private extraction (honest because private, deep because Socratic). Only method 3 works. Requires sovereignty.*
 
-*Growth: 25 seeds. Referral pricing. Three channels.*
+*Growth: 25 seeds. Kin pricing. Three channels.*
 
 *Founder: Benjamin Mowinckel. American-Norwegian. Princeton. VC background. SF April 2026. benjamin@mowinckel.com. +1 (415) 503-8178.*
