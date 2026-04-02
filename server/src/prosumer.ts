@@ -110,10 +110,8 @@ export function extractApiKey(c: { req: { header: (name: string) => string | und
 }
 
 // ---------------------------------------------------------------------------
-// GitHub OAuth — in-memory pending states
+// GitHub OAuth — states stored in KV (survives isolate changes)
 // ---------------------------------------------------------------------------
-
-const pendingStates = new Map<string, { created: number }>();
 
 // ---------------------------------------------------------------------------
 // Hooks version — bump this when hook scripts change
@@ -1159,20 +1157,15 @@ export function registerProsumerRoutes(app: Hono) {
 
   // --- GitHub OAuth ---
 
-  app.get('/auth/github', (c) => {
+  app.get('/auth/github', async (c) => {
     const clientId = process.env.GITHUB_CLIENT_ID;
     if (!clientId) {
       return c.text('GitHub OAuth not configured', 500);
     }
 
     const state = randomBytes(16).toString('hex');
-    pendingStates.set(state, { created: Date.now() });
-
-    // Clean up stale states
-    const cutoff = Date.now() - 10 * 60 * 1000;
-    for (const [s, { created }] of pendingStates) {
-      if (created < cutoff) pendingStates.delete(s);
-    }
+    const kv = getKV();
+    await kv.put(`oauth:${state}`, '1', { expirationTtl: 600 }); // 10 min TTL
 
     const params = new URLSearchParams({
       client_id: clientId,
@@ -1188,10 +1181,12 @@ export function registerProsumerRoutes(app: Hono) {
     const code = c.req.query('code');
     const state = c.req.query('state');
 
-    if (!state || !pendingStates.has(state)) {
-      return c.text('Invalid state', 400);
+    const kv = getKV();
+    const stateValid = state ? await kv.get(`oauth:${state}`) : null;
+    if (!stateValid) {
+      return c.text('Invalid state — try signing up again.', 400);
     }
-    pendingStates.delete(state);
+    await kv.delete(`oauth:${state}`);
 
     try {
       // Exchange code for GitHub access token
@@ -1207,7 +1202,14 @@ export function registerProsumerRoutes(app: Hono) {
           code,
         }),
       });
-      const tokenData = await tokenResp.json() as { access_token?: string; error?: string };
+      // Safe JSON parse helper
+      const safeJson = async (resp: Response, label: string) => {
+        const text = await resp.text();
+        try { return JSON.parse(text); }
+        catch { throw new Error(`${label} returned non-JSON (${resp.status}): ${text.slice(0, 300)}`); }
+      };
+
+      const tokenData = await safeJson(tokenResp, 'Token exchange') as { access_token?: string; error?: string };
 
       if (!tokenData.access_token) {
         return c.text(`GitHub auth failed: ${tokenData.error || 'no token'}`, 400);
@@ -1215,17 +1217,17 @@ export function registerProsumerRoutes(app: Hono) {
 
       // Fetch user profile
       const userResp = await fetch('https://api.github.com/user', {
-        headers: { Authorization: `Bearer ${tokenData.access_token}` },
+        headers: { Authorization: `Bearer ${tokenData.access_token}`, 'User-Agent': 'Alexandria' },
       });
-      const user = await userResp.json() as { id: number; login: string; email?: string };
+      const user = await safeJson(userResp, 'User profile') as { id: number; login: string; email?: string };
 
       // Fetch email if not public
       let email = user.email || '';
       if (!email) {
         const emailResp = await fetch('https://api.github.com/user/emails', {
-          headers: { Authorization: `Bearer ${tokenData.access_token}` },
+          headers: { Authorization: `Bearer ${tokenData.access_token}`, 'User-Agent': 'Alexandria' },
         });
-        const emails = await emailResp.json() as Array<{ email: string; primary: boolean }>;
+        const emails = await safeJson(emailResp, 'User emails') as Array<{ email: string; primary: boolean }>;
         const primary = emails.find(e => e.primary);
         email = primary?.email || emails[0]?.email || '';
       }
@@ -1297,7 +1299,7 @@ export function registerProsumerRoutes(app: Hono) {
       }
 
       return c.html(callbackPageHtml(user.login, apiKey));
-    } catch (err) {
+    } catch (err: any) {
       console.error('GitHub callback error:', err);
       return c.text('Authentication failed. Please try again.', 500);
     }
