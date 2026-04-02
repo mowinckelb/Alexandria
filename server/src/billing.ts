@@ -391,8 +391,7 @@ export async function createLibraryCheckoutWithSlider(opts: {
       price_data: {
         currency: 'usd',
         product_data: {
-          name: `${opts.authorDisplayName} — shadow`,
-          description: 'the full mind, published as a file.',
+          name: `${opts.authorDisplayName} — ${opts.artifactType}`,
         },
         unit_amount: opts.minCents,
       },

@@ -873,16 +873,52 @@ echo "Done."
     // Paid works follow same pattern as paid shadows (tab billing)
     if (work.tier === 'paid') {
       const accessorKey = extractApiKey(c);
-      if (!accessorKey) {
-        const authorSettings = await db.prepare('SELECT settings FROM authors WHERE id = ?').bind(authorId).first<{ settings: string }>();
-        const s = JSON.parse(authorSettings?.settings || '{}');
-        const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-        return c.json({
-          error: 'Payment required',
-          price_cents: s.paid_price_cents || null,
-          checkout_url: `${WEBSITE_URL}/library/${authorId}/checkout/work?work_id=${workId}`,
-        }, 402);
+      if (accessorKey) {
+        const { findByApiKey } = await import('./kv.js');
+        const accessor = await findByApiKey(accessorKey);
+
+        // Owner bypass — Author accessing their own work
+        if (accessor && accessor.github_login === authorId) {
+          const obj = await r2.get(work.r2_key);
+          if (!obj) return c.json({ error: 'Work content not found' }, 404);
+          return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
+        }
+
+        // Authenticated accessor — tab billing
+        if (accessor) {
+          const authorData = await db.prepare('SELECT settings FROM authors WHERE id = ?').bind(authorId).first<{ settings: string }>();
+          const settings = JSON.parse(authorData?.settings || '{}');
+          const priceCents = settings.paid_price_cents;
+          if (!priceCents) return c.json({ error: 'Author has not set a price for paid access' }, 404);
+
+          const cutPercent = parseFloat(process.env.LIBRARY_CUT_PERCENT || '50') / 100;
+          const alexandriaCut = Math.round(priceCents * cutPercent);
+          const authorCut = priceCents - alexandriaCut;
+
+          await db.prepare(
+            `INSERT INTO billing_tab (accessor_id, author_id, artifact_type, amount_cents, alexandria_cut_cents, author_cut_cents, month, created_at)
+             VALUES (?, ?, 'work', ?, ?, ?, ?, ?)`
+          ).bind(accessor.github_login, authorId, priceCents, alexandriaCut, authorCut, currentMonth(), new Date().toISOString()).run();
+
+          const obj = await r2.get(work.r2_key);
+          if (!obj) return c.json({ error: 'Work content not found' }, 404);
+
+          recordAccess('work_view', authorId, accessor.github_login, workId, 'paid');
+          logEvent('library_paid_access', { author: authorId, accessor: accessor.github_login, artifact_type: 'work', amount_cents: String(priceCents) });
+
+          return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
+        }
       }
+
+      // Unauthenticated — return 402 with checkout URL
+      const authorSettings = await db.prepare('SELECT settings FROM authors WHERE id = ?').bind(authorId).first<{ settings: string }>();
+      const s = JSON.parse(authorSettings?.settings || '{}');
+      const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+      return c.json({
+        error: 'Payment required',
+        price_cents: s.paid_price_cents || null,
+        checkout_url: `${WEBSITE_URL}/library/${authorId}/checkout/work?work_id=${workId}`,
+      }, 402);
     }
 
     const obj = await r2.get(work.r2_key);
