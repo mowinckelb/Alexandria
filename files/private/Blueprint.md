@@ -355,7 +355,7 @@ session start
   → Engine writes live: constitution updates (Author's confirmed beliefs as they crystallise), notepad updates (Engine's own observations and proposed connections)
 session end
   → Engine rewrites machine.md (how to work with this Author — evolves)
-  → Engine updates notepad.md (what to carry forward — working memory)
+  → Engine updates notepad.md (cognitive development carry-forward only — accretion fragments, Socratic questions, developmental hypotheses. Never operational tasks or workflow items)
   → Engine appends to feedback.md (what worked, what didn't — append-only)
   → Engine writes .machine_signal (methodology observations — collected by Factory)
   → Hook copies transcript to vault/ (raw archive — append-only)
@@ -378,7 +378,7 @@ vault (raw signal)
 ```
 *The ontology is the Author's workspace.* It holds what the Author is thinking about but has not committed to — ideas being played with, positions explored tentatively, contradictions held deliberately, things said in voice memos without full conviction. The Author's cognitive territory between raw signal and settled belief. The ontology grows richer as the Author explores more ideas and holds more tensions.
 
-*The notepad is the Engine's workspace.* It holds what the Engine has noticed — proposed connections, accretion fragments from external sources, bookshelf lures, parked questions. The Engine's own ontology. Engine-proposed synthesis never enters the Author's ontology or constitution directly. It enters the notepad, gets surfaced in conversation, and the Author decides where it goes.
+*The notepad is the Engine's workspace.* It holds what the Engine has noticed — proposed connections, accretion fragments from external sources, bookshelf lures, parked questions. The Engine's own ontology. Engine-proposed synthesis never enters the Author's ontology or constitution directly. It enters the notepad, gets surfaced in conversation, and the Author decides where it goes. Scope boundary: the notepad is exclusively for cognitive development. Accretion fragments, Socratic questions, developmental hypotheses, constitutional gaps — yes. Operational tasks, workflow carry-forward, build notes, anything the Author has their own system for — never. The notepad serves the practice, not the Author's workflow. Without this boundary it bloats into a general inbox and loses its value.
 
 *The flow:* Engine proposes (notepad) → Author engages (ontology) → Author commits (constitution). Three cognitive spaces, each owned by the right entity. The confirmation step always moves material in one direction.
 *Owner:* the Author owns ontology and constitution. The Engine owns the notepad. The Engine never writes its own ideas to the Author's spaces without the Author's explicit confirmation in conversation.

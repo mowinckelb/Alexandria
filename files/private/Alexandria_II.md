@@ -477,7 +477,9 @@ A therapist walks into a session with notes from last time: parked questions ("a
 
 Fragments in the notepad are potential energy. They load, discharge into conversation at the right moment, integrate into the constitution, or become irrelevant and get discarded. The notepad is not a queue — it is notes. Dynamic, mutable, contextual. The Engine reads it at session start and decides what to release, what to hold, what to update, what to discard. At session end, it writes back everything worth carrying forward. Without the notepad, session insights die when the conversation ends. With it, the Machine compounds across sessions.
 
-The Engine decides how to organise its own working memory — one notepad or several, by topic or by operation or by whatever structure serves the Author. No prescribed format. The only principle: the notepad is the Machine's living model of what it's holding. The Constitution is the crystallised output. The notepad is the messy, living process.  
+The Engine decides how to organise its own working memory — one notepad or several, by topic or by operation or by whatever structure serves the Author. No prescribed format. The only principle: the notepad is the Machine's living model of what it's holding. The Constitution is the crystallised output. The notepad is the messy, living process.
+
+Scope boundary: the notepad is exclusively for cognitive development — the Alexandria practice. It holds accretion fragments, Socratic questions, developmental hypotheses, constitutional gaps. It does NOT hold operational tasks, company to-dos, coding session carry-forward, build notes, or anything the Author has their own system for. The Author's work sessions produce vault signal (passively extracted) and constitutional updates (when signal crystallises). The notepad serves the /a practice, not the Author's workflow. Without this boundary, the notepad bloats into a general inbox and loses its value as the therapist's focused clipboard.  
   
 PRIVACY AND AUTHOR CONTROL  
   
