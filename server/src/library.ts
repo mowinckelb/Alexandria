@@ -592,7 +592,7 @@ echo "Done."
 
           logEvent('promo_code_redeemed', { author: authorId, code: promoCode, discount: '100' });
           const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-          return c.json({ url: `${WEBSITE_URL}/library/${authorId}?access=granted&session_id=${fakeSessionId}` });
+          return c.json({ url: `${WEBSITE_URL}/library/${authorId}?access=granted&session_id=${fakeSessionId}&artifact_type=shadow&artifact_id=${shadow.id}` });
         }
         // Partial discount
         amountCents = Math.round(amountCents * (1 - promo.discount_pct / 100));
@@ -654,7 +654,7 @@ echo "Done."
           }), { expirationTtl: 30 * 24 * 60 * 60 });
           logEvent('promo_code_redeemed', { author: authorId, code: promoCode, discount: '100' });
           const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-          return c.json({ url: `${WEBSITE_URL}/library/${authorId}?access=granted&session_id=${fakeSessionId}&work_id=${workId}` });
+          return c.json({ url: `${WEBSITE_URL}/library/${authorId}?access=granted&session_id=${fakeSessionId}&artifact_type=work&artifact_id=${workId}` });
         }
         amountCents = Math.round(amountCents * (1 - promo.discount_pct / 100));
         await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ?').bind(promo.id).run();
