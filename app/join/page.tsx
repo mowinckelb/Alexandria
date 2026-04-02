@@ -44,8 +44,8 @@ export default function JoinPage() {
           <div className="mt-14 sm:mt-16 space-y-10 text-[0.85rem] sm:text-[0.9rem] tracking-wide">
 
             <div className="space-y-4 leading-[1.9]" style={{ color: 'var(--text-primary)' }}>
-              <p>Your AI knows what you like. It has no idea how you think.</p>
-              <p>Alexandria builds one file about your mind &mdash; how you reason, where you&rsquo;re blind, what you&rsquo;re still figuring out. Markdown on your machine. Loads into every session &mdash; Claude Code, Cursor, Codex. One mind, every tool.</p>
+              <p>Your ai knows what you like. It has no idea how you think.</p>
+              <p>alexandria. builds one file about your mind &mdash; how you reason, where you&rsquo;re blind, what you&rsquo;re still figuring out. Markdown on your machine. Loads into every session &mdash; Claude Code, Cursor, Codex. One mind, every tool.</p>
               <p>Type <code style={{ fontSize: '0.85em', fontFamily: "'SF Mono', Monaco, Consolas, monospace" }}>/a</code> between tasks. Because it knows your edges, it brings you what you wouldn&rsquo;t find alone &mdash; the framework that reframes the problem you&rsquo;re stuck on, the counterargument you&rsquo;ve been avoiding, the connection between two things you didn&rsquo;t know were related. You learn something real every session. And because it&rsquo;s the same tool you work in, it lands in your next commit, your next decision, your next conversation.</p>
               <p>It compounds. The file gets richer. You get sharper. The gap between you and everyone else using the same model widens.</p>
               <p>One command. Free in beta. You own everything.</p>
