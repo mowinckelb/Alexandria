@@ -216,7 +216,7 @@ This is not a new golden age. It is the golden age that was always supposed to h
 
 ai is the most powerful tool for thought in human history. The culture — the conviction that the examined life matters, that your mind is worth developing, that cognitive transformation is sacred — is what is missing. Alexandria provides both layers. The tool and the culture. The gym and the reason to train.
 
-The product is the vehicle. The philosophy is the thing.
+The product is the vehicle. The philosophy is the thing. An elegant solution to a civilisational problem — five dollars, five minutes, and a practice you live in.
 
 Every ai that gets better makes Alexandria more valuable, not less. Better ai means better extraction, better development, better augmentation to threshold. The product rides the exponential instead of fighting it. And the philosophy becomes more urgent with every capability advance — because the more ai can do, the more tempting it is to stop thinking for yourself, and the more important it is that you do not.
 
