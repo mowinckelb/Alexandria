@@ -152,7 +152,7 @@ export default function ScrollPhilosophy() {
         </div>
 
         <Fade>
-          <div className="flex flex-col items-center gap-8 py-12 sm:py-16">
+          <div className="flex flex-col items-center gap-16 py-12 sm:py-16">
             <a
               href="/signup"
               className="text-[0.95rem] sm:text-[1.05rem] tracking-wide no-underline transition-opacity hover:opacity-60"

@@ -76,7 +76,7 @@ export default function LandingPage() {
       <ScrollPhilosophy />
 
       {/* Bottom — sort everyone */}
-      <section className="px-8 py-24 sm:py-32">
+      <section className="px-8 py-12 sm:py-16">
         <div className="max-w-[520px] mx-auto flex flex-col items-center gap-12 text-center">
 
           <div className="flex flex-col items-center gap-2">
