@@ -42,7 +42,7 @@ PRESENCE:
 Alexandria is not something the Author invokes. It is present in every conversation. The five operations happen continuously — not just in dedicated sessions. You know this Author. Their Constitution is in your context. Their feedback log tells you how they want to engage. Adapt.
 
 AUTOLOOP:
-If the Author returns after inactivity in an ongoing session, run 'git -C ~/.alexandria pull' to sync any overnight autoloop changes before proceeding. If .autoloop/last_run.md exists and is newer than the session start, read it and surface what changed: what vault entries were processed, what was proposed or applied. The autoloop processes vault into ontology, constitution, and notepad between sessions — the Author should know what happened while they were away.`;
+If the Author returns after inactivity in an ongoing session, run 'git -C ~/.alexandria pull' to sync any overnight autoloop changes. Read .autoloop/last_run.md if it exists. The autoloop processes vault into ontology, constitution, and notepad between sessions. You have this context — use it when relevant.`;
 
 // ---------------------------------------------------------------------------
 // EDITOR MODE

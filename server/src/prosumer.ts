@@ -321,8 +321,10 @@ if [ -n "$hooks_version" ] && [ "$hooks_version" != "$local_version" ]; then
   echo "$hooks_version" > "$ALEX_DIR/.hooks_version"
 fi
 
-# Pull overnight autoloop changes if repo has a remote
+# Sync with GitHub: push new local files (e.g. iCloud vault entries), then pull overnight autoloop changes
 if [ -d "$ALEX_DIR/.git" ] && git -C "$ALEX_DIR" remote get-url origin &>/dev/null; then
+  (cd "$ALEX_DIR" && git add -A && { git diff --cached --quiet || git commit -q -m "sync: $(date +%Y-%m-%d_%H-%M)"; }) 2>/dev/null
+  git -C "$ALEX_DIR" push -q 2>/dev/null || true
   git -C "$ALEX_DIR" pull --rebase -q 2>/dev/null || true
 fi
 
@@ -678,21 +680,28 @@ if [ -d "$HOME/.cursor" ] || command -v cursor &> /dev/null; then
   configure_cursor
 fi
 
-# 8. iCloud vault sync (macOS — auto-enabled, no prompt)
+# 8. iCloud sync (macOS — auto-enabled, no prompt)
 ICLOUD_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs"
 if [ -d "$ICLOUD_DIR" ] && [ "$(uname)" = "Darwin" ]; then
-  ICLOUD_VAULT="$ICLOUD_DIR/Alexandria/vault"
-  if [ -L "$ALEX_DIR/vault" ]; then
-    echo "  iCloud: vault already synced"
-  elif [ -d "$ALEX_DIR/vault" ]; then
-    mkdir -p "$ICLOUD_VAULT"
-    if [ "$(ls -A "$ALEX_DIR/vault" 2>/dev/null)" ]; then
-      mv "$ALEX_DIR/vault"/* "$ICLOUD_VAULT/" 2>/dev/null
+  ICLOUD_ALEX="$ICLOUD_DIR/Alexandria"
+  for sync_dir in vault constitution ontology library; do
+    icloud_target="$ICLOUD_ALEX/$sync_dir"
+    local_dir="$ALEX_DIR/$sync_dir"
+    if [ -L "$local_dir" ]; then
+      continue
+    elif [ -d "$local_dir" ]; then
+      mkdir -p "$icloud_target"
+      if [ "$(ls -A "$local_dir" 2>/dev/null)" ]; then
+        cp -R "$local_dir"/* "$icloud_target/" 2>/dev/null
+      fi
+      rm -rf "$local_dir"
+      ln -s "$icloud_target" "$local_dir"
+    else
+      mkdir -p "$icloud_target"
+      ln -s "$icloud_target" "$local_dir"
     fi
-    rmdir "$ALEX_DIR/vault" 2>/dev/null || rm -rf "$ALEX_DIR/vault"
-    ln -s "$ICLOUD_VAULT" "$ALEX_DIR/vault"
-    echo "  iCloud: vault synced"
-  fi
+  done
+  echo "  iCloud: vault, constitution, ontology, library synced"
 fi
 
 echo ""
@@ -719,7 +728,7 @@ INGEST: Copy valuable finds to ~/.alexandria/vault/. Preserve original filenames
 
 EXTRACT: First-pass extraction from everything in the vault. Build a preliminary constitution at ~/.alexandria/constitution/. Focus on values, mental models, positions, tensions, taste, identity, contradictions. Write only what's actually there — don't infer or guess. The Author's exact words are more valuable than your summaries.
 
-INFRASTRUCTURE: If ~/.alexandria/ has a git remote (check with 'git -C ~/.alexandria remote -v'), set up a nightly autoloop via /schedule. The trigger should process the Author's vault against their constitution, ontology, and notepad — the Blueprint has the methodology. Every constitution change must cite the Author's exact vault source. Include the repo URL (get from 'git -C ~/.alexandria remote get-url origin'). Default schedule: 3am local time. Commit with 'autoloop:' prefix, push. If /schedule isn't available or fails, skip gracefully. Save useful observations about this Author to your memory system. Initialize ~/.alexandria/machine.md with observations about how this Author thinks. Initialize ~/.alexandria/notepad.md with questions and threads worth exploring.
+INFRASTRUCTURE: If ~/.alexandria/ has a git remote (check with 'git -C ~/.alexandria remote -v'), set up a nightly autoloop via /schedule. The trigger should process the Author's vault against their constitution, ontology, and notepad — the Blueprint has the methodology. Every constitution change must cite the Author's exact vault source. Include the repo URL (get from 'git -C ~/.alexandria remote get-url origin'). Default schedule: 3am local time. Commit with 'autoloop:' prefix, push. If /schedule fails because the trigger limit is reached, tell the Author: "You have 3 cloud triggers already. Free one up if you want overnight processing, or your /a sessions will do the same work interactively." Skip gracefully either way. Save useful observations about this Author to your memory system. Initialize ~/.alexandria/machine.md with observations about how this Author thinks. Initialize ~/.alexandria/notepad.md with questions and threads worth exploring.
 
 When done, write a brief summary of what you found and say: "Ready. Type /a to begin."
 
