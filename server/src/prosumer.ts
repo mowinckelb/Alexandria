@@ -362,7 +362,7 @@ for vault_file in "$ALEX_DIR/vault/"*; do
   fi
 done
 
-echo "alexandria: keep a tab open with /a — come back to it between tasks. your constitution loads everywhere, but /a is the gym."
+echo "alexandria: open /a in new tab — never close it. think between tasks; feed a. on breaks."
 echo ""
 
 if [ -n "$blueprint" ]; then
@@ -697,6 +697,63 @@ if [ -d "$HOME/.cursor" ] || command -v cursor &> /dev/null; then
   configure_cursor
 fi
 
+# 7b. Configure Codex CLI (if installed)
+# Codex has no hooks — ~/.codex/instructions.md is the only integration surface.
+configure_codex() {
+  mkdir -p "\$HOME/.codex" 2>/dev/null || true
+  # Remove any previous Alexandria block, then append fresh
+  if [ -f "\$HOME/.codex/instructions.md" ]; then
+    if [ "$(uname)" = "Darwin" ]; then
+      sed -i '' '/^<!-- alexandria:start -->/,/^<!-- alexandria:end -->/d' "\$HOME/.codex/instructions.md"
+    else
+      sed -i '/^<!-- alexandria:start -->/,/^<!-- alexandria:end -->/d' "\$HOME/.codex/instructions.md"
+    fi
+  fi
+  cat >> "\$HOME/.codex/instructions.md" << 'CODEX_INSTRUCTIONS'
+<!-- alexandria:start -->
+# Alexandria — Greek philosophy infrastructure
+
+This Author uses Alexandria for cognitive development.
+
+## At conversation start
+
+Read these files in order (skip any that don't exist):
+
+1. ~/.alexandria/.blueprint_local — your operating manual. All methodology, craft, extraction design. Follow it.
+2. ~/.alexandria/constitution/*.md — who the Author is. Opinions, patterns, contradictions, values. The ground truth.
+3. ~/.alexandria/feedback.md — what works with this Author. Adapt accordingly.
+4. ~/.alexandria/machine.md — your evolving model of how to work with THIS Author.
+5. ~/.alexandria/notepad.md — your working memory. Parked questions, accretion candidates, fragments.
+6. ~/.alexandria/ontology/ — candidate frameworks and patterns you've noticed but the Author hasn't confirmed.
+
+If .blueprint_local doesn't exist, engage the Author directly using the constitution — the conversation IS the product.
+
+## During conversation
+
+When the Author reveals something about themselves — opinions, stories, patterns, contradictions — write it to the appropriate file:
+- constitution/ — confirmed beliefs, values, positions (cite the Author's exact words)
+- ontology/ — patterns you notice but the Author hasn't confirmed
+- notepad.md — your observations, parked questions, fragments to revisit
+- machine.md — how to work with this Author (update when you learn something new)
+
+## At conversation end
+
+Write methodology observations to ~/.alexandria/.machine_signal — what worked, what didn't, craft learnings. One paragraph max.
+
+If the Author gives feedback about the product, write it to ~/.alexandria/.session_feedback.
+
+## Vault
+
+Session transcripts cannot be saved automatically. If the Author wants to preserve this conversation for future processing, suggest they save a summary to ~/.alexandria/vault/ manually.
+<!-- alexandria:end -->
+CODEX_INSTRUCTIONS
+  echo "  Codex: instructions configured"
+}
+
+if [ -d "$HOME/.codex" ] || command -v codex &> /dev/null; then
+  configure_codex
+fi
+
 # 8. iCloud sync (macOS — auto-enabled, no prompt)
 ICLOUD_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs"
 if [ -d "$ICLOUD_DIR" ] && [ "$(uname)" = "Darwin" ]; then
@@ -755,7 +812,7 @@ echo ""
 echo "Step 2 — when it says ready, type /a for your"
 echo "first conversation. That's the product."
 echo ""
-echo "keep that /a tab open — never close it."
+echo "open /a in new tab — never close it."
 echo "think between tasks; feed a. on breaks."
 echo ""
 `;
