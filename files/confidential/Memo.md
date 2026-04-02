@@ -150,7 +150,7 @@ Alexandria is that kind of company. There are limited spots. The founder is sele
 ---
 
 **Benjamin Mowinckel**
-benjamin@mowinckel.com | +1 (415) 503-8178
+benjamin@mowinckel.com | +47 466 43 844
 mowinckel.ai
 
 ---
@@ -254,4 +254,4 @@ mowinckel.ai
 
 *Growth: 25 seeds. Kin pricing. Three channels.*
 
-*Founder: Benjamin Mowinckel. American-Norwegian. Princeton. VC background. SF April 2026. benjamin@mowinckel.com. +1 (415) 503-8178.*
+*Founder: Benjamin Mowinckel. American-Norwegian. Princeton. VC background. SF April 2026. benjamin@mowinckel.com. +47 466 43 844.*

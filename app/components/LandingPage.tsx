@@ -91,7 +91,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col items-center gap-2">
             <span className="text-[0.6rem] tracking-widest" style={{ color: 'var(--text-ghost)', letterSpacing: '0.15em' }}>investor/partner?</span>
-            <a href="tel:+14155038178" className="text-[1rem] tracking-wide font-medium no-underline transition-opacity hover:opacity-60" style={{ color: 'var(--text-primary)' }}>call me</a>
+            <a href="tel:+4746643844" className="text-[1rem] tracking-wide font-medium no-underline transition-opacity hover:opacity-60" style={{ color: 'var(--text-primary)' }}>call me</a>
           </div>
 
         </div>

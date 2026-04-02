@@ -127,7 +127,7 @@ The printing press made monks obsolete but created authors. ai makes operators o
 ---
 
 **Benjamin Mowinckel**
-benjamin@mowinckel.com | +1 (415) 503-8178
+benjamin@mowinckel.com | +47 466 43 844
 mowinckel.ai
 
 | | |

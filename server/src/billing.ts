@@ -11,6 +11,7 @@ import Stripe from 'stripe';
 import type { Hono } from 'hono';
 import { logEvent } from './analytics.js';
 import { callbackPageHtml } from './templates.js';
+import { extractApiKey, findByApiKey } from './prosumer.js';
 
 // ---------------------------------------------------------------------------
 // Stripe client — lazy init (needs env to be populated)
@@ -211,17 +212,16 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
     }
   });
 
-  // Portal
+  // Portal — requires API key auth, uses account's own Stripe customer ID
   app.post('/billing/portal', async (c) => {
-    const body = await c.req.json().catch(() => ({}));
-    const { stripe_customer_id } = body;
-
-    if (!stripe_customer_id) {
-      return c.json({ error: 'No Stripe customer ID' }, 400);
-    }
+    const key = extractApiKey(c);
+    if (!key) return c.json({ error: 'Missing API key' }, 401);
+    const account = await findByApiKey(key);
+    if (!account) return c.json({ error: 'Invalid API key' }, 401);
+    if (!account.stripe_customer_id) return c.json({ error: 'No billing account' }, 400);
 
     try {
-      const url = await createPortalSession(stripe_customer_id);
+      const url = await createPortalSession(account.stripe_customer_id);
       return c.json({ url });
     } catch (err) {
       console.error('Portal error:', err);

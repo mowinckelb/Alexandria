@@ -62,7 +62,7 @@ export default function Privacy() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Contact</h2>
-        <p>Benjamin Mowinckel — <a href="mailto:benjamin@mowinckel.ai" style={{ color: 'var(--text-primary)' }}>benjamin@mowinckel.ai</a></p>
+        <p>Benjamin Mowinckel — <a href="mailto:benjamin@mowinckel.com" style={{ color: 'var(--text-primary)' }}>benjamin@mowinckel.com</a></p>
       </section>
     </main>
   );

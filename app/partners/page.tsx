@@ -168,7 +168,7 @@ export default function PartnersPage() {
           }}>
 
             <Item n={1} hint="the investment memo"><span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.8rem' }}><Link href="/partners/memo">memo</Link><CopyMemo /></span></Item>
-            <Item n={2} hint="schedule a meeting"><Link href="tel:+14155038178">call</Link></Item>
+            <Item n={2} hint="schedule a meeting"><Link href="tel:+4746643844">call</Link></Item>
             <Item n={3} hint="the formal argument"><Link href="/partners/logic">logic</Link></Item>
             <Item n={4} hint="the assumptions"><Link href="/partners/numbers">numbers</Link></Item>
             <Item n={5} hint="in person, san francisco"><span style={{ color: 'var(--text-secondary)', fontSize: '1.05rem' }}>meet</span></Item>
