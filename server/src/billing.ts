@@ -260,7 +260,8 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
             const amountCents = session.amount_total || 0;
             const authorId = session.metadata?.author_id || '';
             const artifactType = session.metadata?.artifact_type || 'shadow';
-            const alexandriaCut = Math.round(amountCents * 0.20);
+            const cutRate = parseFloat(process.env.LIBRARY_CUT_PERCENT || '50') / 100;
+            const alexandriaCut = Math.round(amountCents * cutRate);
             const authorCut = amountCents - alexandriaCut;
 
             try {

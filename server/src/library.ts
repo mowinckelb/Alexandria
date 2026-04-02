@@ -442,7 +442,7 @@ echo "Done."
         if (!priceCents) {
           return c.json({ error: 'Author has not set a price for paid access' }, 404);
         }
-        const cutPercent = parseFloat(process.env.LIBRARY_CUT_PERCENT || '20') / 100;
+        const cutPercent = parseFloat(process.env.LIBRARY_CUT_PERCENT || '50') / 100;
         const alexandriaCut = Math.round(priceCents * cutPercent);
         const authorCut = priceCents - alexandriaCut;
 
@@ -613,6 +613,67 @@ echo "Done."
       return c.json({ url });
     } catch (e) {
       console.error('[library] Checkout creation failed:', e);
+      return c.json({ error: 'Checkout failed' }, 500);
+    }
+  });
+
+  // Works checkout (mirrors shadow checkout)
+  app.post('/library/:author/checkout/work', async (c) => {
+    const authorId = c.req.param('author');
+    const db = getDB();
+
+    const body = await c.req.json().catch(() => ({}));
+    const workId = (body as any)?.work_id;
+    if (!workId) return c.json({ error: 'work_id required' }, 400);
+
+    const author = await db.prepare('SELECT * FROM authors WHERE id = ?').bind(authorId).first<{ display_name: string; settings: string }>();
+    if (!author) return c.json({ error: 'Author not found' }, 404);
+
+    const work = await db.prepare('SELECT id, title, tier FROM works WHERE id = ? AND author_id = ? AND tier = ?').bind(workId, authorId, 'paid').first<{ id: string; title: string }>();
+    if (!work) return c.json({ error: 'No paid work found' }, 404);
+
+    const settings = JSON.parse(author.settings || '{}');
+    const floorCents = settings.paid_price_cents || 2000;
+    const requestedCents = (body as any)?.amount_cents;
+    let amountCents = requestedCents && requestedCents >= floorCents ? requestedCents : floorCents;
+
+    const promoCode = (body as any)?.promo_code;
+    if (promoCode) {
+      const promo = await db.prepare(
+        'SELECT * FROM promo_codes WHERE code = ? AND author_id = ? AND (uses_remaining > 0 OR uses_remaining IS NULL) AND (expires_at IS NULL OR expires_at > ?)'
+      ).bind(promoCode, authorId, new Date().toISOString()).first<{ id: string; discount_pct: number; uses_remaining: number }>();
+
+      if (promo) {
+        if (promo.discount_pct >= 100) {
+          await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ?').bind(promo.id).run();
+          const fakeSessionId = `promo_${promoCode}_${Date.now()}`;
+          const { getKV } = await import('./kv.js');
+          const kv = getKV();
+          await kv.put(`library:access:${fakeSessionId}`, JSON.stringify({
+            author_id: authorId, artifact_type: 'work', artifact_id: workId, granted_at: new Date().toISOString(),
+          }), { expirationTtl: 30 * 24 * 60 * 60 });
+          logEvent('promo_code_redeemed', { author: authorId, code: promoCode, discount: '100' });
+          const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+          return c.json({ url: `${WEBSITE_URL}/library/${authorId}?access=granted&session_id=${fakeSessionId}` });
+        }
+        amountCents = Math.round(amountCents * (1 - promo.discount_pct / 100));
+        await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ?').bind(promo.id).run();
+        logEvent('promo_code_redeemed', { author: authorId, code: promoCode, discount: String(promo.discount_pct) });
+      }
+    }
+
+    try {
+      const { createLibraryCheckoutWithSlider } = await import('./billing.js');
+      const url = await createLibraryCheckoutWithSlider({
+        authorId,
+        authorDisplayName: author.display_name || authorId,
+        artifactType: 'work',
+        artifactId: workId,
+        minCents: Math.max(amountCents, 100),
+      });
+      return c.json({ url });
+    } catch (e) {
+      console.error('[library] Work checkout creation failed:', e);
       return c.json({ error: 'Checkout failed' }, 500);
     }
   });
@@ -815,7 +876,12 @@ echo "Done."
       if (!accessorKey) {
         const authorSettings = await db.prepare('SELECT settings FROM authors WHERE id = ?').bind(authorId).first<{ settings: string }>();
         const s = JSON.parse(authorSettings?.settings || '{}');
-        return c.json({ error: 'Payment required', price_cents: s.paid_price_cents || null }, 402);
+        const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+        return c.json({
+          error: 'Payment required',
+          price_cents: s.paid_price_cents || null,
+          checkout_url: `${WEBSITE_URL}/library/${authorId}/checkout/work?work_id=${workId}`,
+        }, 402);
       }
     }
 
