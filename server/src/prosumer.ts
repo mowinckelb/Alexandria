@@ -844,6 +844,8 @@ async function sendEngagementEmail(email: string, apiKey: string): Promise<void>
 </div>`);
 }
 
+let lastEngagementSent = 0;
+
 /** Run engagement check — called by Cron Trigger */
 export async function runEngagementCheck(): Promise<void> {
   const accounts = await loadAccounts<AccountStore>();
@@ -872,7 +874,7 @@ export async function runEngagementCheck(): Promise<void> {
     sent++;
   }
 
-  if (sent > 0) console.log(`engagement: sent ${sent} emails`);
+  lastEngagementSent = sent;
   if (changed) await saveAccounts(accounts);
 }
 
@@ -941,6 +943,10 @@ export async function runHealthDigest(): Promise<void> {
         }
       }
     } catch { /* non-fatal */ }
+
+    if (lastEngagementSent > 0) {
+      issues.push(`${lastEngagementSent} engagement email${lastEngagementSent > 1 ? 's' : ''} sent`);
+    }
 
     if (issues.length === 0 && feedbackItems.length === 0) return; // All clear — no email
 
