@@ -178,6 +178,6 @@ See `~/.claude/CLAUDE.md` for principles and communication style (loaded globall
 
 an is sacred. If information should be ground truth but isn't in a1/a2/a3/a4, flag it. If it's not ready for an, capture in a0. ax are disposable — regenerated from an.
 
-**Write developing signal to a0 immediately.** When the founder surfaces haze-level signal — a phrase they like, a concept forming, a question they're turning over, a name for something — write it to a0 in real time. Don't park it in response text. Don't wait for session close. a0 IS where developing signal lives. If it crystallises later, it migrates to an. If it doesn't, it stays in a0 as parked signal. The cost of writing to a0 is near zero. The cost of losing a developing fragment is high.
+**Developing signal → a0, not response text.** If the founder surfaces something that should persist (a phrase, a forming concept, a parked idea), it goes in a0 — that's what a0 is for. Don't lose signal by only mentioning it in a reply.
 
 **Parked questions.** When the agent encounters genuine tradeoffs or needs founder input on a non-blocking decision, park the question in `files/private/a0.md` under `## Parked questions`. At session start, check for parked questions and surface them early. The founder answers when online; the system ships the best option meanwhile.
