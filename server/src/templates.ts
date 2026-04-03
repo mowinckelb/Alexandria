@@ -55,6 +55,7 @@ export function callbackPageHtml(login: string, apiKey: string): string {
     cursor: pointer;
     display: inline-flex;
     align-items: center;
+    vertical-align: baseline;
     gap: 6px;
     transition: opacity 0.15s;
   }
