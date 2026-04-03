@@ -38,6 +38,8 @@ Labs stay shallow for a reason. A deep, structured, portable profile makes switc
 
 The objection that proves the thesis: people do not think in words. Correct. Most cognition is pre-linguistic. That is precisely why forcing it through language is valuable — the compression restructures the cognition itself. Established neuroscience (Lieberman 2007, Kross 2014, Pyers & Senghas 2009). Pre-verbal cognition does not compound, does not transfer, cannot interface with ai. Articulation makes cognition composable. The compression is lossy. The compounding benefit exceeds the loss.
 
+Andrej Karpathy recently described building exactly this architecture — raw data compiled by LLMs into structured markdown, incrementally enhanced, queries that compound back into the knowledge base. He called it "LLM Knowledge Bases" and said "there is room here for an incredible new product instead of a hacky collection of scripts." He is doing it for research topics. Alexandria does it for the self — the hardest and stickiest domain. Same architecture, different substrate. The person who coined Software 2.0 independently validated the mechanism. We built the product he says should exist, pointed at the thing that matters most.
+
 You are not betting on this specific product. You are betting that the current answer is already good — and it only changes if something strictly better appears. We pivoted from consumer MCP to prosumer hooks in week four because the architecture was better. The thesis is permanent. The packaging is disposable.
 
 The formal argument is at mowinckel.ai/partners/logic — 51 premises, 14 conclusions, 17 assumptions. Every settled premise cannot reasonably be denied. The only conversation is about the assumptions.
@@ -173,6 +175,8 @@ mowinckel.ai
 *TOPICS (rotate, never repeat):*
 
 *- Portfolio uncomfortable truth: "Count the companies in your ai portfolio that occupy one of the four positions. Make models, generate live data, gatekeep permissions, own atoms. The terminal value on the rest — what is it based on?"*
+
+*- Karpathy validation: "Andrej Karpathy just described this exact architecture — raw data compiled into structured markdown, incrementally enhanced, queries that compound. He's doing it for research with duct-taped scripts. We built the product for the self. The guy who coined Software 2.0 independently validated the mechanism."*
 
 *- Marginal value: "You are not betting on this product. You are betting the current answer is already good and only changes upward. The thesis is permanent. The packaging is disposable."*
 

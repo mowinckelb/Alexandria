@@ -44,6 +44,119 @@ Three paths, ordered by priority:
 
 ---
 
+## YC S26 Application — Draft Answers
+
+### Company description (50 chars)
+`Sovereign ai layer that develops how you think.`
+
+### What is your company going to make?
+Alexandria builds a structured cognitive file — your constitution — as local markdown on your machine. One curl installs hooks into your ai workflow. Every conversation extracts who you are: worldview, values, mental models, taste, blind spots. The file compounds. Every ai that reads it gives you better output immediately.
+
+Run /a and it becomes a mental gym. Socratic questioning, contradiction surfacing, vault processing — the system reads what you don't have time to and extracts only what's genuinely new for you. The Library lets you publish your mind: quizzes, shadows, works. Visitors pay for depth. Authors earn.
+
+Andrej Karpathy recently described building this exact architecture — raw data compiled by LLMs into structured markdown, incrementally enhanced, compounding queries. He called it "LLM Knowledge Bases" and said someone should build the product. He's doing it for research topics with duct-taped scripts. We built it for the self. Shipped. Live. $5/month.
+
+### Where do you live now, and where would the company be based after YC?
+Oslo, Norway → San Francisco. Relocating April 2026 regardless of YC. Company based in SF after YC.
+
+### Video brief (1 min, unlisted YouTube)
+*To record. Key beats:*
+- 0-10s: "I'm Benjamin. I built Alexandria — Greek philosophy infrastructure for ai."
+- 10-25s: Demo. Terminal. `curl` install. Constitution files. Run /a. Show the mental gym working.
+- 25-40s: "Karpathy just described this architecture for research. We built it for the self. Same mechanism, hardest domain, stickiest product."
+- 40-50s: "Product is live. Library shipped. 24 endpoints. $100/month opex. Eight weeks. One human."
+- 50-60s: "The only question is demand. $15K seeds 25 users. I'm building this regardless. Capital accelerates the experiment."
+
+### Who writes code? Was any done by a non-founder?
+I write all the code — with ai agents. The entire stack (Cloudflare Workers, Next.js, Stripe, D1, R2, 24 API endpoints, 4 test suites) was built in eight weeks by one human directing Claude. No non-founder work. No contractors. The company IS the thesis proven: one human + ai at funded-team velocity.
+
+### Something impressive each founder has built or achieved
+Built a complete sovereign ai product — server, hooks, Library with payment, formal proof chain, autonomous CTO — in eight weeks on $100/month with no technical background and no employees. Pivoted three times. Every line of code written with ai agents. Previously three years in venture capital; left to build what the thesis demanded.
+
+### Hacked a non-computer system
+Moved from Norway to Princeton at 16 with no connections by reverse-engineering the US boarding school admissions process. Identified that schools needed international diversity for rankings, packaged a Norwegian ski racer as a "complete applicant," and got into the most selective school in the country on a full scholarship. Then did it again for university. The system was designed for American prep school kids. I treated the criteria as a protocol and wrote the packet that matched it.
+
+### How far along are you?
+Product live. Library v1 shipped with 24 API endpoints — shadow publishing, quizzes with scoring and shareable results, works gallery, Stripe checkout with slider pricing, promo codes, agent access tokens. Cloudflare Workers (251 KiB), D1 metadata, R2 content. Blueprint API with hash-based auto-updating. Autonomous CTO running daily health and weekly meta-reflection. Full onboarding flow. Formal proof chain: 51 premises, 14 conclusions. Four test suites. Delaware C-Corp.
+
+Pre-revenue. No external users. The distribution starts in San Francisco, April 2026.
+
+### How long have you been working on this?
+Eight weeks full-time, starting February 2026. The philosophical thesis developed over ~2 years; the company crystallised in January 2026.
+
+### Active users / customers / revenue
+Zero external users. Zero revenue. The founder is user zero — uses the product daily, constitution across five domains with hundreds of entries. Honest: the product works. Nobody else has tried it yet. The first 25 seeds happen in SF, April 2026.
+
+### Why did you pick this idea? Domain expertise? How do you know people need it?
+I built it because I needed it. I use it every day. The value is immediate — every ai conversation is better when the model knows who you are.
+
+Domain expertise: I am the product's first user and the philosophy's author. Three years in VC showed me most ai companies occupy no structural position — they get absorbed by the next model release. Alexandria occupies position two (generate live data). Better models make it better.
+
+Market validation: Andrej Karpathy just independently described this exact architecture and said someone should build the product. Every frontier lab is investing in memory and personalisation — validating the thesis while staying too shallow to threaten it. $100M+ raised by adjacent startups (Mem0, Personal ai, Delphi, Letta) — none builds sovereign cognitive transformation. The closest philosophical products are dead (Dot, Limitless) — both deaths validate the sovereignty architecture.
+
+### What's new? What substitutes do people resort to?
+What's new: the domain. Everyone is building LLM knowledge bases for research, code, documents. Nobody is building it for the self — your worldview, values, mental models, blind spots. Same architecture Karpathy describes, pointed at the thing that matters most. Plus a developmental philosophy: the system doesn't just store, it develops cognition through Socratic practice.
+
+Substitutes: Claude memory (~800 words, unstructured, locked to one provider, doesn't push you). Journaling apps (no ai, no compounding). Therapy ($200/hour, no data portability). Personality tests (snapshot, not developmental). The real substitute is nothing — most people don't develop their thinking deliberately at all. That's the gap.
+
+### Competitors? What do you understand that they don't?
+**Labs** (Claude memory, ChatGPT memory): shallow by design. Deep portable profiles make switching trivial — the opposite of lock-in. They stay shallow rationally.
+
+**Startups** (Mem0 $24M, Personal ai $24M, Delphi $19M, Letta $10M): adjacent fragments. Memory layers, digital twins, chatbot personas. None builds sovereign cognitive transformation. None has a developmental philosophy.
+
+**Dead** (Dot killed Oct 2025, Limitless killed Dec 2025 after Meta's $350M): both stored user data on their servers. Users lost everything. Validates sovereignty architecture.
+
+What we understand: the product is not the memory. The product is the practice. Storage is a commodity. Development is a moat. A file that knows you is useful. A system that develops you is irreplaceable. And the data must live on the user's machine — not because it's nice, but because the product dies without trust, and trust requires sovereignty.
+
+### How do you make money? How much could you make?
+$5/month with three active kin (friends who use it), $10 without. Slider open — pay what it's worth, no ceiling. Library: Alexandria takes 50% of Author earnings. Break-even at 21 subscribers.
+
+Near-term: subscription revenue. The kin mechanic is the growth engine — every user recruiting three friends to halve their price.
+
+Medium-term: Library marketplace. Published shadows, quizzes, works. Authors monetise their minds. Alexandria captures aggregate value.
+
+Long-term: constitutions are the richest personal data artifact that exists. Every company that personalises (which is every company) would pay for access — with the Author's consent and compensation. Inverts the data economy.
+
+TAM: everyone who uses ai. Which is everyone. Initial wedge: builders — coders, founders, creatives who live in terminals and feel the gap between generic ai output and what their work should carry.
+
+### How do users find your product?
+Three channels:
+
+1. **Local** (now): founder in San Francisco, April 2026. High-touch founding seeds. 25 users. Face-to-face. This is the only channel that matters until product-market fit.
+
+2. **Network** (built): Library viral loop. Every quiz generates 5-20 takers. Every taker sees the Author's page. Every page links to signup. The mechanic is live.
+
+3. **Global** (future): ai agents generating short-form content about self-knowledge, cognitive development, philosophy. Evolutionary content strategy. Not built yet.
+
+Current users came from: the founder using the product. Distribution starts April 2026.
+
+### How much do you spend per month?
+$100/month. Cloudflare ($5), Vercel ($0), domain ($2), Resend ($0), Claude ($80), Stripe ($0 until revenue). No payroll. No office. No compute. Six dependencies, all CLI-controllable by ai agents.
+
+### Money in the bank / runway
+Company: ~$500. Parents: $1K/month indefinitely. Runway is functionally infinite at current burn. The company cannot die.
+
+### Is there anything else we should know?
+The company is the thesis proven on itself. One human + ai agents, running at funded-team velocity, on $100/month. The git history is the proof — eight weeks of rapid iteration, three pivots, principled architecture decisions. The autonomous CTO runs daily health checks and weekly meta-reflection without human intervention.
+
+I have a formal proof chain — 51 premises, 14 conclusions, 17 assumptions — at mowinckel.ai/partners/logic. Every settled premise cannot reasonably be denied. The only conversation is about the assumptions. This is how I think about the company.
+
+The product is built. Technical risk is zero. The only question is demand. ~$15K seeds 25 users and answers it. I am building this regardless of funding. Capital accelerates the experiment — it does not enable it.
+
+### Other ideas considered
+None. This is the only idea. It has been the only idea since it crystallised. If it fails, I will find out why and adjust. The thesis does not change. The packaging is disposable.
+
+### Something surprising or amusing one of you has discovered
+Every civilisation that lasted had two things: something sacred above individual whim and a daily practice to maintain it. Five golden ages — Greece, Rome, Christianity, the Renaissance, the Enlightenment — each had both but could not scale the practice. America is the synthesis of all five. Every component in place. The only missing piece was the technology to scale the practice. ai provides that. A 2,500-year project, completable for the first time. I built the product in eight weeks. The philosophy took two years. The ratio is correct.
+
+### What convinced you to apply to YC?
+Three reasons: (1) the network — 200 founders in a room is the highest-density environment that exists for finding the first 25 users, (2) the signal — YC acceptance changes every subsequent conversation, (3) the forced function — three months of nothing but execution in the city where it matters. The money is real but secondary. The company survives without it.
+
+### ai Safety Disclosure (150 chars)
+`No models trained or fine-tuned. Sovereign local files. No user data on server. Rides existing ai providers. Privacy by architecture.`
+
+---
+
 ## Other Applications
 
 ### Solo Founders Program
@@ -76,6 +189,8 @@ Three paths, ordered by priority:
 ### Framework: "Who needs to be convinced of what?"
 
 For each target: (1) Who is the decision-maker? (2) What do they already believe that aligns? (3) What is their likely objection? (4) What specific ammunition neutralises it?
+
+**Universal ammunition — Karpathy validation (April 2026):** Andrej Karpathy posted about building "LLM Knowledge Bases" — raw data → LLM-compiled markdown → incremental enhancement → compounding queries. Said "there is room here for an incredible new product." Alexandria is that product, for the self. Use against: "is this real?" (the guy who coined Software 2.0 described it independently), "where's the market?" (the architecture is validated, the domain is ours), "is anyone doing this?" (everyone is doing pieces — Karpathy manually, labs shallowly — nobody has the product). Post: x.com/karpathy/status/2039805659525644595
 
 ---
 
@@ -128,11 +243,9 @@ For each target: (1) Who is the decision-maker? (2) What do they already believe
 
 ### Rope Swing Version (90 seconds spoken)
 
-"Alexandria is a sovereign layer that develops human cognition through ai.
+"Andrej Karpathy just posted about building LLM knowledge bases — raw data compiled by ai into structured markdown that compounds. He said someone should build the product. We already did. For the hardest domain: the self.
 
-One curl command. Local files on your machine. Five dollars a month. Your ai starts learning who you are — worldview, values, taste, mental models, blind spots. Run /a and it becomes a mental gym. Socratic questioning, contradiction surfacing, the most clarifying conversations of your life.
-
-The Library is live — publish your mind, generate quizzes, visitors pay for depth.
+Alexandria is a sovereign layer that develops human cognition through ai. One curl command. Local files on your machine. Five dollars a month. Your ai starts learning who you are — worldview, values, taste, mental models, blind spots. Run /a and it becomes a mental gym. Socratic questioning, contradiction surfacing, the most clarifying conversations of your life. The Library is live — publish your mind, generate quizzes, visitors pay for depth.
 
 [beat — rope swing lands, now pivot]
 
