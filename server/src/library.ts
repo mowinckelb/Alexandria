@@ -17,7 +17,8 @@ import { extractApiKey, findByApiKey } from './prosumer.js';
 // ---------------------------------------------------------------------------
 
 function r2Response(body: ReadableStream | null, contentType: string, reqOrigin?: string | null, cache?: string): Response {
-  const allowed = ['https://mowinckel.ai', 'https://www.mowinckel.ai'];
+  const websiteUrl = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+  const allowed = [websiteUrl, websiteUrl.replace('https://', 'https://www.')];
   const headers: Record<string, string> = {
     'Content-Type': contentType,
     'Vary': 'Origin',
@@ -29,6 +30,15 @@ function r2Response(body: ReadableStream | null, contentType: string, reqOrigin?
   }
   if (cache) headers['Cache-Control'] = cache;
   return new Response(body, { headers });
+}
+
+// ---------------------------------------------------------------------------
+// Input validation
+// ---------------------------------------------------------------------------
+
+/** Validate authorId is a safe GitHub username (alphanumeric + hyphens, no path traversal) */
+function isValidAuthorId(id: string): boolean {
+  return /^[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(id) && id.length <= 39;
 }
 
 // ---------------------------------------------------------------------------
@@ -51,6 +61,17 @@ async function recordAccess(event: string, authorId: string, accessorId: string 
 // ---------------------------------------------------------------------------
 
 export function registerLibraryRoutes(app: Hono): void {
+
+  // Validate :author param on all routes (prevent path traversal in R2 keys)
+  const validateAuthor = async (c: any, next: any) => {
+    const authorId = c.req.param('author');
+    if (authorId && !isValidAuthorId(authorId)) {
+      return c.json({ error: 'Invalid author ID' }, 400);
+    }
+    await next();
+  };
+  app.use('/library/:author/*', validateAuthor);
+  app.use('/library/:author', validateAuthor);
 
   // =========================================================================
   // PUBLISHING (Author-authenticated)
@@ -87,6 +108,11 @@ export function registerLibraryRoutes(app: Hono): void {
     for (const tier of ['free', 'paid'] as const) {
       const content = tier === 'free' ? body.free_shadow : body.paid_shadow;
       if (!content) continue;
+
+      // Size limit — 10MB max per shadow
+      if (typeof content === 'string' && content.length > 10 * 1024 * 1024) {
+        return c.json({ error: `Shadow content too large (${tier}). Max 10MB.` }, 413);
+      }
 
       const r2Key = `shadows/${authorId}/${tier}.md`;
       await r2.put(r2Key, content as string);
@@ -187,6 +213,9 @@ export function registerLibraryRoutes(app: Hono): void {
 
     const r2Key = `works/${authorId}/${id}/content.md`;
     const content = body.content as string;
+    if (content.length > 10 * 1024 * 1024) {
+      return c.json({ error: 'Work content too large. Max 10MB.' }, 413);
+    }
     await r2.put(r2Key, content);
 
     await db.prepare(
@@ -580,10 +609,10 @@ echo "Done."
       if (promo) {
         if (promo.discount_pct >= 100) {
           // Full discount — grant access directly, no Stripe
-          await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ?').bind(promo.id).run();
+          await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ? AND uses_remaining > 0').bind(promo.id).run();
 
           // Store access grant in KV
-          const fakeSessionId = `promo_${promoCode}_${Date.now()}`;
+          const fakeSessionId = `promo_${crypto.randomUUID()}`;
           const { getKV } = await import('./kv.js');
           const kv = getKV();
           await kv.put(`library:access:${fakeSessionId}`, JSON.stringify({
@@ -596,7 +625,7 @@ echo "Done."
         }
         // Partial discount
         amountCents = Math.round(amountCents * (1 - promo.discount_pct / 100));
-        await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ?').bind(promo.id).run();
+        await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ? AND uses_remaining > 0').bind(promo.id).run();
         logEvent('promo_code_redeemed', { author: authorId, code: promoCode, discount: String(promo.discount_pct) });
       }
     }
@@ -645,8 +674,8 @@ echo "Done."
 
       if (promo) {
         if (promo.discount_pct >= 100) {
-          await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ?').bind(promo.id).run();
-          const fakeSessionId = `promo_${promoCode}_${Date.now()}`;
+          await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ? AND uses_remaining > 0').bind(promo.id).run();
+          const fakeSessionId = `promo_${crypto.randomUUID()}`;
           const { getKV } = await import('./kv.js');
           const kv = getKV();
           await kv.put(`library:access:${fakeSessionId}`, JSON.stringify({
@@ -657,7 +686,7 @@ echo "Done."
           return c.json({ url: `${WEBSITE_URL}/library/${authorId}?access=granted&session_id=${fakeSessionId}&artifact_type=work&artifact_id=${workId}` });
         }
         amountCents = Math.round(amountCents * (1 - promo.discount_pct / 100));
-        await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ?').bind(promo.id).run();
+        await db.prepare('UPDATE promo_codes SET uses_remaining = uses_remaining - 1 WHERE id = ? AND uses_remaining > 0').bind(promo.id).run();
         logEvent('promo_code_redeemed', { author: authorId, code: promoCode, discount: String(promo.discount_pct) });
       }
     }
@@ -874,7 +903,7 @@ echo "Done."
     if (work.tier === 'paid') {
       const accessorKey = extractApiKey(c);
       if (accessorKey) {
-        const { findByApiKey } = await import('./kv.js');
+        const { findByApiKey } = await import('./prosumer.js');
         const accessor = await findByApiKey(accessorKey);
 
         // Owner bypass — Author accessing their own work

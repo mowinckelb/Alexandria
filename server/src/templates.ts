@@ -63,6 +63,9 @@ export function callbackPageHtml(login: string, apiKey: string): string {
   .action .icon { display: inline-flex; align-items: center; color: #bbb4aa; transition: color 0.15s; }
   .action:hover .icon { color: #3d3630; }
   .action.done .icon { color: #3d3630; }
+  .action .icon .icon-check { display: none; }
+  .action.done .icon .icon-copy { display: none; }
+  .action.done .icon .icon-check { display: inline; }
   .info {
     display: inline-flex;
     align-items: center;
@@ -112,8 +115,8 @@ export function callbackPageHtml(login: string, apiKey: string): string {
 <div class="container">
   <div class="section">
     <p class="label">now</p>
-    <p class="line"><a class="action" onclick="copyCmd(this)">1. curl <span class="icon">${ICON_COPY}</span></a> &mdash; paste in terminal</p>
-    <p class="line"><a class="action" onclick="copyBlock(this)">2. block <span class="icon">${ICON_COPY}</span></a> &mdash; paste in new tab <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">open a new tab in your cli or ide. paste the block. it scans your machine, builds your starter constitution, and loads your notepad. takes a while — let it work.</span></span></p>
+    <p class="line"><a class="action" onclick="copyCmd(this)">1. curl <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in terminal</p>
+    <p class="line"><a class="action" onclick="copyBlock(this)">2. block <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in new tab <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">open a new tab in your cli or ide. paste the block. it scans your machine, builds your starter constitution, and loads your notepad. takes a while — let it work.</span></span></p>
     <p class="line">3. /a &mdash; type when it's ready <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">the ramp. your first real session. the block loaded the notepad — /a uses it. this is the product.</span></span></p>
   </div>
   <div class="section">
@@ -123,41 +126,24 @@ export function callbackPageHtml(login: string, apiKey: string): string {
     <p class="line">a. to close</p>
   </div>
   <p class="closing">welcome to alexandria.</p>
-  <p class="footer"><a class="action" onclick="copyTrust(this)">Trust.md <span class="icon">${ICON_COPY}</span></a></p>
+  <p class="footer"><a class="action" onclick="copyTrust(this)">Trust.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a></p>
 </div>
 <script>
+function flash(el) {
+  el.classList.add('done');
+  setTimeout(function() { el.classList.remove('done'); }, 2000);
+}
 function copyCmd(el) {
-  navigator.clipboard.writeText(${JSON.stringify(curlCmd)}).then(function() {
-    el.querySelector('.icon').innerHTML = '${ICON_CHECK}';
-    el.classList.add('done');
-    setTimeout(function() {
-      el.querySelector('.icon').innerHTML = '${ICON_COPY}';
-      el.classList.remove('done');
-    }, 2000);
-  });
+  navigator.clipboard.writeText(${JSON.stringify(curlCmd)}).then(function() { flash(el); });
 }
 function copyBlock(el) {
   fetch('${SERVER_URL}/block').then(function(r) { return r.text(); }).then(function(text) {
-    navigator.clipboard.writeText(text).then(function() {
-      el.querySelector('.icon').innerHTML = '${ICON_CHECK}';
-      el.classList.add('done');
-      setTimeout(function() {
-        el.querySelector('.icon').innerHTML = '${ICON_COPY}';
-        el.classList.remove('done');
-      }, 2000);
-    });
+    navigator.clipboard.writeText(text).then(function() { flash(el); });
   });
 }
 function copyTrust(el) {
   fetch('${WEBSITE_URL}/docs/Trust.md').then(function(r) { return r.text(); }).then(function(text) {
-    navigator.clipboard.writeText(text).then(function() {
-      el.querySelector('.icon').innerHTML = '${ICON_CHECK}';
-      el.classList.add('done');
-      setTimeout(function() {
-        el.querySelector('.icon').innerHTML = '${ICON_COPY}';
-        el.classList.remove('done');
-      }, 2000);
-    });
+    navigator.clipboard.writeText(text).then(function() { flash(el); });
   });
 }
 function toggleTip(el) {

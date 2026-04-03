@@ -15,7 +15,7 @@ export default function Terms() {
       lineHeight: 1.7,
     }}>
       <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem', fontWeight: 400 }}>Terms of Service</h1>
-      <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.5 }}>Last updated: March 31, 2026</p>
+      <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.5 }}>Last updated: April 3, 2026</p>
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>What this is</h2>
@@ -50,6 +50,11 @@ export default function Terms() {
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Liability</h2>
         <p>Alexandria is not liable for data loss on your machine, AI outputs generated using your Constitution, service interruptions, or the content of published Library material. Your data sovereignty means your data responsibility. Published content is your responsibility — Alexandria does not moderate Library content but reserves the right to remove material that violates these terms.</p>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Governing law</h2>
+        <p>These terms are governed by the laws of the State of California, United States. Any disputes will be resolved in the state or federal courts located in San Francisco, California. If you are in the EU/EEA, this does not affect your rights under GDPR or local consumer protection laws.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>

@@ -15,7 +15,7 @@ export default function Privacy() {
       lineHeight: 1.7,
     }}>
       <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem', fontWeight: 400 }}>Privacy Policy</h1>
-      <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.5 }}>Last updated: March 31, 2026</p>
+      <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.5 }}>Last updated: April 3, 2026</p>
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>What Alexandria is</h2>
@@ -51,8 +51,20 @@ export default function Privacy() {
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Data retention</h2>
+        <p>Account records are stored indefinitely while your account is active. Anonymous session metadata is stored in daily event logs with no expiration. User feedback submitted via the product is stored for 90 days. Published Library content is stored until you unpublish it or request deletion. There is no hidden retention beyond what is described here.</p>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Your rights</h2>
-        <p>Your cognitive data is yours. It lives on your machine. You can read, edit, move, or delete it at any time — it is markdown files in a folder. Deleting <code>~/.alexandria/</code> removes everything local. To remove your account, email us and we will delete your account record and any published Library content. There is no hidden retention.</p>
+        <p>Your cognitive data is yours. It lives on your machine. You can read, edit, move, or delete it at any time — it is markdown files in a folder. Deleting <code>~/.alexandria/</code> removes everything local.</p>
+        <p style={{ marginTop: '0.5rem' }}>Under GDPR, CCPA, and equivalent data protection laws, you have the right to:</p>
+        <p style={{ marginTop: '0.5rem' }}><strong>Access</strong> — request a copy of all data we hold about you (account record, session metadata, published Library content).</p>
+        <p style={{ marginTop: '0.5rem' }}><strong>Rectification</strong> — correct any inaccurate data in your account record.</p>
+        <p style={{ marginTop: '0.5rem' }}><strong>Erasure</strong> — request deletion of your account and all associated data. Email us and we will delete your account record, session metadata, and any published Library content within 30 days.</p>
+        <p style={{ marginTop: '0.5rem' }}><strong>Portability</strong> — your cognitive data is already on your machine in open markdown format. For server-side data, we will provide your account record and published content in JSON/markdown format on request.</p>
+        <p style={{ marginTop: '0.5rem' }}><strong>Objection</strong> — you may object to processing of your session metadata. Email us and we will stop collecting it for your account.</p>
+        <p style={{ marginTop: '0.5rem' }}>To exercise any of these rights, email <a href="mailto:benjamin@mowinckel.com" style={{ color: 'var(--text-primary)' }}>benjamin@mowinckel.com</a>.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>

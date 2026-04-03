@@ -250,6 +250,21 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
       return c.text('Invalid signature', 400);
     }
 
+    // Idempotency — skip already-processed events
+    try {
+      const { getKV } = await import('./kv.js');
+      const kv = getKV();
+      const eventKey = `stripe:event:${event.id}`;
+      const alreadyProcessed = await kv.get(eventKey);
+      if (alreadyProcessed) {
+        return c.json({ received: true, deduplicated: true });
+      }
+      await kv.put(eventKey, '1', { expirationTtl: 86400 }); // 24h TTL
+    } catch {
+      // KV failure — proceed but log
+      console.warn('[billing] Event dedup check failed, proceeding anyway');
+    }
+
     try {
       switch (event.type) {
         case 'checkout.session.completed': {
@@ -350,21 +365,32 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
           const subId = typeof subDetails?.subscription === 'string'
             ? subDetails.subscription
             : subDetails?.subscription?.id;
+          let paymentFailHandled = false;
           if (subId) {
-            const sub = await stripe.subscriptions.retrieve(subId);
-            const apiKey = sub.metadata?.api_key;
-            if (apiKey) {
-              await onAccountUpdate(apiKey, { subscription_status: 'past_due' });
+            try {
+              const sub = await stripe.subscriptions.retrieve(subId);
+              const apiKey = sub.metadata?.api_key;
+              if (apiKey) {
+                await onAccountUpdate(apiKey, { subscription_status: 'past_due' });
+                paymentFailHandled = true;
+              }
+            } catch (subErr) {
+              console.error('[billing] Subscription lookup failed during payment_failed:', subErr);
             }
+          }
+          if (!paymentFailHandled) {
+            console.error(`[billing] Payment failed but could not update account — customer: ${invoice.customer}, sub: ${subId || 'unknown'}`);
           }
           logEvent('billing_payment_failed', {
             customer: invoice.customer as string,
+            handled: paymentFailHandled ? 'true' : 'false',
           });
           break;
         }
       }
     } catch (err) {
       console.error('Webhook handler error:', err);
+      return c.text('Webhook handler failed', 500);
     }
 
     return c.json({ received: true });
@@ -467,8 +493,8 @@ export async function settleMonthlyTabs(): Promise<void> {
     if (!results || results.length === 0) return;
 
     // For each accessor, look up their Stripe customer ID and report usage
-    const { getAccounts } = await import('./kv.js');
-    const accounts = await getAccounts();
+    const { loadAccounts } = await import('./kv.js');
+    const accounts = await loadAccounts<Record<string, any>>();
 
     for (const tab of results) {
       // Find account by github_login

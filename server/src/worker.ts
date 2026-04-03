@@ -10,7 +10,7 @@ import { registerProsumerRoutes, extractApiKey, findByApiKey, updateAccountBilli
 import { registerBillingRoutes, settleMonthlyTabs } from './billing.js';
 import { registerLibraryRoutes } from './library.js';
 import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent } from './analytics.js';
-import { setKV } from './kv.js';
+import { setKV, getKV } from './kv.js';
 
 // ---------------------------------------------------------------------------
 // Hono app
@@ -18,25 +18,18 @@ import { setKV } from './kv.js';
 
 const app = new Hono();
 
-// Middleware: populate process.env from Worker bindings + set KV
-app.use('*', async (c, next) => {
-  const env = c.env as Record<string, unknown>;
+// Bind Worker env → process.env + KV/D1/R2 globals
+function initEnv(env: Record<string, unknown>) {
   for (const [key, value] of Object.entries(env)) {
-    if (typeof value === 'string') {
-      process.env[key] = value;
-    }
+    if (typeof value === 'string') process.env[key] = value;
   }
-  // Set KV binding
-  if (env.DATA) {
-    setKV(env.DATA as KVNamespace);
-  }
-  // Set D1 + R2 bindings for Library
-  if (env.DB) {
-    (globalThis as any).__d1 = env.DB;
-  }
-  if (env.ARTIFACTS) {
-    (globalThis as any).__r2 = env.ARTIFACTS;
-  }
+  if (env.DATA) setKV(env.DATA as KVNamespace);
+  if (env.DB) (globalThis as any).__d1 = env.DB;
+  if (env.ARTIFACTS) (globalThis as any).__r2 = env.ARTIFACTS;
+}
+
+app.use('*', async (c, next) => {
+  initEnv(c.env as Record<string, unknown>);
   await next();
 });
 
@@ -47,22 +40,40 @@ app.use('*', async (c, next) => {
   c.header('X-Frame-Options', 'DENY');
   c.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+  const serverUrl = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+  const websiteUrl = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+  c.header('Content-Security-Policy', `default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' ${serverUrl} ${websiteUrl}; img-src 'self' ${websiteUrl}`);
 });
+
+// Body size limit — reject requests > 10MB (Cloudflare enforces 100MB platform limit)
+app.use('*', async (c, next) => {
+  const contentLength = c.req.header('content-length');
+  if (contentLength && parseInt(contentLength, 10) > 10 * 1024 * 1024) {
+    return c.text('Request body too large', 413);
+  }
+  await next();
+});
+
+// Allowed CORS origins (single source of truth)
+function getAllowedOrigins(): string[] {
+  const base = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+  return [base, base.replace('https://', 'https://www.')];
+}
 
 // CORS for Library API (website at mowinckel.ai calls server at mcp.mowinckel.ai)
 app.use('/library/*', async (c, next) => {
-  const allowed = ['https://mowinckel.ai', 'https://www.mowinckel.ai'];
+  const allowed = getAllowedOrigins();
   const reqOrigin = c.req.header('Origin') || '';
   if (!allowed.includes(reqOrigin)) {
     if (c.req.method === 'OPTIONS') return c.text('', 403);
     // Non-browser requests (curl, hooks) won't send Origin — let them through without CORS headers
   } else {
     c.header('Access-Control-Allow-Origin', reqOrigin);
+    c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    c.header('Vary', 'Origin');
   }
-  c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  c.header('Vary', 'Origin');
-  if (c.req.method === 'OPTIONS') return c.text('', 204);
+  if (c.req.method === 'OPTIONS') return c.body(null, 204);
   await next();
 });
 
@@ -89,26 +100,52 @@ registerLibraryRoutes(app);
 // ---------------------------------------------------------------------------
 
 app.get('/health', async (c) => {
-  // Probe KV, D1, R2 — report only aggregate status, no config details
-  let healthy = true;
+  // Probe KV, D1, R2 — report component status
+  const components: Record<string, string> = {};
 
   try {
     const env = c.env as Record<string, unknown>;
     const kv = env.DATA as KVNamespace;
     await kv.put('.health-probe', 'ok');
     await kv.delete('.health-probe');
-  } catch { healthy = false; }
+    components.kv = 'ok';
+  } catch { components.kv = 'error'; }
 
   try {
     const env = c.env as Record<string, unknown>;
     const db = env.DB as D1Database | undefined;
-    if (db) await db.prepare('SELECT 1').first();
-  } catch { healthy = false; }
+    if (db) {
+      await db.prepare('SELECT 1').first();
+      components.d1 = 'ok';
+    } else {
+      components.d1 = 'not_bound';
+    }
+  } catch { components.d1 = 'error'; }
 
-  if (!process.env.ENCRYPTION_KEY) healthy = false;
+  try {
+    const env = c.env as Record<string, unknown>;
+    const r2 = env.ARTIFACTS as R2Bucket | undefined;
+    if (r2) {
+      await r2.head('.health-probe');
+      components.r2 = 'ok';
+    } else {
+      components.r2 = 'not_bound';
+    }
+  } catch { components.r2 = 'ok'; } // head returns null for missing key, not error
+
+  // Env var validation — log details server-side, don't expose var names publicly
+  const requiredEnvVars = ['ENCRYPTION_KEY', 'STRIPE_WEBHOOK_SECRET', 'GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET'];
+  const missingEnv = requiredEnvVars.filter(k => !process.env[k]);
+  components.env = missingEnv.length === 0 ? 'ok' : 'error';
+  if (missingEnv.length > 0) {
+    console.error(`[health] Missing env vars: ${missingEnv.join(', ')}`);
+  }
+
+  const healthy = Object.values(components).every(v => v === 'ok');
 
   return c.json({
     status: healthy ? 'ok' : 'degraded',
+    components,
     server: 'alexandria',
     version: '0.4.0',
   });
@@ -140,26 +177,28 @@ app.get('/', (c) => {
 // Waitlist
 // ---------------------------------------------------------------------------
 
-const waitlistRateMap = new Map<string, { count: number; resetAt: number }>();
-
 app.post('/waitlist', async (c) => {
   // CORS for website
   const reqOrigin = c.req.header('Origin') || '';
-  const allowed = ['https://mowinckel.ai', 'https://www.mowinckel.ai'];
+  const allowed = getAllowedOrigins();
   if (allowed.includes(reqOrigin)) {
     c.header('Access-Control-Allow-Origin', reqOrigin);
   }
 
-  const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  const now = Date.now();
-  const entry = waitlistRateMap.get(ip);
-  if (entry && now <= entry.resetAt && entry.count >= 5) {
-    return c.json({ error: 'Too many requests.' }, 429);
-  }
-  if (!entry || now > entry.resetAt) {
-    waitlistRateMap.set(ip, { count: 1, resetAt: now + 60_000 });
-  } else {
-    entry.count++;
+  // KV-backed rate limiting (persists across isolate restarts)
+  const ip = c.req.header('cf-connecting-ip') || 'unknown';
+  try {
+    const kv = getKV();
+    const rateKey = `rate:waitlist:${ip}`;
+    const raw = await kv.get(rateKey);
+    const count = raw ? parseInt(raw, 10) : 0;
+    if (count >= 5) {
+      return c.json({ error: 'Too many requests.' }, 429);
+    }
+    await kv.put(rateKey, String(count + 1), { expirationTtl: 60 });
+  } catch (e) {
+    // KV failure — allow request through rather than blocking, but log
+    console.error('[rate-limit] KV failure, allowing request:', e);
   }
 
   const body = await c.req.json().catch(() => null);
@@ -192,13 +231,13 @@ app.post('/waitlist', async (c) => {
 // CORS preflight for waitlist (website calls cross-origin)
 app.options('/waitlist', (c) => {
   const reqOrigin = c.req.header('Origin') || '';
-  const allowed = ['https://mowinckel.ai', 'https://www.mowinckel.ai'];
+  const allowed = getAllowedOrigins();
   if (allowed.includes(reqOrigin)) {
     c.header('Access-Control-Allow-Origin', reqOrigin);
     c.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
     c.header('Access-Control-Allow-Headers', 'Content-Type');
   }
-  return c.text('', 204);
+  return c.body(null, 204);
 });
 
 // ---------------------------------------------------------------------------
@@ -233,7 +272,7 @@ app.get('/analytics/log', async (c) => {
 });
 
 app.get('/analytics/dashboard', async (c) => {
-  const dashboard = await getDashboard();
+  const { _events, ...dashboard } = await getDashboard();
   const billing = await getBillingSummary();
   return c.json({ ...dashboard, billing });
 });
@@ -259,22 +298,7 @@ export default {
 
   // Cron Triggers — daily follow-up + monthly settlement
   async scheduled(event: ScheduledEvent, env: Record<string, unknown>, ctx: ExecutionContext) {
-    // Populate env
-    for (const [key, value] of Object.entries(env)) {
-      if (typeof value === 'string') {
-        process.env[key] = value;
-      }
-    }
-    if (env.DATA) {
-      setKV(env.DATA as KVNamespace);
-    }
-    if (env.DB) {
-      (globalThis as any).__d1 = env.DB;
-    }
-    if (env.ARTIFACTS) {
-      (globalThis as any).__r2 = env.ARTIFACTS;
-    }
-
+    initEnv(env);
     // Daily cron (0 9 * * *) + monthly settlement (0 2 1 * *)
     // Settlement + engagement are idempotent so running on every cron trigger is safe
     ctx.waitUntil(Promise.all([runFollowupCheck(), runEngagementCheck(), runHealthDigest(), settleMonthlyTabs()]))

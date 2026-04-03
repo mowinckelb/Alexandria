@@ -1,0 +1,26 @@
+name: Build
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/src/**'
+      - 'app/**'
+      - 'package.json'
+      - 'server/package.json'
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Server type check
+        run: cd server && npm ci && npx tsc --noEmit
+
+      - name: App build
+        run: npm ci && npm run build

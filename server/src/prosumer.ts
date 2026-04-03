@@ -7,7 +7,7 @@
  * anonymous Factory metadata. Stores no user content.
  */
 
-import { randomBytes, createHash } from 'crypto';
+import { randomBytes, createHash, timingSafeEqual } from 'crypto';
 import type { Hono } from 'hono';
 import { logEvent, getDashboard } from './analytics.js';
 import { createCheckoutSession, createPortalSession } from './billing.js';
@@ -63,8 +63,10 @@ async function persistAccounts(accounts: AccountStore): Promise<void> {
 
 export async function findByApiKey(key: string): Promise<Account | null> {
   const accounts = await getAccounts();
+  const keyBuf = Buffer.from(key);
   for (const acct of Object.values(accounts)) {
-    if (acct.api_key === key) return acct;
+    const storedBuf = Buffer.from(acct.api_key);
+    if (keyBuf.length === storedBuf.length && timingSafeEqual(keyBuf, storedBuf)) return acct;
   }
   return null;
 }
@@ -1048,8 +1050,6 @@ async function sendEngagementEmail(email: string, apiKey: string): Promise<void>
 </div>`);
 }
 
-let lastEngagementSent = 0;
-
 /** Run engagement check — called by Cron Trigger */
 export async function runEngagementCheck(): Promise<void> {
   const accounts = await loadAccounts<AccountStore>();
@@ -1078,7 +1078,6 @@ export async function runEngagementCheck(): Promise<void> {
     sent++;
   }
 
-  lastEngagementSent = sent;
   if (changed) await saveAccounts(accounts);
 
   // Cron execution marker
@@ -1098,9 +1097,69 @@ export async function runEngagementCheck(): Promise<void> {
 const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL || 'benjamin@mowinckel.com';
 
 export async function runHealthDigest(force = false): Promise<void> {
+  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
   try {
     const dashboard = await getDashboard();
     const issues: string[] = [];
+
+    // --- Infrastructure liveness probes (direct, not self-fetch) ---
+    // Workers can't fetch their own URL — probe the infra directly instead.
+    const liveness: Record<string, string> = {};
+
+    // KV: write + read + delete
+    try {
+      const probe = getKV();
+      await probe.put('.digest-probe', 'ok');
+      const val = await probe.get('.digest-probe');
+      await probe.delete('.digest-probe');
+      if (val !== 'ok') {
+        liveness.kv = `read-back mismatch: ${val}`;
+        issues.push('KV read-back mismatch — storage may be corrupted');
+      } else {
+        liveness.kv = 'ok';
+      }
+    } catch (err: any) {
+      liveness.kv = `error: ${err?.message || 'unknown'}`;
+      issues.push(`KV probe failed: ${err?.message || 'unknown'}`);
+    }
+
+    // D1: query
+    try {
+      const db = (globalThis as any).__d1 as D1Database | undefined;
+      if (db) {
+        await db.prepare('SELECT 1').first();
+        liveness.d1 = 'ok';
+      } else {
+        liveness.d1 = 'not bound';
+      }
+    } catch (err: any) {
+      liveness.d1 = `error: ${err?.message || 'unknown'}`;
+      issues.push(`D1 probe failed: ${err?.message || 'unknown'}`);
+    }
+
+    // Blueprint: verify the actual served content via KV (where Blueprint is cached for users)
+    try {
+      const bpProbe = getKV();
+      const cachedBp = await bpProbe.get('blueprint:cached');
+      if (cachedBp && cachedBp.length > 100) {
+        liveness.blueprint = `ok (${cachedBp.length} chars cached)`;
+      } else {
+        // Fall back to checking module constants
+        const bpLength = SHARED_CONTEXT.length + EDITOR_INSTRUCTIONS.length;
+        if (bpLength < 100) {
+          liveness.blueprint = `suspiciously short (${bpLength} chars)`;
+          issues.push(`Blueprint content only ${bpLength} chars — may be empty`);
+        } else {
+          liveness.blueprint = `ok (${bpLength} chars in module)`;
+        }
+      }
+    } catch (err: any) {
+      liveness.blueprint = `error: ${err?.message || 'unknown'}`;
+      issues.push(`Blueprint check failed: ${err?.message || 'unknown'}`);
+    }
+
+    // Store liveness results on dashboard for the HTML view
+    (dashboard as any).liveness = liveness;
 
     // Check cron execution — did yesterday's jobs actually fire?
     const kv = getKV();
@@ -1119,36 +1178,34 @@ export async function runHealthDigest(force = false): Promise<void> {
       } catch { /* non-fatal */ }
     }
 
-    // Check for self_check_failed or hook_failure events
-    if (dashboard.anomaly.smoke_failures_24h > 0) {
-      issues.push(`${dashboard.anomaly.smoke_failures_24h} hook/smoke failures in past 24h`);
+    // Check event log health — getDashboard() already parsed all events,
+    // so use its results instead of re-reading KV.
+    const totalEvents = (dashboard as any).total_events as number | undefined;
+    if (!totalEvents || totalEvents === 0) {
+      issues.push('event log is EMPTY — logging may be broken');
     }
 
-    // Check for errors
-    const { errors } = dashboard;
-    if (errors.drive_write_errors > 0) issues.push(`${errors.drive_write_errors} drive write errors`);
-    if (errors.auth_errors > 0) issues.push(`${errors.auth_errors} auth errors`);
-    if (errors.dropped_writes > 0) issues.push(`${errors.dropped_writes} dropped writes`);
+    // Check for anomalies (from dashboard's already-parsed data)
+    const anomaly = (dashboard as any).anomaly as Record<string, number> | undefined;
+    if (anomaly && anomaly.smoke_failures_24h > 0) {
+      issues.push(`${anomaly.smoke_failures_24h} hook/smoke failures in past 24h`);
+    }
+
 
     // Check for stale sessions (no sessions in 48h when accounts exist)
-    if (dashboard.anomaly.hours_since_last_session > 48) {
-      issues.push(`No sessions in ${Math.round(dashboard.anomaly.hours_since_last_session)}h`);
+    if (anomaly && anomaly.hours_since_last_session > 48) {
+      issues.push(`No sessions in ${Math.round(anomaly.hours_since_last_session)}h`);
     }
 
-    // Check session-level self_check failures by scanning events
-    const { getAllEvents } = await import('./kv.js');
-    const raw = await getAllEvents();
-    if (raw) {
-      const lines = raw.trim().split('\n');
+    // Check self_check / Blueprint failures in recent events (reuse dashboard's parsed events)
+    const events = (dashboard as any)._events as Record<string, string>[] | undefined;
+    if (events) {
       let selfCheckFails = 0;
       let blueprintFails = 0;
-      for (const line of lines) {
-        try {
-          const ev = JSON.parse(line);
-          if (new Date(ev.t).getTime() < twentyFourHoursAgo) continue;
-          if (ev.event === 'self_check_failed') selfCheckFails++;
-          if (ev.event === 'hook_failure' && ev.reason === 'blueprint_fetch_failed') blueprintFails++;
-        } catch { continue; }
+      for (const ev of events) {
+        if (new Date(ev.t).getTime() < twentyFourHoursAgo) continue;
+        if (ev.event === 'self_check_failed') selfCheckFails++;
+        if (ev.event === 'hook_failure' && ev.reason === 'blueprint_fetch_failed') blueprintFails++;
       }
       if (selfCheckFails > 0) issues.push(`${selfCheckFails} self-check failures (Blueprint/Constitution empty)`);
       if (blueprintFails > 0) issues.push(`${blueprintFails} Blueprint fetch failures`);
@@ -1172,9 +1229,16 @@ export async function runHealthDigest(force = false): Promise<void> {
       }
     } catch { /* non-fatal */ }
 
-    if (lastEngagementSent > 0) {
-      issues.push(`${lastEngagementSent} engagement email${lastEngagementSent > 1 ? 's' : ''} sent`);
-    }
+    // Check engagement emails sent (from KV cron marker, not in-memory — avoids race condition)
+    try {
+      const engagementRaw = await kv.get('cron:engagement');
+      if (engagementRaw) {
+        const engData = JSON.parse(engagementRaw);
+        if (engData.engagement_sent > 0 && new Date(engData.t).getTime() > twentyFourHoursAgo) {
+          issues.push(`${engData.engagement_sent} engagement email${engData.engagement_sent > 1 ? 's' : ''} sent`);
+        }
+      }
+    } catch { /* non-fatal */ }
 
     // Write own cron marker (even if no email sent — proves the job ran)
     try {
@@ -1182,11 +1246,23 @@ export async function runHealthDigest(force = false): Promise<void> {
         t: new Date().toISOString(),
         issues: issues.length,
         feedback: feedbackItems.length,
+        liveness,
       }));
     } catch { /* non-fatal */ }
 
     if (issues.length === 0 && feedbackItems.length === 0 && !force) return; // All clear — no email
     if (issues.length === 0 && force) issues.push('all clear — this is a test digest');
+
+    // Generate dashboard link with founder's email token
+    let dashboardUrl = `${SERVER_URL}/analytics/dashboard`;
+    try {
+      const accounts = await loadAccounts<AccountStore>();
+      const founderAcct = Object.values(accounts).find(a => a.email === FOUNDER_EMAIL);
+      if (founderAcct) {
+        const token = createHash('sha256').update(founderAcct.api_key + ':email').digest('hex').slice(0, 24);
+        dashboardUrl = `${SERVER_URL}/dashboard?t=${token}`;
+      }
+    } catch { /* fall back to API-gated URL */ }
 
     const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const feedbackHtml = feedbackItems.length > 0
@@ -1197,14 +1273,22 @@ export async function runHealthDigest(force = false): Promise<void> {
   </div>`).join('\n  ')}`
       : '';
 
+    const livenessHtml = Object.keys(liveness).length > 0
+      ? `<p style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.12em; color: #bbb4aa; margin: 24px 0 12px;">liveness probes</p>
+  <ul style="font-size: 15px; line-height: 1.8; padding-left: 20px; margin: 0 0 16px;">
+    ${Object.entries(liveness).map(([k, v]) => `<li>${k}: ${v === 'ok' ? '✓' : esc(v)}</li>`).join('\n    ')}
+  </ul>`
+      : '';
+
     await sendEmail(FOUNDER_EMAIL, feedbackItems.length > 0 ? 'alexandria. — user feedback' : 'alexandria. — health alert',
       `<div style="font-family: Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; color: #3d3630;">
   <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.12em; color: #bbb4aa; margin: 0 0 16px;">daily health digest</p>
   ${issues.length > 0 ? `<ul style="font-size: 16px; line-height: 1.8; padding-left: 20px; margin: 0 0 24px;">
-    ${issues.map(i => `<li>${i}</li>`).join('\n    ')}
+    ${issues.map(i => `<li>${esc(i)}</li>`).join('\n    ')}
   </ul>` : ''}
+  ${livenessHtml}
   ${feedbackHtml}
-  <p style="font-size: 14px; color: #8a8078;"><a href="https://mcp.mowinckel.ai/analytics/dashboard" style="color: #4d4640;">dashboard</a></p>
+  <p style="font-size: 14px; color: #8a8078;"><a href="${dashboardUrl}" style="color: #4d4640;">dashboard</a></p>
 </div>`);
   } catch (err) {
     console.error('Health digest failed:', err);
@@ -1393,8 +1477,21 @@ export function registerProsumerRoutes(app: Hono) {
       }
     }
 
-    const blueprint = await assembleBlueprint();
-    const blueprintHash = createHash('sha256').update(blueprint).digest('hex').slice(0, 16);
+    // Cache Blueprint in KV (5-min TTL) — avoid recomputing on every request
+    const kv = getKV();
+    const cacheKey = 'blueprint:cached';
+    const cacheHashKey = 'blueprint:cached:hash';
+    let blueprint = await kv.get(cacheKey);
+    let blueprintHash: string;
+    if (blueprint) {
+      blueprintHash = await kv.get(cacheHashKey) || createHash('sha256').update(blueprint).digest('hex').slice(0, 16);
+    } else {
+      blueprint = await assembleBlueprint();
+      blueprintHash = createHash('sha256').update(blueprint).digest('hex').slice(0, 16);
+      kv.put(cacheKey, blueprint, { expirationTtl: 300 }).catch(e => console.error('[blueprint] Cache write failed:', e));
+      kv.put(cacheHashKey, blueprintHash, { expirationTtl: 300 }).catch(e => console.error('[blueprint] Cache hash write failed:', e));
+      logEvent('blueprint_cache_miss', {});
+    }
 
     const headers: Record<string, string> = {
       'Content-Type': 'text/plain',
@@ -1601,20 +1698,20 @@ export function registerProsumerRoutes(app: Hono) {
   // --- Email preferences (token-based, not raw API key) ---
 
   function findAccountByEmailToken(accounts: AccountStore, token: string): string | null {
+    const tokenBuf = Buffer.from(token);
     for (const [storeKey, acct] of Object.entries(accounts)) {
       const expected = createHash('sha256').update(acct.api_key + ':email').digest('hex').slice(0, 24);
-      if (expected === token) return storeKey;
+      const expectedBuf = Buffer.from(expected);
+      if (tokenBuf.length === expectedBuf.length && timingSafeEqual(tokenBuf, expectedBuf)) return storeKey;
     }
     return null;
   }
 
   app.get('/email/less', async (c) => {
-    const token = c.req.query('t') || c.req.query('key'); // backwards compat
+    const token = c.req.query('t');
     if (!token) return c.text('missing token', 400);
     const accounts = await loadAccounts<AccountStore>();
-    const storeKey = c.req.query('t')
-      ? findAccountByEmailToken(accounts, token)
-      : Object.keys(accounts).find(k => accounts[k].api_key === token);
+    const storeKey = findAccountByEmailToken(accounts, token);
     if (!storeKey) return c.text('not found', 404);
     const current = accounts[storeKey].engagement_interval_days || DEFAULT_ENGAGEMENT_DAYS;
     accounts[storeKey].engagement_interval_days = current * 2;
@@ -1626,12 +1723,10 @@ export function registerProsumerRoutes(app: Hono) {
   });
 
   app.get('/email/stop', async (c) => {
-    const token = c.req.query('t') || c.req.query('key'); // backwards compat
+    const token = c.req.query('t');
     if (!token) return c.text('missing token', 400);
     const accounts = await loadAccounts<AccountStore>();
-    const storeKey = c.req.query('t')
-      ? findAccountByEmailToken(accounts, token)
-      : Object.keys(accounts).find(k => accounts[k].api_key === token);
+    const storeKey = findAccountByEmailToken(accounts, token);
     if (!storeKey) return c.text('not found', 404);
     accounts[storeKey].engagement_opt_out = true;
     await saveAccounts(accounts);
@@ -1652,5 +1747,101 @@ export function registerProsumerRoutes(app: Hono) {
   app.get('/setup', (c) => {
     const scriptTemplate = generateSetupScript('$1');
     return c.text(scriptTemplate);
+  });
+
+  // --- Dashboard (token-authed HTML, linked from health digest emails) ---
+
+  app.get('/dashboard', async (c) => {
+    const token = c.req.query('t');
+    if (!token) return c.text('missing token', 400);
+    const accounts = await loadAccounts<AccountStore>();
+    const storeKey = findAccountByEmailToken(accounts, token);
+    if (!storeKey) return c.text('unauthorized', 401);
+
+    // Restrict to founder — dashboard shows all users' data
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
+    if (accounts[storeKey].github_login !== adminLogin) return c.text('not authorized', 403);
+
+    const dashboard = await getDashboard();
+    const billing = await getBillingSummary();
+    const data = { ...dashboard, billing } as Record<string, any>;
+
+    const esc = (s: unknown) => String(s ?? '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // Users table
+    const users = (data.users || []) as { login: string; sessions: number; hours_ago: number; failures: number; platforms: string[] }[];
+    const usersRows = users.map(u =>
+      `<tr><td>${esc(u.login)}</td><td>${u.sessions}</td><td>${Math.round(u.hours_ago)}h ago</td><td>${u.failures}</td><td>${esc(u.platforms?.join(', '))}</td></tr>`
+    ).join('\n');
+
+    // Cron status
+    const cron = (data.cron || {}) as Record<string, { t?: string; status?: string }>;
+    const cronRows = Object.entries(cron).map(([job, info]) =>
+      `<tr><td>${esc(job)}</td><td>${info?.t ? new Date(info.t).toLocaleString() : 'never'}</td></tr>`
+    ).join('\n');
+
+    // Errors
+    const errors = (data.errors || {}) as Record<string, number>;
+    const errorItems = Object.entries(errors).filter(([, v]) => v > 0).map(([k, v]) => `<li>${esc(k)}: ${v}</li>`).join('\n');
+
+    // Anomaly
+    const anomaly = (data.anomaly || {}) as Record<string, unknown>;
+
+    return c.html(`<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>alexandria. dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Georgia, 'Times New Roman', serif; max-width: 720px; margin: 0 auto; padding: 40px 20px; color: #3d3630; background: #faf8f5; }
+  h1 { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.12em; color: #bbb4aa; margin: 0 0 2rem; font-weight: 400; }
+  h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: #8a8078; margin: 2rem 0 0.75rem; font-weight: 400; }
+  .status { font-size: 1.3rem; margin: 0 0 1.5rem; }
+  .status.ok { color: #4a7c59; }
+  .status.stale { color: #b5651d; }
+  .status.error { color: #a04040; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 6px 12px 6px 0; border-bottom: 1px solid #e8e4df; }
+  th { color: #8a8078; font-weight: 400; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.08em; }
+  ul { padding-left: 1.2rem; font-size: 0.9rem; }
+  li { margin: 0.3rem 0; }
+  .metric { display: inline-block; margin: 0 2rem 1rem 0; }
+  .metric-value { font-size: 1.4rem; display: block; }
+  .metric-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #8a8078; }
+  .muted { color: #8a8078; }
+  .timestamp { font-size: 0.8rem; color: #bbb4aa; margin-top: 2rem; }
+</style>
+</head><body>
+<h1>alexandria. dashboard</h1>
+
+<p class="status ${data.status === 'ok' ? 'ok' : data.status?.includes('stale') ? 'stale' : 'error'}">${esc(data.status)}</p>
+
+<div>
+  <span class="metric"><span class="metric-value">${data.total_events ?? 0}</span><span class="metric-label">events</span></span>
+  <span class="metric"><span class="metric-value">${data.sessions ?? 0}</span><span class="metric-label">sessions</span></span>
+  <span class="metric"><span class="metric-value">${users.length}</span><span class="metric-label">users</span></span>
+  <span class="metric"><span class="metric-value">${data.time_range?.hours_since_last != null ? Math.round(data.time_range.hours_since_last) + 'h' : '—'}</span><span class="metric-label">since last event</span></span>
+</div>
+
+${users.length > 0 ? `<h2>users</h2>
+<table><tr><th>login</th><th>sessions</th><th>last seen</th><th>failures</th><th>platforms</th></tr>
+${usersRows}</table>` : ''}
+
+<h2>cron jobs</h2>
+<table><tr><th>job</th><th>last run</th></tr>
+${cronRows}</table>
+
+${errorItems ? `<h2>errors</h2><ul>${errorItems}</ul>` : '<h2>errors</h2><p class="muted">none</p>'}
+
+<h2>anomaly</h2>
+<p class="muted">last session: ${anomaly.hours_since_last_session != null ? Math.round(anomaly.hours_since_last_session as number) + 'h ago' : 'never'} · smoke failures (24h): ${anomaly.smoke_failures_24h ?? 0}</p>
+
+${data.liveness ? `<h2>liveness</h2>
+<table><tr><th>probe</th><th>status</th></tr>
+${Object.entries(data.liveness as Record<string, string>).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v === 'ok' ? '✓' : esc(v)}</td></tr>`).join('\n')}
+</table>` : ''}
+
+<p class="timestamp">generated ${new Date().toISOString()}</p>
+</body></html>`);
   });
 }
