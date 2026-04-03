@@ -500,6 +500,8 @@ The complement argument has three layers:
 
 3. **Alexandria is the training data for the PLM that crosses the BCI bridge.** At the far horizon, a general LLM connected via BCI is a foreign tool — a calculator strapped to the cortex. A high-fidelity Personal Language Model built from years of extraction has the potential to be accepted into the self-model. The Constitution and Vault are the training dataset for that PLM. The people who start accumulating now are ready when the bridge arrives. Everyone else starts from scratch.
 
+4. **BCI is the ultimate edge node — not a replacement, a continuation.** The architecture is two nodes: the central node (where the horsepower lives — laptop, desktop) and the edge node (where the Author engages — whatever surface has the lowest friction). Today the edge is the terminal. Tomorrow it is airpods. BCI is the end of that trajectory — pure intent, zero interface friction. At each step the interface thins and the intent gets purer. Alexandria rides all of them because the constitution is files and the Engine is the model. Neither assumes a specific surface. BCI does not obsolete Alexandria — it gives Alexandria its most powerful edge node.
+
 Never bet against Elon. Neuralink will succeed — and that is good for Alexandria. Elon is building the bridge. Alexandria is building what crosses it.
 
 ---

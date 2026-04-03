@@ -203,11 +203,47 @@ export async function getDashboard(): Promise<Record<string, unknown>> {
     e => (e.e === 'hook_failure' || e.event === 'hook_failure') && new Date(e.t).getTime() > twentyFourHoursAgo
   ).length;
 
+  // Cron execution status
+  let cronStatus: Record<string, unknown> = {};
+  try {
+    const { getKV } = await import('./kv.js');
+    const kv = getKV();
+    for (const job of ['followup', 'engagement', 'health_digest']) {
+      const raw = await kv.get(`cron:${job}`);
+      cronStatus[job] = raw ? JSON.parse(raw) : { t: null, status: 'never_run' };
+    }
+  } catch { /* non-fatal */ }
+
+  // Active users — per-author session counts and last seen
+  const authorStats: Record<string, { sessions: number; last_seen: string; failures: number; platforms: Set<string> }> = {};
+  for (const e of events) {
+    if (e.e !== 'prosumer_session' || !e.author) continue;
+    if (!authorStats[e.author]) {
+      authorStats[e.author] = { sessions: 0, last_seen: e.t, failures: 0, platforms: new Set() };
+    }
+    const stat = authorStats[e.author];
+    stat.sessions++;
+    if (e.t > stat.last_seen) stat.last_seen = e.t;
+    if (e.event === 'hook_failure') stat.failures++;
+    if (e.platform) stat.platforms.add(e.platform);
+  }
+
+  const users = Object.entries(authorStats).map(([login, stat]) => ({
+    login,
+    sessions: stat.sessions,
+    last_seen: stat.last_seen,
+    hours_ago: Math.round((Date.now() - new Date(stat.last_seen).getTime()) / (1000 * 60 * 60) * 10) / 10,
+    failures: stat.failures,
+    platforms: [...stat.platforms],
+  })).sort((a, b) => b.hours_ago - a.hours_ago); // most stale first
+
   return {
     status: stale ? 'stale — no events for 24+ hours, possible silent connector failure'
       : parseErrors > 0 ? `ok — ${parseErrors} corrupted log lines skipped`
       : 'ok',
     time_range: { first: firstEvent, last: lastEvent, hours_since_last: hoursSinceLastEvent },
+    cron: cronStatus,
+    users,
     total_events: events.length,
     parse_errors: parseErrors,
     extraction_survival_rate: extractionSurvivalRate,
@@ -287,6 +323,55 @@ async function getLibraryMetrics(events: Record<string, string>[]): Promise<Reco
   return {
     events: { shadow_views: shadowViews, pulse_views: pulseViews, quizzes_taken: quizzesTaken, work_views: workViews, paid_access: paidAccess, publishes, purchases },
     ...d1Metrics,
+  };
+}
+
+/**
+ * Per-user event history — drill into a specific author's sessions and errors.
+ */
+export async function getUserEvents(login: string): Promise<Record<string, unknown>> {
+  let events: Record<string, string>[] = [];
+  try {
+    const raw = await getAllEvents();
+    if (!raw) return { status: 'no data', author: login };
+    const lines = raw.trim().split('\n').filter(Boolean);
+    for (const line of lines) {
+      try {
+        const ev = JSON.parse(line);
+        if (ev.author === login) events.push(ev);
+      } catch { continue; }
+    }
+  } catch {
+    return { status: 'no data', author: login };
+  }
+
+  const sessions = events.filter(e => e.e === 'prosumer_session');
+  const failures = sessions.filter(e => e.event === 'hook_failure');
+  const feedback = events.filter(e => e.e === 'user_feedback');
+  const signals = events.filter(e => e.e === 'machine_signal');
+  const lastSession = sessions.length > 0 ? sessions[sessions.length - 1] : null;
+
+  return {
+    author: login,
+    total_events: events.length,
+    sessions: {
+      total: sessions.length,
+      last: lastSession,
+      platforms: [...new Set(sessions.map(s => s.platform).filter(Boolean))],
+      blueprint_fetched_rate: sessions.length > 0
+        ? Math.round(sessions.filter(s => s.blueprint_fetched === 'true').length / sessions.length * 100) + '%'
+        : null,
+      constitution_injected_rate: sessions.length > 0
+        ? Math.round(sessions.filter(s => s.constitution_injected === 'true').length / sessions.length * 100) + '%'
+        : null,
+    },
+    failures: {
+      total: failures.length,
+      recent: failures.slice(-5),
+    },
+    feedback: feedback.slice(-10),
+    machine_signals: signals.length,
+    recent_events: events.slice(-20),
   };
 }
 

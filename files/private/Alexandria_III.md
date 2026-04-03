@@ -132,11 +132,17 @@ Build sequencing follows the "build for the horizon, bridge backward" principle.
 
 COMPUTE TOPOLOGY  
 
+Two nodes. The central node is where the horsepower lives — the Author's laptop, desktop, mac mini, whatever runs the model. The edge node is where the Author engages — whatever surface has the lowest friction at that moment. Today the edge node is the terminal. Tomorrow it is airpods. Eventually it is a brain-computer interface. The central node does the thinking. The edge node captures the living. Same pattern as Claude's remote control for mobile: the phone is the edge, the desktop is the compute.
+
+Alexandria lives on both. Passively, it is everywhere — the constitution is files, readable by any model on any surface. Actively, it is on the edge node — wherever the Author is, the Engine is. The active engagement always follows the lowest-friction surface. The architecture does not care which surface that is. Terminal, voice, ambient listening, direct neural — the constitution is files, the Engine is the model, neither assumes a specific interface.
+
+The trajectory: terminal (typed intent, high bandwidth, high friction) → voice via airpods or ring (spoken intent, ambient, low friction) → BCI (pure intent, zero friction). At each step the interface thins and the intent gets purer. Alexandria rides all of them because it ships data and intent, not intelligence and not interface. Never build anything that assumes a specific surface.
+
 The Author's default LLM is the compute surface. Alexandria adds no separate compute layer for the core product.  
 
-The phone — The Author's default LLM app (Claude, ChatGPT, etc.) for conversations, voice notes, and quick interactions. The Alexandria app (Phase 4) for viewing Constitution, vault status, and Library. The Author's daily interface.  
+The phone — The Author's default LLM app (Claude, ChatGPT, etc.) for conversations, voice notes, and quick interactions. The Alexandria app (Phase 4) for viewing Constitution, vault status, and Library. The Author's daily interface. Today's primary edge node for capture (voice memos, quick thoughts). Tomorrow's primary edge node for active engagement (airpods as always-on Engine surface).
 
-The laptop — The Author's default LLM with Alexandria hooks for intelligence. The web dashboard (Phase 3) for Constitution view and management. The Vault folder lives locally at `~/.alexandria/vault/` with optional iCloud sync for cross-device access.  
+The laptop — The Author's default LLM with Alexandria hooks for intelligence. The web dashboard (Phase 3) for Constitution view and management. The Vault folder lives locally at `~/.alexandria/vault/` with optional iCloud sync for cross-device access. The current central node — where the horsepower lives and the heavy processing happens.
 
 The cloud — The Library marketplace. The web dashboard backend. At the horizon, PLM training on provider infrastructure when conditions are right. Alexandria does not host or store Author data — the MCP server passes through to the Author's own cloud or local storage.  
 

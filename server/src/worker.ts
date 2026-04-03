@@ -9,7 +9,7 @@ import { Hono } from 'hono';
 import { registerProsumerRoutes, extractApiKey, findByApiKey, updateAccountBilling, getBillingSummary, runFollowupCheck, runEngagementCheck, runHealthDigest } from './prosumer.js';
 import { registerBillingRoutes, settleMonthlyTabs } from './billing.js';
 import { registerLibraryRoutes } from './library.js';
-import { getAnalytics, getEventLog, getDashboard, logEvent } from './analytics.js';
+import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent } from './analytics.js';
 import { setKV } from './kv.js';
 
 // ---------------------------------------------------------------------------
@@ -205,8 +205,8 @@ app.options('/waitlist', (c) => {
 // Favicon
 // ---------------------------------------------------------------------------
 
-app.get('/favicon.ico', (c) => new Response(null, { status: 204 }));
-app.get('/favicon.png', (c) => new Response(null, { status: 204 }));
+app.get('/favicon.ico', (c) => c.redirect('https://mowinckel.ai/favicon.png', 301));
+app.get('/favicon.png', (c) => c.redirect('https://mowinckel.ai/favicon.png', 301));
 
 // ---------------------------------------------------------------------------
 // Analytics endpoints
@@ -236,6 +236,18 @@ app.get('/analytics/dashboard', async (c) => {
   const dashboard = await getDashboard();
   const billing = await getBillingSummary();
   return c.json({ ...dashboard, billing });
+});
+
+app.get('/analytics/user/:login', async (c) => {
+  const login = c.req.param('login');
+  if (!login) return c.json({ error: 'Missing login' }, 400);
+  const data = await getUserEvents(login);
+  return c.json(data);
+});
+
+app.post('/analytics/test-digest', async (c) => {
+  await runHealthDigest(true);
+  return c.json({ ok: true, message: 'Health digest sent (forced).' });
 });
 
 // ---------------------------------------------------------------------------

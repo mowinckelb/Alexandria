@@ -3,6 +3,7 @@
 import { useTheme } from '../components/ThemeProvider';
 import FooterSection from '../components/FooterSection';
 import PhilosophyFiveWays from '../components/PhilosophyFiveWays';
+import SessionDemo from '../components/SessionDemo';
 
 
 function ThemeToggle() {
@@ -50,6 +51,9 @@ export default function JoinPage() {
               <p>It compounds. The file gets richer. You get sharper. The gap between you and everyone else using the same model widens.</p>
               <p>One command. Free in beta. You own everything.</p>
             </div>
+
+            {/* Demo */}
+            <SessionDemo />
 
             {/* Action */}
             <div className="py-2">

@@ -106,6 +106,11 @@ export function extractApiKey(c: { req: { header: (name: string) => string | und
   if (auth && auth.startsWith('Bearer alex_')) {
     return auth.slice(7);
   }
+  // Query param fallback — lets you open analytics in a browser
+  const qKey = c.req.query('key');
+  if (qKey && qKey.startsWith('alex_')) {
+    return qKey;
+  }
   return null;
 }
 
@@ -443,6 +448,8 @@ failures=""
 [ "$const_len" -lt 100 ] && failures="\${failures} constitution(\${const_len}b)"
 if [ -n "$failures" ]; then
   echo "⚠ ALEXANDRIA SELF-CHECK FAILED:\${failures} unexpectedly small. Product may not be working."
+  echo "  fix: curl -s ${SERVER_URL}/setup | bash -s $API_KEY"
+  echo "  or tell us: write to ~/.alexandria/.session_feedback and it sends automatically."
   if [ -n "$API_KEY" ]; then
     curl -s -X POST "${SERVER_URL}/session" \\
       -H "Authorization: Bearer $API_KEY" \\
@@ -992,6 +999,7 @@ async function sendFollowupEmail(email: string, apiKey: string, day: number): Pr
 export async function runFollowupCheck(): Promise<void> {
   const accounts = await loadAccounts<AccountStore>();
   let changed = false;
+  let sent = 0;
 
   for (const [key, account] of Object.entries(accounts)) {
     if (account.installed_at || !account.email) continue;
@@ -1003,9 +1011,19 @@ export async function runFollowupCheck(): Promise<void> {
     await sendFollowupEmail(account.email, account.api_key, count + 1);
     accounts[key].followup_count = count + 1;
     changed = true;
+    sent++;
   }
 
   if (changed) await saveAccounts(accounts);
+
+  // Cron execution marker — health digest verifies this exists
+  try {
+    const kv = getKV();
+    await kv.put('cron:followup', JSON.stringify({
+      t: new Date().toISOString(),
+      followups_sent: sent,
+    }));
+  } catch { /* non-fatal */ }
 }
 
 // ---------------------------------------------------------------------------
@@ -1062,6 +1080,15 @@ export async function runEngagementCheck(): Promise<void> {
 
   lastEngagementSent = sent;
   if (changed) await saveAccounts(accounts);
+
+  // Cron execution marker
+  try {
+    const kv = getKV();
+    await kv.put('cron:engagement', JSON.stringify({
+      t: new Date().toISOString(),
+      engagement_sent: sent,
+    }));
+  } catch { /* non-fatal */ }
 }
 
 // ---------------------------------------------------------------------------
@@ -1070,10 +1097,27 @@ export async function runEngagementCheck(): Promise<void> {
 
 const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL || 'benjamin@mowinckel.com';
 
-export async function runHealthDigest(): Promise<void> {
+export async function runHealthDigest(force = false): Promise<void> {
   try {
     const dashboard = await getDashboard();
     const issues: string[] = [];
+
+    // Check cron execution — did yesterday's jobs actually fire?
+    const kv = getKV();
+    const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+    for (const job of ['followup', 'engagement', 'health_digest'] as const) {
+      try {
+        const raw = await kv.get(`cron:${job}`);
+        if (!raw) {
+          issues.push(`cron:${job} has NEVER run`);
+        } else {
+          const data = JSON.parse(raw);
+          if (new Date(data.t).getTime() < twentyFourHoursAgo && job !== 'health_digest') {
+            issues.push(`cron:${job} last ran ${data.t} (>24h ago)`);
+          }
+        }
+      } catch { /* non-fatal */ }
+    }
 
     // Check for self_check_failed or hook_failure events
     if (dashboard.anomaly.smoke_failures_24h > 0) {
@@ -1095,7 +1139,6 @@ export async function runHealthDigest(): Promise<void> {
     const { getAllEvents } = await import('./kv.js');
     const raw = await getAllEvents();
     if (raw) {
-      const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
       const lines = raw.trim().split('\n');
       let selfCheckFails = 0;
       let blueprintFails = 0;
@@ -1114,7 +1157,6 @@ export async function runHealthDigest(): Promise<void> {
     // Check for new user feedback
     const feedbackItems: { t: string; author: string; text: string }[] = [];
     try {
-      const kv = getKV();
       const list = await kv.list({ prefix: 'feedback:' });
       for (const k of list.keys) {
         const raw = await kv.get(k.name);
@@ -1134,7 +1176,17 @@ export async function runHealthDigest(): Promise<void> {
       issues.push(`${lastEngagementSent} engagement email${lastEngagementSent > 1 ? 's' : ''} sent`);
     }
 
-    if (issues.length === 0 && feedbackItems.length === 0) return; // All clear — no email
+    // Write own cron marker (even if no email sent — proves the job ran)
+    try {
+      await kv.put('cron:health_digest', JSON.stringify({
+        t: new Date().toISOString(),
+        issues: issues.length,
+        feedback: feedbackItems.length,
+      }));
+    } catch { /* non-fatal */ }
+
+    if (issues.length === 0 && feedbackItems.length === 0 && !force) return; // All clear — no email
+    if (issues.length === 0 && force) issues.push('all clear — this is a test digest');
 
     const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const feedbackHtml = feedbackItems.length > 0
@@ -1152,7 +1204,7 @@ export async function runHealthDigest(): Promise<void> {
     ${issues.map(i => `<li>${i}</li>`).join('\n    ')}
   </ul>` : ''}
   ${feedbackHtml}
-  <p style="font-size: 14px; color: #8a8078;">check dashboard: <a href="https://mcp.mowinckel.ai/analytics/dashboard" style="color: #4d4640;">mcp.mowinckel.ai/analytics/dashboard</a></p>
+  <p style="font-size: 14px; color: #8a8078;"><a href="https://mcp.mowinckel.ai/analytics/dashboard" style="color: #4d4640;">dashboard</a></p>
 </div>`);
   } catch (err) {
     console.error('Health digest failed:', err);
@@ -1404,6 +1456,7 @@ export function registerProsumerRoutes(app: Hono) {
 
     logEvent('prosumer_session', {
       event: event || 'unknown',
+      author: account.github_login,
       platform: platform || 'unknown',
       constitution_size: String(constitution_size || 0),
       vault_entry_count: String(vault_entry_count || 0),
