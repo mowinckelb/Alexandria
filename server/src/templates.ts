@@ -117,7 +117,7 @@ export function callbackPageHtml(login: string, apiKey: string): string {
   </div>
   <div class="section">
     <p class="label">always</p>
-    <p class="line"><a class="action" href="${WEBSITE_URL}/shortcut" target="_blank">share <span class="icon">${ICON_DOWNLOAD}</span></a> to a. <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">add the shortcut to your phone. voice notes, articles, podcasts, screenshots — anything with signal. hit share, pick alexandria, done. the more you share, the more /a has to work with.</span></span></p>
+    <p class="line"><a class="action" href="${WEBSITE_URL}/shortcut" target="_blank"><span class="icon">${ICON_DOWNLOAD}</span> share</a> to a. <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">add the shortcut to your phone. voice notes, articles, podcasts, screenshots — anything with signal. hit share, pick alexandria, done. the more you share, the more /a has to work with.</span></span></p>
     <p class="line">/a to start</p>
     <p class="line">a. to close</p>
   </div>
