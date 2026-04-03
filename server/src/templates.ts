@@ -48,7 +48,6 @@ export function callbackPageHtml(login: string, apiKey: string): string {
   .container { max-width: 420px; text-align: center; }
   .section { margin-bottom: 2.5rem; }
   .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin-bottom: 0.8rem; }
-  .bullet { color: #d4cec6; }
   .line { font-size: 1.1rem; font-weight: 400; line-height: 1.9; color: #3d3630; }
   .action {
     color: #3d3630;
@@ -118,9 +117,9 @@ export function callbackPageHtml(login: string, apiKey: string): string {
   </div>
   <div class="section">
     <p class="label">always</p>
-    <p class="line"><span class="bullet">&ndash;</span> <a class="action" href="${WEBSITE_URL}/shortcut" target="_blank">share <span class="icon">${ICON_DOWNLOAD}</span></a> to a. <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">add the shortcut to your phone. voice notes, articles, podcasts, screenshots — anything with signal. hit share, pick alexandria, done. the more you share, the more /a has to work with.</span></span></p>
-    <p class="line"><span class="bullet">&ndash;</span> /a to start</p>
-    <p class="line"><span class="bullet">&ndash;</span> a. to close</p>
+    <p class="line"><a class="action" href="${WEBSITE_URL}/shortcut" target="_blank">share <span class="icon">${ICON_DOWNLOAD}</span></a> to a. <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">add the shortcut to your phone. voice notes, articles, podcasts, screenshots — anything with signal. hit share, pick alexandria, done. the more you share, the more /a has to work with.</span></span></p>
+    <p class="line">/a to start</p>
+    <p class="line">a. to close</p>
   </div>
   <p class="closing">welcome to alexandria.</p>
   <p class="footer"><a class="action" onclick="copyTrust(this)">Trust.md <span class="icon">${ICON_COPY}</span></a></p>
