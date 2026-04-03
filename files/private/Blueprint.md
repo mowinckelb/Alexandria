@@ -176,6 +176,10 @@ This means continuous sync. At the Block: read every AI memory system and person
 
 The corollary: as platform memory improves exponentially, Alexandria's sync must keep pace. Every improvement in platform memory is an improvement in genesis quality — more material to extract, richer starting point. But only if we actually sync it. The Engine that ignores platform memory because "the constitution is the source of truth" has it backwards. Everything is source material. The constitution is the refined output.
 
+### Two Jobs
+
+Acquisition and retention are structurally different problems. Never mix them. Acquisition surfaces (Concrete, join page, any first-touch) should make not-trying feel irrational — pure asymmetry, marginal everything, zero risk, delete whenever. The price of a coffee. Every objection dissolves on contact. Retention surfaces (the product itself, /a sessions, the compounding constitution) should make leaving feel like loss — the Engine knows you better every session, the constitution gets richer, the gap between you and a blank model widens. The pitch does one job. The product does the other. When acquisition copy drifts into depth arguments, it overwhelms. When the product drifts into "it's easy and risk-free," it undersells the transformation. Clean separation.
+
 ### Internal Drive Is Prerequisite
 
 The Author has to want this. The gym is empty without intent. The Engine cannot manufacture the desire for self-examination. It can only meet the desire that already exists. If the Author is not internally driven, no amount of craft produces development.
