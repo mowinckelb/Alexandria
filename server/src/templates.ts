@@ -45,9 +45,10 @@ export function callbackPageHtml(login: string, apiKey: string): string {
     min-height: 100vh;
     padding: 2rem;
   }
-  .container { text-align: center; }
-  .section { margin-bottom: 2.5rem; display: inline-block; text-align: left; }
-  .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin-bottom: 0.8rem; text-align: center; }
+  .container { max-width: 420px; text-align: center; }
+  .section { margin-bottom: 2.5rem; }
+  .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin-bottom: 0.8rem; }
+  .bullet { color: #d4cec6; }
   .line { font-size: 1.1rem; font-weight: 400; line-height: 1.9; color: #3d3630; }
   .action {
     color: #3d3630;
@@ -117,12 +118,12 @@ export function callbackPageHtml(login: string, apiKey: string): string {
   </div>
   <div class="section">
     <p class="label">always</p>
-    <p class="line">&middot; share to a. <a class="action" href="${WEBSITE_URL}/shortcut" target="_blank"><span class="icon">${ICON_DOWNLOAD}</span></a> <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">add the shortcut to your phone. voice notes, articles, podcasts, screenshots — anything with signal. hit share, pick alexandria, done. the more you share, the more /a has to work with.</span></span></p>
-    <p class="line">&middot; /a to start</p>
-    <p class="line">&middot; a. to close</p>
+    <p class="line"><span class="bullet">&middot;</span> <a class="action" href="${WEBSITE_URL}/shortcut" target="_blank">share <span class="icon">${ICON_DOWNLOAD}</span></a> to a. <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">add the shortcut to your phone. voice notes, articles, podcasts, screenshots — anything with signal. hit share, pick alexandria, done. the more you share, the more /a has to work with.</span></span></p>
+    <p class="line"><span class="bullet">&middot;</span> /a to start</p>
+    <p class="line"><span class="bullet">&middot;</span> a. to close</p>
   </div>
   <p class="closing">welcome to alexandria.</p>
-  <p class="footer"><a class="action" onclick="copySetup(this)">check with your ai: Trust.md <span class="icon">${ICON_COPY}</span></a></p>
+  <p class="footer"><a class="action" href="${WEBSITE_URL}/docs/Trust.md" target="_blank" style="font-size: 0.78rem; color: #bbb4aa;">Trust.md</a></p>
 </div>
 <script>
 function copyCmd(el) {
@@ -137,18 +138,6 @@ function copyCmd(el) {
 }
 function copyBlock(el) {
   fetch('${SERVER_URL}/block').then(function(r) { return r.text(); }).then(function(text) {
-    navigator.clipboard.writeText(text).then(function() {
-      el.querySelector('.icon').innerHTML = '${ICON_CHECK}';
-      el.classList.add('done');
-      setTimeout(function() {
-        el.querySelector('.icon').innerHTML = '${ICON_COPY}';
-        el.classList.remove('done');
-      }, 2000);
-    });
-  });
-}
-function copySetup(el) {
-  fetch('${WEBSITE_URL}/docs/Trust.md').then(function(r) { return r.text(); }).then(function(text) {
     navigator.clipboard.writeText(text).then(function() {
       el.querySelector('.icon').innerHTML = '${ICON_CHECK}';
       el.classList.add('done');
