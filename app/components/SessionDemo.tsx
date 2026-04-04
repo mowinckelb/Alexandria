@@ -88,16 +88,7 @@ export default function SessionDemo() {
   const [typed, setTyped] = useState<Record<number, number>>({});
   const [typingIdx, setTypingIdx] = useState(-1);
   const [fading, setFading] = useState(false);
-  const outerRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
   const runId = useRef(0);
-
-  const scroll = useCallback(() => {
-    requestAnimationFrame(() => {
-      const el = scrollRef.current;
-      if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-    });
-  }, []);
 
   const play = useCallback(async () => {
     const id = ++runId.current;
@@ -113,13 +104,11 @@ export default function SessionDemo() {
         setVisible(0);
         setTyped({});
         setTypingIdx(-1);
-        if (scrollRef.current) scrollRef.current.scrollTop = 0;
 
         for (let i = 0; i < script.length; i++) {
           const block = script[i];
           await w(block.delay);
           setVisible(i + 1);
-          scroll();
 
           if (block.typing) {
             setTypingIdx(i);
@@ -127,10 +116,8 @@ export default function SessionDemo() {
             for (let c = 1; c <= block.text.length; c++) {
               await w(25 + Math.random() * 25);
               setTyped(prev => ({ ...prev, [i]: c }));
-              if (c % 10 === 0) scroll();
             }
             setTypingIdx(-1);
-            scroll();
           }
         }
 
@@ -141,12 +128,9 @@ export default function SessionDemo() {
     } catch {
       /* cancelled */
     }
-  }, [scroll]);
+  }, []);
 
   useEffect(() => {
-    const el = outerRef.current;
-    if (!el) return;
-
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setVisible(script.length);
       const all: Record<number, number> = {};
@@ -159,95 +143,88 @@ export default function SessionDemo() {
     return () => { ++runId.current; };
   }, [play]);
 
+  const renderBlock = (block: Block, i: number) => {
+    const chars = typed[i] ?? (block.typing ? 0 : block.text.length);
+    const isTyping = typingIdx === i;
+    const text = block.typing ? block.text.slice(0, chars) : block.text;
+
+    switch (block.style) {
+      case 'prompt':
+        return (
+          <p key={i} className="demo-block" style={{ color: 'var(--text-primary)', marginTop: i > 0 ? '0.6em' : 0 }}>
+            <span style={{ color: 'var(--text-ghost)' }}>{block.prefix}</span>
+            {text}
+            {isTyping && <span className="demo-cursor" />}
+          </p>
+        );
+      case 'engine':
+        return (
+          <p key={i} className="demo-block" style={{ color: 'var(--text-secondary)', marginTop: '0.6em' }}>
+            {text}
+          </p>
+        );
+      case 'path':
+        return (
+          <p key={i} className="demo-block" style={{ color: 'var(--text-ghost)', marginTop: '0.9em', fontSize: '0.68rem' }}>
+            {text}
+          </p>
+        );
+      case 'diff':
+        return (
+          <p
+            key={i}
+            className="demo-block"
+            style={{
+              color: 'var(--text-primary)',
+              marginTop: '0.15em',
+              paddingLeft: '0.9em',
+              paddingTop: '0.2em',
+              paddingBottom: '0.2em',
+              borderLeft: '2px solid var(--border-dashed)',
+            }}
+          >
+            {text}
+          </p>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div ref={outerRef} style={{ position: 'relative' }}>
-      {/* Bottom fade — text dissolves at the lower edge */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '2.5rem',
-          background: 'linear-gradient(to top, var(--bg-primary), transparent)',
-          zIndex: 1,
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        ref={scrollRef}
-        className="demo-scroll"
-        style={{
-          fontFamily: MONO,
-          fontSize: '0.73rem',
-          lineHeight: 1.8,
-          height: '18rem',
-          paddingBottom: '2.5rem',
-          opacity: fading ? 0 : 1,
-          transition: `opacity ${FADE}ms ease`,
-        }}
-      >
-        {script.map((block, i) => {
-          const shown = i < visible;
-          const chars = typed[i] ?? (block.typing ? 0 : block.text.length);
-          const isTyping = typingIdx === i;
-          const text = block.typing ? block.text.slice(0, chars) : block.text;
-
-          const base: React.CSSProperties = {
-            margin: 0,
-            padding: 0,
-            opacity: shown ? 1 : 0,
-          };
-
-          if (block.typing) {
-            base.transition = 'opacity 0.1s';
-          } else {
-            base.transition = 'opacity 0.4s ease, transform 0.4s ease';
-            base.transform = shown ? 'none' : 'translateY(4px)';
-          }
-
-          switch (block.style) {
-            case 'prompt':
-              return (
-                <p key={i} style={{ ...base, color: 'var(--text-primary)', marginTop: i > 0 ? '0.6em' : 0 }}>
-                  <span style={{ color: 'var(--text-ghost)' }}>{block.prefix}</span>
-                  {text}
-                  {isTyping && <span className="demo-cursor" />}
-                </p>
-              );
-            case 'engine':
-              return (
-                <p key={i} style={{ ...base, color: 'var(--text-secondary)', marginTop: '0.6em' }}>
-                  {text}
-                </p>
-              );
-            case 'path':
-              return (
-                <p key={i} style={{ ...base, color: 'var(--text-ghost)', marginTop: '0.9em', fontSize: '0.68rem' }}>
-                  {text}
-                </p>
-              );
-            case 'diff':
-              return (
-                <p
-                  key={i}
-                  style={{
-                    ...base,
-                    color: 'var(--text-primary)',
-                    marginTop: '0.15em',
-                    paddingLeft: '0.9em',
-                    paddingTop: '0.2em',
-                    paddingBottom: '0.2em',
-                    borderLeft: '2px solid var(--border-dashed)',
-                  }}
-                >
-                  {text}
-                </p>
-              );
-            default:
-              return null;
-          }
-        })}
+    <div
+      style={{
+        height: '18rem',
+        overflow: 'hidden',
+        position: 'relative',
+        opacity: fading ? 0 : 1,
+        transition: `opacity ${FADE}ms ease`,
+      }}
+    >
+      {/* Top fade */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: '2rem',
+        background: 'linear-gradient(to bottom, var(--bg-primary), transparent)',
+        zIndex: 1, pointerEvents: 'none',
+      }} />
+      {/* Bottom fade */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, height: '2.5rem',
+        background: 'linear-gradient(to top, var(--bg-primary), transparent)',
+        zIndex: 1, pointerEvents: 'none',
+      }} />
+      {/* Content — flex-end anchors to bottom, overflow clips at top */}
+      <div style={{
+        fontFamily: MONO,
+        fontSize: '0.73rem',
+        lineHeight: 1.8,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        padding: '2rem 0',
+      }}>
+        {script.slice(0, visible).map((block, i) => renderBlock(block, i))}
       </div>
     </div>
   );
