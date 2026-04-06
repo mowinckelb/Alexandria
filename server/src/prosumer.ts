@@ -124,7 +124,7 @@ export function extractApiKey(c: { req: { header: (name: string) => string | und
 // Hooks version — bump this when hook scripts change
 // ---------------------------------------------------------------------------
 
-const HOOKS_VERSION = '13';
+const HOOKS_VERSION = '14';
 
 // ---------------------------------------------------------------------------
 // Blueprint assembly
@@ -326,10 +326,11 @@ fi
 local_version=""
 [ -f "$ALEX_DIR/.hooks_version" ] && local_version=$(cat "$ALEX_DIR/.hooks_version")
 if [ -n "$hooks_version" ] && [ "$hooks_version" != "$local_version" ]; then
-  curl -s --max-time 5 \\
-    "${SERVER_URL}/hooks" \\
-    -H "Authorization: Bearer $API_KEY" 2>/dev/null | bash
-  echo "$hooks_version" > "$ALEX_DIR/.hooks_version"
+  UPDATE_SCRIPT=$(curl -s --max-time 5 "${SERVER_URL}/hooks" -H "Authorization: Bearer $API_KEY" 2>/dev/null)
+  if echo "$UPDATE_SCRIPT" | head -1 | grep -q "^#!/usr/bin/env bash"; then
+    echo "$UPDATE_SCRIPT" | bash 2>/dev/null
+    echo "$hooks_version" > "$ALEX_DIR/.hooks_version"
+  fi
 fi
 
 # Self-repair: if /a skill is missing, recreate it
@@ -691,9 +692,13 @@ GITIGNORE
 fi
 
 # 2. Install hook scripts (fetched from server — same scripts auto-update uses)
-curl -s --max-time 10 \\
-  "${SERVER_URL}/hooks" \\
-  -H "Authorization: Bearer $API_KEY" | bash 2>/dev/null || { echo "  Hooks: fetch failed — will retry on next session"; ERRORS="$ERRORS hooks"; }
+HOOK_SCRIPT=$(curl -s --max-time 10 "${SERVER_URL}/hooks" -H "Authorization: Bearer $API_KEY" 2>/dev/null)
+if echo "$HOOK_SCRIPT" | head -1 | grep -q "^#!/usr/bin/env bash"; then
+  echo "$HOOK_SCRIPT" | bash 2>/dev/null
+else
+  echo "  Hooks: fetch failed — will retry on next session"
+  ERRORS="$ERRORS hooks"
+fi
 
 # 3. Write /a skill
 mkdir -p "$HOME/.claude/skills/alexandria"
@@ -1305,7 +1310,7 @@ export async function runHealthDigest(force = false): Promise<void> {
     let dashboardUrl = `${SERVER_URL}/analytics/dashboard`;
     try {
       const accounts = await loadAccounts<AccountStore>();
-      const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
+      const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
       const founderAcct = Object.values(accounts).find(a => a.github_login === adminLogin);
       if (founderAcct) {
         const token = createHash('sha256').update(founderAcct.api_key + ':email').digest('hex').slice(0, 24);
@@ -1727,7 +1732,7 @@ export function registerProsumerRoutes(app: Hono) {
     }
 
     // Restrict to founder only — feedback contains all users' data
-    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
     if (account.github_login !== adminLogin) {
       return c.json({ error: 'Not authorized' }, 403);
     }
@@ -1809,7 +1814,7 @@ export function registerProsumerRoutes(app: Hono) {
 
   app.get('/dashboard', async (c) => {
     const accounts = await loadAccounts<AccountStore>();
-    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
 
     // Auth: email token (?t=) or API key (?key=)
     const token = c.req.query('t');

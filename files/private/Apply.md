@@ -54,7 +54,7 @@ Alexandria builds a structured cognitive file — your constitution — as local
 
 Run /a and it becomes a mental gym. Socratic questioning, contradiction surfacing, vault processing — the system reads what you don't have time to and extracts only what's genuinely new for you. The Library lets you publish your mind: quizzes, shadows, works. Visitors pay for depth. Authors earn.
 
-Andrej Karpathy recently described building this exact architecture — raw data compiled by LLMs into structured markdown, incrementally enhanced, compounding queries. He called it "LLM Knowledge Bases" and said someone should build the product. He's doing it for research topics with duct-taped scripts. We built it for the self. Shipped. Live. $5/month.
+Andrej Karpathy recently described building this exact architecture — raw data compiled by LLMs into structured markdown, incrementally enhanced, compounding queries. He called it "LLM Knowledge Bases" and said someone should build the product. He's doing it for research topics with duct-taped scripts. We built it for the self. Shipped. Live. $10/month or free with 5 active kin.
 
 ### Where do you live now, and where would the company be based after YC?
 Oslo, Norway → San Francisco. Relocating April 2026 regardless of YC. Company based in SF after YC.
@@ -109,7 +109,7 @@ Substitutes: Claude memory (~800 words, unstructured, locked to one provider, do
 What we understand: the product is not the memory. The product is the practice. Storage is a commodity. Development is a moat. A file that knows you is useful. A system that develops you is irreplaceable. And the data must live on the user's machine — not because it's nice, but because the product dies without trust, and trust requires sovereignty.
 
 ### How do you make money? How much could you make?
-$5/month with three active kin (friends who use it), $10 without. Slider open — pay what it's worth, no ceiling. Library: Alexandria takes 50% of Author earnings. Break-even at 21 subscribers.
+$10/month, or free with 5 active kin (friends who use it). Slider open — pay what it's worth, no ceiling. Library: Alexandria takes 50% of Author earnings. Break-even at 10 subscribers.
 
 Near-term: subscription revenue. The kin mechanic is the growth engine — every user recruiting three friends to halve their price.
 

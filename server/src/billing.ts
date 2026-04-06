@@ -131,11 +131,15 @@ export async function recalculateKinPricing(apiKey: string): Promise<void> {
   const stripe = getStripe();
   const sub = await stripe.subscriptions.retrieve(user.subscription_id);
 
-  const hasKinDiscount = sub.discount?.coupon?.metadata?.alexandria === 'kin_free';
+  const hasKinDiscount = sub.discounts?.some(d => {
+    if (typeof d === 'string') return false;
+    const coupon = d.source?.coupon;
+    return typeof coupon !== 'string' && coupon?.metadata?.alexandria === 'kin_free';
+  });
 
   if (shouldBeFree && !hasKinDiscount) {
     const couponId = await ensureKinCoupon();
-    await stripe.subscriptions.update(user.subscription_id, { coupon: couponId });
+    await stripe.subscriptions.update(user.subscription_id, { discounts: [{ coupon: couponId }] });
     logEvent('kin_pricing_free', { api_key: apiKey, active_kin: String(activeKin) });
   } else if (!shouldBeFree && hasKinDiscount) {
     await stripe.subscriptions.deleteDiscount(user.subscription_id);

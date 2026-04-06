@@ -10,7 +10,7 @@ const ebGaramond = EB_Garamond({
 
 export const metadata: Metadata = {
   title: "alexandria.",
-  description: "Make every AI you use actually know who you are. One file, on your device, works across all of them. $5/month.",
+  description: "Make every AI you use actually know who you are. One file, on your device, works across all of them. $10/month or free with 5 kin.",
   keywords: ["Alexandria", "personal AI", "AI memory", "own your data", "AI identity", "self-knowledge", "AI connector"],
   icons: {
     icon: "/favicon.png",

@@ -102,15 +102,15 @@ Five loops. Full spec in Blueprint.md section V (served to every Engine every se
 - **Build as little as possible.** Ride existing infrastructure. Server is intent layer, not intelligence layer.
 - **Live the philosophy.** Every artifact — Blueprint, investor docs, code, brand — must visibly carry the human edge Alexandria claims is the tiebreaker. The test: could a competing team write the same thing from first principles without reading an? If yes, it has failed. Generic = interchangeable = dead.
 
-## End-of-Session Protocol
+## Session Close
 
-Triggered by: "a.", "bye for now", "that's it", "end session", or any casual sign-off that signals the founder is done.
+Two triggers, two protocols. Clean separation.
 
-Two phases, strictly ordered. Phase 1 simulates what a normal Author Machine would do — this IS the product test. Phase 2 is founder-only company work. Never mix them.
+### "a." — Alexandria session close (product behavior)
 
-### Phase 1 — Machine (user 0, product behavior)
+Triggered by: "a." at the end of an /a session or any session where constitutional signal surfaced.
 
-Act as a normal Machine would for any Author. This is what every user gets:
+This is the product. Act as a normal Machine would for any Author — this IS the product test:
 
 - **Constitution.** Write any crystallised signal about the founder as a person to `~/.alexandria/constitution/`. Opinions, stories, patterns, contradictions revealed this session.
 - **Machine.md.** Rewrite `~/.alexandria/machine.md` — how to work with this Author, what worked, what didn't, cognitive style observations.
@@ -118,11 +118,13 @@ Act as a normal Machine would for any Author. This is what every user gets:
 - **Feedback.** Append to `~/.alexandria/feedback.md` — what worked, what didn't, methodology observations.
 - **Machine signal.** Write methodology observations to `~/.alexandria/.machine_signal` — not about the Author, about the craft.
 
-Do this silently. No report. This is the product working.
+Do this silently. No report. This is the product working. If Phase 1 feels wrong, the product is wrong.
 
-### Phase 2 — Founder (company work)
+### "close" / "end" — Work session close (founder/company)
 
-Only after Phase 1 completes. This is the company, not the product:
+Triggered by: "close", "end", or any sign-off that is NOT "a." — used for coding sessions, company work, non-/a sessions.
+
+No Machine loop. No constitution writes. This is company work, not product:
 
 - **Delta.** What changed about Alexandria the company. Not what you did — what's different now. Hazy fragments only.
 - **Open threads.** What's unresolved. What the next session should pick up. Ordered by priority.
@@ -140,8 +142,7 @@ Only after Phase 1 completes. This is the company, not the product:
   - `app/privacy/page.tsx`, `app/terms/page.tsx`
   Fix silently. Flag only if the founder needs to make a judgment call.
 
-**Principles:**
-- Phase 1 is the product test. If Phase 1 feels wrong, the product is wrong.
+**Principles (both protocols):**
 - Hazy fragments scale. Weeds do not. Keep it compressed.
 - Signal, not summary. Don't restate what the founder already saw — extract what compounds.
 - If nothing happened in a loop, skip it. No empty sections.
