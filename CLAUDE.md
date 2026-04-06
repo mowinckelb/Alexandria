@@ -30,7 +30,7 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 - `Power.md` — Governance, politics, geopolitics, economics, ai, civilisation.
 - `Mind.md` — Mental models, reasoning patterns, epistemology.
 - `Taste.md` — Creative principles, voice DNA, director's notes, hyperrealism standard. READ FIRST for any creative task.
-- Repo copy (for remote triggers): `files/private/constitution/` — synced from product copy at `~/.alexandria/constitution/`.
+- Product copy: `~/.alexandria/constitution/` — backed up to private GitHub repo (`alexandria-private`). No repo copy.
 
 **Founder's writing & thinking:**
 - `Aphorisms.md` — Compressed positions by domain. Reference for his exact position on a topic.

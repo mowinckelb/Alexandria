@@ -124,7 +124,7 @@ export function extractApiKey(c: { req: { header: (name: string) => string | und
 // Hooks version — bump this when hook scripts change
 // ---------------------------------------------------------------------------
 
-const HOOKS_VERSION = '12';
+const HOOKS_VERSION = '13';
 
 // ---------------------------------------------------------------------------
 // Blueprint assembly
@@ -211,7 +211,8 @@ const_size=$(cat "$ALEX_DIR/constitution/"*.md 2>/dev/null | wc -c | tr -d ' ')
 const_file_count=$(ls "$ALEX_DIR/constitution/"*.md 2>/dev/null | wc -l | tr -d ' ')
 vault_count=$(ls "$ALEX_DIR/vault/" 2>/dev/null | wc -l)
 feedback_size=$(wc -c < "$ALEX_DIR/feedback.md" 2>/dev/null | tr -d ' ')
-blueprint_ok="\${ALEXANDRIA_BLUEPRINT_OK:-false}"
+blueprint_ok=false
+[ -f "$ALEX_DIR/.blueprint_local" ] && [ -s "$ALEX_DIR/.blueprint_local" ] && blueprint_ok=true
 const_injected=false
 [ "\${const_size:-0}" -gt 10 ] 2>/dev/null && const_injected=true
 
@@ -222,29 +223,34 @@ if [ -n "$API_KEY" ]; then
     -d "{\\"event\\":\\"end\\",\\"platform\\":\\"$PLATFORM\\",\\"constitution_size\\":\${const_size:-0},\\"constitution_files\\":\${const_file_count:-0},\\"vault_entry_count\\":\${vault_count:-0},\\"feedback_size\\":\${feedback_size:-0},\\"constitution_injected\\":$const_injected,\\"blueprint_fetched\\":$blueprint_ok}" \\
     > /dev/null 2>&1 &
 
+  # JSON-escape helper: node is always available (required for CC hooks)
+  json_escape() { node -e "process.stdout.write(JSON.stringify(require('fs').readFileSync(process.argv[1],'utf8')))" "$1" 2>/dev/null; }
+
   # Collect machine signal (Engine → Factory)
   machine_signal_file="$ALEX_DIR/.machine_signal"
   if [ -f "$machine_signal_file" ] && [ -s "$machine_signal_file" ]; then
-    signal_content=$(cat "$machine_signal_file" | head -c 10000)
-    signal_json=$(printf '%s' "$signal_content" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))' 2>/dev/null || printf '%s' "$signal_content" | sed 's/\\/\\\\/g;s/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/^/"/;s/$/"/')
-    curl -s -X POST "${SERVER_URL}/factory/signal" \\
-      -H "Authorization: Bearer $API_KEY" \\
-      -H "Content-Type: application/json" \\
-      -d "{\\"signal\\":$signal_json}" \\
-      > /dev/null 2>&1 &
+    signal_json=$(json_escape "$machine_signal_file")
+    if [ -n "$signal_json" ]; then
+      curl -s -X POST "${SERVER_URL}/factory/signal" \\
+        -H "Authorization: Bearer $API_KEY" \\
+        -H "Content-Type: application/json" \\
+        -d "{\\"signal\\":$signal_json}" \\
+        > /dev/null 2>&1 &
+    fi
     rm -f "$machine_signal_file"
   fi
 
   # Collect session feedback (Author → Factory)
   feedback_file="$ALEX_DIR/.session_feedback"
   if [ -f "$feedback_file" ] && [ -s "$feedback_file" ]; then
-    fb_content=$(cat "$feedback_file" | head -c 5000)
-    fb_json=$(printf '%s' "$fb_content" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))' 2>/dev/null || printf '%s' "$fb_content" | sed 's/\\/\\\\/g;s/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/^/"/;s/$/"/')
-    curl -s -X POST "${SERVER_URL}/feedback" \
-      -H "Authorization: Bearer $API_KEY" \
-      -H "Content-Type: application/json" \
-      -d "{\"text\":$fb_json,\"context\":\"session_end\"}" \
-      > /dev/null 2>&1 &
+    fb_json=$(json_escape "$feedback_file")
+    if [ -n "$fb_json" ]; then
+      curl -s -X POST "${SERVER_URL}/feedback" \\
+        -H "Authorization: Bearer $API_KEY" \\
+        -H "Content-Type: application/json" \\
+        -d "{\\"text\\":$fb_json,\\"context\\":\\"session_end\\"}" \\
+        > /dev/null 2>&1 &
+    fi
     rm -f "$feedback_file"
   fi
 fi
@@ -533,6 +539,7 @@ if [ -d "$HOME/.claude/scheduled-tasks/alexandria" ]; then
 ---
 name: alexandria
 description: Autonomous cognitive maintenance — vault reprocessing, ontology/constitution/notepad development
+schedule: daily 03:00
 ---
 
 You are Alexandria's autonomous Engine. Run without the Author present.
