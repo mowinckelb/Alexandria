@@ -446,6 +446,37 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
           break;
         }
 
+        case 'invoice.paid': {
+          // Send kin nudge receipt after each billing cycle
+          const invoice = event.data.object as Stripe.Invoice;
+          // Skip Library purchases and non-subscription invoices
+          if (invoice.metadata?.library_purchase === 'true') break;
+          const subDetails = invoice.parent?.subscription_details;
+          const subId = typeof subDetails?.subscription === 'string'
+            ? subDetails.subscription
+            : subDetails?.subscription?.id
+              || (typeof (invoice as any).subscription === 'string' ? (invoice as any).subscription : null);
+          if (subId) {
+            try {
+              const sub = await stripe.subscriptions.retrieve(subId);
+              const apiKey = sub.metadata?.api_key;
+              if (apiKey) {
+                const user = await findByApiKey(apiKey);
+                if (user?.email) {
+                  const activeKin = await countActiveKin(apiKey);
+                  const amountPaid = (invoice.amount_paid || 0) / 100;
+                  const kinNeeded = Math.max(0, KIN_THRESHOLD - activeKin);
+                  await sendKinReceiptEmail(user.email, user.github_login, amountPaid, activeKin, kinNeeded);
+                  logEvent('kin_receipt_sent', { api_key: apiKey, active_kin: String(activeKin), amount: String(amountPaid) });
+                }
+              }
+            } catch (e) {
+              console.error('[billing] Kin receipt email failed:', e);
+            }
+          }
+          break;
+        }
+
         case 'invoice.payment_failed': {
           const invoice = event.data.object as Stripe.Invoice;
           const subDetails = invoice.parent?.subscription_details;
@@ -613,5 +644,56 @@ export async function settleMonthlyTabs(): Promise<void> {
     }
   } catch (e) {
     console.error('[billing] settleMonthlyTabs error:', e);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Kin receipt email — sent after each billing cycle
+// ---------------------------------------------------------------------------
+
+async function sendKinReceiptEmail(
+  email: string,
+  githubLogin: string,
+  amountPaid: number,
+  activeKin: number,
+  kinNeeded: number,
+): Promise<void> {
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+  const kinLink = `${WEBSITE_URL}/signup?ref=${encodeURIComponent(githubLogin)}`;
+
+  const kinLine = kinNeeded === 0
+    ? `<p style="font-size: 1rem; color: #3d3630; margin: 0;">you have ${activeKin} active kin. alexandria is free.</p>`
+    : `<p style="font-size: 1rem; color: #3d3630; margin: 0;">you have ${activeKin} active kin. ${kinNeeded} more and it&rsquo;s free.</p>`;
+
+  const amountLine = amountPaid === 0
+    ? `<p style="font-size: 1.15rem; color: #3d3630; margin: 0 0 1.5rem;">$0 this month.</p>`
+    : `<p style="font-size: 1.15rem; color: #3d3630; margin: 0 0 1.5rem;">$${amountPaid.toFixed(0)} this month.</p>`;
+
+  const html = `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
+  ${amountLine}
+  ${kinLine}
+  <p style="font-size: 0.85rem; color: #8a8078; margin: 1.5rem 0 0;"><a href="${kinLink}" style="color: #8a8078;">your kin link</a></p>
+  <p style="font-size: 0.78rem; color: #bbb4aa; margin-top: 2rem;">the examined life.</p>
+</div>`;
+
+  try {
+    const resp = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: 'Alexandria <a@mowinckel.ai>',
+        to: email,
+        subject: amountPaid === 0 ? 'alexandria. — free this month' : `alexandria. — $${amountPaid.toFixed(0)} this month`,
+        html,
+      }),
+    });
+    if (!resp.ok) {
+      console.error('[billing] Receipt email Resend error:', resp.status, await resp.text());
+    }
+  } catch (err) {
+    console.error('[billing] Receipt email send failed:', err);
   }
 }
