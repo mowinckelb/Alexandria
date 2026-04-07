@@ -57,7 +57,7 @@ app.use('*', async (c, next) => {
 // Allowed CORS origins (single source of truth)
 function getAllowedOrigins(): string[] {
   const base = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-  return [base, base.replace('https://', 'https://www.')];
+  return [base, base.replace('https://', 'https://www.'), 'http://localhost:3000'];
 }
 
 // CORS for Library API (website at mowinckel.ai calls server at mcp.mowinckel.ai)
