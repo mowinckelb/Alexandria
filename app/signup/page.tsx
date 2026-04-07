@@ -28,7 +28,9 @@ function ThemeToggle() {
 export default function SignupPage() {
   const searchParams = useSearchParams();
   const ref = searchParams.get('ref');
-  const authUrl = `https://mcp.mowinckel.ai/auth/github${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+  const refSource = searchParams.get('ref_source');
+  const authParams = [ref && `ref=${encodeURIComponent(ref)}`, refSource && `ref_source=${encodeURIComponent(refSource)}`].filter(Boolean).join('&');
+  const authUrl = `https://mcp.mowinckel.ai/auth/github${authParams ? `?${authParams}` : ''}`;
 
   return (
     <div style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', minHeight: '100vh' }}>
