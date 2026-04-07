@@ -191,8 +191,56 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
       smoke_failures_24h: smokeFailures24h,
     },
     library: await getLibraryMetrics(events),
+    factory: await getFactoryStatus(events),
     _events: events,
   };
+}
+
+/**
+ * Factory loop status — is the cross-Author learning loop working?
+ */
+async function getFactoryStatus(events: Record<string, string>[]): Promise<Record<string, unknown>> {
+  try {
+    const { getKV } = await import('./kv.js');
+    const kv = getKV();
+
+    // Pending signals (not yet archived)
+    const pending = await kv.list({ prefix: 'factory:signal:' });
+    // Archived signals (processed, 30-day TTL)
+    const archived = await kv.list({ prefix: 'factory:archive:' });
+    // Current delta
+    const delta = await kv.get('factory:delta');
+
+    // Last delta write from event log
+    const deltaWrites = events.filter(e => e.e === 'factory_delta_written');
+    const lastDeltaWrite = deltaWrites.length > 0 ? deltaWrites[deltaWrites.length - 1].t : null;
+    const daysSinceDelta = lastDeltaWrite
+      ? Math.round((Date.now() - new Date(lastDeltaWrite).getTime()) / (1000 * 60 * 60 * 24) * 10) / 10
+      : null;
+
+    // Last archive from event log
+    const archiveEvents = events.filter(e => e.e === 'factory_signals_archived');
+    const lastArchive = archiveEvents.length > 0 ? archiveEvents[archiveEvents.length - 1].t : null;
+
+    // Signal ingest rate
+    const signalEvents = events.filter(e => e.e === 'machine_signal');
+    const signalsThisWeek = signalEvents.filter(e =>
+      Date.now() - new Date(e.t).getTime() < 7 * 24 * 60 * 60 * 1000
+    ).length;
+
+    return {
+      status: delta ? (daysSinceDelta !== null && daysSinceDelta > 10 ? 'stale — delta not updated in 10+ days' : 'ok') : 'no delta yet',
+      signals_pending: pending.keys.length,
+      signals_archived: archived.keys.length,
+      signals_this_week: signalsThisWeek,
+      delta_length: delta?.length || 0,
+      last_delta_write: lastDeltaWrite,
+      days_since_delta: daysSinceDelta,
+      last_archive: lastArchive,
+    };
+  } catch {
+    return { status: 'error reading factory state' };
+  }
 }
 
 /**
