@@ -103,7 +103,8 @@ export async function countActiveKin(apiKey: string): Promise<number> {
 
   if (!results || results.length === 0) return 0;
 
-  // Check which referred users had a session in the last 30 days
+  // Check which referred users had a meaningful session in the last 30 days
+  // Require constitution_size > 0 to prevent gaming via burner accounts
   const { loadAccounts } = await import('./kv.js');
   const accounts = await loadAccounts<Record<string, any>>();
   const now = Date.now();
@@ -114,7 +115,8 @@ export async function countActiveKin(apiKey: string): Promise<number> {
     const kinAccount = Object.values(accounts).find((a: any) => a.github_login === row.referred_github_login);
     if (kinAccount && (kinAccount as any).last_session) {
       const lastSession = new Date((kinAccount as any).last_session).getTime();
-      if (now - lastSession < thirtyDays) active++;
+      const hasConstitution = Number((kinAccount as any).constitution_size || 0) > 0;
+      if (now - lastSession < thirtyDays && hasConstitution) active++;
     }
   }
 

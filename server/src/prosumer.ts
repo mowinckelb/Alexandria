@@ -1515,13 +1515,16 @@ export function registerProsumerRoutes(app: Hono) {
       blueprint_fetched: String(blueprint_fetched ?? false),
     });
 
-    // Update last_session
+    // Update last_session + constitution_size (used for kin activity verification)
     const accounts = await getAccounts();
     const storeKey = Object.keys(accounts).find(
       k => accounts[k].api_key === key
     );
     if (storeKey) {
       accounts[storeKey].last_session = new Date().toISOString();
+      if (constitution_size && Number(constitution_size) > 0) {
+        accounts[storeKey].constitution_size = Number(constitution_size);
+      }
       await persistAccounts(accounts);
     }
 
@@ -1548,12 +1551,14 @@ export function registerProsumerRoutes(app: Hono) {
     }
 
     // Store as individual timestamped key (avoids read-modify-write on a growing blob)
+    // Author attribution enables filtering/weighting during delta processing
     try {
       const kv = getKV();
       const ts = new Date().toISOString().replace(/[:.]/g, '-');
       const key_name = `factory:signal:${ts}`;
       await kv.put(key_name, JSON.stringify({
         t: new Date().toISOString(),
+        author: account.github_login,
         signal: signal.slice(0, 10000),
       }));
 
