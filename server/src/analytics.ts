@@ -284,15 +284,15 @@ export async function getUserEvents(login: string): Promise<Record<string, unkno
 }
 
 /**
- * Process factory signals into factory:delta.
- * Caps per-author contribution to prevent any single user from dominating.
- * Runs daily via cron. Replaces delta with latest signals, cleans up processed keys.
+ * Archive factory signals from input queue.
+ * Moves factory:signal:* → factory:archive:* with 30-day TTL.
+ * Delta synthesis happens in the meta trigger (weekly, Opus) — not here.
  */
-export async function processFactorySignals(): Promise<{ processed: number; authors: number; delta_length: number }> {
+export async function archiveFactorySignals(): Promise<{ archived: number }> {
   const { getKV } = await import('./kv.js');
   const kv = getKV();
 
-  // Read all accumulated signals (paginate — KV list returns max 1000 per call)
+  // Paginate — KV list returns max 1000 per call
   const allKeys: { name: string }[] = [];
   let cursor: string | undefined;
   do {
@@ -301,63 +301,21 @@ export async function processFactorySignals(): Promise<{ processed: number; auth
     cursor = page.list_complete ? undefined : (page as any).cursor;
   } while (cursor);
 
-  if (allKeys.length === 0) return { processed: 0, authors: 0, delta_length: 0 };
+  if (allKeys.length === 0) return { archived: 0 };
 
-  const signals: { t: string; author: string; signal: string }[] = [];
-  const rawByKey: Record<string, string> = {};
   for (const key of allKeys) {
     try {
       const raw = await kv.get(key.name);
       if (raw) {
-        rawByKey[key.name] = raw;
-        signals.push(JSON.parse(raw));
+        const archiveKey = key.name.replace('factory:signal:', 'factory:archive:');
+        await kv.put(archiveKey, raw, { expirationTtl: 30 * 24 * 60 * 60 });
       }
+      await kv.delete(key.name);
     } catch { continue; }
   }
 
-  if (signals.length === 0) return { processed: 0, authors: 0, delta_length: 0 };
-
-  // Cap per-author: keep only 3 most recent signals per author
-  const MAX_PER_AUTHOR = 3;
-  const byAuthor: Record<string, typeof signals> = {};
-  for (const s of signals) {
-    const author = s.author || 'unknown';
-    if (!byAuthor[author]) byAuthor[author] = [];
-    byAuthor[author].push(s);
-  }
-
-  const capped: typeof signals = [];
-  for (const [, authorSignals] of Object.entries(byAuthor)) {
-    authorSignals.sort((a, b) => b.t.localeCompare(a.t)); // newest first
-    capped.push(...authorSignals.slice(0, MAX_PER_AUTHOR));
-  }
-
-  // Compile delta — anonymous (strip author), sorted by time
-  // Full signal text preserved — 10K total cap prevents Blueprint bloat
-  capped.sort((a, b) => a.t.localeCompare(b.t));
-  const deltaLines = capped.map(s => `- ${s.signal}`);
-  const delta = `Factory observations (${capped.length} signals from ${Object.keys(byAuthor).length} Authors, updated ${new Date().toISOString().split('T')[0]}):\n\n${deltaLines.join('\n')}`;
-
-  await kv.put('factory:delta', delta.slice(0, 10000));
-
-  // Archive processed signals with 30-day TTL, then clear input queue
-  for (const key of allKeys) {
-    const raw = rawByKey[key.name];
-    if (raw) {
-      const archiveKey = key.name.replace('factory:signal:', 'factory:archive:');
-      await kv.put(archiveKey, raw, { expirationTtl: 30 * 24 * 60 * 60 });
-    }
-    await kv.delete(key.name);
-  }
-
-  logEvent('factory_delta_processed', {
-    signals_processed: String(signals.length),
-    signals_kept: String(capped.length),
-    authors: String(Object.keys(byAuthor).length),
-    delta_length: String(delta.length),
-  });
-
-  return { processed: signals.length, authors: Object.keys(byAuthor).length, delta_length: delta.length };
+  logEvent('factory_signals_archived', { count: String(allKeys.length) });
+  return { archived: allKeys.length };
 }
 
 export async function getRecentEvents(n: number = 200): Promise<string> {

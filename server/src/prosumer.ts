@@ -1722,6 +1722,54 @@ export function registerProsumerRoutes(app: Hono) {
     return c.json({ ok: true, sent });
   });
 
+  // --- Factory: read signals + write delta (admin only, called by meta trigger) ---
+
+  app.get('/admin/factory/signals', async (c) => {
+    const key = extractApiKey(c);
+    if (!key) return c.text('missing key', 401);
+    const account = await findByApiKey(key);
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
+    if (!account || account.github_login !== adminLogin) return c.text('not authorized', 403);
+
+    const kv = getKV();
+    const allKeys: { name: string }[] = [];
+    let cursor: string | undefined;
+    do {
+      const page = await kv.list({ prefix: 'factory:archive:', cursor });
+      allKeys.push(...page.keys);
+      cursor = page.list_complete ? undefined : (page as any).cursor;
+    } while (cursor);
+
+    const signals: { t: string; author: string; signal: string }[] = [];
+    for (const key of allKeys) {
+      try {
+        const raw = await kv.get(key.name);
+        if (raw) signals.push(JSON.parse(raw));
+      } catch { continue; }
+    }
+
+    // Strip author for anonymity — meta trigger sees signal content only
+    const anonymous = signals.map(s => ({ t: s.t, signal: s.signal }));
+    return c.json({ signals: anonymous, count: anonymous.length });
+  });
+
+  app.post('/admin/factory/delta', async (c) => {
+    const key = extractApiKey(c);
+    if (!key) return c.text('missing key', 401);
+    const account = await findByApiKey(key);
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
+    if (!account || account.github_login !== adminLogin) return c.text('not authorized', 403);
+
+    const body = await c.req.json().catch(() => ({}));
+    const { delta } = body;
+    if (!delta || typeof delta !== 'string') return c.json({ error: 'Missing delta' }, 400);
+
+    const kv = getKV();
+    await kv.put('factory:delta', delta.slice(0, 10000));
+    logEvent('factory_delta_written', { length: String(delta.length), source: 'meta_trigger' });
+    return c.json({ ok: true, length: Math.min(delta.length, 10000) });
+  });
+
   // --- Block — onboarding prompt for new AI tab ---
 
   app.get('/block', (c) => {

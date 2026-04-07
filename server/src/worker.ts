@@ -9,7 +9,7 @@ import { Hono } from 'hono';
 import { registerProsumerRoutes, extractApiKey, findByApiKey, updateAccountBilling, getBillingSummary, runFollowupCheck, runEngagementCheck, runHealthDigest } from './prosumer.js';
 import { registerBillingRoutes, settleMonthlyTabs } from './billing.js';
 import { registerLibraryRoutes } from './library.js';
-import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, processFactorySignals } from './analytics.js';
+import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, archiveFactorySignals } from './analytics.js';
 import { setKV, getKV } from './kv.js';
 
 // ---------------------------------------------------------------------------
@@ -301,6 +301,6 @@ export default {
     initEnv(env);
     // Daily cron (0 9 * * *) + monthly settlement (0 2 1 * *)
     // Settlement + engagement are idempotent so running on every cron trigger is safe
-    ctx.waitUntil(Promise.all([runFollowupCheck(), runEngagementCheck(), runHealthDigest(), settleMonthlyTabs(), processFactorySignals()]))
+    ctx.waitUntil(Promise.all([runFollowupCheck(), runEngagementCheck(), runHealthDigest(), settleMonthlyTabs(), archiveFactorySignals()]))
   },
 };
