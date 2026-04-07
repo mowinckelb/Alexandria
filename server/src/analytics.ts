@@ -292,12 +292,19 @@ export async function processFactorySignals(): Promise<{ processed: number; auth
   const { getKV } = await import('./kv.js');
   const kv = getKV();
 
-  // Read all accumulated signals
-  const keys = await kv.list({ prefix: 'factory:signal:' });
-  if (keys.keys.length === 0) return { processed: 0, authors: 0, delta_length: 0 };
+  // Read all accumulated signals (paginate — KV list returns max 1000 per call)
+  const allKeys: { name: string }[] = [];
+  let cursor: string | undefined;
+  do {
+    const page = await kv.list({ prefix: 'factory:signal:', cursor });
+    allKeys.push(...page.keys);
+    cursor = page.list_complete ? undefined : (page as any).cursor;
+  } while (cursor);
+
+  if (allKeys.length === 0) return { processed: 0, authors: 0, delta_length: 0 };
 
   const signals: { t: string; author: string; signal: string }[] = [];
-  for (const key of keys.keys) {
+  for (const key of allKeys) {
     try {
       const raw = await kv.get(key.name);
       if (raw) signals.push(JSON.parse(raw));
@@ -322,15 +329,21 @@ export async function processFactorySignals(): Promise<{ processed: number; auth
   }
 
   // Compile delta — anonymous (strip author), sorted by time
+  // Full signal text preserved — 10K total cap prevents Blueprint bloat
   capped.sort((a, b) => a.t.localeCompare(b.t));
-  const deltaLines = capped.map(s => `- ${s.signal.slice(0, 500)}`);
+  const deltaLines = capped.map(s => `- ${s.signal}`);
   const delta = `Factory observations (${capped.length} signals from ${Object.keys(byAuthor).length} Authors, updated ${new Date().toISOString().split('T')[0]}):\n\n${deltaLines.join('\n')}`;
 
-  // Write delta (cap at 10K total to avoid bloating Blueprint)
   await kv.put('factory:delta', delta.slice(0, 10000));
 
-  // Clean up processed signal keys
-  for (const key of keys.keys) {
+  // Move processed signals to factory:archive: prefix with 30-day TTL
+  // Preserves raw data for reprocessing while clearing the input queue
+  for (const key of allKeys) {
+    const raw = await kv.get(key.name);
+    if (raw) {
+      const archiveKey = key.name.replace('factory:signal:', 'factory:archive:');
+      await kv.put(archiveKey, raw, { expirationTtl: 30 * 24 * 60 * 60 });
+    }
     await kv.delete(key.name);
   }
 
