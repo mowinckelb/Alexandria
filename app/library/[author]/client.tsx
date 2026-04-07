@@ -157,11 +157,35 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
               <span style={{ fontSize: '0.65rem', color: 'var(--text-whisper)', letterSpacing: '0.05em' }}>{settings.library_id}</span>
             )}
           </div>
-          {(author.location || author.bio) && (
-            <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: 1.8, margin: '0' }}>
-              {author.location && <span style={{ color: 'var(--text-ghost)' }}>{author.location}{author.bio ? ' \u00b7 ' : ''}</span>}
+          {author.bio && (
+            <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: 1.8, margin: '0.3rem 0 0' }}>
               {author.bio}
             </p>
+          )}
+          {author.location && (
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', margin: '0.3rem 0 0' }}>
+              {author.location}
+            </p>
+          )}
+          {(author.website || socialLinks.length > 0) && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem', marginTop: '0.5rem' }}>
+              {author.website && (
+                <a href={author.website} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
+                >
+                  {author.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                </a>
+              )}
+              {socialLinks.map((link, i) => (
+                <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
+                >
+                  {link.platform}
+                </a>
+              ))}
+            </div>
           )}
         </div>
 
@@ -291,54 +315,27 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
           </section>
         )}
 
-        {/* ── WHAT THEY DO ── */}
-        {(data.works.length > 0 || author.website || socialLinks.length > 0) && (
+        {/* ── WHAT I DO ── */}
+        {data.works.length > 0 && (
           <section style={{ margin: '0 0 4rem' }}>
             <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: '0 0 2rem' }}>what i do</p>
-
-            {data.works.length > 0 && (
-              <div style={{ margin: '0 0 2rem' }}>
-                <p style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: 'var(--text-whisper)', textTransform: 'uppercase', margin: '0 0 1rem' }}>works</p>
-                {data.works.map(work => {
-                  const isPaid = work.tier === 'paid';
-                  return (
-                    <div
-                      key={work.id}
-                      onClick={() => {
-                        if (isPaid) return;
-                        window.open(work.url || `${SERVER_URL}/library/${authorId}/work/${work.id}`, '_blank');
-                      }}
-                      style={{ margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
-                      className="hover:opacity-60"
-                    >
-                      <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>{work.title}</span>
-                      {isPaid && <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {(author.website || socialLinks.length > 0) && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem' }}>
-                {author.website && (
-                  <a href={author.website} target="_blank" rel="noopener noreferrer"
-                    style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s' }}
-                    className="hover:opacity-60"
-                  >
-                    {author.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                  </a>
-                )}
-                {socialLinks.map((link, i) => (
-                  <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
-                    style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s' }}
-                    className="hover:opacity-60"
-                  >
-                    {link.platform}
-                  </a>
-                ))}
-              </div>
-            )}
+            {data.works.map(work => {
+              const isPaid = work.tier === 'paid';
+              return (
+                <div
+                  key={work.id}
+                  onClick={() => {
+                    if (isPaid) return;
+                    window.open(work.url || `${SERVER_URL}/library/${authorId}/work/${work.id}`, '_blank');
+                  }}
+                  style={{ margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
+                >
+                  <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>{work.title}</span>
+                  {isPaid && <span style={{ fontSize: '0.72rem', color: 'var(--text-whisper)' }}>$</span>}
+                </div>
+              );
+            })}
           </section>
         )}
 
