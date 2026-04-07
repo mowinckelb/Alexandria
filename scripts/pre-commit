@@ -1,0 +1,25 @@
+#!/bin/bash
+# Pre-commit gate: block commits that would fail CI
+# Install: git config core.hooksPath scripts
+
+# Server type check (matches CI: "cd server && npm ci && npx tsc --noEmit")
+if git diff --cached --name-only | grep -q '^server/src/'; then
+  echo "server/src/ changed — type checking..."
+  (cd server && npx tsc --noEmit)
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "BLOCKED: server type errors. Fix before committing."
+    exit 1
+  fi
+fi
+
+# App build check (matches CI: "npm ci && npm run build")
+if git diff --cached --name-only | grep -qE '^(app/|next\.config|package\.json)'; then
+  echo "app/ changed — build checking..."
+  npm run build 2>&1 | tail -20
+  if [ ${PIPESTATUS[0]} -ne 0 ]; then
+    echo ""
+    echo "BLOCKED: app build failed. Fix before committing."
+    exit 1
+  fi
+fi
