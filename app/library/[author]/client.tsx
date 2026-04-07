@@ -211,7 +211,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                   </span>
                   <span
                     onClick={(e) => { e.stopPropagation(); toggleInfo('pulse'); }}
-                    style={{ fontSize: '0.55rem', color: 'var(--text-whisper)', cursor: 'pointer', opacity: 0.5 }}
+                    style={{ fontSize: '0.6rem', color: 'var(--text-ghost)', cursor: 'pointer' }}
                   >
                     ?
                   </span>
@@ -242,16 +242,10 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                   </span>
                   <span
                     onClick={(e) => { e.stopPropagation(); toggleInfo('shadow'); }}
-                    style={{ fontSize: '0.55rem', color: 'var(--text-whisper)', cursor: 'pointer', opacity: 0.5 }}
+                    style={{ fontSize: '0.6rem', color: 'var(--text-ghost)', cursor: 'pointer' }}
                   >
                     ?
                   </span>
-                  {hasPaid && !accessToken && (
-                    <a href={`/library/${authorId}/checkout/shadow`}
-                      style={{ fontSize: '0.55rem', color: 'var(--text-whisper)', textDecoration: 'none', marginLeft: '0.2rem' }}
-                      className="hover:opacity-60"
-                    >$</a>
-                  )}
                 </div>
                 {showInfo === 'shadow' && (
                   <p style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', fontStyle: 'italic', margin: '0.4rem 0 0', lineHeight: 1.6 }}>
@@ -318,7 +312,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                   </span>
                   <span
                     onClick={(e) => { e.stopPropagation(); toggleInfo('games'); }}
-                    style={{ fontSize: '0.55rem', color: 'var(--text-whisper)', cursor: 'pointer', opacity: 0.5 }}
+                    style={{ fontSize: '0.6rem', color: 'var(--text-ghost)', cursor: 'pointer' }}
                   >
                     ?
                   </span>
@@ -364,7 +358,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                 </span>
                 <span
                   onClick={(e) => { e.stopPropagation(); toggleInfo('works'); }}
-                  style={{ fontSize: '0.55rem', color: 'var(--text-whisper)', cursor: 'pointer', opacity: 0.5 }}
+                  style={{ fontSize: '0.6rem', color: 'var(--text-ghost)', cursor: 'pointer' }}
                 >
                   ?
                 </span>
