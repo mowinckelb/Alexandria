@@ -248,6 +248,9 @@ export function registerLibraryRoutes(app: Hono): void {
     if (body.display_name !== undefined) { updates.push('display_name = ?'); values.push(body.display_name); }
     if (body.bio !== undefined) { updates.push('bio = ?'); values.push(body.bio); }
     if (body.settings !== undefined) { updates.push('settings = ?'); values.push(JSON.stringify(body.settings)); }
+    if (body.website !== undefined) { updates.push('website = ?'); values.push(body.website); }
+    if (body.location !== undefined) { updates.push('location = ?'); values.push(body.location); }
+    if (body.social_links !== undefined) { updates.push('social_links = ?'); values.push(JSON.stringify(body.social_links)); }
 
     values.push(authorId);
     await db.prepare(`UPDATE authors SET ${updates.join(', ')} WHERE id = ?`).bind(...values).run();
@@ -386,7 +389,7 @@ echo "Done."
   app.get('/library/authors', async (c) => {
     const db = getDB();
     const { results } = await db.prepare(
-      `SELECT a.id, a.display_name, a.bio, a.settings, a.published_at, a.updated_at,
+      `SELECT a.id, a.display_name, a.bio, a.settings, a.website, a.location, a.social_links, a.published_at, a.updated_at,
               (SELECT COUNT(*) FROM shadows WHERE author_id = a.id) as shadow_count,
               (SELECT COUNT(*) FROM quizzes WHERE author_id = a.id AND active = 1) as quiz_count,
               (SELECT COUNT(*) FROM works WHERE author_id = a.id) as work_count
@@ -420,6 +423,8 @@ echo "Done."
         }
       } catch {}
     }
+
+    logEvent('library_author_view', { author: authorId });
 
     return c.json({ author, shadows: shadows.results, quizzes: quizzes.results, works: works.results, latest_pulse: latestPulse, shadow_chapters });
   });
@@ -463,8 +468,17 @@ echo "Done."
         return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
       }
 
-      // Authenticated Author — add to billing tab
+      // Authenticated user with active subscription — free access to all shadows
       if (accessor) {
+        if (accessor.subscription_id) {
+          const obj = await r2.get(shadow.r2_key);
+          if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
+          recordAccess('shadow_view', authorId, accessor.github_login, shadow.id, 'paid');
+          logEvent('library_paid_access_free', { author: authorId, accessor: accessor.github_login });
+          return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
+        }
+
+        // Non-subscriber authenticated user — add to billing tab
         const author = await db.prepare('SELECT settings FROM authors WHERE id = ?').bind(authorId).first<{ settings: string }>();
         const settings = JSON.parse(author?.settings || '{}');
         const priceCents = settings.paid_price_cents;
@@ -870,6 +884,9 @@ echo "Done."
     const quiz = await db.prepare('SELECT title FROM quizzes WHERE id = ?').bind(quizId).first<{ title: string }>();
     const author = await db.prepare('SELECT display_name FROM authors WHERE id = ?').bind(authorId).first<{ display_name: string }>();
 
+    recordAccess('quiz_share_view', authorId, null, quizId, null);
+    logEvent('library_quiz_share_view', { author: authorId, quiz_id: quizId, slug });
+
     return c.json({
       author_id: authorId,
       author_name: author?.display_name || authorId,
@@ -913,8 +930,17 @@ echo "Done."
           return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
         }
 
-        // Authenticated accessor — tab billing
+        // Authenticated accessor with active subscription — free access
         if (accessor) {
+          if (accessor.subscription_id) {
+            const obj = await r2.get(work.r2_key);
+            if (!obj) return c.json({ error: 'Work content not found' }, 404);
+            recordAccess('work_view', authorId, accessor.github_login, workId, 'paid');
+            logEvent('library_paid_access_free', { author: authorId, accessor: accessor.github_login });
+            return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
+          }
+
+          // Non-subscriber — tab billing
           const authorData = await db.prepare('SELECT settings FROM authors WHERE id = ?').bind(authorId).first<{ settings: string }>();
           const settings = JSON.parse(authorData?.settings || '{}');
           const priceCents = settings.paid_price_cents;
@@ -983,6 +1009,39 @@ echo "Done."
     ).bind(authorId).first<{ total: number }>();
 
     return c.json({ earnings_by_month: results, total_access: totalAccess?.total || 0, quiz_conversions: quizConversions?.total || 0 });
+  });
+
+  // Author stats (Author-authenticated)
+  app.get('/library/:author/stats', async (c) => {
+    const authorId = c.req.param('author');
+    const accessorKey = extractApiKey(c);
+    if (!accessorKey) return c.json({ error: 'Authentication required' }, 401);
+
+    const accessor = await findByApiKey(accessorKey);
+    if (!accessor || accessor.github_login !== authorId) return c.json({ error: 'Stats are private' }, 403);
+
+    const db = getDB();
+
+    const [accessCounts, referralSignups, earnings] = await Promise.all([
+      db.prepare(
+        `SELECT event, COUNT(*) as total FROM access_log WHERE author_id = ? AND event IN ('shadow_view', 'quiz_take', 'quiz_share_view') GROUP BY event`
+      ).bind(authorId).all(),
+      db.prepare('SELECT COUNT(*) as total FROM referrals WHERE author_id = ?').bind(authorId).first<{ total: number }>(),
+      db.prepare('SELECT SUM(author_cut_cents) as total FROM billing_tab WHERE author_id = ?').bind(authorId).first<{ total: number }>(),
+    ]);
+
+    const counts: Record<string, number> = {};
+    for (const row of (accessCounts.results || []) as Array<{ event: string; total: number }>) {
+      counts[row.event] = row.total;
+    }
+
+    return c.json({
+      shadow_views: counts['shadow_view'] || 0,
+      quiz_plays: counts['quiz_take'] || 0,
+      quiz_share_views: counts['quiz_share_view'] || 0,
+      referral_signups: referralSignups?.total || 0,
+      total_earnings_cents: earnings?.total || 0,
+    });
   });
 
 }
