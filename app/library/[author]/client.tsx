@@ -81,22 +81,6 @@ function PulseCardView({ card, authorName, authorId }: { card: PulseCard; author
         ))}
       </div>
 
-      {/* Ideas — what this person holds in their head */}
-      <div style={{ padding: '0.8rem 0 0', borderTop: '1px solid var(--border-light)' }}>
-        <p style={{ fontSize: '0.55rem', letterSpacing: '0.1em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.4rem' }}>ideas held</p>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-          <div>
-            <span style={{ fontSize: '1.3rem', color: 'var(--text-primary)', fontWeight: 300 }}>{card.ideas}</span>
-            <span style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', marginLeft: '0.4rem' }}>positions, mental models, and frameworks</span>
-          </div>
-          <span style={{ fontSize: '0.72rem', color: 'var(--text-ghost)' }}>+{card.ideas_delta}</span>
-        </div>
-        {card.themes && card.themes.length > 0 && (
-          <p style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', margin: '0.4rem 0 0' }}>
-            {card.themes.join(' · ')}
-          </p>
-        )}
-      </div>
 
       <div style={{ margin: '1.2rem 0 0', padding: '0.8rem 0 0', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <a href={`/library/${authorId}`}
