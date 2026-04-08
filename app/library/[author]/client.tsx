@@ -35,49 +35,11 @@ const mdComponents = {
   hr: () => <hr className="pdoc-hr" />,
 };
 
-const descriptions: Record<string, string> = {
-  pulse: 'my mind this month.',
-  shadow: 'how this person thinks, published as a file.',
-  games: 'quizzes generated from real cognitive data.',
-  works: 'published artifacts.',
-};
-
-function Section({ id, expanded, onToggle, children }: {
-  id: string;
-  expanded: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div style={{ margin: '0 0 1.2rem' }}>
-      <div
-        onClick={onToggle}
-        style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
-        className="hover:opacity-60"
-      >
-        <span style={{
-          fontSize: '0.65rem', color: 'var(--text-ghost)', display: 'inline-block',
-          transition: 'transform 0.2s', transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-        }}>
-          ›
-        </span>
-        <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>{id}</span>
-      </div>
-      {expanded && (
-        <div style={{ marginTop: '0.6rem', paddingLeft: '1rem' }}>
-          <p style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', fontStyle: 'italic', margin: '0 0 1rem', lineHeight: 1.6 }}>
-            {descriptions[id]}
-          </p>
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
-
 interface PulseCard {
-  closest_minds: Array<{ name: string; pct: number; why: string }>;
-  position: string;
+  alltime: { name: string; pct: number; why: string };
+  this_month: Array<{ name: string; why: string }>;
+  ideas: number;
+  ideas_delta: number;
   month: string;
 }
 
@@ -89,61 +51,51 @@ function PulseCardView({ card, authorName }: { card: PulseCard; authorName: stri
       padding: '1.5rem',
       maxWidth: '360px',
     }}>
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', margin: '0 0 1.5rem' }}>
-        <p style={{ fontSize: '0.95rem', color: 'var(--text-primary)', margin: 0, fontWeight: 400 }}>
-          {authorName}
-        </p>
-        <p style={{ fontSize: '0.55rem', letterSpacing: '0.1em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: 0 }}>
-          {card.month}
-        </p>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-primary)', margin: 0, fontWeight: 400 }}>{authorName}</p>
+        <p style={{ fontSize: '0.55rem', letterSpacing: '0.1em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: 0 }}>{card.month}</p>
       </div>
 
-      {/* Closest minds */}
-      <div style={{ margin: '0 0 1.5rem' }}>
-        {card.closest_minds.map((mind, i) => (
-          <div key={i} style={{ margin: '0 0 0.8rem' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.92rem', color: 'var(--text-primary)' }}>{mind.name}</span>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', fontWeight: 300 }}>{mind.pct}%</span>
-            </div>
-            <div style={{ height: '2px', background: 'var(--border-light)', marginTop: '0.3rem', borderRadius: '1px' }}>
-              <div style={{ height: '2px', background: 'var(--text-ghost)', width: `${mind.pct}%`, borderRadius: '1px', transition: 'width 0.5s' }} />
-            </div>
-            <p style={{ fontSize: '0.65rem', color: 'var(--text-ghost)', margin: '0.25rem 0 0', lineHeight: 1.5 }}>{mind.why}</p>
+      <div style={{ margin: '0 0 1.2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '1.05rem', color: 'var(--text-primary)' }}>{card.alltime.name}</span>
+          <span style={{ fontSize: '0.82rem', color: 'var(--text-ghost)', fontWeight: 300 }}>{card.alltime.pct}%</span>
+        </div>
+        <div style={{ height: '2px', background: 'var(--border-light)', marginTop: '0.3rem', borderRadius: '1px' }}>
+          <div style={{ height: '2px', background: 'var(--text-ghost)', width: `${card.alltime.pct}%`, borderRadius: '1px' }} />
+        </div>
+        <p style={{ fontSize: '0.65rem', color: 'var(--text-ghost)', margin: '0.3rem 0 0', lineHeight: 1.5 }}>{card.alltime.why}</p>
+      </div>
+
+      <div style={{ margin: '0 0 1.5rem', padding: '0.8rem 0 0', borderTop: '1px solid var(--border-light)' }}>
+        <p style={{ fontSize: '0.55rem', letterSpacing: '0.1em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.6rem' }}>this month</p>
+        {card.this_month.map((mind, i) => (
+          <div key={i} style={{ margin: '0 0 0.5rem' }}>
+            <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{mind.name}</span>
+            <span style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', marginLeft: '0.5rem' }}>{mind.why}</span>
           </div>
         ))}
       </div>
 
-      {/* Position */}
-      <div style={{ padding: '0.8rem 0 0', borderTop: '1px solid var(--border-light)' }}>
-        <p style={{ fontSize: '0.82rem', color: 'var(--text-primary)', margin: 0, lineHeight: 1.7, fontStyle: 'italic' }}>
-          &ldquo;{card.position}&rdquo;
-        </p>
+      <div style={{ padding: '0.8rem 0 0', borderTop: '1px solid var(--border-light)', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+        <div>
+          <span style={{ fontSize: '1.3rem', color: 'var(--text-primary)', fontWeight: 300 }}>{card.ideas}</span>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', marginLeft: '0.4rem' }}>ideas</span>
+        </div>
+        <span style={{ fontSize: '0.72rem', color: 'var(--text-ghost)' }}>+{card.ideas_delta} this month</span>
       </div>
 
-      {/* Watermark */}
-      <p style={{ fontSize: '0.5rem', color: 'var(--text-whisper)', margin: '1rem 0 0', textAlign: 'right', letterSpacing: '0.1em' }}>
-        alexandria.
-      </p>
+      <p style={{ fontSize: '0.5rem', color: 'var(--text-whisper)', margin: '1rem 0 0', textAlign: 'right', letterSpacing: '0.1em' }}>alexandria.</p>
     </div>
   );
 }
 
-interface SocialLink {
-  platform: string;
-  url: string;
-}
+interface SocialLink { platform: string; url: string }
 
 interface AuthorData {
   author: {
-    id: string;
-    display_name: string | null;
-    bio: string | null;
-    settings: string;
-    website: string | null;
-    location: string | null;
-    social_links: string | null;
+    id: string; display_name: string | null; bio: string | null; settings: string;
+    website: string | null; location: string | null; social_links: string | null;
   };
   shadows: Array<{ id: string; tier: string; size_bytes: number; updated_at: string }>;
   quizzes: Array<{ id: string; title: string; subtitle?: string; published_at: string }>;
@@ -153,11 +105,8 @@ interface AuthorData {
 }
 
 interface AuthorStats {
-  shadow_views: number;
-  quiz_plays: number;
-  quiz_share_views: number;
-  referral_signups: number;
-  total_earnings_cents: number;
+  shadow_views: number; quiz_plays: number; quiz_share_views: number;
+  referral_signups: number; total_earnings_cents: number;
 }
 
 export default function AuthorPageClient({ params }: { params: Promise<{ author: string }> }) {
@@ -168,11 +117,16 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
   const [accessToken, setAccessToken] = useState<{ token: string; api_url: string } | null>(null);
   const [pulse, setPulse] = useState<string>('');
   const [stats, setStats] = useState<AuthorStats | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [showAllGames, setShowAllGames] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
 
-  const toggle = (key: string) => setExpanded(expanded === key ? null : key);
+  const copyText = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   useEffect(() => {
     params.then(({ author }) => {
@@ -207,9 +161,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
       }
       const apiKey = typeof window !== 'undefined' ? localStorage.getItem('alexandria_api_key') : null;
       if (apiKey) {
-        fetch(`${SERVER_URL}/library/${author}/stats`, {
-          headers: { 'Authorization': `Bearer ${apiKey}` },
-        })
+        fetch(`${SERVER_URL}/library/${author}/stats`, { headers: { 'Authorization': `Bearer ${apiKey}` } })
           .then(r => { if (r.ok) return r.json(); return null; })
           .then(d => { if (d) setStats(d); })
           .catch(() => {});
@@ -238,6 +190,11 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
   const socialLinks: SocialLink[] = author.social_links ? JSON.parse(author.social_links) : [];
   const signupRef = `ref=${encodeURIComponent(authorId)}&ref_source=library`;
 
+  let pulseCard: PulseCard | null = null;
+  try { pulseCard = JSON.parse(pulse); } catch {}
+
+  const visibleQuizzes = showAllGames ? data.quizzes : data.quizzes.slice(0, 3);
+
   return (
     <>
       <ThemeToggle />
@@ -254,9 +211,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
             )}
           </div>
           {author.location && (
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', margin: '0.3rem 0 0' }}>
-              {author.location}
-            </p>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-ghost)', margin: '0.3rem 0 0' }}>{author.location}</p>
           )}
           {(author.website || socialLinks.length > 0) && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem', marginTop: '0.5rem' }}>
@@ -264,157 +219,149 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                 <a href={author.website} target="_blank" rel="noopener noreferrer"
                   style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s' }}
                   className="hover:opacity-60"
-                >
-                  {author.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                </a>
+                >{author.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a>
               )}
               {socialLinks.map((link, i) => (
                 <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
                   style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s' }}
                   className="hover:opacity-60"
-                >
-                  {link.platform}
-                </a>
+                >{link.platform}</a>
               ))}
             </div>
           )}
         </div>
 
         {/* ── HOW I THINK ── */}
-        {(pulse || shadow || paidShadow || data.quizzes.length > 0) && (
-          <section style={{ margin: '0 0 2.5rem' }}>
-            <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 1.5rem' }}>how i think</p>
+        <section style={{ margin: '0 0 3rem' }}>
+          <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 1.5rem' }}>how i think</p>
 
-            {/* Pulse */}
-            {pulse && (() => {
-              let card: PulseCard | null = null;
-              try { card = JSON.parse(pulse); } catch {}
-              return (
-                <Section id="pulse" expanded={expanded === 'pulse'} onToggle={() => toggle('pulse')}>
-                  {card?.closest_minds ? (
-                    <PulseCardView card={card} authorName={displayName} />
-                  ) : (
-                    <div style={{ fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: 1.8 }}>
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{pulse}</ReactMarkdown>
-                    </div>
-                  )}
-                </Section>
-              );
-            })()}
+          {/* Pulse card — shows directly */}
+          {pulseCard?.alltime && (
+            <div style={{ margin: '0 0 2rem' }}>
+              <PulseCardView card={pulseCard} authorName={displayName} />
+            </div>
+          )}
+          {pulse && !pulseCard?.alltime && (
+            <div style={{ fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: 1.8, margin: '0 0 2rem' }}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{pulse}</ReactMarkdown>
+            </div>
+          )}
 
-            {/* Shadow */}
-            {(hasFree || hasPaid || paidShadow) && (
-              <Section id="shadow" expanded={expanded === 'shadow'} onToggle={() => toggle('shadow')}>
-                {accessToken ? (
-                  <div>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', margin: '0 0 1rem', lineHeight: 1.7 }}>
-                      your access token. give this url to any ai.
-                    </p>
-                    <div
-                      onClick={() => {
-                        navigator.clipboard.writeText(accessToken.api_url);
-                        const el = document.getElementById('url-copied');
-                        if (el) { el.textContent = 'copied'; setTimeout(() => { el.textContent = 'click to copy'; }, 2000); }
-                      }}
-                      style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '4px', cursor: 'pointer', margin: '0 0 0.5rem' }}
-                    >
-                      <code style={{ fontSize: '0.7rem', color: 'var(--text-primary)', wordBreak: 'break-all', fontFamily: 'monospace' }}>
-                        {accessToken.api_url}
-                      </code>
-                    </div>
-                    <p id="url-copied" style={{ fontSize: '0.68rem', color: 'var(--text-ghost)', margin: '0 0 1rem' }}>click to copy</p>
-                    {paidShadow && (
-                      <span
-                        onClick={() => {
-                          navigator.clipboard.writeText(paidShadow);
-                          const el = document.getElementById('shadow-copied');
-                          if (el) { el.textContent = 'copied'; setTimeout(() => { el.textContent = 'copy shadow to clipboard'; }, 2000); }
-                        }}
-                        id="shadow-copied"
-                        style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', cursor: 'pointer', transition: 'opacity 0.15s' }}
-                        className="hover:opacity-60"
-                      >
-                        copy shadow to clipboard
-                      </span>
-                    )}
-                  </div>
-                ) : (
-                  <div>
-                    {/* Free shadow */}
-                    {hasFree && shadow && (
-                      <div style={{ margin: '0 0 1.5rem' }}>
-                        <p style={{ fontSize: '0.7rem', color: 'var(--text-ghost)', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 0.6rem' }}>free</p>
-                        <div style={{ fontSize: '0.88rem', color: 'var(--text-primary)', lineHeight: 1.8 }}>
-                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{shadow}</ReactMarkdown>
-                        </div>
-                      </div>
-                    )}
-                    {/* Paid shadow teaser */}
-                    {hasPaid && (
-                      <div>
-                        <p style={{ fontSize: '0.7rem', color: 'var(--text-ghost)', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 0.6rem' }}>premium</p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                          {(data.shadow_chapters || []).map((title, i) => (
-                            <span key={i} style={{ fontSize: '0.85rem', color: 'var(--text-muted)', opacity: Math.max(0.35, 1 - (i * 0.07)) }}>{title}</span>
-                          ))}
-                        </div>
-                        <a
-                          href={`/library/${authorId}/checkout/shadow`}
-                          style={{ display: 'inline-block', marginTop: '1rem', fontSize: '0.72rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s' }}
-                          className="hover:opacity-60"
-                        >
-                          {authorId}.md
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Section>
-            )}
+          {/* Games — show 3, chevron for more */}
+          {data.quizzes.length > 0 && (
+            <div style={{ margin: '0 0 2rem' }}>
+              <p style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>games</p>
+              {visibleQuizzes.map(quiz => (
+                <a
+                  key={quiz.id}
+                  href={`/library/${authorId}/quiz/${quiz.id}`}
+                  style={{ textDecoration: 'none', color: 'inherit', display: 'block', margin: '0 0 0.6rem', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
+                >
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{quiz.title}</span>
+                </a>
+              ))}
+              {data.quizzes.length > 3 && !showAllGames && (
+                <span
+                  onClick={() => setShowAllGames(true)}
+                  style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
+                >
+                  + {data.quizzes.length - 3} more
+                </span>
+              )}
+            </div>
+          )}
 
-            {/* Games */}
-            {data.quizzes.length > 0 && (
-              <Section id="games" expanded={expanded === 'games'} onToggle={() => toggle('games')}>
-                {data.quizzes.map(quiz => (
-                  <a
-                    key={quiz.id}
-                    href={`/library/${authorId}/quiz/${quiz.id}`}
-                    style={{ textDecoration: 'none', color: 'inherit', display: 'block', margin: '0 0 0.8rem', transition: 'opacity 0.15s' }}
-                    className="hover:opacity-60"
+          {/* Shadow — free (copy) + premium (pay) */}
+          {(hasFree || hasPaid) && (
+            <div>
+              <p style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>shadow</p>
+
+              {accessToken ? (
+                <div>
+                  <div
+                    onClick={() => copyText(accessToken.api_url, 'token')}
+                    style={{ background: 'var(--bg-secondary)', padding: '0.8rem', borderRadius: '4px', cursor: 'pointer', margin: '0 0 0.3rem' }}
                   >
-                    <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{quiz.title}</span>
-                    {quiz.subtitle && <span style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', marginLeft: '0.5rem' }}>{quiz.subtitle}</span>}
-                  </a>
-                ))}
-              </Section>
-            )}
-          </section>
-        )}
+                    <code style={{ fontSize: '0.65rem', color: 'var(--text-primary)', wordBreak: 'break-all', fontFamily: 'monospace' }}>
+                      {accessToken.api_url}
+                    </code>
+                  </div>
+                  <p style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', margin: '0 0 1rem' }}>
+                    {copiedId === 'token' ? 'copied' : 'click to copy — give this url to any ai'}
+                  </p>
+                  {paidShadow && (
+                    <span
+                      onClick={() => copyText(paidShadow, 'paid-shadow')}
+                      style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                      className="hover:opacity-60"
+                    >
+                      {copiedId === 'paid-shadow' ? 'copied' : 'copy shadow to clipboard'}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  {hasFree && shadow && (
+                    <span
+                      onClick={() => copyText(shadow, 'free-shadow')}
+                      style={{ fontSize: '0.88rem', color: 'var(--text-primary)', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                      className="hover:opacity-60"
+                    >
+                      {copiedId === 'free-shadow' ? 'copied to clipboard' : `${displayName.split(' ')[0].toLowerCase()}.md`}
+                      <span style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', marginLeft: '0.5rem' }}>
+                        {copiedId === 'free-shadow' ? '' : 'free — click to copy'}
+                      </span>
+                    </span>
+                  )}
+                  {hasPaid && (
+                    <a
+                      href={`/library/${authorId}/checkout/shadow`}
+                      style={{ fontSize: '0.88rem', color: 'var(--text-primary)', textDecoration: 'none', transition: 'opacity 0.15s' }}
+                      className="hover:opacity-60"
+                    >
+                      {authorId}.md
+                      <span style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', marginLeft: '0.5rem' }}>premium</span>
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </section>
 
         {/* ── WHAT I DO ── */}
-        {data.works.length > 0 && (
-          <section style={{ margin: '0 0 2.5rem' }}>
+        {(data.works.length > 0 || author.website || socialLinks.length > 0) && (
+          <section style={{ margin: '0 0 3rem' }}>
             <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 1.5rem' }}>what i do</p>
 
-            <Section id="works" expanded={expanded === 'works'} onToggle={() => toggle('works')}>
-              {data.works.map(work => {
-                const isPaid = work.tier === 'paid';
-                return (
-                  <div
-                    key={work.id}
-                    onClick={() => {
-                      if (isPaid) return;
-                      window.open(work.url || `${SERVER_URL}/library/${authorId}/work/${work.id}`, '_blank');
-                    }}
-                    style={{ margin: '0 0 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
-                    className="hover:opacity-60"
-                  >
-                    <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{work.title}</span>
-                    {isPaid && <span style={{ fontSize: '0.65rem', color: 'var(--text-whisper)' }}>$</span>}
-                  </div>
-                );
-              })}
-            </Section>
+            {data.works.map(work => {
+              const isPaid = work.tier === 'paid';
+              return (
+                <a
+                  key={work.id}
+                  href={work.url || `${SERVER_URL}/library/${authorId}/work/${work.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'none', display: 'block', margin: '0 0 0.6rem', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
+                  onClick={(e) => { if (isPaid) { e.preventDefault(); } }}
+                >
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{work.title}</span>
+                  {isPaid && <span style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', marginLeft: '0.5rem' }}>premium</span>}
+                </a>
+              );
+            })}
+
+            {author.website && (
+              <a href={author.website} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'block', margin: '0.6rem 0 0', fontSize: '0.88rem', color: 'var(--text-primary)', textDecoration: 'none', transition: 'opacity 0.15s' }}
+                className="hover:opacity-60"
+              >
+                {author.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+              </a>
+            )}
           </section>
         )}
 
