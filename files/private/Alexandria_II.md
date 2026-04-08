@@ -546,21 +546,11 @@ PRIVACY AND AUTHOR CONTROL
   
 The Shadow must behave differently in different contexts, just as humans do. This is social intelligence, not dishonesty.  
   
-Two infrastructure-level access tiers govern all Shadow and Library interactions. These are hard infrastructure — like HTTP status codes or Creative Commons licenses — required for Alexandria to aggregate, filter, and price across Authors. Everything else is an Engine intelligence decision: how the Author organises their social world, what goes in each tier, how granular the access controls are. The Engine decides the shape. Alexandria provides the rails.
+Access is the Author's choice. The only hard constraint: at least one file must be free to all other Authors (requirement #4 — the minimum that makes the network function). Everything beyond that — public access, paid tiers, enterprise deals, constraints on who sees what — is the Author's decision. The Engine advises. Alexandria serves what the Author publishes.
 
-Free — Anyone can access. Library discovery layer. The public shadow MD — surface-level fragments within the Author's configured boundaries. The shopfront. Non-Authors see the free tier then the signup CTA.
+In practice, most Authors will have at least two tiers: a free shadow (visible to other Authors, optionally public) and additional content at a price the Author sets. But the tier structure itself is not prescribed. Some Authors may have one file. Some may have ten. The Engine figures out what serves each Author.
 
-Paid — The Author sets the price. Deeper fragments, more domains, higher fidelity. Accessed by humans, by LLMs (Library API), or programmatically. Payment is access to the artifact, not compute — pure margin. Alexandria takes a percentage.
-
-How the Author organises access beyond these two rails — who sees what, which Constitution domains are visible to whom, whether to create personal/professional/inner-circle distinctions — is entirely the Engine's intelligence decision per Author. Some Authors will have two modes. Some will have five. The infrastructure does not prescribe social structure. It gates monetisation.
-
-Network effects — both sides of the Library compound. Two mechanics:
-
-1. Authors browse the Library free at the free tier. Every Author's subscription includes access to every other Author's free shadow fragments. More Authors = more free-tier shadows to browse = more valuable subscription. The Library grows with every Author who publishes. This is a real network effect: the product gets better with scale, not just bigger.
-
-2. The paid tier costs money for everyone. Authors earn when others access their paid shadow. This is not cannibalised — Authors pay for other Authors' depth just like anyone else. Whether Authors get a discount on paid access is an intelligence decision (Factory/Engine), not a hard-code. The paid tier is where Authors earn. Do not undermine it.
-
-Non-Authors get the free tier (acquisition funnel) and pay for depth (revenue). Every Library interaction either converts a visitor into an Author or is an Author absorbing other Authors. Both are wins.
+Network effects: Authors get all shadows (free + paid) included in their subscription. More Authors = more shadows to access = more valuable subscription. Authors earn from non-Author paid access. Non-Authors get the free tier (acquisition funnel) and pay per access for depth (revenue + conversion). The network compounds on both sides: subscribing is more valuable (access) and publishing is more valuable (audience).
 
 The Author-side network effect is the strongest acquisition mechanic. Both constitutions in the room makes every conversation richer — augmented group chats, cross-constitution contradiction surfacing. Being an Author makes you a better reader (deeper understanding of what constitutions contain), which makes being an Author more valuable. Both sides compound.  
   
@@ -816,7 +806,7 @@ Paid — The Author sets the price. Deeper fragments, more domains, higher fidel
 
 How Authors organise access beyond free/paid — inner circles, professional boundaries, invite-only content — is the Engine's intelligence decision. Some Authors will have two modes. Some will have five. The infrastructure does not prescribe social structure. It gates monetisation.
 
-Network effects: Authors browse all free-tier shadows included in their subscription. The paid tier costs money for everyone — Authors earn here, do not cannibalise it. Whether Authors get a discount on paid access is an intelligence decision, not a hard-code. More Authors = more free shadows to browse = more valuable subscription. Both sides compound.  
+Network effects: Authors get all shadows (free + paid) included in their subscription. No Author-to-Author payment. Authors earn from non-Author paid access. More Authors = more shadows to access = more valuable subscription. The network compounds on both sides.  
   
 NEO-BIOGRAPHY PRODUCT MODEL  
   
