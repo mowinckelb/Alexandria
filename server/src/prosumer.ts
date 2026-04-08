@@ -1202,7 +1202,7 @@ export async function runHealthDigest(force = false): Promise<void> {
     let dashboardUrl = `${SERVER_URL}/analytics/dashboard`;
     try {
       const accounts = await loadAccounts<AccountStore>();
-      const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
+      const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
       const founderAcct = Object.values(accounts).find(a => a.github_login === adminLogin);
       if (founderAcct) {
         const token = createHash('sha256').update(founderAcct.api_key + ':email').digest('hex').slice(0, 24);
@@ -1332,13 +1332,21 @@ export function registerProsumerRoutes(app: Hono) {
         email = primary?.email || emails[0]?.email || '';
       }
 
-      // Create or update account
+      // Create or update account — match by ID first, fall back to login (handles GitHub username renames)
       const key = `github_${user.id}`;
       const accounts = await loadAccounts<AccountStore>();
-      const existing = accounts[key];
+      let existing = accounts[key];
+      if (!existing) {
+        const legacyKey = Object.keys(accounts).find(k => accounts[k].github_login === user.login);
+        if (legacyKey) {
+          existing = accounts[legacyKey];
+          delete accounts[legacyKey];
+        }
+      }
       const apiKey = existing?.api_key || generateApiKey();
 
       accounts[key] = {
+        ...existing,
         github_id: user.id,
         github_login: user.login,
         email,
@@ -1629,7 +1637,7 @@ export function registerProsumerRoutes(app: Hono) {
     }
 
     // Restrict to founder only — feedback contains all users' data
-    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
     if (account.github_login !== adminLogin) {
       return c.json({ error: 'Not authorized' }, 403);
     }
@@ -1699,7 +1707,7 @@ export function registerProsumerRoutes(app: Hono) {
     const key = extractApiKey(c);
     if (!key) return c.text('missing key', 401);
     const account = await findByApiKey(key);
-    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
     if (!account || account.github_login !== adminLogin) return c.text('not authorized', 403);
 
     const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
@@ -1728,7 +1736,7 @@ export function registerProsumerRoutes(app: Hono) {
     const key = extractApiKey(c);
     if (!key) return c.text('missing key', 401);
     const account = await findByApiKey(key);
-    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
     if (!account || account.github_login !== adminLogin) return c.text('not authorized', 403);
 
     const kv = getKV();
@@ -1757,7 +1765,7 @@ export function registerProsumerRoutes(app: Hono) {
     const key = extractApiKey(c);
     if (!key) return c.text('missing key', 401);
     const account = await findByApiKey(key);
-    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
     if (!account || account.github_login !== adminLogin) return c.text('not authorized', 403);
 
     const body = await c.req.json().catch(() => ({}));
@@ -1787,7 +1795,7 @@ export function registerProsumerRoutes(app: Hono) {
 
   app.get('/dashboard', async (c) => {
     const accounts = await loadAccounts<AccountStore>();
-    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'benmowinckel';
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
 
     // Auth: email token (?t=) or API key (?key=)
     const token = c.req.query('t');
