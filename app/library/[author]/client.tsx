@@ -305,15 +305,16 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                   {hasFree && shadow && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div
+                      onClick={() => copyText(shadow, 'free-shadow')}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                      className="hover:opacity-60"
+                    >
                       <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{authorId}-free.md</span>
                       <svg
-                        onClick={() => copyText(shadow, 'free-shadow')}
                         width="13" height="13" viewBox="0 0 24 24" fill="none"
                         stroke={copiedId === 'free-shadow' ? 'var(--text-muted)' : 'var(--text-ghost)'}
                         strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-                        style={{ cursor: 'pointer', transition: 'opacity 0.15s' }}
-                        className="hover:opacity-60"
                       >
                         {copiedId === 'free-shadow' ? (
                           <polyline points="20 6 9 17 4 12" />
