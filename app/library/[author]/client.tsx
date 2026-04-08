@@ -305,27 +305,13 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                   {hasFree && (
-                    <div
+                    <span
                       onClick={() => copyText(`${SERVER_URL}/library/${authorId}/shadow/free`, 'free-shadow')}
-                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                      style={{ fontSize: '0.88rem', color: 'var(--text-primary)', cursor: 'pointer', transition: 'opacity 0.15s', display: 'block', margin: '0 0 0.6rem' }}
                       className="hover:opacity-60"
                     >
-                      <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{authorId}-free.md</span>
-                      <svg
-                        width="13" height="13" viewBox="0 0 24 24" fill="none"
-                        stroke={copiedId === 'free-shadow' ? 'var(--text-muted)' : 'var(--text-ghost)'}
-                        strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-                      >
-                        {copiedId === 'free-shadow' ? (
-                          <polyline points="20 6 9 17 4 12" />
-                        ) : (
-                          <>
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                          </>
-                        )}
-                      </svg>
-                    </div>
+                      {copiedId === 'free-shadow' ? 'copied' : `${authorId}-free.md`}
+                    </span>
                   )}
                   {hasPaid && (
                     <a
