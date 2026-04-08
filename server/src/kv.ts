@@ -2,13 +2,16 @@
  * KV persistence layer — replaces filesystem I/O.
  *
  * Single KV namespace (DATA) with key prefixes:
- *   "accounts"        → JSON string of all accounts
- *   "oauth_clients"   → JSON string of OAuth client registrations
- *   "events:YYYY-MM-DD" → JSONL string of events for that day
+ *   "accounts:encrypted" → AES-256-GCM encrypted JSON of all accounts
+ *   "accounts"           → LEGACY plaintext (migrated on first save)
+ *   "oauth_clients"      → JSON string of OAuth client registrations
+ *   "events:YYYY-MM-DD"  → JSONL string of events for that day
  *
  * KV is eventually consistent across edge locations.
  * Acceptable — these are not real-time critical.
  */
+
+import { encrypt, decrypt } from './crypto.js';
 
 // Global KV reference — set by middleware on each request
 let _kv: KVNamespace | null = null;
@@ -28,13 +31,48 @@ export function getKV(): KVNamespace {
 
 export async function loadAccounts<T>(): Promise<T> {
   const kv = getKV();
+
+  // Try encrypted blob first (post-migration)
+  const encrypted = await kv.get('accounts:encrypted');
+  if (encrypted) {
+    try {
+      return JSON.parse(decrypt(encrypted)) as T;
+    } catch (e) {
+      // Encrypted key exists but decrypt failed — this is a hard error, not a fallback scenario.
+      // Falling back to plaintext here would let an attacker bypass encryption.
+      console.error('[kv] CRITICAL: Decrypt failed on existing encrypted blob:', e);
+      try {
+        const { logEvent } = await import('./analytics.js');
+        logEvent('security_degradation', { reason: 'accounts_decrypt_failed', error: String(e) });
+      } catch { /* can't log */ }
+      // Return empty rather than falling back to potentially stale/tampered plaintext
+      return {} as T;
+    }
+  }
+
+  // Plaintext only valid during initial migration (no encrypted key exists yet)
   const data = await kv.get('accounts', 'json');
   return (data || {}) as T;
 }
 
 export async function saveAccounts<T>(accounts: T): Promise<void> {
   const kv = getKV();
-  await kv.put('accounts', JSON.stringify(accounts, null, 2));
+  const json = JSON.stringify(accounts, null, 2);
+
+  try {
+    await kv.put('accounts:encrypted', encrypt(json));
+    // Delete plaintext key on successful encryption (one-time migration)
+    try { await kv.delete('accounts'); } catch { /* non-fatal */ }
+  } catch (e) {
+    // FAIL LOUDLY: encryption failure is a security degradation, not a graceful fallback
+    console.error('[kv] CRITICAL: Encrypt failed, saving plaintext:', e);
+    await kv.put('accounts', json);
+    // Surface to health digest — this must not stay silent
+    try {
+      const { logEvent } = await import('./analytics.js');
+      logEvent('security_degradation', { reason: 'accounts_encryption_failed', error: String(e) });
+    } catch { /* can't log — at least console.error fired */ }
+  }
 }
 
 // ---------------------------------------------------------------------------

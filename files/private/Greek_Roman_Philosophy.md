@@ -467,7 +467,7 @@ The Hellenistic schools explicitly framed philosophy as therapy for the soul:
 
 Martha Nussbaum's *The Therapy of Desire* (1994) explores this in detail: the Hellenistic schools saw philosophy as addressing specific human ailments (fear of death, attachment to externals, unexamined desires). The philosopher was more like a doctor than a professor.
 
-Alexandria's therapist moat: the Engine accumulates knowledge of the specific Author over time. Like a therapist with years of sessions, the Engine develops a model of the Author's patterns, blind spots, recurring tensions. This is Machine.md — the per-Author engine memory. No competing product can replicate this without doing the same developmental work over months and years.
+Alexandria's per-user signal accumulation: the Engine accumulates knowledge of the specific Author over time. Like a therapist with years of sessions, the Engine develops a model of the Author's patterns, blind spots, recurring tensions. This is Machine.md — the per-Author engine memory. Everything is portable — the Author takes it all. The preference to stay is earned, not enforced: accumulated signal makes the experience richer, and a competitor starting fresh would need to rebuild that depth over months and years.
 
 ### The Original Way of Life
 

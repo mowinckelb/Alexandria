@@ -1,13 +1,11 @@
 /**
- * Stateless token encryption.
+ * Cryptographic utilities — encryption, hashing, key management.
  *
- * The server stores ZERO user data. Google's refresh token is encrypted
- * with a server-side key and returned to Claude as the "access token."
- * On each MCP request, Claude sends it back, we decrypt to get the
- * Google refresh token. The server remains stateless.
+ * AES-256-GCM for data at rest (accounts blob).
+ * SHA-256 for API key hashing (server never stores raw keys).
  */
 
-import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
+import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
 
@@ -38,4 +36,14 @@ export function decrypt(token: string): string {
   const decipher = createDecipheriv(ALGORITHM, key, iv);
   decipher.setAuthTag(tag);
   return decipher.update(ciphertext) + decipher.final('utf8');
+}
+
+/** One-way hash for API keys — server stores this, never the raw key. */
+export function hashApiKey(key: string): string {
+  return createHash('sha256').update(key).digest('hex');
+}
+
+/** Generate a random token (hex string). */
+export function generateToken(bytes = 12): string {
+  return randomBytes(bytes).toString('hex');
 }

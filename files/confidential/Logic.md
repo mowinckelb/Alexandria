@@ -140,7 +140,7 @@ P21. The implementation is hidden. The extraction logic — the instructions tha
 
 (Settled. Architectural fact.)
 
-P22. Each user's experience compounds over time through an append-only feedback log — unstructured text capturing what worked, what the user corrected, what they responded well to, what they deflected. After hundreds of sessions, a competitor starting fresh has no log — a noticeably worse experience even with the same Constitution. This is the therapist moat. Design constraint: the bitter lesson — unstructured data appreciates with model quality. As models improve, they extract more value from the same log without any change to the format.
+P22. Each user's experience compounds over time through an append-only feedback log — unstructured text capturing what worked, what the user corrected, what they responded well to, what they deflected. After hundreds of sessions, a competitor starting fresh has no log — a noticeably worse experience even with the same Constitution. This is per-user signal accumulation — earned preference, not lock-in. Everything is portable. The user stays because the experience is better, not because anything is trapped. Design constraint: the bitter lesson — unstructured data appreciates with model quality. As models improve, they extract more value from the same log without any change to the format.
 
 (Settled on the mechanism. Assumption on whether the feedback log advantage is large enough to matter.)
 
@@ -188,7 +188,7 @@ P29. The Constitution compounds over time — every conversation adds signal, ev
 
 (Settled. Compounding is structural.)
 
-P30. The only rational reasons to cancel: the user stops using ai entirely (increasingly impossible), the user finds a strictly superior alternative (possible but the therapist moat makes switching costly), or the user does not value self-knowledge at all (real but self-selecting minority).
+P30. The only rational reasons to cancel: the user stops using ai entirely (increasingly impossible), the user finds a strictly superior alternative (possible but accumulated signal makes the experience here richer — earned preference, not lock-in), or the user does not value self-knowledge at all (real but self-selecting minority).
 
 (Settled on the logic. Assumption on churn magnitude.)
 

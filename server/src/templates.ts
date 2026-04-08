@@ -22,7 +22,8 @@ const ICON_INFO = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" s
 export function callbackPageHtml(login: string, apiKey: string): string {
   const SERVER_URL = getServerUrl();
   const WEBSITE_URL = getWebsiteUrl();
-  const curlCmd = `curl -s ${SERVER_URL}/setup | bash -s ${apiKey}`;
+  const isReturning = !apiKey;
+  const curlCmd = isReturning ? '' : `curl -s ${SERVER_URL}/setup | bash -s ${apiKey}`;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,12 +118,15 @@ export function callbackPageHtml(login: string, apiKey: string): string {
     <p class="line" style="font-size: 0.95rem; color: #8a8078; line-height: 1.7;">these three steps put files on your machine and tell your cli how to use them. no program. no app. just markdown and shell scripts you can read. we never see your data &mdash; it is <a class="action" onclick="copyTrust(this)" style="font-size: inherit;">architecturally impossible <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a></p>
     <p class="line" style="font-size: 0.88rem; color: #bbb4aa; line-height: 1.6; margin-top: 0.4rem;">questions during setup? read the <a class="action" onclick="copyTrust(this)" style="font-size: inherit; color: #8a8078;">Trust.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; full disclosure of every file, every network call. or just ask in your cli or ide &mdash; it can read everything alexandria installs. once you're set up, it knows everything you know. ask it anything, give it feedback, make it yours.</p>
   </div>
-  <div class="section">
+  ${isReturning ? `<div class="section">
+    <p class="label">welcome back</p>
+    <p class="line" style="color: #8a8078;">you're already set up. /a to start a session.</p>
+  </div>` : `<div class="section">
     <p class="label">setup</p>
     <p class="line"><a class="action" onclick="copyPrime(this)">1. prime <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in terminal <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">checks your machine has what alexandria needs. if github cli is installed, it logs you in for private backup. run this first.</span></span></p>
     <p class="line"><a class="action" onclick="copyCmd(this)">2. curl <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in terminal <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">installs alexandria on your machine. creates ~/.alexandria/, configures your cli and ide. everything local, nothing sent anywhere.</span></span></p>
     <p class="line"><a class="action" onclick="copyBlock(this)">3. block <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in new tab <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">open a new conversation in your cli or ide. paste the block. it reads your files to understand you — builds your starter constitution. let it work.</span></span></p>
-  </div>
+  </div>`}
   <div class="section">
     <p class="label">you're set up</p>
     <p class="line">/a to start a session. a. to close it.</p>

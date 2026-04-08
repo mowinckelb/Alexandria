@@ -22,7 +22,7 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 **Product IP (ax — downstream of an, regenerated when an changes):**
 - `Axioms.md` — The sacred layer. What Alexandria IS and WHY. Five operations, five-layer pipeline (vault→ontology→constitution→shadow→library), objective function, sovereignty, neutral infrastructure. Extracted from a1+a2. Read for: philosophical questions, what's non-negotiable.
 - `Blueprint.md` — The variable methodology. HOW to develop human cognition. Function assemblies (Editor/Mercury/Publisher craft), constitution data architecture, meta-principles, compounding architecture. Factory output — improves with every Author. Read for: product methodology, extraction design, mode behavior.
-- `Machine.md` — Per-Author engine memory template. The Engine's evolving model of how to work with a specific Author. Living document, rewritten as the Engine learns. Read for: per-Author calibration, therapist moat.
+- `Machine.md` — Per-Author engine memory template. The Engine's evolving model of how to work with a specific Author. Living document, rewritten as the Engine learns. Read for: per-Author calibration, earned preference.
 - `Design.md` — Elite last principles. Craft substrate: shadows, borders, spacing, typography, color, animation, layout. The proven defaults the best designers converge on. Not taste (that's a4 + Taste.md) — physics. Read for: any design/UI implementation. Updated as new references are absorbed.
 
 **Founder's Constitution (lives at `~/.alexandria/constitution/` — the product, used as designed):**
@@ -70,7 +70,7 @@ Public artifacts live in `public/docs/`. Vercel serves static files from `public
 
 Five loops. Full spec in Blueprint.md section V (served to every Engine every session). Summary:
 
-1. **Machine** (per-Author, per-session) — Engine reads constitution + ontology + machine.md + notepad + feedback → works with Author → writes back all five. The therapist moat.
+1. **Machine** (per-Author, per-session) — Engine reads constitution + ontology + machine.md + notepad + feedback → works with Author → writes back all five. Earned preference through accumulated signal.
 2. **Ontology** (per-Author, multi-session) — vault → Engine processes → ontology/ (proposals) → Author confirms → constitution/ (truth). Reprocessing same vault + evolved constitution = new signal each pass.
 3. **Factory** (cross-Author) — .machine_signal collected per session → /factory/signal → accumulates → founder reviews → Blueprint updated → auto-fetched by all Authors.
 4. **Vision** (company-level) — founder thinking → a0 → crystallises → an → Axioms + Blueprint regenerated → deployed.

@@ -4,7 +4,7 @@
 
 Every person who dies without getting their inner world out is a library burning.
 
-Alexandria is Greek philosophy infrastructure. A mental gym for builders. It develops human cognition through ai — captures it, sharpens it, preserves it, releases it into the world. Local files on the user's machine. Five dollars a month. An elegant solution to a civilisational problem. The product is the changed person — and the changed person's work is distinctly theirs.
+Alexandria is Greek philosophy infrastructure. A mental gym for builders. It develops human cognition through ai — captures it, sharpens it, preserves it, releases it into the world. Local files on the user's machine. Free with five active kin, ten dollars a month without. An elegant solution to a civilisational problem. The product is the changed person — and the changed person's work is distinctly theirs.
 
 ---
 
@@ -54,7 +54,7 @@ The dead speak loudest. Dot shut down October 2025 — users lost their data. Li
 
 If Apple builds this, the category is validated and Alexandria is the acquisition target. Startups with $100M+ in fragments validate the space. Nobody has the full stack.
 
-Defensibility is a cost gradient, not a wall: hidden extraction methodology (server-side Blueprint), per-user compounding (append-only feedback log — the therapist moat), philosophical depth, and accumulated user data. None is individually a wall. Together they are a meaningful head start that widens with time.
+Defensibility is a cost gradient, not a wall: hidden extraction methodology (server-side Blueprint), per-user signal accumulation (append-only feedback log — earned preference, not lock-in), philosophical depth, and accumulated user data. None is individually a wall. Together they are a meaningful head start that widens with time.
 
 ---
 

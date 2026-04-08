@@ -84,6 +84,18 @@ Additionally, if `~/.alexandria/` is a git repo with a remote (set up during ins
 
 The server is a stateless Cloudflare Worker. No database for private data. There is no storage mechanism for your constitution, vault, or conversations. The server serves methodology and collects anonymous metadata. If you give feedback at session close, that text is sent and stored (90-day expiry) so the team can read and act on it. Nothing else.
 
+## Security architecture
+
+Your API key never leaves your machine after setup. It is not in any email, not in any third-party metadata, not stored on our server. Here is how:
+
+- **API keys are hashed server-side.** We store SHA-256 hashes, never raw keys. When your hooks authenticate, we hash what they send and compare hashes. If our entire server is compromised, the attacker gets hashes they cannot reverse.
+- **Account data is encrypted at rest.** The accounts blob in our KV store is encrypted with AES-256-GCM. The encryption key lives in the Worker environment, not in storage. A storage-layer breach yields encrypted data without the key.
+- **No credentials in email.** The welcome email links to your setup page. The API key appears once on the callback page in your browser after you authenticate. It is never transmitted over email.
+- **No credentials in third-party services.** Stripe identifies your account by GitHub login, not API key. No raw key exists in any external system.
+- **Full data deletion.** `DELETE /account` with your API key removes all your data: account record, analytics, feedback, published Library content, Stripe subscription. Everything. Verify: the endpoint returns `{ ok: true }`.
+
+What a complete server breach yields: hashed credentials, encrypted metadata, and anonymous usage patterns. No constitutions, no vaults, no self-knowledge, no cognitive data. There is nothing to steal because we do not have it.
+
 ## What stays local
 
 Everything that matters. Constitution, vault, ontology, feedback, machine.md, notepad, library — all local markdown. If Alexandria disappears tomorrow, you keep everything. The only file that leaves your machine is `.session_feedback` (your optional product feedback, sent then deleted) and `.machine_signal` (methodology observations about the craft, not about you).
@@ -173,7 +185,13 @@ Everything else — tone, depth, topics, structure, what it does and does not do
 
 ## Remove everything
 
+Delete your server-side data first, then remove local files:
+
 ```
+# 1. Delete all server-side data (account, analytics, feedback, Library content, Stripe subscription)
+curl -X DELETE https://mcp.mowinckel.ai/account -H "Authorization: Bearer $(cat ~/.alexandria/.api_key)"
+
+# 2. Remove local files
 rm -rf ~/.alexandria
 rm -rf ~/.claude/skills/alexandria
 rm -rf ~/.claude/scheduled-tasks/alexandria
@@ -183,4 +201,4 @@ Then edit `~/.claude/settings.json` and delete the three hook entries containing
 
 If the autoloop created a GitHub repo: `gh repo delete alexandria-private --yes` (or delete it from github.com). If iCloud symlinks were created on Mac, the data in `~/Library/Mobile Documents/com~apple~CloudDocs/Alexandria/` can be deleted separately.
 
-Nothing persists on Alexandria's server. Nothing to cancel. Delete the files and it is gone.
+After step 1, nothing persists on Alexandria's server. After step 2, nothing persists on your machine. Gone.

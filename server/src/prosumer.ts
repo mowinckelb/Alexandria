@@ -13,6 +13,7 @@ import { logEvent, getDashboard } from './analytics.js';
 import { createCheckoutSession, createPortalSession } from './billing.js';
 import { callbackPageHtml } from './templates.js';
 import { loadAccounts, saveAccounts, getKV } from './kv.js';
+import { hashApiKey, generateToken } from './crypto.js';
 import {
   SHARED_CONTEXT,
   EDITOR_INSTRUCTIONS,
@@ -28,7 +29,9 @@ interface Account {
   github_id: number;
   github_login: string;
   email: string;
-  api_key: string;
+  api_key_hash: string;           // SHA256(api_key) — server never stores raw keys
+  email_token: string;            // random token for email unsubscribe/preferences
+  api_key?: string;               // DEPRECATED — removed during migration, kept for Stripe backward compat
   created_at: string;
   last_session: string;
   installed_at?: string;
@@ -53,6 +56,25 @@ async function getAccounts(): Promise<AccountStore> {
   if (!cacheLoaded) {
     accountsCache = await loadAccounts<AccountStore>();
     cacheLoaded = true;
+
+    // One-time migration: hash raw API keys, generate email tokens, delete raw keys
+    let needsSave = false;
+    for (const acct of Object.values(accountsCache)) {
+      if (acct.api_key && !acct.api_key_hash) {
+        acct.api_key_hash = hashApiKey(acct.api_key);
+        acct.email_token = acct.email_token || generateToken();
+        delete acct.api_key;
+        needsSave = true;
+      }
+      if (!acct.email_token) {
+        acct.email_token = generateToken();
+        needsSave = true;
+      }
+    }
+    if (needsSave) {
+      await saveAccounts(accountsCache);
+      console.log('[prosumer] Migration: hashed API keys, generated email tokens');
+    }
   }
   return accountsCache;
 }
@@ -64,20 +86,33 @@ async function persistAccounts(accounts: AccountStore): Promise<void> {
 
 export async function findByApiKey(key: string): Promise<Account | null> {
   const accounts = await getAccounts();
-  const keyBuf = Buffer.from(key);
+  const incomingHash = hashApiKey(key);
+  const incomingBuf = Buffer.from(incomingHash);
   for (const acct of Object.values(accounts)) {
-    const storedBuf = Buffer.from(acct.api_key);
-    if (keyBuf.length === storedBuf.length && timingSafeEqual(keyBuf, storedBuf)) return acct;
+    if (!acct.api_key_hash) continue;
+    const storedBuf = Buffer.from(acct.api_key_hash);
+    if (incomingBuf.length === storedBuf.length && timingSafeEqual(incomingBuf, storedBuf)) return acct;
   }
   return null;
 }
 
-/** Update billing fields on an account — called by billing webhook handler */
-export async function updateAccountBilling(apiKey: string, billing: Partial<Pick<Account, 'stripe_customer_id' | 'subscription_status' | 'subscription_id' | 'current_period_end'>>): Promise<void> {
+/** Update billing fields on an account — called by billing webhook handler.
+ *  Finds by api_key hash (primary) or github_login (fallback for returning users). */
+export async function updateAccountBilling(identifier: string, billing: Partial<Pick<Account, 'stripe_customer_id' | 'subscription_status' | 'subscription_id' | 'current_period_end'>>): Promise<void> {
   const accounts = await loadAccounts<AccountStore>();
-  const storeKey = Object.keys(accounts).find(
-    k => accounts[k].api_key === apiKey
-  );
+  let storeKey: string | undefined;
+
+  // Try API key hash first (primary path — new signups)
+  if (identifier.startsWith('alex_')) {
+    const keyHash = hashApiKey(identifier);
+    storeKey = Object.keys(accounts).find(k => accounts[k].api_key_hash === keyHash);
+  }
+
+  // Fallback: github_login (returning users without raw key in Stripe metadata)
+  if (!storeKey) {
+    storeKey = Object.keys(accounts).find(k => accounts[k].github_login === identifier);
+  }
+
   if (!storeKey) return;
   Object.assign(accounts[storeKey], billing);
   await persistAccounts(accounts);
@@ -125,7 +160,7 @@ export function extractApiKey(c: { req: { header: (name: string) => string | und
 // Hooks version — bump this when hook scripts change
 // ---------------------------------------------------------------------------
 
-const HOOKS_VERSION = '15';
+const HOOKS_VERSION = '16';
 
 // ---------------------------------------------------------------------------
 // Blueprint assembly
@@ -881,29 +916,15 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
   }
 }
 
-async function sendWelcomeEmail(email: string, apiKey: string, githubLogin?: string): Promise<void> {
-  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+async function sendWelcomeEmail(email: string, githubLogin?: string): Promise<void> {
   const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
 
-  await sendEmail(email, 'alexandria. — prime, curl, block',
+  // No API key in emails — ever. The callback page is the single source of truth.
+  await sendEmail(email, 'alexandria. — sign in to set up',
     `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
   <div style="margin-bottom: 2.5rem;">
-    <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 0 0 0.8rem;">setup</p>
-    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><strong>1. prime</strong> &mdash; paste in terminal</p>
-    <div style="background: #f5f0e8; border-radius: 6px; padding: 14px 18px; margin: 8px 0 12px; text-align: left;">
-      <code style="font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 10px; color: #4d4640; word-break: break-all; line-height: 1.6;">echo "checking prerequisites..." &amp;&amp; { command -v git &amp;&gt;/dev/null &amp;&amp; echo " git: ok" || echo " git: not found"; } &amp;&amp; { command -v node &amp;&gt;/dev/null &amp;&amp; echo " node: ok" || echo " node: not found"; } &amp;&amp; { if command -v gh &amp;&gt;/dev/null; then if gh auth status &amp;&gt;/dev/null 2&gt;&amp;1; then echo " github: ok"; else echo " github: logging in..." &amp;&amp; gh auth login; fi; else echo " github: skipping (optional)"; fi; } &amp;&amp; echo "" &amp;&amp; echo "ready."</code>
-    </div>
-    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><strong>2. curl</strong> &mdash; paste in terminal</p>
-    <div style="background: #f5f0e8; border-radius: 6px; padding: 14px 18px; margin: 8px 0 12px; text-align: left;">
-      <code style="font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 11px; color: #4d4640; word-break: break-all; line-height: 1.6;">curl -s ${SERVER_URL}/setup | bash -s ${apiKey}</code>
-    </div>
-    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><strong>3. <a href="${SERVER_URL}/block" style="color: #3d3630;">block</a></strong> &mdash; paste in new tab</p>
-    <p style="font-size: 0.8rem; color: #8a8078; margin: 4px 0 12px;">copy the block, open a new tab in your cli or ide, paste. it builds your starter constitution.</p>
-  </div>
-  <div style="margin-bottom: 2.5rem;">
-    <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 0 0 0.8rem;">you're set up</p>
-    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;">/a to start. a. to close.</p>
-    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><a href="${WEBSITE_URL}/shortcut" style="color: #8a8078;">share</a> to feed the vault.</p>
+    <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 1.5rem;">your setup command is at <a href="${WEBSITE_URL}/signup" style="color: #3d3630;">${WEBSITE_URL}/signup</a></p>
+    <p style="font-size: 0.85rem; line-height: 1.7; color: #8a8078;">sign in. copy the three steps. everything lives on your machine &mdash; we never see your data.</p>
   </div>
   <p style="font-size: 1.15rem; color: #3d3630;">welcome to alexandria.</p>
   <div style="margin-top: 2rem;">
@@ -920,23 +941,14 @@ async function sendWelcomeEmail(email: string, apiKey: string, githubLogin?: str
 
 const MAX_FOLLOWUPS = 7;
 
-async function sendFollowupEmail(email: string, apiKey: string, day: number): Promise<void> {
+async function sendFollowupEmail(email: string, emailToken: string, day: number): Promise<void> {
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
   const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
-  const emailToken = createHash('sha256').update(apiKey + ':email').digest('hex').slice(0, 24);
 
-  await sendEmail(email, 'alexandria. — prime, curl, block',
+  await sendEmail(email, 'alexandria. — sign in to finish setup',
     `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
-  <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 1.5rem;">you signed up but haven&rsquo;t started yet. three steps:</p>
-  <div style="margin-bottom: 2rem;">
-    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><strong>1. prime</strong> &mdash; paste in terminal</p>
-    <p style="font-size: 0.8rem; color: #8a8078; margin: 4px 0 12px;">go to <a href="${SERVER_URL.replace('mcp.', '')}/signup" style="color: #3d3630;">your callback page</a> and copy the prime. checks prerequisites.</p>
-    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><strong>2. curl</strong> &mdash; paste in terminal</p>
-    <div style="background: #f5f0e8; border-radius: 6px; padding: 14px 18px; margin: 8px 0 12px; text-align: left;">
-      <code style="font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 11px; color: #4d4640; word-break: break-all; line-height: 1.6;">curl -s ${SERVER_URL}/setup | bash -s ${apiKey}</code>
-    </div>
-    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 4px;"><strong>3. <a href="${SERVER_URL}/block" style="color: #3d3630;">block</a></strong> &mdash; paste in new tab</p>
-    <p style="font-size: 0.8rem; color: #8a8078; margin: 4px 0 12px;">copy the block, open a new tab in your cli or ide, paste. it builds your starter constitution.</p>
-  </div>
+  <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 1.5rem;">you signed up but haven&rsquo;t installed yet.</p>
+  <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 2rem;"><a href="${WEBSITE_URL}/signup" style="color: #3d3630;">sign in</a> to get your setup command.</p>
   <p style="font-size: 0.72rem; color: #bbb4aa; margin-top: 1.5rem;"><a href="${SERVER_URL}/email/stop?t=${emailToken}" style="color: #8a8078;">stop these emails</a></p>
 </div>`);
 }
@@ -955,7 +967,7 @@ export async function runFollowupCheck(): Promise<void> {
     const signupAge = Date.now() - new Date(account.created_at).getTime();
     if (signupAge < 24 * 60 * 60 * 1000) continue;
 
-    await sendFollowupEmail(account.email, account.api_key, count + 1);
+    await sendFollowupEmail(account.email, account.email_token, count + 1);
     accounts[key].followup_count = count + 1;
     changed = true;
     sent++;
@@ -979,9 +991,8 @@ export async function runFollowupCheck(): Promise<void> {
 
 const DEFAULT_ENGAGEMENT_DAYS = 3;
 
-async function sendEngagementEmail(email: string, apiKey: string): Promise<void> {
+async function sendEngagementEmail(email: string, emailToken: string): Promise<void> {
   const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
-  const emailToken = createHash('sha256').update(apiKey + ':email').digest('hex').slice(0, 24);
 
   await sendEmail(email, 'share to alexandria. /a to start; a. to close.',
     `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
@@ -1017,7 +1028,7 @@ export async function runEngagementCheck(): Promise<void> {
       if (now - lastEmail < intervalMs) continue;
     }
 
-    await sendEngagementEmail(account.email, account.api_key);
+    await sendEngagementEmail(account.email, account.email_token);
     accounts[key].last_engagement_email = new Date().toISOString();
     changed = true;
     sent++;
@@ -1204,9 +1215,8 @@ export async function runHealthDigest(force = false): Promise<void> {
       const accounts = await loadAccounts<AccountStore>();
       const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
       const founderAcct = Object.values(accounts).find(a => a.github_login === adminLogin);
-      if (founderAcct) {
-        const token = createHash('sha256').update(founderAcct.api_key + ':email').digest('hex').slice(0, 24);
-        dashboardUrl = `${SERVER_URL}/dashboard?t=${token}`;
+      if (founderAcct?.email_token) {
+        dashboardUrl = `${SERVER_URL}/dashboard?t=${founderAcct.email_token}`;
       }
     } catch { /* fall back to API-gated URL */ }
 
@@ -1343,29 +1353,39 @@ export function registerProsumerRoutes(app: Hono) {
           delete accounts[legacyKey];
         }
       }
-      const apiKey = existing?.api_key || generateApiKey();
+
+      // Key is shown once on the callback page, then only the hash is stored.
+      // New accounts AND returning uninstalled users get a fresh key.
+      const isNewAccount = !existing?.api_key_hash;
+      const needsKey = isNewAccount || !existing?.installed_at;
+      const apiKey = needsKey ? generateApiKey() : '';
+      const apiKeyHash = needsKey ? hashApiKey(apiKey) : existing!.api_key_hash;
+      const emailToken = existing?.email_token || generateToken();
 
       accounts[key] = {
         ...existing,
         github_id: user.id,
         github_login: user.login,
         email,
-        api_key: apiKey,
+        api_key_hash: apiKeyHash,
+        email_token: emailToken,
         created_at: existing?.created_at || new Date().toISOString(),
         last_session: new Date().toISOString(),
       };
+      // Remove raw key if it survived from pre-migration
+      delete accounts[key].api_key;
       await persistAccounts(accounts);
 
       logEvent('prosumer_signup', {
         github_login: user.login,
-        returning: existing ? 'true' : 'false',
+        returning: isNewAccount ? 'false' : 'true',
       });
 
       // Track referral — from OAuth state (round-tripped) or query params (direct)
       const ref = stateData.ref || c.req.query('ref');
       const refSource = stateData.ref_source || c.req.query('ref_source');
       const refId = stateData.ref_id || c.req.query('ref_id');
-      if (ref && !existing) {
+      if (ref && isNewAccount) {
         try {
           const { getDB } = await import('./db.js');
           const db = getDB();
@@ -1378,9 +1398,9 @@ export function registerProsumerRoutes(app: Hono) {
         }
       }
 
-      // Send welcome email
-      if (email) {
-        await sendWelcomeEmail(email, apiKey, user.login);
+      // Welcome email — no API key, just links to /signup
+      if (email && isNewAccount) {
+        await sendWelcomeEmail(email, user.login);
       }
 
       // Skip Stripe if user already has payment info
@@ -1395,7 +1415,6 @@ export function registerProsumerRoutes(app: Hono) {
           const checkoutUrl = await createCheckoutSession({
             email,
             githubLogin: user.login,
-            apiKey,
             stripeCustomerId: accounts[key]?.stripe_customer_id,
           });
           if (checkoutUrl) {
@@ -1429,8 +1448,9 @@ export function registerProsumerRoutes(app: Hono) {
     // Mark as installed on first Blueprint fetch
     if (!account.installed_at) {
       const accounts = await getAccounts();
+      const keyHash = hashApiKey(key);
       const storeKey = Object.keys(accounts).find(
-        k => accounts[k].api_key === key
+        k => accounts[k].api_key_hash === keyHash
       );
       if (storeKey) {
         accounts[storeKey].installed_at = new Date().toISOString();
@@ -1496,6 +1516,103 @@ export function registerProsumerRoutes(app: Hono) {
     return c.text(generateHookScripts());
   });
 
+  // --- Account deletion (GDPR-ready) ---
+
+  app.delete('/account', async (c) => {
+    const key = extractApiKey(c);
+    if (!key) return c.json({ error: 'Missing API key' }, 401);
+
+    const account = await findByApiKey(key);
+    if (!account) return c.json({ error: 'Invalid API key' }, 401);
+
+    const keyHash = hashApiKey(key);
+    const accounts = await getAccounts();
+    const storeKey = Object.keys(accounts).find(k => accounts[k].api_key_hash === keyHash);
+
+    // Cancel Stripe subscription before deleting account data
+    if (account.subscription_id) {
+      try {
+        const Stripe = (await import('stripe')).default;
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+        await stripe.subscriptions.cancel(account.subscription_id);
+      } catch (e) {
+        console.error('[account] Stripe subscription cancel failed:', e);
+      }
+    }
+
+    // Remove from KV accounts
+    if (storeKey) {
+      delete accounts[storeKey];
+      await persistAccounts(accounts);
+    }
+
+    // Remove from D1 — each table independently, so one failure doesn't block the rest
+    try {
+      const { getDB } = await import('./db.js');
+      const db = getDB();
+      const login = account.github_login;
+      const email = account.email;
+      const deletes = [
+        db.prepare('DELETE FROM waitlist WHERE email = ?').bind(email),
+        db.prepare('DELETE FROM referrals WHERE author_id = ? OR referred_github_login = ?').bind(login, login),
+        db.prepare('DELETE FROM access_log WHERE accessor_id = ? OR author_id = ?').bind(login, login),
+        db.prepare('DELETE FROM billing_tab WHERE accessor_id = ? OR author_id = ?').bind(login, login),
+        db.prepare('DELETE FROM quiz_results WHERE quiz_id IN (SELECT id FROM quizzes WHERE author_id = ?)').bind(login),
+        db.prepare('DELETE FROM quizzes WHERE author_id = ?').bind(login),
+        db.prepare('DELETE FROM shadows WHERE author_id = ?').bind(login),
+        db.prepare('DELETE FROM pulses WHERE author_id = ?').bind(login),
+        db.prepare('DELETE FROM works WHERE author_id = ?').bind(login),
+        db.prepare('DELETE FROM shadow_tokens WHERE author_id = ?').bind(login),
+        db.prepare('DELETE FROM promo_codes WHERE author_id = ?').bind(login),
+        db.prepare('DELETE FROM access_codes WHERE author_id = ?').bind(login),
+        db.prepare('DELETE FROM authors WHERE id = ?').bind(login),
+      ];
+      for (const stmt of deletes) {
+        try { await stmt.run(); } catch (e) { console.error('[account] D1 delete failed:', e); }
+      }
+    } catch (e) {
+      console.error('[account] D1 cleanup failed:', e);
+    }
+
+    // Remove published artifacts from R2
+    try {
+      const { getR2 } = await import('./db.js');
+      const r2 = getR2();
+      const login = account.github_login;
+      for (const prefix of [`shadows/${login}/`, `pulses/${login}/`, `quizzes/${login}/`, `works/${login}/`]) {
+        const listed = await r2.list({ prefix });
+        for (const obj of listed.objects) {
+          await r2.delete(obj.key);
+        }
+      }
+    } catch (e) {
+      console.error('[account] R2 cleanup failed:', e);
+    }
+
+    // Remove KV feedback and factory signals attributed to this user
+    try {
+      const kv = getKV();
+      const login = account.github_login;
+      for (const prefix of ['feedback:', 'factory:signal:', 'factory:archive:']) {
+        const list = await kv.list({ prefix });
+        for (const k of list.keys) {
+          try {
+            const raw = await kv.get(k.name);
+            if (raw) {
+              const data = JSON.parse(raw);
+              if (data.author === login) await kv.delete(k.name);
+            }
+          } catch { /* skip */ }
+        }
+      }
+    } catch (e) {
+      console.error('[account] KV cleanup failed:', e);
+    }
+
+    logEvent('account_deleted', { github_login: account.github_login });
+    return c.json({ ok: true, deleted: account.github_login });
+  });
+
   // --- Session metadata ---
 
   app.post('/session', async (c) => {
@@ -1526,8 +1643,9 @@ export function registerProsumerRoutes(app: Hono) {
 
     // Update last_session + constitution_size (used for kin activity verification)
     const accounts = await getAccounts();
+    const keyHash = hashApiKey(key);
     const storeKey = Object.keys(accounts).find(
-      k => accounts[k].api_key === key
+      k => accounts[k].api_key_hash === keyHash
     );
     if (storeKey) {
       accounts[storeKey].last_session = new Date().toISOString();
@@ -1666,8 +1784,8 @@ export function registerProsumerRoutes(app: Hono) {
   function findAccountByEmailToken(accounts: AccountStore, token: string): string | null {
     const tokenBuf = Buffer.from(token);
     for (const [storeKey, acct] of Object.entries(accounts)) {
-      const expected = createHash('sha256').update(acct.api_key + ':email').digest('hex').slice(0, 24);
-      const expectedBuf = Buffer.from(expected);
+      if (!acct.email_token) continue;
+      const expectedBuf = Buffer.from(acct.email_token);
       if (tokenBuf.length === expectedBuf.length && timingSafeEqual(tokenBuf, expectedBuf)) return storeKey;
     }
     return null;
@@ -1710,20 +1828,17 @@ export function registerProsumerRoutes(app: Hono) {
     const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
     if (!account || account.github_login !== adminLogin) return c.text('not authorized', 403);
 
+    const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
     const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
     const accounts = await loadAccounts<AccountStore>();
     let sent = 0;
     for (const [, acct] of Object.entries(accounts)) {
       if (acct.installed_at || !acct.email || acct.engagement_opt_out) continue;
       if (acct.github_login === adminLogin) continue;
-      const emailToken = createHash('sha256').update(acct.api_key + ':email').digest('hex').slice(0, 24);
       await sendEmail(acct.email, 'alexandria. — quick fix',
         '<div style="font-family: \'EB Garamond\', Georgia, serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">' +
-        '<p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 1.5rem;">we fixed a setup issue. paste this in your terminal and everything should work:</p>' +
-        '<div style="background: #f5f0e8; border-radius: 6px; padding: 14px 18px; margin: 8px 0 2rem; text-align: left;">' +
-        '<code style="font-family: \'SF Mono\', Monaco, Consolas, monospace; font-size: 11px; color: #4d4640; word-break: break-all; line-height: 1.6;">curl -s ' + SERVER_URL + '/setup | bash -s ' + acct.api_key + '</code>' +
-        '</div>' +
-        '<p style="font-size: 0.72rem; color: #bbb4aa; margin-top: 1.5rem;"><a href="' + SERVER_URL + '/email/stop?t=' + emailToken + '" style="color: #8a8078;">stop these emails</a></p>' +
+        '<p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 1.5rem;">we fixed a setup issue. <a href="' + WEBSITE_URL + '/signup" style="color: #3d3630;">sign in</a> to get your updated setup command.</p>' +
+        '<p style="font-size: 0.72rem; color: #bbb4aa; margin-top: 1.5rem;"><a href="' + SERVER_URL + '/email/stop?t=' + acct.email_token + '" style="color: #8a8078;">stop these emails</a></p>' +
         '</div>');
       sent++;
     }
@@ -1805,7 +1920,13 @@ export function registerProsumerRoutes(app: Hono) {
     if (token) {
       storeKey = findAccountByEmailToken(accounts, token);
     } else if (apiKey) {
-      storeKey = Object.keys(accounts).find(k => accounts[k].api_key === apiKey) || null;
+      const keyHash = hashApiKey(apiKey);
+      const keyBuf = Buffer.from(keyHash);
+      storeKey = Object.keys(accounts).find(k => {
+        if (!accounts[k].api_key_hash) return false;
+        const storedBuf = Buffer.from(accounts[k].api_key_hash);
+        return keyBuf.length === storedBuf.length && timingSafeEqual(keyBuf, storedBuf);
+      }) || null;
     }
     if (!storeKey) return c.text('unauthorized', 401);
 
@@ -1823,22 +1944,6 @@ export function registerProsumerRoutes(app: Hono) {
     const sessionMap = new Map(sessionUsers.map(u => [u.login, u]));
 
     const allAccounts = Object.values(accounts) as Account[];
-    const accountRows = allAccounts
-      .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
-      .map(a => {
-        const created = a.created_at ? new Date(a.created_at).toLocaleDateString() : '—';
-        const session = sessionMap.get(a.github_login);
-
-        // Funnel: signed up → installed (fetched blueprint) → active (session events)
-        let stage = 'signed up';
-        if (a.installed_at && session) stage = `active (${session.sessions} sessions)`;
-        else if (a.installed_at) stage = 'installed, no sessions';
-        else if (session) stage = `sessions but no install (?)`;
-
-        const lastSeen = session ? `${Math.round(session.hours_ago)}h ago` : a.installed_at ? new Date(a.installed_at).toLocaleDateString() : created;
-
-        return `<tr><td>${esc(a.github_login)}</td><td>${esc(a.email)}</td><td>${created}</td><td>${stage}</td><td>${lastSeen}</td></tr>`;
-      }).join('\n');
 
     // Cron status
     const cron = (data.cron || {}) as Record<string, { t?: string; status?: string }>;
@@ -1853,18 +1958,12 @@ export function registerProsumerRoutes(app: Hono) {
     // Anomaly
     const anomaly = (data.anomaly || {}) as Record<string, unknown>;
 
-    // Pre-compute rows outside the template literal to avoid nested backtick issues
     const authorTableRows = allAccounts
       .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
       .map(a => {
-        const created = a.created_at ? new Date(a.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—';
         const session = sessionMap.get(a.github_login);
-        let stage = 'signed up';
-        let stageClass = 'stage';
-        if (a.installed_at && session) { stage = session.sessions + ' sessions'; stageClass = 'stage-active'; }
-        else if (a.installed_at) { stage = 'installed'; }
-        const lastSeen = session ? Math.round(session.hours_ago) + 'h ago' : a.installed_at ? new Date(a.installed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—';
-        return '<tr><td>' + esc(a.github_login) + '</td><td class="' + stageClass + '">' + stage + '</td><td>' + lastSeen + '</td></tr>';
+        const sessions = session ? String(session.sessions) : '0';
+        return '<tr><td>' + esc(a.github_login) + '</td><td>' + sessions + '</td></tr>';
       }).join('\n');
 
     // System: only show if something is wrong
@@ -1905,15 +2004,13 @@ export function registerProsumerRoutes(app: Hono) {
   table { width: 100%; border-collapse: collapse; }
   th, td { text-align: left; padding: 0.5rem 1rem 0.5rem 0; border-bottom: 1px solid #e8e3da; font-size: 0.95rem; font-weight: 400; }
   th { color: #bbb4aa; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; }
-  .stage { color: #8a8078; }
-  .stage-active { color: #4a7c59; }
   .muted { color: #8a8078; font-size: 0.9rem; }
   .footer { font-size: 0.72rem; color: #bbb4aa; margin-top: 3rem; letter-spacing: 0.05em; }
 </style>
 </head><body>
 <p class="title">alexandria.</p>
 
-<table><tr><th>author</th><th>status</th><th>last seen</th></tr>
+<table><tr><th>author</th><th>sessions</th></tr>
 ${authorTableRows}
 </table>
 

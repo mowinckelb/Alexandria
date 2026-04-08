@@ -14,7 +14,7 @@ Alexandria gets better when a new model ships. Not "survives" — gets better. T
 
 ## What It Is
 
-One curl command. Two hooks. Local files on your own machine. Five dollars a month.
+One curl command. Two hooks. Local files on your own machine. Free with five active kin, ten dollars a month without.
 
 Alexandria installs into your ai workflow and fires every session. Your conversations become extraction signal. A structured picture of how you think accumulates as markdown — worldview, values, mental models, taste, blind spots. Portable. Sovereign. Never locked to any lab. Your work transitions from generic ai output to something that carries your fingerprint.
 

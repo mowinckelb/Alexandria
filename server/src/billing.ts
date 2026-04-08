@@ -90,16 +90,15 @@ async function ensureKinCoupon(): Promise<string> {
 // Kin — count active kin for a user, recalculate subscription
 // ---------------------------------------------------------------------------
 
-export async function countActiveKin(apiKey: string): Promise<number> {
-  const user = await findByApiKey(apiKey);
-  if (!user?.github_login) return 0;
+export async function countActiveKin(githubLogin: string): Promise<number> {
+  if (!githubLogin) return 0;
 
   // Find who this user referred (from D1 referrals table)
   const { getDB } = await import('./db.js');
   const db = getDB();
   const { results } = await db.prepare(
     `SELECT referred_github_login FROM referrals WHERE author_id = ?`
-  ).bind(user.github_login).all<{ referred_github_login: string }>();
+  ).bind(githubLogin).all<{ referred_github_login: string }>();
 
   if (!results || results.length === 0) return 0;
 
@@ -116,11 +115,14 @@ export async function countActiveKin(apiKey: string): Promise<number> {
   return active;
 }
 
-export async function recalculateKinPricing(apiKey: string): Promise<void> {
-  const user = await findByApiKey(apiKey);
+export async function recalculateKinPricing(githubLogin: string): Promise<void> {
+  // Find account by github_login
+  const { loadAccounts } = await import('./kv.js');
+  const accounts = await loadAccounts<Record<string, any>>();
+  const user = Object.values(accounts).find((a: any) => a.github_login === githubLogin) as any;
   if (!user?.subscription_id) return;
 
-  const activeKin = await countActiveKin(apiKey);
+  const activeKin = await countActiveKin(githubLogin);
   const shouldBeFree = activeKin >= KIN_THRESHOLD;
 
   const stripe = getStripe();
@@ -135,10 +137,10 @@ export async function recalculateKinPricing(apiKey: string): Promise<void> {
   if (shouldBeFree && !hasKinDiscount) {
     const couponId = await ensureKinCoupon();
     await stripe.subscriptions.update(user.subscription_id, { discounts: [{ coupon: couponId }] });
-    logEvent('kin_pricing_free', { api_key: apiKey, active_kin: String(activeKin) });
+    logEvent('kin_pricing_free', { github_login: user.github_login, active_kin: String(activeKin) });
   } else if (!shouldBeFree && hasKinDiscount) {
     await stripe.subscriptions.deleteDiscount(user.subscription_id);
-    logEvent('kin_pricing_paid', { api_key: apiKey, active_kin: String(activeKin) });
+    logEvent('kin_pricing_paid', { github_login: user.github_login, active_kin: String(activeKin) });
   }
 }
 
@@ -160,7 +162,6 @@ export interface BillingInfo {
 export async function createCheckoutSession(opts: {
   email: string;
   githubLogin: string;
-  apiKey: string;
   stripeCustomerId?: string;
 }): Promise<string> {
   const stripe = getStripe();
@@ -172,15 +173,13 @@ export async function createCheckoutSession(opts: {
     ? { customer: opts.stripeCustomerId }
     : { customer_email: opts.email };
 
+  // No API keys in Stripe metadata — identify accounts by github_login only
   if (BETA) {
     const session = await stripe.checkout.sessions.create({
       mode: 'setup',
       currency: 'usd',
       ...customer,
-      metadata: {
-        github_login: opts.githubLogin,
-        api_key: opts.apiKey,
-      },
+      metadata: { github_login: opts.githubLogin },
       custom_text: {
         submit: { message: 'free in beta. we\'ll let you know before billing starts.' },
       },
@@ -197,12 +196,9 @@ export async function createCheckoutSession(opts: {
     ...customer,
     subscription_data: {
       description: 'the examined life',
-      metadata: { api_key: opts.apiKey, github_login: opts.githubLogin },
+      metadata: { github_login: opts.githubLogin },
     },
-    metadata: {
-      github_login: opts.githubLogin,
-      api_key: opts.apiKey,
-    },
+    metadata: { github_login: opts.githubLogin },
     success_url: `${SERVER_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${WEBSITE_URL}/signup?billing=cancel`,
   });
@@ -228,7 +224,7 @@ export async function createPortalSession(stripeCustomerId: string): Promise<str
 // Billing routes
 // ---------------------------------------------------------------------------
 
-export type AccountUpdater = (apiKey: string, billing: Partial<BillingInfo>) => Promise<void>;
+export type AccountUpdater = (identifier: string, billing: Partial<BillingInfo>) => Promise<void>;
 
 export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater) {
   const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
@@ -244,9 +240,8 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
       const stripe = getStripe();
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       const login = session.metadata?.github_login || '';
-      const apiKey = session.metadata?.api_key || '';
 
-      if (!apiKey) {
+      if (!login) {
         return c.redirect(`${WEBSITE_URL}/signup`);
       }
 
@@ -266,10 +261,10 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
           ? { subscription_id: session.subscription as string, subscription_status: 'active' }
           : { subscription_status: 'beta' }),
       };
-      await onAccountUpdate(apiKey, billingUpdate);
+      await onAccountUpdate(login, billingUpdate);
       logEvent('billing_checkout_completed', { mode: session.mode || 'unknown' });
 
-      return c.html(callbackPageHtml(login, apiKey));
+      return c.html(callbackPageHtml(login, ''));
     } catch (err) {
       console.error('Billing success page error:', err);
       return c.redirect(`${WEBSITE_URL}/signup`);
@@ -360,7 +355,6 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
             }
 
             // Store access grant in KV (TTL 30 days)
-            // Access keyed by session ID so the success redirect can serve content
             try {
               const { getKV } = await import('./kv.js');
               const kv = getKV();
@@ -378,17 +372,15 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
             break;
           }
 
-          // Regular subscription checkout
-          const apiKey = session.metadata?.api_key;
-          if (apiKey && session.customer && session.subscription) {
-            await onAccountUpdate(apiKey, {
+          // Regular subscription checkout — identify by github_login, never api_key
+          const ghLogin = session.metadata?.github_login;
+          if (ghLogin && session.customer && session.subscription) {
+            await onAccountUpdate(ghLogin, {
               stripe_customer_id: session.customer as string,
               subscription_id: session.subscription as string,
               subscription_status: 'active',
             });
-            logEvent('billing_subscription_created', {
-              github_login: session.metadata?.github_login || '',
-            });
+            logEvent('billing_subscription_created', { github_login: ghLogin });
           }
           break;
         }
@@ -396,10 +388,11 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
         case 'customer.subscription.updated': {
           const sub = event.data.object as Stripe.Subscription;
           const customerId = sub.customer as string;
-          const apiKey = sub.metadata?.api_key;
-          if (apiKey) {
+          // Use github_login from metadata (primary), fall back to api_key for legacy subscriptions
+          const subLogin = sub.metadata?.github_login || sub.metadata?.api_key;
+          if (subLogin) {
             const periodEnd = sub.items?.data?.[0]?.current_period_end;
-            await onAccountUpdate(apiKey, {
+            await onAccountUpdate(subLogin, {
               subscription_status: sub.status,
               ...(periodEnd ? { current_period_end: new Date(periodEnd * 1000).toISOString() } : {}),
             });
@@ -413,9 +406,9 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
 
         case 'customer.subscription.deleted': {
           const sub = event.data.object as Stripe.Subscription;
-          const apiKey = sub.metadata?.api_key;
-          if (apiKey) {
-            await onAccountUpdate(apiKey, { subscription_status: 'canceled' });
+          const subLogin = sub.metadata?.github_login || sub.metadata?.api_key;
+          if (subLogin) {
+            await onAccountUpdate(subLogin, { subscription_status: 'canceled' });
           }
           logEvent('billing_subscription_canceled', {
             customer: sub.customer as string,
@@ -434,9 +427,9 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
           if (subId) {
             try {
               const sub = await stripe.subscriptions.retrieve(subId);
-              const apiKey = sub.metadata?.api_key;
-              if (apiKey) {
-                await recalculateKinPricing(apiKey);
+              const subLogin = sub.metadata?.github_login || sub.metadata?.api_key;
+              if (subLogin) {
+                await recalculateKinPricing(subLogin);
               }
             } catch (e) {
               console.error('[billing] Kin recalculation failed:', e);
@@ -458,15 +451,20 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
           if (subId) {
             try {
               const sub = await stripe.subscriptions.retrieve(subId);
-              const apiKey = sub.metadata?.api_key;
-              if (apiKey) {
-                const user = await findByApiKey(apiKey);
+              const subLogin = sub.metadata?.github_login || sub.metadata?.api_key;
+              if (subLogin) {
+                // Find account by login (primary) or api_key hash (legacy)
+                const { loadAccounts } = await import('./kv.js');
+                const accounts = await loadAccounts<Record<string, any>>();
+                const user = Object.values(accounts).find((a: any) =>
+                  a.github_login === subLogin || (subLogin.startsWith('alex_') && a.api_key_hash)
+                ) as any;
                 if (user?.email) {
-                  const activeKin = await countActiveKin(apiKey);
+                  const activeKin = await countActiveKin(user.github_login);
                   const amountPaid = (invoice.amount_paid || 0) / 100;
                   const kinNeeded = Math.max(0, KIN_THRESHOLD - activeKin);
                   await sendKinReceiptEmail(user.email, user.github_login, amountPaid, activeKin, kinNeeded);
-                  logEvent('kin_receipt_sent', { api_key: apiKey, active_kin: String(activeKin), amount: String(amountPaid) });
+                  logEvent('kin_receipt_sent', { github_login: user.github_login, active_kin: String(activeKin), amount: String(amountPaid) });
                 }
               }
             } catch (e) {
@@ -486,9 +484,9 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
           if (subId) {
             try {
               const sub = await stripe.subscriptions.retrieve(subId);
-              const apiKey = sub.metadata?.api_key;
-              if (apiKey) {
-                await onAccountUpdate(apiKey, { subscription_status: 'past_due' });
+              const subLogin = sub.metadata?.github_login || sub.metadata?.api_key;
+              if (subLogin) {
+                await onAccountUpdate(subLogin, { subscription_status: 'past_due' });
                 paymentFailHandled = true;
               }
             } catch (subErr) {
