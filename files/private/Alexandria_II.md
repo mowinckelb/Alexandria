@@ -12,6 +12,25 @@
   
 TERMINOLOGY  
   
+FOUR REQUIREMENTS
+
+The irreducible product. Everything Alexandria builds exists to make these four things happen naturally and compound over time. Everything else — the Engine, the Blueprint, the Factory, the games, the pulse, the matching, the sessions — is optional infrastructure.
+
+1. Payment account. The business exists. A recurring relationship, not a transaction.
+2. Create personal data file. The Author builds a structured representation of how they think. "Personal" = about the person. "Data" = structured, not vibes. "File" = portable, ownable, sovereign. "Create" = the Author makes it, not us.
+3. Continuously update that file with live data. The value is in the liveness. A stale file is a dead file. "Continuously" is the key word — not "update occasionally." "Live data" = current thinking, not a snapshot from six months ago.
+4. Allow us to aggregate the files and serve them. "Allow" = the Author's permission, not our right. "Aggregate" = the collection is the asset, not any individual file. "Serve" = we make them accessible to others — Authors, non-Authors, third parties.
+
+The shadow is the only mandatory artifact. Everything else the Author does is optional — no mandatory constitution structure, no mandatory ontology, no mandatory session frequency, no mandatory pulse or games or works. The Engine adapts to whatever the Author gives it. But the shadow must exist. Without it the Library doesn't exist. The shadow is the minimum viable contribution to the network.
+
+The shadow is one per Author with permissioned sections. The only infrastructure-level access distinction is public (anyone) and gated (requires something — payment, relationship, whatever). Everything within gated is an Engine intelligence decision per Author. Some Authors have two levels. Some have five. The infrastructure does not prescribe social structure. It gates access.
+
+The aggregate live data — continuously evolving structured representations of how real humans think — is a dataset that doesn't exist anywhere else. Every other dataset is behavioral (what people clicked, bought, watched). This is cognitive (what people believe, how they reason, what they value). The applications are unknowable from here — labs training on human cognitive patterns, companies simulating customer thinking, ai-matched connections between Authors, and uses we cannot predict. The asset is the data itself.
+
+-----
+
+TERMINOLOGY  
+  
 This section defines every term used in this document. Terms are ordered so that each definition only uses terms already defined above it.  
   
 Author — The human user. The person whose cognition is being digitalised.  
