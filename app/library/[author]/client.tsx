@@ -43,7 +43,7 @@ interface PulseCard {
   month: string;
 }
 
-function PulseCardView({ card, authorName }: { card: PulseCard; authorName: string }) {
+function PulseCardView({ card, authorName, authorId }: { card: PulseCard; authorName: string; authorId: string }) {
   return (
     <div style={{
       border: '1px solid var(--border-light)',
@@ -85,7 +85,18 @@ function PulseCardView({ card, authorName }: { card: PulseCard; authorName: stri
         <span style={{ fontSize: '0.72rem', color: 'var(--text-ghost)' }}>+{card.ideas_delta} this month</span>
       </div>
 
-      <p style={{ fontSize: '0.5rem', color: 'var(--text-whisper)', margin: '1rem 0 0', textAlign: 'right', letterSpacing: '0.1em' }}>alexandria.</p>
+      <div style={{ margin: '1.2rem 0 0', padding: '0.8rem 0 0', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <a href={`/library/${authorId}`}
+          style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s' }}
+          className="hover:opacity-60"
+        >read the shadow</a>
+        <a href={`/signup?ref=${authorId}&ref_source=library`}
+          style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s' }}
+          className="hover:opacity-60"
+        >get yours</a>
+      </div>
+
+      <p style={{ fontSize: '0.5rem', color: 'var(--text-whisper)', margin: '0.6rem 0 0', textAlign: 'right', letterSpacing: '0.1em' }}>alexandria.</p>
     </div>
   );
 }
@@ -238,7 +249,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
           {/* Pulse card — shows directly */}
           {pulseCard?.alltime && (
             <div style={{ margin: '0 0 2rem' }}>
-              <PulseCardView card={pulseCard} authorName={displayName} />
+              <PulseCardView card={pulseCard} authorName={displayName} authorId={authorId} />
             </div>
           )}
           {pulse && !pulseCard?.alltime && (
