@@ -32,7 +32,7 @@ export default function LandingPage() {
       <ThemeToggle />
 
       {/* Hero — pure minimal */}
-      <section className="flex flex-col items-center justify-center px-8 min-h-screen relative">
+      <section className="flex flex-col items-center justify-center px-8 relative" style={{ minHeight: '100svh' }}>
         <div className="flex flex-col items-center" style={{ marginTop: '-4vh' }}>
           <h1 className="text-[1.5rem] sm:text-[1.7rem] font-normal leading-none tracking-tight" style={{ color: 'var(--text-primary)' }}>
             alexandria.

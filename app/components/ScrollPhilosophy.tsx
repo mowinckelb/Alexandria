@@ -11,7 +11,7 @@ function Fade({ children, className = '' }: { children: React.ReactNode; classNa
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
       { threshold: 0.1 }
     );
     observer.observe(el);
@@ -28,7 +28,7 @@ function Fade({ children, className = '' }: { children: React.ReactNode; classNa
 function Pull({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <Fade>
-      <p className={`text-[0.95rem] sm:text-[1.05rem] leading-relaxed text-center ${className}`} style={{ color: 'var(--text-primary)', textWrap: 'pretty' as never }}>
+      <p className={`text-[0.95rem] sm:text-[1.05rem] leading-relaxed text-center ${className}`} style={{ color: 'var(--text-primary)', textWrap: 'balance' as never }}>
         {children}
       </p>
     </Fade>
@@ -38,7 +38,7 @@ function Pull({ children, className = '' }: { children: React.ReactNode; classNa
 function Body({ children }: { children: React.ReactNode }) {
   return (
     <Fade>
-      <p className="text-[0.88rem] sm:text-[0.92rem] leading-[1.9]" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' as never }}>
+      <p className="text-[0.88rem] sm:text-[0.92rem] leading-[1.9]" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' as never, fontVariantNumeric: 'oldstyle-nums proportional-nums' }}>
         {children}
       </p>
     </Fade>
@@ -48,7 +48,7 @@ function Body({ children }: { children: React.ReactNode }) {
 function Divider() {
   return (
     <Fade>
-      <div className="py-10 sm:py-14 text-center">
+      <div className="py-10 sm:py-14 text-center" aria-hidden="true">
         <span className="text-[0.7rem] tracking-[0.5em]" style={{ color: 'var(--text-ghost)' }}>&middot;&nbsp;&nbsp;&middot;&nbsp;&nbsp;&middot;</span>
       </div>
     </Fade>

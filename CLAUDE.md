@@ -23,6 +23,7 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 - `Axioms.md` — The sacred layer. What Alexandria IS and WHY. Five operations, five-layer pipeline (vault→ontology→constitution→shadow→library), objective function, sovereignty, neutral infrastructure. Extracted from a1+a2. Read for: philosophical questions, what's non-negotiable.
 - `Blueprint.md` — The variable methodology. HOW to develop human cognition. Function assemblies (Editor/Mercury/Publisher craft), constitution data architecture, meta-principles, compounding architecture. Factory output — improves with every Author. Read for: product methodology, extraction design, mode behavior.
 - `Machine.md` — Per-Author engine memory template. The Engine's evolving model of how to work with a specific Author. Living document, rewritten as the Engine learns. Read for: per-Author calibration, therapist moat.
+- `Design.md` — Elite last principles. Craft substrate: shadows, borders, spacing, typography, color, animation, layout. The proven defaults the best designers converge on. Not taste (that's a4 + Taste.md) — physics. Read for: any design/UI implementation. Updated as new references are absorbed.
 
 **Founder's Constitution (lives at `~/.alexandria/constitution/` — the product, used as designed):**
 - `Core.md` — The whole person. Identity, priority stack, dual mandate, people, life architecture. READ FIRST for any task.
