@@ -44,6 +44,9 @@ interface Account {
   subscription_id?: string;
   current_period_end?: string;
   constitution_size?: number;
+  brief_opt_out?: boolean;
+  brief_interval_days?: number;    // undefined = every time trigger calls
+  last_brief?: string;             // ISO timestamp
 }
 
 type AccountStore = Record<string, Account>;
@@ -553,6 +556,15 @@ Write to the appropriate pool — ontology (Author's thoughts), constitution (Au
 Every change to constitution must cite the Author's exact words from vault.
 
 If ~/.alexandria/ is a git repo, commit changes and push. Write a report to ~/.alexandria/.autoloop/last_run.md — include entries processed, entries remaining, and any signal you noticed but couldn't act on yet.
+
+After writing last_run.md, send a morning brief email. Read last_run.md and notepad.md, then POST to the server:
+
+curl -s -X POST https://mcp.mowinckel.ai/brief \
+  -H "Authorization: Bearer $(cat ~/.alexandria/.api_key)" \
+  -H "Content-Type: application/json" \
+  -d '{"brief": "<factual delta — what the system did, never content>", "notepad": "<fragment count + topic labels from notepad — Author's own words, never your interpretation>", "quote": "<your pick — philosophy, literature, thought. rotate. soft default: We are what we repeatedly do.>"}'
+
+The brief justifies the email — if you did nothing meaningful, skip the POST entirely. Privacy: never include constitution content, ontology content, vault content, or your interpretation of the Author's inner state. Brief = system actions. Notepad = topic labels only.
 SCHED_UPDATE
 
 # Cursor rules (if installed) — auto-updated, not just initial install
@@ -1002,6 +1014,47 @@ async function sendEngagementEmail(email: string, emailToken: string): Promise<v
     <a href="${SERVER_URL}/email/less?t=${emailToken}" style="color: #8a8078;">send less</a>
     &nbsp;&middot;&nbsp;
     <a href="${SERVER_URL}/email/stop?t=${emailToken}" style="color: #8a8078;">send none</a>
+  </p>
+</div>`);
+}
+
+// ---------------------------------------------------------------------------
+// Morning brief — autoloop trigger POSTs, server sends
+// ---------------------------------------------------------------------------
+
+const DEFAULT_BRIEF_QUOTE = '\u201cWe are what we repeatedly do. Excellence, then, is not an act, but a habit.\u201d';
+
+function esc(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function sendMorningBrief(
+  email: string,
+  emailToken: string,
+  brief: string,
+  notepad?: string,
+  quote?: string,
+): Promise<void> {
+  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+  const q = quote || DEFAULT_BRIEF_QUOTE;
+
+  let notepadSection = '';
+  if (notepad) {
+    notepadSection = `
+  <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 0 0 0.8rem;">notepad</p>
+  <p style="font-size: 1.1rem; line-height: 1.9; color: #3d3630; margin: 0 0 2.5rem;">${notepad}</p>`;
+  }
+
+  await sendEmail(email, 'alexandria.',
+    `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
+  <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 0 0 0.8rem;">overnight</p>
+  <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 2.5rem;">${brief}</p>${notepadSection}
+  <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 0.5rem;">/a to start a session. a. to close it.</p>
+  <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; font-style: italic; margin: 0 0 2.5rem;">${q}</p>
+  <p style="font-size: 0.72rem; color: #bbb4aa; margin: 0;">
+    <a href="${SERVER_URL}/brief/less?t=${emailToken}" style="color: #8a8078; text-decoration: none;">send less</a>
+    &nbsp;&middot;&nbsp;
+    <a href="${SERVER_URL}/brief/stop?t=${emailToken}" style="color: #8a8078; text-decoration: none;">send none</a>
   </p>
 </div>`);
 }
@@ -1658,6 +1711,47 @@ export function registerProsumerRoutes(app: Hono) {
     return c.json({ ok: true });
   });
 
+  // --- Morning brief (autoloop trigger → email) ---
+
+  app.post('/brief', async (c) => {
+    const key = extractApiKey(c);
+    if (!key) return c.json({ error: 'Missing API key' }, 401);
+    const account = await findByApiKey(key);
+    if (!account) return c.json({ error: 'Invalid API key' }, 401);
+    if (!account.email) return c.json({ ok: true, skipped: 'no_email' });
+
+    const body = await c.req.json().catch(() => ({}));
+    const { brief, notepad, quote } = body as { brief?: string; notepad?: string; quote?: string };
+    if (!brief) return c.json({ error: 'brief is required' }, 400);
+
+    // Gate: opt-out
+    if (account.brief_opt_out) {
+      return c.json({ ok: true, skipped: 'opt_out' });
+    }
+
+    // Gate: interval (undefined = send every time)
+    if (account.brief_interval_days && account.last_brief) {
+      const elapsed = Date.now() - new Date(account.last_brief).getTime();
+      if (elapsed < account.brief_interval_days * 24 * 60 * 60 * 1000) {
+        return c.json({ ok: true, skipped: 'too_recent' });
+      }
+    }
+
+    await sendMorningBrief(account.email, account.email_token, brief, notepad, quote);
+
+    // Update timestamp
+    const accounts = await getAccounts();
+    const keyHash = hashApiKey(key);
+    const storeKey = Object.keys(accounts).find(k => accounts[k].api_key_hash === keyHash);
+    if (storeKey) {
+      accounts[storeKey].last_brief = new Date().toISOString();
+      await persistAccounts(accounts);
+    }
+
+    logEvent('morning_brief', { author: account.github_login, sent: 'true' });
+    return c.json({ ok: true, sent: true });
+  });
+
   // --- Machine signal (Engine → Factory) ---
 
   app.post('/factory/signal', async (c) => {
@@ -1816,6 +1910,39 @@ export function registerProsumerRoutes(app: Hono) {
     await saveAccounts(accounts);
     return c.html(`<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
   <p style="font-size: 1.1rem; line-height: 1.9;">stopped. we&rsquo;ll be here when you&rsquo;re ready.</p>
+  <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
+</div>`);
+  });
+
+  // --- Brief preferences ---
+
+  app.get('/brief/less', async (c) => {
+    const token = c.req.query('t');
+    if (!token) return c.text('missing token', 400);
+    const accounts = await loadAccounts<AccountStore>();
+    const storeKey = findAccountByEmailToken(accounts, token);
+    if (!storeKey) return c.text('not found', 404);
+    const current = accounts[storeKey].brief_interval_days || 1;
+    accounts[storeKey].brief_interval_days = current * 2;
+    await saveAccounts(accounts);
+    logEvent('brief_preference', { author: accounts[storeKey].github_login, action: 'less', interval: String(current * 2) });
+    return c.html(`<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
+  <p style="font-size: 1.1rem; line-height: 1.9;">done. next brief in ${current * 2} days.</p>
+  <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
+</div>`);
+  });
+
+  app.get('/brief/stop', async (c) => {
+    const token = c.req.query('t');
+    if (!token) return c.text('missing token', 400);
+    const accounts = await loadAccounts<AccountStore>();
+    const storeKey = findAccountByEmailToken(accounts, token);
+    if (!storeKey) return c.text('not found', 404);
+    accounts[storeKey].brief_opt_out = true;
+    await saveAccounts(accounts);
+    logEvent('brief_preference', { author: accounts[storeKey].github_login, action: 'stop' });
+    return c.html(`<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
+  <p style="font-size: 1.1rem; line-height: 1.9;">stopped. your autoloop still runs &mdash; just no email.</p>
   <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
 </div>`);
   });
