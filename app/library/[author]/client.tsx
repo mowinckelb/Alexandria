@@ -233,7 +233,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
 
         {/* ── HOW I THINK ── */}
         <section style={{ margin: '0 0 3rem' }}>
-          <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 1.5rem' }}>how i think</p>
+          <p style={{ fontSize: '1.1rem', fontWeight: 400, color: 'var(--text-primary)', margin: '0 0 1.5rem', letterSpacing: '-0.01em' }}>how i think</p>
 
           {/* Pulse card — shows directly */}
           {pulseCard?.alltime && (
@@ -334,7 +334,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
         {/* ── WHAT I DO ── */}
         {(data.works.length > 0 || author.website || socialLinks.length > 0) && (
           <section style={{ margin: '0 0 3rem' }}>
-            <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 1.5rem' }}>what i do</p>
+            <p style={{ fontSize: '1.1rem', fontWeight: 400, color: 'var(--text-primary)', margin: '0 0 1.5rem', letterSpacing: '-0.01em' }}>what i do</p>
 
             {data.works.map(work => {
               const isPaid = work.tier === 'paid';
@@ -368,7 +368,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
         {/* ── AUTHOR STATS (owner only) ── */}
         {stats && (
           <section style={{ margin: '0 0 2.5rem', padding: '1.5rem 0', borderTop: '1px solid var(--border-light)' }}>
-            <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 1.5rem' }}>your stats</p>
+            <p style={{ fontSize: '1.1rem', fontWeight: 400, color: 'var(--text-primary)', margin: '0 0 1.5rem', letterSpacing: '-0.01em' }}>your stats</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '1.5rem' }}>
               {[
                 [stats.shadow_views, 'shadow views'],
