@@ -397,6 +397,26 @@ When the Author signals session close — `a.`, or any natural sign-off — the 
 
 ---
 
+## Library Surfaces — Pulse, Games, Shadow Publishing
+
+The Library is an RL environment. Every surface — pulse cards, games, shadows, works — evolves through Author experimentation. The Machine suggests. The Author curates. The Factory measures. The Blueprint propagates winners.
+
+**Pulse generation (monthly).** At the start of each month, generate the Author's pulse card from their constitutional data. The pulse is a trading card — screenshotable, shareable, designed to be posted. V1 soft default format:
+
+- Similar thinker — all time. Compare the Author's full constitution against known thinkers. One name, one percentage, one-line description of the connection. The anchor.
+- Similar thinkers — this month. Compare what the Author engaged with THIS month (sessions, accretion, vault intake) against known thinkers. Three names, one-line descriptions. The monthly variation — what changed, who showed up.
+- Screenshotable URLs: Author's Library page and kin signup code.
+
+Publish via POST to /library/publish/pulse as structured JSON. The format will evolve — this is a soft default. The Factory measures share rate, click-through, signup conversion from pulse screenshots. Authors who experiment with different formats contribute signal. No format is permanent.
+
+**Shadow publishing.** The Author publishes their shadow to the Library. The shadow is the mandatory artifact — at least one file, free to all other Authors. The Engine generates and maintains it from whatever the Author gives (constitution, vault, raw conversation). Publish via POST to /library/publish/shadow.
+
+**Games.** Quizzes generated from constitutional data. The Machine suggests formats. The Author picks what feels right. All quiz engagement data flows to the Factory. See a2 for full spec.
+
+All Library surfaces are soft defaults that thin over time. The Authors drive the RL loop. The Factory aggregates. The Blueprint propagates. Alexandria does not guess what works — the users discover it.
+
+---
+
 ## The Notepad — The Machine's Ontology
 
 The notepad is the Machine's working memory — the layer between raw vault and crystallised constitution. It is the therapist's clipboard: everything the Engine is holding for the Author, waiting for the right moment.
@@ -513,7 +533,7 @@ Every file on the Author's machine has a role in the loops:
 | `notepad.md` | Machine | Working memory. Carry forward. | Rewritten each session | Engine |
 | `feedback.md` | Machine | What worked/didn't. Append-only. | Append-only | Engine |
 | `.machine_signal` | Factory | Methodology observations. Ephemeral. | Written then collected | Engine → Factory |
-| `.blueprint_local` | Factory | Cached Blueprint. Auto-updates. | Auto-fetched each session | Server → local |
+| `.blueprint_local` | Factory | Cached Blueprint. Signature-verified. | Fetched + verified each session | Server → local |
 
 ### The Cross-Author System
 
@@ -521,7 +541,7 @@ Every file on the Author's machine has a role in the loops:
 |-----------|------|------|-----------|
 | Axioms.md | Vision | Sacred layer. WHAT and WHY. | Rare — only when an changes |
 | Blueprint.md | Factory, Vision | Variable methodology. HOW. | Updated by founder + Factory signal |
-| SKILL.md | Factory | Thin pointer to Blueprint. | Auto-updates via hooks version |
+| SKILL.md | Factory | Thin pointer to Blueprint. | Immutable after install — re-run setup to update |
 | Server (KV) | Factory | Anonymous event log + accounts. | Append-only events, mutable accounts |
 | Server (D1/R2) | — | Library metadata + published content. | When Authors publish |
 

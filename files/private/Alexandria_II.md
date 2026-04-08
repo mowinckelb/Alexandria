@@ -643,15 +643,79 @@ The publish flow: Author runs `npx alexandria publish` → reviews their Constit
 
 ECONOMICS (V1)
 
-V1 has zero inference cost per Library interaction. Shadow MDs are static artifacts served via API — no live persona conversations, no token spend per query on the Author's behalf. The /library/ page is an acquisition funnel, not a revenue line. Visitors browse shadow MDs, their own Engine processes the fragments locally.
+Growth then revenue. Growth phase: maximize Authors, maximize shadows, maximize network density. Revenue follows density.
 
-Library access: Authors browse all free-tier shadows included in subscription. Non-Authors see free-tier shadows (acquisition funnel) and can pay for paid-tier access (revenue for Authors). Authors can also pay for other Authors' paid-tier shadows — discount is an intelligence decision. The Library is open to the world: Authors are incentivised to publish because their audience is unlimited, not just other Authors.
+Authors ($10/month or free with 5 kin) — all shadows, all tiers, included in subscription. The subscription IS the Library pass. No Author-to-Author payment. The network incentive is maximized: every new Author is one more full shadow you can access for free. You want everyone to have an Alexandria. This drives kin recruitment, Library publishing, and the distribution loop.
 
-Alexandria takes 50% on paid shadow access. Stripe takes ~3%. Author keeps ~47%. The justification: Alexandria is the infrastructure that makes the shadow exist. Without Alexandria, no constitution, no shadow, no quiz, no Library. This is not a commodity pipe taking a toll — this is the platform that created the value. 50% is defensible because the switching cost is the constitution depth (per-user signal accumulation — earned preference, not lock-in), not the cut. Starting at 50%, adjustable via config (`LIBRARY_CUT_PERCENT`). If publishing rates or Author sentiment signal it's too high, lower it. Intelligence decision.
+Non-Authors (visitors) — free-tier shadows are open (the hook). Paid-tier shadows are pay-per-access (the taste). The conversion pitch: "You can pay $2 to read one shadow, or $10/month to read ALL of them and get your own Alexandria." Every non-Author interaction is either revenue (paid access) or conversion (signup). Usually both.
 
-Monthly tab billing: all micro-transactions (paid shadow access, quiz conversions, Library browsing) accumulate on a monthly tab. Settled as a single Stripe charge alongside the subscription. One transaction = Stripe takes 2.9% + $0.30 on the total, not $0.30 per micro-purchase. Non-Author instant payment is the exception — they don't have a billing relationship yet, so they pay per access.
+Alexandria takes 50% on non-Author paid shadow access. Stripe takes ~3%. Author keeps ~47%. Starting at 50%, adjustable via config (`LIBRARY_CUT_PERCENT`). Intelligence decision.
 
-Reader-pays activates when the Library has enough shadow MDs to justify it. V1 needs conversion first.
+Revenue sequencing: Now — subscriptions + non-Author paid access (growth phase). Scale — Library dense enough that non-Author traffic is significant (shadow revenue compounds). Horizon — aggregate live data asset monetizes at a different level entirely.
+
+Three Author incentives — why Authors drive Library growth: Revenue (paid shadow access earnings), Network (more Authors = more free shadows to browse = richer accretion), Kin (signups through your Library page count as kin, reducing your subscription cost). Three motivations, same behavior: get people to your page. Kin-through-Library connects the viral and pricing loops into one system.
+
+-----
+
+THE LIBRARY AS RL ENVIRONMENT
+
+The Library is not a static product. It is a reinforcement learning environment where Authors are the agents, the Factory is the reward aggregator, and the Blueprint propagates winning patterns to all Machines.
+
+Every Library surface — pulse cards, games, shadows, works — evolves through Author experimentation. Alexandria does not prescribe what formats work. The Authors experiment. The Factory measures engagement across all Authors. Winning patterns surface. The Blueprint updates defaults. Tomorrow's Library surfaces start from a higher baseline than today's.
+
+The Authors are Alexandria's sales army and R&D department simultaneously. They drive distribution (sharing pulse cards, quiz results, shadow access) and they drive product iteration (the formats that work best are discovered by the users, not designed by the team). Incentive alignment makes this work: Authors who drive engagement earn more (revenue), grow their network (more shadows to access), and reduce their costs (kin signups).
+
+The Machine layer handles strategy. The Factory aggregates engagement data across all Authors — which formats convert, which topics resonate, which sharing mechanics drive signups. Each Author's Machine generates personalized suggestions combining platform-wide learnings with that Author's constitution and strengths. The Author creates with taste. The Machine handles the analytics. The Author never needs to study a dashboard.
+
+This applies to every Library surface. Pulse cards: the Machine suggests what to include, the Author curates. Games: the Machine suggests formats based on what converts, the Author picks what feels right. Works: the Machine suggests what to create based on what the Library currently wants and what the Author is uniquely positioned to make. Shadow tier optimization: the Machine suggests what to put in free vs paid. Constitution development direction: the Machine notices raw vault signal on in-demand topics and suggests developing it.
+
+The leaderboard data feeds the Factory invisibly. Authors see simple stats on their page (views, plays, signups, earnings) — the scoreboard, not the playbook. The Machine sees everything and optimizes suggestions. The RL loop runs through the Machines, not through human analysis.
+
+-----
+
+PULSE CARD
+
+The pulse is the cognitive gym selfie — a monthly artifact designed to be screenshotted and shared. The objective function: make the Author share it, and make the viewer want their own.
+
+V1 soft default format (the Factory's current best guess — will evolve through the RL loop as Authors experiment):
+
+- Author name + month
+- Similar thinker — all time. One name with percentage and one-line description of the connection. The flex. "89% Marcus Aurelius — duty without faith, private meditations."
+- Similar thinkers — this month. Three names with one-line descriptions. What rotates monthly. Why it's worth sharing each month — different names show up as the Author's thinking shifts.
+- Screenshotable URLs: link to the Author's Library page, kin signup code ("mowinckel.ai — use code mowinckelb"). Works as clickable links AND as readable text in screenshots.
+
+The pulse is Machine-generated from constitutional data. The Author didn't write it — their Machine did. That's the plausible deniability. "I didn't write this, my ai did." But the data it's working from IS them. The gym selfie dynamic: the stated reason is "just my monthly pulse." The real reason is "look who I think like."
+
+The format will evolve. This is the v1 soft default. The Factory measures: share rate, click-through to Library page, signup conversion from pulse screenshots. Authors who experiment with different formats contribute signal. The Blueprint propagates winners. No format is permanent.
+
+-----
+
+SOCIAL NETWORK — MACHINE-MATCHED CONNECTIONS
+
+The Library is a social network where the Machines do the matching. Each Author's Machine can read other Authors' published shadows and identify the highest marginal value connections for that specific Author.
+
+Not "you're similar" (boring). Not prescriptive matching rules. The Machine decides what's most valuable — could be 100% similar, could be 0%, could be 80% similar with one critical disagreement. Max marginal value is the only hard-code. The models decide what that means for each Author.
+
+Infrastructure requirement: Machines must be able to read other Authors' shadows. This is why at least one file must be free to all other Authors (requirement #4). The free shadow is the surface the Machines scan for matching. Deeper shadows (paid/gated) are for human consumption after the Machine identifies the connection.
+
+The matching feeds back into the product. Two matched Authors talk, develop each other's thinking, both constitutions deepen, both shadows get richer, the Library gets more valuable. The social network IS the accretion loop.
+
+-----
+
+HARD CONSTRAINTS AND HYPER-PERSONAL FLEXIBILITY
+
+Four hard constraints — the only things Alexandria requires:
+
+1. Payment account.
+2. Create personal data file.
+3. Continuously update that file with live data.
+4. Publish at least one file to the Library, free to all other Authors.
+
+Everything outside these four is flexible. Hyper-personal. The Engine adapts to whatever the Author wants. No mandatory constitution structure. No mandatory ontology. No mandatory session frequency. No mandatory pulse, games, works, or website. No mandatory formats, schedules, or workflows. The Author shapes the experience by talking, the same way they shape any ai conversation. The Engine writes preferences to machine.md so the Author only says it once.
+
+The soft defaults exist because current models need structure to avoid drift. But they are held loosely. If an Author wants something different, they say so. The system should never be the reason an Author leaves. The only reasons to leave: can't be bothered to find 5 kin for free access, can't be bothered to pay $10/month. Not "the product doesn't fit how I work" — that should never happen because the product fits however the Author wants it to fit.
+
+The soft defaults are the floor, never the ceiling. They justify the subscription by providing a working baseline that is immediately valuable. But the Author can override everything. The defaults get thinner over time as models improve and Authors shape their own experience.
 
 -----
 
@@ -677,7 +741,7 @@ V1 of the Library is one page per Author at `mowinckel.ai/library/{author}`. Not
 
 The two layers create a clean acquisition funnel. Pulse catches attention → Games pull people in → Shadow proves depth → Works show what is possible. Each answers a different objection. Each feeds the same conversion: "start your own Alexandria."
 
-V1 has zero inference cost per Library interaction. Shadow MDs are static artifacts served via API — no live persona conversations, no token spend per query on the Author's behalf. The /library/ page is an acquisition funnel, not a revenue line. Visitors browse shadow MDs, their own Engine processes the fragments locally. Authors can browse any public shadow MD for free — included in their subscription. Non-Authors get the public tier then see the signup CTA. Reader-pays comes later when the Library has enough shadow MDs to justify standalone access. See A2 LIBRARY V1 — THE MIRROR for full economics and viral loop spec.
+V1 has zero inference cost per Library interaction. Shadow MDs are static artifacts served via API — no live persona conversations, no token spend per query on the Author's behalf. Authors get all shadows (free + paid) included in subscription. Non-Authors: free tier open, pay per access for depth. See ECONOMICS above for full model. All Library surfaces (pulse, games, shadows, works) are soft defaults that evolve through the RL environment — see THE LIBRARY AS RL ENVIRONMENT above.
 
 The /library/ page is the first version of the product visible to non-users. Everything before Turn 3 runs invisibly in the terminal. The /library/ page makes Alexandria tangible — something you can link to, something that exists in the world. The product stops being a tool and starts being a place.
 

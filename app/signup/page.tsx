@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTheme } from '../components/ThemeProvider';
 
@@ -27,8 +28,10 @@ function ThemeToggle() {
 
 export default function SignupPage() {
   const searchParams = useSearchParams();
-  const ref = searchParams.get('ref');
+  const urlRef = searchParams.get('ref');
   const refSource = searchParams.get('ref_source');
+  const [kinCode, setKinCode] = useState('');
+  const ref = kinCode.trim() || urlRef;
   const authParams = [ref && `ref=${encodeURIComponent(ref)}`, refSource && `ref_source=${encodeURIComponent(refSource)}`].filter(Boolean).join('&');
   const authUrl = `https://mcp.mowinckel.ai/auth/github${authParams ? `?${authParams}` : ''}`;
 
@@ -54,6 +57,19 @@ export default function SignupPage() {
             >
               sign up with github
             </a>
+          </div>
+
+          <div className="mt-8">
+            <input
+              type="text"
+              value={kinCode}
+              onChange={(e) => setKinCode(e.target.value)}
+              placeholder="kin code"
+              className="text-center text-[0.75rem] tracking-widest bg-transparent border-none outline-none w-[140px]"
+              style={{ color: 'var(--text-ghost)', caretColor: 'var(--text-ghost)' }}
+              autoComplete="off"
+              spellCheck={false}
+            />
           </div>
 
         </div>
