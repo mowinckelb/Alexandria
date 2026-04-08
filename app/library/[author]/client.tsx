@@ -124,6 +124,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
   const [pulse, setPulse] = useState<string>('');
   const [stats, setStats] = useState<AuthorStats | null>(null);
   const [showAllGames, setShowAllGames] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -305,13 +306,30 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                   {hasFree && (
-                    <span
-                      onClick={() => copyText(`${SERVER_URL}/library/${authorId}/shadow/free`, 'free-shadow')}
-                      style={{ fontSize: '0.88rem', color: 'var(--text-primary)', cursor: 'pointer', transition: 'opacity 0.15s', display: 'block', margin: '0 0 0.6rem' }}
-                      className="hover:opacity-60"
-                    >
-                      {copiedId === 'free-shadow' ? 'copied' : `${authorId}-free.md`}
-                    </span>
+                    <div style={{ margin: '0 0 0.8rem' }}>
+                      <span
+                        onClick={() => setExpanded(expanded === 'free-url' ? null : 'free-url')}
+                        style={{ fontSize: '0.88rem', color: 'var(--text-primary)', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                        className="hover:opacity-60"
+                      >
+                        {authorId}-free.md
+                      </span>
+                      {expanded === 'free-url' && (
+                        <div style={{ marginTop: '0.6rem' }}>
+                          <div
+                            onClick={() => copyText(`${SERVER_URL}/library/${authorId}/shadow/free`, 'free-url')}
+                            style={{ background: 'var(--bg-secondary)', padding: '0.6rem', borderRadius: '4px', cursor: 'pointer', margin: '0 0 0.3rem' }}
+                          >
+                            <code style={{ fontSize: '0.6rem', color: 'var(--text-primary)', wordBreak: 'break-all', fontFamily: 'monospace' }}>
+                              {SERVER_URL}/library/{authorId}/shadow/free
+                            </code>
+                          </div>
+                          <p style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', margin: 0 }}>
+                            {copiedId === 'free-url' ? 'copied' : 'click to copy — give this url to any ai'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   )}
                   {hasPaid && (
                     <a
