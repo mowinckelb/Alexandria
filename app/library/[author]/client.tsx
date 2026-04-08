@@ -90,7 +90,7 @@ function PulseCardView({ card, authorName, authorId }: { card: PulseCard; author
         <a href={`/signup?ref=${authorId}&ref_source=library`}
           style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s', letterSpacing: '0.02em' }}
           className="hover:opacity-60"
-        >get yours at mowinckel.ai</a>
+        >get yours — use code {authorId}</a>
       </div>
     </div>
   );
