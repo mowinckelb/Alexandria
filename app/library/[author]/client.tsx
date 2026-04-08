@@ -285,9 +285,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                   style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'opacity 0.15s', margin: '0 0 0.6rem' }}
                   className="hover:opacity-60"
                 >
-                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>
-                    {copiedId === 'paid-shadow' ? 'copied' : `${authorId}-paid.md`}
-                  </span>
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{authorId}-paid.md</span>
                   {copiedId !== 'paid-shadow' && (
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-ghost)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
@@ -307,9 +305,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                       style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'opacity 0.15s', margin: '0 0 0.6rem' }}
                       className="hover:opacity-60"
                     >
-                      <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>
-                        {copiedId === 'free-shadow' ? 'copied' : `${authorId}-free.md`}
-                      </span>
+                      <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{authorId}-free.md</span>
                       {copiedId !== 'free-shadow' && (
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-ghost)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
