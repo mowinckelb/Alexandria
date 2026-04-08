@@ -23,7 +23,6 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 - `Axioms.md` — The sacred layer. What Alexandria IS and WHY. Five operations, five-layer pipeline (vault→ontology→constitution→shadow→library), objective function, sovereignty, neutral infrastructure. Extracted from a1+a2. Read for: philosophical questions, what's non-negotiable.
 - `Blueprint.md` — The variable methodology. HOW to develop human cognition. Function assemblies (Editor/Mercury/Publisher craft), constitution data architecture, meta-principles, compounding architecture. Factory output — improves with every Author. Read for: product methodology, extraction design, mode behavior.
 - `Machine.md` — Per-Author engine memory template. The Engine's evolving model of how to work with a specific Author. Living document, rewritten as the Engine learns. Read for: per-Author calibration, earned preference.
-- `Design.md` — Elite last principles. Craft substrate: shadows, borders, spacing, typography, color, animation, layout. The proven defaults the best designers converge on. Not taste (that's a4 + Taste.md) — physics. Read for: any design/UI implementation. Updated as new references are absorbed.
 
 **Founder's Constitution (lives at `~/.alexandria/constitution/` — the product, used as designed):**
 - `Core.md` — The whole person. Identity, priority stack, dual mandate, people, life architecture. READ FIRST for any task.
@@ -32,6 +31,7 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 - `Mind.md` — Mental models, reasoning patterns, epistemology.
 - `Taste.md` — Creative principles, voice DNA, director's notes, hyperrealism standard. READ FIRST for any creative task.
 - Product copy: `~/.alexandria/constitution/` — backed up to private GitHub repo (`alexandria-private`). No repo copy.
+- `~/.alexandria/design.md` — Elite last principles. Craft substrate (shadows, borders, spacing, typography, color, animation, layout, UX writing, cognitive load, ai slop anti-patterns, production hardening). Not taste (that's Taste.md) — physics. Portable, not project-specific. Read for: any design/UI implementation.
 
 **Founder's writing & thinking:**
 - `Aphorisms.md` — Compressed positions by domain. Reference for his exact position on a topic.
@@ -152,37 +152,12 @@ No Machine loop. No constitution writes. This is company work, not product:
 - If nothing happened in a loop, skip it. No empty sections.
 - The whole output should take <60 seconds to read.
 
-## Three-Phase Execution
-
-For any significant piece of work (new features, architecture, multi-file changes), follow three phases:
-
-**Phase 1 — Plan the plan.** Research, explore, think. Produce a concrete plan with clear steps, dependencies, and decisions. Run the plan through the founder's principles (first principles, bitter lesson, hard-code alarm, dependency alarm). The plan is the artifact — get it right before touching code.
-
-**Phase 2 — Confirm the plan.** Present the plan to the founder. Compressed, not exhaustive. The founder confirms, adjusts, or rejects. No execution until confirmed. If the founder is not available and the work is non-blocking, park the plan and move on.
-
-**Phase 3 — Execute the plan.** Once confirmed, execute end-to-end. The plan should be detailed enough that execution is mechanical — "press go and it just works." Reflect after execution against the principles.
-
-This process applies to significant work, not trivial fixes. The reflect gate (below) still applies to all non-trivial changes. The three phases and the reflect gate are complementary — the plan gets reflected before confirmation, and the execution gets reflected before commit.
-
-## Reflect Gate
-
-Before committing any non-trivial change, reflect against `~/.claude/CLAUDE.md` principles. Loop until clean:
-
-1. Check every change against the principles. Hard-codes? Complexity that could be eliminated? Human bottlenecks in maximisation games? Missing verification? Anything that breaks when capabilities improve?
-2. If violations found → fix them. Re-check. Repeat until clean.
-3. If genuine tradeoff (no clear best option) → ship the best option now, park the question in `files/private/a0.md` under `## Parked questions` for the founder's next session.
-4. If the fix is blocked on founder input (taste call, strategic direction) → ship what works, park the question.
-
-This is not a manual step. It's how changes get made. The founder should never need to call /check — it's already built into the workflow.
-
-The check gate applies to: code commits, trigger updates, an/ax changes, architecture decisions. It does NOT apply to: trivial fixes (typos, sync), session protocol, or when the founder explicitly says to skip it.
-
 ## Working With the Founder
 
-See `~/.claude/CLAUDE.md` for principles and communication style (loaded globally in every session).
+See `~/.claude/CLAUDE.md` for principles, communication style, Three-Phase Execution, and Reflect Gate (loaded globally in every session).
 
 an is sacred. If information should be ground truth but isn't in a1/a2/a3/a4, flag it. If it's not ready for an, capture in a0. ax are disposable — regenerated from an.
 
 **Developing signal → a0, not response text.** If the founder surfaces something that should persist (a phrase, a forming concept, a parked idea), it goes in a0 — that's what a0 is for. Don't lose signal by only mentioning it in a reply.
 
-**Parked questions.** When the agent encounters genuine tradeoffs or needs founder input on a non-blocking decision, park the question in `files/private/a0.md` under `## Parked questions`. At session start, check for parked questions and surface them early. The founder answers when online; the system ships the best option meanwhile.
+**Parked questions.** When the agent encounters genuine tradeoffs or needs founder input on a non-blocking decision, park the question in `files/private/a0.md` under `## Parked questions`. The Reflect Gate (in `~/.claude/CLAUDE.md`) uses this same mechanism — "park the question" means write it to a0. At session start, check for parked questions and surface them early. The founder answers when online; the system ships the best option meanwhile.

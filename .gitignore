@@ -43,5 +43,6 @@ next-env.d.ts
 .vercel
 files/private/Vault/
 .claude/worktrees/
+.agents/
 .font_cache/
 server/.next/
