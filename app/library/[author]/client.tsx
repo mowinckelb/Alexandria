@@ -280,55 +280,53 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
             <div>
               <p style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>shadows</p>
 
-              {accessToken ? (
-                <div>
-                  <div
-                    onClick={() => copyText(accessToken.api_url, 'token')}
-                    style={{ background: 'var(--bg-secondary)', padding: '0.8rem', borderRadius: '4px', cursor: 'pointer', margin: '0 0 0.3rem' }}
+              {accessToken && paidShadow ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', margin: '0 0 0.6rem' }}>
+                  <span
+                    onClick={() => copyText(paidShadow, 'paid-shadow')}
+                    style={{ fontSize: '0.88rem', color: 'var(--text-primary)', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                    className="hover:opacity-60"
                   >
-                    <code style={{ fontSize: '0.65rem', color: 'var(--text-primary)', wordBreak: 'break-all', fontFamily: 'monospace' }}>
-                      {accessToken.api_url}
-                    </code>
-                  </div>
-                  <p style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', margin: '0 0 1rem' }}>
-                    {copiedId === 'token' ? 'copied' : 'click to copy — give this url to any ai'}
-                  </p>
-                  {paidShadow && (
-                    <span
-                      onClick={() => copyText(paidShadow, 'paid-shadow')}
-                      style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', cursor: 'pointer', transition: 'opacity 0.15s' }}
-                      className="hover:opacity-60"
-                    >
-                      {copiedId === 'paid-shadow' ? 'copied' : 'copy shadow to clipboard'}
-                    </span>
-                  )}
+                    {copiedId === 'paid-shadow' ? 'copied' : `${authorId}-paid.md`}
+                  </span>
+                  <span
+                    onClick={() => {
+                      const blob = new Blob([paidShadow], { type: 'text/markdown' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url; a.download = `${authorId}-paid.md`; a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                    style={{ fontSize: '0.6rem', color: 'var(--text-ghost)', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                    className="hover:opacity-60"
+                  >
+                    download
+                  </span>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  {hasFree && (
-                    <div style={{ margin: '0 0 0.8rem' }}>
+                  {hasFree && shadow && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', margin: '0 0 0.6rem' }}>
                       <span
-                        onClick={() => setExpanded(expanded === 'free-url' ? null : 'free-url')}
+                        onClick={() => copyText(shadow, 'free-shadow')}
                         style={{ fontSize: '0.88rem', color: 'var(--text-primary)', cursor: 'pointer', transition: 'opacity 0.15s' }}
                         className="hover:opacity-60"
                       >
-                        {authorId}-free.md
+                        {copiedId === 'free-shadow' ? 'copied' : `${authorId}-free.md`}
                       </span>
-                      {expanded === 'free-url' && (
-                        <div style={{ marginTop: '0.6rem' }}>
-                          <div
-                            onClick={() => copyText(`${SERVER_URL}/library/${authorId}/shadow/free`, 'free-url')}
-                            style={{ background: 'var(--bg-secondary)', padding: '0.6rem', borderRadius: '4px', cursor: 'pointer', margin: '0 0 0.3rem' }}
-                          >
-                            <code style={{ fontSize: '0.6rem', color: 'var(--text-primary)', wordBreak: 'break-all', fontFamily: 'monospace' }}>
-                              {SERVER_URL}/library/{authorId}/shadow/free
-                            </code>
-                          </div>
-                          <p style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', margin: 0 }}>
-                            {copiedId === 'free-url' ? 'copied' : 'click to copy — give this url to any ai'}
-                          </p>
-                        </div>
-                      )}
+                      <span
+                        onClick={() => {
+                          const blob = new Blob([shadow], { type: 'text/markdown' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url; a.download = `${authorId}-free.md`; a.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                        style={{ fontSize: '0.6rem', color: 'var(--text-ghost)', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                        className="hover:opacity-60"
+                      >
+                        download
+                      </span>
                     </div>
                   )}
                   {hasPaid && (
