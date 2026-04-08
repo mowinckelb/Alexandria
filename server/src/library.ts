@@ -607,7 +607,7 @@ echo "Done."
     if (!author) return c.json({ error: 'Author not found' }, 404);
 
     const settings = JSON.parse(author.settings || '{}');
-    const floorCents = settings.paid_price_cents || 2000;
+    const floorCents = settings.paid_price_cents || 200;
     const requestedCents = (body as any)?.amount_cents;
     let amountCents = requestedCents && requestedCents >= floorCents ? requestedCents : floorCents;
 
@@ -676,7 +676,7 @@ echo "Done."
     if (!work) return c.json({ error: 'No paid work found' }, 404);
 
     const settings = JSON.parse(author.settings || '{}');
-    const floorCents = settings.paid_price_cents || 2000;
+    const floorCents = settings.paid_price_cents || 200;
     const requestedCents = (body as any)?.amount_cents;
     let amountCents = requestedCents && requestedCents >= floorCents ? requestedCents : floorCents;
 

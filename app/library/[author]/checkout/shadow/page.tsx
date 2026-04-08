@@ -23,9 +23,9 @@ function ThemeToggle() {
   );
 }
 
-const SLIDER_MIN = 5;
-const SLIDER_MAX = 50;
-const SLIDER_DEFAULT = 5;
+const SLIDER_MIN = 2;
+const SLIDER_MAX = 20;
+const SLIDER_DEFAULT = 2;
 
 export default function ShadowCheckoutPage({ params }: { params: Promise<{ author: string }> }) {
   const [authorId, setAuthorId] = useState('');
