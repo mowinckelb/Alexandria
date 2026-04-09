@@ -656,16 +656,17 @@ echo "Done."
     const author = await db.prepare('SELECT * FROM authors WHERE id = ?').bind(authorId).first<{ display_name: string; settings: string }>();
     if (!author) return c.json({ error: 'Author not found' }, 404);
 
-    const settings = JSON.parse(author.settings || '{}');
-    const floorCents = settings.paid_price_cents || 200;
-    const requestedCents = (body as any)?.amount_cents;
-    let amountCents = requestedCents && requestedCents >= floorCents ? requestedCents : floorCents;
-
-    // Find priced shadow (any visibility with price > 0, or first non-public)
+    // Find priced shadow — prefer shadow with price > 0, fall back to first non-public
     const shadow = await db.prepare(
-      `SELECT id, price_cents FROM shadows WHERE author_id = ? AND visibility != 'public' LIMIT 1`
+      `SELECT id, price_cents FROM shadows WHERE author_id = ? AND visibility != 'public' ORDER BY price_cents DESC LIMIT 1`
     ).bind(authorId).first<{ id: string; price_cents: number }>();
     if (!shadow) return c.json({ error: 'No gated shadow' }, 404);
+
+    // Price from the shadow itself, fall back to author settings for legacy
+    const settings = JSON.parse(author.settings || '{}');
+    const floorCents = shadow.price_cents > 0 ? shadow.price_cents : (settings.paid_price_cents || 200);
+    const requestedCents = (body as any)?.amount_cents;
+    let amountCents = requestedCents && requestedCents >= floorCents ? requestedCents : floorCents;
 
     // Apply promo code
     if (promoCode) {
