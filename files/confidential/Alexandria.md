@@ -56,6 +56,8 @@ If Apple builds this, the category is validated and Alexandria is the acquisitio
 
 Defensibility is a cost gradient, not a wall: hidden extraction methodology (server-side Blueprint), per-user signal accumulation (append-only feedback log — earned preference, not lock-in), philosophical depth, and accumulated user data. None is individually a wall. Together they are a meaningful head start that widens with time.
 
+The product has four constants and infinite variables. The constants: pay, create a data file, keep it live, publish one file. Everything else — constitution structure, session style, Library page design, machine setup, Engine behavior — is hyper-personalizable software the user controls. Two types of marginal value over DIY: discrete (the intellectual architecture — five operations, fragment dimensions, pipeline design, plumbing they would not have built) and continuous (Factory loop — collective learning from every Author improves the Blueprint for all, compounding methodology, Library network effects). Discrete gets them in the door. Continuous keeps them. Maximum customizability is not generosity — it is the learning architecture. Every user's choices are training signal. More diverse usage = richer Factory signal = better Blueprint = more value for everyone. Users run reinforcement learning for Alexandria.
+
 ---
 
 ### The economics
