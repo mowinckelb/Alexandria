@@ -268,7 +268,17 @@ The server checks: valid API key → serve full Blueprint. Invalid → reject. B
 
 REVENUE MODEL — THE DUAL MANDATE  
 
-Capped downside, uncapped upside. The subscription is the floor. The Library is the ceiling. The subscription stands alone as a business. The Library is speculative upside the founder will happily take but does not rely on. One tier, everyone gets everything. The user deepens naturally through usage — the product does the selling.  
+Capped downside, uncapped upside. The subscription is the floor. The Library is the ceiling. The subscription stands alone as a business. The Library is speculative upside the founder will happily take but does not rely on. One tier, everyone gets everything. The user deepens naturally through usage — the product does the selling.
+
+WHY FREE-FIRST IS STRUCTURALLY REQUIRED
+
+Free-first (free with 5 kin, $10 without) is not generosity — it is the only honest architecture. The reason is structural: per-user marginal value of the server decays, but network value compounds.
+
+Once an Author has v1 Blueprint, setup, and local files, the Machine compounds on its own through the Author's existing ai subscription. Blueprint v47 is marginally better than v1 but any individual Author might not notice. The server's value to any single Author decays fast after initial setup. This means per-user pricing alone cannot sustain — the marginal value the server provides to any one Author thins over time.
+
+The value that compounds is in the network layer: the Library (published shadows — a collective asset no individual can build alone), the Factory (cross-Author methodology improvement — every Author makes the Blueprint better for every other Author), the social graph (cognitive matchmaking, root-node connection), and aggregate opportunities (at scale, the pool of structured minds creates value individual Authors cannot access alone). All of these require critical mass. None of them exist at the individual level.
+
+This maps cleanly to Alexandria's position in the four surviving software positions. The indirect play (scaffolding — helping individual users create live data) delivers diminishing per-user value. The direct play (infrastructure — hosting the network of everyone's live data via the Library) delivers compounding cross-user value. The scaffolding dissolves for each user. The infrastructure compounds across all users. Revenue comes from network effects: Library cuts, premium content, social graph, aggregate opportunities. Free-first accelerates the only thing that matters — critical mass.  
 
 Patron — the structural floor for unkillability. Not a product tier — a mission tier. For people who believe Alexandria should exist: family, friends, mission believers, newsletter subscribers who want to give back. Pay-what-you-want, no minimum, no maximum. Patrons get a monthly newsletter with behind-the-scenes updates and personal acknowledgement. Patrons do NOT count as active kin — kin status requires product usage. The Patron tier does not compound per-patron (no Constitution, no Library). It compounds the company's survivability. Donation-style churn is structurally lower than product-style churn — mission supporters don't evaluate renewal against alternatives the way product users do. Twenty patrons at $10/month = break-even. Fifty at $10/month = founder costs start getting covered. This is the concrete mechanism behind "cannot die." The patron page (/patron) should be a standalone surface — the lowest-friction way to support Alexandria, independent of whether someone is ready for the product.
 
