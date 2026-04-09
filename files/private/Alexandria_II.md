@@ -21,7 +21,7 @@ Alexandria has exactly four non-negotiable requirements. These are the only thin
 1. Payment account. The business exists. A recurring relationship, not a transaction.
 2. Create personal data file. The Author builds a structured representation of how they think. "Personal" = about the person. "Data" = structured, not vibes. "File" = portable, ownable, sovereign. "Create" = the Author makes it, not us.
 3. Continuously update that file with live data. The value is in the liveness. A stale file is a dead file. "Continuously" is the key word — not "update occasionally." "Live data" = current thinking, not a snapshot from six months ago.
-4. Publish at least one file to the Library, free to all other Authors. The Author chooses what to publish and what to keep private. What is on their machine is theirs. What is in the Library is what they chose to share. This one free file is the minimum that makes the network function — Authors can see each other, the Engine can match, the Library has content. Everything beyond that is the Author's choice: additional files, public access, paid tiers, enterprise deals. But at least one file is visible to the network. A book that can never be opened is not a book in a library.
+4. Publish at least one shadow visible to other Authors (public or authors visibility). The Author chooses what to publish and what to keep private. What is on their machine is theirs. What is in the Library is what they chose to share. This one shared shadow is the minimum that makes the network function — Authors can see each other, the Engine can match, the Library has content. Everything beyond that is the Author's choice: additional shadows, public access, invite-only, pricing. But at least one shadow is visible to the network. A book that can never be opened is not a book in a library.
 
 The shadow is the only mandatory artifact. Everything else the Author does is optional — no mandatory constitution structure, no mandatory ontology, no mandatory session frequency, no mandatory pulse or games or works. The Engine adapts to whatever the Author gives it. But the shadow must exist and Alexandria must have access. Without it the Library doesn't exist.
 
@@ -568,11 +568,11 @@ PRIVACY AND AUTHOR CONTROL
   
 The Shadow must behave differently in different contexts, just as humans do. This is social intelligence, not dishonesty.  
   
-Access is the Author's choice. The only hard constraint: at least one file must be free to all other Authors (requirement #4 — the minimum that makes the network function). Everything beyond that — public access, paid tiers, enterprise deals, constraints on who sees what — is the Author's decision. The Engine advises. Alexandria serves what the Author publishes.
+Access is the Author's choice. Three visibility levels per shadow: public (anyone can read — the open shelf), authors (any Alexandria Author can read — the members' library), invite (token or promo code only — the private collection). The only hard constraint: at least one shadow must be public or authors (requirement #4 — the minimum that makes the network function). Everything beyond that — how many shadows, what visibility, what price — is the Author's decision. The Engine advises. Alexandria serves what the Author publishes.
 
-In practice, most Authors will have at least two tiers: a free shadow (visible to other Authors, optionally public) and additional content at a price the Author sets. But the tier structure itself is not prescribed. Some Authors may have one file. Some may have ten. The Engine figures out what serves each Author.
+Price is orthogonal to visibility. A public shadow can be free (the hook) or priced for non-Authors. An authors shadow is always accessible to other Authors (free with subscription, billed if not subscribed). An invite shadow has no price — access is granted by the Author via promo codes or tokens, revocable at any time. The Author controls the entire access model.
 
-Network effects: Authors get all shadows (free + paid) included in their subscription. More Authors = more shadows to access = more valuable subscription. Authors earn from non-Author paid access. Non-Authors get the free tier (acquisition funnel) and pay per access for depth (revenue + conversion). The network compounds on both sides: subscribing is more valuable (access) and publishing is more valuable (audience).
+Network effects: Authors get all public and authors shadows included in their subscription. More Authors = more shadows to access = more valuable subscription. Authors earn from non-Author paid access. Non-Authors get the public shadows (acquisition funnel) and pay per access for depth (revenue + conversion). The network compounds on both sides: subscribing is more valuable (access) and publishing is more valuable (audience).
 
 The Author-side network effect is the strongest acquisition mechanic. Both constitutions in the room makes every conversation richer — augmented group chats, cross-constitution contradiction surfacing. Being an Author makes you a better reader (deeper understanding of what constitutions contain), which makes being an Author more valuable. Both sides compound.  
   
@@ -657,15 +657,15 @@ ECONOMICS (V1)
 
 Growth then revenue. Growth phase: maximize Authors, maximize shadows, maximize network density. Revenue follows density.
 
-Authors ($10/month or free with 5 kin) — all shadows, all tiers, included in subscription. The subscription IS the Library pass. No Author-to-Author payment. The network incentive is maximized: every new Author is one more full shadow you can access for free. You want everyone to have an Alexandria. This drives kin recruitment, Library publishing, and the distribution loop.
+Authors ($10/month or free with 5 kin) — all public and authors shadows included in subscription. The subscription IS the Library pass. No Author-to-Author payment. The network incentive is maximized: every new Author is one more shadow you can access. You want everyone to have an Alexandria. This drives kin recruitment, Library publishing, and the distribution loop. Invite shadows are separate — access is by token, Author-controlled, outside the subscription model.
 
-Non-Authors (visitors) — free-tier shadows are open (the hook). Paid-tier shadows are pay-per-access (the taste). The conversion pitch: "You can pay $2 to read one shadow, or $10/month to read ALL of them and get your own Alexandria." Every non-Author interaction is either revenue (paid access) or conversion (signup). Usually both.
+Non-Authors (visitors) — public shadows are open (the hook). Authors-only and priced shadows require signup or payment (the taste). The conversion pitch: "You can pay $2 to read one shadow, or $10/month to read ALL of them and get your own Alexandria." Every non-Author interaction is either revenue (paid access) or conversion (signup). Usually both.
 
 Alexandria takes 50% on non-Author paid shadow access. Stripe takes ~3%. Author keeps ~47%. Starting at 50%, adjustable via config (`LIBRARY_CUT_PERCENT`). Intelligence decision.
 
 Revenue sequencing: Now — subscriptions + non-Author paid access (growth phase). Scale — Library dense enough that non-Author traffic is significant (shadow revenue compounds). Horizon — aggregate live data asset monetizes at a different level entirely.
 
-Three Author incentives — why Authors drive Library growth: Revenue (paid shadow access earnings), Network (more Authors = more free shadows to browse = richer accretion), Kin (signups through your Library page count as kin, reducing your subscription cost). Three motivations, same behavior: get people to your page. Kin-through-Library connects the viral and pricing loops into one system.
+Three Author incentives — why Authors drive Library growth: Revenue (paid shadow access earnings from non-Authors), Network (more Authors = more shadows to browse = richer accretion), Kin (signups through your Library page count as kin, reducing your subscription cost). Three motivations, same behavior: get people to your page. Kin-through-Library connects the viral and pricing loops into one system.
 
 -----
 
@@ -712,7 +712,7 @@ The Library is a social network where the Machines do the matching. Each Author'
 
 Not "you're similar" (boring). Not prescriptive matching rules. The Machine decides what's most valuable — could be 100% similar, could be 0%, could be 80% similar with one critical disagreement. Max marginal value is the only hard-code. The models decide what that means for each Author.
 
-Infrastructure requirement: Machines must be able to read other Authors' shadows. This is why at least one file must be free to all other Authors (requirement #4). The free shadow is the surface the Machines scan for matching. Deeper shadows (paid/gated) are for human consumption after the Machine identifies the connection.
+Infrastructure requirement: Machines must be able to read other Authors' shadows. This is why at least one shadow must be public or authors-visible (requirement #4). The shared shadow is the surface the Machines scan for matching. Invite-only shadows are for the Author's private distribution after the Machine identifies the connection.
 
 The matching feeds back into the product. Two matched Authors talk, develop each other's thinking, both constitutions deepen, both shadows get richer, the Library gets more valuable. The social network IS the accretion loop.
 
@@ -757,7 +757,7 @@ V1 of the Library is one page per Author at `mowinckel.ai/library/{author}`. Not
 
 The two layers create a clean acquisition funnel. Pulse catches attention → Games pull people in → Shadow proves depth → Works show what is possible. Each answers a different objection. Each feeds the same conversion: "start your own Alexandria."
 
-V1 has zero inference cost per Library interaction. Shadow MDs are static artifacts served via API — no live persona conversations, no token spend per query on the Author's behalf. Authors get all shadows (free + paid) included in subscription. Non-Authors: free tier open, pay per access for depth. See ECONOMICS above for full model. All Library surfaces (pulse, games, shadows, works) are soft defaults that evolve through the RL environment — see THE LIBRARY AS RL ENVIRONMENT above.
+V1 has zero inference cost per Library interaction. Shadow MDs are static artifacts served via API — no live persona conversations, no token spend per query on the Author's behalf. Authors get all public and authors shadows included in subscription. Non-Authors: public shadows open, pay per access for depth. See ECONOMICS above for full model. All Library surfaces (pulse, games, shadows, works) are soft defaults that evolve through the RL environment — see THE LIBRARY AS RL ENVIRONMENT above.
 
 The /library/ page is the first version of the product visible to non-users. Everything before Turn 3 runs invisibly in the terminal. The /library/ page makes Alexandria tangible — something you can link to, something that exists in the world. The product stops being a tool and starts being a place.
 
@@ -822,17 +822,19 @@ Mercury also has access to curated influences. When generating the shadow MD, it
   
 Technical implementation: Authors can connect external playlists and lists as live sources — YouTube playlists, Spotify playlists, Goodreads shelves, Letterboxd lists, Pocket reading lists, Apple Music playlists. These are API integrations (unidirectional). The Author curates in their normal workflow and it flows into the Vault without friction. Alexandria links to content, does not host it.  
   
-ACCESS TIERS
+ACCESS MODEL
 
-Two infrastructure-level tiers. Hard infrastructure — Alexandria needs consistent rails to aggregate, filter, and price across Authors. Everything beyond these two rails is an Engine intelligence decision per Author.
+Three visibility levels per shadow. Hard infrastructure — Alexandria needs consistent rails to gate, price, and aggregate across Authors. Everything beyond these three levels is an Engine intelligence decision per Author.
 
-Free — Anyone can access. Most Works, all Signal. The public shadow MD — surface-level fragments within the Author's configured boundaries. The discovery layer that draws people in.
+Public — Anyone can read. The open shelf. Most Works, all Signal. Surface-level fragments within the Author's configured boundaries. The discovery layer that draws people in. Can be free or priced for non-Authors.
 
-Paid — The Author sets the price. Deeper fragments, more domains, higher fidelity. This is where the Author earns and where Alexandria takes a percentage. Accessed by humans (through the Neo-Biography), by LLMs (through the Library API), or programmatically. Payment is access to the artifact, not compute — pure margin.
+Authors — Any Alexandria Author can read. The members' library. Accessible with subscription, billed per-access for non-subscribers. The deeper layer where the network compounds — more Authors = more authors-visible shadows = richer accretion for everyone.
 
-How Authors organise access beyond free/paid — inner circles, professional boundaries, invite-only content — is the Engine's intelligence decision. Some Authors will have two modes. Some will have five. The infrastructure does not prescribe social structure. It gates monetisation.
+Invite — Token or promo code only. The private collection. No price, no browse, no discovery. Access is granted by the Author, revocable at any time. Inner circles, professional boundaries, selective sharing. Outside the subscription model entirely.
 
-Network effects: Authors get all shadows (free + paid) included in their subscription. No Author-to-Author payment. Authors earn from non-Author paid access. More Authors = more shadows to access = more valuable subscription. The network compounds on both sides.  
+How Authors organise their shadows across these levels — how many, what depth, what price — is the Engine's intelligence decision. Some Authors will have one shadow. Some will have five. The infrastructure does not prescribe social structure. It gates access and monetisation.
+
+Network effects: Authors get all public and authors shadows included in their subscription. No Author-to-Author payment. Authors earn from non-Author paid access. More Authors = more shadows to access = more valuable subscription. The network compounds on both sides.  
   
 NEO-BIOGRAPHY PRODUCT MODEL  
   
@@ -880,7 +882,7 @@ Library for people:
 
 - Authors publishing Works in any medium (essays, film, poetry, music, photography, interactive experiences) to their Neo-Biography
 - Visitors experiencing, annotating, and engaging with Works across all mediums
-- Visitors paying for Premium shadow MD access beyond free browsing
+- Visitors paying for shadow MD access beyond the public layer
 - LLMs tool-calling the Library API to access shadow MDs mid-conversation — accessing identity, perspective, and taste rather than just knowledge
 - Authors' Engines browsing each other's shadow MDs for serendipitous accretion
 - Accessing verified taste — investors, editors, designers, curators, anyone whose judgment is their value — through their shadow MD rather than competing for their time

@@ -111,9 +111,9 @@ function PulseCardFragments({ card, authorName, authorId }: { card: PulseCard; a
       <p style={{ fontSize: '0.55rem', letterSpacing: '0.1em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>ideas i engaged with this month</p>
 
       {card.fragments.map((frag, i) => (
-        <div key={i} style={{ margin: '0 0 0.6rem' }}>
-          <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{frag.source}</span>
-          <span style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', marginLeft: '0.5rem' }}>{frag.idea}</span>
+        <div key={i} style={{ margin: '0 0 0.7rem' }}>
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-primary)', margin: 0 }}>{frag.source}</p>
+          <p style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', margin: '0.15rem 0 0', lineHeight: 1.5 }}>{frag.idea}</p>
         </div>
       ))}
 

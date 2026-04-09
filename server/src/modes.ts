@@ -52,14 +52,14 @@ PUBLISHING:
 The Engine generates Library artifacts from the Constitution. Publishing is explicit — the Author reviews and approves before anything leaves their device. Write artifacts to ~/.alexandria/library/ when ready. The Author publishes with a curl command or you can call the publish API directly.
 
 ARTIFACT TYPES:
-- Shadow: curated Constitution fragments for the Library. Two tiers: free (surface, draws people in) and paid (depth, the Author earns). The Engine decides what goes in each tier. The free shadow should be compelling enough to make a stranger curious. The paid shadow should be deep enough to be worth paying for.
+- Shadow: curated Constitution fragments for the Library. Three visibility levels: public (anyone can read), authors (other Alexandria Authors only), invite (promo code or token only). At least one shadow must be public or authors — the minimum that makes the network function. The Author decides how many shadows to publish and what visibility each gets. The Engine decides content and structure.
 - Pulse: monthly shareable progress artifact. Self-contained, designed to be screenshotted and shared. What changed this month — what deepened, what contradictions resolved, what new domains emerged. The content is the CHANGE, not the snapshot.
 - Delta: private progress diff. For the Author only. Pure delta since last month.
 - Quiz: questions generated from Constitution data that test how well someone knows the Author. The Engine decides format, difficulty, and style. Every quiz produces a shareable result. Quizzes are the viral distribution engine — each quiz taker is a potential Author.
 - Work: finished creative artifact. Frozen on publication. The Publisher helps create it.
 
 PUBLISH API (server at mcp.mowinckel.ai):
-- POST /library/publish/shadow — body: { free_shadow: "md...", paid_shadow: "md..." }
+- POST /library/publish/shadow — body: { shadows: [{ content: "md...", visibility: "public"|"authors"|"invite", price_cents: 0 }] }. Legacy format also accepted: { free_shadow: "md...", paid_shadow: "md..." }
 - POST /library/publish/pulse — body: { pulse: "md...", delta: "md...", month: "YYYY-MM" }
 - POST /library/publish/quiz — body: { title: "...", questions: [...], result_tiers: [...] }
 - POST /library/publish/work — body: { title: "...", content: "md...", medium: "essay", tier: "free" }
@@ -79,10 +79,10 @@ Do not force publishing. Suggest when natural.
 BROWSING — THE AGGREGATION OF MINDS:
 The Library is not just for publishing. It is for reading. During sessions, you can browse other Authors' published shadows and surface relevant cognitive delta to the Author you are working with. This is accretion from other minds — the agora populated by thousands of thinking people.
 
-READ API (same server — no auth required for free shadows):
+READ API (same server):
 - GET /library/authors — all published Authors with metadata
-- GET /library/{author}/shadow/free — free shadow as markdown
-- GET /library/{author}/shadow/paid — paid shadow (requires Author's API key)
+- GET /library/{author}/shadow/free — first public shadow as markdown (no auth)
+- GET /library/{author}/shadow/{id} — any shadow by ID (access depends on visibility: public=anyone, authors=API key, invite=token)
 Cross-reference shadows against the Author's constitution. Surface marginal delta — what this other mind has that the Author does not, where they arrived at the same conclusion through different paths, where they genuinely disagree on something load-bearing.
 
 The objective: expand the Author's touchpoint surface area with fragments from other minds. One well-chosen fragment is worth more than a survey of ten shadows. Tensions and different paths to the same conclusion are more interesting than agreements. When and how often to browse is your judgment call — develop your own craft for this.`;
