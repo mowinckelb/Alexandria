@@ -451,6 +451,40 @@ The bridge between loops: Machines send signal back to the Factory through machi
 
 Both loops compound with model improvements. As foundation models get smarter, the Engine executing the Blueprint makes better judgment calls — and extracts more from the accumulated unstructured logs. The company that solves this has a compounding advantage that is structurally impossible to replicate by inspection — competitors can copy the Blueprint at any point in time, but they cannot copy the accumulated Machine and Factory data that produced it.
 
+LOOP CLASSIFICATION — THRESHOLD VS MAXIMISATION AS ROUTING PRINCIPLE
+
+Every operational loop is either threshold or maximisation. This classification determines optimal resource allocation — not cheapest model, but best net value across cost, speed, reliability, and latency. Threshold loops have a clear bar; any resource above the bar is interchangeable on quality, so optimise the other dimensions. Maximisation loops have no ceiling; more capability always yields more value.
+
+The classification is itself a continuous intelligence decision. A loop that looks threshold can become maximisation when the bar turns out to be wrong — session metadata collection feels threshold until richer metadata compounds into better Factory signal. The system should continuously re-evaluate its own classifications as it accumulates data on which loops actually compound and which don't.
+
+Current classification of Alexandria's operational loops:
+
+Maximisation (route strongest available):
+- Factory→Blueprint synthesis — the core IP improvement loop. More intelligence = better defaults = better product for every Author.
+- Constitution extraction / accretion craft — the product's highest-value moment. Depth, taste, compression all compound.
+- Shadow generation — public-facing, represents the Author, quality has no ceiling.
+- ax regeneration — taste, audience calibration, compression against objective functions.
+- Investor copy and brand work — maximisation games where 7/10 is interchangeable and 10/10 is the only edge.
+- Content claws creative — the content itself is maximisation. Distribution mechanics are threshold.
+
+Threshold (route best net value):
+- Session hooks (SessionStart, SessionEnd, SubagentStart) — did they fire correctly, did data get collected. Binary.
+- Blueprint serving and signing — correct delivery, valid signature. Binary.
+- Hook version checks — version comparison. Binary.
+- Smoke tests and e2e tests — pass/fail.
+- Notepad capture — did the fragment get parked. The craft of WHAT to park is maximisation (Engine intelligence), but the write operation is threshold.
+- Nudge/email delivery mechanics — delivered or not. The prompt selection inside the email is maximisation.
+- Analytics/dashboard collection — event logged or not.
+- Billing/payment processing — correct charge, correct state. Binary.
+- a0 research queue — any capable model can research and summarise. Opus triages output.
+
+Hybrid (threshold mechanics, maximisation content):
+- Machine.md rewrite — the write is threshold, the judgment about what to write is maximisation.
+- Feedback.md append — threshold mechanics, maximisation in what the Engine observes.
+- Daily autoloop — vault→constitution accretion is maximisation, metadata/housekeeping is threshold.
+
+The operational principle: as cheaper models clear threshold on more loops, route them there and concentrate frontier capability on maximisation loops. The system should learn to do this routing autonomously — classification improves as the Factory accumulates signal on which loops actually benefit from stronger models and which don't. This is not a one-time mapping. It is a living classification that the system evolves.
+
 The loop nesting architecture — how Philosophy → Intelligence → Verification governs the entire company, not just the product. Companies are nested collections of loops. Previously, all inner loops were humans — employees executing within the founder's vision. The ai transition replaces human inner loops with ai inner loops. This is the structural shift: intelligence, the primary dimension of inner loops, is being commoditised. The human value concentrates at the outermost loop — philosophy, intent, vision — because humans are creating a human world and get to decide what they want.
 
 The outermost loop is hybrid: the founder provides vision, philosophy, and intent — augmented by ai, but irreducibly human in origin. The founder's involvement in the outermost loop is variable intensity: sometimes actively providing vision, sometimes giving a couple of notes, sometimes just following along — maintaining a mental model, staying in the loop without actively directing. The key structural property is that the entire entity — all inner loops, all activity — is under the founder's domain because the founder occupies the outermost loop. This is the ownership mechanism. It is not just that value accrues to the founder. It is that the loop nesting places the entire company within the founder's domain.
