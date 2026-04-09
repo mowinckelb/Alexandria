@@ -41,9 +41,95 @@ interface PulseCard {
   ideas: number;
   ideas_delta: number;
   themes?: string[];
+  fragments?: Array<{ source: string; idea: string }>;
   month: string;
 }
 
+function PulseCardSimilarity({ card, authorName, authorId }: { card: PulseCard; authorName: string; authorId: string }) {
+  return (
+    <div style={{
+      border: '1px solid var(--border-light)',
+      borderRadius: '6px',
+      padding: '1.5rem',
+      maxWidth: '360px',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', margin: '0 0 1.5rem' }}>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-primary)', margin: 0, fontWeight: 400 }}>{authorName}</p>
+        <p style={{ fontSize: '0.55rem', letterSpacing: '0.1em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: 0 }}>{card.month}</p>
+      </div>
+
+      <div style={{ margin: '0 0 1.2rem' }}>
+        <p style={{ fontSize: '0.55rem', letterSpacing: '0.1em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.5rem' }}>similar thinker — all time</p>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '1.05rem', color: 'var(--text-primary)' }}>{card.alltime.name}</span>
+          <span style={{ fontSize: '0.82rem', color: 'var(--text-ghost)', fontWeight: 300 }}>{card.alltime.pct}%</span>
+        </div>
+        <div style={{ height: '2px', background: 'var(--border-light)', marginTop: '0.3rem', borderRadius: '1px' }}>
+          <div style={{ height: '2px', background: 'var(--text-ghost)', width: `${card.alltime.pct}%`, borderRadius: '1px' }} />
+        </div>
+        <p style={{ fontSize: '0.65rem', color: 'var(--text-ghost)', margin: '0.3rem 0 0', lineHeight: 1.5 }}>{card.alltime.why}</p>
+      </div>
+
+      <div style={{ margin: '0 0 1.5rem', padding: '0.8rem 0 0', borderTop: '1px solid var(--border-light)' }}>
+        <p style={{ fontSize: '0.55rem', letterSpacing: '0.1em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.6rem' }}>similar thinkers — this month</p>
+        {card.this_month.map((mind, i) => (
+          <div key={i} style={{ margin: '0 0 0.5rem' }}>
+            <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{mind.name}</span>
+            <span style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', marginLeft: '0.5rem' }}>{mind.why}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ margin: '1.2rem 0 0', padding: '0.8rem 0 0', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <a href={`/library/${authorId}`}
+          style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s', letterSpacing: '0.02em' }}
+          className="hover:opacity-60"
+        >mowinckel.ai/library/{authorId}</a>
+        <a href={`/signup?ref=${authorId}&ref_source=library`}
+          style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s', letterSpacing: '0.02em' }}
+          className="hover:opacity-60"
+        >mowinckel.ai — use code {authorId}</a>
+      </div>
+    </div>
+  );
+}
+
+function PulseCardFragments({ card, authorName, authorId }: { card: PulseCard; authorName: string; authorId: string }) {
+  if (!card.fragments || card.fragments.length === 0) return null;
+  return (
+    <div style={{
+      border: '1px solid var(--border-light)',
+      borderRadius: '6px',
+      padding: '1.5rem',
+      maxWidth: '360px',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', margin: '0 0 1.2rem' }}>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-primary)', margin: 0, fontWeight: 400 }}>{authorName}</p>
+        <p style={{ fontSize: '0.55rem', letterSpacing: '0.1em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: 0 }}>{card.month}</p>
+      </div>
+
+      <p style={{ fontSize: '0.55rem', letterSpacing: '0.1em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>ideas i engaged with this month</p>
+
+      {card.fragments.map((frag, i) => (
+        <div key={i} style={{ margin: '0 0 0.6rem' }}>
+          <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{frag.source}</span>
+          <span style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', marginLeft: '0.5rem' }}>{frag.idea}</span>
+        </div>
+      ))}
+
+      <div style={{ margin: '1.2rem 0 0', padding: '0.8rem 0 0', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <a href={`/library/${authorId}`}
+          style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s', letterSpacing: '0.02em' }}
+          className="hover:opacity-60"
+        >mowinckel.ai/library/{authorId}</a>
+        <a href={`/signup?ref=${authorId}&ref_source=library`}
+          style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s', letterSpacing: '0.02em' }}
+          className="hover:opacity-60"
+        >mowinckel.ai — use code {authorId}</a>
+      </div>
+    </div>
+  );
+}
 
 interface SocialLink { platform: string; url: string }
 
@@ -52,7 +138,7 @@ interface AuthorData {
     id: string; display_name: string | null; bio: string | null; settings: string;
     website: string | null; location: string | null; social_links: string | null;
   };
-  shadows: Array<{ id: string; tier: string; size_bytes: number; updated_at: string }>;
+  shadows: Array<{ id: string; visibility: string; price_cents: number; size_bytes: number; updated_at: string }>;
   quizzes: Array<{ id: string; title: string; subtitle?: string; published_at: string }>;
   works: Array<{ id: string; title: string; medium: string; tier: string; url?: string; published_at: string }>;
   latest_pulse: { month: string } | null;
@@ -90,11 +176,11 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
         .then(r => { if (!r.ok) throw new Error('not found'); return r.json(); })
         .then(d => { setData(d); setLoading(false); })
         .catch(e => { setError(e.message); setLoading(false); });
-      fetch(`${SERVER_URL}/library/${author}/shadow/free`)
+      fetch(`${SERVER_URL}/library/${author}/shadow/free?ref=author_page`)
         .then(r => { if (r.ok) return r.text(); return ''; })
         .then(text => setShadow(text))
         .catch(() => {});
-      fetch(`${SERVER_URL}/library/${author}/pulse`)
+      fetch(`${SERVER_URL}/library/${author}/pulse?ref=author_page`)
         .then(r => { if (r.ok) return r.text(); return ''; })
         .then(text => setPulse(text))
         .catch(() => {});
@@ -140,8 +226,8 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
   const { author } = data;
   const displayName = author.display_name || author.id;
   const settings = JSON.parse(author.settings || '{}');
-  const hasPaid = data.shadows.some(s => s.tier === 'paid');
-  const hasFree = data.shadows.some(s => s.tier === 'free');
+  const hasGated = data.shadows.some(s => s.visibility !== 'public');
+  const hasPublic = data.shadows.some(s => s.visibility === 'public');
   const socialLinks: SocialLink[] = author.social_links ? JSON.parse(author.social_links) : [];
   const signupRef = `ref=${encodeURIComponent(authorId)}&ref_source=library`;
 
@@ -184,48 +270,23 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
         <section style={{ margin: '0 0 3rem' }}>
           <p style={{ fontSize: '1.15rem', fontWeight: 300, color: 'var(--text-primary)', margin: '0 0 2rem', letterSpacing: '-0.01em' }}>how i think</p>
 
-          {/* Pulse — collapsed to clickable titles */}
-          {(pulseCard?.alltime || pulse) && (
+          {/* Pulse — similarity card */}
+          {pulseCard?.alltime && (
             <div style={{ margin: '0 0 2rem' }}>
               <p style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>pulse</p>
-              {pulseCard?.alltime && (
-                <>
-                  <a
-                    href={`/library/${authorId}/pulse`}
-                    style={{ textDecoration: 'none', color: 'inherit', display: 'block', margin: '0 0 0.6rem', transition: 'opacity 0.15s' }}
-                    className="hover:opacity-60"
-                  >
-                    <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>similar thinker — {pulseCard.alltime.name}</span>
-                  </a>
-                  {pulseCard.this_month.length > 0 && (
-                    <a
-                      href={`/library/${authorId}/pulse`}
-                      style={{ textDecoration: 'none', color: 'inherit', display: 'block', margin: '0 0 0.6rem', transition: 'opacity 0.15s' }}
-                      className="hover:opacity-60"
-                    >
-                      <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>this month — {pulseCard.this_month.map(m => m.name).join(', ')}</span>
-                    </a>
-                  )}
-                  {pulseCard.themes && pulseCard.themes.length > 0 && (
-                    <a
-                      href={`/library/${authorId}/pulse`}
-                      style={{ textDecoration: 'none', color: 'inherit', display: 'block', margin: '0 0 0.6rem', transition: 'opacity 0.15s' }}
-                      className="hover:opacity-60"
-                    >
-                      <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>fragments — {pulseCard.themes.length} ideas this month</span>
-                    </a>
-                  )}
-                </>
-              )}
-              {pulse && !pulseCard?.alltime && (
-                <a
-                  href={`/library/${authorId}/pulse`}
-                  style={{ textDecoration: 'none', color: 'inherit', display: 'block', margin: '0 0 0.6rem', transition: 'opacity 0.15s' }}
-                  className="hover:opacity-60"
-                >
-                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>view pulse</span>
-                </a>
-              )}
+              <PulseCardSimilarity card={pulseCard} authorName={displayName} authorId={authorId} />
+            </div>
+          )}
+          {pulse && !pulseCard?.alltime && (
+            <div style={{ fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: 1.8, margin: '0 0 2rem' }}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{pulse}</ReactMarkdown>
+            </div>
+          )}
+
+          {/* Pulse — fragment card */}
+          {pulseCard?.fragments && pulseCard.fragments.length > 0 && (
+            <div style={{ margin: '0 0 2rem' }}>
+              <PulseCardFragments card={pulseCard} authorName={displayName} authorId={authorId} />
             </div>
           )}
 
@@ -256,7 +317,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
           )}
 
           {/* Shadows — free (copy) + paid */}
-          {(hasFree || hasPaid) && (
+          {(hasPublic || hasGated) && (
             <div>
               <p style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>shadows</p>
 
@@ -280,7 +341,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  {hasFree && shadow && (
+                  {hasPublic && shadow && (
                     <div
                       onClick={() => copyText(shadow, 'free-shadow')}
                       style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'opacity 0.15s', margin: '0 0 0.6rem' }}
@@ -299,7 +360,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                       )}
                     </div>
                   )}
-                  {hasPaid && (
+                  {hasGated && (
                     <a
                       href={`/library/${authorId}/checkout/shadow`}
                       style={{ fontSize: '0.88rem', color: 'var(--text-primary)', textDecoration: 'none', transition: 'opacity 0.15s' }}

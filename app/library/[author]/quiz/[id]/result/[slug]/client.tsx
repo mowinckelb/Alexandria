@@ -41,7 +41,9 @@ export default function ResultPageClient({ params }: { params: Promise<{ author:
     params.then(({ author, id, slug }) => {
       setAuthorId(author);
       setQuizId(id);
-      fetch(`${SERVER_URL}/library/${author}/quiz/${id}/result/${slug}`)
+      const ref = new URLSearchParams(window.location.search).get('ref');
+      const refParam = ref ? `?ref=${encodeURIComponent(ref)}` : '';
+      fetch(`${SERVER_URL}/library/${author}/quiz/${id}/result/${slug}${refParam}`)
         .then(r => { if (!r.ok) throw new Error(); return r.json(); })
         .then(d => { setData(d); setLoading(false); })
         .catch(() => setLoading(false));

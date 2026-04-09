@@ -41,6 +41,7 @@ interface PulseCard {
   ideas: number;
   ideas_delta: number;
   themes?: string[];
+  fragments?: Array<{ source: string; idea: string }> | string[];
   month: string;
 }
 
@@ -57,7 +58,7 @@ export default function PulsePageClient({ params }: { params: Promise<{ author: 
         .then(r => r.ok ? r.json() : null)
         .then(d => { if (d) setDisplayName(d.author?.display_name || author); })
         .catch(() => {});
-      fetch(`${SERVER_URL}/library/${author}/pulse`)
+      fetch(`${SERVER_URL}/library/${author}/pulse?ref=pulse_page`)
         .then(r => { if (r.ok) return r.text(); return ''; })
         .then(text => { setPulse(text); setLoading(false); })
         .catch(() => setLoading(false));
@@ -118,15 +119,28 @@ export default function PulsePageClient({ params }: { params: Promise<{ author: 
               </section>
             )}
 
-            {/* Themes */}
-            {pulseCard.themes && pulseCard.themes.length > 0 && (
-              <section style={{ margin: '0 0 2.5rem', padding: '1.5rem 0 0', borderTop: '1px solid var(--border-light)' }}>
-                <p style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 1rem' }}>fragments this month</p>
-                {pulseCard.themes.map((theme, i) => (
-                  <p key={i} style={{ fontSize: '0.88rem', color: 'var(--text-primary)', margin: '0 0 0.5rem', lineHeight: 1.6 }}>{theme}</p>
-                ))}
-              </section>
-            )}
+            {/* Fragments */}
+            {(() => {
+              const frags = pulseCard.fragments || pulseCard.themes;
+              if (!frags || frags.length === 0) return null;
+              return (
+                <section style={{ margin: '0 0 2.5rem', padding: '1.5rem 0 0', borderTop: '1px solid var(--border-light)' }}>
+                  <p style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 1rem' }}>fragments this month</p>
+                  {frags.map((frag, i) => (
+                    <div key={i} style={{ margin: '0 0 0.8rem' }}>
+                      {typeof frag === 'string' ? (
+                        <p style={{ fontSize: '0.88rem', color: 'var(--text-primary)', margin: 0, lineHeight: 1.6 }}>{frag}</p>
+                      ) : (
+                        <>
+                          <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>{frag.source}</span>
+                          <p style={{ fontSize: '0.72rem', color: 'var(--text-ghost)', margin: '0.2rem 0 0', lineHeight: 1.5 }}>{frag.idea}</p>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </section>
+              );
+            })()}
           </>
         ) : pulse ? (
           <div style={{ fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: 1.8 }}>

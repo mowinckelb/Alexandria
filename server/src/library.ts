@@ -78,20 +78,20 @@ export function registerLibraryRoutes(app: Hono): void {
   // PUBLISHING (Author-authenticated)
   // =========================================================================
 
-  // Publish or update shadow (free and/or paid tier)
+  // Publish or update shadows
+  // Body: { shadows: [{ content: "md...", visibility: "public"|"authors"|"invite", price_cents?: number }] }
+  // Backward compat: { free_shadow: "md...", paid_shadow: "md..." }
+  // Constraint: at least one shadow must be public or authors after publish.
   app.post('/library/publish/shadow', async (c) => {
     const key = extractApiKey(c);
     if (!key) return c.json({ error: 'Missing API key' }, 401);
 
     const body = await c.req.json().catch(() => null);
-    if (!body || (!body.free_shadow && !body.paid_shadow)) {
-      return c.json({ error: 'Provide free_shadow and/or paid_shadow' }, 400);
-    }
+    if (!body) return c.json({ error: 'Invalid body' }, 400);
 
     const db = getDB();
     const r2 = getR2();
 
-    // Resolve author from KV accounts (reuse existing account system)
     const account = await findByApiKey(key);
     if (!account) return c.json({ error: 'Invalid API key' }, 401);
 
@@ -105,36 +105,49 @@ export function registerLibraryRoutes(app: Hono): void {
        ON CONFLICT(id) DO UPDATE SET updated_at = ?`
     ).bind(authorId, body.display_name || authorId, now, now, now).run();
 
-    // Store shadows in R2 and upsert metadata (delete + insert — one shadow per author+tier)
-    for (const tier of ['free', 'paid'] as const) {
-      const content = tier === 'free' ? body.free_shadow : body.paid_shadow;
-      if (!content) continue;
+    // Normalize input: support both new format and legacy { free_shadow, paid_shadow }
+    type ShadowInput = { content: string; visibility: string; price_cents?: number };
+    let shadows: ShadowInput[];
+    if (Array.isArray(body.shadows)) {
+      shadows = body.shadows;
+    } else {
+      shadows = [];
+      if (body.free_shadow) shadows.push({ content: body.free_shadow, visibility: 'public', price_cents: 0 });
+      if (body.paid_shadow) shadows.push({ content: body.paid_shadow, visibility: 'authors', price_cents: body.price_cents || 0 });
+      if (shadows.length === 0) return c.json({ error: 'Provide shadows array or free_shadow/paid_shadow' }, 400);
+    }
 
-      // Size limit — 10MB max per shadow
-      if (typeof content === 'string' && content.length > 10 * 1024 * 1024) {
-        return c.json({ error: `Shadow content too large (${tier}). Max 10MB.` }, 413);
+    // Upsert each shadow by visibility (one per visibility level per author)
+    const publishMeta: Record<string, string | number> = { count: shadows.length };
+    for (let i = 0; i < shadows.length; i++) {
+      const s = shadows[i];
+      const vis = ['public', 'authors', 'invite'].includes(s.visibility) ? s.visibility : 'public';
+      const content = s.content;
+      if (typeof content !== 'string' || content.length === 0) continue;
+      if (content.length > 10 * 1024 * 1024) {
+        return c.json({ error: `Shadow ${i} too large. Max 10MB.` }, 413);
       }
 
-      const r2Key = `shadows/${authorId}/${tier}.md`;
-      await r2.put(r2Key, content as string);
-      await db.prepare(`DELETE FROM shadows WHERE author_id = ? AND tier = ?`).bind(authorId, tier).run();
+      const r2Key = `shadows/${authorId}/${vis}.md`;
+      await r2.put(r2Key, content);
+      // Delete existing shadow at this visibility, then insert new one
+      await db.prepare('DELETE FROM shadows WHERE author_id = ? AND visibility = ?').bind(authorId, vis).run();
       await db.prepare(
-        `INSERT INTO shadows (id, author_id, tier, r2_key, size_bytes, published_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
-      ).bind(generateId(), authorId, tier, r2Key, (content as string).length, now, now).run();
+        `INSERT INTO shadows (id, author_id, visibility, price_cents, r2_key, size_bytes, published_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      ).bind(generateId(), authorId, vis, s.price_cents || 0, r2Key, content.length, now, now).run();
+
+      publishMeta[`${vis}_bytes`] = content.length;
+      publishMeta[`${vis}_sections`] = content.split('\n').filter((l: string) => l.startsWith('## ')).length;
     }
 
-    // Structural signal for Factory — shape of what was published, never content
-    const freeShadow = body.free_shadow as string | undefined;
-    const paidShadow = body.paid_shadow as string | undefined;
-    const publishMeta: Record<string, string | number> = {};
-    if (freeShadow) {
-      publishMeta.free_bytes = freeShadow.length;
-      publishMeta.free_sections = freeShadow.split('\n').filter((l: string) => l.startsWith('## ')).length;
+    // Validate: at least one public or authors shadow must exist after publish
+    const shared = await db.prepare(
+      `SELECT COUNT(*) as c FROM shadows WHERE author_id = ? AND visibility IN ('public', 'authors')`
+    ).bind(authorId).first<{ c: number }>();
+    if (!shared || shared.c === 0) {
+      return c.json({ error: 'At least one shadow must be visible to other Authors (public or authors)' }, 400);
     }
-    if (paidShadow) {
-      publishMeta.paid_bytes = paidShadow.length;
-      publishMeta.paid_sections = paidShadow.split('\n').filter((l: string) => l.startsWith('## ')).length;
-    }
+
     recordAccess('publish_shadow', authorId, null, null, null, publishMeta);
     logEvent('library_publish_shadow', { author: authorId });
     return c.json({ ok: true, url: `/library/${authorId}` });
@@ -439,18 +452,18 @@ echo "Done."
     const author = await db.prepare('SELECT * FROM authors WHERE id = ?').bind(authorId).first();
     if (!author) return c.json({ error: 'Author not found' }, 404);
 
-    const shadows = await db.prepare('SELECT id, tier, size_bytes, updated_at FROM shadows WHERE author_id = ?').bind(authorId).all();
+    const shadows = await db.prepare('SELECT id, visibility, price_cents, size_bytes, updated_at FROM shadows WHERE author_id = ?').bind(authorId).all();
     const quizzes = await db.prepare('SELECT id, title, subtitle, published_at FROM quizzes WHERE author_id = ? AND active = 1').bind(authorId).all();
     const works = await db.prepare('SELECT id, title, medium, tier, url, published_at FROM works WHERE author_id = ?').bind(authorId).all();
     const latestPulse = await db.prepare('SELECT * FROM pulses WHERE author_id = ? ORDER BY month DESC LIMIT 1').bind(authorId).first();
 
-    // Extract chapter titles from paid shadow for TOC teaser
+    // Extract chapter titles from first non-public shadow for TOC teaser
     let shadow_chapters: string[] = [];
-    const paidShadow = shadows.results?.find((s: any) => s.tier === 'paid');
-    if (paidShadow) {
+    const gatedShadow = shadows.results?.find((s: any) => s.visibility !== 'public');
+    if (gatedShadow) {
       try {
         const r2 = getR2();
-        const obj = await r2.get(`shadows/${authorId}/paid.md`);
+        const obj = await r2.get((gatedShadow as any).r2_key || '');
         if (obj) {
           const text = await obj.text();
           shadow_chapters = text.split('\n').filter((l: string) => l.startsWith('## ')).map((l: string) => l.replace('## ', ''));
@@ -458,37 +471,27 @@ echo "Done."
       } catch {}
     }
 
-    const ref = c.req.query('ref') || null;
-    recordAccess('author_view', authorId, extractApiKey(c), null, null, {
-      ...(ref ? { ref } : {}),
-      shadows: (shadows.results?.length || 0) as number,
-      quizzes: (quizzes.results?.length || 0) as number,
-      works: (works.results?.length || 0) as number,
-      has_pulse: latestPulse ? 1 : 0,
-    });
     logEvent('library_author_view', { author: authorId });
 
     return c.json({ author, shadows: shadows.results, quizzes: quizzes.results, works: works.results, latest_pulse: latestPulse, shadow_chapters });
   });
 
-  // Read free shadow
+  // Backward compat: /shadow/free → first public shadow
   app.get('/library/:author/shadow/free', async (c) => {
     const authorId = c.req.param('author');
     const db = getDB();
+    const shadow = await db.prepare(
+      `SELECT * FROM shadows WHERE author_id = ? AND visibility = 'public' LIMIT 1`
+    ).bind(authorId).first<{ id: string; r2_key: string }>();
+    if (!shadow) return c.json({ error: 'No public shadow' }, 404);
+
     const r2 = getR2();
-
-    const shadow = await db.prepare('SELECT * FROM shadows WHERE author_id = ? AND tier = ?').bind(authorId, 'free').first<{ id: string; r2_key: string }>();
-    if (!shadow) return c.json({ error: 'No free shadow published' }, 404);
-
     const obj = await r2.get(shadow.r2_key);
     if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
 
-    const accessorKey = extractApiKey(c);
-    const ref = c.req.query('ref') || null;
-    recordAccess('shadow_view', authorId, accessorKey, shadow.id, 'free', ref ? { ref } : undefined);
-    logEvent('library_shadow_view', { author: authorId, tier: 'free' });
+    recordAccess('shadow_view', authorId, extractApiKey(c), shadow.id, 'public');
+    logEvent('library_shadow_view', { author: authorId, visibility: 'public' });
 
-    // Free shadow is fully public — any ai, any origin
     return new Response(obj.body, {
       headers: {
         'Content-Type': 'text/markdown; charset=utf-8',
@@ -498,106 +501,103 @@ echo "Done."
     });
   });
 
-  // Read paid shadow (requires auth + payment)
+  // Backward compat: /shadow/paid → resolve to first non-public shadow ID, rewrite to /:shadowId
   app.get('/library/:author/shadow/paid', async (c) => {
     const authorId = c.req.param('author');
     const db = getDB();
+    const shadow = await db.prepare(
+      `SELECT id FROM shadows WHERE author_id = ? AND visibility != 'public' LIMIT 1`
+    ).bind(authorId).first<{ id: string }>();
+    if (!shadow) return c.json({ error: 'No gated shadow' }, 404);
+    // Rewrite path to the canonical /:shadowId handler
+    const url = new URL(c.req.url);
+    url.pathname = `/library/${authorId}/shadow/${shadow.id}`;
+    const newReq = new Request(url.toString(), c.req.raw);
+    return app.fetch(newReq, (c as any).env, (c as any).executionCtx);
+  });
+
+  // Read any shadow by ID — access determined by visibility
+  app.get('/library/:author/shadow/:shadowId', async (c) => {
+    const authorId = c.req.param('author');
+    const shadowId = c.req.param('shadowId');
+    const db = getDB();
     const r2 = getR2();
 
-    const shadow = await db.prepare('SELECT * FROM shadows WHERE author_id = ? AND tier = ?').bind(authorId, 'paid').first<{ id: string; r2_key: string }>();
-    if (!shadow) return c.json({ error: 'No paid shadow published' }, 404);
+    const shadow = await db.prepare(
+      'SELECT * FROM shadows WHERE id = ? AND author_id = ?'
+    ).bind(shadowId, authorId).first<{ id: string; r2_key: string; visibility: string; price_cents: number }>();
+    if (!shadow) return c.json({ error: 'Shadow not found' }, 404);
 
     const accessorKey = extractApiKey(c);
+    const accessor = accessorKey ? await findByApiKey(accessorKey) : null;
 
-    // If this is the owning Author, serve for free
-    if (accessorKey) {
-      const accessor = await findByApiKey(accessorKey);
-      if (accessor && accessor.github_login === authorId) {
+    // Owner always has access
+    if (accessor && accessor.github_login === authorId) {
+      const obj = await r2.get(shadow.r2_key);
+      if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
+      return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
+    }
+
+    // Public shadows — anyone
+    if (shadow.visibility === 'public') {
+      const obj = await r2.get(shadow.r2_key);
+      if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
+      recordAccess('shadow_view', authorId, accessor?.github_login || null, shadow.id, 'public');
+      return new Response(obj.body, {
+        headers: { 'Content-Type': 'text/markdown; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=300' },
+      });
+    }
+
+    // Authors shadows — any authenticated Author
+    if (shadow.visibility === 'authors') {
+      if (accessor) {
         const obj = await r2.get(shadow.r2_key);
         if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
+
+        // If priced and accessor is not a subscriber, add to billing tab
+        if (shadow.price_cents > 0 && !accessor.subscription_id) {
+          const cutPercent = parseFloat(process.env.LIBRARY_CUT_PERCENT || '50') / 100;
+          const alexandriaCut = Math.round(shadow.price_cents * cutPercent);
+          const authorCut = shadow.price_cents - alexandriaCut;
+          await db.prepare(
+            `INSERT INTO billing_tab (accessor_id, author_id, artifact_type, amount_cents, alexandria_cut_cents, author_cut_cents, month, created_at)
+             VALUES (?, ?, 'shadow', ?, ?, ?, ?, ?)`
+          ).bind(accessor.github_login, authorId, shadow.price_cents, alexandriaCut, authorCut, currentMonth(), new Date().toISOString()).run();
+          recordAccess('shadow_view', authorId, accessor.github_login, shadow.id, 'authors', { access: 'tab', amount_cents: shadow.price_cents });
+        } else {
+          recordAccess('shadow_view', authorId, accessor.github_login, shadow.id, 'authors', { access: accessor.subscription_id ? 'subscriber' : 'free' });
+        }
+
         return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
       }
+      return c.json({ error: 'Authors only — requires Alexandria API key', visibility: 'authors' }, 401);
+    }
 
-      // Authenticated user with active subscription — free access to all shadows
-      if (accessor) {
-        if (accessor.subscription_id) {
+    // Invite shadows — token or promo only
+    if (shadow.visibility === 'invite') {
+      const token = c.req.query('token');
+      if (token) {
+        const tokenRow = await db.prepare(
+          'SELECT * FROM shadow_tokens WHERE token = ? AND author_id = ? AND revoked_at IS NULL'
+        ).bind(token, authorId).first<{ id: string }>();
+        if (tokenRow) {
+          await db.prepare(
+            'UPDATE shadow_tokens SET access_count = access_count + 1, last_used_at = ? WHERE id = ?'
+          ).bind(new Date().toISOString(), tokenRow.id).run();
+
           const obj = await r2.get(shadow.r2_key);
           if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
-          recordAccess('shadow_view', authorId, accessor.github_login, shadow.id, 'paid', { access: 'subscriber' });
-          logEvent('library_paid_access_free', { author: authorId, accessor: accessor.github_login });
-          return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
+          recordAccess('shadow_view', authorId, token, shadow.id, 'invite', { access: 'token' });
+          return new Response(obj.body, {
+            headers: { 'Content-Type': 'text/markdown; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' },
+          });
         }
-
-        // Non-subscriber authenticated user — add to billing tab
-        const author = await db.prepare('SELECT settings FROM authors WHERE id = ?').bind(authorId).first<{ settings: string }>();
-        const settings = JSON.parse(author?.settings || '{}');
-        const priceCents = settings.paid_price_cents;
-        if (!priceCents) {
-          return c.json({ error: 'Author has not set a price for paid access' }, 404);
-        }
-        const cutPercent = parseFloat(process.env.LIBRARY_CUT_PERCENT || '50') / 100;
-        const alexandriaCut = Math.round(priceCents * cutPercent);
-        const authorCut = priceCents - alexandriaCut;
-
-        await db.prepare(
-          `INSERT INTO billing_tab (accessor_id, author_id, artifact_type, amount_cents, alexandria_cut_cents, author_cut_cents, month, created_at)
-           VALUES (?, ?, 'shadow', ?, ?, ?, ?, ?)`
-        ).bind(accessor.github_login, authorId, priceCents, alexandriaCut, authorCut, currentMonth(), new Date().toISOString()).run();
-
-        const obj = await r2.get(shadow.r2_key);
-        if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
-
-        recordAccess('shadow_view', authorId, accessor.github_login, shadow.id, 'paid', { access: 'tab', amount_cents: priceCents });
-        logEvent('library_paid_access', { author: authorId, accessor: accessor.github_login, artifact_type: 'shadow', amount_cents: String(priceCents) });
-
-        return r2Response(obj.body, 'text/markdown; charset=utf-8', c.req.header('Origin'));
+        return c.json({ error: 'Invalid or revoked token' }, 401);
       }
+      return c.json({ error: 'Invite only — requires access token', visibility: 'invite' }, 401);
     }
 
-    // Token-based access (for AI agents — the primary access method)
-    const token = c.req.query('token');
-    if (token) {
-      const tokenRow = await db.prepare(
-        'SELECT * FROM shadow_tokens WHERE token = ? AND author_id = ? AND revoked_at IS NULL'
-      ).bind(token, authorId).first<{ id: string; access_count: number; last_used_at: string | null }>();
-      if (tokenRow) {
-        // Rate limit: 100 reads per day (reset daily based on last_used_at date)
-        const today = new Date().toISOString().slice(0, 10);
-        const lastDay = tokenRow.last_used_at ? tokenRow.last_used_at.slice(0, 10) : '';
-        const currentCount = lastDay === today ? tokenRow.access_count : 0;
-        if (currentCount >= 100) {
-          return c.json({ error: 'Rate limit exceeded. Resets daily.' }, 429);
-        }
-        await db.prepare(
-          'UPDATE shadow_tokens SET access_count = ?, last_used_at = ? WHERE id = ?'
-        ).bind(currentCount + 1, new Date().toISOString(), tokenRow.id).run();
-
-        const obj = await r2.get(shadow.r2_key);
-        if (!obj) return c.json({ error: 'Shadow content not found' }, 404);
-        recordAccess('shadow_view', authorId, token, shadow.id, 'paid', { access: 'token' });
-        // Token IS the auth — allow any origin so AI tools (GPT, Claude, etc.) can fetch
-        return new Response(obj.body, {
-          headers: {
-            'Content-Type': 'text/markdown; charset=utf-8',
-            'Access-Control-Allow-Origin': '*',
-            'Cache-Control': 'no-store',
-          },
-        });
-      }
-      return c.json({ error: 'Invalid or revoked token' }, 401);
-    }
-
-    // Non-Author, no token — return 402 with checkout info
-    const author = await db.prepare('SELECT settings FROM authors WHERE id = ?').bind(authorId).first<{ settings: string }>();
-    const settings = JSON.parse(author?.settings || '{}');
-    const priceCents = settings.paid_price_cents;
-    if (!priceCents) return c.json({ error: 'Author has not set a price for paid access' }, 404);
-
-    return c.json({
-      error: 'Payment required',
-      price_cents: priceCents,
-      checkout_url: `/library/${authorId}/checkout/shadow`,
-    }, 402);
+    return c.json({ error: 'Access denied' }, 403);
   });
 
   // Checkout — create Stripe session for paid shadow (slider: min price, reader can pay more)
@@ -661,8 +661,11 @@ echo "Done."
     const requestedCents = (body as any)?.amount_cents;
     let amountCents = requestedCents && requestedCents >= floorCents ? requestedCents : floorCents;
 
-    const shadow = await db.prepare('SELECT id FROM shadows WHERE author_id = ? AND tier = ?').bind(authorId, 'paid').first<{ id: string }>();
-    if (!shadow) return c.json({ error: 'No paid shadow' }, 404);
+    // Find priced shadow (any visibility with price > 0, or first non-public)
+    const shadow = await db.prepare(
+      `SELECT id, price_cents FROM shadows WHERE author_id = ? AND visibility != 'public' LIMIT 1`
+    ).bind(authorId).first<{ id: string; price_cents: number }>();
+    if (!shadow) return c.json({ error: 'No gated shadow' }, 404);
 
     // Apply promo code
     if (promoCode) {
@@ -940,7 +943,7 @@ echo "Done."
     const author = await db.prepare('SELECT display_name FROM authors WHERE id = ?').bind(authorId).first<{ display_name: string }>();
 
     const ref = c.req.query('ref') || null;
-    recordAccess('quiz_share_view', authorId, null, quizId, null, ref ? { ref } : undefined);
+    if (ref) recordAccess('quiz_share_view', authorId, null, quizId, null, { ref });
     logEvent('library_quiz_share_view', { author: authorId, quiz_id: quizId, slug });
 
     return c.json({

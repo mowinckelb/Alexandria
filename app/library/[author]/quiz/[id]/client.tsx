@@ -110,7 +110,7 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
 
   const shareResult = () => {
     if (!result) return;
-    navigator.clipboard.writeText(`${window.location.origin}${result.share_url}`);
+    navigator.clipboard.writeText(`${window.location.origin}${result.share_url}?ref=quiz_share`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
