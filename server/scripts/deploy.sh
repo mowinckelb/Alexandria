@@ -43,7 +43,7 @@ SIGNATURE=$(echo -n "$BP_TEXT" | node -e "
 echo "$SIGNATURE" | npx wrangler secret put BLUEPRINT_SIGNATURE 2>&1 | tail -1
 
 # Verify — full client-side signature check (same flow as the hook)
-sleep 1
+sleep 5
 PUB_KEY=$(grep BLUEPRINT_PUBLIC_KEY wrangler.toml | cut -d'"' -f2)
 SIG_HEADER=$(curl -sI "$SERVER_URL/blueprint" -H "Authorization: Bearer $FOUNDER_KEY" | grep -i "x-blueprint-signature" | tr -d '\r' | cut -d' ' -f2)
 BP_VERIFY=$(curl -s "$SERVER_URL/blueprint" -H "Authorization: Bearer $FOUNDER_KEY")

@@ -2280,7 +2280,7 @@ ${delta}`);
     const esc = (s: unknown) => String(s ?? '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     // All accounts — merge signup data with session activity
-    const sessionUsers = (data.users || []) as { login: string; heartbeats: number; practices: number; hours_ago: number; last_seen: string; failures: number; platforms: string[] }[];
+    const sessionUsers = (data.users || []) as { login: string; heartbeats: number; hours_ago: number; last_seen: string; failures: number; platforms: string[] }[];
     const sessionMap = new Map(sessionUsers.map(u => [u.login, u]));
 
     const allAccounts = Object.values(accounts) as Account[];
@@ -2302,9 +2302,8 @@ ${delta}`);
       .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
       .map(a => {
         const session = sessionMap.get(a.github_login);
-        const practices = session ? String(session.practices) : '0';
         const heartbeats = session ? String(session.heartbeats) : '0';
-        return '<tr><td>' + esc(a.github_login) + '</td><td>' + practices + '</td><td>' + heartbeats + '</td></tr>';
+        return '<tr><td>' + esc(a.github_login) + '</td><td>' + heartbeats + '</td></tr>';
       }).join('\n');
 
     // System: only show if something is wrong
@@ -2351,7 +2350,7 @@ ${delta}`);
 </head><body>
 <p class="title">alexandria.</p>
 
-<table><tr><th>author</th><th>practices</th><th>heartbeats</th></tr>
+<table><tr><th>author</th><th>heartbeats</th></tr>
 ${authorTableRows}
 </table>
 
