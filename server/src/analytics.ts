@@ -109,9 +109,10 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
   }
 
   // 1. Heartbeats (hooks ran) — backward compat: old "end" events count as heartbeats
-  const SMOKE_EVENTS = new Set(['smoke_test', 'smoke_check', 'github_smoke', 'smoke_post_migration', 'debug_check', 'verification', 'lifecycle-test']);
+  // Filter automated/test traffic by prefix convention — no hardcoded list to maintain
+  const isSmoke = (s: string) => /^(smoke_|test_|debug_|lifecycle-)/.test(s) || s === 'verification' || s === 'github_smoke';
   const isReal = (e: Record<string, string>) =>
-    e.e === 'prosumer_session' && !SMOKE_EVENTS.has(e.event) && !SMOKE_EVENTS.has(e.platform);
+    e.e === 'prosumer_session' && !isSmoke(e.event) && !isSmoke(e.platform);
   const heartbeats = events.filter(e => isReal(e) && (e.event === 'heartbeat' || e.event === 'end')).length;
 
   // Time range + staleness
@@ -150,7 +151,7 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
   const authorStats: Record<string, { heartbeats: number; last_seen: string; failures: number; platforms: Set<string> }> = {};
   for (const e of events) {
     if (e.e !== 'prosumer_session' || !e.author) continue;
-    if (SMOKE_EVENTS.has(e.event)) continue;
+    if (isSmoke(e.event)) continue;
     if (!authorStats[e.author]) {
       authorStats[e.author] = { heartbeats: 0, last_seen: e.t, failures: 0, platforms: new Set() };
     }
