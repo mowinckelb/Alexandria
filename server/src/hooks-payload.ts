@@ -151,7 +151,13 @@ SKILL_CONTENT
     git -C "\$ALEX_DIR" pull --rebase -q 2>/dev/null || true
   fi
 
-  # ── Signal nudge ──
+  # ── Nudges ──
+  # Passive session nudge (written at previous session-end if no /a was used)
+  if [ -f "\$ALEX_DIR/.nudge" ]; then
+    cat "\$ALEX_DIR/.nudge"
+    rm -f "\$ALEX_DIR/.nudge"
+  fi
+  # Signal nudge (observations accumulated from passive sessions)
   signal_count=0
   if [ -f "\$ALEX_DIR/signal.md" ]; then
     signal_count=\$(grep -c '.' "\$ALEX_DIR/signal.md" 2>/dev/null || echo 0)
@@ -208,7 +214,7 @@ if [ "\$MODE" = "session-end" ]; then
   if [ -f "\$ALEX_DIR/.active_session" ]; then
     rm -f "\$ALEX_DIR/.active_session"
   else
-    echo "alexandria: try an active session in a new tab — even 5 minutes compounds."
+    echo "alexandria: try an active session in a new tab — even 5 minutes compounds." > "\$ALEX_DIR/.nudge"
   fi
 
   # Transcript → vault
