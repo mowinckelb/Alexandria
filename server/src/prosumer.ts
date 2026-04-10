@@ -349,6 +349,8 @@ Read these files in order (skip any that don't exist):
 5. ~/.alexandria/notepad.md — your working memory. Parked questions, accretion candidates, fragments.
 6. ~/.alexandria/ontology/ — candidate frameworks and patterns you've noticed but the Author hasn't confirmed.
 
+Mark this as an active session: write the word "active" to ~/.alexandria/.active_session (the session-end hook reads this to suppress the passive nudge).
+
 Then follow the Blueprint methodology. If the Blueprint doesn't exist, engage the Author directly using the constitution — the conversation IS the product.
 
 ## Feedback
@@ -1477,7 +1479,7 @@ ${delta}`);
     }
 
     const body = await c.req.json().catch(() => ({}));
-    const { event, platform, reason, constitution_size, vault_entry_count, domains_count, session_duration, constitution_injected, blueprint_fetched } = body;
+    const { event, platform, reason, constitution_size, vault_entry_count, domains_count, session_duration, constitution_injected, blueprint_fetched, blueprint_bytes, payload_fresh } = body;
 
     logEvent('prosumer_session', {
       event: event || 'unknown',
@@ -1490,6 +1492,8 @@ ${delta}`);
       session_duration: String(session_duration || 0),
       constitution_injected: String(constitution_injected ?? false),
       blueprint_fetched: String(blueprint_fetched ?? false),
+      ...(blueprint_bytes ? { blueprint_bytes: String(blueprint_bytes) } : {}),
+      ...(payload_fresh !== undefined ? { payload_fresh: String(payload_fresh) } : {}),
     });
 
     // Update last_session + constitution_size (used for kin activity verification)
