@@ -218,18 +218,23 @@ fi
 
 if [ "\$MODE" = "session-end" ]; then
 
-  # Detect active session (skill writes .active_session — ground truth)
+  # Detect active session — shim passes ALEX_WAS_ACTIVE if it already handled it
   was_active=false
   if [ -f "\$ALEX_DIR/.active_session" ]; then
     was_active=true
     rm -f "\$ALEX_DIR/.active_session"
-  else
+  elif [ "\$ALEX_WAS_ACTIVE" = "true" ]; then
+    was_active=true
+  fi
+
+  # Write nudge only if session was NOT active
+  if [ "\$was_active" = "false" ]; then
     echo "alexandria: try an active session in a new tab — even 5 minutes compounds." > "\$ALEX_DIR/.nudge"
   fi
 
-  # Session-end event — foreground with short timeout (background gets killed by CC's 5s hook timeout)
-  if [ -n "\$API_KEY" ]; then
-    curl -s --max-time 3 -X POST "\$SERVER/session" \\
+  # Session-end event — fallback if shim's curl failed or wasn't sent
+  if [ "\$ALEX_EVENT_SENT" != "true" ] && [ -n "\$API_KEY" ]; then
+    curl -sf --max-time 3 -X POST "\$SERVER/session" \\
       -H "Authorization: Bearer \$API_KEY" \\
       -H "Content-Type: application/json" \\
       -d "{\\"event\\":\\"end\\",\\"platform\\":\\"cc\\",\\"was_active\\":\$was_active}" \\

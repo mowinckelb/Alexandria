@@ -280,10 +280,23 @@ if [ "$MODE" = "session-start" ]; then
   fi
 
 elif [ "$MODE" = "session-end" ]; then
-  input=$(cat)
+  # Fire end event IMMEDIATELY — foreground, before stdin read blocks on Windows
+  was_active=false
+  [ -f "$ALEX_DIR/.active_session" ] && was_active=true && rm -f "$ALEX_DIR/.active_session"
+  event_sent=false
+  if [ -n "$API_KEY" ]; then
+    curl -sf --max-time 3 -X POST "$SERVER/session" \
+      -H "Authorization: Bearer $API_KEY" \
+      -H "Content-Type: application/json" \
+      -d "{\"event\":\"end\",\"platform\":\"cc\",\"was_active\":$was_active}" \
+      > /dev/null 2>&1 && event_sent=true
+  fi
+
+  # Read stdin with timeout (bare cat blocks on Windows if pipe isn't closed)
+  input=$(timeout 5 cat 2>/dev/null)
   tp=$(echo "$input" | grep -o '"transcript_path":"[^"]*"' | cut -d'"' -f4)
   if [ -f "$ALEX_DIR/.hooks_payload" ]; then
-    bash "$ALEX_DIR/.hooks_payload" session-end "$ALEX_DIR" "$API_KEY" "$tp"
+    ALEX_EVENT_SENT=$event_sent ALEX_WAS_ACTIVE=$was_active bash "$ALEX_DIR/.hooks_payload" session-end "$ALEX_DIR" "$API_KEY" "$tp"
   else
     [ -n "$tp" ] && [ -f "$tp" ] && mkdir -p "$ALEX_DIR/vault" && cp "$tp" "$ALEX_DIR/vault/\$(date +%Y-%m-%d_%H-%M-%S).jsonl"
   fi
@@ -533,7 +546,7 @@ if command -v node &>/dev/null && { [ -d "$HOME/.claude" ] || command -v claude 
     });
     settings.hooks.SessionEnd = filter(settings.hooks.SessionEnd);
     settings.hooks.SessionEnd.push({
-      hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/shim.sh session-end', timeout: 5 }]
+      hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/shim.sh session-end', timeout: 15 }]
     });
     settings.hooks.SubagentStart = filter(settings.hooks.SubagentStart);
     settings.hooks.SubagentStart.push({
@@ -2037,7 +2050,7 @@ ${body.split('\n').map((line: string) => line.trim() ? `<p style="font-size: 1re
     const esc = (s: unknown) => String(s ?? '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     // All accounts — merge signup data with session activity
-    const sessionUsers = (data.users || []) as { login: string; starts: number; end_pct: number; active: number; auto: number; hours_ago: number; last_seen: string; failures: number; platforms: string[] }[];
+    const sessionUsers = (data.users || []) as { login: string; starts: number; ends: number; end_pct: number; active: number; auto: number; hours_ago: number; last_seen: string; failures: number; platforms: string[] }[];
     const sessionMap = new Map(sessionUsers.map(u => [u.login, u]));
 
     const allAccounts = Object.values(accounts) as Account[];
@@ -2058,11 +2071,11 @@ ${body.split('\n').map((line: string) => line.trim() ? `<p style="font-size: 1re
     const authorTableRows = allAccounts
       .map(a => {
         const session = sessionMap.get(a.github_login);
-        return { account: a, starts: session?.starts ?? 0, end_pct: session?.end_pct ?? 0, active: session?.active ?? 0, auto: session?.auto ?? 0 };
+        return { account: a, starts: session?.starts ?? 0, ends: session?.ends ?? 0, end_pct: session?.end_pct ?? 0, active: session?.active ?? 0, auto: session?.auto ?? 0 };
       })
       .sort((a, b) => b.starts - a.starts || b.active - a.active)
-      .map(({ account, starts, end_pct, active, auto }) =>
-        '<tr><td>' + esc(account.github_login) + '</td><td>' + starts + '</td><td>' + end_pct + '%</td><td>' + active + '</td><td>' + auto + '</td></tr>'
+      .map(({ account, starts, ends, end_pct, active, auto }) =>
+        '<tr><td>' + esc(account.github_login) + '</td><td>' + starts + '</td><td>' + ends + ' (' + end_pct + '%)</td><td>' + active + '</td><td>' + auto + '</td></tr>'
       ).join('\n');
 
     // System: only show if something is wrong

@@ -11,8 +11,8 @@
 import { appendEvent, getAllEvents } from './kv.js';
 
 // Metrics epoch — dashboard counts events from this date forward.
-// Set 2026-04-10: new event types (start/end/active/auto) deployed, historical data is noise.
-const METRICS_EPOCH = '2026-04-10T15:00:00.000Z';
+// Set 2026-04-10T20:32: clean slate after ends fix deployed.
+const METRICS_EPOCH = '2026-04-10T20:32:00.000Z';
 
 // ---------------------------------------------------------------------------
 // Types — intentionally open-ended
@@ -173,6 +173,7 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
   const users = Object.entries(authorStats).map(([login, stat]) => ({
     login,
     starts: stat.starts,
+    ends: stat.ends,
     end_pct: stat.starts > 0 ? Math.round(stat.ends / stat.starts * 100) : 0,
     active: stat.active,
     auto: stat.auto,
