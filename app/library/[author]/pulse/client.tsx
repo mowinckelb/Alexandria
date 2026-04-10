@@ -3,28 +3,9 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { useTheme } from '../../../components/ThemeProvider';
+import { ThemeToggle } from '../../../components/ThemeToggle';
 import type { PulseCard } from '../types';
-
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'https://mcp.mowinckel.ai';
-
-function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-  return (
-    <button
-      onClick={toggleTheme}
-      className="fixed right-4 top-4 z-[200] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-50 transition-opacity p-0"
-      style={{ color: 'var(--text-primary)' }}
-      aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-    >
-      {theme === 'light' ? (
-        <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" strokeWidth="1" /></svg>
-      ) : (
-        <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="currentColor" /></svg>
-      )}
-    </button>
-  );
-}
+import { SERVER_URL } from '../../../lib/config';
 
 const mdComponents = {
   h1: ({ children }: any) => <h1 style={{ fontSize: '1.3rem', fontWeight: 400, margin: '2rem 0 0.8rem', color: 'var(--text-primary)' }}>{children}</h1>,

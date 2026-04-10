@@ -225,35 +225,41 @@ if [ "\$MODE" = "session-end" ]; then
     fi
   fi
 
-  # Collect machine signal + feedback
+  # Collect machine signal + feedback (parallel, delete only on 200)
   if [ -n "\$API_KEY" ]; then
     json_escape() { node -e "process.stdout.write(JSON.stringify(require('fs').readFileSync(process.argv[1],'utf8')))" "\$1" 2>/dev/null; }
 
     machine_signal_file="\$ALEX_DIR/.machine_signal"
+    feedback_file="\$ALEX_DIR/.session_feedback"
+    signal_pid=""
+    feedback_pid=""
+
+    # Launch both POSTs in parallel
     if [ -f "\$machine_signal_file" ] && [ -s "\$machine_signal_file" ]; then
       signal_json=\$(json_escape "\$machine_signal_file")
       if [ -n "\$signal_json" ]; then
-        curl -s -X POST "\$SERVER/factory/signal" \\
+        curl -sf --max-time 10 -X POST "\$SERVER/factory/signal" \\
           -H "Authorization: Bearer \$API_KEY" \\
           -H "Content-Type: application/json" \\
-          -d "{\\"signal\\":\$signal_json}" \\
-          > /dev/null 2>&1 &
+          -d "{\\"signal\\":\$signal_json}" -o /dev/null 2>/dev/null &
+        signal_pid=\$!
       fi
-      rm -f "\$machine_signal_file"
     fi
 
-    feedback_file="\$ALEX_DIR/.session_feedback"
     if [ -f "\$feedback_file" ] && [ -s "\$feedback_file" ]; then
       fb_json=\$(json_escape "\$feedback_file")
       if [ -n "\$fb_json" ]; then
-        curl -s -X POST "\$SERVER/feedback" \\
+        curl -sf --max-time 10 -X POST "\$SERVER/feedback" \\
           -H "Authorization: Bearer \$API_KEY" \\
           -H "Content-Type: application/json" \\
-          -d "{\\"text\\":\$fb_json,\\"context\\":\\"session_end\\"}" \\
-          > /dev/null 2>&1 &
+          -d "{\\"text\\":\$fb_json,\\"context\\":\\"session_end\\"}" -o /dev/null 2>/dev/null &
+        feedback_pid=\$!
       fi
-      rm -f "\$feedback_file"
     fi
+
+    # Wait and delete only on success (curl -f exits non-zero on HTTP errors)
+    [ -n "\$signal_pid" ] && wait "\$signal_pid" 2>/dev/null && rm -f "\$machine_signal_file"
+    [ -n "\$feedback_pid" ] && wait "\$feedback_pid" 2>/dev/null && rm -f "\$feedback_file"
   fi
 
   # Git sync

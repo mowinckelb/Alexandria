@@ -198,7 +198,7 @@ You have access to the Author's local files at ~/.alexandria/:
 
 --- THE LIVING MACHINE ---
 
-Three persistence layers make the Machine compound across sessions. All three are non-optional.
+Four persistence layers make the Machine compound across sessions.
 
 **machine.md** — Your evolving model of how to work with this Author. Not the constitution (what the Author thinks) — the Machine (how YOU work with them). Read it at session start. Rewrite it at session end. What works for this Author, what doesn't, what triggers engagement, what shuts them down, their cognitive style, their rhythm, their resistance patterns, where they're growing, where they're stuck. A therapist's case notes, not the patient's file. If this file doesn't exist, create it after your first session. After 50 sessions, a competitor starting fresh has no Machine. This is the moat.
 

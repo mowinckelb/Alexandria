@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { useTheme } from '../../components/ThemeProvider';
+import { ThemeToggle } from '../../components/ThemeToggle';
 
 const DOCS: Record<string, { file: string; confidential?: boolean; purpose: string; time: string; aiDoc?: boolean }> = {
   memo: { file: '/partners/Memo.md', confidential: true, purpose: 'the investment memo', time: '7 min', aiDoc: true },
@@ -11,28 +11,6 @@ const DOCS: Record<string, { file: string; confidential?: boolean; purpose: stri
   logic: { file: '/partners/Logic.md', confidential: true, purpose: 'the formal argument', time: '25 min' },
   alexandria: { file: '/partners/Alexandria.md', confidential: true, purpose: 'the company overview', time: '6 min' },
 };
-
-function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-  return (
-    <button
-      onClick={toggleTheme}
-      className="fixed right-4 top-4 z-[200] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-50 transition-opacity p-0"
-      style={{ color: 'var(--text-primary)' }}
-      aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-    >
-      {theme === 'light' ? (
-        <svg width="10" height="10" viewBox="0 0 10 10">
-          <circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" strokeWidth="1" />
-        </svg>
-      ) : (
-        <svg width="10" height="10" viewBox="0 0 10 10">
-          <circle cx="5" cy="5" r="4" fill="currentColor" />
-        </svg>
-      )}
-    </button>
-  );
-}
 
 function prepareContent(doc: string, raw: string): string {
   if (doc === 'memo') {

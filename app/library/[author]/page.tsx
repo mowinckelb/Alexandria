@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import AuthorPageClient from './client';
-
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'https://mcp.mowinckel.ai';
+import { SERVER_URL } from '../../lib/config';
 
 export async function generateMetadata({ params }: { params: Promise<{ author: string }> }): Promise<Metadata> {
   const { author } = await params;

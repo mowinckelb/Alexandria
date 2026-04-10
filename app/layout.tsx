@@ -8,6 +8,8 @@ const ebGaramond = EB_Garamond({
   subsets: ["latin"],
 });
 
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://mowinckel.ai";
+
 export const metadata: Metadata = {
   title: "alexandria.",
   description: "Make every AI you use actually know who you are. One file, on your device, works across all of them. $10/month or free with 5 kin.",
@@ -19,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "alexandria.",
     description: "Make every AI you use actually know who you are. One file, on your device, works across all of them.",
-    url: "https://mowinckel.ai",
+    url: SITE,
     siteName: "Alexandria",
     type: "website",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
@@ -30,9 +32,9 @@ export const metadata: Metadata = {
     description: "Make every AI you use actually know who you are. One file, on your device, works across all of them.",
     images: ["/og-image.png"],
   },
-  metadataBase: new URL("https://mowinckel.ai"),
+  metadataBase: new URL(SITE),
   alternates: {
-    canonical: "https://mowinckel.ai",
+    canonical: SITE,
   },
 };
 

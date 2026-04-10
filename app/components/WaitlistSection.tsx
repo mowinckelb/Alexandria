@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { SERVER_URL } from '../lib/config';
 
 interface WaitlistSectionProps {
   inline?: boolean;
@@ -17,7 +18,7 @@ export default function WaitlistSection({ inline = false, source = 'public' }: W
 
     setStatus('submitting');
     try {
-      const res = await fetch('https://mcp.mowinckel.ai/waitlist', {
+      const res = await fetch(`${SERVER_URL}/waitlist`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), source }),

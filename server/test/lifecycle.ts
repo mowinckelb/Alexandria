@@ -140,18 +140,17 @@ async function main() {
   // -----------------------------------------------------------------------
   console.log('\nPhase 3: Hooks delivery');
 
-  await test('Hooks endpoint returns bash script', async () => {
+  await test('Hooks endpoint returns shim installer', async () => {
     const res = await fetch(`${BASE}/hooks`, { headers });
     const body = await res.text();
-    const isBash = body.includes('#!/usr/bin/env bash') || body.includes('cat >');
-    const hasSessionStart = body.includes('session-start.sh');
-    const hasSessionEnd = body.includes('session-end.sh');
-    const hasSelfCheck = body.includes('self_check') || body.includes('SELF-CHECK');
-    const hasSkillUpdate = body.includes('SKILL.md') || body.includes('SKILL_UPDATE');
+    const isBash = body.includes('#!/usr/bin/env bash');
+    const hasShim = body.includes('shim.sh');
+    const hasSessionModes = body.includes('session-start') && body.includes('session-end');
+    const hasSkillUpdate = body.includes('SKILL.md');
     return {
       test: 'Hooks endpoint',
-      passed: res.ok && isBash && hasSessionStart && hasSessionEnd,
-      details: `bash: ${isBash}, start: ${hasSessionStart}, end: ${hasSessionEnd}, self-check: ${hasSelfCheck}, skill-update: ${hasSkillUpdate}`,
+      passed: res.ok && isBash && hasShim && hasSessionModes,
+      details: `bash: ${isBash}, shim: ${hasShim}, modes: ${hasSessionModes}, skill: ${hasSkillUpdate}`,
     };
   });
 
@@ -294,12 +293,17 @@ async function main() {
   console.log('\nPhase 6: Factory');
 
   await test('Dashboard returns metrics', async () => {
-    const res = await fetch(`${BASE}/analytics/dashboard`);
-    const body = await res.json() as { status: string; total_events: number };
+    const res = await fetch(`${BASE}/analytics/dashboard`, { headers });
+    if (!res.ok) {
+      return { test: 'Dashboard', passed: false, details: `HTTP ${res.status}` };
+    }
+    const body = await res.text();
+    const hasHtml = body.includes('<!DOCTYPE html') || body.includes('<html');
+    const hasMetrics = body.includes('heartbeat') || body.includes('author') || body.includes('event');
     return {
       test: 'Dashboard',
-      passed: res.ok && body.status !== undefined && body.total_events >= 0,
-      details: `status: ${body.status}, events: ${body.total_events}`,
+      passed: hasHtml || hasMetrics,
+      details: `HTML: ${hasHtml}, metrics: ${hasMetrics}, size: ${body.length}`,
     };
   });
 

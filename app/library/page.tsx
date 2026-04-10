@@ -1,27 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTheme } from '../components/ThemeProvider';
-
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'https://mcp.mowinckel.ai';
-
-function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-  return (
-    <button
-      onClick={toggleTheme}
-      className="fixed right-4 top-4 z-[200] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-50 transition-opacity p-0"
-      style={{ color: 'var(--text-primary)' }}
-      aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-    >
-      {theme === 'light' ? (
-        <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" strokeWidth="1" /></svg>
-      ) : (
-        <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="currentColor" /></svg>
-      )}
-    </button>
-  );
-}
+import { ThemeToggle } from '../components/ThemeToggle';
+import { SERVER_URL, FETCH_TIMEOUT_MS } from '../lib/config';
 
 interface Author {
   id: string;
@@ -39,11 +20,16 @@ export default function LibraryPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
+  const [error, setError] = useState(false);
+
   useEffect(() => {
-    fetch(`${SERVER_URL}/library/authors`)
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+    fetch(`${SERVER_URL}/library/authors`, { signal: ctrl.signal })
       .then(r => r.json())
       .then(data => { setAuthors(data.authors || []); setLoading(false); })
-      .catch(() => setLoading(false));
+      .catch(() => { setError(true); setLoading(false); });
+    return () => clearTimeout(timeout);
   }, []);
 
   const locations = [...new Set(authors.map(a => a.location).filter(Boolean))] as string[];
@@ -103,7 +89,7 @@ export default function LibraryPage() {
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '4rem 0' }}>
               <p style={{ color: 'var(--text-ghost)', fontSize: '0.88rem', fontStyle: 'italic' }}>
-                {authors.length === 0 ? 'the shelves are empty.' : 'no authors found.'}
+                {error ? 'could not reach Alexandria.' : authors.length === 0 ? 'the shelves are empty.' : 'no authors found.'}
               </p>
               {authors.length === 0 && (
                 <p style={{ color: 'var(--text-whisper)', fontSize: '0.8rem', marginTop: '2rem' }}>

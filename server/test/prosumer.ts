@@ -61,16 +61,16 @@ async function main() {
     };
   });
 
-  // Test 3: Setup script configures CC + Cursor
-  await test('Setup script supports CC + Cursor', async () => {
+  // Test 3: Setup script delegates platform config to /hooks
+  await test('Setup script delegates to /hooks for platform config', async () => {
     const res = await fetch(`${BASE}/setup`);
     const body = await res.text();
-    const hasCC = body.includes('configure_cc_hooks');
-    const hasCursor = body.includes('configure_cursor');
+    const delegatesToHooks = body.includes('/hooks');
+    const hasAlexDir = body.includes('.alexandria');
     return {
-      test: 'Setup script supports CC + Cursor',
-      passed: hasCC && hasCursor,
-      details: `CC: ${hasCC}, Cursor: ${hasCursor}`,
+      test: 'Setup script delegates to /hooks',
+      passed: delegatesToHooks && hasAlexDir,
+      details: `delegates: ${delegatesToHooks}, alex dir: ${hasAlexDir}`,
     };
   });
 

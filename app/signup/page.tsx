@@ -2,29 +2,8 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useTheme } from '../components/ThemeProvider';
-
-function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-  return (
-    <button
-      onClick={toggleTheme}
-      className="fixed right-4 top-4 z-[200] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-50 transition-opacity p-0"
-      style={{ color: 'var(--text-primary)' }}
-      aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-    >
-      {theme === 'light' ? (
-        <svg width="10" height="10" viewBox="0 0 10 10">
-          <circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" strokeWidth="1" />
-        </svg>
-      ) : (
-        <svg width="10" height="10" viewBox="0 0 10 10">
-          <circle cx="5" cy="5" r="4" fill="currentColor" />
-        </svg>
-      )}
-    </button>
-  );
-}
+import { ThemeToggle } from '../components/ThemeToggle';
+import { SERVER_URL } from '../lib/config';
 
 export default function SignupPage() {
   const searchParams = useSearchParams();
@@ -33,7 +12,7 @@ export default function SignupPage() {
   const [kinCode, setKinCode] = useState('');
   const ref = kinCode.trim() || urlRef;
   const authParams = [ref && `ref=${encodeURIComponent(ref)}`, refSource && `ref_source=${encodeURIComponent(refSource)}`].filter(Boolean).join('&');
-  const authUrl = `https://mcp.mowinckel.ai/auth/github${authParams ? `?${authParams}` : ''}`;
+  const authUrl = `${SERVER_URL}/auth/github${authParams ? `?${authParams}` : ''}`;
 
   return (
     <div style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', minHeight: '100vh' }}>

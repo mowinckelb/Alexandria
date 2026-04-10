@@ -3,28 +3,9 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { useTheme } from '../../components/ThemeProvider';
+import { ThemeToggle } from '../../components/ThemeToggle';
 import type { PulseCard } from './types';
-
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'https://mcp.mowinckel.ai';
-
-function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-  return (
-    <button
-      onClick={toggleTheme}
-      className="fixed right-4 top-4 z-[200] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-50 transition-opacity p-0"
-      style={{ color: 'var(--text-primary)' }}
-      aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-    >
-      {theme === 'light' ? (
-        <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" strokeWidth="1" /></svg>
-      ) : (
-        <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="currentColor" /></svg>
-      )}
-    </button>
-  );
-}
+import { SERVER_URL, FETCH_TIMEOUT_MS } from '../../lib/config';
 
 const mdComponents = {
   h1: ({ children }: any) => <h1 className="pdoc-h1">{children}</h1>,
@@ -163,10 +144,13 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
   useEffect(() => {
     params.then(({ author }) => {
       setAuthorId(author);
-      fetch(`${SERVER_URL}/library/${author}`)
+      const ctrl = new AbortController();
+      const timeout = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+      fetch(`${SERVER_URL}/library/${author}`, { signal: ctrl.signal })
         .then(r => { if (!r.ok) throw new Error('not found'); return r.json(); })
         .then(d => { setData(d); setLoading(false); })
-        .catch(e => { setError(e.message); setLoading(false); });
+        .catch(e => { setError(e.name === 'AbortError' ? 'unreachable' : e.message); setLoading(false); })
+        .finally(() => clearTimeout(timeout));
       fetch(`${SERVER_URL}/library/${author}/shadow/free?ref=author_page`)
         .then(r => { if (r.ok) return r.text(); return ''; })
         .then(text => setShadow(text))
@@ -209,17 +193,19 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
 
   if (error || !data) return (
     <main style={{ maxWidth: '640px', margin: '0 auto', padding: '40vh 2rem', fontFamily: 'var(--font-eb-garamond)', textAlign: 'center' }}>
-      <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>this mind is not yet published.</p>
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{error === 'unreachable' ? 'could not reach Alexandria.' : 'this mind is not yet published.'}</p>
       <p style={{ marginTop: '2rem' }}><a href="/library" style={{ color: 'var(--text-ghost)', textDecoration: 'none', fontSize: '0.8rem' }}>library</a></p>
     </main>
   );
 
   const { author } = data;
   const displayName = author.display_name || author.id;
-  const settings = JSON.parse(author.settings || '{}');
+  let settings: Record<string, any> = {};
+  try { settings = JSON.parse(author.settings || '{}'); } catch {}
   const hasGated = data.shadows.some(s => s.visibility !== 'public');
   const hasPublic = data.shadows.some(s => s.visibility === 'public');
-  const socialLinks: SocialLink[] = author.social_links ? JSON.parse(author.social_links) : [];
+  let socialLinks: SocialLink[] = [];
+  try { if (author.social_links) socialLinks = JSON.parse(author.social_links); } catch {}
   const signupRef = `ref=${encodeURIComponent(authorId)}&ref_source=library`;
 
   let pulseCard: PulseCard | null = null;
@@ -332,7 +318,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                   style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'opacity 0.15s', margin: '0 0 0.6rem' }}
                   className="hover:opacity-60"
                 >
-                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{authorId}-paid.md</span>
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>the shadow</span>
                   {copiedId !== 'paid-shadow' && (
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-ghost)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
@@ -352,7 +338,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                       style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'opacity 0.15s', margin: '0 0 0.6rem' }}
                       className="hover:opacity-60"
                     >
-                      <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{authorId}-free.md</span>
+                      <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>the shadow — free</span>
                       {copiedId !== 'free-shadow' && (
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-ghost)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
@@ -371,7 +357,7 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                       style={{ fontSize: '0.88rem', color: 'var(--text-primary)', textDecoration: 'none', transition: 'opacity 0.15s' }}
                       className="hover:opacity-60"
                     >
-                      {authorId}-paid.md
+                      the full shadow
                     </a>
                   )}
                 </div>
@@ -390,15 +376,16 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
                 <p style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>works</p>
                 {data.works.map(work => {
                   const isPaid = work.tier === 'paid';
+                  const href = isPaid
+                    ? `/library/${authorId}/checkout/work?work_id=${work.id}`
+                    : work.url || `${SERVER_URL}/library/${authorId}/work/${work.id}`;
                   return (
                     <a
                       key={work.id}
-                      href={work.url || `${SERVER_URL}/library/${authorId}/work/${work.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={href}
+                      {...(!isPaid ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                       style={{ textDecoration: 'none', display: 'block', margin: '0 0 0.6rem', transition: 'opacity 0.15s' }}
                       className="hover:opacity-60"
-                      onClick={(e) => { if (isPaid) { e.preventDefault(); } }}
                     >
                       <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{work.title}</span>
                       {isPaid && <span style={{ fontSize: '0.62rem', color: 'var(--text-ghost)', marginLeft: '0.5rem' }}>premium</span>}

@@ -1,27 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTheme } from '../../../../components/ThemeProvider';
-
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'https://mcp.mowinckel.ai';
-
-function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-  return (
-    <button
-      onClick={toggleTheme}
-      className="fixed right-4 top-4 z-[200] bg-transparent border-none cursor-pointer opacity-30 hover:opacity-50 transition-opacity p-0"
-      style={{ color: 'var(--text-primary)' }}
-      aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-    >
-      {theme === 'light' ? (
-        <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" strokeWidth="1" /></svg>
-      ) : (
-        <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="currentColor" /></svg>
-      )}
-    </button>
-  );
-}
+import { ThemeToggle } from '../../../../components/ThemeToggle';
+import { SERVER_URL } from '../../../../lib/config';
 
 const SLIDER_MIN = 2;
 const SLIDER_MAX = 20;
@@ -44,7 +25,8 @@ export default function ShadowCheckoutPage({ params }: { params: Promise<{ autho
         .then(r => r.json())
         .then(data => {
           setAuthorName(data.author?.display_name || author);
-          const settings = JSON.parse(data.author?.settings || '{}');
+          let settings: Record<string, any> = {};
+          try { settings = JSON.parse(data.author?.settings || '{}'); } catch {}
           if (settings.paid_price_cents) {
             setAmount(Math.round(settings.paid_price_cents / 100));
           }

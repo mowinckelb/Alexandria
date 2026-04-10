@@ -46,3 +46,6 @@ files/private/Vault/
 .agents/
 .font_cache/
 server/.next/
+
+# prebuild copies confidential docs here — build artifact only, never commit
+public/partners/*.md
