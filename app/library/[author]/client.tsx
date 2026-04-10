@@ -270,23 +270,37 @@ export default function AuthorPageClient({ params }: { params: Promise<{ author:
         <section style={{ margin: '0 0 3rem' }}>
           <p style={{ fontSize: '1.15rem', fontWeight: 300, color: 'var(--text-primary)', margin: '0 0 2rem', letterSpacing: '-0.01em' }}>how i think</p>
 
-          {/* Pulse — similarity card */}
-          {pulseCard?.alltime && (
+          {/* Pulse — links to detail page */}
+          {(pulseCard?.alltime || pulse) && (
             <div style={{ margin: '0 0 2rem' }}>
               <p style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: 'var(--text-ghost)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>pulse</p>
-              <PulseCardSimilarity card={pulseCard} authorName={displayName} authorId={authorId} />
-            </div>
-          )}
-          {pulse && !pulseCard?.alltime && (
-            <div style={{ fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: 1.8, margin: '0 0 2rem' }}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{pulse}</ReactMarkdown>
-            </div>
-          )}
-
-          {/* Pulse — fragment card */}
-          {pulseCard?.fragments && pulseCard.fragments.length > 0 && (
-            <div style={{ margin: '0 0 2rem' }}>
-              <PulseCardFragments card={pulseCard} authorName={displayName} authorId={authorId} />
+              {pulseCard?.alltime && (
+                <a
+                  href={`/library/${authorId}/pulse`}
+                  style={{ textDecoration: 'none', color: 'inherit', display: 'block', margin: '0 0 0.6rem', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
+                >
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>similar thinker — {pulseCard.alltime.name}, {pulseCard.alltime.pct}%</span>
+                </a>
+              )}
+              {pulseCard?.fragments && pulseCard.fragments.length > 0 && (
+                <a
+                  href={`/library/${authorId}/pulse`}
+                  style={{ textDecoration: 'none', color: 'inherit', display: 'block', margin: '0 0 0.6rem', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
+                >
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>ideas this month — {pulseCard.fragments.slice(0, 3).map(f => f.source).join(', ')}, ...</span>
+                </a>
+              )}
+              {pulse && !pulseCard?.alltime && (
+                <a
+                  href={`/library/${authorId}/pulse`}
+                  style={{ textDecoration: 'none', color: 'inherit', display: 'block', margin: '0 0 0.6rem', transition: 'opacity 0.15s' }}
+                  className="hover:opacity-60"
+                >
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>view pulse</span>
+                </a>
+              )}
             </div>
           )}
 
