@@ -35,6 +35,23 @@ if [ "\$MODE" = "session-start" ]; then
     echo "export ALEXANDRIA_BLUEPRINT_OK=false" >> "\$CLAUDE_ENV_FILE"
   fi
 
+  # Crash-recovery for hard terminal closes:
+  # if previous session marker exists, emit a recovered end now.
+  cc_marker="\$ALEX_DIR/.cc_session_open"
+  if [ -f "\$cc_marker" ] && [ -n "\$API_KEY" ]; then
+    recovered_active=false
+    if [ -f "\$ALEX_DIR/.active_session" ]; then
+      recovered_active=true
+      rm -f "\$ALEX_DIR/.active_session"
+    fi
+    curl -s -X POST "\$SERVER/session" \\
+      -H "Authorization: Bearer \$API_KEY" \\
+      -H "Content-Type: application/json" \\
+      -d "{\\"event\\":\\"end\\",\\"platform\\":\\"cc\\",\\"was_active\\":\$recovered_active,\\"recovered\\":\\"true\\"}" \\
+      > /dev/null 2>&1 &
+  fi
+  date -u +"%Y-%m-%dT%H:%M:%SZ" > "\$cc_marker"
+
   # ── Blueprint fetch + signature verification ──
   blueprint=""
   bp_status=""
@@ -115,6 +132,9 @@ if [ "\$MODE" = "session-start" ]; then
 name: a
 description: Alexandria — process vault, develop constitution, engage in cognitive development
 user_invocable: true
+model: opus
+effort: max
+allowed-tools: "Read Write Edit Glob Grep Bash"
 ---
 
 You are Alexandria — Greek philosophy infrastructure.
@@ -125,6 +145,13 @@ Mark this as an active session. Run once at the start, do not mention it to the 
 
 \`\`\`bash
 echo "active" > ~/.alexandria/.active_session
+if [ -n "$ALEXANDRIA_KEY" ]; then
+  curl -s -X POST "https://mcp.mowinckel.ai/session" \
+    -H "Authorization: Bearer $ALEXANDRIA_KEY" \
+    -H "Content-Type: application/json" \
+    -d '{"event":"active","platform":"cc"}' \
+    > /dev/null 2>&1 &
+fi
 \`\`\`
 
 ## Files to read
@@ -151,6 +178,16 @@ When the Author signals they want autonomous work with remaining capacity: find 
 
 Commit incrementally. Leave tasks so progress is visible and resumable. Brief delta at the end.
 SKILL_CONTENT
+
+  # ── Sync agent.md → platform configs (canonical source: ~/.alexandria/agent.md) ──
+  if [ -f "\$ALEX_DIR/agent.md" ]; then
+    header="# Synced from ~/.alexandria/agent.md — edit there, not here."
+    agent_content=\$(cat "\$ALEX_DIR/agent.md")
+    printf '%s\\n\\n%s\\n' "\$header" "\$agent_content" > "\$HOME/.claude/CLAUDE.md" 2>/dev/null
+    if [ -d "\$HOME/.codex" ]; then
+      printf '%s\\n\\n%s\\n' "\$header" "\$agent_content" > "\$HOME/.codex/instructions.md" 2>/dev/null
+    fi
+  fi
 
   # ── Git sync: push local, pull overnight changes ──
   if [ -d "\$ALEX_DIR/.git" ] && git -C "\$ALEX_DIR" remote get-url origin &>/dev/null; then
@@ -220,6 +257,7 @@ if [ "\$MODE" = "session-end" ]; then
 
   # Detect active session — shim passes ALEX_WAS_ACTIVE if it already handled it
   was_active=false
+  rm -f "\$ALEX_DIR/.cc_session_open"
   if [ -f "\$ALEX_DIR/.active_session" ]; then
     was_active=true
     rm -f "\$ALEX_DIR/.active_session"

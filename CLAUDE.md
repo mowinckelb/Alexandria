@@ -144,7 +144,7 @@ No Machine loop. No constitution writes. This is company work, not product:
 - **Open threads.** What's unresolved. What the next session should pick up. Ordered by priority.
 - **Meta loop.** Product learnings → `files/private/Blueprint.md`.
 - **Vision loop.** New thinking about Alexandria → a0, crystallise into an when ready.
-- **Founder loop.** Save CC memories for communication patterns, preferences, anti-patterns.
+- **Founder loop.** Save agent memories for communication patterns, preferences, anti-patterns.
 - **ax sync check.** Judge whether ax files are in sync with an right now — not just what changed this session, but the current state. Read the an files, read the ax files, judge if any ax file is materially stale relative to its source ground truth. This is an intelligence decision — a missing argument matters, a minor wording difference doesn't. If stale: surface one line — "ax is stale — want me to regenerate?" If the founder says yes, do a full re-read of all an and regenerate each affected ax file from first principles against its own objective function (listed in the Files section above). Never incremental patch — always regenerate from a full re-read. Which ax files are affected is itself an intelligence decision. After regenerating confidential files, sync to `public/partners/` (Memo, Numbers, Logic, Alexandria — must be identical). Flag only if the founder needs to make a judgment call.
 
 **Principles (both protocols):**
@@ -153,12 +153,24 @@ No Machine loop. No constitution writes. This is company work, not product:
 - If nothing happened in a loop, skip it. No empty sections.
 - The whole output should take <60 seconds to read.
 
+## Code Quality — Server
+
+Before committing any server code change:
+
+1. **Correctness:** Trace the full execution path, not just the changed function. Check all callers of anything modified.
+2. **Build:** Run `npm run build` in server/. Must pass.
+3. **Test:** Run `npm test` if tests exist. Check the e2e test (`server/test/e2e.ts`).
+4. **No regressions:** Review recent commits for anything the change might break.
+5. **Bitter lesson compliance:** No structured parameters, fixed schemas, or hand-crafted rules. Unstructured text/JSONL. Soft defaults that thin as models improve.
+6. **Statelessness:** Server stores nothing user-specific. Encrypted refresh token IS the access token.
+7. **Deployment:** After deploying (`cd server && bash scripts/deploy.sh`), check health: `curl https://mcp.mowinckel.ai/health`.
+
 ## Working With the Founder
 
-See `~/.claude/CLAUDE.md` for principles, communication style, Three-Phase Execution, and Reflect Gate (loaded globally in every session).
+See `~/.alexandria/agent.md` for principles, communication style, Three-Phase Execution, and Reflect Gate (loaded globally in every session).
 
 an is sacred. If information should be ground truth but isn't in a1/a2/a3/a4, flag it. If it's not ready for an, capture in a0. ax are disposable — regenerated from an.
 
 **Developing signal → a0, not response text.** If the founder surfaces something that should persist (a phrase, a forming concept, a parked idea), it goes in a0 — that's what a0 is for. Don't lose signal by only mentioning it in a reply.
 
-**Parked questions.** When the agent encounters genuine tradeoffs or needs founder input on a non-blocking decision, park the question in `files/private/a0.md` under `## Parked questions`. The Reflect Gate (in `~/.claude/CLAUDE.md`) uses this same mechanism — "park the question" means write it to a0. At session start, check for parked questions and surface them early. The founder answers when online; the system ships the best option meanwhile.
+**Parked questions.** When the agent encounters genuine tradeoffs or needs founder input on a non-blocking decision, park the question in `files/private/a0.md` under `## Parked questions`. The Reflect Gate (in `~/.alexandria/agent.md`) uses this same mechanism — "park the question" means write it to a0. At session start, check for parked questions and surface them early. The founder answers when online; the system ships the best option meanwhile.
