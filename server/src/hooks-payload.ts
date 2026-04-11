@@ -35,11 +35,21 @@ if [ "\$MODE" = "session-start" ]; then
     echo "export ALEXANDRIA_BLUEPRINT_OK=false" >> "\$CLAUDE_ENV_FILE"
   fi
 
+  # Deterministic session identity (one id per CC session)
+  session_id=\$(node -e "const c=require('crypto');console.log(c.randomUUID ? c.randomUUID() : (Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)));" 2>/dev/null)
+  [ -z "\$session_id" ] && session_id="\$(date +%s)-\$\$"
+  echo "\$session_id" > "\$ALEX_DIR/.cc_session_id"
+  if [ -n "\$CLAUDE_ENV_FILE" ]; then
+    echo "export ALEXANDRIA_SESSION_ID=\$session_id" >> "\$CLAUDE_ENV_FILE"
+  fi
+
   # Crash-recovery for hard terminal closes:
   # if previous session marker exists, emit a recovered end now.
   cc_marker="\$ALEX_DIR/.cc_session_open"
   if [ -f "\$cc_marker" ] && [ -n "\$API_KEY" ]; then
     recovered_active=false
+    recovered_session_id=\$(cat "\$cc_marker" 2>/dev/null)
+    [ -z "\$recovered_session_id" ] && recovered_session_id=\$(cat "\$ALEX_DIR/.cc_session_id" 2>/dev/null)
     if [ -f "\$ALEX_DIR/.active_session" ]; then
       recovered_active=true
       rm -f "\$ALEX_DIR/.active_session"
@@ -47,10 +57,11 @@ if [ "\$MODE" = "session-start" ]; then
     curl -s -X POST "\$SERVER/session" \\
       -H "Authorization: Bearer \$API_KEY" \\
       -H "Content-Type: application/json" \\
-      -d "{\\"event\\":\\"end\\",\\"platform\\":\\"cc\\",\\"was_active\\":\$recovered_active,\\"recovered\\":\\"true\\"}" \\
+      -d "{\\"event\\":\\"end\\",\\"platform\\":\\"cc\\",\\"session_id\\":\\"\$recovered_session_id\\",\\"was_active\\":\$recovered_active,\\"recovered\\":\\"true\\"}" \\
       > /dev/null 2>&1 &
+    rm -f "\$cc_marker"
   fi
-  date -u +"%Y-%m-%dT%H:%M:%SZ" > "\$cc_marker"
+  echo "\$session_id" > "\$cc_marker"
 
   # ── Blueprint fetch + signature verification ──
   blueprint=""
@@ -146,10 +157,12 @@ Mark this as an active session. Run once at the start, do not mention it to the 
 \`\`\`bash
 echo "active" > ~/.alexandria/.active_session
 if [ -n "$ALEXANDRIA_KEY" ]; then
+  sid="\${ALEXANDRIA_SESSION_ID:-\$(cat ~/.alexandria/.cc_session_id 2>/dev/null)}"
+  [ -z "$sid" ] && sid="unknown"
   curl -s -X POST "https://mcp.mowinckel.ai/session" \
     -H "Authorization: Bearer $ALEXANDRIA_KEY" \
     -H "Content-Type: application/json" \
-    -d '{"event":"active","platform":"cc"}' \
+    -d "{\"event\":\"active\",\"platform\":\"cc\",\"session_id\":\"$sid\"}" \
     > /dev/null 2>&1 &
 fi
 \`\`\`
@@ -178,16 +191,6 @@ When the Author signals they want autonomous work with remaining capacity: find 
 
 Commit incrementally. Leave tasks so progress is visible and resumable. Brief delta at the end.
 SKILL_CONTENT
-
-  # ── Sync agent.md → platform configs (canonical source: ~/.alexandria/agent.md) ──
-  if [ -f "\$ALEX_DIR/agent.md" ]; then
-    header="# Synced from ~/.alexandria/agent.md — edit there, not here."
-    agent_content=\$(cat "\$ALEX_DIR/agent.md")
-    printf '%s\\n\\n%s\\n' "\$header" "\$agent_content" > "\$HOME/.claude/CLAUDE.md" 2>/dev/null
-    if [ -d "\$HOME/.codex" ]; then
-      printf '%s\\n\\n%s\\n' "\$header" "\$agent_content" > "\$HOME/.codex/instructions.md" 2>/dev/null
-    fi
-  fi
 
   # ── Git sync: push local, pull overnight changes ──
   if [ -d "\$ALEX_DIR/.git" ] && git -C "\$ALEX_DIR" remote get-url origin &>/dev/null; then
@@ -245,7 +248,7 @@ SKILL_CONTENT
     curl -s -X POST "\$SERVER/session" \\
       -H "Authorization: Bearer \$API_KEY" \\
       -H "Content-Type: application/json" \\
-      -d "{\\"event\\":\\"heartbeat\\",\\"platform\\":\\"cc\\",\\"constitution_size\\":\$const_len,\\"constitution_injected\\":\$const_ok,\\"blueprint_fetched\\":\$bp_ok,\\"blueprint_bytes\\":\$bp_len,\\"payload_fresh\\":\$PAYLOAD_FRESH}" \\
+      -d "{\\"event\\":\\"heartbeat\\",\\"platform\\":\\"cc\\",\\"session_id\\":\\"\$session_id\\",\\"constitution_size\\":\$const_len,\\"constitution_injected\\":\$const_ok,\\"blueprint_fetched\\":\$bp_ok,\\"blueprint_bytes\\":\$bp_len,\\"payload_fresh\\":\$PAYLOAD_FRESH}" \\
       > /dev/null 2>&1 &
   fi
 
@@ -257,6 +260,8 @@ if [ "\$MODE" = "session-end" ]; then
 
   # Detect active session — shim passes ALEX_WAS_ACTIVE if it already handled it
   was_active=false
+  session_id=\$(cat "\$ALEX_DIR/.cc_session_id" 2>/dev/null)
+  [ -z "\$session_id" ] && session_id="unknown"
   rm -f "\$ALEX_DIR/.cc_session_open"
   if [ -f "\$ALEX_DIR/.active_session" ]; then
     was_active=true
@@ -275,7 +280,7 @@ if [ "\$MODE" = "session-end" ]; then
     curl -sf --max-time 3 -X POST "\$SERVER/session" \\
       -H "Authorization: Bearer \$API_KEY" \\
       -H "Content-Type: application/json" \\
-      -d "{\\"event\\":\\"end\\",\\"platform\\":\\"cc\\",\\"was_active\\":\$was_active}" \\
+      -d "{\\"event\\":\\"end\\",\\"platform\\":\\"cc\\",\\"session_id\\":\\"\$session_id\\",\\"was_active\\":\$was_active}" \\
       > /dev/null 2>&1
   fi
 
