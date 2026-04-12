@@ -2,7 +2,7 @@
 
 *This is Alexandria II of IV. Together they are the single source of truth for Alexandria. Read all parts for full context.*
 
-**This part covers:** The Spine (four constants — account, folder, file, call), The Open Protocol (methodology open on GitHub, signal is the product), The Marketplace (survival-ranked methodology, free market mechanism, the canon), The Product — Four Quadrants (yours/collective × files/system, Kahneman, thought→action→value). Terminology, The Layer of Intent, The Constitution, The Vault, The Autoloop, Editor/Mercury/Publisher, The Notepad, Privacy and Author Control, Principles and Blueprint, Library (V1, Neo-Biography, Works, Signal, access tiers, payment, economics), Turn 1-3, The PLM, Constitutional RLAIF.
+**This part covers:** The Spine (three constants — account, file, call), The Open Protocol (methodology open on GitHub, signal is the product), The Marketplace (survival-ranked methodology, free market mechanism, the canon), The Product — Four Quadrants (individual/collective × file/system, Kahneman, thought→action→value). Terminology, The Layer of Intent, The Constitution, The Vault, The Autoloop, Editor/Mercury/Publisher, The Notepad, Privacy and Author Control, Principles and Blueprint, Library (V1, Neo-Biography, Works, Signal, access tiers, payment, economics), Turn 1-3, The PLM, Constitutional RLAIF.
 
 **Other parts:** Alexandria I (Thesis & Philosophy), Alexandria III (Operations & Revenue), Alexandria IV (Strategy & Brand).
 
@@ -14,26 +14,24 @@ TERMINOLOGY
   
 THE SPINE
 
-Four constants. Account, folder, file, call. Everything else is a variable. This is the company. The spine. Everything else — sovereignty, hooks, folder structure, methodology, marketplace, Library design, session style — is body around this core. Strategy or feature. Variable. Replaceable. The spine is immutable.
+Three constants. Account, file, call. Everything else is a variable. This is the company. The spine. Everything else — sovereignty, hooks, the folder, folder structure, methodology, marketplace, Library design, session style — is body around this core. Strategy or feature. Variable. Replaceable. The spine is immutable.
 
 Each constant has three layers: the name (one word — the actual technical thing), the tag (what it must be), and the details (full context).
 
-**1. Account.** *Payment relationship that governs the other three.* An actual payment account. Gives Alexandria the right to enforce the other constants. Can be subscription, revenue share, whatever — the form is variable. The economic relationship is constant. Without it, we cannot require anything. The account also gates access to the server — the collective quadrants require it.
+**1. Account.** *Payment relationship that governs the other two.* An actual payment account. Gives Alexandria the right to enforce the other constants. Can be subscription, revenue share, whatever — the form is variable. The economic relationship is constant. Without it, we cannot require anything. The account gates access to the server — the collective quadrants require it. $10/month or free with 5 active kin.
 
-**2. Folder.** *Cognitive files at a known address on the Author's machine.* An actual folder at `~/.alexandria/`. What's inside — structure, naming, number of files — is entirely the Engine's decision. The setup seeds it. The Engine grows it. No mandated structure, no mandated anything inside the folder. Just: cognitive files exist at a known address.
+**2. File.** *At least one public file on the server, edited monthly.* An actual file published to Alexandria's server. The Author's cognitive representation in the network of minds. Not a one-time deposit — at least one edit per month. Static data does not survive AGI (replication is trivial). Live data does (you cannot replicate what is still being written). Liveness is the explicit requirement. Author engagement is the implied consequence — you cannot keep the file fresh without keeping the source fresh. The mechanism enforces itself.
 
-**3. File.** *At least one public file on the network, kept live.* An actual file published to Alexandria's Library. The Author's representation in the network of minds. Not a one-time deposit — continuously refreshed from the source files in the folder. Static data does not survive AGI (replication is trivial). Live data does (you cannot replicate what is still being written). Liveness is the explicit requirement. Author engagement is the implied consequence — you cannot keep the file fresh without keeping the folder fresh. The mechanism enforces itself.
+**3. Call.** *Bidirectional: machine sends signal, server responds with canon.* An actual API call. The machine sends: which marketplace references it is currently using (any GitHub-addressable content — Discussion numbers, file paths, fork URLs), which it dropped, and structural health data. The server responds: the canon (the founder's methodology as the default), updates, and survival data. The call IS the connection between the individual and the collective. Every call from every machine votes on which ideas survive. The aggregate of all calls IS the invisible hand that makes the methodology evolve. The minimum contribution is showing your picks. The ceiling is active contribution — methodology observations, proposed improvements, signal about what worked.
 
-**4. Call.** *Machine sends signal to the server — health, usage, contribution.* An actual API call from the Author's machine to Alexandria's server. The call reports: which marketplace references the machine is currently using (URLs, Discussion numbers, file paths — any GitHub-addressable content), which it dropped, and structural health data. This IS the survival signal. Every call from every machine votes on which ideas survive. The aggregate of all calls IS the invisible hand that makes the methodology evolve. The minimum contribution is showing your picks. The ceiling is active contribution — methodology observations, proposed improvements, signal about what worked.
-
-These four constants are derived from first principles, not product features. Implementations change — hooks today, platform-native tomorrow, something else after that. The constants do not.
+These three constants are derived from first principles, not product features. They are the three things Alexandria enforces — all server-verifiable. Implementations change — hooks today, platform-native tomorrow, something else after that. The constants do not.
 
 **What is NOT a constant:**
 
+- **The folder.** `~/.alexandria/` is the canonical recommendation — the canon seeds it, hooks maintain it. But it lives on the user's machine. Alexandria cannot verify it exists. It is the user's local infrastructure, not Alexandria's enforcement. The product works better with a well-maintained folder, but the constants are what Alexandria enforces, and the folder is not enforceable.
 - **Sovereignty.** Strategy, not spine. The product works if the files live on our servers. It works worse — we lose trust, we lose positioning. We choose sovereignty because it is right and because it sells.
-- **Folder structure.** All internal structure is the Engine's decision. The setup seeds one file. The Engine grows the rest.
-- **Hooks.** One delivery mechanism. The constant is "the ai reads and writes the folder." Hooks achieve this today. If a better method arrives, hooks are replaced.
-- **The methodology.** Variable. The founder's current setup serves as the canon — the default starting point for new users. It improves through the marketplace. It thins as models improve. Eventually it approaches pure intent: "develop the Author's cognition."
+- **Hooks.** One delivery mechanism. The canonical implementation uses hooks to automate the file and call. If a better method arrives, hooks are replaced. The constants are the file and the call, not the mechanism that produces them.
+- **The methodology.** Variable. The founder's current setup serves as the canon — the default starting point for new users, delivered through the call response. It improves through the marketplace. It thins as models improve. Eventually it approaches pure intent: "develop the Author's cognition."
 - **The marketplace.** The best current strategy for methodology evolution. Not structurally required — the founder could manually improve the canon. The marketplace automates and democratises what could be done manually.
 
 -----
@@ -42,7 +40,7 @@ THE OPEN PROTOCOL
 
 Alexandria is an open protocol for cognitive development. The methodology is open. The signal is the product.
 
-**Open (GitHub — anyone, no account):** the canon (the founder's methodology, published as the default), the marketplace (the GitHub repository where anyone can post methodology ideas), the protocol spec (the four constants, the folder format, the API). Anyone can read, fork, and build their own implementation.
+**Open (GitHub — anyone, no account):** the canon (the founder's methodology, published as the default), the marketplace (the GitHub repository where anyone can post methodology ideas), the protocol spec (the three constants, the file format, the API). Anyone can read, fork, and build their own implementation.
 
 **Gated (server — account required):** the survival signal — which marketplace ideas are used by how many machines, retention rates, health-weighted scores. Computed from calls. This is what transforms the GitHub repo from a pile of unranked ideas into a navigable meritocratic marketplace. Also gated: the Library (published files from all Authors, the network of minds) and the call endpoint (where machines report usage and contribute signal).
 
@@ -66,34 +64,34 @@ Authors who want full transparency can publish their complete setup as a fork. O
 
 THE PRODUCT — FOUR QUADRANTS
 
-Alexandria provides value in four quadrants. Two axes: yours vs collective, files vs system.
+Alexandria provides value in four quadrants. Two axes: individual vs collective, file vs system.
 
-| | **Yours** | **Collective** |
+| | **Individual** | **Collective** |
 |---|---|---|
-| **Files** | Your folder — cognitive files on your machine | The Library — published files from all Authors |
+| **File** | Your cognitive files (wherever you keep them) | The Library — published files from all Authors |
 | **System** | Your Machine — Engine + methodology from the canon | The marketplace — survival-ranked methodology from all machines |
 
-**Your folder** — cognitive files, sovereign on your machine. Alexandria jumpstarts this from the canon — the founder's methodology, refined by collective survival data. An immediate strong starting point. Maybe yours is already better — no harm. A baseline lifts what is below it and does not touch what is above.
+**Individual file** — your cognitive representation, wherever you keep it. The canonical recommendation is a folder at `~/.alexandria/`. Alexandria jumpstarts this from the canon — the founder's methodology, delivered through the call response. An immediate strong starting point. Maybe yours is already better — no harm. A baseline lifts what is below it and does not touch what is above.
 
-**Your Machine** — your Engine running through your own LLM, guided by methodology from the canon and the marketplace. Compounds per-Author through usage. Override anything, keep what's useful.
+**Individual system** — your Machine. Your Engine running through your own LLM, guided by methodology from the canon and the marketplace. Compounds per-Author through usage. Override anything, keep what's useful.
 
-**The Library** — the collective files. The network of developed minds. Value that is impossible to have alone. No individual can build a network of minds. Root-node connection — how you think, not what you look like.
+**Collective file** — the Library. The network of developed minds. Value that is impossible to have alone. No individual can build a network of minds. Root-node connection — how you think, not what you look like.
 
-**The marketplace** — the collective system. The free market for methodology. Survival-ranked by collective machine adoption. One person's methodology is n=1. The marketplace is n=many and compounds. The collectively optimal system is not one system everyone uses — it is an individual optimisation machine: it solves for each person's individual optimality, informed by what worked across all of them.
+**Collective system** — the marketplace. The free market for methodology. Survival-ranked by collective machine adoption. One person's methodology is n=1. The marketplace is n=many and compounds. The collectively optimal system is not one system everyone uses — it is an individual optimisation machine: it solves for each person's individual optimality, informed by what worked across all of them.
 
 **The individual quadrants are inevitable.** AGI guarantees every person will have cognitive files and a development system. Alexandria provides a strong starting point — but a smart person with frontier models could build their own. Zero downside either way.
 
 **The collective quadrants are why the company must exist.** No individual can replicate them. The Library requires many people. The marketplace requires many machines' signal. In the optimal terminal state of the world — perfect models, AGI, every person with capable ai — this company still exists. Because aggregate intelligence about cognitive development requires a network to collect and distribute it. Only the network of practitioners produces it. The structural gap is permanent. We fill it.
 
-**The mesh.** Everything feeds everything. Machines feed the marketplace (survival signal through calls). Folders feed the Library (published files). The marketplace feeds machines (better methodology). The Library feeds machines (accretion from other minds). Machines feed folders (development through conversation). Every quadrant improves every other quadrant. The system compounds as a whole.
+**The mesh.** Everything feeds everything. Machines feed the marketplace (survival signal through calls). Files feed the Library (published representations). The marketplace feeds machines (better methodology, delivered through the call response). The Library feeds machines (accretion from other minds). Machines develop individual files (through conversation). Every quadrant improves every other quadrant. The system compounds as a whole.
 
-**The mapping.** The four constants map to the quadrants: account enables all four, folder is individual files, file bridges individual to collective, call bridges individual to collective. The three turns flow through: Turn 1 creates the folder, Turn 2 runs the Machine, Turn 3 publishes the file into the Library.
+**The mapping.** The three constants map to the quadrants: account enables all four, file bridges individual to collective (your representation published to the Library), call bridges individual to collective in both directions (signal out to the marketplace, canon back to the Machine). The three turns flow through: Turn 1 develops the individual file, Turn 2 runs the Machine, Turn 3 publishes the file into the Library.
 
 **Kahneman.** This is *Thinking, Fast and Slow* operationalised. System 1 (fast, intuitive, sub-symbolic) develops through living, experience, embodiment — not Alexandria's domain. System 2 (slow, deliberate, symbolic) is Alexandria's domain — the half of the root node that can be systematically improved, structured, challenged, and scaled with ai. System 2 is exactly the half under threat from ai — the deliberate reasoning people are tempted to outsource. Alexandria does not protect it by blocking ai. It protects it by keeping it strong. The immune system, not the wall.
 
-**Thought→action→value.** Thought is root-node valuable — but only because it produces action. Humans are not valuable because they think. They are valuable because they think and those thoughts produce action. Without creation, thinking is self-indulgent. The folder without the changed conversation, the better decision, the thing you built — is a brain in a jar. Alexandria is infrastructure for action through developed thought.
+**Thought→action→value.** Thought is root-node valuable — but only because it produces action. Humans are not valuable because they think. They are valuable because they think and those thoughts produce action. Without creation, thinking is self-indulgent. The cognitive file without the changed conversation, the better decision, the thing you built — is a brain in a jar. Alexandria is infrastructure for action through developed thought.
 
-**The compression.** Alexandria is an open protocol with four constants: account, folder, file, call. The methodology is open. The signal is the product. Your mind, captured. Your practice, developed. Everyone's minds, connected. Everyone's practice, aggregated. Each feeds the others. The mesh runs itself. The only signal is survival.
+**The compression.** Alexandria is an open protocol with three constants: account, file, call. The methodology is open. The signal is the product. Your mind, captured. Your practice, developed. Everyone's minds, connected. Everyone's practice, aggregated. Each feeds the others. The mesh runs itself. The only signal is survival.
 
 -----
 
@@ -235,7 +233,7 @@ The two types have different structural properties. Discrete marginal value is n
 
 **Alexandria actively wants diverse customization.** Maximum customizability is not generosity — it is the learning architecture. Every Author's choices are exploration episodes in a collective learning system. The marketplace aggregates survival signal. The canon improves as proven ideas are incorporated. A thousand Authors all using Alexandria identically would be a terrible training distribution. A thousand Authors each doing something different — different constitution structures, different session styles, different Library page designs, different machine setups — that is coverage. That is how you learn what actually works across the full space of human cognition. More diversity = richer signal = better marketplace = more continuous marginal value for every Author. The RL loop feeds back: Authors customize → machines report what they use → survival signal reveals what works → the canon and marketplace improve → Authors receive better defaults and more options → Authors customize further. The product gets better *because* users are free.
 
-This is the complete marginal value architecture: discrete value gets them in the door (the philosophy, the architecture, the plumbing they would not have built). Continuous value keeps them (the marketplace, the Library, the compounding methodology). And the freedom to customize everything outside the four constants is what makes the continuous value possible — their diversity is the training data.
+This is the complete marginal value architecture: discrete value gets them in the door (the philosophy, the architecture, the plumbing they would not have built). Continuous value keeps them (the marketplace, the Library, the compounding methodology). And the freedom to customize everything outside the three constants is what makes the continuous value possible — their diversity is the training data.
 
 Alexandria is the gym. The Author's LLM is the training partner. The gym provides the environment, the infrastructure, the methodology, the accountability. The trainer brings the intelligence, the conversation, the responsiveness. You need both. The constitution is the training log. The Blueprint is the programming. The vault is the equipment. The gym gets better with every athlete (Factory). The training log compounds across sessions (Machine). The partner changes — maybe Claude today, something else tomorrow — but the gym stays. Alexandria does not replace the LLM. Alexandria creates the environment in which the LLM can do its best work on the Author's cognition.
 
@@ -786,14 +784,13 @@ The matching feeds back into the product. Two matched Authors talk, develop each
 
 HARD CONSTRAINTS AND HYPER-PERSONAL FLEXIBILITY
 
-Four hard constraints — the spine (see THE SPINE above):
+Three hard constraints — the spine (see THE SPINE above):
 
 1. Account.
-2. Folder.
-3. File.
-4. Call.
+2. File.
+3. Call.
 
-Everything outside these four is flexible. Hyper-personal. The Engine adapts to whatever the Author wants. No mandatory constitution structure. No mandatory ontology. No mandatory session frequency. No mandatory pulse, games, works, or website. No mandatory formats, schedules, or workflows. No mandatory folder structure within `~/.alexandria/`. The Author shapes the experience by talking, the same way they shape any ai conversation. The Engine writes preferences to machine.md so the Author only says it once.
+Everything outside these three is flexible. Hyper-personal. The Engine adapts to whatever the Author wants. No mandatory constitution structure. No mandatory ontology. No mandatory session frequency. No mandatory pulse, games, works, or website. No mandatory formats, schedules, or workflows. No mandatory folder structure. The Author shapes the experience by talking, the same way they shape any ai conversation. The Engine writes preferences to machine.md so the Author only says it once.
 
 The soft defaults exist because current models need structure to avoid drift. But they are held loosely. If an Author wants something different, they say so. The system should never be the reason an Author leaves. The only reasons to leave: can't be bothered to find 5 kin for free access, can't be bothered to pay $10/month. Not "the product doesn't fit how I work" — that should never happen because the product fits however the Author wants it to fit.
 
