@@ -4,7 +4,7 @@ import { randomBytes } from 'crypto';
 import type { Hono } from 'hono';
 import { logEvent } from './analytics.js';
 import { countActiveKin, createCheckoutSession, createPortalSession, getStripe } from './billing.js';
-import { callbackPageHtml } from './templates.js';
+import { authErrorHtml, callbackPageHtml } from './templates.js';
 import { getDB, getR2 } from './db.js';
 import { loadAccounts, loadAccount, saveAccount, setAuthIndex, deleteAccount, getKV, setEmailTokenIndex, getEmailTokenIndex, getAuthIndex } from './kv.js';
 import { hashApiKey, generateToken } from './crypto.js';
@@ -165,7 +165,7 @@ export function registerRoutes(app: Hono) {
     const kv = getKV();
     const stateRaw = state ? await kv.get(`oauth:${state}`) : null;
     if (!stateRaw) {
-      return c.text('Invalid state — try signing up again.', 400);
+      return c.html(authErrorHtml('this sign-in link has expired or is no longer valid.'), 400);
     }
     // Parse state — supports both legacy '1' and new JSON format
     let stateData: { ref?: string; ref_source?: string; ref_id?: string } = {};
@@ -196,7 +196,8 @@ export function registerRoutes(app: Hono) {
       const tokenData = await safeJson(tokenResp, 'Token exchange') as { access_token?: string; error?: string };
 
       if (!tokenData.access_token) {
-        return c.text(`GitHub auth failed: ${tokenData.error || 'no token'}`, 400);
+        console.error('[oauth] Token exchange returned no access_token:', tokenData.error);
+        return c.html(authErrorHtml('github didn\u2019t return a token. try signing in again.'), 400);
       }
 
       // Fetch user profile
@@ -300,7 +301,7 @@ export function registerRoutes(app: Hono) {
       return c.html(callbackPageHtml(user.login, apiKey));
     } catch (err: any) {
       console.error('GitHub callback error:', err);
-      return c.text('Authentication failed. Please try again.', 500);
+      return c.html(authErrorHtml('something broke signing you in. please try again.'), 500);
     }
   });
 

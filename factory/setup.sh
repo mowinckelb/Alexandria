@@ -159,6 +159,19 @@ if [ -d "$ICLOUD_DIR" ] && [ "$(uname)" = "Darwin" ]; then
   echo "  iCloud: synced"
 fi
 
+# ── Verify API key works ──────────────────────────────────────────
+
+# Fail loudly if the key is wrong — silent failures at setup time
+# mean every session start/end/call POSTs against a dead auth and we
+# never find out until the Author wonders why nothing happened.
+KEY_STATUS=""
+if command -v curl &>/dev/null; then
+  KEY_STATUS=$(curl -s -o /dev/null -w '%{http_code}' \
+    -H "Authorization: Bearer $API_KEY" \
+    --max-time 8 \
+    "https://mcp.mowinckel.ai/alexandria" 2>/dev/null || echo "000")
+fi
+
 # ── Done ──────────────────────────────────────────────────────────
 
 touch "$ALEX_DIR/.setup_complete"
@@ -179,6 +192,16 @@ done
 if [ -n "$MISSING" ]; then
   echo ""
   echo "WARNING: missing:$MISSING — re-run to fix"
+elif [ "$KEY_STATUS" = "401" ]; then
+  echo ""
+  echo "WARNING: API key rejected by server (401). Sign in again at"
+  echo "  https://mowinckel.ai/signup"
+  echo "to get a fresh key, then re-run the curl."
+elif [ -n "$KEY_STATUS" ] && [ "$KEY_STATUS" != "200" ] && [ "$KEY_STATUS" != "000" ]; then
+  echo ""
+  echo "NOTE: server responded $KEY_STATUS — setup finished but check"
+  echo "  https://mcp.mowinckel.ai/health"
+  echo "Everything local works; the protocol may be degraded."
 else
   echo ""
   echo "Alexandria installed. ~/.alexandria/ — your mind, on your machine."

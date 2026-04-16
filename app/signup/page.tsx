@@ -88,7 +88,7 @@ function SignupPageContent() {
           </p>
 
           <div className="space-y-5 text-[0.85rem] sm:text-[0.9rem] tracking-wide leading-[1.9]" style={{ color: 'var(--text-secondary)' }}>
-            <p><span style={{ color: 'var(--text-primary)' }}>Every AI knows you.</span> Your constitution loads at the start of every session. No more repeating yourself.</p>
+            <p><span style={{ color: 'var(--text-primary)' }}>Every ai knows you.</span> Your constitution loads at the start of every session. No more repeating yourself.</p>
             <p><span style={{ color: 'var(--text-primary)' }}>Your thinking develops.</span> Run <code style={{ fontSize: '0.82em', color: 'var(--text-primary)' }}>/a</code> for active sessions that push your cognition &mdash; patterns, contradictions, blind spots.</p>
             <p><span style={{ color: 'var(--text-primary)' }}>Everything compounds.</span> Drop voice memos, notes, articles into your vault. The more you put in, the sharper the file gets.</p>
           </div>

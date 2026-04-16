@@ -96,7 +96,7 @@ export default function ScrollPhilosophy() {
           </Body>
 
           <Body>
-            AI helps you clear the bar. You use AI the way humans have always used tools&nbsp;&mdash; to get good enough. The alien gets good enough too. Same bar, both clear&nbsp;it.
+            ai helps you clear the bar. You use ai the way humans have always used tools&nbsp;&mdash; to get good enough. The alien gets good enough too. Same bar, both clear&nbsp;it.
           </Body>
 
           <Body>
@@ -104,7 +104,7 @@ export default function ScrollPhilosophy() {
           </Body>
 
           <Pull className="py-4">
-            The game is not about being better than&nbsp;AI.<br />It is about being human where it&nbsp;counts.
+            The game is not about being better than&nbsp;ai.<br />It is about being human where it&nbsp;counts.
           </Pull>
 
           <Pull className="pt-2 pb-6 sm:pb-8">
@@ -121,7 +121,7 @@ export default function ScrollPhilosophy() {
         {/* THE DECAY */}
         <div className="space-y-6">
           <Body>
-            But the thing that makes you irreplaceable&nbsp;&mdash; your mind, your taste, your judgment&nbsp;&mdash; is the one thing that weakens if you do not use it. Every time you let AI think for you, something fades. The way you forgot arithmetic once you had a calculator. Except this is not arithmetic. This is your ability to&nbsp;think.
+            But the thing that makes you irreplaceable&nbsp;&mdash; your mind, your taste, your judgment&nbsp;&mdash; is the one thing that weakens if you do not use it. Every time you let ai think for you, something fades. The way you forgot arithmetic once you had a calculator. Except this is not arithmetic. This is your ability to&nbsp;think.
           </Body>
 
           <Pull className="py-6 sm:py-8">

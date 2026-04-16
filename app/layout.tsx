@@ -12,15 +12,15 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://mowinckel.ai";
 
 export const metadata: Metadata = {
   title: "alexandria.",
-  description: "Make every AI you use actually know who you are. One file, on your device, works across all of them. $10/month or free with 5 kin.",
-  keywords: ["Alexandria", "personal AI", "AI memory", "own your data", "AI identity", "self-knowledge", "AI connector"],
+  description: "Make every ai you use actually know who you are. One file, on your device, works across all of them. $10/month or free with 5 kin.",
+  keywords: ["Alexandria", "personal ai", "ai memory", "own your data", "ai identity", "self-knowledge", "ai connector"],
   icons: {
     icon: "/favicon.png",
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "alexandria.",
-    description: "Make every AI you use actually know who you are. One file, on your device, works across all of them.",
+    description: "Make every ai you use actually know who you are. One file, on your device, works across all of them.",
     url: SITE,
     siteName: "Alexandria",
     type: "website",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "alexandria.",
-    description: "Make every AI you use actually know who you are. One file, on your device, works across all of them.",
+    description: "Make every ai you use actually know who you are. One file, on your device, works across all of them.",
     images: ["/og-image.png"],
   },
   metadataBase: new URL(SITE),

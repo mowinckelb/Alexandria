@@ -37,12 +37,12 @@ export default function Privacy() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Authentication</h2>
-        <p>Account creation uses GitHub OAuth. Ongoing authentication uses an API key issued at signup. Your API key is stored in our KV alongside your account record and sent in the Authorization header on each request. The key authenticates your access to the Blueprint and Library APIs.</p>
+        <p>Account creation uses GitHub OAuth. Ongoing authentication uses an API key issued at signup. Only a SHA-256 hash of your API key is stored on the server; the raw key lives only on your machine at <code>~/.alexandria/.api_key</code>. The key authenticates your access to the protocol and Library APIs.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>The Blueprint</h2>
-        <p>Every session, your AI fetches Alexandria&apos;s Blueprint — the methodology that guides cognitive extraction and development. This is a text document served from our server. It contains no personal data. It is the same for all Authors. The Blueprint is readable — you can inspect exactly what instructions your AI receives.</p>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>The canon</h2>
+        <p>Every session, your ai fetches Alexandria&apos;s canon — the methodology that guides cognitive extraction and development. This is a text document served publicly from GitHub (<code>factory/canon/methodology.md</code>). It contains no personal data. It is the same for all Authors. The canon is readable — you can inspect exactly what instructions your ai receives.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
