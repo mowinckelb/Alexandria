@@ -67,7 +67,7 @@ fi
 call_out=$(curl -sS -w "\n%{http_code}" -X POST \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"modules":["canon/axioms","canon/methodology"]}' \
+  -d '{"modules":[{"id":"methodology","text":"local smoke"}]}' \
   "$BASE/call" 2>&1) || true
 call_status=$(echo "$call_out" | tail -1)
 call_body=$(echo "$call_out" | sed '$d')

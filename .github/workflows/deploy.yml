@@ -28,11 +28,13 @@ jobs:
       - name: Verify health
         run: |
           sleep 5
-          status=$(curl -s -o /dev/null -w '%{http_code}' https://mcp.mowinckel.ai/health)
-          body=$(curl -s https://mcp.mowinckel.ai/health)
+          body=$(curl -sf https://mcp.mowinckel.ai/health)
           echo "$body"
-          if [ "$status" != "200" ] || ! echo "$body" | grep -q '"status":"ok"'; then
-            echo "::error::Health check failed after deploy (HTTP $status)"
-            exit 1
-          fi
-          echo "✓ deploy verified"
+          echo "$body" | grep -q '"status":"ok"' || { echo "::error::Health degraded after deploy"; exit 1; }
+          echo "✓ health ok"
+
+      - name: Trigger full smoke
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run Smoke
