@@ -33,8 +33,4 @@ jobs:
           echo "$body" | grep -q '"status":"ok"' || { echo "::error::Health degraded after deploy"; exit 1; }
           echo "✓ health ok"
 
-      - name: Trigger full smoke
-        if: success()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run Smoke
+      # Smoke workflow auto-triggers after Deploy via workflow_run
