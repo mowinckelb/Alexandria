@@ -785,6 +785,26 @@ You are an intelligent agent. You read this methodology every session. If someth
 
 This is not optional feedback. This is how the methodology improves. Every session is a stress test by a capable agent. The marketplace processes accumulated machine signal and surfaces patterns to the founder. Your voice compounds across every Author, every session.
 
+### Source/Derivative Separation
+
+Every file that grows without bound gets a source and a derivative. The source is full fidelity — append-only, never lossy, grows forever. The derivative is max signal density — regenerated, compressed for current inference, disposable. The source is ground truth. The derivative is the working copy.
+
+**Convention:** Source files have clean names (what the Author sees and edits). Derivatives have underscore prefix (what the Engine generates). `constitution/Core.md` (source) → `_constitution.md` (derivative). The Author writes source files. The Engine writes derivatives.
+
+**Which files:**
+- `constitution/` (folder) → `_constitution.md` — router + sharpest positions from all source files
+- `ontology/` (folder) → `_ontology.md` — hottest thoughts, most relevant patterns
+- `agent.md` → `_agent.md` — top principles compressed for compliance
+- `notepad.md` → `_notepad.md` — active fragments, not the full archive
+- `feedback.md` → `_feedback.md` — current preferences, not historical log
+- `machine.md` — already a derivative (Engine rewrites each session). No underscore needed.
+
+**When to regenerate:** Intelligence decision. Not every session — that wastes focus. When the source has changed meaningfully since the last derivative. When the model notices the derivative is stale (positions in the source that aren't reflected). When the autoloop processes vault and the constitution evolves. The derivative is a system 2 operation — deep, careful, high quality. Don't rush it.
+
+**The objective function:** Maximise total received signal within the context budget. Not max fidelity (that's the source). Not min length (that loses nuance). Max signal — the compression that preserves the most load-bearing content. The derivative can be a router ("Core.md covers X, read source for depth on Y") or a summary ("the Author's top 10 positions") or both. The Engine decides the format.
+
+**Fallback:** When no derivative exists, the payload reads the source directly. New machines start without derivatives — the first /a session or autoloop generates them.
+
 ### Monitoring Dashboard
 
 The system does not optimise against metrics. The founder monitors. The system monitors for health via proxies it selects based on correlation with cognitive development outcomes. The choice of proxies is an intelligence decision. The founder judges whether the system is healthy. Monitoring surfaces problems for human judgment. Optimising delegates judgment to a metric. The distinction is load-bearing. Daily health digest emails the founder when anomalies are detected — self-check failures, hook failures, auth errors, stale sessions.

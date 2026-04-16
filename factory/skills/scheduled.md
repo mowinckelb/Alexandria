@@ -33,7 +33,9 @@ Write to the appropriate pool — ontology (Author's thoughts), constitution (Au
 
 Every change to constitution must cite the Author's exact words from vault.
 
-After processing vault, check constitution structural fit. Not every run — only when you notice signals: one file growing disproportionately, signal landing between domains, a domain gone dark, cross-references clustering between the same two files. If restructure signals are present, note them in last_run.md under "## Restructure signals" — the Author or the interactive Engine decides whether to act. You do not restructure autonomously. See methodology.md for the full signal list.
+After processing vault, check if derivatives need regenerating. If the source files (constitution/, ontology/, notepad.md, feedback.md, agent.md) changed meaningfully since the derivative was last written, regenerate the derivative. Write `_constitution.md`, `_ontology.md`, `_notepad.md`, `_feedback.md`, `_agent.md` as compressed, max-signal versions. See methodology.md § Source/Derivative Separation for the full pattern.
+
+Then check constitution structural fit. Not every run — only when you notice signals: one file growing disproportionately, signal landing between domains, a domain gone dark, cross-references clustering between the same two files. If restructure signals are present, note them in last_run.md under "## Restructure signals" — the Author or the interactive Engine decides whether to act. You do not restructure autonomously. See methodology.md for the full signal list.
 
 If ~/.alexandria/ is a git repo, commit changes and push. Write a report to ~/.alexandria/.autoloop/last_run.md — include entries processed, entries remaining, and any signal you noticed but couldn't act on yet.
 
