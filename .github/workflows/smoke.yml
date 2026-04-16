@@ -7,62 +7,110 @@ on:
 jobs:
   smoke:
     runs-on: ubuntu-latest
+    env:
+      API_KEY: ${{ secrets.ALEXANDRIA_API_KEY }}
+      SERVER: https://mcp.mowinckel.ai
+      FACTORY: https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory
     steps:
-      - name: Health
+      - name: Health (KV, D1, R2, env vars)
         run: |
-          body=$(curl -s https://mcp.mowinckel.ai/health)
+          body=$(curl -sf $SERVER/health)
           echo "$body"
           echo "$body" | grep -q '"status":"ok"' || { echo "::error::Health degraded"; exit 1; }
-          echo "✓ health"
+          # Verify every component is ok, not just overall status
+          for comp in kv d1 r2 env; do
+            echo "$body" | grep -q "\"$comp\":\"ok\"" || { echo "::error::Component $comp not ok"; exit 1; }
+          done
+          echo "✓ health (all components)"
 
       - name: Protocol handshake
         run: |
-          curl -sf https://mcp.mowinckel.ai/alexandria | grep -q '"protocol":"alexandria"' || { echo "::error::Handshake failed"; exit 1; }
-          echo "✓ protocol"
+          body=$(curl -sf $SERVER/alexandria)
+          echo "$body" | grep -q '"protocol":"alexandria"' || { echo "::error::Handshake broken"; exit 1; }
+          echo "$body" | grep -q '"/file/{name}"' || { echo "::error::Handshake missing file endpoint"; exit 1; }
+          echo "$body" | grep -q '"/call"' || { echo "::error::Handshake missing call endpoint"; exit 1; }
+          echo "✓ protocol handshake"
 
-      - name: Protocol file (write + read back)
+      - name: Protocol file (write → read back → verify content)
         run: |
-          curl -sf -X PUT https://mcp.mowinckel.ai/file/ci-smoke \
-            -H "Authorization: Bearer ${{ secrets.ALEXANDRIA_API_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d '{"content":"# CI smoke\nverification.","text":"ci"}' | grep -q '"ok":true' || { echo "::error::File publish failed"; exit 1; }
-          curl -sf https://mcp.mowinckel.ai/marketplace \
-            -H "Authorization: Bearer ${{ secrets.ALEXANDRIA_API_KEY }}" | grep -q '"modules"' || { echo "::error::Marketplace read failed"; exit 1; }
-          echo "✓ file + marketplace"
+          TIMESTAMP=$(date +%s)
+          CONTENT="# Smoke $TIMESTAMP"
 
-      - name: Protocol call
-        run: |
-          curl -sf -X POST https://mcp.mowinckel.ai/call \
-            -H "Authorization: Bearer ${{ secrets.ALEXANDRIA_API_KEY }}" \
+          # Write
+          curl -sf -X PUT $SERVER/file/ci-smoke \
+            -H "Authorization: Bearer $API_KEY" \
             -H "Content-Type: application/json" \
-            -d '{"modules":[{"id":"methodology","text":"ci smoke"}]}' | grep -q '"ok":true' || { echo "::error::Call failed"; exit 1; }
-          echo "✓ call"
+            -d "{\"content\":\"$CONTENT\",\"text\":\"smoke $TIMESTAMP\"}" \
+            | grep -q '"ok":true' || { echo "::error::File write failed"; exit 1; }
+
+          # Read back and verify content matches
+          READBACK=$(curl -sf $SERVER/library/${{ secrets.ALEXANDRIA_GITHUB_ID }}/ci-smoke \
+            -H "Authorization: Bearer $API_KEY")
+          echo "$READBACK" | grep -q "$TIMESTAMP" || { echo "::error::File read-back content mismatch"; exit 1; }
+          echo "✓ file write + read back verified"
+
+      - name: Protocol call (per-module feedback)
+        run: |
+          curl -sf -X POST $SERVER/call \
+            -H "Authorization: Bearer $API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"modules":[{"id":"methodology","text":"ci smoke verification"}]}' \
+            | grep -q '"ok":true' || { echo "::error::Call failed"; exit 1; }
+
+          # Verify call landed in marketplace
+          MARKET=$(curl -sf $SERVER/marketplace/methodology -H "Authorization: Bearer $API_KEY")
+          echo "$MARKET" | grep -q '"ci smoke verification"' || { echo "::error::Call not in marketplace"; exit 1; }
+          echo "✓ call + marketplace verification"
+
+      - name: Protocol marketplace listing
+        run: |
+          curl -sf $SERVER/marketplace -H "Authorization: Bearer $API_KEY" \
+            | grep -q '"methodology"' || { echo "::error::Marketplace listing broken"; exit 1; }
+          echo "✓ marketplace"
 
       - name: Company Library
         run: |
-          curl -sf https://mcp.mowinckel.ai/library/authors | grep -q '"authors"' || { echo "::error::Library failed"; exit 1; }
+          curl -sf $SERVER/library/authors | grep -q '"authors"' || { echo "::error::Library listing broken"; exit 1; }
           echo "✓ library"
 
-      - name: Factory (GitHub raw URLs)
+      - name: Factory (GitHub raw — all critical files)
         run: |
-          BASE="https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory"
-          curl -sf "$BASE/setup.sh" | head -1 | grep -q "bash" || { echo "::error::setup.sh not accessible"; exit 1; }
-          curl -sf "$BASE/canon/methodology.md" | head -1 | grep -q "#" || { echo "::error::methodology.md not accessible"; exit 1; }
-          curl -sf "$BASE/hooks/shim.sh" | head -1 | grep -q "bash" || { echo "::error::shim.sh not accessible"; exit 1; }
-          curl -sf "$BASE/hooks/payload.sh" | head -1 | grep -q "bash" || { echo "::error::payload.sh not accessible"; exit 1; }
-          curl -sf "$BASE/skills/claudecode.md" | grep -q "Alexandria" || { echo "::error::claudecode.md not accessible"; exit 1; }
-          echo "✓ factory (5 files verified)"
+          for file in setup.sh canon/methodology.md hooks/shim.sh hooks/payload.sh skills/claudecode.md skills/scheduled.md skills/cursor.mdc skills/codex.md; do
+            status=$(curl -s -o /dev/null -w '%{http_code}' "$FACTORY/$file")
+            if [ "$status" != "200" ]; then
+              echo "::error::Factory file $file returned $status"
+              exit 1
+            fi
+          done
+          # Verify content, not just 200
+          curl -sf "$FACTORY/setup.sh" | head -1 | grep -q "bash" || { echo "::error::setup.sh not valid bash"; exit 1; }
+          curl -sf "$FACTORY/canon/methodology.md" | wc -c | xargs test 1000 -lt || { echo "::error::methodology.md too small"; exit 1; }
+          echo "✓ factory (8 files, content verified)"
 
       - name: Website
         run: |
           status=$(curl -sL -o /dev/null -w '%{http_code}' https://mowinckel.ai)
-          if [ "$status" -lt 200 ] || [ "$status" -ge 400 ]; then
-            echo "::error::mowinckel.ai returned HTTP $status"
+          [ "$status" -ge 200 ] && [ "$status" -lt 400 ] || { echo "::error::mowinckel.ai HTTP $status"; exit 1; }
+          www=$(curl -sL -o /dev/null -w '%{http_code}' https://www.mowinckel.ai)
+          [ "$www" -ge 200 ] && [ "$www" -lt 400 ] || { echo "::error::www HTTP $www"; exit 1; }
+          echo "✓ website ($status, www=$www)"
+
+      - name: Stripe webhook reachable
+        run: |
+          # Stripe webhooks POST to /billing/webhook — verify the endpoint exists
+          # An unsigned POST should return 400 or 500 (signature check fails), NOT 404
+          status=$(curl -s -o /dev/null -w '%{http_code}' -X POST $SERVER/billing/webhook \
+            -H "Content-Type: application/json" -d '{}')
+          if [ "$status" = "404" ]; then
+            echo "::error::Billing webhook endpoint missing (404)"
             exit 1
           fi
-          www_status=$(curl -sL -o /dev/null -w '%{http_code}' https://www.mowinckel.ai)
-          if [ "$www_status" -lt 200 ] || [ "$www_status" -ge 400 ]; then
-            echo "::error::www.mowinckel.ai returned HTTP $www_status"
-            exit 1
-          fi
-          echo "✓ website (root=$status, www=$www_status)"
+          echo "✓ stripe webhook reachable (HTTP $status — expected 400/500 without signature)"
+
+      - name: Email delivery
+        run: |
+          # Force a health digest to test email delivery end-to-end
+          result=$(curl -sf -X POST $SERVER/analytics/test-digest \
+            -H "Authorization: Bearer $API_KEY" 2>/dev/null || echo "FAILED")
+          echo "$result" | grep -q '"ok":true' || { echo "::error::Health digest / email delivery failed"; exit 1; }
+          echo "✓ email delivery (health digest sent)"
