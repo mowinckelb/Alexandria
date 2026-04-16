@@ -1,7 +1,6 @@
 /** Cron jobs — health digest, followup, engagement. Called by worker scheduled handler. */
 
-import { loadAccounts, saveAccounts, getKV } from './kv.js';
-import { getRecentEvents } from './analytics.js';
+import { loadAccounts, saveAccounts, getKV, getRecentDaysEvents } from './kv.js';
 import { sendEmail, sendEmailsBatched, sendFollowupEmail, sendEngagementEmail, MAX_FOLLOWUPS, DEFAULT_ENGAGEMENT_DAYS, FOUNDER_EMAIL } from './email.js';
 import type { Account, AccountStore } from './auth.js';
 
@@ -183,9 +182,10 @@ export async function runHealthDigest(force = false): Promise<void> {
 
     // Canon now served from GitHub, not from this server. No KV cache to verify.
 
-    // Event log analysis — targeted scan of recent events
+    // Event log analysis — scan today + yesterday (covers the 24h cutoff with
+    // no arbitrary line-count ceiling; events:YYYY-MM-DD keys cap the read).
     try {
-      const raw = await getRecentEvents(200);
+      const raw = await getRecentDaysEvents(2);
       if (raw) {
         const cutoff = Date.now() - 24 * 60 * 60 * 1000;
         let serverErrors = 0;

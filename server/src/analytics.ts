@@ -426,15 +426,3 @@ export async function archiveMarketplaceSignals(): Promise<{ archived: number }>
   logEvent('marketplace_signals_archived', { count: String(allKeys.length) });
   return { archived: allKeys.length };
 }
-
-export async function getRecentEvents(n: number = 200): Promise<string> {
-  try {
-    const full = await getRecentDaysEvents(7);
-    if (!full) return '';
-    const lines = full.trim().split('\n');
-    const recent = lines.slice(-n);
-    return recent.join('\n');
-  } catch {
-    return '';
-  }
-}
