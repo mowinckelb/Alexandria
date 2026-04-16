@@ -5,6 +5,26 @@ export const MAX_FOLLOWUPS = 7;
 export const DEFAULT_ENGAGEMENT_DAYS = 3;
 const DEFAULT_BRIEF_QUOTE = '\u201cWe are what we repeatedly do. Excellence, then, is not an act, but a habit.\u201d';
 
+/**
+ * Run up to `concurrency` email sends in parallel, draining the task list in
+ * batches. Keeps us comfortably under Resend's 2 req/s free-tier limit while
+ * not being so serialised that cron jobs wall-clock forever at scale.
+ */
+export async function sendEmailsBatched<T>(
+  tasks: T[],
+  sendOne: (task: T) => Promise<{ ok: boolean; error?: string }>,
+  concurrency = 5,
+): Promise<{ sent: number; failed: number }> {
+  let sent = 0;
+  let failed = 0;
+  for (let i = 0; i < tasks.length; i += concurrency) {
+    const batch = tasks.slice(i, i + concurrency);
+    const results = await Promise.all(batch.map(sendOne));
+    for (const r of results) { if (r.ok) sent++; else failed++; }
+  }
+  return { sent, failed };
+}
+
 export async function sendEmail(to: string, subject: string, html: string): Promise<{ ok: boolean; error?: string }> {
   try {
     const resp = await fetch('https://api.resend.com/emails', {

@@ -2,8 +2,8 @@
 
 import { loadAccounts, saveAccounts, getKV } from './kv.js';
 import { getRecentEvents } from './analytics.js';
-import { sendEmail, sendFollowupEmail, sendEngagementEmail, MAX_FOLLOWUPS, DEFAULT_ENGAGEMENT_DAYS, FOUNDER_EMAIL } from './email.js';
-import type { AccountStore } from './auth.js';
+import { sendEmail, sendEmailsBatched, sendFollowupEmail, sendEngagementEmail, MAX_FOLLOWUPS, DEFAULT_ENGAGEMENT_DAYS, FOUNDER_EMAIL } from './email.js';
+import type { Account, AccountStore } from './auth.js';
 
 // ---------------------------------------------------------------------------
 // Follow-up check — nudge signed-up users who haven't installed
@@ -12,24 +12,29 @@ import type { AccountStore } from './auth.js';
 /** Run follow-up check — called by Cron Trigger */
 export async function runFollowupCheck(): Promise<void> {
   const accounts = await loadAccounts<AccountStore>();
-  let changed = false;
-  let sent = 0;
 
+  const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  const tasks: { key: string; account: Account; nextCount: number }[] = [];
   for (const [key, account] of Object.entries(accounts)) {
     if (account.installed_at || !account.email) continue;
     if (account.engagement_opt_out) continue;
     const count = account.followup_count || 0;
     if (count >= MAX_FOLLOWUPS) continue;
-    const signupAge = Date.now() - new Date(account.created_at).getTime();
-    if (signupAge < 24 * 60 * 60 * 1000) continue;
-
-    await sendFollowupEmail(account.email, account.email_token, count + 1);
-    accounts[key].followup_count = count + 1;
-    changed = true;
-    sent++;
+    if (new Date(account.created_at).getTime() > dayAgo) continue;
+    tasks.push({ key, account, nextCount: count + 1 });
   }
 
-  if (changed) await saveAccounts(accounts);
+  const { sent } = await sendEmailsBatched(tasks, async ({ key, account, nextCount }) => {
+    try {
+      await sendFollowupEmail(account.email, account.email_token, nextCount);
+      accounts[key].followup_count = nextCount;
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : String(e) };
+    }
+  });
+
+  if (sent > 0) await saveAccounts(accounts);
 
   // Cron execution marker — health digest verifies this exists
   try {
@@ -48,10 +53,9 @@ export async function runFollowupCheck(): Promise<void> {
 /** Run engagement check — called by Cron Trigger */
 export async function runEngagementCheck(): Promise<void> {
   const accounts = await loadAccounts<AccountStore>();
-  let changed = false;
   const now = Date.now();
-  let sent = 0;
 
+  const tasks: { key: string; account: Account }[] = [];
   for (const [key, account] of Object.entries(accounts)) {
     if (!account.installed_at || !account.email) continue;
     if (account.engagement_opt_out) continue;
@@ -63,23 +67,23 @@ export async function runEngagementCheck(): Promise<void> {
     if (now - lastActive < intervalMs) continue;
 
     // Skip if user recently received a morning brief — it serves the same purpose
-    if (account.last_brief) {
-      const lastBrief = new Date(account.last_brief).getTime();
-      if (now - lastBrief < intervalMs) continue;
-    }
+    if (account.last_brief && now - new Date(account.last_brief).getTime() < intervalMs) continue;
+    if (account.last_engagement_email && now - new Date(account.last_engagement_email).getTime() < intervalMs) continue;
 
-    if (account.last_engagement_email) {
-      const lastEmail = new Date(account.last_engagement_email).getTime();
-      if (now - lastEmail < intervalMs) continue;
-    }
-
-    await sendEngagementEmail(account.email, account.email_token);
-    accounts[key].last_engagement_email = new Date().toISOString();
-    changed = true;
-    sent++;
+    tasks.push({ key, account });
   }
 
-  if (changed) await saveAccounts(accounts);
+  const { sent } = await sendEmailsBatched(tasks, async ({ key, account }) => {
+    try {
+      await sendEngagementEmail(account.email, account.email_token);
+      accounts[key].last_engagement_email = new Date().toISOString();
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : String(e) };
+    }
+  });
+
+  if (sent > 0) await saveAccounts(accounts);
 
   // Cron execution marker
   try {

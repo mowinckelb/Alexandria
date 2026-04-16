@@ -10,7 +10,7 @@ import { loadAccounts, loadAccount, saveAccount, setAuthIndex, deleteAccount, ge
 import { hashApiKey, generateToken } from './crypto.js';
 import { Account, AccountStore, extractApiKey, findByApiKey, requireAuth } from './auth.js';
 import { generateApiKey, getAccounts, requireAdmin } from './accounts.js';
-import { sendEmail, sendWelcomeEmail, sendMorningBrief, FOUNDER_EMAIL, DEFAULT_ENGAGEMENT_DAYS } from './email.js';
+import { sendEmail, sendEmailsBatched, sendWelcomeEmail, sendMorningBrief, FOUNDER_EMAIL, DEFAULT_ENGAGEMENT_DAYS } from './email.js';
 
 // ---------------------------------------------------------------------------
 // Company routes — registered on Hono app
@@ -648,17 +648,9 @@ export function registerRoutes(app: Hono) {
       '<p style="font-size: 0.72rem; color: #bbb4aa; margin-top: 1.5rem;"><a href="' + SERVER_URL + '/email/stop?t=' + acct.email_token + '" style="color: #8a8078;">stop these emails</a></p>' +
       '</div>';
 
-    // Resend free tier is 2 req/sec; 5-wide keeps us under the limit with headroom.
-    const CONCURRENCY = 5;
-    let sent = 0;
-    let failed = 0;
-    for (let i = 0; i < recipients.length; i += CONCURRENCY) {
-      const batch = recipients.slice(i, i + CONCURRENCY);
-      const results = await Promise.all(
-        batch.map(acct => sendEmail(acct.email, 'alexandria. — quick fix', html(acct)))
-      );
-      for (const r of results) { if (r.ok) sent++; else failed++; }
-    }
+    const { sent, failed } = await sendEmailsBatched(recipients, acct =>
+      sendEmail(acct.email, 'alexandria. — quick fix', html(acct))
+    );
     return c.json({ ok: true, sent, failed, total: recipients.length });
   });
 
