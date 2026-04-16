@@ -73,7 +73,16 @@ jobs:
           # Verify call landed in marketplace
           MARKET=$(curl -sf $SERVER/marketplace/methodology -H "Authorization: Bearer $API_KEY")
           echo "$MARKET" | grep -q '"ci smoke verification"' || { echo "::error::Call not in marketplace"; exit 1; }
-          echo "✓ call + marketplace verification"
+
+          # Handshake must reflect the call we just made. Symmetry with the
+          # file assertion above — catches any future read/write drift.
+          HANDSHAKE=$(curl -sf $SERVER/alexandria -H "Authorization: Bearer $API_KEY")
+          echo "$HANDSHAKE" | grep -q '"call_status":"ok"' || {
+            echo "::error::Handshake call_status not ok after POST /call — reads don't match writes"
+            echo "$HANDSHAKE"
+            exit 1
+          }
+          echo "✓ call + marketplace + handshake verified"
 
       - name: Protocol marketplace listing
         run: |
