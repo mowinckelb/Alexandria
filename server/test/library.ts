@@ -187,21 +187,15 @@ async function main() {
   // -----------------------------------------------------------------------
   console.log('\nPhase 3: Authenticated operations');
 
-  await test('Author settings update works', async () => {
-    const res = await fetch(`${BASE}/library/settings`, {
+  await test('Protocol file publish works', async () => {
+    const res = await fetch(`${BASE}/file/test-check`, {
       method: 'PUT',
       headers,
-      body: JSON.stringify({ bio: 'test bio — lifecycle check' }),
+      body: JSON.stringify({ content: '# Test\nLibrary test file.', text: 'test' }),
     });
     const body = await res.json() as { ok: boolean };
-    // Restore original bio
-    await fetch(`${BASE}/library/settings`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({ bio: '' }),
-    });
     return {
-      test: 'Settings update',
+      test: 'Protocol file publish',
       passed: res.ok && body.ok,
       details: `HTTP ${res.status}`,
     };
@@ -221,34 +215,22 @@ async function main() {
     };
   });
 
-  await test('Hooks payload returns signed bash', async () => {
-    const res = await fetch(`${BASE}/hooks/payload`);
-    const sig = res.headers.get('x-hooks-signature');
-    const body = await res.text();
-    const isBash = body.includes('MODE=') || body.includes('ALEX_DIR=');
-    return {
-      test: 'Hooks payload',
-      passed: res.ok && !!sig && isBash,
-      details: `HTTP ${res.status}, signed: ${!!sig}, bash: ${isBash}, size: ${body.length}`,
-    };
-  });
-
   // -----------------------------------------------------------------------
   // PHASE 4: Access control edge cases
   // -----------------------------------------------------------------------
   console.log('\nPhase 4: Access control');
 
-  await test('Blueprint rejects no auth', async () => {
-    const res = await fetch(`${BASE}/blueprint`);
+  await test('Protocol file rejects no auth', async () => {
+    const res = await fetch(`${BASE}/file/test`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{"content":"test"}' });
     return {
-      test: 'Blueprint no auth',
+      test: 'Protocol file no auth',
       passed: res.status === 401,
       details: `HTTP ${res.status}`,
     };
   });
 
-  await test('Factory signal rejects no auth', async () => {
-    const res = await fetch(`${BASE}/factory/signal`, {
+  await test('Marketplace signal rejects no auth', async () => {
+    const res = await fetch(`${BASE}/marketplace/signal`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ signal: 'test' }),

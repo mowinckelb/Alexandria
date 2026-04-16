@@ -191,7 +191,14 @@ echo "═══ Phase 4: Session-start hook ═══"
 
 # Seed a test constitution so the hook has something to inject
 mkdir -p "$HOME/.alexandria/constitution"
-echo "Test Author believes in first principles thinking." > "$HOME/.alexandria/constitution/test.md"
+cat > "$HOME/.alexandria/constitution/test.md" << 'CONSTITUTION_TEST'
+Test Author believes in first principles thinking.
+They prefer simple systems over ornate abstractions.
+When tradeoffs appear, they optimize for clarity, speed, and direct customer truth.
+They want concrete execution and short feedback loops.
+They dislike process theater and default to deletion before addition.
+CONSTITUTION_TEST
+touch "$HOME/.alexandria/.block_complete"
 
 # Run the shim exactly as Claude Code would
 SESSION_START_OUTPUT=$(bash "$HOME/.alexandria/hooks/shim.sh" session-start 2>&1)
@@ -202,10 +209,9 @@ check_output "constitution injected"     "AUTHOR CONTEXT"        "$SESSION_START
 check_output "test content present"      "first principles"      "$SESSION_START_OUTPUT"
 check "hooks_payload cached"             [ -f "$HOME/.alexandria/.hooks_payload" ]
 check "hooks_payload non-empty"          [ -s "$HOME/.alexandria/.hooks_payload" ]
-check "blueprint cached"                 [ -f "$HOME/.alexandria/.blueprint_local" ]
-BP_SIZE=$(wc -c < "$HOME/.alexandria/.blueprint_local" 2>/dev/null | tr -d ' ' || echo 0)
-check "blueprint non-trivial"            [ "${BP_SIZE:-0}" -gt 100 ]
-check "blueprint hash cached"            [ -f "$HOME/.alexandria/.blueprint_hash" ]
+check "canon cached"                     [ -f "$HOME/.alexandria/.canon_local" ]
+CANON_SIZE=$(wc -c < "$HOME/.alexandria/.canon_local" 2>/dev/null | tr -d ' ' || echo 0)
+check "canon non-trivial"               [ "${CANON_SIZE:-0}" -gt 100 ]
 
 # ═══════════════════════════════════════════════════════════
 # Phase 5 — Session-end hook execution

@@ -1,6 +1,6 @@
 /**
  * HTML templates — shared across modules.
- * Extracted to break circular dependency between prosumer.ts and billing.ts.
+ * Callback page HTML for OAuth signup flow.
  */
 
 function getServerUrl() { return process.env.SERVER_URL || 'https://mcp.mowinckel.ai'; }
@@ -23,7 +23,7 @@ export function callbackPageHtml(login: string, apiKey: string): string {
   const SERVER_URL = getServerUrl();
   const WEBSITE_URL = getWebsiteUrl();
   const isReturning = !apiKey;
-  const curlCmd = isReturning ? '' : `curl -s ${SERVER_URL}/setup | bash -s ${apiKey}`;
+  const curlCmd = isReturning ? '' : `curl -sSL https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/setup.sh | bash -s -- ${apiKey}`;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -153,7 +153,7 @@ function copyCmd(el) {
   navigator.clipboard.writeText(${JSON.stringify(curlCmd)}).then(function() { flash(el); });
 }
 function copyBlock(el) {
-  fetch('${SERVER_URL}/block').then(function(r) { return r.text(); }).then(function(text) {
+  fetch('https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/block.md').then(function(r) { return r.text(); }).then(function(text) {
     navigator.clipboard.writeText(text).then(function() { flash(el); });
   });
 }

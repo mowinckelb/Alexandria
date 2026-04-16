@@ -8,6 +8,10 @@ const SLIDER_MIN = 2;
 const SLIDER_MAX = 20;
 const SLIDER_DEFAULT = 2;
 
+function clampAmount(value: number): number {
+  return Math.min(SLIDER_MAX, Math.max(SLIDER_MIN, value));
+}
+
 export default function ShadowCheckoutPage({ params }: { params: Promise<{ author: string }> }) {
   const [authorId, setAuthorId] = useState('');
   const [authorName, setAuthorName] = useState('');
@@ -25,10 +29,11 @@ export default function ShadowCheckoutPage({ params }: { params: Promise<{ autho
         .then(r => r.json())
         .then(data => {
           setAuthorName(data.author?.display_name || author);
-          let settings: Record<string, any> = {};
+          let settings: Record<string, unknown> = {};
           try { settings = JSON.parse(data.author?.settings || '{}'); } catch {}
-          if (settings.paid_price_cents) {
-            setAmount(Math.round(settings.paid_price_cents / 100));
+          const paidPriceCents = typeof settings.paid_price_cents === 'number' ? settings.paid_price_cents : 0;
+          if (paidPriceCents > 0) {
+            setAmount(clampAmount(Math.round(paidPriceCents / 100)));
           }
           setPageLoading(false);
         })
@@ -94,19 +99,16 @@ export default function ShadowCheckoutPage({ params }: { params: Promise<{ autho
 
         <input
           type="range"
-          min={0}
+          min={SLIDER_MIN}
           max={SLIDER_MAX}
           step={1}
           value={amount}
-          onChange={e => {
-            const v = parseInt(e.target.value, 10);
-            setAmount(v < SLIDER_MIN ? SLIDER_MIN : v);
-          }}
+          onChange={e => setAmount(clampAmount(parseInt(e.target.value, 10)))}
           className="w-full patron-slider"
           style={{ margin: '0 0 0.3rem' }}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6rem', color: 'var(--text-ghost)' }}>
-          <span>$0</span>
+          <span>${SLIDER_MIN}</span>
           <span>${SLIDER_MAX}</span>
         </div>
         <p style={{ fontSize: '0.65rem', color: 'var(--text-ghost)', margin: '0.5rem 0 0' }}>pay what you want. most of it goes to the author.</p>

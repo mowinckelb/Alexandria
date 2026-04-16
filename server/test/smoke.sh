@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Post-deploy smoke test for mcp.mowinckel.ai
-# Pure bash, no dependencies beyond curl.
+# Post-deploy smoke test — hits live production endpoints.
+# Tests the product from the outside, not the code from the inside.
 
 export MSYS_NO_PATHCONV=1
 
@@ -8,7 +8,7 @@ BASE="https://mcp.mowinckel.ai"
 API_KEY_FILE="$HOME/.alexandria/.api_key"
 PASSED=0
 FAILED=0
-TOTAL=4
+TOTAL=5
 
 check() {
   local name="$1" status="$2"
@@ -24,7 +24,6 @@ check() {
   fi
 }
 
-# Read API key
 if [ ! -f "$API_KEY_FILE" ]; then
   echo "[smoke] ABORT — no API key at $API_KEY_FILE"
   exit 1
@@ -41,29 +40,52 @@ else
   check "health" "${health_status:-0}"
 fi
 
-# 2. Blueprint
-bp_out=$(curl -sS -w "\n%{http_code}" -H "Authorization: Bearer $API_KEY" "$BASE/blueprint" 2>&1) || true
-bp_status=$(echo "$bp_out" | tail -1)
-bp_body=$(echo "$bp_out" | sed '$d')
-if [ "$bp_status" = "200" ] && echo "$bp_body" | grep -qi "BLUEPRINT"; then
-  check "blueprint" 200
+# 2. Protocol handshake
+proto_out=$(curl -sS -w "\n%{http_code}" "$BASE/alexandria" 2>&1) || true
+proto_status=$(echo "$proto_out" | tail -1)
+proto_body=$(echo "$proto_out" | sed '$d')
+if [ "$proto_status" = "200" ] && echo "$proto_body" | grep -q '"protocol":"alexandria"'; then
+  check "protocol" 200
 else
-  check "blueprint" "${bp_status:-0}"
+  check "protocol" "${proto_status:-0}"
 fi
 
-# 3. Hooks
-hooks_out=$(curl -sS -w "\n%{http_code}" -H "Authorization: Bearer $API_KEY" "$BASE/hooks" 2>&1) || true
-hooks_status=$(echo "$hooks_out" | tail -1)
-check "hooks" "${hooks_status:-0}"
-
-# 4. Session (POST)
-session_out=$(curl -sS -w "\n%{http_code}" -X POST \
+# 3. Protocol file publish + read
+put_out=$(curl -sS -w "\n%{http_code}" -X PUT \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"event":"smoke_test"}' \
-  "$BASE/session" 2>&1) || true
-session_status=$(echo "$session_out" | tail -1)
-check "session" "${session_status:-0}"
+  -d '{"content":"# smoke test\nverification.","text":"smoke"}' \
+  "$BASE/file/smoke-test" 2>&1) || true
+put_status=$(echo "$put_out" | tail -1)
+if [ "$put_status" = "200" ]; then
+  check "file" 200
+else
+  check "file" "${put_status:-0}"
+fi
+
+# 4. Protocol call
+call_out=$(curl -sS -w "\n%{http_code}" -X POST \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"modules":["canon/axioms","canon/methodology"]}' \
+  "$BASE/call" 2>&1) || true
+call_status=$(echo "$call_out" | tail -1)
+call_body=$(echo "$call_out" | sed '$d')
+if [ "$call_status" = "200" ] && echo "$call_body" | grep -q '"ok":true'; then
+  check "call" 200
+else
+  check "call" "${call_status:-0}"
+fi
+
+# 5. Company Library
+library_out=$(curl -sS -w "\n%{http_code}" "$BASE/library/authors" 2>&1) || true
+library_status=$(echo "$library_out" | tail -1)
+library_body=$(echo "$library_out" | sed '$d')
+if [ "$library_status" = "200" ] && echo "$library_body" | grep -q '"authors"'; then
+  check "library" 200
+else
+  check "library" "${library_status:-0}"
+fi
 
 # Summary
 echo ""

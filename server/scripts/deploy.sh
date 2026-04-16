@@ -1,108 +1,30 @@
 #!/usr/bin/env bash
-# Signed deploy: build → deploy → fetch Blueprint → sign locally → set secret.
-# The secret takes effect immediately — no second deploy needed.
-# Private key: ~/.alexandria-deploy/blueprint.key (never on server)
-set -e
+# Deploy: migrations → deploy → verify health.
+set -euo pipefail
 
 SERVER_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-KEY_FILE="$HOME/.alexandria-deploy/blueprint.key"
 SERVER_URL="https://mcp.mowinckel.ai"
-
-if [ ! -f "$KEY_FILE" ]; then
-  echo "ERROR: Signing key not found at $KEY_FILE"
-  echo "Generate one: node scripts/keygen.js"
-  exit 1
-fi
 
 cd "$SERVER_DIR"
 
+DB_NAME=$(grep -m1 '^database_name = ' wrangler.toml | cut -d'"' -f2 || true)
+if [ -n "${DB_NAME:-}" ]; then
+  echo "Applying D1 migrations ($DB_NAME)..."
+  npx wrangler d1 migrations apply "$DB_NAME" --remote
+  sleep 2
+fi
+
 echo "Deploying..."
-npx wrangler deploy 2>&1 | grep -E "Uploaded|Deployed|Version"
+npx wrangler deploy
 sleep 2
 
-# Bust Blueprint KV cache so the signing fetch gets the fresh version
-KV_NS=$(grep -A1 'binding = "DATA"' wrangler.toml | grep id | cut -d'"' -f2)
-for key in blueprint:base:cached blueprint:base:hash blueprint:cached; do
-  echo y | npx wrangler kv key delete "$key" --namespace-id="$KV_NS" 2>/dev/null || true
-done
+HEALTH=$(curl -s "$SERVER_URL/health" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).status))" 2>/dev/null || echo "unknown")
 
-echo "Signing Blueprint + Hooks Payload..."
-FOUNDER_KEY=$(cat "$HOME/.alexandria/.api_key" 2>/dev/null)
-if [ -z "$FOUNDER_KEY" ]; then echo "ERROR: No API key at ~/.alexandria/.api_key"; exit 1; fi
-
-# Resolve to absolute Windows path for Node compatibility
-KEY_FILE_ABS=$(cd "$(dirname "$KEY_FILE")" 2>/dev/null && pwd)/$(basename "$KEY_FILE")
-
-sign_content() {
-  echo -n "$1" | node -e "
-    const crypto = require('crypto'), fs = require('fs');
-    const key = crypto.createPrivateKey(fs.readFileSync(process.argv[1]));
-    let d = ''; process.stdin.on('data', c => d += c);
-    process.stdin.on('end', () => process.stdout.write(crypto.sign(null, Buffer.from(d), key).toString('hex')));
-  " "$KEY_FILE_ABS"
-}
-
-# Sign Blueprint
-BP_TEXT=$(curl -s "$SERVER_URL/blueprint" -H "Authorization: Bearer $FOUNDER_KEY")
-BP_LEN=$(echo -n "$BP_TEXT" | wc -c | tr -d ' ')
-if [ "$BP_LEN" -lt 100 ]; then echo "ERROR: Blueprint too short ($BP_LEN bytes)"; exit 1; fi
-BP_SIG=$(sign_content "$BP_TEXT")
-echo "$BP_SIG" | npx wrangler secret put BLUEPRINT_SIGNATURE 2>&1 | tail -1
-
-# Sign Hooks Payload
-HP_TEXT=$(curl -s "$SERVER_URL/hooks/payload")
-HP_LEN=$(echo -n "$HP_TEXT" | wc -c | tr -d ' ')
-if [ "$HP_LEN" -lt 100 ]; then echo "ERROR: Hooks payload too short ($HP_LEN bytes)"; exit 1; fi
-HP_SIG=$(sign_content "$HP_TEXT")
-echo "$HP_SIG" | npx wrangler secret put HOOKS_PAYLOAD_SIGNATURE 2>&1 | tail -1
-
-# Verify — full client-side signature check (same flow as the shim)
-# Secrets need propagation time — retry with backoff
-PUB_KEY=$(grep BLUEPRINT_PUBLIC_KEY wrangler.toml | cut -d'"' -f2)
-
-verify_sig() {
-  local content="$1" sig="$2"
-  echo -n "$content" | node -e "
-    const crypto = require('crypto');
-    const pubKey = crypto.createPublicKey({ key: Buffer.from('$PUB_KEY','hex'), format:'der', type:'spki' });
-    const sig = Buffer.from('$sig','hex');
-    let d=''; process.stdin.on('data',c=>d+=c);
-    process.stdin.on('end',()=>console.log(crypto.verify(null,Buffer.from(d),pubKey,sig)?'VALID':'INVALID'));
-  " 2>/dev/null
-}
-
-for attempt in 1 2 3; do
-  sleep $((attempt * 5))
-
-  BP_SIG_HEADER=$(curl -sI "$SERVER_URL/blueprint" -H "Authorization: Bearer $FOUNDER_KEY" | grep -i "x-blueprint-signature" | tr -d '\r' | cut -d' ' -f2)
-  BP_VERIFY_TEXT=$(curl -s "$SERVER_URL/blueprint" -H "Authorization: Bearer $FOUNDER_KEY")
-  BP_VERIFIED=$(verify_sig "$BP_VERIFY_TEXT" "$BP_SIG_HEADER")
-
-  HP_SIG_HEADER=$(curl -sI "$SERVER_URL/hooks/payload" | grep -i "x-hooks-signature" | tr -d '\r' | cut -d' ' -f2)
-  HP_VERIFY_TEXT=$(curl -s "$SERVER_URL/hooks/payload")
-  HP_VERIFIED=$(verify_sig "$HP_VERIFY_TEXT" "$HP_SIG_HEADER")
-
-  if [ "$BP_VERIFIED" = "VALID" ] && [ "$HP_VERIFIED" = "VALID" ]; then
-    break
-  fi
-  echo "Attempt $attempt: signatures not yet valid, retrying..."
-done
-
-HEALTH=$(curl -s "$SERVER_URL/health" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).status))")
-
-echo "Blueprint: $BP_LEN bytes signed"
-echo "Signature: $BP_VERIFIED"
-echo "Hooks payload: $HP_LEN bytes signed"
-echo "Hooks signature: $HP_VERIFIED"
+echo ""
 echo "Health: $HEALTH"
+if [ "$HEALTH" != "ok" ]; then
+  echo "WARNING: Health check returned $HEALTH"
+fi
 
-if [ "$BP_VERIFIED" != "VALID" ]; then
-  echo "ERROR: Blueprint signature verification failed after 3 attempts"
-  exit 1
-fi
-if [ "$HP_VERIFIED" != "VALID" ]; then
-  echo "ERROR: Hooks payload signature verification failed after 3 attempts"
-  exit 1
-fi
 echo ""
 echo "Run smoke tests: bash test/smoke.sh"

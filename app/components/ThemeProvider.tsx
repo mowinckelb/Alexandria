@@ -22,48 +22,57 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
+const THEME_KEY = 'alexandria-theme';
+
+function getSystemTheme(): Theme {
+  if (typeof window === 'undefined') return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') return 'light';
+  try {
+    const stored = window.localStorage.getItem(THEME_KEY);
+    if (stored === 'light' || stored === 'dark') return stored;
+  } catch {
+    // Ignore storage errors and fall back to system preference.
+  }
+  return getSystemTheme();
+}
+
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>('light');
-  const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
-    // Always match system preference on load
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setTheme(prefersDark ? 'dark' : 'light');
-
-    // Listen for system theme changes (e.g. phone switches to dark mode)
+    // Follow system preference only when user has not chosen an override.
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = (e: MediaQueryListEvent) => setTheme(e.matches ? 'dark' : 'light');
+    const handler = (e: MediaQueryListEvent) => {
+      try {
+        const stored = window.localStorage.getItem(THEME_KEY);
+        if (stored === 'light' || stored === 'dark') return;
+      } catch {
+        // Ignore storage errors and continue with system updates.
+      }
+      setTheme(e.matches ? 'dark' : 'light');
+    };
     mq.addEventListener('change', handler);
-
-    setMounted(true);
     return () => mq.removeEventListener('change', handler);
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
     const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }, [theme, mounted]);
+    root.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
 
   const toggleTheme = () => {
-    const root = document.documentElement;
     const newTheme = theme === 'light' ? 'dark' : 'light';
-    if (newTheme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+    try {
+      window.localStorage.setItem(THEME_KEY, newTheme);
+    } catch {
+      // Ignore storage errors; in-memory toggle still works.
     }
     setTheme(newTheme);
   };
-
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

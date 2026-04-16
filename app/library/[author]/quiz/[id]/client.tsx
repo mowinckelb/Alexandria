@@ -23,6 +23,16 @@ interface QuizResult {
   share_url: string;
 }
 
+function isQuizResult(value: unknown): value is QuizResult {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<QuizResult>;
+  return typeof candidate.score_pct === 'number'
+    && typeof candidate.correct === 'number'
+    && typeof candidate.total === 'number'
+    && typeof candidate.result_slug === 'string'
+    && typeof candidate.share_url === 'string';
+}
+
 export default function QuizPageClient({ params }: { params: Promise<{ author: string; id: string }> }) {
   const [authorId, setAuthorId] = useState('');
   const [quizId, setQuizId] = useState('');
@@ -33,6 +43,7 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
   const [result, setResult] = useState<QuizResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -75,14 +86,38 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
   const submitWithAnswers = async (finalAnswers: Record<string, string>) => {
     if (!quiz || submitting) return;
     setSubmitting(true);
+    setSubmitError('');
     try {
       const res = await fetch(`${SERVER_URL}/library/${authorId}/quiz/${quizId}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers: finalAnswers, skipped: Array.from(skipped) }),
       });
-      setResult(await res.json());
+      const raw = await res.text();
+      let parsed: unknown = null;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        parsed = null;
+      }
+
+      if (!res.ok) {
+        const message = parsed && typeof parsed === 'object' && 'error' in parsed
+          ? String((parsed as { error?: string }).error || 'could not submit quiz')
+          : 'could not submit quiz';
+        setSubmitError(message);
+        return;
+      }
+
+      if (!isQuizResult(parsed)) {
+        setSubmitError('invalid quiz result');
+        return;
+      }
+
+      setResult(parsed);
     } catch {
+      setSubmitError('could not submit quiz');
+    } finally {
       setSubmitting(false);
     }
   };
@@ -91,9 +126,15 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
 
   const shareResult = () => {
     if (!result) return;
-    navigator.clipboard.writeText(`${window.location.origin}${result.share_url}?ref=quiz_share`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard
+      .writeText(`${window.location.origin}${result.share_url}?ref=quiz_share`)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        setCopied(false);
+      });
   };
 
   if (loading) return (
@@ -135,9 +176,14 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
         )}
 
         <div style={{ margin: '3rem 0 0' }}>
-          <a onClick={shareResult} style={{ color: 'var(--text-primary)', textDecoration: 'none', cursor: 'pointer', fontSize: '0.95rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
+          <button
+            type="button"
+            onClick={shareResult}
+            style={{ color: 'var(--text-primary)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.95rem', transition: 'opacity 0.15s' }}
+            className="hover:opacity-60"
+          >
             {copied ? 'link copied' : 'share'}
-          </a>
+          </button>
         </div>
 
         <div style={{ margin: '3rem 0 0', display: 'flex', flexDirection: 'column', gap: '1.2rem', alignItems: 'center' }}>
@@ -272,6 +318,12 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
             skip
           </span>
         </div>
+
+        {submitError ? (
+          <p style={{ marginTop: '1rem', fontSize: '0.75rem', color: 'var(--text-whisper)' }}>
+            {submitError}
+          </p>
+        ) : null}
 
       </main>
     </>

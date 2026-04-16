@@ -1,22 +1,49 @@
 /**
  * Alexandria Server — Cloudflare Workers entry point
  *
- * Stateless server implementing the Blueprint — Alexandria's layer of intent.
- * Serves methodology to prosumer hooks. Stores nothing user-specific.
+ * Stateless server implementing the Alexandria protocol.
+ * Protocol + company routes. Stores nothing user-specific.
  */
 
 import { Hono } from 'hono';
-import { registerProsumerRoutes, extractApiKey, findByApiKey, updateAccountBilling, getBillingSummary, runFollowupCheck, runEngagementCheck, runHealthDigest } from './prosumer.js';
-import { registerBillingRoutes, settleMonthlyTabs } from './billing.js';
+import { extractApiKey, findByApiKey } from './auth.js';
+import { updateAccountBilling, getBillingSummary } from './accounts.js';
+import { runFollowupCheck, runEngagementCheck, runHealthDigest } from './cron.js';
+import { registerProtocol } from './protocol.js';
+import { registerRoutes } from './routes.js';
+import { registerBillingRoutes, settleMonthlyTabs, recalculateAllKinPricing } from './billing.js';
 import { registerLibraryRoutes } from './library.js';
-import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, flushEvents, archiveFactorySignals } from './analytics.js';
+import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, flushEvents, archiveMarketplaceSignals } from './analytics.js';
 import { setKV, getKV } from './kv.js';
+import { getAllowedOrigins } from './cors.js';
 
 // ---------------------------------------------------------------------------
 // Hono app
 // ---------------------------------------------------------------------------
 
 const app = new Hono();
+
+app.onError((err, c) => {
+  const status = typeof (err as any).status === 'number'
+    ? (err as any).status
+    : 500;
+  const path = new URL(c.req.url).pathname;
+  const method = c.req.method;
+
+  if (status >= 500) {
+    const errorName = err instanceof Error ? err.name : 'Error';
+    logEvent('server_error', {
+      method,
+      path,
+      status: String(status),
+      error_name: errorName.slice(0, 80),
+    });
+    console.error(`[server_error] ${method} ${path}`, err);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
+
+  return c.json({ error: 'Request failed' }, status as any);
+});
 
 // Bind Worker env → process.env + KV/D1/R2 globals
 function initEnv(env: Record<string, unknown>) {
@@ -57,11 +84,7 @@ app.use('*', async (c, next) => {
   await next();
 });
 
-// Allowed CORS origins (single source of truth)
-function getAllowedOrigins(): string[] {
-  const base = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-  return [base, base.replace('https://', 'https://www.'), 'http://localhost:3000'];
-}
+// Allowed CORS origins — imported from cors.ts (single source of truth)
 
 // CORS for Library API (website at mowinckel.ai calls server at mcp.mowinckel.ai)
 app.use('/library/*', async (c, next) => {
@@ -81,10 +104,16 @@ app.use('/library/*', async (c, next) => {
 });
 
 // ---------------------------------------------------------------------------
-// Prosumer API — hooks + local files + Blueprint
+// Protocol — the incompressible core (file, call, library, marketplace)
 // ---------------------------------------------------------------------------
 
-registerProsumerRoutes(app);
+registerProtocol(app);
+
+// ---------------------------------------------------------------------------
+// Company — OAuth, session, admin
+// ---------------------------------------------------------------------------
+
+registerRoutes(app);
 
 // ---------------------------------------------------------------------------
 // Billing — Stripe subscription management (conditional)
@@ -133,10 +162,10 @@ app.get('/health', async (c) => {
     } else {
       components.r2 = 'not_bound';
     }
-  } catch { components.r2 = 'ok'; } // head returns null for missing key, not error
+  } catch { components.r2 = 'error'; } // head() on missing keys returns null, not throw
 
   // Env var validation — log details server-side, don't expose var names publicly
-  const requiredEnvVars = ['ENCRYPTION_KEY', 'STRIPE_WEBHOOK_SECRET', 'GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET'];
+  const requiredEnvVars = ['ENCRYPTION_KEY', 'STRIPE_WEBHOOK_SECRET', 'GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET', 'STRIPE_SECRET_KEY', 'RESEND_API_KEY'];
   const missingEnv = requiredEnvVars.filter(k => !process.env[k]);
   components.env = missingEnv.length === 0 ? 'ok' : 'error';
   if (missingEnv.length > 0) {
@@ -253,16 +282,17 @@ app.get('/favicon.png', (c) => c.redirect('https://mowinckel.ai/favicon.png', 30
 // Analytics endpoints
 // ---------------------------------------------------------------------------
 
-// Auth gate for analytics — require valid API key
-async function requireAuth(c: any, next: any) {
+// Auth gate for analytics
+async function analyticsAuth(c: any, next: any) {
   const key = extractApiKey(c);
   if (!key) return c.json({ error: 'Unauthorized' }, 401);
   const account = await findByApiKey(key);
   if (!account) return c.json({ error: 'Unauthorized' }, 401);
+  c.set('account', account);
   await next();
 }
-app.use('/analytics', requireAuth);
-app.use('/analytics/*', requireAuth);
+app.use('/analytics', analyticsAuth);
+app.use('/analytics/*', analyticsAuth);
 
 app.get('/analytics', async (c) => {
   return c.json(getAnalytics());
@@ -287,8 +317,22 @@ app.get('/analytics/user/:login', async (c) => {
 });
 
 app.post('/analytics/test-digest', async (c) => {
+  const adminLogin = process.env.ADMIN_GITHUB_LOGIN || '';
+  const account = (c as any).get('account') as { github_login?: string } | undefined;
+  if (!account?.github_login || !adminLogin || account.github_login !== adminLogin) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
   await runHealthDigest(true);
   return c.json({ ok: true, message: 'Health digest sent (forced).' });
+});
+
+app.notFound((c) => {
+  const path = new URL(c.req.url).pathname;
+  const criticalPaths = new Set(['/alexandria', '/marketplace/signal']);
+  if (criticalPaths.has(path)) {
+    logEvent('server_not_found', { method: c.req.method, path });
+  }
+  return c.text('404 Not Found', 404);
 });
 
 // ---------------------------------------------------------------------------
@@ -303,7 +347,7 @@ export default {
     initEnv(env);
     // Daily cron (0 9 * * *) + monthly settlement (0 2 1 * *)
     // Settlement + engagement are idempotent so running on every cron trigger is safe
-    await Promise.all([runFollowupCheck(), runEngagementCheck(), runHealthDigest(), settleMonthlyTabs(), archiveFactorySignals()]);
+    await Promise.all([runFollowupCheck(), runEngagementCheck(), runHealthDigest(), settleMonthlyTabs(), recalculateAllKinPricing(), archiveMarketplaceSignals()]);
     ctx.waitUntil(flushEvents());
   },
 };

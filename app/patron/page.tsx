@@ -10,6 +10,7 @@ const SLIDER_DEFAULT = 20;
 
 export default function PatronPage() {
   const [amount, setAmount] = useState(SLIDER_DEFAULT);
+  const [error, setError] = useState('');
 
   const handleSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAmount(parseInt(e.target.value, 10));
@@ -19,14 +20,31 @@ export default function PatronPage() {
 
   const handlePatron = async () => {
     setLoading(true);
-    const res = await fetch('/api/patron', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount }),
-    });
-    const { url } = await res.json();
-    if (url) window.location.href = url;
-    setLoading(false);
+    setError('');
+    try {
+      const res = await fetch('/api/patron', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount }),
+      });
+
+      const body = await res.json().catch(() => ({} as { url?: string; error?: string }));
+      if (!res.ok) {
+        setError(body.error || 'checkout failed');
+        return;
+      }
+
+      if (body.url) {
+        window.location.href = body.url;
+        return;
+      }
+
+      setError('checkout failed');
+    } catch {
+      setError('could not start checkout');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -83,6 +101,11 @@ export default function PatronPage() {
             >
               {loading ? '...' : `become a patron \u2014 $${amount}/mo`}
             </button>
+            {error ? (
+              <p className="mt-3 text-[0.75rem]" style={{ color: 'var(--text-whisper)' }}>
+                {error}
+              </p>
+            ) : null}
 
           </div>
         </div>

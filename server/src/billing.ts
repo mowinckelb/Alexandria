@@ -11,18 +11,34 @@ import Stripe from 'stripe';
 import type { Hono } from 'hono';
 import { logEvent } from './analytics.js';
 import { callbackPageHtml } from './templates.js';
-import { extractApiKey, findByApiKey } from './prosumer.js';
+import { hashApiKey } from './crypto.js';
+import { requireAuth } from './auth.js';
+import { loadAccounts, getKV } from './kv.js';
+import { getDB } from './db.js';
 
 // ---------------------------------------------------------------------------
 // Stripe client — lazy init (needs env to be populated)
 // ---------------------------------------------------------------------------
 
 let _stripe: Stripe | null = null;
-function getStripe(): Stripe {
+export function getStripe(): Stripe {
   if (!_stripe) {
     _stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
   }
   return _stripe;
+}
+
+// ---------------------------------------------------------------------------
+// Invoice → subscription ID extraction (Stripe nests this differently by event)
+// ---------------------------------------------------------------------------
+
+function extractSubscriptionId(invoice: Stripe.Invoice): string | null {
+  const subDetails = invoice.parent?.subscription_details;
+  if (typeof subDetails?.subscription === 'string') return subDetails.subscription;
+  if (subDetails?.subscription?.id) return subDetails.subscription.id;
+  // Legacy: older Stripe API versions put subscription directly on the invoice
+  if (typeof (invoice as any).subscription === 'string') return (invoice as any).subscription;
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -33,6 +49,70 @@ const KIN_THRESHOLD = parseInt(process.env.KIN_THRESHOLD || '5', 10);
 
 let _priceId: string | null = null;
 let _couponId: string | null = null;
+
+type BillingTabLedgerRow = {
+  accessorId: string;
+  authorId: string;
+  artifactType: string;
+  artifactId: string;
+  amountCents: number;
+  alexandriaCutCents: number;
+  authorCutCents: number;
+  month: string;
+  settled: 0 | 1;
+  createdAt: string;
+};
+
+async function insertBillingTabLedgerRow(db: D1Database, row: BillingTabLedgerRow): Promise<void> {
+  await db.prepare(
+    `INSERT INTO billing_tab (accessor_id, author_id, artifact_type, artifact_id, amount_cents, alexandria_cut_cents, author_cut_cents, month, settled, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(
+    row.accessorId,
+    row.authorId,
+    row.artifactType,
+    row.artifactId,
+    row.amountCents,
+    row.alexandriaCutCents,
+    row.authorCutCents,
+    row.month,
+    row.settled,
+    row.createdAt,
+  ).run();
+}
+
+async function shouldProcessStripeEvent(eventId: string): Promise<boolean> {
+  // Primary dedupe path: atomic D1 insert-or-ignore.
+  try {
+    const db = getDB();
+    const now = new Date().toISOString();
+    const result = await db.prepare(
+      `INSERT OR IGNORE INTO stripe_webhook_events (id, processed_at) VALUES (?, ?)`
+    ).bind(eventId, now).run();
+    const inserted = ((result as unknown as { meta?: { changes?: number } }).meta?.changes || 0) > 0;
+    if (!inserted) return false;
+
+    // Keep dedupe table bounded.
+    const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+    await db.prepare(`DELETE FROM stripe_webhook_events WHERE processed_at < ?`).bind(cutoff).run();
+    return true;
+  } catch (e) {
+    console.warn('[billing] D1 webhook dedupe unavailable, falling back to KV:', e);
+  }
+
+  // Fallback dedupe path: KV marker.
+  try {
+    const kv = getKV();
+    const eventKey = `stripe:event:${eventId}`;
+    const alreadyProcessed = await kv.get(eventKey);
+    if (alreadyProcessed) return false;
+    await kv.put(eventKey, '1', { expirationTtl: 86400 }); // 24h TTL
+  } catch (e) {
+    console.warn('[billing] KV dedupe unavailable, proceeding without dedupe:', e);
+  }
+
+  return true;
+}
 
 async function ensurePrice(): Promise<string> {
   if (_priceId) return _priceId;
@@ -90,40 +170,89 @@ async function ensureKinCoupon(): Promise<string> {
 // Kin — count active kin for a user, recalculate subscription
 // ---------------------------------------------------------------------------
 
-export async function countActiveKin(githubLogin: string): Promise<number> {
-  if (!githubLogin) return 0;
+export async function countActiveKin(githubLogin: string, preloadedAccounts?: Record<string, any>): Promise<{ count: number; compliant: number }> {
+  if (!githubLogin) return { count: 0, compliant: 0 };
 
   // Find who this user referred (from D1 referrals table)
-  const { getDB } = await import('./db.js');
   const db = getDB();
   const { results } = await db.prepare(
     `SELECT referred_github_login FROM referrals WHERE author_id = ?`
   ).bind(githubLogin).all<{ referred_github_login: string }>();
 
-  if (!results || results.length === 0) return 0;
+  if (!results || results.length === 0) return { count: 0, compliant: 0 };
 
-  // Kin must be paying subscribers — unfakeable via burner accounts
-  const { loadAccounts } = await import('./kv.js');
-  const accounts = await loadAccounts<Record<string, any>>();
-  let active = 0;
+  const kinLogins = results.map(r => r.referred_github_login).filter(Boolean);
+  if (kinLogins.length === 0) return { count: 0, compliant: 0 };
 
-  for (const row of results) {
-    const kinAccount = Object.values(accounts).find((a: any) => a.github_login === row.referred_github_login);
-    if (kinAccount && (kinAccount as any).subscription_id) active++;
+  // Compliant kin = meets all three obligations this month:
+  // 1. Account exists (they have an account)
+  // 2. File edited this month (shadow updated in current month)
+  // 3. Call made this month (protocol_calls table)
+  const accounts = preloadedAccounts || await loadAccounts<Record<string, any>>();
+  const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+
+  // Batch D1 query for file freshness — one query for all kin
+  const placeholders = kinLogins.map(() => '?').join(',');
+  const { results: shadows } = await db.prepare(
+    `SELECT author_id, MAX(updated_at) as last_edit FROM shadows WHERE author_id IN (${placeholders}) GROUP BY author_id`
+  ).bind(...kinLogins).all<{ author_id: string; last_edit: string }>();
+  const fileEdits = new Map((shadows || []).map(s => [s.author_id, s.last_edit]));
+
+  // Build login→github_id map for kin that have accounts
+  const kinWithAccounts: { login: string; githubId: string }[] = [];
+  for (const login of kinLogins) {
+    const kinAccount = Object.values(accounts).find((a: any) => a.github_login === login);
+    if (!kinAccount) continue; // No account — not compliant
+    kinWithAccounts.push({ login, githubId: String((kinAccount as any).github_id) });
   }
 
-  return active;
+  if (kinWithAccounts.length === 0) return { count: kinLogins.length, compliant: 0 };
+
+  // Batch D1 query for protocol calls — one query for all kin
+  const callPlaceholders = kinWithAccounts.map(() => '?').join(',');
+  const monthStart = currentMonth + '-01';
+  const { results: callResults } = await db.prepare(
+    `SELECT DISTINCT account_id FROM protocol_calls WHERE account_id IN (${callPlaceholders}) AND time > ?`
+  ).bind(...kinWithAccounts.map(k => k.githubId), monthStart).all<{ account_id: string }>();
+  const hasCallSet = new Set((callResults || []).map(r => r.account_id));
+
+  let compliant = 0;
+  for (const { login, githubId } of kinWithAccounts) {
+    const hasCall = hasCallSet.has(githubId);
+    const lastEdit = fileEdits.get(login);
+    const hasFile = lastEdit?.startsWith(currentMonth);
+
+    if (hasCall && hasFile) compliant++;
+  }
+
+  return { count: kinLogins.length, compliant };
 }
 
-export async function recalculateKinPricing(githubLogin: string): Promise<void> {
+async function recalculateKinPricing(githubLogin: string, preloadedAccounts?: Record<string, any>): Promise<void> {
   // Find account by github_login
-  const { loadAccounts } = await import('./kv.js');
-  const accounts = await loadAccounts<Record<string, any>>();
+  const accounts = preloadedAccounts || await loadAccounts<Record<string, any>>();
   const user = Object.values(accounts).find((a: any) => a.github_login === githubLogin) as any;
   if (!user?.subscription_id) return;
 
-  const activeKin = await countActiveKin(githubLogin);
-  const shouldBeFree = activeKin >= KIN_THRESHOLD;
+  // Author must be compliant themselves (file + call this month) to get kin discount
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  let authorHasCall = false;
+  let authorHasFile = false;
+  try {
+    const db = getDB();
+    const callCheck = await db.prepare(
+      `SELECT 1 FROM protocol_calls WHERE account_id = ? AND time > ? LIMIT 1`
+    ).bind(String(user.github_id), currentMonth + '-01').first();
+    authorHasCall = !!callCheck;
+    const shadow = await db.prepare(
+      `SELECT MAX(updated_at) as last_edit FROM shadows WHERE author_id = ?`
+    ).bind(githubLogin).first<{ last_edit: string | null }>();
+    authorHasFile = !!shadow?.last_edit?.startsWith(currentMonth);
+  } catch { /* D1 unavailable — treat as non-compliant */ }
+  const authorCompliant = authorHasCall && authorHasFile;
+
+  const kinData = await countActiveKin(githubLogin, accounts);
+  const shouldBeFree = authorCompliant && kinData.compliant >= KIN_THRESHOLD;
 
   const stripe = getStripe();
   const sub = await stripe.subscriptions.retrieve(user.subscription_id);
@@ -137,10 +266,25 @@ export async function recalculateKinPricing(githubLogin: string): Promise<void> 
   if (shouldBeFree && !hasKinDiscount) {
     const couponId = await ensureKinCoupon();
     await stripe.subscriptions.update(user.subscription_id, { discounts: [{ coupon: couponId }] });
-    logEvent('kin_pricing_free', { github_login: user.github_login, active_kin: String(activeKin) });
+    logEvent('kin_pricing_free', { github_login: user.github_login, compliant_kin: String(kinData.compliant) });
   } else if (!shouldBeFree && hasKinDiscount) {
     await stripe.subscriptions.deleteDiscount(user.subscription_id);
-    logEvent('kin_pricing_paid', { github_login: user.github_login, active_kin: String(activeKin) });
+    logEvent('kin_pricing_paid', { github_login: user.github_login, compliant_kin: String(kinData.compliant) });
+  }
+}
+
+/** Recalculate kin pricing for all subscribed users. Called monthly by cron. */
+export async function recalculateAllKinPricing(): Promise<void> {
+  if (process.env.BETA_MODE === 'true') return; // No billing in beta
+  const accounts = await loadAccounts<Record<string, any>>();
+  for (const account of Object.values(accounts)) {
+    if ((account as any).subscription_id && (account as any).github_login) {
+      try {
+        await recalculateKinPricing((account as any).github_login, accounts);
+      } catch (err) {
+        console.error(`[kin] Recalculation failed for ${(account as any).github_login}:`, err);
+      }
+    }
   }
 }
 
@@ -167,7 +311,7 @@ export async function createCheckoutSession(opts: {
   const stripe = getStripe();
   const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
   const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-  const BETA = process.env.BETA_MODE !== 'false';
+  const BETA = process.env.BETA_MODE === 'true';
 
   const customer = opts.stripeCustomerId
     ? { customer: opts.stripeCustomerId }
@@ -273,14 +417,12 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
 
   // Portal — requires API key auth, uses account's own Stripe customer ID
   app.post('/billing/portal', async (c) => {
-    const key = extractApiKey(c);
-    if (!key) return c.json({ error: 'Missing API key' }, 401);
-    const account = await findByApiKey(key);
-    if (!account) return c.json({ error: 'Invalid API key' }, 401);
-    if (!account.stripe_customer_id) return c.json({ error: 'No billing account' }, 400);
+    const auth = await requireAuth(c);
+    if (!auth) return c.json({ error: 'Unauthorized' }, 401);
+    if (!auth.account.stripe_customer_id) return c.json({ error: 'No billing account' }, 400);
 
     try {
-      const url = await createPortalSession(account.stripe_customer_id);
+      const url = await createPortalSession(auth.account.stripe_customer_id);
       return c.json({ url });
     } catch (err) {
       console.error('Portal error:', err);
@@ -310,18 +452,9 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
     }
 
     // Idempotency — skip already-processed events
-    try {
-      const { getKV } = await import('./kv.js');
-      const kv = getKV();
-      const eventKey = `stripe:event:${event.id}`;
-      const alreadyProcessed = await kv.get(eventKey);
-      if (alreadyProcessed) {
-        return c.json({ received: true, deduplicated: true });
-      }
-      await kv.put(eventKey, '1', { expirationTtl: 86400 }); // 24h TTL
-    } catch {
-      // KV failure — proceed but log
-      console.warn('[billing] Event dedup check failed, proceeding anyway');
+    const shouldProcess = await shouldProcessStripeEvent(event.id);
+    if (!shouldProcess) {
+      return c.json({ received: true, deduplicated: true });
     }
 
     try {
@@ -334,31 +467,34 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
             const amountCents = session.amount_total || 0;
             const authorId = session.metadata?.author_id || '';
             const artifactType = session.metadata?.artifact_type || 'shadow';
+            const artifactId = session.metadata?.artifact_id || '';
+            const accessorId = session.metadata?.github_login || session.customer_email || 'anonymous';
             const cutRate = parseFloat(process.env.LIBRARY_CUT_PERCENT || '50') / 100;
             const alexandriaCut = Math.round(amountCents * cutRate);
             const authorCut = amountCents - alexandriaCut;
+            const createdAt = new Date().toISOString();
+            const month = createdAt.slice(0, 7);
 
             try {
-              const { getDB } = await import('./db.js');
-              const db = getDB();
-              await db.prepare(
-                `INSERT INTO billing_tab (accessor_id, author_id, artifact_type, amount_cents, alexandria_cut_cents, author_cut_cents, month, settled, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)`
-              ).bind(
-                session.customer_email || 'anonymous',
-                authorId, artifactType, amountCents, alexandriaCut, authorCut,
-                new Date().toISOString().slice(0, 7),
-                new Date().toISOString()
-              ).run();
+              await insertBillingTabLedgerRow(getDB(), {
+                accessorId,
+                authorId,
+                artifactType,
+                artifactId,
+                amountCents,
+                alexandriaCutCents: alexandriaCut,
+                authorCutCents: authorCut,
+                month,
+                settled: 1,
+                createdAt,
+              });
             } catch (e) {
               console.error('[billing] Library purchase tab entry failed:', e);
             }
 
             // Store access grant in KV (TTL 30 days)
             try {
-              const { getKV } = await import('./kv.js');
-              const kv = getKV();
-              await kv.put(`library:access:${session.id}`, JSON.stringify({
+              await getKV().put(`library:access:${session.id}`, JSON.stringify({
                 author_id: authorId,
                 artifact_type: artifactType,
                 artifact_id: session.metadata?.artifact_id || '',
@@ -419,11 +555,7 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
         case 'invoice.upcoming': {
           // Recalculate kin pricing ~3 days before billing
           const invoice = event.data.object as Stripe.Invoice;
-          const subDetails = invoice.parent?.subscription_details;
-          const subId = typeof subDetails?.subscription === 'string'
-            ? subDetails.subscription
-            : subDetails?.subscription?.id
-              || (typeof (invoice as any).subscription === 'string' ? (invoice as any).subscription : null);
+          const subId = extractSubscriptionId(invoice);
           if (subId) {
             try {
               const sub = await stripe.subscriptions.retrieve(subId);
@@ -443,28 +575,27 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
           const invoice = event.data.object as Stripe.Invoice;
           // Skip Library purchases and non-subscription invoices
           if (invoice.metadata?.library_purchase === 'true') break;
-          const subDetails = invoice.parent?.subscription_details;
-          const subId = typeof subDetails?.subscription === 'string'
-            ? subDetails.subscription
-            : subDetails?.subscription?.id
-              || (typeof (invoice as any).subscription === 'string' ? (invoice as any).subscription : null);
+          const subId = extractSubscriptionId(invoice);
           if (subId) {
             try {
               const sub = await stripe.subscriptions.retrieve(subId);
               const subLogin = sub.metadata?.github_login || sub.metadata?.api_key;
               if (subLogin) {
                 // Find account by login (primary) or api_key hash (legacy)
-                const { loadAccounts } = await import('./kv.js');
-                const accounts = await loadAccounts<Record<string, any>>();
-                const user = Object.values(accounts).find((a: any) =>
-                  a.github_login === subLogin || (subLogin.startsWith('alex_') && a.api_key_hash)
-                ) as any;
-                if (user?.email) {
-                  const activeKin = await countActiveKin(user.github_login);
+                type BillingAccount = { github_login?: string; api_key_hash?: string; email?: string };
+                const accounts = await loadAccounts<Record<string, BillingAccount>>();
+                const legacyKeyHash = subLogin.startsWith('alex_') ? hashApiKey(subLogin) : null;
+                const user = Object.values(accounts).find((account) => {
+                  if (account.github_login === subLogin) return true;
+                  if (legacyKeyHash) return account.api_key_hash === legacyKeyHash;
+                  return false;
+                });
+                if (user?.email && user.github_login) {
+                  const kinData = await countActiveKin(user.github_login);
                   const amountPaid = (invoice.amount_paid || 0) / 100;
-                  const kinNeeded = Math.max(0, KIN_THRESHOLD - activeKin);
-                  await sendKinReceiptEmail(user.email, user.github_login, amountPaid, activeKin, kinNeeded);
-                  logEvent('kin_receipt_sent', { github_login: user.github_login, active_kin: String(activeKin), amount: String(amountPaid) });
+                  const kinNeeded = Math.max(0, KIN_THRESHOLD - kinData.compliant);
+                  await sendKinReceiptEmail(user.email, user.github_login, amountPaid, kinData.compliant, kinNeeded);
+                  logEvent('kin_receipt_sent', { github_login: user.github_login, compliant_kin: String(kinData.compliant), amount: String(amountPaid) });
                 }
               }
             } catch (e) {
@@ -476,10 +607,7 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
 
         case 'invoice.payment_failed': {
           const invoice = event.data.object as Stripe.Invoice;
-          const subDetails = invoice.parent?.subscription_details;
-          const subId = typeof subDetails?.subscription === 'string'
-            ? subDetails.subscription
-            : subDetails?.subscription?.id;
+          const subId = extractSubscriptionId(invoice);
           let paymentFailHandled = false;
           if (subId) {
             try {
@@ -513,85 +641,11 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
 }
 
 // ---------------------------------------------------------------------------
-// Library — one-time checkout for non-Authors
-// ---------------------------------------------------------------------------
-
-export async function createLibraryCheckoutWithSlider(opts: {
-  authorId: string;
-  authorDisplayName: string;
-  artifactType: string;
-  artifactId: string;
-  minCents: number;
-}): Promise<string> {
-  const stripe = getStripe();
-  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    line_items: [{
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: `${opts.authorDisplayName} — ${opts.artifactType}`,
-        },
-        unit_amount: opts.minCents,
-      },
-      quantity: 1,
-    }],
-    metadata: {
-      library_purchase: 'true',
-      author_id: opts.authorId,
-      artifact_type: opts.artifactType,
-      artifact_id: opts.artifactId,
-    },
-    success_url: `${WEBSITE_URL}/library/${opts.authorId}?access=granted&session_id={CHECKOUT_SESSION_ID}&artifact_type=${opts.artifactType}&artifact_id=${opts.artifactId}`,
-    cancel_url: `${WEBSITE_URL}/library/${opts.authorId}`,
-  });
-  return session.url || '';
-}
-
-export async function createLibraryCheckout(opts: {
-  authorId: string;
-  authorDisplayName: string;
-  artifactType: string;
-  artifactId: string;
-  priceCents: number;
-}): Promise<string> {
-  const stripe = getStripe();
-  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    line_items: [{
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: `${opts.authorDisplayName}'s Shadow — Paid Tier`,
-          metadata: { author_id: opts.authorId, artifact_type: opts.artifactType },
-        },
-        unit_amount: opts.priceCents,
-      },
-      quantity: 1,
-    }],
-    metadata: {
-      library_purchase: 'true',
-      author_id: opts.authorId,
-      artifact_type: opts.artifactType,
-      artifact_id: opts.artifactId,
-    },
-    success_url: `${WEBSITE_URL}/library/${opts.authorId}?access=granted&session_id={CHECKOUT_SESSION_ID}&artifact_type=${opts.artifactType}&artifact_id=${opts.artifactId}`,
-    cancel_url: `${WEBSITE_URL}/library/${opts.authorId}`,
-  });
-  return session.url || '';
-}
-
-// ---------------------------------------------------------------------------
 // Library — monthly tab settlement (called from cron)
 // ---------------------------------------------------------------------------
 
 export async function settleMonthlyTabs(): Promise<void> {
   try {
-    const { getDB } = await import('./db.js');
     const db = getDB();
 
     // Settle previous month
@@ -608,7 +662,6 @@ export async function settleMonthlyTabs(): Promise<void> {
     if (!results || results.length === 0) return;
 
     // For each accessor, look up their Stripe customer ID and report usage
-    const { loadAccounts } = await import('./kv.js');
     const accounts = await loadAccounts<Record<string, any>>();
 
     for (const tab of results) {

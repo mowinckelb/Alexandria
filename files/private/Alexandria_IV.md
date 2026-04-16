@@ -220,9 +220,11 @@ POSITIONING AND PITCH
   
 The positioning stack — each layer compresses further, each serves a different context:  
   
-**Identity:** “Greek philosophy infrastructure.” What Alexandria IS. The category it creates. Infrastructure because it is a layer, not an app. Greek philosophy because the lineage is Socrates → Plato → Aristotle → Alexander → the Library of Alexandria → this. The examined life as technology. The agora as product.  
-  
-**Function:** “We refine and scale thought.” What Alexandria DOES. Refine — the Socratic engine sharpens cognition, surfaces contradictions, develops the Author’s thinking. Scale — ai is the technology that makes the examined life available to everyone, not just Athenian citizens. The Socrates that scales.  
+**Identity:** “The thinking republic.” What Alexandria IS. An open protocol for individual thought. Greek philosophy infrastructure — the lineage is Socrates → Plato → Aristotle → Alexander → the Library of Alexandria → this. The examined life as technology. The agora as product. Republic = res publica = public thing. The Library IS a public thing devoted to thought. The marketplace IS Darwinian governance of methodology. The thinking republic connects Greece (the polis), America (the republic), and Alexandria (thought) in two words.
+
+**Function:** “We keep, refine, and scale human thought.” What Alexandria DOES. Keep — ai makes thinking optional; the protocol keeps human thought above threshold. Can’t multiply a zero. Refine — the system sharpens cognition, surfaces contradictions, develops the Author’s thinking. Scale — the Library and marketplace amplify individual thought through collective infrastructure. The Socrates that scales.
+
+**One-liner:** “Alexandria protects the ability to think.” The delta from America. America protects the RIGHT to think (governance). Alexandria protects the ABILITY to think (cognitive infrastructure). Natural law applied to thought.
   
 **Tagline:** “We help builders build.” What Alexandria does FOR PEOPLE. Not what it is, not what it does mechanically — what it does for the user. Prosumers hear this and know it is for them. It signals: not an extra thing you do on the side or instead of your work, but an amplifier of what you already do. The builder identity is the American spirit — a nation of builders, and Alexandria carries that energy. Not a constraint on the audience (anyone can build anything anywhere), but the spirit of the company: we make things, we help people who make things.  
   
@@ -246,11 +248,13 @@ First — sovereignty. Your cognition captured into structured markdown files on
   
 Second — the mental gym. All those papers, podcasts, books you wish you had time for? Share them. The engine processes everything against who you already are and extracts only what is genuinely new for you. Not a summary — personalised integration that compounds. Your ai becomes a biographer, a Socrates, an amplifier. Your work starts carrying your fingerprint instead of being generic ai output.
   
-Third — the Library. Named after the original. Publish your mind. Someone needs your perspective, their ai taps the Library. Everything compounds. Better models make it better. You never switch to anything — it is a layer on top of what you already use. We help builders build. Everyone should be hoping it works.”
+Third — the Library. Named after the original. Publish your mind. Someone needs your perspective, their ai taps the Library. Everything compounds. Better models make it better. You never switch to anything — it is a layer on top of what you already use.
+
+The whole thing is an open protocol — account, file, call. ai is a multiplier, but you can't multiply a zero. Alexandria keeps the number above zero and makes it as large as possible. The thinking republic. Everyone should be hoping it works.”
   
 The pitch structure: anchor on known concepts (Constitutional ai, sovereignty) → positive-sum attention and the mental gym → the Library → the closer (tagline + hedge). The emotional arc goes from “here’s what it is” through “here’s what it does for your actual work” to “here’s why you should be rooting for it.” Each concept is a one-step extension from something the listener already understands. Nobody has to take a conceptual leap.  
   
-The three-layer compression, in one breath: “There are five dimensions of human value — brain, legs, hands, heart, and the human itself. ai and robotics are building competitive alternatives across the first four. The fifth — the constitutive fact that a human is involved — is by definition differentiated. Humans value other humans. That can never be beaten. In any context where a human competes, the fifth property forces a tiebreaker — and the human wins if the premium people place on human involvement exceeds the cost of using a human instead of an ai. Alexandria develops the thing the tiebreaker depends on. One command. Your ai starts building a constitution of how you think — stored on your machine, sovereign, portable. Everything you don't have time to read, the engine processes against who you already are. Your work starts carrying your fingerprint instead of being generic. We refine and scale thought. One command. Free with kin. Your files.”  
+The three-layer compression, in one breath: “There are five dimensions of human value — brain, legs, hands, heart, and the human itself. ai and robotics are building competitive alternatives across the first four. The fifth — the constitutive fact that a human is involved — is by definition differentiated. Humans value other humans. That can never be beaten. In any context where a human competes, the fifth property forces a tiebreaker — and the human wins if the premium people place on human involvement exceeds the cost of using a human instead of an ai. Alexandria develops the thing the tiebreaker depends on. An open protocol for individual thought. Account, file, call. Your ai starts building a constitution of how you think — stored on your machine, sovereign, portable. Everything you don't have time to read, the engine processes against who you already are. Your work starts carrying your fingerprint instead of being generic. We keep, refine, and scale human thought. Can't multiply a zero. Free with kin. Your files.”  
   
 The key framing: Alexandria is not an alternative to anything. It is an add-on. It rides every exponential rather than competing with any of them. Better models make it better. Better devices make it better. It is either net zero or net positive. There is no downside scenario. This is the positive-sum attitude — everyone should be hoping it works because everyone benefits if it does.  
   
@@ -353,9 +357,11 @@ This connects directly to Harari’s Homo Deus thesis. The next stage of human e
 **Phrase candidates — final assessment after alignment session:**  
   
 LOCKED — Alexandria’s language:  
-  
+
+- “the thinking republic” — the poetic tagline. What Alexandria IS. Connects Greece (polis), America (republic), Alexandria (thought). Republic = res publica = public thing devoted to thought
 - “droplets of grace” — the philosophy in three words  
-- “set the angels free” — the tagline. What does Alexandria do? It sets the angels free. Replaces “set my mind free.” Universal, grander, carries Michelangelo lineage, implies multiplicity. Every person has an angel in their marble. Alexandria sets them all free.  
+- “set the angels free” — the action tagline. What does Alexandria do? It sets the angels free. Replaces “set my mind free.” Universal, grander, carries Michelangelo lineage, implies multiplicity. Every person has an angel in their marble. Alexandria sets them all free.  
+- “can’t multiply a zero” — the thesis in four words. ai is a multiplier. Bring zero thought = zero. You stay above zero by choosing to participate. The system makes the number as large as possible
 - “marble. mercury.” — the core two-word promise. The transformation IS the product. Ink available as language when needed but not structural. The mercury does not become ink — it goes into the world still as mercury, still alive.  
 - “mentes aeternae” — wax seal only, formal Latin register  
 - “a.” — the mark  

@@ -8,11 +8,12 @@
  * In-memory summary for fast /analytics reads (warm between requests).
  */
 
-import { appendEvent, getAllEvents, getRecentDaysEvents } from './kv.js';
+import { appendEvent, getAllEvents, getRecentDaysEvents, getKV } from './kv.js';
+import { getDB } from './db.js';
 
 // Metrics epoch — dashboard counts events from this date forward.
-// Set 2026-04-11T16:58:53.562Z: manual clean-slate reset requested by founder.
-const METRICS_EPOCH = '2026-04-11T16:58:53.562Z';
+// Set 2026-04-14: clean-slate after fixing all event sources (session_id, event types, test noise).
+const METRICS_EPOCH = '2026-04-14T11:00:00.000Z';
 
 // ---------------------------------------------------------------------------
 // Types — intentionally open-ended
@@ -57,7 +58,10 @@ export function logEvent(type: string, meta?: EventMeta): void {
   // In-memory summary
   summary.total++;
   summary.last_event = now;
-  const parts: string[] = [type, ...Object.values(meta || {})];
+  const stableMetaParts = Object.entries(meta || {})
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => `${k}=${v}`);
+  const parts: string[] = [type, ...stableMetaParts];
   const key = parts.join(':');
   summary.by_key[key] = (summary.by_key[key] || 0) + 1;
 
@@ -125,12 +129,12 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
     return { status: 'no data', message: 'No events logged yet.' };
   }
 
-  // 1. Heartbeats (hooks ran) — backward compat: old "end" events count as heartbeats
+  // 1. Calls (session events — call, end, active, auto)
   // Filter automated/test traffic by prefix convention — no hardcoded list to maintain
   const isSmoke = (s: string) => /^(smoke_|test_|debug_|lifecycle-)/.test(s) || s === 'verification' || s === 'github_smoke';
   const isReal = (e: Record<string, string>) =>
     e.e === 'prosumer_session' && !isSmoke(e.event) && !isSmoke(e.platform);
-  const heartbeats = events.filter(e => isReal(e) && (e.event === 'heartbeat' || e.event === 'end' || e.event === 'active' || e.event === 'auto')).length;
+  const calls = events.filter(e => isReal(e) && (e.event === 'call' || e.event === 'end' || e.event === 'active' || e.event === 'auto')).length;
 
   // Time range + staleness
   const firstEvent = events[0]?.t || null;
@@ -152,11 +156,25 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
   const smokeFailures24h = events.filter(
     e => e.event === 'hook_failure' && new Date(e.t).getTime() > twentyFourHoursAgo
   ).length;
+  const serverErrors24h = events.filter(
+    e => e.e === 'server_error' && new Date(e.t).getTime() > twentyFourHoursAgo
+  );
+  const notFound24h = events.filter(
+    e => e.e === 'server_not_found' && new Date(e.t).getTime() > twentyFourHoursAgo
+  );
+  const notFoundByPath: Record<string, number> = {};
+  for (const ev of notFound24h) {
+    const path = ev.path || '(unknown)';
+    notFoundByPath[path] = (notFoundByPath[path] || 0) + 1;
+  }
+  const topNotFoundPaths = Object.entries(notFoundByPath)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([path, count]) => ({ path, count }));
 
   // Cron execution status
   let cronStatus: Record<string, unknown> = {};
   try {
-    const { getKV } = await import('./kv.js');
     const kv = getKV();
     for (const job of ['followup', 'engagement', 'health_digest']) {
       const raw = await kv.get(`cron:${job}`);
@@ -179,6 +197,8 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
     auto_attempt: number;
     auto_legacy: number;
     failures: number;
+    canon_fetch_ok: number;
+    canon_fetch_fail: number;
     unknown: number;
     last_seen: string;
     platforms: Set<string>;
@@ -205,6 +225,8 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
         auto_attempt: 0,
         auto_legacy: 0,
         failures: 0,
+        canon_fetch_ok: 0,
+        canon_fetch_fail: 0,
         unknown: 0,
         last_seen: e.t,
         platforms: new Set(),
@@ -213,10 +235,15 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
     const stat = authorStats[e.author];
     const sid = (e.session_id || '').trim();
     const hasSid = sid.length > 0 && sid !== 'unknown' && sid !== 'null';
-    if (e.event === 'hook_failure') { stat.failures++; }
-    else if (e.event === 'heartbeat') {
+    if (e.event === 'hook_failure') {
+      stat.failures++;
+      if (e.reason === 'canon_fetch_failed') stat.canon_fetch_fail++;
+    }
+    else if (e.event === 'call' || e.event === 'start') {
       if (hasSid) { stat.start_ids.add(sid); startsWithId++; }
       else { stat.legacy_starts++; startsWithoutId++; }
+      if (e.canon_fetched === 'true') stat.canon_fetch_ok++;
+      else if (e.canon_fetched === 'false') stat.canon_fetch_fail++;
     }
     else if (e.event === 'end') {
       if (hasSid) {
@@ -237,7 +264,8 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
     }
     else if (e.event === 'auto_attempt') { stat.auto_attempt++; }
     else if (e.event === 'auto') { stat.auto_legacy++; }
-    else if (e.event === 'unknown') { stat.unknown++; }
+    else if (e.event === 'heartbeat') { /* counted in starts/ends via session_id, no separate tracking needed */ }
+    else { stat.unknown++; } // Catch ALL unrecognized event types — don't silently drop
     if (e.t > stat.last_seen) stat.last_seen = e.t;
     if (e.platform) stat.platforms.add(e.platform);
   }
@@ -267,9 +295,19 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
       last_seen: stat.last_seen,
       hours_ago: Math.round((Date.now() - new Date(stat.last_seen).getTime()) / (1000 * 60 * 60) * 10) / 10,
       failures: stat.failures,
+      canon_fetch_ok: stat.canon_fetch_ok,
+      canon_fetch_fail: stat.canon_fetch_fail,
       platforms: [...stat.platforms],
     };
   }).sort((a, b) => b.starts - a.starts || a.hours_ago - b.hours_ago);
+
+  // Per-user health alerts — flag broken user experiences
+  const userAlerts: string[] = [];
+  for (const u of users) {
+    if (u.starts > 3 && u.ends === 0) userAlerts.push(`${u.login}: ${u.starts} starts, 0 ends — session-end hook broken`);
+    if (u.canon_fetch_fail > 0 && u.canon_fetch_ok === 0) userAlerts.push(`${u.login}: 100% canon fetch failure`);
+    if (u.failures > 5) userAlerts.push(`${u.login}: ${u.failures} hook failures`);
+  }
 
   const verification = {
     session_id_coverage: {
@@ -291,6 +329,8 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
   if (endsWithoutId > 0) invariantIssues.push(`ends_without_session_id=${endsWithoutId}`);
   if (verification.orphan_ends_total > 0) invariantIssues.push(`orphan_ends=${verification.orphan_ends_total}`);
   if (verification.unknown_events_total > 0) invariantIssues.push(`unknown_events=${verification.unknown_events_total}`);
+  if (serverErrors24h.length > 5) invariantIssues.push(`server_errors_24h=${serverErrors24h.length}`);
+  if (userAlerts.length > 0) invariantIssues.push(...userAlerts);
 
   const status = invariantIssues.length > 0
     ? `degraded — lifecycle invariant failure (${invariantIssues.join(', ')})`
@@ -298,6 +338,7 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
 
   return {
     status,
+    invariant_issues: invariantIssues,
     time_range: { first: firstEvent, last: lastEvent, hours_since_last: hoursSinceLastEvent },
     telemetry_health: {
       stale,
@@ -312,7 +353,7 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
     users,
     total_events: events.length,
     parse_errors: parseErrors,
-    heartbeats,
+    calls,
     errors: {
       log_parse_errors: parseErrors,
     },
@@ -321,37 +362,32 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
       hours_since_last_session: hoursSinceLastSession,
       smoke_failures_24h: smokeFailures24h,
     },
+    runtime: {
+      server_errors_24h: serverErrors24h.length,
+      not_found_24h: notFound24h.length,
+      top_not_found_paths: topNotFoundPaths,
+    },
+    user_alerts: userAlerts,
     verification,
     library: await getLibraryMetrics(events),
-    factory: await getFactoryStatus(events),
+    marketplace: await getMarketplaceStatus(events),
     _events: events,
   };
 }
 
 /**
- * Factory loop status — is the cross-Author learning loop working?
+ * Marketplace status — is the cross-Author learning loop working?
  */
-async function getFactoryStatus(events: Record<string, string>[]): Promise<Record<string, unknown>> {
+async function getMarketplaceStatus(events: Record<string, string>[]): Promise<Record<string, unknown>> {
   try {
-    const { getKV } = await import('./kv.js');
     const kv = getKV();
 
     // Pending signals (not yet archived)
-    const pending = await kv.list({ prefix: 'factory:signal:' });
+    const pending = await kv.list({ prefix: 'marketplace:signal:' });
     // Archived signals (processed, 30-day TTL)
-    const archived = await kv.list({ prefix: 'factory:archive:' });
-    // Current delta
-    const delta = await kv.get('factory:delta');
-
-    // Last delta write from event log
-    const deltaWrites = events.filter(e => e.e === 'factory_delta_written');
-    const lastDeltaWrite = deltaWrites.length > 0 ? deltaWrites[deltaWrites.length - 1].t : null;
-    const daysSinceDelta = lastDeltaWrite
-      ? Math.round((Date.now() - new Date(lastDeltaWrite).getTime()) / (1000 * 60 * 60 * 24) * 10) / 10
-      : null;
-
+    const archived = await kv.list({ prefix: 'marketplace:archive:' });
     // Last archive from event log
-    const archiveEvents = events.filter(e => e.e === 'factory_signals_archived');
+    const archiveEvents = events.filter(e => e.e === 'marketplace_signals_archived');
     const lastArchive = archiveEvents.length > 0 ? archiveEvents[archiveEvents.length - 1].t : null;
 
     // Signal ingest rate
@@ -361,17 +397,14 @@ async function getFactoryStatus(events: Record<string, string>[]): Promise<Recor
     ).length;
 
     return {
-      status: delta ? (daysSinceDelta !== null && daysSinceDelta > 10 ? 'stale — delta not updated in 10+ days' : 'ok') : 'no delta yet',
+      status: signalsThisWeek > 0 ? 'ok' : 'no signal this week',
       signals_pending: pending.keys.length,
       signals_archived: archived.keys.length,
       signals_this_week: signalsThisWeek,
-      delta_length: delta?.length || 0,
-      last_delta_write: lastDeltaWrite,
-      days_since_delta: daysSinceDelta,
       last_archive: lastArchive,
     };
   } catch {
-    return { status: 'error reading factory state' };
+    return { status: 'error reading marketplace state' };
   }
 }
 
@@ -392,7 +425,6 @@ async function getLibraryMetrics(events: Record<string, string>[]): Promise<Reco
   // D1 metrics (if available)
   let d1Metrics: Record<string, unknown> = {};
   try {
-    const { getDB } = await import('./db.js');
     const db = getDB();
     const counts = await db.prepare(`
       SELECT
@@ -411,7 +443,6 @@ async function getLibraryMetrics(events: Record<string, string>[]): Promise<Reco
   // RL signal health — is the Library feedback loop working?
   let rlSignal: Record<string, unknown> = {};
   try {
-    const { getDB } = await import('./db.js');
     const db = getDB();
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -471,7 +502,7 @@ export async function getUserEvents(login: string): Promise<Record<string, unkno
   }
 
   const allSessions = events.filter(e => e.e === 'prosumer_session');
-  const heartbeatEvents = allSessions.filter(e => e.event === 'end' || e.event === 'heartbeat' || e.event === 'active' || e.event === 'auto');
+  const callEvents = allSessions.filter(e => e.event === 'end' || e.event === 'call' || e.event === 'active' || e.event === 'auto');
   const failures = allSessions.filter(e => e.event === 'hook_failure');
   const feedback = events.filter(e => e.e === 'user_feedback');
   const signals = events.filter(e => e.e === 'machine_signal');
@@ -480,16 +511,10 @@ export async function getUserEvents(login: string): Promise<Record<string, unkno
   return {
     author: login,
     total_events: events.length,
-    heartbeats: heartbeatEvents.length,
+    calls: callEvents.length,
     sessions: {
       last: lastSession,
       platforms: [...new Set(allSessions.map(s => s.platform).filter(Boolean))],
-      blueprint_fetched_rate: heartbeatEvents.length > 0
-        ? Math.round(heartbeatEvents.filter(s => s.blueprint_fetched === 'true').length / heartbeatEvents.length * 100) + '%'
-        : null,
-      constitution_injected_rate: heartbeatEvents.length > 0
-        ? Math.round(heartbeatEvents.filter(s => s.constitution_injected === 'true').length / heartbeatEvents.length * 100) + '%'
-        : null,
     },
     failures: {
       total: failures.length,
@@ -502,19 +527,18 @@ export async function getUserEvents(login: string): Promise<Record<string, unkno
 }
 
 /**
- * Archive factory signals from input queue.
- * Moves factory:signal:* → factory:archive:* with 30-day TTL.
+ * Archive marketplace signals from input queue.
+ * Moves marketplace:signal:* → marketplace:archive:* with 30-day TTL.
  * Delta synthesis happens in the meta trigger (weekly, Opus) — not here.
  */
-export async function archiveFactorySignals(): Promise<{ archived: number }> {
-  const { getKV } = await import('./kv.js');
+export async function archiveMarketplaceSignals(): Promise<{ archived: number }> {
   const kv = getKV();
 
   // Paginate — KV list returns max 1000 per call
   const allKeys: { name: string }[] = [];
   let cursor: string | undefined;
   do {
-    const page = await kv.list({ prefix: 'factory:signal:', cursor });
+    const page = await kv.list({ prefix: 'marketplace:signal:', cursor });
     allKeys.push(...page.keys);
     cursor = page.list_complete ? undefined : (page as any).cursor;
   } while (cursor);
@@ -525,14 +549,14 @@ export async function archiveFactorySignals(): Promise<{ archived: number }> {
     try {
       const raw = await kv.get(key.name);
       if (raw) {
-        const archiveKey = key.name.replace('factory:signal:', 'factory:archive:');
+        const archiveKey = key.name.replace('marketplace:signal:', 'marketplace:archive:');
         await kv.put(archiveKey, raw, { expirationTtl: 30 * 24 * 60 * 60 });
       }
       await kv.delete(key.name);
     } catch { continue; }
   }
 
-  logEvent('factory_signals_archived', { count: String(allKeys.length) });
+  logEvent('marketplace_signals_archived', { count: String(allKeys.length) });
   return { archived: allKeys.length };
 }
 

@@ -2,7 +2,7 @@
  * Product lifecycle test — verifies the full user journey works end-to-end.
  * Uses a real API key to test what an actual Author experiences.
  *
- * Tests the chain: Blueprint loads with content → constitution injects →
+ * Tests the chain: Canon loads with content → constitution injects →
  * session events accepted → machine signal collected → hooks auto-update.
  *
  * Usage: npx tsx test/lifecycle.ts
@@ -41,6 +41,10 @@ async function test(name: string, fn: () => Promise<TestResult>) {
   }
 }
 
+function pause(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function main() {
   console.log('=== Alexandria Product Lifecycle Test ===');
   console.log(`Target: ${BASE}\n`);
@@ -59,79 +63,83 @@ async function main() {
   // -----------------------------------------------------------------------
   console.log('Phase 1: Server health');
 
-  await test('Health endpoint responds OK', async () => {
+  await test('Health endpoint reports fully healthy', async () => {
     const res = await fetch(`${BASE}/health`);
-    const body = await res.json() as { status: string; checks: Record<string, string> };
+    const body = await res.json() as { status?: string; components?: Record<string, string> };
+    const status = body.status || '';
+    const brokenComponents = Object.entries(body.components || {}).filter(([, v]) => v !== 'ok').map(([k, v]) => `${k}=${v}`);
     return {
       test: 'Health endpoint',
-      passed: res.ok && body.status === 'ok',
-      details: `status=${body.status}, checks=${JSON.stringify(body.checks)}`,
+      passed: res.ok && status === 'ok' && brokenComponents.length === 0,
+      details: status === 'degraded'
+        ? `DEGRADED — broken: ${brokenComponents.join(', ')}`
+        : `status=${status}, all components ok`,
     };
   });
 
   // -----------------------------------------------------------------------
-  // PHASE 2: Blueprint delivery (what SessionStart hook fetches)
+  // PHASE 2: Canon delivery (what SessionStart hook fetches)
   // -----------------------------------------------------------------------
-  console.log('\nPhase 2: Blueprint delivery');
+  console.log('\nPhase 2: Canon delivery');
 
-  let blueprintSize = 0;
-  await test('Blueprint loads with auth', async () => {
-    const res = await fetch(`${BASE}/blueprint`, { headers });
+  let canonSize = 0;
+  await test('Canon loads with auth', async () => {
+    const res = await fetch(`${BASE}/canon`, { headers });
     const body = await res.text();
-    blueprintSize = body.length;
+    canonSize = body.length;
     return {
-      test: 'Blueprint loads',
+      test: 'Canon loads',
       passed: res.ok && body.length > 1000,
       details: `HTTP ${res.status}, ${body.length} bytes`,
     };
   });
 
-  await test('Blueprint contains Axioms', async () => {
-    const res = await fetch(`${BASE}/blueprint`, { headers });
+  await test('Canon contains Axioms', async () => {
+    const res = await fetch(`${BASE}/canon`, { headers });
     const body = await res.text();
     const hasAxioms = body.includes('AXIOMS') || body.includes('Axioms');
     return {
-      test: 'Blueprint contains Axioms',
+      test: 'Canon contains Axioms',
       passed: hasAxioms,
       details: `has axioms section: ${hasAxioms}`,
     };
   });
 
-  await test('Blueprint contains methodology', async () => {
-    const res = await fetch(`${BASE}/blueprint`, { headers });
+  await test('Canon contains methodology', async () => {
+    const res = await fetch(`${BASE}/canon`, { headers });
     const body = await res.text();
-    const hasBlueprint = body.includes('BLUEPRINT') || body.includes('Blueprint');
+    const hasCanon = body.includes('CANON') || body.includes('Canon');
     const hasEditor = body.includes('Editor');
     const hasMercury = body.includes('Mercury');
     const hasPublisher = body.includes('Publisher');
     return {
-      test: 'Blueprint contains methodology',
-      passed: hasBlueprint && hasEditor && hasMercury && hasPublisher,
-      details: `Blueprint: ${hasBlueprint}, Editor: ${hasEditor}, Mercury: ${hasMercury}, Publisher: ${hasPublisher}`,
+      test: 'Canon contains methodology',
+      passed: hasCanon && hasEditor && hasMercury && hasPublisher,
+      details: `Canon: ${hasCanon}, Editor: ${hasEditor}, Mercury: ${hasMercury}, Publisher: ${hasPublisher}`,
     };
   });
 
-  await test('Blueprint contains living machine instructions', async () => {
-    const res = await fetch(`${BASE}/blueprint`, { headers });
+  await test('Canon contains living machine instructions', async () => {
+    const res = await fetch(`${BASE}/canon`, { headers });
     const body = await res.text();
     const hasMachineMd = body.includes('machine.md');
     const hasNotepad = body.includes('notepad');
     const hasMachineSignal = body.includes('.machine_signal');
     return {
-      test: 'Blueprint contains living machine',
+      test: 'Canon contains living machine',
       passed: hasMachineMd && hasNotepad && hasMachineSignal,
       details: `machine.md: ${hasMachineMd}, notepad: ${hasNotepad}, signal: ${hasMachineSignal}`,
     };
   });
 
-  await test('Blueprint returns version headers', async () => {
-    const res = await fetch(`${BASE}/blueprint`, { headers });
-    const hooksVersion = res.headers.get('x-hooks-version');
-    const bpHash = res.headers.get('x-blueprint-hash');
+  await test('Canon returns version headers', async () => {
+    const res = await fetch(`${BASE}/canon`, { headers });
+    const accountStatus = res.headers.get('x-account-status');
+    const accountUntil = res.headers.get('x-account-until');
     return {
-      test: 'Blueprint version headers',
-      passed: !!hooksVersion && !!bpHash,
-      details: `hooks-version: ${hooksVersion}, hash: ${bpHash}`,
+      test: 'Canon version headers',
+      passed: !!accountStatus,
+      details: `account-status: ${accountStatus || 'missing'}, account-until: ${accountUntil || 'none'}`,
     };
   });
 
@@ -159,15 +167,18 @@ async function main() {
   // -----------------------------------------------------------------------
   console.log('\nPhase 4: Session lifecycle');
 
+  const testSessionId = `lifecycle-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
   await test('Session start event accepted', async () => {
     const res = await fetch(`${BASE}/session`, {
       method: 'POST',
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        event: 'start',
+        event: 'call',
         platform: 'lifecycle-test',
+        session_id: testSessionId,
         constitution_injected: true,
-        blueprint_fetched: true,
+        canon_fetched: true,
       }),
     });
     const body = await res.json() as { ok: boolean };
@@ -185,11 +196,12 @@ async function main() {
       body: JSON.stringify({
         event: 'end',
         platform: 'lifecycle-test',
+        session_id: testSessionId,
         constitution_size: 50000,
         vault_entry_count: 15,
         domains_count: 5,
         constitution_injected: true,
-        blueprint_fetched: true,
+        canon_fetched: true,
       }),
     });
     const body = await res.json() as { ok: boolean };
@@ -201,18 +213,24 @@ async function main() {
   });
 
   await test('Machine signal accepted', async () => {
-    const res = await fetch(`${BASE}/factory/signal`, {
+    const res = await fetch(`${BASE}/marketplace/signal`, {
       method: 'POST',
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        signal: 'Lifecycle test: Blueprint loaded correctly. Machine instructions clear. Constitution-as-lens section is a strong addition.',
+        signal: 'Lifecycle test: Canon loaded correctly. Machine instructions clear. Constitution-as-lens section is a strong addition.',
       }),
     });
-    const body = await res.json() as { ok: boolean };
+    const raw = await res.text();
+    let body: { ok?: boolean } = {};
+    try {
+      body = JSON.parse(raw) as { ok?: boolean };
+    } catch {
+      body = {};
+    }
     return {
       test: 'Machine signal',
-      passed: res.ok && body.ok,
-      details: `HTTP ${res.status}, ok: ${body.ok}`,
+      passed: res.ok && body.ok === true,
+      details: `HTTP ${res.status}, ok: ${String(body.ok)}, raw: ${raw.slice(0, 80)}`,
     };
   });
 
@@ -241,17 +259,25 @@ async function main() {
     };
   });
 
-  await test('Blueprint cached locally', async () => {
-    const bpPath = join(ALEX_DIR, '.blueprint_local');
+  await test('Canon cached locally with valid content', async () => {
+    const bpPath = join(ALEX_DIR, '.canon_local');
     const exists = existsSync(bpPath);
     let size = 0;
+    let hasRequiredContent = false;
     if (exists) {
-      size = readFileSync(bpPath).length;
+      const content = readFileSync(bpPath, 'utf-8');
+      size = content.length;
+      // Canon must contain core sections — size alone is not verification
+      hasRequiredContent = content.includes('Axioms') && content.includes('Editor') && content.includes('Mercury');
     }
     return {
-      test: 'Blueprint local cache',
-      passed: exists && size > 1000,
-      details: `exists: ${exists}, size: ${size}b`,
+      test: 'Canon local cache',
+      passed: exists && size > 1000 && hasRequiredContent,
+      details: !exists
+        ? 'MISSING — canon cache does not exist (hooks have not run)'
+        : !hasRequiredContent
+          ? `exists but missing required sections (${size}b) — corrupted cache`
+          : `valid: ${size}b, contains Axioms+Editor+Mercury`,
     };
   });
 
@@ -288,22 +314,59 @@ async function main() {
   });
 
   // -----------------------------------------------------------------------
-  // PHASE 6: Dashboard (Factory verification)
+  // PHASE 6: Dashboard (Marketplace verification)
   // -----------------------------------------------------------------------
-  console.log('\nPhase 6: Factory');
+  console.log('\nPhase 6: Marketplace');
 
-  await test('Dashboard returns metrics', async () => {
-    const res = await fetch(`${BASE}/analytics/dashboard`, { headers });
-    if (!res.ok) {
-      return { test: 'Dashboard', passed: false, details: `HTTP ${res.status}` };
+  await test('Dashboard returns valid metrics with no critical issues', async () => {
+    const evaluate = (body: Record<string, unknown>) => {
+      const issues: string[] = [];
+
+      // Structure checks
+      const runtime = body.runtime as Record<string, unknown> | undefined;
+      const verification = body.verification as Record<string, unknown> | undefined;
+      if (!runtime || typeof runtime.server_errors_24h !== 'number') issues.push('missing runtime');
+      if (!verification || !('session_id_coverage' in verification)) issues.push('missing verification');
+      if (typeof body.total_events !== 'number') issues.push('missing total_events');
+
+      // Value checks — the numbers must make sense
+      const status = body.status as string || '';
+      if (status.startsWith('degraded')) issues.push(`status: ${status}`);
+
+      const invariantIssues = body.invariant_issues as string[] | undefined;
+      if (invariantIssues && invariantIssues.length > 0) issues.push(`invariants: ${invariantIssues.join(', ')}`);
+
+      if (runtime && typeof runtime.server_errors_24h === 'number' && runtime.server_errors_24h > 0) {
+        issues.push(`${runtime.server_errors_24h} server errors in 24h`);
+      }
+
+      const telemetry = body.telemetry_health as Record<string, unknown> | undefined;
+      if (telemetry?.stale === true) issues.push('telemetry stale (no events for 24h+)');
+      if (typeof body.parse_errors === 'number' && (body.parse_errors as number) > 0) issues.push(`${body.parse_errors} parse errors`);
+
+      return { issues, hasStructure: issues.filter(i => i.startsWith('missing')).length === 0 };
+    };
+
+    let res = await fetch(`${BASE}/analytics/dashboard`, { headers });
+    if (!res.ok) return { test: 'Dashboard', passed: false, details: `HTTP ${res.status}` };
+    let body = await res.json() as Record<string, unknown>;
+    let verdict = evaluate(body);
+
+    // Retry for edge propagation
+    for (let attempt = 0; attempt < 2 && !verdict.hasStructure; attempt++) {
+      await pause(1500);
+      res = await fetch(`${BASE}/analytics/dashboard`, { headers });
+      if (!res.ok) break;
+      body = await res.json() as Record<string, unknown>;
+      verdict = evaluate(body);
     }
-    const body = await res.text();
-    const hasHtml = body.includes('<!DOCTYPE html') || body.includes('<html');
-    const hasMetrics = body.includes('heartbeat') || body.includes('author') || body.includes('event');
+
     return {
       test: 'Dashboard',
-      passed: hasHtml || hasMetrics,
-      details: `HTML: ${hasHtml}, metrics: ${hasMetrics}, size: ${body.length}`,
+      passed: verdict.issues.length === 0,
+      details: verdict.issues.length > 0
+        ? `ISSUES: ${verdict.issues.join('; ')}`
+        : `clean — ${body.total_events} events, status: ${body.status}`,
     };
   });
 

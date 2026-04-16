@@ -19,40 +19,49 @@ jobs:
           fi
           echo "✓ health OK"
 
-      - name: Blueprint
+      - name: Protocol
         run: |
-          status=$(curl -s -o /dev/null -w '%{http_code}' \
-            -H "Authorization: Bearer ${{ secrets.ALEXANDRIA_API_KEY }}" \
-            https://mcp.mowinckel.ai/blueprint)
+          status=$(curl -s -o /dev/null -w '%{http_code}' https://mcp.mowinckel.ai/alexandria)
           if [ "$status" != "200" ]; then
-            echo "::error::Blueprint fetch failed (HTTP $status)"
+            echo "::error::Protocol handshake failed (HTTP $status)"
             exit 1
           fi
-          echo "✓ blueprint OK"
+          echo "✓ protocol OK"
 
-      - name: Hooks
+      - name: File
         run: |
-          status=$(curl -s -o /dev/null -w '%{http_code}' \
+          status=$(curl -s -o /dev/null -w '%{http_code}' -X PUT \
             -H "Authorization: Bearer ${{ secrets.ALEXANDRIA_API_KEY }}" \
-            https://mcp.mowinckel.ai/hooks)
+            -H "Content-Type: application/json" \
+            -d '{"content":"# CI smoke\nverification.","text":"ci"}' \
+            https://mcp.mowinckel.ai/file/ci-smoke)
           if [ "$status" != "200" ]; then
-            echo "::error::Hooks fetch failed (HTTP $status)"
+            echo "::error::File publish failed (HTTP $status)"
             exit 1
           fi
-          echo "✓ hooks OK"
+          echo "✓ file OK"
 
-      - name: Session
+      - name: Call
         run: |
           status=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
             -H "Authorization: Bearer ${{ secrets.ALEXANDRIA_API_KEY }}" \
             -H "Content-Type: application/json" \
-            -d '{"event":"github_smoke"}' \
-            https://mcp.mowinckel.ai/session)
+            -d '{"modules":["canon/axioms"]}' \
+            https://mcp.mowinckel.ai/call)
           if [ "$status" != "200" ]; then
-            echo "::error::Session POST failed (HTTP $status)"
+            echo "::error::Call failed (HTTP $status)"
             exit 1
           fi
-          echo "✓ session OK"
+          echo "✓ call OK"
+
+      - name: Library
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' https://mcp.mowinckel.ai/library/authors)
+          if [ "$status" != "200" ]; then
+            echo "::error::Library authors failed (HTTP $status)"
+            exit 1
+          fi
+          echo "✓ library OK"
 
       - name: Vercel DNS
         run: |

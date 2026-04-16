@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { SERVER_URL } from '../lib/config';
 
-export default function SignupPage() {
+function SignupPageContent() {
   const searchParams = useSearchParams();
   const urlRef = searchParams.get('ref');
   const refSource = searchParams.get('ref_source');
@@ -120,5 +120,13 @@ export default function SignupPage() {
       </section>
 
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }} />}>
+      <SignupPageContent />
+    </Suspense>
   );
 }

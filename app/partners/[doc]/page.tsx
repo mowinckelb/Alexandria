@@ -60,9 +60,17 @@ export default function DocPage({ params }: { params: Promise<{ doc: string }> }
       setDoc(d);
       const entry = DOCS[d];
       if (!entry) { setContent(''); return; }
-      fetch(entry.file).then(r => r.text()).then(raw => {
-        setContent(prepareContent(d, raw));
-      });
+      fetch(entry.file)
+        .then(async (r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.text();
+        })
+        .then((raw) => {
+          setContent(prepareContent(d, raw));
+        })
+        .catch(() => {
+          setContent('');
+        });
     });
   }, [params]);
 

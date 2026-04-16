@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ThemeToggle } from '../../../../components/ThemeToggle';
 import { SERVER_URL } from '../../../../lib/config';
@@ -9,7 +9,11 @@ const SLIDER_MIN = 20;
 const SLIDER_MAX = 200;
 const SLIDER_DEFAULT = 20;
 
-export default function WorkCheckoutPage({ params }: { params: Promise<{ author: string }> }) {
+function clampAmount(value: number): number {
+  return Math.min(SLIDER_MAX, Math.max(SLIDER_MIN, value));
+}
+
+function WorkCheckoutPageContent({ params }: { params: Promise<{ author: string }> }) {
   const searchParams = useSearchParams();
   const workId = searchParams.get('work_id') || '';
 
@@ -30,11 +34,12 @@ export default function WorkCheckoutPage({ params }: { params: Promise<{ author:
         .then(r => r.json())
         .then(data => {
           setAuthorName(data.author?.display_name || author);
-          let settings: Record<string, any> = {};
+          let settings: Record<string, unknown> = {};
           try { settings = JSON.parse(data.author?.settings || '{}'); } catch {}
-          if (settings.paid_price_cents) {
-            const min = Math.round(settings.paid_price_cents / 100);
-            setAmount(min);
+          const paidPriceCents = typeof settings.paid_price_cents === 'number' ? settings.paid_price_cents : 0;
+          if (paidPriceCents > 0) {
+            const min = Math.round(paidPriceCents / 100);
+            setAmount(clampAmount(min));
           }
           // Find work title
           const works = data.works || [];
@@ -64,6 +69,11 @@ export default function WorkCheckoutPage({ params }: { params: Promise<{ author:
   const handleCheckout = async () => {
     setLoading(true);
     setError('');
+    if (!workId) {
+      setError('missing work id');
+      setLoading(false);
+      return;
+    }
     try {
       const body: Record<string, unknown> = { work_id: workId, amount_cents: amount * 100 };
       if (promoCode) body.promo_code = promoCode;
@@ -123,7 +133,7 @@ export default function WorkCheckoutPage({ params }: { params: Promise<{ author:
               max={SLIDER_MAX}
               step={5}
               value={amount}
-              onChange={e => setAmount(parseInt(e.target.value, 10))}
+              onChange={e => setAmount(clampAmount(parseInt(e.target.value, 10)))}
               className="w-full patron-slider"
             />
 
@@ -177,5 +187,19 @@ export default function WorkCheckoutPage({ params }: { params: Promise<{ author:
         </div>
       </section>
     </div>
+  );
+}
+
+export default function WorkCheckoutPage({ params }: { params: Promise<{ author: string }> }) {
+  return (
+    <Suspense
+      fallback={(
+        <main style={{ maxWidth: '420px', margin: '0 auto', padding: '40vh 2rem', fontFamily: 'var(--font-eb-garamond)', textAlign: 'center' }}>
+          <p style={{ color: 'var(--text-ghost)', fontSize: '0.85rem' }}>...</p>
+        </main>
+      )}
+    >
+      <WorkCheckoutPageContent params={params} />
+    </Suspense>
   );
 }

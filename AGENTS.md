@@ -20,8 +20,8 @@ Everything lives in `files/`. Three access levels: private (internal only), conf
 - `Alexandria_IV.md` (a4) — Strategy & brand. Founder-product fit, competitive position, survival framework, four competitors, three-actor landscape. Positioning/pitch, brand design, logo, visual design, natural elements, media strategy, writing voice. Read for: competitive questions, brand, creative direction, investor framing.
 
 **Product IP (ax — downstream of an, regenerated when an changes):**
-- `Axioms.md` — The sacred layer. What Alexandria IS and WHY. Five operations, five-layer pipeline (vault→ontology→constitution→shadow→library), objective function, sovereignty, neutral infrastructure. Extracted from a1+a2. Read for: philosophical questions, what's non-negotiable.
-- `Blueprint.md` — The variable methodology. HOW to develop human cognition. Function assemblies (Editor/Mercury/Publisher craft), constitution data architecture, meta-principles, compounding architecture. Factory output — improves with every Author. Read for: product methodology, extraction design, mode behavior.
+- `canon/axioms.md` — The sacred layer. What Alexandria IS and WHY. Five operations, five-layer pipeline (vault→ontology→constitution→shadow→library), objective function, sovereignty, neutral infrastructure. Extracted from a1+a2. Read for: philosophical questions, what's non-negotiable.
+- `canon/methodology.md` — The canon. The variable methodology. HOW to develop human cognition. Function assemblies (Editor/Mercury/Publisher craft), constitution data architecture, meta-principles, compounding architecture. The founder's system, refined by marketplace signal. Read for: product methodology, extraction design, mode behavior.
 - `Machine.md` — Per-Author engine memory template. The Engine's evolving model of how to work with a specific Author. Living document, rewritten as the Engine learns. Read for: per-Author calibration, earned preference.
 
 **Founder's Constitution (lives at `~/.alexandria/constitution/` — the product, used as designed):**
@@ -68,20 +68,20 @@ Public artifacts live in `public/docs/`. Vercel serves static files from `public
 
 ## Compounding Loops
 
-Five loops. Full spec in Blueprint.md section V (served to every Engine every session). Summary:
+Five loops. Full spec in canon/methodology.md section V (served to every Engine every session). Summary:
 
 1. **Machine** (per-Author, per-session) — Engine reads constitution + ontology + machine.md + notepad + feedback → works with Author → writes back all five. Earned preference through accumulated signal.
 2. **Ontology** (per-Author, multi-session) — vault → Engine processes → ontology/ (proposals) → Author confirms → constitution/ (truth). Reprocessing same vault + evolved constitution = new signal each pass.
-3. **Factory** (cross-Author) — .machine_signal collected per session → /factory/signal → accumulates → founder reviews → Blueprint updated → auto-fetched by all Authors.
+3. **Marketplace** (cross-Author) — .machine_signal collected per session → /marketplace/signal → accumulates → founder reviews → canon updated → deployed.
 4. **Vision** (company-level) — founder thinking → a0 → crystallises → an → Axioms + Blueprint regenerated → deployed.
 5. **Founder** (meta) — building Alexandria = using Alexandria. Learnings persist in CC memory + Blueprint + a0. The process IS R&D.
 
 ## Code
 
 - **Website:** `app/` (Next.js, Vercel). Landing page: `app/components/LandingPage.tsx`.
-- **Server:** `server/src/` (Hono, Cloudflare Workers).
-  - Key files: `worker.ts` (entry), `prosumer.ts` (all live endpoints — Blueprint, hooks, auth, session), `modes.ts` (Blueprint methodology), `analytics.ts` (Factory events → KV), `billing.ts` (Stripe), `templates.ts` (HTML), `kv.ts` (KV persistence), `crypto.ts` (encryption).
-  - Endpoints: `/blueprint` (methodology), `/hooks` (auto-update scripts), `/session` (telemetry), `/auth/github/*` (signup), `/setup` (onboarding).
+- **Server:** `server/src/` (Hono, Cloudflare Workers). One file per concern:
+  - `worker.ts` (entry + middleware), `routes.ts` (all HTTP handlers), `auth.ts` (accounts + API keys), `canon.ts` (canon assembly from canon/ modules), `hooks.ts` (hook installer + payload), `setup.ts` (onboarding script + block), `email.ts` (Resend + all templates), `cron.ts` (health digest + followup + engagement), `analytics.ts` (event log + dashboard), `billing.ts` (Stripe), `library.ts` (Library CRUD), `kv.ts` (KV persistence), `templates.ts` (HTML), `reference.ts` (reference content), `crypto.ts` (encryption), `db.ts` (D1/R2 accessor).
+  - Endpoints: `/canon` (methodology), `/hooks` (installer), `/hooks/payload` (live payload), `/session` (telemetry), `/auth/github/*` (signup), `/setup` (onboarding).
   - Stateless server. No private user data stored. KV for accounts/events, D1 for Library metadata, R2 for published Library content.
 - **Static assets:** `public/` (includes `public/docs/` for public ax artifacts, `public/partners/` for investor artifacts).
 - **Partners:** Markdown docs (Memo.md, Numbers.md, Logic.md, Alexandria.md) served at `/partners/*` via dynamic `[doc]` route. Source of truth is `files/confidential/`. Copied to `public/partners/` automatically by `prebuild` script — runs before every build and deploy. Never manually sync.
@@ -142,7 +142,7 @@ No Machine loop. No constitution writes. This is company work, not product:
 
 - **Delta.** What changed about Alexandria the company. Not what you did — what's different now. Hazy fragments only.
 - **Open threads.** What's unresolved. What the next session should pick up. Ordered by priority.
-- **Meta loop.** Product learnings → `files/private/Blueprint.md`.
+- **Meta loop.** Product learnings → canon (`canon/methodology.md`).
 - **Vision loop.** New thinking about Alexandria → a0, crystallise into an when ready.
 - **Founder loop.** Save agent memories for communication patterns, preferences, anti-patterns.
 - **ax sync check.** Judge whether ax files are in sync with an right now — not just what changed this session, but the current state. Read the an files, read the ax files, judge if any ax file is materially stale relative to its source ground truth. This is an intelligence decision — a missing argument matters, a minor wording difference doesn't. If stale: surface one line — "ax is stale — want me to regenerate?" If the founder says yes, do a full re-read of all an and regenerate each affected ax file from first principles against its own objective function (listed in the Files section above). Never incremental patch — always regenerate from a full re-read. Which ax files are affected is itself an intelligence decision. After regenerating confidential files, sync to `public/partners/` (Memo, Numbers, Logic, Alexandria — must be identical). Flag only if the founder needs to make a judgment call.

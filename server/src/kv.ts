@@ -1,14 +1,15 @@
 /**
- * KV persistence layer — replaces filesystem I/O.
+ * KV persistence layer.
  *
- * Single KV namespace (DATA) with key prefixes:
- *   "accounts:encrypted" → AES-256-GCM encrypted JSON of all accounts
- *   "accounts"           → LEGACY plaintext (migrated on first save)
- *   "oauth_clients"      → JSON string of OAuth client registrations
- *   "events:YYYY-MM-DD"  → JSONL string of events for that day
+ * Key structure:
+ *   "account:{github_id}"  → encrypted individual account JSON
+ *   "auth:{api_key_hash}"  → github_id (lookup index for O(1) auth)
+ *   "events:YYYY-MM-DD"    → JSONL string of events for that day
+ *   "marketplace:signal:*"  → marketplace signal entries
+ *   "marketplace:archive:*" → archived signal entries
  *
- * KV is eventually consistent across edge locations.
- * Acceptable — these are not real-time critical.
+ * Each account is its own KV key — no concurrent write corruption,
+ * no O(N) iteration for auth checks.
  */
 
 import { encrypt, decrypt } from './crypto.js';
@@ -26,68 +27,85 @@ export function getKV(): KVNamespace {
 }
 
 // ---------------------------------------------------------------------------
-// Accounts
+// Accounts — per-key storage (no blob, no concurrency issues)
 // ---------------------------------------------------------------------------
 
-export async function loadAccounts<T>(): Promise<T> {
+/** Load a single account by github_id key. */
+export async function loadAccount(githubKey: string): Promise<Record<string, unknown> | null> {
   const kv = getKV();
-
-  // Try encrypted blob first (post-migration)
-  const encrypted = await kv.get('accounts:encrypted');
-  if (encrypted) {
-    try {
-      return JSON.parse(decrypt(encrypted)) as T;
-    } catch (e) {
-      // Encrypted key exists but decrypt failed — this is a hard error, not a fallback scenario.
-      // Falling back to plaintext here would let an attacker bypass encryption.
-      console.error('[kv] CRITICAL: Decrypt failed on existing encrypted blob:', e);
-      try {
-        const { logEvent } = await import('./analytics.js');
-        logEvent('security_degradation', { reason: 'accounts_decrypt_failed', error: String(e) });
-      } catch { /* can't log */ }
-      // Return empty rather than falling back to potentially stale/tampered plaintext
-      return {} as T;
-    }
-  }
-
-  // Plaintext only valid during initial migration (no encrypted key exists yet)
-  const data = await kv.get('accounts', 'json');
-  return (data || {}) as T;
-}
-
-export async function saveAccounts<T>(accounts: T): Promise<void> {
-  const kv = getKV();
-  const json = JSON.stringify(accounts, null, 2);
-
+  const encrypted = await kv.get(`account:${githubKey}`);
+  if (!encrypted) return null;
   try {
-    await kv.put('accounts:encrypted', encrypt(json));
-    // Delete plaintext key on successful encryption (one-time migration)
-    try { await kv.delete('accounts'); } catch { /* non-fatal */ }
+    return JSON.parse(decrypt(encrypted));
   } catch (e) {
-    // FAIL LOUDLY: encryption failure is a security degradation, not a graceful fallback
-    console.error('[kv] CRITICAL: Encrypt failed, saving plaintext:', e);
-    await kv.put('accounts', json);
-    // Surface to health digest — this must not stay silent
-    try {
-      const { logEvent } = await import('./analytics.js');
-      logEvent('security_degradation', { reason: 'accounts_encryption_failed', error: String(e) });
-    } catch { /* can't log — at least console.error fired */ }
+    console.error(`[kv] Decrypt failed for account:${githubKey}:`, e);
+    return null;
   }
 }
 
-// ---------------------------------------------------------------------------
-// OAuth Clients
-// ---------------------------------------------------------------------------
-
-export async function loadOAuthClients(): Promise<Record<string, unknown>> {
+/** Save a single account by github_id key. */
+export async function saveAccount(githubKey: string, account: Record<string, unknown>): Promise<void> {
   const kv = getKV();
-  const data = await kv.get('oauth_clients', 'json');
-  return (data || {}) as Record<string, unknown>;
+  await kv.put(`account:${githubKey}`, encrypt(JSON.stringify(account)));
 }
 
-export async function saveOAuthClients(clients: Record<string, unknown>): Promise<void> {
+/** Set auth lookup index: api_key_hash → github_id key. */
+export async function setAuthIndex(apiKeyHash: string, githubKey: string): Promise<void> {
   const kv = getKV();
-  await kv.put('oauth_clients', JSON.stringify(clients));
+  await kv.put(`auth:${apiKeyHash}`, githubKey);
+}
+
+/** Look up github_id key by api_key_hash. O(1). */
+export async function getAuthIndex(apiKeyHash: string): Promise<string | null> {
+  const kv = getKV();
+  return await kv.get(`auth:${apiKeyHash}`);
+}
+
+/** Set email token lookup index: token → github_id key. */
+export async function setEmailTokenIndex(token: string, githubKey: string): Promise<void> {
+  const kv = getKV();
+  await kv.put(`emailtoken:${token}`, githubKey);
+}
+
+/** Look up github_id key by email token. O(1). */
+export async function getEmailTokenIndex(token: string): Promise<string | null> {
+  const kv = getKV();
+  return await kv.get(`emailtoken:${token}`);
+}
+
+/** Delete an account and its auth index. */
+export async function deleteAccount(githubKey: string, apiKeyHash: string): Promise<void> {
+  const kv = getKV();
+  await kv.delete(`account:${githubKey}`);
+  await kv.delete(`auth:${apiKeyHash}`);
+}
+
+/** List all accounts (for admin/cron — iterates KV keys). */
+async function listAllAccounts(): Promise<Record<string, Record<string, unknown>>> {
+  const kv = getKV();
+  const result: Record<string, Record<string, unknown>> = {};
+  let cursor: string | undefined;
+  do {
+    const page = await kv.list({ prefix: 'account:', cursor });
+    for (const key of page.keys) {
+      const account = await loadAccount(key.name.replace('account:', ''));
+      if (account) result[key.name.replace('account:', '')] = account;
+    }
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+  return result;
+}
+
+/** Load all accounts from per-key storage. */
+export async function loadAccounts<T>(): Promise<T> {
+  return await listAllAccounts() as T;
+}
+
+/** Save multiple accounts (convenience wrapper). */
+export async function saveAccounts<T>(accounts: T): Promise<void> {
+  for (const [key, account] of Object.entries(accounts as Record<string, Record<string, unknown>>)) {
+    await saveAccount(key, account);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -98,6 +116,14 @@ function todayKey(): string {
   return `events:${new Date().toISOString().split('T')[0]}`;
 }
 
+/**
+ * Append event line to daily key. Called by flushEvents() which batches
+ * all events from a single request into one write. The race condition
+ * (two concurrent requests appending to the same key) is acceptable at
+ * low volume — flushEvents batching means each request writes once, so
+ * races require two requests completing at the exact same millisecond.
+ * At 1000+ concurrent users, migrate to per-event keys.
+ */
 export async function appendEvent(line: string): Promise<void> {
   const kv = getKV();
   const key = todayKey();
@@ -106,39 +132,32 @@ export async function appendEvent(line: string): Promise<void> {
 }
 
 /**
- * Get events for the last N days (default 30). Avoids reading all historical keys.
- * Each day = 1 KV read. 30 days = 30 reads instead of unbounded.
+ * Get events for the last N days (default 30).
+ * Each day = 1 KV read. 30 days = 30 reads.
  */
 export async function getRecentDaysEvents(days: number = 30): Promise<string> {
   const kv = getKV();
-
-  // Generate keys oldest→newest, fetch all in parallel
   const keys: string[] = [];
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
     keys.push(`events:${d.toISOString().split('T')[0]}`);
   }
-
   const results = await Promise.all(keys.map(k => kv.get(k)));
   return results.filter(Boolean).join('');
 }
 
 /**
  * Get ALL events across all time. Only use for explicit data export.
- * Prefer getRecentDaysEvents() for dashboard/analytics.
  */
 export async function getAllEvents(): Promise<string> {
   const kv = getKV();
   const keys = await kv.list({ prefix: 'events:' });
   if (keys.keys.length === 0) return '';
-
   const sorted = keys.keys.sort((a, b) => a.name.localeCompare(b.name));
   const chunks: string[] = [];
-
   for (const key of sorted) {
     const data = await kv.get(key.name);
     if (data) chunks.push(data);
   }
-
   return chunks.join('');
 }

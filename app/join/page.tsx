@@ -1,15 +1,20 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ThemeToggle } from '../components/ThemeToggle';
 import FooterSection from '../components/FooterSection';
 import PhilosophyFiveWays from '../components/PhilosophyFiveWays';
 import SessionDemo from '../components/SessionDemo';
 
-export default function JoinPage() {
+function JoinPageContent() {
   const searchParams = useSearchParams();
   const ref = searchParams.get('ref');
-  const signupUrl = `/signup${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+  const refSource = searchParams.get('ref_source');
+  const signupParams = [ref ? `ref=${encodeURIComponent(ref)}` : '', refSource ? `ref_source=${encodeURIComponent(refSource)}` : '']
+    .filter(Boolean)
+    .join('&');
+  const signupUrl = `/signup${signupParams ? `?${signupParams}` : ''}`;
 
   return (
     <div style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', minHeight: '100vh' }}>
@@ -62,5 +67,13 @@ export default function JoinPage() {
 
       <FooterSection />
     </div>
+  );
+}
+
+export default function JoinPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }} />}>
+      <JoinPageContent />
+    </Suspense>
   );
 }
