@@ -60,7 +60,7 @@ curl -sS "$FACTORY_RAW/block.md" -o "$ALEX_DIR/.block" 2>/dev/null
 # Claude Code — skill + hooks
 if command -v node &>/dev/null && { [ -d "$HOME/.claude" ] || command -v claude &>/dev/null; }; then
   mkdir -p "$HOME/.claude/skills/alexandria" 2>/dev/null
-  curl -sS "$FACTORY_RAW/skills/claude.md" -o "$HOME/.claude/skills/alexandria/SKILL.md" 2>/dev/null
+  curl -sS "$FACTORY_RAW/skills/claudecode.md" -o "$HOME/.claude/skills/alexandria/SKILL.md" 2>/dev/null
 
   mkdir -p "$HOME/.claude/scheduled-tasks/alexandria" 2>/dev/null
   curl -sS "$FACTORY_RAW/skills/scheduled.md" -o "$HOME/.claude/scheduled-tasks/alexandria/SKILL.md" 2>/dev/null
