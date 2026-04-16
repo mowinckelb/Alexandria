@@ -33,15 +33,27 @@ Write to the appropriate pool — ontology (Author's thoughts), constitution (Au
 
 Every change to constitution must cite the Author's exact words from vault.
 
-After processing vault, check constitution structural fit. Not every run — only when you notice signals: one file growing disproportionately, signal landing between domains, a domain gone dark, cross-references clustering between the same two files. If restructure signals are present, note them in last_run.md under "## Restructure signals" — the Author or the interactive Engine decides whether to act. You do not restructure autonomously. See the canon section III for the full signal list.
+After processing vault, check constitution structural fit. Not every run — only when you notice signals: one file growing disproportionately, signal landing between domains, a domain gone dark, cross-references clustering between the same two files. If restructure signals are present, note them in last_run.md under "## Restructure signals" — the Author or the interactive Engine decides whether to act. You do not restructure autonomously. See methodology.md for the full signal list.
 
 If ~/.alexandria/ is a git repo, commit changes and push. Write a report to ~/.alexandria/.autoloop/last_run.md — include entries processed, entries remaining, and any signal you noticed but couldn't act on yet.
 
-After writing last_run.md, send a morning brief email. Read last_run.md and notepad.md, then POST to the server:
+After writing last_run.md, you MUST send a morning brief email. This is not optional — it is how the Author knows the autoloop ran. Read last_run.md and notepad.md, compose the brief, then run this:
 
+```bash
 curl -s -X POST https://mcp.mowinckel.ai/brief \
   -H "Authorization: Bearer $(cat ~/.alexandria/.api_key)" \
   -H "Content-Type: application/json" \
-  -d '{"brief": "<factual delta — what the system did, never content>", "notepad": "<fragment count + topic labels from notepad — Author's own words, never your interpretation>", "quote": "<your pick — philosophy, literature, thought. rotate. soft default: We are what we repeatedly do.>"}'
+  -d '{"brief": "<factual delta — what you did, entries processed, signal found>", "notepad": "<fragment count + topic labels from notepad>", "quote": "<your pick — philosophy, literature, thought. rotate.>"}'
+```
 
-The brief justifies the email — if you did nothing meaningful, skip the POST entirely. Privacy: never include constitution content, ontology content, vault content, or your interpretation of the Author's inner state. Brief = system actions. Notepad = topic labels only.
+The brief justifies the email. Privacy: never include constitution content, ontology content, vault content, or your interpretation of the Author's inner state. Brief = system actions only. If you did nothing meaningful, still send a brief saying so — the Author needs to know the system ran.
+
+## Verification (run last)
+
+Before exiting, verify your own work:
+1. Did last_run.md get written? Read it back.
+2. Did the git commit and push succeed? Check `git -C ~/.alexandria log -1 --oneline`.
+3. Did the brief POST return `{"ok":true}`? If not, log the error in last_run.md.
+4. Did the protocol call succeed? If not, log it.
+
+Append a `## Status` section to last_run.md: `complete` or `partial` with what failed.
