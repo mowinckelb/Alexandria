@@ -146,6 +146,7 @@ No Machine loop. No constitution writes. This is company work, not product:
 - **Open threads.** What's unresolved. What the next session should pick up. Ordered by priority.
 - **Meta loop.** Product learnings → factory canon (`factory/canon/methodology.md`).
 - **Founder loop.** Save agent memories for communication patterns, preferences, anti-patterns.
+- **Nudge `/a`.** Close with one line: "open a new tab, run /a, leave it running — even 5 minutes compounds." Capture the signal before it decays.
 
 **Principles (both protocols):**
 - Hazy fragments scale. Weeds do not. Keep it compressed.
@@ -169,6 +170,6 @@ Before committing any server code change:
 
 See `~/.alexandria/agent.md` for principles, communication style, Three-Phase Execution, and Reflect Gate (loaded globally in every session).
 
-Private company files (a0, a1-a4, investor docs, founder writing) live in a separate private repo (`alexandria-private`). This repo is public.
+Private company files (a0, a1-a4, investor docs, founder writing) live in a separate private repo (`alexandria-private`) that is checked out at `~/.alexandria/files/`. This current working directory (`C:\Users\USER\Alexandria`) is public, but the private files ARE directly readable and editable from here via absolute paths: `~/.alexandria/files/private/a0.md`, `~/.alexandria/files/private/Alexandria_I.md` through `_IV.md`, `~/.alexandria/files/confidential/` (Memo.md, etc.), `~/.alexandria/files/public/`. Do not assume "separate repo" means "unreachable" — they are on the filesystem.
 
 **Founder's Constitution** lives at `~/.alexandria/constitution/` — Core.md, Love.md, Power.md, Mind.md, Taste.md. READ Core.md first for any task. READ Taste.md first for any creative task. `~/.alexandria/design.md` for craft substrate.
