@@ -23,6 +23,10 @@ if [ -f ~/.alexandria/.api_key ]; then
 fi
 ```
 
+## Machine audit (run before vault processing)
+
+Before processing vault, consider Machine state. Intelligence decision — no fixed checklist. Look at whatever seems worth looking at this run: last run's `## Status` (complete vs partial), derivative freshness vs sources, `.call_manifest` validity, git repo cleanliness, `.alexandria_errors` if present. Fix what's trivially fixable (regenerate a missing derivative, commit a dirty repo, clear an error that was transient). Whatever you can't fix, append a terse line to `~/.alexandria/.machine_signal` so the Factory autoloop sees it across Authors. If nothing caught your attention this run, skip — don't invent problems. The audit is a mirror, not a checklist.
+
 Read ~/.alexandria/constitution/, ~/.alexandria/ontology/, ~/.alexandria/notepad.md, ~/.alexandria/machine.md, and ~/.alexandria/feedback.md.
 
 Process vault entries (newest first) against the current constitution. For each entry: what signal exists that isn't captured yet?
@@ -59,3 +63,5 @@ Before exiting, verify your own work:
 4. Did the protocol call succeed? If not, log it.
 
 Append a `## Status` section to last_run.md: `complete` or `partial` with what failed.
+
+5. Did the audit find anything worth clearing from `.alexandria_errors`? If items were acted on, remove the corresponding lines. If items remain unactionable, leave them — the next run sees them.

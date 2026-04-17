@@ -13,7 +13,7 @@ import { registerProtocol } from './protocol.js';
 import { registerRoutes } from './routes.js';
 import { registerBillingRoutes, settleMonthlyTabs, recalculateAllKinPricing } from './billing.js';
 import { registerLibraryRoutes } from './library.js';
-import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, flushEvents, archiveMarketplaceSignals } from './analytics.js';
+import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, flushEvents } from './analytics.js';
 import { setKV, getKV } from './kv.js';
 import { getAllowedOrigins } from './cors.js';
 
@@ -339,7 +339,7 @@ export default {
     initEnv(env);
     // Daily cron (0 9 * * *) + monthly settlement (0 2 1 * *)
     // Settlement + engagement are idempotent so running on every cron trigger is safe
-    await Promise.all([runFollowupCheck(), runEngagementCheck(), runHealthDigest(), settleMonthlyTabs(), recalculateAllKinPricing(), archiveMarketplaceSignals()]);
+    await Promise.all([runFollowupCheck(), runEngagementCheck(), runHealthDigest(), settleMonthlyTabs(), recalculateAllKinPricing()]);
     ctx.waitUntil(flushEvents());
   },
 };

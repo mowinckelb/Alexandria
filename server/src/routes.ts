@@ -397,7 +397,7 @@ export function registerRoutes(app: Hono) {
     try {
       const kv = getKV();
       const login = account.github_login;
-      for (const prefix of ['feedback:', 'marketplace:signal:', 'marketplace:archive:']) {
+      for (const prefix of ['feedback:', 'marketplace:signal:']) {
         let cursor: string | undefined;
         do {
           const page = await kv.list({ prefix, cursor });
@@ -477,6 +477,7 @@ export function registerRoutes(app: Hono) {
 
     // Store as individual timestamped key (avoids read-modify-write on a growing blob)
     // Author attribution enables filtering/weighting during delta processing
+    // No TTL: Factory autoloop drains signal after processing via DELETE /admin/marketplace/signals
     try {
       const kv = getKV();
       const ts = new Date().toISOString().replace(/[:.]/g, '-');
@@ -485,7 +486,7 @@ export function registerRoutes(app: Hono) {
         t: new Date().toISOString(),
         author: account.github_login,
         signal: signal.slice(0, 10000),
-      }), { expirationTtl: 30 * 24 * 60 * 60 });
+      }));
 
       logEvent('machine_signal', { length: String(signal.length) });
 
@@ -516,12 +517,13 @@ export function registerRoutes(app: Hono) {
     try {
       const kv = getKV();
       const ts = new Date().toISOString().replace(/[:.]/g, '-');
+      // No TTL: Factory autoloop drains feedback after processing via DELETE /admin/feedback
       await kv.put(`feedback:${ts}`, JSON.stringify({
         t: new Date().toISOString(),
         author: account.github_login,
         text: text.slice(0, 5000),
         context: context?.slice?.(0, 200) || 'direct',
-      }), { expirationTtl: 90 * 24 * 60 * 60 }); // 90 days
+      }));
 
       logEvent('user_feedback', {
         author: account.github_login,
@@ -656,6 +658,7 @@ export function registerRoutes(app: Hono) {
 
   // --- Marketplace: read signals (admin only, called by meta trigger) ---
 
+  // Factory autoloop reads pending signal here. Signal persists until drained via DELETE.
   app.get('/admin/marketplace/signals', async (c) => {
     if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
 
@@ -663,7 +666,7 @@ export function registerRoutes(app: Hono) {
     const signals: { t: string; author: string; signal: string }[] = [];
     let cursor: string | undefined;
     do {
-      const page = await kv.list({ prefix: 'marketplace:archive:', cursor });
+      const page = await kv.list({ prefix: 'marketplace:signal:', cursor });
       const raws = await Promise.all(page.keys.map(k => kv.get(k.name)));
       for (const raw of raws) {
         if (!raw) continue;
@@ -672,9 +675,83 @@ export function registerRoutes(app: Hono) {
       cursor = page.list_complete ? undefined : page.cursor;
     } while (cursor);
 
-    // Strip author for anonymity — meta trigger sees signal content only
+    // Strip author for anonymity — Factory autoloop sees signal content only
     const anonymous = signals.map(s => ({ t: s.t, signal: s.signal }));
     return c.json({ signals: anonymous, count: anonymous.length });
+  });
+
+  // Factory autoloop drains processed signal. ?before=<iso> required.
+  // Signal arriving after <before> survives the drain for the next run.
+  app.delete('/admin/marketplace/signals', async (c) => {
+    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
+    const before = c.req.query('before');
+    if (!before) return c.json({ error: 'before=<iso> required' }, 400);
+    const cutoff = Date.parse(before);
+    if (isNaN(cutoff)) return c.json({ error: 'before must be parseable ISO timestamp' }, 400);
+
+    const kv = getKV();
+    let deleted = 0;
+    let cursor: string | undefined;
+    do {
+      const page = await kv.list({ prefix: 'marketplace:signal:', cursor });
+      const raws = await Promise.all(page.keys.map(k => kv.get(k.name).then(v => ({ key: k.name, v }))));
+      for (const { key, v } of raws) {
+        if (!v) continue;
+        try {
+          const obj = JSON.parse(v);
+          if (obj.t && Date.parse(obj.t) < cutoff) {
+            await kv.delete(key);
+            deleted++;
+          }
+        } catch { continue; }
+      }
+      cursor = page.list_complete ? undefined : page.cursor;
+    } while (cursor);
+
+    logEvent('marketplace_signal_drained', { deleted: String(deleted), before });
+    return c.json({ ok: true, deleted });
+  });
+
+  // Factory autoloop drains processed feedback. ?before=<iso> required.
+  app.delete('/admin/feedback', async (c) => {
+    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
+    const before = c.req.query('before');
+    if (!before) return c.json({ error: 'before=<iso> required' }, 400);
+    const cutoff = Date.parse(before);
+    if (isNaN(cutoff)) return c.json({ error: 'before must be parseable ISO timestamp' }, 400);
+
+    const kv = getKV();
+    let deleted = 0;
+    let cursor: string | undefined;
+    do {
+      const page = await kv.list({ prefix: 'feedback:', cursor });
+      const raws = await Promise.all(page.keys.map(k => kv.get(k.name).then(v => ({ key: k.name, v }))));
+      for (const { key, v } of raws) {
+        if (!v) continue;
+        try {
+          const obj = JSON.parse(v);
+          if (obj.t && Date.parse(obj.t) < cutoff) {
+            await kv.delete(key);
+            deleted++;
+          }
+        } catch { continue; }
+      }
+      cursor = page.list_complete ? undefined : page.cursor;
+    } while (cursor);
+
+    logEvent('feedback_drained', { deleted: String(deleted), before });
+    return c.json({ ok: true, deleted });
+  });
+
+  // Factory autoloop writes a liveness marker. Health digest reads it to detect stuck autoloop.
+  app.post('/admin/cron/factory_autoloop_marker', async (c) => {
+    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
+    const kv = getKV();
+    await kv.put('cron:factory_autoloop', JSON.stringify({
+      t: new Date().toISOString(),
+    }));
+    logEvent('factory_autoloop_marker', {});
+    return c.json({ ok: true });
   });
 
   // --- Library signal (RL aggregation for meta trigger) ---

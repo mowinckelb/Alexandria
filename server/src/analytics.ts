@@ -249,31 +249,38 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
 
 /**
  * Marketplace status — is the cross-Author learning loop working?
+ * Signal lives in marketplace:signal:* until drained by Factory autoloop.
  */
 async function getMarketplaceStatus(events: Record<string, string>[]): Promise<Record<string, unknown>> {
   try {
     const kv = getKV();
 
-    // Pending signals (not yet archived)
+    // Pending signals — what Factory autoloop will process next
     const pending = await kv.list({ prefix: 'marketplace:signal:' });
-    // Archived signals (processed, 30-day TTL)
-    const archived = await kv.list({ prefix: 'marketplace:archive:' });
-    // Last archive from event log
-    const archiveEvents = events.filter(e => e.e === 'marketplace_signals_archived');
-    const lastArchive = archiveEvents.length > 0 ? archiveEvents[archiveEvents.length - 1].t : null;
 
-    // Signal ingest rate
+    // Signal ingest rate from event log (window is soft default — Factory may reconsider)
     const signalEvents = events.filter(e => e.e === 'machine_signal');
     const signalsThisWeek = signalEvents.filter(e =>
       Date.now() - new Date(e.t).getTime() < 7 * 24 * 60 * 60 * 1000
     ).length;
 
+    // Factory autoloop liveness — cron:factory_autoloop is written by Factory on each run
+    const markerRaw = await kv.get('cron:factory_autoloop');
+    let lastFactoryRun: string | null = null;
+    if (markerRaw) {
+      try { lastFactoryRun = JSON.parse(markerRaw).t; } catch { /* ignore */ }
+    }
+
+    // Last drain from event log
+    const drainEvents = events.filter(e => e.e === 'marketplace_signal_drained');
+    const lastDrain = drainEvents.length > 0 ? drainEvents[drainEvents.length - 1].t : null;
+
     return {
       status: signalsThisWeek > 0 ? 'ok' : 'no signal this week',
       signals_pending: pending.keys.length,
-      signals_archived: archived.keys.length,
       signals_this_week: signalsThisWeek,
-      last_archive: lastArchive,
+      last_factory_run: lastFactoryRun,
+      last_drain: lastDrain,
     };
   } catch {
     return { status: 'error reading marketplace state' };
@@ -393,36 +400,5 @@ export async function getUserEvents(login: string): Promise<Record<string, unkno
   };
 }
 
-/**
- * Archive marketplace signals from input queue.
- * Moves marketplace:signal:* → marketplace:archive:* with 30-day TTL.
- * Delta synthesis happens in the meta trigger (weekly, Opus) — not here.
- */
-export async function archiveMarketplaceSignals(): Promise<{ archived: number }> {
-  const kv = getKV();
-
-  // Paginate — KV list returns max 1000 per call
-  const allKeys: { name: string }[] = [];
-  let cursor: string | undefined;
-  do {
-    const page = await kv.list({ prefix: 'marketplace:signal:', cursor });
-    allKeys.push(...page.keys);
-    cursor = page.list_complete ? undefined : (page as any).cursor;
-  } while (cursor);
-
-  if (allKeys.length === 0) return { archived: 0 };
-
-  for (const key of allKeys) {
-    try {
-      const raw = await kv.get(key.name);
-      if (raw) {
-        const archiveKey = key.name.replace('marketplace:signal:', 'marketplace:archive:');
-        await kv.put(archiveKey, raw, { expirationTtl: 30 * 24 * 60 * 60 });
-      }
-      await kv.delete(key.name);
-    } catch { continue; }
-  }
-
-  logEvent('marketplace_signals_archived', { count: String(allKeys.length) });
-  return { archived: allKeys.length };
-}
+// Archive mechanism removed — Factory autoloop drains processed signal directly via
+// DELETE /admin/marketplace/signals. Signal lives until consumed, not until time expires.

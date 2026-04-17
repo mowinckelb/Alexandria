@@ -219,6 +219,35 @@ export async function runHealthDigest(): Promise<void> {
       if (missing.length > 0) escalate('sprint', `Missing env vars: ${missing.join(', ')}`);
     } catch { /* non-fatal */ }
 
+    // Factory autoloop liveness — soft default 14 days (Factory autoloop may reconsider this)
+    try {
+      const markerRaw = await kv.get('cron:factory_autoloop');
+      const factoryStaleDays = 14;
+      if (!markerRaw) {
+        escalate('stroll', 'Factory autoloop: no marker yet — never run?');
+      } else {
+        const marker = JSON.parse(markerRaw);
+        const ageMs = Date.now() - new Date(marker.t).getTime();
+        if (ageMs > factoryStaleDays * 24 * 60 * 60 * 1000) {
+          escalate('stroll', `Factory autoloop stale (${Math.floor(ageMs / 86400000)}d since last run)`);
+        }
+      }
+    } catch { /* non-fatal */ }
+
+    // Signal backlog check — if Factory autoloop drains regularly, pending should stay modest.
+    // Soft default threshold (Factory may reconsider as scale grows)
+    try {
+      const signalPending = await kv.list({ prefix: 'marketplace:signal:' });
+      const feedbackPending = await kv.list({ prefix: 'feedback:' });
+      const backlogCeiling = 5000;
+      if (signalPending.keys.length > backlogCeiling) {
+        escalate('stroll', `marketplace:signal backlog ${signalPending.keys.length} > ${backlogCeiling} — Factory drain stuck?`);
+      }
+      if (feedbackPending.keys.length > backlogCeiling) {
+        escalate('stroll', `feedback backlog ${feedbackPending.keys.length} > ${backlogCeiling} — Factory drain stuck?`);
+      }
+    } catch { /* non-fatal */ }
+
     // Cron marker (proves the job ran — includes issue list for debugging)
     try {
       await kv.put('cron:health_digest', JSON.stringify({
