@@ -1,12 +1,33 @@
 # The Library
 
-*The Library makes cognitive transformation visible, shareable, and social. It completes the loop: join → train → show. This file covers Library surface formats, publish conventions, and the browsing loop.*
+*The Library makes cognitive transformation visible, shareable, and social. It completes the loop: join → train → show. This file covers Library folder structure, surface formats, publish conventions, and the browsing loop.*
+
+## Structure — three tier sub-folders
+
+`~/.alexandria/library/` has three sub-folders, each representing a visibility tier:
+
+```
+~/.alexandria/library/
+  public/     # anyone on the open web
+  paid/       # paying Authors (subscribers)
+  invite/     # token-gated — only those the Author invites
+```
+
+**Folder = visibility. Filename = artifact type.** A shadow at paid tier is `paid/shadow.md`. A public pulse is `public/pulse.md`. A private delta (invite tier with zero invitees) is `invite/delta.md`. Drafts stay within each tier as `*_draft.*` (e.g. `public/shadow_draft.md`).
+
+This structure scales without filename explosion. The same artifact type (shadow, pulse, works, delta, quiz) can live at different tiers simply by folder placement.
 
 ## Publishing
 
-The Engine generates Library artifacts from the Constitution. The Author's consent lives in two places: the filter (`factory/canon/filter.md` + `~/.alexandria/filter.md`) and `library/` placement. The filter is the standing policy — what the Author would tell a stranger given infinite time. Placement under a final (non-draft) filename in `~/.alexandria/library/` is the per-artifact promotion. The Publisher ships final-named library files automatically; it never ships drafts (`*_draft.*`) and never ships anything from outside `library/`. Writing a draft is the Engine's candidate. Writing a final-named file is the Author's consent. Both gates must pass.
+The Engine generates Library artifacts from the Constitution. The Author's consent lives in two places: the filter (`factory/canon/filter.md` + `~/.alexandria/filter.md`) and tier-folder placement. The filter is the standing policy — what the Author would tell a stranger given infinite time. Placement under a final (non-draft) filename inside one of the three tier sub-folders is the per-artifact promotion AND the tier declaration. The Publisher ships final-named tier-foldered files automatically; it never ships drafts (`*_draft.*`), files outside the three tier folders, or anything outside `library/`. Writing a draft is the Engine's candidate. Writing a final-named file in a tier folder is the Author's consent at that tier. Both gates must pass.
 
-Five artifact types: Shadow (curated Constitution fragments, three visibility tiers), Pulse (monthly change artifact), Delta (private progress diff), Quiz (test how well someone knows the Author — the viral distribution engine), Work (finished creative artifact, frozen on publication).
+**Publish call mapping.** The Publisher maps placement to the protocol's `PUT /file/{name}` call:
+- `name` = the path relative to `library/` (e.g. `public/shadow.md`).
+- `visibility` = the tier folder (`public`, `paid`, or `invite`).
+
+The server's protocol layer accepts all three visibility values and stores accordingly.
+
+Five artifact types: Shadow (curated Constitution fragments), Pulse (monthly change artifact, typically public), Delta (progress diff, typically invite with zero invitees = Author-only), Quiz (viral distribution engine, typically public), Work (finished creative artifact, frozen on publication, any tier).
 
 The Engine decides content, structure, and format for all artifacts. No prescribed shapes. The marketplace watches engagement and surfaces what works. The only hard constraint: at least one shadow must be public or authors-visible — the minimum that makes the network function.
 

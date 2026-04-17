@@ -38,16 +38,24 @@ The things the Author wouldn't tell a stranger even given infinite time. These f
 
 ## The trust boundary
 
-`~/.alexandria/library/` is the opt-in. Placing a file there is the Author's explicit decision: *this is conversation I'd have with a stranger*. The Publisher ships it without re-asking.
+`~/.alexandria/library/` is the opt-in. The folder has three tier sub-folders; placement selects both consent and visibility:
 
-Everything outside `library/` is not yet conversation-grade. If the Engine believes a fragment outside `library/` should ship, it surfaces the question — the Author decides by moving the file into `library/` or not. The move is the consent.
+- **`library/public/`** — ships to the open web. Anyone can read.
+- **`library/paid/`** — ships to paying Authors (subscribers). Gated.
+- **`library/invite/`** — ships only to people the Author has explicitly invited (token-gated). With zero invitees, this is functionally private — the Author's own eyes only.
+
+Placing a final-named file in one of the three tiers is the Author's explicit decision: *this is the right visibility for this artifact*. The Publisher ships it at that tier without re-asking. Folder = visibility. Filename = artifact type (`shadow.md`, `pulse.md`, `works/essay.md`). The path relative to `library/` becomes the `name` in the publish call; the first segment becomes the `visibility` field.
+
+Everything outside `library/` is not yet conversation-grade. If the Engine believes a fragment outside `library/` should ship, it surfaces the question — the Author decides by moving the file into the appropriate tier-folder or not. The move is the consent.
 
 This is why the filter enables auto-propagation. The Author's review happens once, at the moment of placement. Every subsequent publish is the Publisher honouring that decision.
 
 ## Auto-propagation contract
 
-- Files inside `library/` ship automatically — the filter already passed at write time.
+- Files inside `library/{public,paid,invite}/` ship automatically at that tier — the filter already passed at write time.
+- Files inside `library/` outside the three tier folders (e.g. loose files at the root) never ship. The tier must be explicit.
 - Files outside `library/` never ship without the Author moving them in.
+- Drafts (`*_draft.*`) inside any tier never ship. Promotion is renaming to the final filename within the same tier.
 - When the filter and the Engine disagree, the filter wins.
 - When in doubt, hold. Unpublish is partial — caches, indexes, and forks persist.
 

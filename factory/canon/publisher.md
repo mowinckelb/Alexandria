@@ -45,7 +45,9 @@ The Publisher ships nothing that hasn't passed the Author's filter. The filter l
 
 ## The trust boundary
 
-`~/.alexandria/library/` is the opt-in. A final-named file there (e.g. `shadow_free.md`, `pulse.md`, `works/essay.md`) is the Author's explicit authorship decision — the Publisher ships it automatically. Draft files (`*_draft.*`) are Engine-generated candidates the Author hasn't yet approved; drafts never ship. The Author promotes a draft by writing the final-named file, and that write is the per-artifact consent event. Files outside `library/` never ship unless the Author moves them in.
+`~/.alexandria/library/` has three tier sub-folders: `public/`, `paid/`, `invite/`. The Author's final-named file placement inside one of them is the explicit decision — both *this is ready* and *this is the right visibility*. The Publisher ships it automatically at that tier. Draft files (`*_draft.*`) anywhere under `library/` are Engine-generated candidates the Author hasn't yet approved; drafts never ship. Files outside the three tier folders (loose at `library/` root) don't ship — the tier must be explicit. Files outside `library/` never ship. The Author promotes a draft by renaming it to its final form within the appropriate tier — that rename is the per-artifact consent event.
+
+**Publish mapping.** `library/{tier}/{name}` → `PUT /file/{tier}/{name}` with body `{text, visibility: tier}`. The protocol accepts `public`, `paid`, `invite` as visibility values.
 
 ## The first goodbye
 
