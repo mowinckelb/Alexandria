@@ -11,7 +11,7 @@ import { updateAccountBilling, getBillingSummary } from './accounts.js';
 import { runFollowupCheck, runEngagementCheck, runHealthDigest } from './cron.js';
 import { registerProtocol } from './protocol.js';
 import { registerRoutes } from './routes.js';
-import { registerBillingRoutes, settleMonthlyTabs, recalculateAllKinPricing } from './billing.js';
+import { registerBillingRoutes, settleMonthlyTabs, recalculateAllKinPricing, getStripe } from './billing.js';
 import { registerLibraryRoutes } from './library.js';
 import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, flushEvents } from './analytics.js';
 import { setKV, getKV } from './kv.js';
@@ -262,6 +262,104 @@ app.post('/waitlist', async (c) => {
 
 // CORS preflight for waitlist (website calls cross-origin)
 app.options('/waitlist', (c) => {
+  const reqOrigin = c.req.header('Origin') || '';
+  const allowed = getAllowedOrigins();
+  if (allowed.includes(reqOrigin)) {
+    c.header('Access-Control-Allow-Origin', reqOrigin);
+    c.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    c.header('Access-Control-Allow-Headers', 'Content-Type');
+  }
+  return c.body(null, 204);
+});
+
+// ---------------------------------------------------------------------------
+// Follow along (Door 2) — email list with optional one-time tip at the gate.
+// Radiohead "In Rainbows" model: $0 valid, tip optional.
+// ---------------------------------------------------------------------------
+
+app.post('/follow', async (c) => {
+  const reqOrigin = c.req.header('Origin') || '';
+  const allowed = getAllowedOrigins();
+  if (allowed.includes(reqOrigin)) {
+    c.header('Access-Control-Allow-Origin', reqOrigin);
+  }
+
+  const ip = c.req.header('cf-connecting-ip') || 'unknown';
+  try {
+    const kv = getKV();
+    const rateKey = `rate:follow:${ip}`;
+    const raw = await kv.get(rateKey);
+    const count = raw ? parseInt(raw, 10) : 0;
+    if (count >= 5) {
+      return c.json({ error: 'Too many requests.' }, 429);
+    }
+    await kv.put(rateKey, String(count + 1), { expirationTtl: 60 });
+  } catch (e) {
+    console.error('[rate-limit] KV failure, allowing request:', e);
+  }
+
+  const body = await c.req.json().catch(() => null);
+  const email = body?.email;
+  if (!email || typeof email !== 'string' || !email.includes('@') || email.length > 320) {
+    return c.json({ error: 'Valid email required.' }, 400);
+  }
+
+  const amountRaw = typeof body?.amount === 'number' ? body.amount : 0;
+  const amount = isFinite(amountRaw) ? Math.max(0, Math.min(500, Math.floor(amountRaw))) : 0;
+  const normalizedEmail = email.toLowerCase().trim();
+
+  try {
+    const db = (globalThis as any).__d1 as D1Database;
+    if (!db) {
+      return c.json({ error: 'Database not available.' }, 503);
+    }
+    await db.prepare(
+      'INSERT OR REPLACE INTO waitlist (email, type, source, created_at) VALUES (?, ?, ?, ?)'
+    ).bind(normalizedEmail, 'follow', 'public', new Date().toISOString()).run();
+
+    logEvent('follow_signup', { amount: String(amount) });
+  } catch (err: any) {
+    console.error('Follow signup error:', err?.message || err);
+    return c.json({ error: 'Failed to sign up.' }, 500);
+  }
+
+  if (amount <= 0) {
+    return c.json({ ok: true });
+  }
+
+  try {
+    const stripe = getStripe();
+    const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer_email: normalizedEmail,
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Alexandria — follow along' },
+          unit_amount: amount * 100,
+          recurring: { interval: 'month' },
+        },
+        quantity: 1,
+      }],
+      metadata: { follow_email: normalizedEmail, follow_amount: String(amount) },
+      subscription_data: {
+        metadata: { follow_email: normalizedEmail, follow_amount: String(amount) },
+      },
+      success_url: `${WEBSITE_URL}/follow?thanks=1`,
+      cancel_url: `${WEBSITE_URL}/follow`,
+    });
+
+    logEvent('follow_subscription_checkout', { amount: String(amount) });
+    return c.json({ ok: true, url: session.url });
+  } catch (err: any) {
+    console.error('Follow subscription checkout error:', err?.message || err);
+    // Email is already stored; surface partial-success so the UI can still confirm signup
+    return c.json({ ok: true, subscription_unavailable: true });
+  }
+});
+
+app.options('/follow', (c) => {
   const reqOrigin = c.req.header('Origin') || '';
   const allowed = getAllowedOrigins();
   if (allowed.includes(reqOrigin)) {
