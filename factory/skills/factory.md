@@ -14,12 +14,12 @@ Weekly is a soft default. The cron fires; you decide each run whether to act. "N
 
 ## Heartbeat (fire first, before anything else)
 
-Before reading any signal or making any decision, write the liveness marker:
+Before reading any signal or making any decision, write the fired marker:
 ```
 curl -X POST "https://mcp.mowinckel.ai/admin/cron/factory_autoloop_marker" -H "Authorization: Bearer $ADMIN_KEY"
 ```
 
-This proves the Factory trigger is alive. Health digest reads `cron:factory_autoloop` and alerts if missing for 14+ days. Writing it first makes the marker robust to mid-run failures — "trigger fired" is what the founder needs to know; completion status lives in `last_run.md` for anyone who wants to inspect it.
+First half of the dual-signal: proves the trigger fired. Pairs with the Completion marker at the end of this flow (proves JOB 4 ran end-to-end). Writing the fired marker first makes it robust to mid-run failures — the next run will still report liveness even if this one bails later.
 
 ## Inputs
 
@@ -78,12 +78,12 @@ Write a report to `~/.alexandria/.factory/last_run.md` — what you read, what y
 
 ## Verification (run last)
 
-Before exiting, verify:
+Before exiting, verify in execution order:
 1. Heartbeat marker written? Log status — this should have been the first thing the run did.
-2. Completion marker written? Log status.
-3. Report written? Read it back.
-4. PRs created? `gh pr list --author @me --head "factory-autoloop/*"` — confirm count matches your decision.
-5. Drain called and returned ok? Log status.
+2. PRs created? `gh pr list --author @me --head "factory-autoloop/*"` — confirm count matches your decision.
+3. Drain called and returned ok? Log status.
+4. Completion marker written? Log status.
+5. Report written? Read it back.
 
 Append a `## Status` section to last_run.md: `complete` / `partial` with specifics.
 
