@@ -63,17 +63,27 @@ curl -X DELETE "https://mcp.mowinckel.ai/admin/feedback?before=<read_at>" -H "Au
 
 Signal that arrived between `read_at` and now survives the drain and gets processed next run.
 
+## Completion marker (fire last)
+
+After the Drain, write the completion marker:
+```
+curl -X POST "https://mcp.mowinckel.ai/admin/cron/factory_completed_marker" -H "Authorization: Bearer $ADMIN_KEY"
+```
+
+This is the second half of the dual-signal: Heartbeat proves the trigger fired, Completion proves JOB 4 actually ran end-to-end. Health digest alerts when fired is fresh but completed is stale — that's the "trigger firing but silently broken" failure mode.
+
 ## Report
 
-Write a report to `~/.alexandria/.factory/last_run.md` — what you read, what you decided, what PRs you opened, any anomalies. This is the founder's eye into the loop. Liveness is signalled by the Heartbeat section above; completion details live here.
+Write a report to `~/.alexandria/.factory/last_run.md` — what you read, what you decided, what PRs you opened, any anomalies. This is the founder's eye into the loop.
 
 ## Verification (run last)
 
 Before exiting, verify:
 1. Heartbeat marker written? Log status — this should have been the first thing the run did.
-2. Report written? Read it back.
-3. PRs created? `gh pr list --author @me --head "factory-autoloop/*"` — confirm count matches your decision.
-4. Drain called and returned ok? Log status.
+2. Completion marker written? Log status.
+3. Report written? Read it back.
+4. PRs created? `gh pr list --author @me --head "factory-autoloop/*"` — confirm count matches your decision.
+5. Drain called and returned ok? Log status.
 
 Append a `## Status` section to last_run.md: `complete` / `partial` with specifics.
 

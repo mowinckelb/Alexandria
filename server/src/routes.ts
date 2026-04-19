@@ -743,7 +743,7 @@ export function registerRoutes(app: Hono) {
     return c.json({ ok: true, deleted });
   });
 
-  // Factory autoloop writes a liveness marker. Health digest reads it to detect stuck autoloop.
+  // Factory trigger fires this at JOB 0 (proves the trigger fired). Health digest alerts if missing.
   app.post('/admin/cron/factory_autoloop_marker', async (c) => {
     if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
     const kv = getKV();
@@ -751,6 +751,18 @@ export function registerRoutes(app: Hono) {
       t: new Date().toISOString(),
     }));
     logEvent('factory_autoloop_marker', {});
+    return c.json({ ok: true });
+  });
+
+  // Factory trigger fires this after JOB 4 completes (proves canon evolution actually ran).
+  // Paired with factory_autoloop_marker: if fired is fresh but completed is stale, JOB 4 is silently broken.
+  app.post('/admin/cron/factory_completed_marker', async (c) => {
+    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
+    const kv = getKV();
+    await kv.put('cron:factory_completed', JSON.stringify({
+      t: new Date().toISOString(),
+    }));
+    logEvent('factory_completed_marker', {});
     return c.json({ ok: true });
   });
 

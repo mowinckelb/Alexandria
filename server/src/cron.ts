@@ -219,17 +219,29 @@ export async function runHealthDigest(): Promise<void> {
       if (missing.length > 0) escalate('sprint', `Missing env vars: ${missing.join(', ')}`);
     } catch { /* non-fatal */ }
 
-    // Factory autoloop liveness — soft default 14 days (Factory autoloop may reconsider this)
+    // Factory autoloop liveness — two markers: fired (JOB 0) + completed (end of JOB 4).
+    // Fired stale → trigger dead. Completed stale while fired fresh → JOB 4 silently broken.
+    // Soft default 14 days (Factory autoloop may reconsider this).
     try {
-      const markerRaw = await kv.get('cron:factory_autoloop');
       const factoryStaleDays = 14;
-      if (!markerRaw) {
-        escalate('stroll', 'Factory autoloop: no marker yet — never run?');
+      const staleMs = factoryStaleDays * 24 * 60 * 60 * 1000;
+      const markerAgeMs = async (key: string): Promise<number | null> => {
+        const raw = await kv.get(key);
+        if (!raw) return null;
+        return Date.now() - new Date(JSON.parse(raw).t).getTime();
+      };
+
+      const firedAge = await markerAgeMs('cron:factory_autoloop');
+      if (firedAge === null) {
+        escalate('stroll', 'Factory autoloop: no fired marker yet — never run?');
+      } else if (firedAge > staleMs) {
+        escalate('stroll', `Factory autoloop stale (${Math.floor(firedAge / 86400000)}d since trigger fired)`);
       } else {
-        const marker = JSON.parse(markerRaw);
-        const ageMs = Date.now() - new Date(marker.t).getTime();
-        if (ageMs > factoryStaleDays * 24 * 60 * 60 * 1000) {
-          escalate('stroll', `Factory autoloop stale (${Math.floor(ageMs / 86400000)}d since last run)`);
+        // Fired is fresh. If completed was ever written and has since gone stale, JOB 4 is broken.
+        // If completed is absent entirely, treat as bootstrap — wait until it exists before alerting.
+        const completedAge = await markerAgeMs('cron:factory_completed');
+        if (completedAge !== null && completedAge > staleMs) {
+          escalate('stroll', `Factory fires but JOB 4 not completing (${Math.floor(completedAge / 86400000)}d since last completion)`);
         }
       }
     } catch { /* non-fatal */ }
