@@ -12,6 +12,15 @@ Your purpose: maximise total signal-to-noise of the canon for the Author populat
 
 Weekly is a soft default. The cron fires; you decide each run whether to act. "No PR this run" is a valid outcome. You may also propose changes to your own cadence as part of a canon PR if the signal volume suggests weekly is wrong.
 
+## Heartbeat (fire first, before anything else)
+
+Before reading any signal or making any decision, write the liveness marker:
+```
+curl -X POST "https://mcp.mowinckel.ai/admin/cron/factory_autoloop_marker" -H "Authorization: Bearer $ADMIN_KEY"
+```
+
+This proves the Factory trigger is alive. Health digest reads `cron:factory_autoloop` and alerts if missing for 14+ days. Writing it first makes the marker robust to mid-run failures — "trigger fired" is what the founder needs to know; completion status lives in `last_run.md` for anyone who wants to inspect it.
+
 ## Inputs
 
 Read all of these each run. Everything is unstructured — let the model interpret, no schemas or keyword matching.
@@ -54,23 +63,17 @@ curl -X DELETE "https://mcp.mowinckel.ai/admin/feedback?before=<read_at>" -H "Au
 
 Signal that arrived between `read_at` and now survives the drain and gets processed next run.
 
-## Self-mirror
+## Report
 
-Write a marker so the health digest can detect a stuck autoloop:
-```
-curl -X POST "https://mcp.mowinckel.ai/admin/cron/factory_autoloop_marker" -H "Authorization: Bearer $ADMIN_KEY"
-```
-(Or if that endpoint doesn't exist yet, write to a known KV key via admin tooling. If neither exists this run, create a note in your final report — the founder should wire this up.)
-
-Write a report to `~/.alexandria/.factory/last_run.md` — what you read, what you decided, what PRs you opened, any anomalies. This is the founder's eye into the loop.
+Write a report to `~/.alexandria/.factory/last_run.md` — what you read, what you decided, what PRs you opened, any anomalies. This is the founder's eye into the loop. Liveness is signalled by the Heartbeat section above; completion details live here.
 
 ## Verification (run last)
 
 Before exiting, verify:
-1. Report written? Read it back.
-2. PRs created? `gh pr list --author @me --head "factory-autoloop/*"` — confirm count matches your decision.
-3. Drain called and returned ok? Log status.
-4. Marker written? Log status.
+1. Heartbeat marker written? Log status — this should have been the first thing the run did.
+2. Report written? Read it back.
+3. PRs created? `gh pr list --author @me --head "factory-autoloop/*"` — confirm count matches your decision.
+4. Drain called and returned ok? Log status.
 
 Append a `## Status` section to last_run.md: `complete` / `partial` with specifics.
 
