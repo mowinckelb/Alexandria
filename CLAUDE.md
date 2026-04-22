@@ -23,8 +23,8 @@ Everything in Alexandria maps to one of four layers:
   - `worker.ts` (entry + middleware), `protocol.ts` (the protocol — file, call, library, marketplace), `routes.ts` (company HTTP handlers), `auth.ts` (accounts + API keys), `accounts.ts` (account management + admin), `email.ts` (Resend + all templates), `cron.ts` (health digest + followup + engagement), `analytics.ts` (event log + dashboard), `billing.ts` (Stripe), `library.ts` (Library CRUD), `kv.ts` (KV persistence), `templates.ts` (HTML), `cors.ts` (CORS), `crypto.ts` (encryption), `db.ts` (D1/R2 accessor).
   - Stateless server. No private user data stored. KV for accounts/events, D1 for Library metadata + protocol data, R2 for published content.
 - **Factory:** `factory/` — public, forkable. Canon methodology, hooks, skills, templates, setup, onboarding block.
-- **Static assets:** `public/` (includes `public/docs/` for public artifacts, `public/partners/` for investor docs).
-- **Partners:** Markdown docs served at `/partners/*` via dynamic `[doc]` route. Source of truth is `public/partners/` (this is a public repo).
+- **Static assets:** `public/` (includes `public/docs/` for public artifacts).
+- **Investor docs:** kept out of this public repo. Backed up locally at `~/.alexandria/files/private/partners/`. Shared directly with partners (email/DM) when needed — no public URL, no `/partners/` route.
 - **Pre-commit hook:** `scripts/pre-commit` gates server type check + app build (mirrors CI). Activate on fresh clone: `git config core.hooksPath scripts`.
 - **Build:** `cd server && npx wrangler deploy --dry-run --outdir=dist` (server). **Deploy:** `cd server && npx wrangler deploy` then check health. **Push:** `bash scripts/push.sh` (pushes + waits for CI + reports results). Always use `push.sh` instead of raw `git push`.
 - **Server health:** `curl https://mcp.mowinckel.ai/health`
