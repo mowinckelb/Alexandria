@@ -8,7 +8,7 @@ BASE="https://mcp.mowinckel.ai"
 API_KEY_FILE="$HOME/.alexandria/.api_key"
 PASSED=0
 FAILED=0
-TOTAL=5
+TOTAL=7
 
 check() {
   local name="$1" status="$2"
@@ -63,9 +63,10 @@ else
   check "file" "${put_status:-0}"
 fi
 
-# 4. Protocol call
+# 4. Protocol call (with X-Alexandria-Client — server uses this to detect stale installs)
 call_out=$(curl -sS -w "\n%{http_code}" -X POST \
   -H "Authorization: Bearer $API_KEY" \
+  -H "X-Alexandria-Client: smoke-test" \
   -H "Content-Type: application/json" \
   -d '{"modules":[{"id":"methodology","text":"local smoke"}]}' \
   "$BASE/call" 2>&1) || true
@@ -85,6 +86,24 @@ if [ "$library_status" = "200" ] && echo "$library_body" | grep -q '"authors"'; 
   check "library" 200
 else
   check "library" "${library_status:-0}"
+fi
+
+# 6. Deprecated route returns 410 (not 404) — confirms upgrade signal reaches stale clients
+gone_out=$(curl -sS -w "\n%{http_code}" "$BASE/hooks/payload" 2>&1) || true
+gone_status=$(echo "$gone_out" | tail -1)
+if [ "$gone_status" = "410" ]; then
+  check "gone-410" 200
+else
+  check "gone-410" "${gone_status:-0}"
+fi
+
+# 7. Random path returns 404 — confirms notFound handler alive (allowlist removed)
+nf_out=$(curl -sS -w "\n%{http_code}" "$BASE/smoke-nonexistent-$(date +%s)" 2>&1) || true
+nf_status=$(echo "$nf_out" | tail -1)
+if [ "$nf_status" = "404" ]; then
+  check "not-found" 200
+else
+  check "not-found" "${nf_status:-0}"
 fi
 
 # Summary
