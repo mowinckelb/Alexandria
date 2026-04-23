@@ -11,6 +11,7 @@ import { hashApiKey, generateToken } from './crypto.js';
 import { Account, AccountStore, extractApiKey, findByApiKey, requireAuth } from './auth.js';
 import { generateApiKey, getAccounts, requireAdmin } from './accounts.js';
 import { sendEmail, sendEmailsBatched, sendWelcomeEmail, sendMorningBrief, FOUNDER_EMAIL, DEFAULT_ENGAGEMENT_DAYS } from './email.js';
+import { runHealthDigest } from './cron.js';
 
 // ---------------------------------------------------------------------------
 // Company routes — registered on Hono app
@@ -764,6 +765,17 @@ export function registerRoutes(app: Hono) {
     }));
     logEvent('factory_completed_marker', {});
     return c.json({ ok: true });
+  });
+
+  // Manual digest trigger. Scheduled daily at 09:00 UTC, but that's a 24h feedback
+  // loop for any digest-logic change. This shortens it: make changes, curl this,
+  // read the email / cron:health_digest KV marker. Admin-only.
+  app.post('/admin/cron/health-digest', async (c) => {
+    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
+    await runHealthDigest();
+    const kv = getKV();
+    const raw = await kv.get('cron:health_digest');
+    return c.json({ ok: true, result: raw ? JSON.parse(raw) : null });
   });
 
   // --- Library signal (RL aggregation for meta trigger) ---
