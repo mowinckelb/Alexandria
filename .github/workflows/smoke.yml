@@ -1,133 +1,132 @@
-name: Smoke                                                     
-  on:                                                                                                                                                                                                          
-    schedule:                                                     
-      - cron: '0 */6 * * *'                                                                                                                                                                                    
-    workflow_dispatch: {}                                         
-    workflow_run:
-      workflows: [Deploy]                                                                                                                                                                                      
-      types: [completed]
-                                                                                                                                                                                                               
-  jobs:                                                           
-    smoke:
-      runs-on: ubuntu-latest
-      env:                                                                                                                                                                                                     
-        API_KEY: ${{ secrets.ALEXANDRIA_API_KEY }}
-        SERVER: https://mcp.mowinckel.ai                                                                                                                                                                       
-        FACTORY: https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory                                                                                                                          
-      steps:                                                                                                                                                                                                   
-        - name: Health (KV, D1, R2, env vars)                                                                                                                                                                  
-          run: |                                                                                                                                                                                               
-            body=$(curl -sf $SERVER/health)                       
-            echo "$body"                                                                                                                                                                                       
-            # Top-level status can be 'degraded' when the awareness digest flags
-            # stale clients / deprecated hits — that's signal, not an infra failure.                                                                                                                           
-            # Check each infra component directly; awareness lives in its own block.                                                                                                                           
-            for comp in kv d1 r2 env; do                                                                                                                                                                       
-              echo "$body" | grep -q "\"$comp\":\"ok\"" || { echo "::error::Component $comp not ok"; exit 1; }                                                                                                 
-            done                                                                                                                                                                                               
-            echo "✓ health (all components)"                                                                                                                                                                   
-                                                                                                                                                                                                               
-        - name: Protocol handshake                                                                                                                                                                             
-          run: |                                                  
-            body=$(curl -sf $SERVER/alexandria)                                                                                                                                                                
-            echo "$body" | grep -q '"protocol":"alexandria"' || { echo "::error::Handshake broken"; exit 1; }
-            echo "$body" | grep -q '"/file/{name}"' || { echo "::error::Handshake missing file endpoint"; exit 1; }                                                                                            
-            echo "$body" | grep -q '"/call"' || { echo "::error::Handshake missing call endpoint"; exit 1; }                                                                                                   
-            echo "✓ protocol handshake"                                                                                                                                                                        
-                                                                                                                                                                                                               
-        - name: Protocol file (write → read back → verify content)                                                                                                                                             
-          run: |                                                                                                                                                                                               
-            TIMESTAMP=$(date +%s)                                 
-            CONTENT="# Smoke $TIMESTAMP"                                                                                                                                                                       
-                                                                                                                                                                                                               
-            # Write
-            curl -sf -X PUT $SERVER/file/ci-smoke \                                                                                                                                                            
-              -H "Authorization: Bearer $API_KEY" \                                                                                                                                                            
-              -H "Content-Type: application/json" \                                                                                                                                                            
-              -d "{\"content\":\"$CONTENT\",\"text\":\"smoke $TIMESTAMP\"}" \                                                                                                                                  
-              | grep -q '"ok":true' || { echo "::error::File write failed"; exit 1; }                                                                                                                          
-                                                                                                                                                                                                               
-            # Read back and verify content matches                                                                                                                                                             
-            READBACK=$(curl -sf $SERVER/library/${{ secrets.ALEXANDRIA_GITHUB_ID }}/ci-smoke \                                                                                                                 
-              -H "Authorization: Bearer $API_KEY")                                                                                                                                                             
-            echo "$READBACK" | grep -q "$TIMESTAMP" || { echo "::error::File read-back content mismatch"; exit 1; }
-                                                                                                                                                                                                               
-            # Handshake must report the write we just did. Guards against the                                                                                                                                  
-            # "handshake reads wrong table" class of bug — if this PUT doesn't                                                                                                                                 
-            # flip file_status to ok, the handshake and the protocol disagree.                                                                                                                                 
-            HANDSHAKE=$(curl -sf $SERVER/alexandria -H "Authorization: Bearer $API_KEY")                                                                                                                       
-            echo "$HANDSHAKE" | grep -q '"file_status":"ok"' || {                                                                                                                                              
-              echo "::error::Handshake file_status not ok after PUT /file — reads don't match writes"                                                                                                          
-              echo "$HANDSHAKE"                                                                                                                                                                                
-              exit 1                                                                                                                                                                                           
-            }                                                                                                                                                                                                  
-            echo "✓ file write + read back + handshake verified"  
-                                                                                                                                                                                                               
-        - name: Protocol call (per-module feedback)
-          run: |                                                                                                                                                                                               
-            curl -sf -X POST $SERVER/call \                                                                                                                                                                    
-              -H "Authorization: Bearer $API_KEY" \
-              -H "X-Alexandria-Client: ci-smoke" \                                                                                                                                                             
-              -H "Content-Type: application/json" \                                                                                                                                                            
-              -d '{"modules":[{"id":"methodology","text":"ci smoke verification"}]}' \
-              | grep -q '"ok":true' || { echo "::error::Call failed"; exit 1; }                                                                                                                                
-                                                                                                                                                                                                               
-            # Verify call landed in marketplace                                                                                                                                                                
-            MARKET=$(curl -sf $SERVER/marketplace/methodology -H "Authorization: Bearer $API_KEY")                                                                                                             
-            echo "$MARKET" | grep -q '"ci smoke verification"' || { echo "::error::Call not in marketplace"; exit 1; }                                                                                         
-                                                                                                                                                                                                               
-            # Handshake must reflect the call we just made. Symmetry with the                                                                                                                                  
-            # file assertion above — catches any future read/write drift.                                                                                                                                      
-            HANDSHAKE=$(curl -sf $SERVER/alexandria -H "Authorization: Bearer $API_KEY")                                                                                                                       
-            echo "$HANDSHAKE" | grep -q '"call_status":"ok"' || {                                                                                                                                              
-              echo "::error::Handshake call_status not ok after POST /call — reads don't match writes"                                                                                                         
-              echo "$HANDSHAKE"                                                                                                                                                                                
-              exit 1                                              
-            }                                                                                                                                                                                                  
-            echo "✓ call + marketplace + handshake verified"      
-                                                                                                                                                                                                               
-        - name: Protocol marketplace listing
-          run: |                                                                                                                                                                                               
-            curl -sf $SERVER/marketplace -H "Authorization: Bearer $API_KEY" \
-              | grep -q '"methodology"' || { echo "::error::Marketplace listing broken"; exit 1; }                                                                                                             
-            echo "✓ marketplace"
-                                                                                                                                                                                                               
-        - name: Company Library                                   
-          run: |                                                                                                                                                                                               
-            curl -sf $SERVER/library/authors | grep -q '"authors"' || { echo "::error::Library listing broken"; exit 1; }
-            echo "✓ library"                                                                                                                                                                                   
-                                                                                                                                                                                                               
-        - name: Factory (GitHub raw — all critical files)
-          run: |                                                                                                                                                                                               
-            for file in setup.sh canon/axioms.md canon/methodology.md canon/editor.md canon/mercury.md canon/publisher.md canon/library.md canon/filter.md hooks/shim.sh hooks/payload.sh skills/claudecode.md 
-  skills/scheduled.md skills/cursor.mdc skills/codex.md; do                                                                                                                                                    
-              status=$(curl -s -o /dev/null -w '%{http_code}' "$FACTORY/$file")
-              if [ "$status" != "200" ]; then                                                                                                                                                                  
-                echo "::error::Factory file $file returned $status"                                                                                                                                            
-                exit 1
-              fi                                                                                                                                                                                               
-            done                                                  
-            # Verify content, not just 200
-            curl -sf "$FACTORY/setup.sh" | head -1 | grep -q "bash" || { echo "::error::setup.sh not valid bash"; exit 1; }
-            curl -sf "$FACTORY/canon/methodology.md" | wc -c | xargs test 1000 -lt || { echo "::error::methodology.md too small"; exit 1; }                                                                    
-            echo "✓ factory (14 files, content verified)"                                                                                                                                                      
-                                                                                                                                                                                                               
-        - name: Website                                                                                                                                                                                        
-          run: |                                                                                                                                                                                               
-            status=$(curl -sL -o /dev/null -w '%{http_code}' https://mowinckel.ai)
-            [ "$status" -ge 200 ] && [ "$status" -lt 400 ] || { echo "::error::mowinckel.ai HTTP $status"; exit 1; }
-            www=$(curl -sL -o /dev/null -w '%{http_code}' https://www.mowinckel.ai)                                                                                                                            
-            [ "$www" -ge 200 ] && [ "$www" -lt 400 ] || { echo "::error::www HTTP $www"; exit 1; }                                                                                                             
-            echo "✓ website ($status, www=$www)"                                                                                                                                                               
-                                                                                                                                                                                                               
-        - name: Stripe webhook reachable                                                                                                                                                                       
-          run: |                                                  
-            # Stripe webhooks POST to /billing/webhook — verify the endpoint exists                                                                                                                            
-            # An unsigned POST should return 400 or 500 (signature check fails), NOT 404
-            status=$(curl -s -o /dev/null -w '%{http_code}' -X POST $SERVER/billing/webhook \                                                                                                                  
-              -H "Content-Type: application/json" -d '{}')        
-            if [ "$status" = "404" ]; then                                                                                                                                                                     
-              echo "::error::Billing webhook endpoint missing (404)"
-              exit 1                                                                                                                                                                                           
-            fi                                                    
-            echo "✓ stripe webhook reachable (HTTP $status — expected 400/500 without signature)"
+name: Smoke
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch: {}
+  workflow_run:
+    workflows: [Deploy]
+    types: [completed]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      API_KEY: ${{ secrets.ALEXANDRIA_API_KEY }}
+      SERVER: https://mcp.mowinckel.ai
+      FACTORY: https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory
+    steps:
+      - name: Health (KV, D1, R2, env vars)
+        run: |
+          body=$(curl -sf $SERVER/health)
+          echo "$body"
+          # Top-level status can be 'degraded' when the awareness digest flags
+          # stale clients / deprecated hits — that's signal, not an infra failure.
+          # Check each infra component directly; awareness lives in its own block.
+          for comp in kv d1 r2 env; do
+            echo "$body" | grep -q "\"$comp\":\"ok\"" || { echo "::error::Component $comp not ok"; exit 1; }
+          done
+          echo "✓ health (all components)"
+
+      - name: Protocol handshake
+        run: |
+          body=$(curl -sf $SERVER/alexandria)
+          echo "$body" | grep -q '"protocol":"alexandria"' || { echo "::error::Handshake broken"; exit 1; }
+          echo "$body" | grep -q '"/file/{name}"' || { echo "::error::Handshake missing file endpoint"; exit 1; }
+          echo "$body" | grep -q '"/call"' || { echo "::error::Handshake missing call endpoint"; exit 1; }
+          echo "✓ protocol handshake"
+
+      - name: Protocol file (write → read back → verify content)
+        run: |
+          TIMESTAMP=$(date +%s)
+          CONTENT="# Smoke $TIMESTAMP"
+
+          # Write
+          curl -sf -X PUT $SERVER/file/ci-smoke \
+            -H "Authorization: Bearer $API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\":\"$CONTENT\",\"text\":\"smoke $TIMESTAMP\"}" \
+            | grep -q '"ok":true' || { echo "::error::File write failed"; exit 1; }
+
+          # Read back and verify content matches
+          READBACK=$(curl -sf $SERVER/library/${{ secrets.ALEXANDRIA_GITHUB_ID }}/ci-smoke \
+            -H "Authorization: Bearer $API_KEY")
+          echo "$READBACK" | grep -q "$TIMESTAMP" || { echo "::error::File read-back content mismatch"; exit 1; }
+
+          # Handshake must report the write we just did. Guards against the
+          # "handshake reads wrong table" class of bug — if this PUT doesn't
+          # flip file_status to ok, the handshake and the protocol disagree.
+          HANDSHAKE=$(curl -sf $SERVER/alexandria -H "Authorization: Bearer $API_KEY")
+          echo "$HANDSHAKE" | grep -q '"file_status":"ok"' || {
+            echo "::error::Handshake file_status not ok after PUT /file — reads don't match writes"
+            echo "$HANDSHAKE"
+            exit 1
+          }
+          echo "✓ file write + read back + handshake verified"
+
+      - name: Protocol call (per-module feedback)
+        run: |
+          curl -sf -X POST $SERVER/call \
+            -H "Authorization: Bearer $API_KEY" \
+            -H "X-Alexandria-Client: ci-smoke" \
+            -H "Content-Type: application/json" \
+            -d '{"modules":[{"id":"methodology","text":"ci smoke verification"}]}' \
+            | grep -q '"ok":true' || { echo "::error::Call failed"; exit 1; }
+
+          # Verify call landed in marketplace
+          MARKET=$(curl -sf $SERVER/marketplace/methodology -H "Authorization: Bearer $API_KEY")
+          echo "$MARKET" | grep -q '"ci smoke verification"' || { echo "::error::Call not in marketplace"; exit 1; }
+
+          # Handshake must reflect the call we just made. Symmetry with the
+          # file assertion above — catches any future read/write drift.
+          HANDSHAKE=$(curl -sf $SERVER/alexandria -H "Authorization: Bearer $API_KEY")
+          echo "$HANDSHAKE" | grep -q '"call_status":"ok"' || {
+            echo "::error::Handshake call_status not ok after POST /call — reads don't match writes"
+            echo "$HANDSHAKE"
+            exit 1
+          }
+          echo "✓ call + marketplace + handshake verified"
+
+      - name: Protocol marketplace listing
+        run: |
+          curl -sf $SERVER/marketplace -H "Authorization: Bearer $API_KEY" \
+            | grep -q '"methodology"' || { echo "::error::Marketplace listing broken"; exit 1; }
+          echo "✓ marketplace"
+
+      - name: Company Library
+        run: |
+          curl -sf $SERVER/library/authors | grep -q '"authors"' || { echo "::error::Library listing broken"; exit 1; }
+          echo "✓ library"
+
+      - name: Factory (GitHub raw — all critical files)
+        run: |
+          for file in setup.sh canon/axioms.md canon/methodology.md canon/editor.md canon/mercury.md canon/publisher.md canon/library.md canon/filter.md hooks/shim.sh hooks/payload.sh skills/claudecode.md skills/scheduled.md skills/cursor.mdc skills/codex.md; do
+            status=$(curl -s -o /dev/null -w '%{http_code}' "$FACTORY/$file")
+            if [ "$status" != "200" ]; then
+              echo "::error::Factory file $file returned $status"
+              exit 1
+            fi
+          done
+          # Verify content, not just 200
+          curl -sf "$FACTORY/setup.sh" | head -1 | grep -q "bash" || { echo "::error::setup.sh not valid bash"; exit 1; }
+          curl -sf "$FACTORY/canon/methodology.md" | wc -c | xargs test 1000 -lt || { echo "::error::methodology.md too small"; exit 1; }
+          echo "✓ factory (14 files, content verified)"
+
+      - name: Website
+        run: |
+          status=$(curl -sL -o /dev/null -w '%{http_code}' https://mowinckel.ai)
+          [ "$status" -ge 200 ] && [ "$status" -lt 400 ] || { echo "::error::mowinckel.ai HTTP $status"; exit 1; }
+          www=$(curl -sL -o /dev/null -w '%{http_code}' https://www.mowinckel.ai)
+          [ "$www" -ge 200 ] && [ "$www" -lt 400 ] || { echo "::error::www HTTP $www"; exit 1; }
+          echo "✓ website ($status, www=$www)"
+
+      - name: Stripe webhook reachable
+        run: |
+          # Stripe webhooks POST to /billing/webhook — verify the endpoint exists
+          # An unsigned POST should return 400 or 500 (signature check fails), NOT 404
+          status=$(curl -s -o /dev/null -w '%{http_code}' -X POST $SERVER/billing/webhook \
+            -H "Content-Type: application/json" -d '{}')
+          if [ "$status" = "404" ]; then
+            echo "::error::Billing webhook endpoint missing (404)"
+            exit 1
+          fi
+          echo "✓ stripe webhook reachable (HTTP $status — expected 400/500 without signature)"
