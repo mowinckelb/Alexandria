@@ -4,6 +4,7 @@ import type { Hono } from 'hono';
 import { requireAuth } from './auth.js';
 import { getDB, getR2 } from './db.js';
 import { logEvent } from './analytics.js';
+import { saveAccount } from './kv.js';
 
 function r2Key(accountId: string, name: string): string {
   return `protocol/${accountId}/${name}.md`;
@@ -129,6 +130,15 @@ export function registerProtocol(app: Hono) {
       author: auth.account.github_login,
       version: c.req.header('x-alexandria-client') || 'unset',
     });
+
+    // Install ground truth: /call firing proves the shim → payload → auth flow
+    // works end-to-end. First successful /call per account stamps installed_at.
+    // Unblocks followup/engagement cron paths that gated on this field.
+    if (!auth.account.installed_at) {
+      auth.account.installed_at = new Date().toISOString();
+      await saveAccount(auth.account.github_login, auth.account as unknown as Record<string, unknown>);
+      logEvent('install_completed', { author: auth.account.github_login });
+    }
 
     const body = await c.req.json().catch(() => null);
     if (!body?.modules || !Array.isArray(body.modules))

@@ -63,7 +63,11 @@ if command -v node &>/dev/null && { [ -d "$HOME/.claude" ] || command -v claude 
   curl -sS "$FACTORY_RAW/skills/claudecode.md" -o "$HOME/.claude/skills/alexandria/SKILL.md" 2>/dev/null
 
   mkdir -p "$HOME/.claude/scheduled-tasks/alexandria" 2>/dev/null
-  curl -sS "$FACTORY_RAW/skills/scheduled.md" -o "$HOME/.claude/scheduled-tasks/alexandria/SKILL.md" 2>/dev/null
+  # Bootstrap pattern: SKILL.md is a tiny stub that fetches scheduled.md on every
+  # run. Same compounding architecture as hooks/shim.sh → payload.sh. Keeps the
+  # frontmatter (which Claude Code reads locally for scheduling) stable while the
+  # live instructions stay pinned to the current canonical playbook.
+  curl -sS "$FACTORY_RAW/skills/scheduled-bootstrap.md" -o "$HOME/.claude/scheduled-tasks/alexandria/SKILL.md" 2>/dev/null
 
   node -e "
     const fs = require('fs'), path = require('path');
