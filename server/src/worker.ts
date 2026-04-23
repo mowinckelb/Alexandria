@@ -416,12 +416,31 @@ app.get('/analytics/user/:login', async (c) => {
   return c.json(data);
 });
 
+// ---------------------------------------------------------------------------
+// Deprecated — routes removed in prior refactors. Serve 410 + log so stale
+// clients learn to upgrade and we see which installs haven't migrated.
+// ---------------------------------------------------------------------------
+
+const DEPRECATED_ROUTES = [
+  '/hooks', '/hooks/payload',
+  '/session',
+  '/blueprint', '/blueprint/delta',
+  '/factory/signal',
+  '/dashboard', '/setup', '/block',
+  '/reference', '/reference/*',
+  '/admin/factory/delta', '/admin/factory/signals',
+];
+for (const path of DEPRECATED_ROUTES) {
+  app.all(path, (c) => {
+    const actualPath = new URL(c.req.url).pathname;
+    logEvent('deprecated_hit', { method: c.req.method, path: actualPath });
+    return c.text('410 Gone — endpoint removed. Upgrade the client: https://github.com/mowinckelb/Alexandria', 410);
+  });
+}
+
 app.notFound((c) => {
   const path = new URL(c.req.url).pathname;
-  const criticalPaths = new Set(['/alexandria', '/marketplace/signal']);
-  if (criticalPaths.has(path)) {
-    logEvent('server_not_found', { method: c.req.method, path });
-  }
+  logEvent('server_not_found', { method: c.req.method, path });
   return c.text('404 Not Found', 404);
 });
 

@@ -184,20 +184,45 @@ export async function runHealthDigest(): Promise<void> {
 
     // Event log analysis — scan today + yesterday (covers the 24h cutoff with
     // no arbitrary line-count ceiling; events:YYYY-MM-DD keys cap the read).
+    // One pass, many counters. The awareness axiom: every line is a question.
     try {
       const raw = await getRecentDaysEvents(2);
       if (raw) {
         const cutoff = Date.now() - 24 * 60 * 60 * 1000;
         let serverErrors = 0;
+        let deprecatedHits = 0;
+        let staleClientCalls = 0;
+        const deprecatedByPath = new Map<string, number>();
+        const clientVersions = new Map<string, number>();
         for (const line of raw.split('\n')) {
           if (!line) continue;
           try {
             const ev = JSON.parse(line);
             if (new Date(ev.t).getTime() < cutoff) continue;
             if (ev.e === 'server_error') serverErrors++;
+            else if (ev.e === 'deprecated_hit') {
+              deprecatedHits++;
+              const p = ev.path || '(unknown)';
+              deprecatedByPath.set(p, (deprecatedByPath.get(p) || 0) + 1);
+            } else if (ev.e === 'client_version_seen') {
+              const v = ev.version || 'unset';
+              clientVersions.set(v, (clientVersions.get(v) || 0) + 1);
+              if (v === 'unset') staleClientCalls++;
+            }
           } catch { continue; }
         }
         if (serverErrors > 0) escalate('stroll', `${serverErrors} server errors in 24h`);
+        if (deprecatedHits > 0) {
+          const top = [...deprecatedByPath.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([p, n]) => `${p}=${n}`).join(', ');
+          escalate('sprint', `${deprecatedHits} hits to deprecated routes in 24h (${top}) — stale installs`);
+        }
+        if (staleClientCalls > 0) {
+          escalate('sprint', `${staleClientCalls} /call requests without X-Alexandria-Client header — pre-upgrade shims`);
+        }
+        if (clientVersions.size > 1) {
+          const dist = [...clientVersions.entries()].sort((a, b) => b[1] - a[1]).map(([v, n]) => `${v}=${n}`).join(', ');
+          escalate('stroll', `client version drift: ${dist}`);
+        }
       }
     } catch { /* non-fatal */ }
 

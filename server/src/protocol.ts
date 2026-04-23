@@ -3,6 +3,7 @@
 import type { Hono } from 'hono';
 import { requireAuth } from './auth.js';
 import { getDB, getR2 } from './db.js';
+import { logEvent } from './analytics.js';
 
 function r2Key(accountId: string, name: string): string {
   return `protocol/${accountId}/${name}.md`;
@@ -121,6 +122,13 @@ export function registerProtocol(app: Hono) {
     const auth = await requireAuth(c);
     if (!auth) return c.text('Unauthorized', 401);
     if (!auth.account.github_id) return c.json({ error: 'Account missing github_id' }, 400);
+
+    // Client version heartbeat — /call is the one authed endpoint every install hits
+    // regularly. Header absent means pre-header shim (install predates 2026-04-23).
+    logEvent('client_version_seen', {
+      author: auth.account.github_login,
+      version: c.req.header('x-alexandria-client') || 'unset',
+    });
 
     const body = await c.req.json().catch(() => null);
     if (!body?.modules || !Array.isArray(body.modules))
