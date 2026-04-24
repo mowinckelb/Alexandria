@@ -15,8 +15,10 @@ import { join } from 'path';
 
 const BASE = process.env.TEST_URL || 'https://mcp.mowinckel.ai';
 const HOME = process.env.HOME || process.env.USERPROFILE || '';
-const ALEX_DIR = join(HOME, '.alexandria');
-const API_KEY_PATH = join(ALEX_DIR, '.api_key');
+const ALEX_DIR = join(HOME, 'alexandria');
+const FILES_DIR = join(ALEX_DIR, 'files');
+const SYS_DIR = join(ALEX_DIR, 'system');
+const API_KEY_PATH = join(SYS_DIR, '.api_key');
 const FACTORY_RAW = 'https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory';
 
 interface TestResult {
@@ -332,7 +334,7 @@ async function main() {
   console.log('\nPhase 5: Local files');
 
   await test('Constitution directory exists with content', async () => {
-    const constDir = join(ALEX_DIR, 'constitution');
+    const constDir = join(FILES_DIR, 'constitution');
     const exists = existsSync(constDir);
     let fileCount = 0;
     let totalSize = 0;
@@ -352,7 +354,7 @@ async function main() {
   });
 
   await test('Methodology cached locally with valid content', async () => {
-    const canonPath = join(ALEX_DIR, '.canon_local');
+    const canonPath = join(SYS_DIR, 'canon', 'methodology.md');
     const exists = existsSync(canonPath);
     let size = 0;
     let hasRequiredContent = false;
@@ -373,7 +375,7 @@ async function main() {
   });
 
   await test('Feedback file exists', async () => {
-    const fbPath = join(ALEX_DIR, 'feedback.md');
+    const fbPath = join(FILES_DIR, 'feedback.md');
     const exists = existsSync(fbPath);
     return {
       test: 'Feedback file',
@@ -383,7 +385,7 @@ async function main() {
   });
 
   await test('Machine.md exists', async () => {
-    const machinePath = join(ALEX_DIR, 'machine.md');
+    const machinePath = join(FILES_DIR, 'machine.md');
     const exists = existsSync(machinePath);
     let size = 0;
     if (exists) size = readFileSync(machinePath).length;
@@ -395,7 +397,7 @@ async function main() {
   });
 
   await test('Notepad exists', async () => {
-    const notepadPath = join(ALEX_DIR, 'notepad.md');
+    const notepadPath = join(FILES_DIR, 'notepad.md');
     const exists = existsSync(notepadPath);
     return {
       test: 'Notepad',

@@ -56,8 +56,8 @@ echo "═══ Phase 0: Prerequisites ═══"
 
 # API key: env var > real home fallback
 API_KEY="${ALEXANDRIA_TEST_KEY:-}"
-if [ -z "$API_KEY" ] && [ -f "$REAL_HOME/.alexandria/.api_key" ]; then
-  API_KEY=$(tr -d '[:space:]' < "$REAL_HOME/.alexandria/.api_key")
+if [ -z "$API_KEY" ] && [ -f "$REAL_HOME/alexandria/system/.api_key" ]; then
+  API_KEY=$(tr -d '[:space:]' < "$REAL_HOME/alexandria/system/.api_key")
 fi
 if [ -z "$API_KEY" ]; then
   echo "[stranger] ABORT — no API key. Set ALEXANDRIA_TEST_KEY or have ~/alexandria/system/.api_key"

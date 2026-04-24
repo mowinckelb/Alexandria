@@ -12,7 +12,7 @@ import { join } from 'path';
 
 const BASE = process.env.TEST_URL || 'https://mcp.mowinckel.ai';
 const HOME = process.env.HOME || process.env.USERPROFILE || '';
-const API_KEY_PATH = join(HOME, '.alexandria', '.api_key');
+const API_KEY_PATH = join(HOME, 'alexandria', 'system', '.api_key');
 
 interface TestResult {
   test: string;
