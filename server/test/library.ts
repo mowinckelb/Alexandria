@@ -3,7 +3,7 @@
  * Uses a real API key to test the full Library lifecycle.
  *
  * Usage: npx tsx test/library.ts
- * Requires: ~/.alexandria/.api_key (a real account)
+ * Requires: ~/Alexandria/.api_key (a real account)
  * Set TEST_URL to override (default: https://mcp.mowinckel.ai)
  */
 
@@ -42,7 +42,7 @@ async function main() {
   console.log(`Target: ${BASE}\n`);
 
   if (!existsSync(API_KEY_PATH)) {
-    console.log('SKIP: No API key found at ~/.alexandria/.api_key');
+    console.log('SKIP: No API key found at ~/Alexandria/.api_key');
     process.exit(0);
   }
   const apiKey = readFileSync(API_KEY_PATH, 'utf-8').trim();

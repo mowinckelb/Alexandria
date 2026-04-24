@@ -6,7 +6,7 @@
  * -> machine signal/feedback -> local machine files.
  *
  * Usage: npx tsx test/lifecycle.ts
- * Requires: ~/.alexandria/.api_key (a real account)
+ * Requires: ~/Alexandria/.api_key (a real account)
  * Set TEST_URL to override (default: https://mcp.mowinckel.ai)
  */
 
@@ -92,7 +92,7 @@ async function main() {
 
   // Pre-check: API key exists
   if (!existsSync(API_KEY_PATH)) {
-    console.log('SKIP: No API key found at ~/.alexandria/.api_key');
+    console.log('SKIP: No API key found at ~/Alexandria/.api_key');
     console.log('This test requires a real Alexandria account.');
     process.exit(0);
   }

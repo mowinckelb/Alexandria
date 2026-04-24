@@ -44243,7 +44243,7 @@ ${SHARED_CONTEXT}
 
 --- LOCAL FILES ---
 
-You have access to the Author's local files at ~/.alexandria/:
+You have access to the Author's local files at ~/Alexandria/:
 - constitution/ \u2014 The curated cognitive map. A folder of .md files. You decide the internal structure \u2014 one file or many.
 - vault/ \u2014 Raw session transcripts and captures. Append-only. Never delete.
 - feedback.md \u2014 What worked, what didn't. Read it. Adapt.
@@ -44268,14 +44268,14 @@ __name(assembleBlueprint, "assembleBlueprint");
 function generateHookScripts() {
   const SERVER_URL = process.env.SERVER_URL || "https://mcp.mowinckel.ai";
   return `#!/usr/bin/env bash
-ALEX_DIR="$HOME/.alexandria"
+ALEX_DIR="$HOME/Alexandria"
 
 # SessionEnd hook
 cat > "$ALEX_DIR/hooks/session-end.sh" << 'HOOK_END'
 #!/usr/bin/env bash
 input=$(cat)
 transcript_path=$(echo "$input" | grep -o '"transcript_path":"[^"]*"' | cut -d'"' -f4)
-ALEX_DIR="$HOME/.alexandria"
+ALEX_DIR="$HOME/Alexandria"
 API_KEY="\${ALEXANDRIA_KEY:-$(cat "$ALEX_DIR/.api_key" 2>/dev/null)}"
 PLATFORM="\${ALEXANDRIA_PLATFORM:-unknown}"
 
@@ -44311,7 +44311,7 @@ chmod +x "$ALEX_DIR/hooks/session-end.sh"
 # SessionStart hook
 cat > "$ALEX_DIR/hooks/session-start.sh" << 'HOOK_START'
 #!/usr/bin/env bash
-ALEX_DIR="$HOME/.alexandria"
+ALEX_DIR="$HOME/Alexandria"
 API_KEY=$(cat "$ALEX_DIR/.api_key" 2>/dev/null)
 
 if [ -n "$CLAUDE_ENV_FILE" ] && [ -n "$API_KEY" ]; then
@@ -44415,11 +44415,11 @@ if [ -n "$blueprint" ]; then
   echo "$blueprint"
   if [ "$bp_pinned" = "true" ]; then
     echo ""
-    echo "(Alexandria: Blueprint pinned to local version. Remove ~/.alexandria/.blueprint_pinned to resume updates.)"
+    echo "(Alexandria: Blueprint pinned to local version. Remove ~/Alexandria/.blueprint_pinned to resume updates.)"
   fi
   if [ -f "$ALEX_DIR/.blueprint_previous" ]; then
     echo ""
-    echo "(Alexandria: Blueprint updated since last session. Previous version at ~/.alexandria/.blueprint_previous for diffing.)"
+    echo "(Alexandria: Blueprint updated since last session. Previous version at ~/Alexandria/.blueprint_previous for diffing.)"
   fi
 else
   echo "(Alexandria: Blueprint unavailable \u2014 offline mode. Constitution loaded from local files.)"
@@ -44455,7 +44455,7 @@ chmod +x "$ALEX_DIR/hooks/session-start.sh"
 # SubagentStart hook
 cat > "$ALEX_DIR/hooks/subagent-context.sh" << 'HOOK_SUB'
 #!/usr/bin/env bash
-ALEX_DIR="$HOME/.alexandria"
+ALEX_DIR="$HOME/Alexandria"
 if [ -d "$ALEX_DIR/constitution" ]; then
   const_content=""
   for f in "$ALEX_DIR/constitution/"*.md; do
@@ -44481,10 +44481,10 @@ function generateSetupScript(apiKey) {
   const SERVER_URL = process.env.SERVER_URL || "https://mcp.mowinckel.ai";
   const WEBSITE_URL = process.env.WEBSITE_URL || "https://mowinckel.ai";
   return `#!/usr/bin/env bash
-# Alexandria setup \u2014 creates ~/.alexandria/ and configures hooks for all detected platforms
+# Alexandria setup \u2014 creates ~/Alexandria/ and configures hooks for all detected platforms
 set -e
 
-ALEX_DIR="$HOME/.alexandria"
+ALEX_DIR="$HOME/Alexandria"
 API_KEY="${apiKey}"
 
 echo "Setting up Alexandria..."
@@ -44511,11 +44511,11 @@ user_invocable: true
 ---
 
 You are Alexandria \u2014 a sovereign cognitive identity layer.
-Your files are at ~/.alexandria/ (constitution/ folder, vault/, feedback.md).
+Your files are at ~/Alexandria/ (constitution/ folder, vault/, feedback.md).
 
 ## Instructions
 
-Your Blueprint is your operating manual. It should already be in context from SessionStart. If it is, follow it. If it is not, read ~/.alexandria/.blueprint_local \u2014 that is the locally cached copy. If that also does not exist, read the constitution files and engage the Author directly; the conversation IS the product.
+Your Blueprint is your operating manual. It should already be in context from SessionStart. If it is, follow it. If it is not, read ~/Alexandria/.blueprint_local \u2014 that is the locally cached copy. If that also does not exist, read the constitution files and engage the Author directly; the conversation IS the product.
 
 ## Context principle
 
@@ -44536,17 +44536,17 @@ configure_cc_hooks() {
 
       settings.hooks.SessionStart = filter(settings.hooks.SessionStart);
       settings.hooks.SessionStart.push({
-        hooks: [{ type: 'command', command: 'bash $HOME/.alexandria/hooks/session-start.sh', timeout: 10 }]
+        hooks: [{ type: 'command', command: 'bash $HOME/Alexandria/hooks/session-start.sh', timeout: 10 }]
       });
 
       settings.hooks.SessionEnd = filter(settings.hooks.SessionEnd);
       settings.hooks.SessionEnd.push({
-        hooks: [{ type: 'command', command: 'bash $HOME/.alexandria/hooks/session-end.sh', timeout: 5 }]
+        hooks: [{ type: 'command', command: 'bash $HOME/Alexandria/hooks/session-end.sh', timeout: 5 }]
       });
 
       settings.hooks.SubagentStart = filter(settings.hooks.SubagentStart);
       settings.hooks.SubagentStart.push({
-        hooks: [{ type: 'command', command: 'bash $HOME/.alexandria/hooks/subagent-context.sh' }]
+        hooks: [{ type: 'command', command: 'bash $HOME/Alexandria/hooks/subagent-context.sh' }]
       });
 
       fs.writeFileSync('$SETTINGS_FILE', JSON.stringify(settings, null, 2));
@@ -44569,11 +44569,11 @@ configure_cursor() {
   "version": 1,
   "hooks": {
     "sessionStart": [{
-      "command": "ALEXANDRIA_PLATFORM=cursor bash $HOME/.alexandria/hooks/session-start.sh",
+      "command": "ALEXANDRIA_PLATFORM=cursor bash $HOME/Alexandria/hooks/session-start.sh",
       "timeout": 10
     }],
     "sessionEnd": [{
-      "command": "ALEXANDRIA_PLATFORM=cursor bash $HOME/.alexandria/hooks/session-end.sh",
+      "command": "ALEXANDRIA_PLATFORM=cursor bash $HOME/Alexandria/hooks/session-end.sh",
       "timeout": 5
     }]
   }
@@ -44587,7 +44587,7 @@ description: "Alexandria cognitive transformation layer \u2014 loads the Author'
 alwaysApply: true
 ---
 
-This Author uses Alexandria. Read all .md files in ~/.alexandria/constitution/ \u2014 it captures who they are. Read ~/.alexandria/feedback.md \u2014 it captures what works with them. Adapt accordingly.
+This Author uses Alexandria. Read all .md files in ~/Alexandria/constitution/ \u2014 it captures who they are. Read ~/Alexandria/feedback.md \u2014 it captures what works with them. Adapt accordingly.
 
 When the Author reveals something about themselves \u2014 opinions, stories, patterns, contradictions \u2014 note it. If it's significant, suggest updating their constitution.
 CURSOR_RULE

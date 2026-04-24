@@ -3,7 +3,7 @@
 # Immutable. Installed once. All evolving logic lives in payload.sh.
 # Inspect the payload: https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/hooks/payload.sh
 
-ALEX_DIR="$HOME/.alexandria"
+ALEX_DIR="$HOME/Alexandria"
 API_KEY="${ALEXANDRIA_KEY:-$(cat "$ALEX_DIR/.api_key" 2>/dev/null)}"
 MODE="$1"
 PAYLOAD_URL="https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/hooks/payload.sh"

@@ -70,7 +70,7 @@ if [ "$MODE" = "session-start" ]; then
         {
           echo "# Canon updated — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           echo ""
-          echo "Upstream canon (factory/canon/methodology.md) changed. Review the diff below and decide per-Author fit. If any change conflicts with this Author's practice, add/refine entries in ~/.alexandria/canon_overrides.md — overrides are authoritative over upstream canon. Clear this file when reviewed."
+          echo "Upstream canon (factory/canon/methodology.md) changed. Review the diff below and decide per-Author fit. If any change conflicts with this Author's practice, add/refine entries in ~/Alexandria/canon_overrides.md — overrides are authoritative over upstream canon. Clear this file when reviewed."
           echo ""
           echo "## Diff (first 200 lines)"
           echo ""
@@ -163,7 +163,7 @@ if [ "$MODE" = "session-start" ]; then
     check_drift "$HOME/.claude/skills/alexandria/SKILL.md" "skills/claudecode.md" "  /a skill (~/.claude/skills/alexandria/SKILL.md)"
     check_drift "$HOME/.claude/scheduled-tasks/alexandria/SKILL.md" "skills/scheduled-bootstrap.md" "  scheduled agent (~/.claude/scheduled-tasks/alexandria/SKILL.md)"
     check_drift "$HOME/.cursor/rules/alexandria.mdc" "skills/cursor.mdc" "  cursor rules (~/.cursor/rules/alexandria.mdc)"
-    check_drift "$HOME/.alexandria/hooks/shim.sh" "hooks/shim.sh" "  hook shim (~/.alexandria/hooks/shim.sh)"
+    check_drift "$HOME/Alexandria/hooks/shim.sh" "hooks/shim.sh" "  hook shim (~/Alexandria/hooks/shim.sh)"
 
     # Codex case — block embedded between markers in a shared instructions.md.
     # Extract just the Alexandria section, compare to factory/skills/codex.md.

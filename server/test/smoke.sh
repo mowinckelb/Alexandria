@@ -5,7 +5,7 @@
 export MSYS_NO_PATHCONV=1
 
 BASE="https://mcp.mowinckel.ai"
-API_KEY_FILE="$HOME/.alexandria/.api_key"
+API_KEY_FILE="$HOME/Alexandria/.api_key"
 PASSED=0
 FAILED=0
 TOTAL=7

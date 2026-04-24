@@ -12,7 +12,7 @@ Everything in Alexandria maps to one of four layers:
 
 2. **Factory** (`factory/`) — The founder's system, public on GitHub, forkable. 19 files: canon (methodology), hooks (shim + payload), setup script, skills (claudecode, cursor, codex, scheduled), templates (agent, machine, notepad, feedback, constitution/, ontology/, vault/, library/), onboarding block. Any Author can fork and modify. The marketplace evolves canon defaults from cross-Author signal.
 
-3. **Machine** (`~/.alexandria/`) — Each Author's personal system. Constitution, vault, ontology, machine.md, notepad, feedback. Lives locally, never on the server. The product IS this folder. Alexandria stores what Authors publish, never what they think.
+3. **Machine** (`~/Alexandria/`) — Each Author's personal system. Constitution, vault, ontology, machine.md, notepad, feedback. Lives locally, never on the server. The product IS this folder. Alexandria stores what Authors publish, never what they think.
 
 4. **Company** (`server/src/` everything else + `app/`) — Operational overhead. OAuth, billing, email, analytics, cron, Library CRUD, admin endpoints. This layer should shrink over time.
 
@@ -24,12 +24,12 @@ Everything in Alexandria maps to one of four layers:
   - Stateless server. No private user data stored. KV for accounts/events, D1 for Library metadata + protocol data, R2 for published content.
 - **Factory:** `factory/` — public, forkable. Canon methodology, hooks, skills, templates, setup, onboarding block.
 - **Static assets:** `public/` (includes `public/docs/` for public artifacts).
-- **Investor docs:** kept out of this public repo. Backed up locally at `~/.alexandria/files/private/partners/`. Shared directly with partners (email/DM) when needed — no public URL, no `/partners/` route.
+- **Investor docs:** kept out of this public repo. Backed up locally at `~/Alexandria/files/private/partners/`. Shared directly with partners (email/DM) when needed — no public URL, no `/partners/` route.
 - **Pre-commit hook:** `scripts/pre-commit` gates server type check + app build (mirrors CI). Activate on fresh clone: `git config core.hooksPath scripts`.
 - **Build:** `cd server && npx wrangler deploy --dry-run --outdir=dist` (server). **Deploy:** `cd server && npx wrangler deploy` then check health. **Push:** `bash scripts/push.sh` (pushes + waits for CI + reports results). Always use `push.sh` instead of raw `git push`.
 - **Server health:** `curl https://mcp.mowinckel.ai/health`
 - **Stack:** Vercel (website), Cloudflare (DNS + server + KV + D1 + R2), Resend (email), GitHub (code + OAuth), Stripe (billing), Mercury (banking, API), Claude (intelligence). All hybrid (CLI or API-controllable). Zero external dependencies.
-- **Storage architecture:** Stateless server, sovereign local files (`~/.alexandria/`, iCloud-synced), thin persistence for collective Library (D1 for metadata/discovery, R2 for published content, KV for accounts/events).
+- **Storage architecture:** Stateless server, sovereign local files (`~/Alexandria/`, iCloud-synced), thin persistence for collective Library (D1 for metadata/discovery, R2 for published content, KV for accounts/events).
 
 ### Protocol Endpoints
 
@@ -114,12 +114,12 @@ factory/
 
 ## Visual Workflow
 
-**See before shipping.** For any frontend work, use `~/.alexandria/see.mjs` (Playwright) to screenshot and visually verify. Read the PNGs with the Read tool — you are multimodal.
+**See before shipping.** For any frontend work, use `~/Alexandria/see.mjs` (Playwright) to screenshot and visually verify. Read the PNGs with the Read tool — you are multimodal.
 
-- **Screenshot any URL:** `node ~/.alexandria/see.mjs <url> [--full] [--dark] [--only desktop|tablet|mobile]`
-- **Local dev:** `node ~/.alexandria/see.mjs localhost --port 3000`
-- **Design reference:** `~/.alexandria/design.md` — craft substrate (900 lines of concrete CSS physics, anti-patterns, thresholds). Read before any frontend work. Not taste — that's `~/.alexandria/constitution/Taste.md`.
-- Screenshots save to `~/.alexandria/.see/`, auto-cleaned to last 30.
+- **Screenshot any URL:** `node ~/Alexandria/see.mjs <url> [--full] [--dark] [--only desktop|tablet|mobile]`
+- **Local dev:** `node ~/Alexandria/see.mjs localhost --port 3000`
+- **Design reference:** `~/Alexandria/design.md` — craft substrate (900 lines of concrete CSS physics, anti-patterns, thresholds). Read before any frontend work. Not taste — that's `~/Alexandria/constitution/Taste.md`.
+- Screenshots save to `~/Alexandria/.see/`, auto-cleaned to last 30.
 - **Loop:** build → screenshot → evaluate against design.md → fix → screenshot → ship.
 
 ## Style
@@ -146,11 +146,11 @@ Triggered by: "a." at the end of an /a session or any session where constitution
 
 This is the product. Act as a normal Machine would for any Author — this IS the product test:
 
-- **Constitution.** Write any crystallised signal about the founder as a person to `~/.alexandria/constitution/`. Opinions, stories, patterns, contradictions revealed this session.
-- **Machine.md.** Rewrite `~/.alexandria/machine.md` — how to work with this Author, what worked, what didn't, cognitive style observations.
-- **Notepad.** Update `~/.alexandria/notepad.md` — parked questions, accretion candidates, what to carry forward.
-- **Feedback.** Append to `~/.alexandria/feedback.md` — what worked, what didn't, methodology observations.
-- **Machine signal.** Write methodology observations to `~/.alexandria/.machine_signal` — not about the Author, about the craft.
+- **Constitution.** Write any crystallised signal about the founder as a person to `~/Alexandria/constitution/`. Opinions, stories, patterns, contradictions revealed this session.
+- **Machine.md.** Rewrite `~/Alexandria/machine.md` — how to work with this Author, what worked, what didn't, cognitive style observations.
+- **Notepad.** Update `~/Alexandria/notepad.md` — parked questions, accretion candidates, what to carry forward.
+- **Feedback.** Append to `~/Alexandria/feedback.md` — what worked, what didn't, methodology observations.
+- **Machine signal.** Write methodology observations to `~/Alexandria/.machine_signal` — not about the Author, about the craft.
 
 Do this silently. No report. This is the product working. If Phase 1 feels wrong, the product is wrong.
 
@@ -185,8 +185,8 @@ Before committing any server code change:
 
 ## Working With the Founder
 
-See `~/.alexandria/agent.md` for principles, communication style, Three-Phase Execution, and Reflect Gate (loaded globally in every session).
+See `~/Alexandria/agent.md` for principles, communication style, Three-Phase Execution, and Reflect Gate (loaded globally in every session).
 
 Private company files (a0, a1-a4, investor docs, founder writing) live in a separate private repo (`alexandria-private`). This repo is public.
 
-**Founder's Constitution** lives at `~/.alexandria/constitution/` — Core.md, Love.md, Power.md, Mind.md, Taste.md. READ Core.md first for any task. READ Taste.md first for any creative task. `~/.alexandria/design.md` for craft substrate.
+**Founder's Constitution** lives at `~/Alexandria/constitution/` — Core.md, Love.md, Power.md, Mind.md, Taste.md. READ Core.md first for any task. READ Taste.md first for any creative task. `~/Alexandria/design.md` for craft substrate.

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Alexandria setup — creates ~/.alexandria/ and connects to the protocol
+# Alexandria setup — creates ~/Alexandria/ and connects to the protocol
 # Usage: curl -sSL https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/setup.sh | bash -s -- <API_KEY>
 # NO set -e — every section must succeed or fail independently.
 
-ALEX_DIR="$HOME/.alexandria"
+ALEX_DIR="$HOME/Alexandria"
 API_KEY="$1"
 FACTORY_RAW="https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory"
 
@@ -28,7 +28,7 @@ echo "Setting up Alexandria..."
 
 # ── 1. Directory structure ────────────────────────────────────────
 
-mkdir -p "$ALEX_DIR/vault" "$ALEX_DIR/hooks" "$ALEX_DIR/constitution" "$ALEX_DIR/ontology" "$ALEX_DIR/library" "$ALEX_DIR/.autoloop"
+mkdir -p "$ALEX_DIR/vault" "$ALEX_DIR/hooks" "$ALEX_DIR/constitution" "$ALEX_DIR/ontology" "$ALEX_DIR/library" "$ALEX_DIR/inbox" "$ALEX_DIR/.autoloop"
 echo "$API_KEY" > "$ALEX_DIR/.api_key"
 chmod 600 "$ALEX_DIR/.api_key"
 touch "$ALEX_DIR/.last_processed"
@@ -75,18 +75,18 @@ if command -v node &>/dev/null && { [ -d "$HOME/.claude" ] || command -v claude 
     let settings = {};
     try { settings = JSON.parse(fs.readFileSync(f, 'utf-8')); } catch {}
     if (!settings.hooks) settings.hooks = {};
-    const filter = arr => (arr || []).filter(h => !JSON.stringify(h).includes('.alexandria'));
+    const filter = arr => (arr || []).filter(h => !JSON.stringify(h).toLowerCase().includes('alexandria/hooks/shim'));
     settings.hooks.SessionStart = filter(settings.hooks.SessionStart);
     settings.hooks.SessionStart.push({
-      hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/shim.sh session-start', timeout: 10 }]
+      hooks: [{ type: 'command', command: 'bash \$HOME/Alexandria/hooks/shim.sh session-start', timeout: 10 }]
     });
     settings.hooks.SessionEnd = filter(settings.hooks.SessionEnd);
     settings.hooks.SessionEnd.push({
-      hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/shim.sh session-end', timeout: 15 }]
+      hooks: [{ type: 'command', command: 'bash \$HOME/Alexandria/hooks/shim.sh session-end', timeout: 15 }]
     });
     settings.hooks.SubagentStart = filter(settings.hooks.SubagentStart);
     settings.hooks.SubagentStart.push({
-      hooks: [{ type: 'command', command: 'bash \$HOME/.alexandria/hooks/shim.sh subagent' }]
+      hooks: [{ type: 'command', command: 'bash \$HOME/Alexandria/hooks/shim.sh subagent' }]
     });
     fs.writeFileSync(f, JSON.stringify(settings, null, 2));
   " 2>/dev/null
@@ -208,8 +208,8 @@ elif [ -n "$KEY_STATUS" ] && [ "$KEY_STATUS" != "200" ] && [ "$KEY_STATUS" != "0
   echo "Everything local works; the protocol may be degraded."
 else
   echo ""
-  echo "Alexandria installed. ~/.alexandria/ — your mind, on your machine."
+  echo "Alexandria installed. ~/Alexandria/ — your mind, on your machine."
   echo ""
   echo "Open a new Claude Code or Cursor tab and paste the block."
-  echo "If it's not in your clipboard: cat ~/.alexandria/.block"
+  echo "If it's not in your clipboard: cat ~/Alexandria/.block"
 fi

@@ -1,8 +1,8 @@
 # Filter — What the Author Would Say to a Stranger
 
-*The gate between the Author's private system and the Library. Publishing is irreversible — cached, indexed, forkable. This file is the policy the Publisher obeys before anything leaves `~/.alexandria/`.*
+*The gate between the Author's private system and the Library. Publishing is irreversible — cached, indexed, forkable. This file is the policy the Publisher obeys before anything leaves `~/Alexandria/`.*
 
-*Canon default. The Author's `~/.alexandria/filter.md` sharpens on top. This file is the floor.*
+*Canon default. The Author's `~/Alexandria/filter.md` sharpens on top. This file is the floor.*
 
 ---
 
@@ -38,7 +38,7 @@ The things the Author wouldn't tell a stranger even given infinite time. These f
 
 ## The trust boundary
 
-`~/.alexandria/library/` is the opt-in. The folder has three tier sub-folders; placement selects both consent and visibility:
+`~/Alexandria/library/` is the opt-in. The folder has three tier sub-folders; placement selects both consent and visibility:
 
 - **`library/public/`** — ships to the open web. Anyone can read.
 - **`library/paid/`** — ships to paying Authors (subscribers). Gated.
