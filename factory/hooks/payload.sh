@@ -142,12 +142,19 @@ if [ "$MODE" = "session-start" ]; then
     check_drift() {
       local local_file="$1" factory_path="$2" label="$3"
       [ -f "$local_file" ] || return
-      local factory_content
-      factory_content=$(curl -sf --max-time 3 "https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/$factory_path" 2>/dev/null)
-      [ -z "$factory_content" ] && return
+      # Fetch to a tempfile so the byte-for-byte hash matches however the
+      # local file is stored (printf '%s' "$var" strips trailing newlines,
+      # which would false-positive every file that ends with one).
+      local factory_tmp
+      factory_tmp=$(mktemp 2>/dev/null) || return
+      if ! curl -sf --max-time 3 "https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/$factory_path" -o "$factory_tmp" 2>/dev/null; then
+        rm -f "$factory_tmp"
+        return
+      fi
       local factory_sha local_sha
-      factory_sha=$(printf '%s' "$factory_content" | $sha_cmd | cut -c1-7)
-      local_sha=$($sha_cmd < "$local_file" | cut -c1-7)
+      factory_sha=$($sha_cmd "$factory_tmp" | cut -c1-7)
+      local_sha=$($sha_cmd "$local_file" | cut -c1-7)
+      rm -f "$factory_tmp"
       if [ -n "$factory_sha" ] && [ -n "$local_sha" ] && [ "$factory_sha" != "$local_sha" ]; then
         drift_found="${drift_found}${label} (local=$local_sha, factory=$factory_sha)
 "
