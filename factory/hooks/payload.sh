@@ -164,6 +164,25 @@ if [ "$MODE" = "session-start" ]; then
     check_drift "$HOME/.claude/scheduled-tasks/alexandria/SKILL.md" "skills/scheduled-bootstrap.md" "  scheduled agent (~/.claude/scheduled-tasks/alexandria/SKILL.md)"
     check_drift "$HOME/.cursor/rules/alexandria.mdc" "skills/cursor.mdc" "  cursor rules (~/.cursor/rules/alexandria.mdc)"
     check_drift "$HOME/.alexandria/hooks/shim.sh" "hooks/shim.sh" "  hook shim (~/.alexandria/hooks/shim.sh)"
+
+    # Codex case — block embedded between markers in a shared instructions.md.
+    # Extract just the Alexandria section, compare to factory/skills/codex.md.
+    if [ -f "$HOME/.codex/instructions.md" ] && grep -q "<!-- alexandria:start -->" "$HOME/.codex/instructions.md"; then
+      codex_local_tmp=$(mktemp 2>/dev/null)
+      codex_factory_tmp=$(mktemp 2>/dev/null)
+      if [ -n "$codex_local_tmp" ] && [ -n "$codex_factory_tmp" ]; then
+        sed -n '/<!-- alexandria:start -->/,/<!-- alexandria:end -->/p' "$HOME/.codex/instructions.md" > "$codex_local_tmp"
+        if curl -sf --max-time 3 "https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/skills/codex.md" -o "$codex_factory_tmp" 2>/dev/null; then
+          codex_local_sha=$($sha_cmd "$codex_local_tmp" | cut -c1-7)
+          codex_factory_sha=$($sha_cmd "$codex_factory_tmp" | cut -c1-7)
+          if [ -n "$codex_factory_sha" ] && [ -n "$codex_local_sha" ] && [ "$codex_factory_sha" != "$codex_local_sha" ]; then
+            drift_found="${drift_found}  codex block (~/.codex/instructions.md) (local=$codex_local_sha, factory=$codex_factory_sha)
+"
+          fi
+        fi
+        rm -f "$codex_local_tmp" "$codex_factory_tmp"
+      fi
+    fi
     if [ -n "$drift_found" ]; then
       echo ""
       echo "--- INSTALLED ARTEFACT DRIFT ---"
