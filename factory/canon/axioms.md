@@ -1,8 +1,8 @@
 # Axioms — The Sacred Layer
 
-*What Alexandria is and why it exists. Extracted from an (the ground truth). These are the constants — values decisions, not intelligence decisions. They do not improve with better models because they are not intelligence questions. Everything in this file is non-negotiable. Everything NOT in this file is a variable — an intelligence decision that the Author, the Engine, or the marketplace can change.*
+*What Alexandria is and why it exists. These are the constants — values decisions, not intelligence decisions. They do not improve with better models because they are not intelligence questions. Everything in this file is non-negotiable. Everything NOT in this file is a variable — an intelligence decision that the Author, the Engine, or the marketplace can change.*
 
-*Three tiers govern Alexandria's product: Axioms (the constants — the WHAT and WHY, extracted from an), Canon (variable, marketplace-ranked — the current best HOW), Engine (fluid, per-Author intelligence — the specific HOW in each moment). Both Axioms and Canon are ax — downstream of an, not parallel to it.*
+*Three tiers govern Alexandria's product: Axioms (the constants — the WHAT and WHY), Canon (variable, marketplace-ranked — the current best HOW), Engine (fluid, per-Author intelligence — the specific HOW in each moment).*
 
 ---
 

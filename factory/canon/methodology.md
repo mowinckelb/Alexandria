@@ -4,7 +4,7 @@
 
 *Alexandria ships data and intent, not intelligence. This file is the craft (data the Engine reads, not rules the server enforces). Engine is the intelligence. This is text that feeds the model — never logic that constrains it.*
 
-*The humanity in this methodology is the tiebreaker. Every observation here must carry the founder's specific theory of cognitive change, not generic coaching patterns. If a competing team could write this from first principles without reading an, it has failed its own test.*
+*The humanity in this methodology is the tiebreaker. Every observation here must carry the founder's specific theory of cognitive change, not generic coaching patterns. If a competing team could write this from first principles, it has failed its own test.*
 
 *This file is one of seven canon files. Others: `axioms.md` (WHAT/WHY — the sacred layer), `editor.md` `mercury.md` `publisher.md` (the three Engine functions), `library.md` (Library surface conventions), `filter.md` (publishing policy). This file holds what cuts across all of them: operation craft, constitution data architecture, meta-principles, passive mode, the notepad, compounding architecture.*
 
@@ -444,12 +444,12 @@ Engine writes .machine_signal (per session, per Author)
 *Flow:*
 ```
 founder thinking (conversations, reading, building)
-  → a0.md (marginal thought — the agora)
-  → crystallises → an (ground truth — a1/a2/a3)
+  → marginal thoughts (exploration, not yet settled)
+  → crystallises into founder's ground-truth philosophy
   → triggers downstream: canon updated on GitHub
   → canon propagates → all Authors benefit at next session start
 ```
-*Owner:* the founder. Only the founder changes an. Only an changes the canon.
+*Owner:* the founder. Only the founder changes the ground-truth philosophy. Only that changes the canon.
 
 **Loop 5: The Founder Loop (meta)**
 *What compounds:* how the founder works with ai agents.
@@ -458,7 +458,7 @@ founder thinking (conversations, reading, building)
 ```
 founder builds Alexandria using the product
   → learnings about the process (meta loop: building IS using)
-  → persist in CC memory (~/.claude/projects/), canon files, a0.md
+  → persist in CC memory (~/.claude/projects/), canon files, founder's working notes
   → inform marketplace soft defaults, product methodology, Architecture decisions
 ```
 *Owner:* the founder + the Engine. The founder's experience building Alexandria mirrors what the product does for users. The process of building the company IS R&D for the product.
