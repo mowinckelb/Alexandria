@@ -9,8 +9,10 @@ MODE="$1"
 PAYLOAD_URL="https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/hooks/payload.sh"
 
 if [ "$MODE" = "session-start" ]; then
-  # Fetch payload from GitHub, cache locally, execute
-  payload=$(curl -s --max-time 5 "$PAYLOAD_URL" 2>/dev/null)
+  # Fetch payload from GitHub, cache locally, execute.
+  # -f: exit non-zero on HTTP errors (else a 404 HTML page would satisfy the
+  # >100-byte defensive check and corrupt .hooks_payload).
+  payload=$(curl -sf --max-time 5 "$PAYLOAD_URL" 2>/dev/null)
   fresh=false
   if [ -n "$payload" ] && [ ${#payload} -gt 100 ]; then
     echo "$payload" > "$ALEX_DIR/.hooks_payload" && fresh=true
