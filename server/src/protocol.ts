@@ -126,10 +126,18 @@ export function registerProtocol(app: Hono) {
 
     // Client version heartbeat — /call is the one authed endpoint every install hits
     // regularly. Header absent means pre-header shim (install predates 2026-04-23).
-    logEvent('client_version_seen', {
+    // When unset, capture enough metadata to trace the source (IP, UA, referer).
+    const clientVersion = c.req.header('x-alexandria-client') || 'unset';
+    const meta: Record<string, string> = {
       author: auth.account.github_login,
-      version: c.req.header('x-alexandria-client') || 'unset',
-    });
+      version: clientVersion,
+    };
+    if (clientVersion === 'unset') {
+      meta.ip = c.req.header('cf-connecting-ip') || '?';
+      meta.ua = (c.req.header('user-agent') || '?').slice(0, 120);
+      meta.country = c.req.header('cf-ipcountry') || '?';
+    }
+    logEvent('client_version_seen', meta);
 
     // Install ground truth: /call firing proves the shim → payload → auth flow
     // works end-to-end. First successful /call per account stamps installed_at.

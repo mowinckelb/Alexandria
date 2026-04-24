@@ -99,6 +99,108 @@ export async function runEngagementCheck(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 type Urgency = 'sprint' | 'stroll';
+type Escalate = (u: Urgency, reason: string) => void;
+
+/**
+ * D1 health probe + schema/invariant checks. Extracted from runHealthDigest
+ * because it's the longest subsection (multiple independent D1 queries) and
+ * benefits most from being a named unit.
+ */
+async function probeD1(escalate: Escalate): Promise<void> {
+  try {
+    const db = (globalThis as any).__d1 as D1Database | undefined;
+    if (!db) {
+      escalate('sprint', 'D1 not bound');
+      return;
+    }
+    await db.prepare('SELECT 1').first();
+
+    // Schema verification — expected tables must exist
+    const expectedTables = ['authors', 'shadows', 'quizzes', 'works', 'quiz_results', 'referrals', 'access_log', 'billing_tab', 'waitlist', 'stripe_webhook_events', 'protocol_files', 'protocol_calls'];
+    const { results: tables } = await db.prepare(
+      `SELECT name FROM sqlite_master WHERE type = 'table'`
+    ).all<{ name: string }>();
+    const tableNames = new Set((tables || []).map(t => t.name));
+    const missing = expectedTables.filter(t => !tableNames.has(t));
+    if (missing.length > 0) escalate('sprint', `D1 missing tables: ${missing.join(', ')}`);
+
+    // Billing invariant: no duplicate unsettled rows for the same artifact-month key.
+    const duplicateRows = await db.prepare(
+      `SELECT COUNT(*) as c
+       FROM (
+         SELECT accessor_id, author_id, artifact_type, artifact_id, month
+         FROM billing_tab
+         WHERE settled = 0 AND artifact_id != ''
+         GROUP BY accessor_id, author_id, artifact_type, artifact_id, month
+         HAVING COUNT(*) > 1
+       )`
+    ).first<{ c: number }>();
+    if ((duplicateRows?.c || 0) > 0) escalate('sprint', `D1 billing duplicate unsettled rows: ${duplicateRows?.c}`);
+
+    // Verification substrate present.
+    const billingIndex = await db.prepare(
+      `SELECT name FROM sqlite_master WHERE type = 'index' AND name = 'idx_tab_unique_unsettled_artifact'`
+    ).first<{ name: string }>();
+    if (!billingIndex) escalate('stroll', 'D1 missing billing uniqueness index');
+
+    const webhookTable = await db.prepare(
+      `SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'stripe_webhook_events'`
+    ).first<{ name: string }>();
+    if (!webhookTable) escalate('stroll', 'D1 missing stripe_webhook_events table');
+  } catch (e) {
+    escalate('sprint', `D1 probe failed: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+/**
+ * Factory autoloop liveness — two markers: fired (JOB 0) + completed (end of JOB 4).
+ * Fired stale → trigger dead. Completed stale while fired fresh → JOB 4 silently broken.
+ */
+async function checkFactoryLiveness(kv: KVNamespace, escalate: Escalate): Promise<void> {
+  try {
+    // Soft default — owned by Factory autoloop (see factory/skills/factory.md). Reconsiderable.
+    const factoryStaleDays = 14;
+    const staleMs = factoryStaleDays * 24 * 60 * 60 * 1000;
+    const markerAgeMs = async (key: string): Promise<number | null> => {
+      const raw = await kv.get(key);
+      if (!raw) return null;
+      return Date.now() - new Date(JSON.parse(raw).t).getTime();
+    };
+
+    const firedAge = await markerAgeMs('cron:factory_autoloop');
+    if (firedAge === null) {
+      escalate('stroll', 'Factory autoloop: no fired marker yet — never run?');
+    } else if (firedAge > staleMs) {
+      escalate('stroll', `Factory autoloop stale (${Math.floor(firedAge / 86400000)}d since trigger fired)`);
+    } else {
+      // Fired is fresh. If completed was ever written and has since gone stale, JOB 4 is broken.
+      // If completed is absent entirely, treat as bootstrap — wait until it exists before alerting.
+      const completedAge = await markerAgeMs('cron:factory_completed');
+      if (completedAge !== null && completedAge > staleMs) {
+        escalate('stroll', `Factory fires but JOB 4 not completing (${Math.floor(completedAge / 86400000)}d since last completion)`);
+      }
+    }
+  } catch { /* non-fatal */ }
+}
+
+/**
+ * Orphan signups — account created >48h ago but never fired /call (never installed).
+ * Either setup broke for them or they bailed. Paired with the installed_at write
+ * in protocol.ts /call, which makes this field meaningful (previously always null).
+ */
+async function checkOrphanSignups(escalate: Escalate): Promise<void> {
+  try {
+    const accounts = await loadAccounts<AccountStore>();
+    const cutoff = Date.now() - 48 * 60 * 60 * 1000;
+    const orphans = Object.values(accounts).filter(a =>
+      !a.installed_at && a.created_at && new Date(a.created_at).getTime() < cutoff
+    );
+    if (orphans.length > 0) {
+      const sample = orphans.slice(0, 3).map(o => o.github_login).join(', ');
+      escalate('stroll', `${orphans.length} signup${orphans.length > 1 ? 's' : ''} >48h without install (${sample}${orphans.length > 3 ? '…' : ''})`);
+    }
+  } catch { /* non-fatal */ }
+}
 
 export interface EventScanResult {
   serverErrors: number;
@@ -165,50 +267,7 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
       escalate('sprint', `KV read failed: ${e instanceof Error ? e.message : String(e)}`);
     }
 
-    // D1
-    try {
-      const db = (globalThis as any).__d1 as D1Database | undefined;
-      if (!db) {
-        escalate('sprint', 'D1 not bound');
-      } else {
-        await db.prepare('SELECT 1').first();
-
-        // Schema verification — expected tables must exist
-        const expectedTables = ['authors', 'shadows', 'quizzes', 'works', 'quiz_results', 'referrals', 'access_log', 'billing_tab', 'waitlist', 'stripe_webhook_events', 'protocol_files', 'protocol_calls'];
-        const { results: tables } = await db.prepare(
-          `SELECT name FROM sqlite_master WHERE type = 'table'`
-        ).all<{ name: string }>();
-        const tableNames = new Set((tables || []).map(t => t.name));
-        const missing = expectedTables.filter(t => !tableNames.has(t));
-        if (missing.length > 0) escalate('sprint', `D1 missing tables: ${missing.join(', ')}`);
-
-        // Billing invariant: no duplicate unsettled rows for the same artifact-month key.
-        const duplicateRows = await db.prepare(
-          `SELECT COUNT(*) as c
-           FROM (
-             SELECT accessor_id, author_id, artifact_type, artifact_id, month
-             FROM billing_tab
-             WHERE settled = 0 AND artifact_id != ''
-             GROUP BY accessor_id, author_id, artifact_type, artifact_id, month
-             HAVING COUNT(*) > 1
-           )`
-        ).first<{ c: number }>();
-        if ((duplicateRows?.c || 0) > 0) escalate('sprint', `D1 billing duplicate unsettled rows: ${duplicateRows?.c}`);
-
-        // Verification substrate present.
-        const billingIndex = await db.prepare(
-          `SELECT name FROM sqlite_master WHERE type = 'index' AND name = 'idx_tab_unique_unsettled_artifact'`
-        ).first<{ name: string }>();
-        if (!billingIndex) escalate('stroll', 'D1 missing billing uniqueness index');
-
-        const webhookTable = await db.prepare(
-          `SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'stripe_webhook_events'`
-        ).first<{ name: string }>();
-        if (!webhookTable) escalate('stroll', 'D1 missing stripe_webhook_events table');
-      }
-    } catch (e) {
-      escalate('sprint', `D1 probe failed: ${e instanceof Error ? e.message : String(e)}`);
-    }
+    await probeD1(escalate);
 
     // R2 — Library content storage
     try {
@@ -268,32 +327,7 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
       if (missing.length > 0) escalate('sprint', `Missing env vars: ${missing.join(', ')}`);
     } catch { /* non-fatal */ }
 
-    // Factory autoloop liveness — two markers: fired (JOB 0) + completed (end of JOB 4).
-    // Fired stale → trigger dead. Completed stale while fired fresh → JOB 4 silently broken.
-    try {
-      // Soft default — owned by Factory autoloop (see factory/skills/factory.md). Reconsiderable.
-      const factoryStaleDays = 14;
-      const staleMs = factoryStaleDays * 24 * 60 * 60 * 1000;
-      const markerAgeMs = async (key: string): Promise<number | null> => {
-        const raw = await kv.get(key);
-        if (!raw) return null;
-        return Date.now() - new Date(JSON.parse(raw).t).getTime();
-      };
-
-      const firedAge = await markerAgeMs('cron:factory_autoloop');
-      if (firedAge === null) {
-        escalate('stroll', 'Factory autoloop: no fired marker yet — never run?');
-      } else if (firedAge > staleMs) {
-        escalate('stroll', `Factory autoloop stale (${Math.floor(firedAge / 86400000)}d since trigger fired)`);
-      } else {
-        // Fired is fresh. If completed was ever written and has since gone stale, JOB 4 is broken.
-        // If completed is absent entirely, treat as bootstrap — wait until it exists before alerting.
-        const completedAge = await markerAgeMs('cron:factory_completed');
-        if (completedAge !== null && completedAge > staleMs) {
-          escalate('stroll', `Factory fires but JOB 4 not completing (${Math.floor(completedAge / 86400000)}d since last completion)`);
-        }
-      }
-    } catch { /* non-fatal */ }
+    await checkFactoryLiveness(kv, escalate);
 
     // Signal backlog check — if Factory autoloop drains regularly, pending should stay modest.
     // Soft default threshold (Factory may reconsider as scale grows)
@@ -309,21 +343,7 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
       }
     } catch { /* non-fatal */ }
 
-    // Orphan signups — account created >48h ago but never fired /call (never installed).
-    // Either setup broke for them or they bailed. Either way, product-health signal
-    // the founder wants to see. /call now stamps installed_at (ground truth); before
-    // that fix this field was always null, so this alarm was meaningless.
-    try {
-      const accounts = await loadAccounts<AccountStore>();
-      const cutoff = Date.now() - 48 * 60 * 60 * 1000;
-      const orphans = Object.values(accounts).filter(a =>
-        !a.installed_at && a.created_at && new Date(a.created_at).getTime() < cutoff
-      );
-      if (orphans.length > 0) {
-        const sample = orphans.slice(0, 3).map(o => o.github_login).join(', ');
-        escalate('stroll', `${orphans.length} signup${orphans.length > 1 ? 's' : ''} >48h without install (${sample}${orphans.length > 3 ? '…' : ''})`);
-      }
-    } catch { /* non-fatal */ }
+    await checkOrphanSignups(escalate);
 
     // Cron marker (proves the job ran — includes issue list for debugging)
     try {
