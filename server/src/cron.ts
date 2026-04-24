@@ -295,10 +295,10 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
         if (scan.serverErrors > 0) escalate('stroll', `${scan.serverErrors} server errors in 24h`);
         if (scan.deprecatedHits > 0) {
           const top = [...scan.deprecatedByPath.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([p, n]) => `${p}=${n}`).join(', ');
-          escalate('sprint', `${scan.deprecatedHits} hits to deprecated routes in 24h (${top}) — stale installs`);
+          escalate('stroll', `${scan.deprecatedHits} hits to deprecated routes in 24h (${top}) — stale installs`);
         }
         if (scan.staleClientCalls > 0) {
-          escalate('sprint', `${scan.staleClientCalls} /call requests without X-Alexandria-Client header — pre-upgrade shims`);
+          escalate('stroll', `${scan.staleClientCalls} /call requests without X-Alexandria-Client header — pre-upgrade shims`);
         }
         const testTags = new Set(['smoke-test', 'ci-smoke', 'check-script', 'check-install', 'scheduled-agent']);
         const realVersions = [...scan.clientVersions.entries()].filter(([v]) => !testTags.has(v));
