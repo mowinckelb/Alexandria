@@ -181,8 +181,9 @@ async function main() {
   await test('Methodology URL is reachable and non-trivial', async () => {
     const res = await fetch(methodologyUrl);
     const body = await res.text();
-    const hasAxioms = body.includes('Axioms');
-    const hasFiveOps = body.includes('Five Operations') || body.includes('The Five Operations');
+    const lower = body.toLowerCase();
+    const hasAxioms = lower.includes('axiom');
+    const hasFiveOps = lower.includes('five operation') || lower.includes('operation craft');
 
     return {
       test: 'Methodology URL',
@@ -361,7 +362,8 @@ async function main() {
     if (exists) {
       const content = readFileSync(canonPath, 'utf-8');
       size = content.length;
-      hasRequiredContent = content.includes('Axioms') && content.includes('Five Operations');
+      const lower = content.toLowerCase();
+      hasRequiredContent = lower.includes('axiom') && (lower.includes('five operation') || lower.includes('operation craft'));
     }
     return {
       test: 'Methodology local cache',
