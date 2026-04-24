@@ -66,24 +66,6 @@ Operational overhead — OAuth, billing, email, admin:
 | GET | `/admin/marketplace/signals` | Read marketplace signals (admin) |
 | GET | `/admin/marketplace/library-signal` | Library RL signal (admin) |
 | POST | `/admin/email` | Send email (admin) |
-| POST | `/admin/cron/health-digest` | Manual health digest trigger (admin); `?email=true` opts into alarm email, default silent |
-
-### Observability
-
-Every authenticated POST carries an `X-Alexandria-Client` header so the server can detect stale installs and version drift without mutating account state. The shim auto-hashes its cached payload (`sha256(.hooks_payload) | cut -c1-7`), so every meaningful change to `payload.sh` auto-bumps the version with zero manual touch. Synthetic sources (CI smoke, scheduled agent, manual checks) use stable semantic tags (`ci-smoke`, `scheduled-agent`, `smoke-test`, `check-script`) — the cron digest filters these out of the drift alarm.
-
-Core event types in the append-only log (`events:YYYY-MM-DD` in KV), read by `getDashboard()` and `runHealthDigest()`:
-
-| Event | Fires when | Surfaces in |
-|-------|-----------|-------------|
-| `server_error` | Any 5xx response | digest stroll alarm at >0 |
-| `server_not_found` | Any 404 | dashboard `top_not_found_paths` |
-| `deprecated_hit` | 410 Gone route hit (known-removed path) | digest sprint alarm at >0 |
-| `client_version_seen` | Every `/call` | digest drift alarm + stale-client sprint |
-| `install_completed` | First `/call` per account | dashboard |
-| Cron health digest | Daily 09:00 UTC (or via admin trigger) | email body + `/health` `awareness` block + `cron:health_digest` KV |
-
-`/health` returns top-level `status: "ok"` iff infra is healthy AND no digest urgency; else `degraded`. The awareness block carries the latest digest's issues inline so external monitors see the full signal without needing auth. Uptime monitors should check `components.*` individually rather than top-level `status` to avoid false alarms on legitimate awareness-side detection.
 
 ### Factory Structure
 
