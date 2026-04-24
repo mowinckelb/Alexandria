@@ -6,7 +6,7 @@
  * -> machine signal/feedback -> local machine files.
  *
  * Usage: npx tsx test/lifecycle.ts
- * Requires: ~/Alexandria/.api_key (a real account)
+ * Requires: ~/alexandria/system/.api_key (a real account)
  * Set TEST_URL to override (default: https://mcp.mowinckel.ai)
  */
 
@@ -17,7 +17,7 @@ const BASE = process.env.TEST_URL || 'https://mcp.mowinckel.ai';
 const HOME = process.env.HOME || process.env.USERPROFILE || '';
 const ALEX_DIR = join(HOME, '.alexandria');
 const API_KEY_PATH = join(ALEX_DIR, '.api_key');
-const FACTORY_RAW = 'https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory';
+const FACTORY_RAW = 'https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory';
 
 interface TestResult {
   test: string;
@@ -92,7 +92,7 @@ async function main() {
 
   // Pre-check: API key exists
   if (!existsSync(API_KEY_PATH)) {
-    console.log('SKIP: No API key found at ~/Alexandria/.api_key');
+    console.log('SKIP: No API key found at ~/alexandria/system/.api_key');
     console.log('This test requires a real Alexandria account.');
     process.exit(0);
   }

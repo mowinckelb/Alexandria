@@ -43,7 +43,7 @@ export function authErrorHtml(message: string): string {
 export function callbackPageHtml(login: string, apiKey: string): string {
   const WEBSITE_URL = getWebsiteUrl();
   const isReturning = !apiKey;
-  const curlCmd = isReturning ? '' : `curl -sSL https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/setup.sh | bash -s -- ${apiKey}`;
+  const curlCmd = isReturning ? '' : `curl -sSL https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | bash -s -- ${apiKey}`;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -144,7 +144,7 @@ export function callbackPageHtml(login: string, apiKey: string): string {
   </div>` : `<div class="section">
     <p class="label">setup</p>
     <p class="line"><a class="action" onclick="copyPrime(this)">1. prime <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in terminal <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">checks your machine has what alexandria needs. if github cli is installed, it logs you in for private backup. run this first.</span></span></p>
-    <p class="line"><a class="action" onclick="copyCmd(this)">2. curl <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in terminal <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">installs alexandria on your machine. creates ~/Alexandria/, configures your cli and ide. everything local, nothing sent anywhere.</span></span></p>
+    <p class="line"><a class="action" onclick="copyCmd(this)">2. curl <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in terminal <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">installs alexandria on your machine. creates ~/alexandria/, configures your cli and ide. everything local, nothing sent anywhere.</span></span></p>
     <p class="line"><a class="action" onclick="copyBlock(this)">3. block <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in new tab <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">open a new conversation in your cli or ide. paste the block. it reads your files to understand you — builds your starter constitution. let it work.</span></span></p>
   </div>`}
   <div class="section">
@@ -173,7 +173,7 @@ function copyCmd(el) {
   navigator.clipboard.writeText(${JSON.stringify(curlCmd)}).then(function() { flash(el); });
 }
 function copyBlock(el) {
-  fetch('https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/block.md').then(function(r) { return r.text(); }).then(function(text) {
+  fetch('https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/block.md').then(function(r) { return r.text(); }).then(function(text) {
     navigator.clipboard.writeText(text).then(function() { flash(el); });
   });
 }

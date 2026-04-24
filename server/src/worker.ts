@@ -474,7 +474,7 @@ for (const path of DEPRECATED_ROUTES) {
     }
 
     logEvent('deprecated_hit', details);
-    return c.text('410 Gone — endpoint removed. Upgrade the client: https://github.com/mowinckelb/Alexandria', 410);
+    return c.text('410 Gone — endpoint removed. Upgrade the client: https://github.com/mowinckelb/alexandria', 410);
   });
 }
 

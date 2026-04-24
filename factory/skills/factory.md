@@ -32,7 +32,7 @@ Read all of these each run. Everything is unstructured — let the model interpr
 5. **Open PRs to factory/** — `gh pr list --search "path:factory/"` or equivalent. Don't propose something already proposed. If a stale open PR is dead weight, close it with reasoning.
 6. **Recent canon history** — `git log --oneline -20 -- factory/canon/` for context on what has changed recently.
 
-The admin key is provided to you by the trigger prompt that invokes this skill. If invoked outside a trigger (direct run on founder's local machine), read from `~/Alexandria/.admin_key`. If neither source provides it, abort and log.
+The admin key is provided to you by the trigger prompt that invokes this skill. If invoked outside a trigger (direct run on founder's local machine), read from `~/alexandria/.admin_key`. If neither source provides it, abort and log.
 
 ## Decision
 
@@ -74,7 +74,7 @@ This is the second half of the dual-signal: Heartbeat proves the trigger fired, 
 
 ## Report
 
-Write a report to `~/Alexandria/.factory/last_run.md` — what you read, what you decided, what PRs you opened, any anomalies. This is the founder's eye into the loop.
+Write a report to `~/alexandria/.factory/last_run.md` — what you read, what you decided, what PRs you opened, any anomalies. This is the founder's eye into the loop.
 
 ## Verification (run last)
 

@@ -60,7 +60,7 @@ if [ -z "$API_KEY" ] && [ -f "$REAL_HOME/.alexandria/.api_key" ]; then
   API_KEY=$(tr -d '[:space:]' < "$REAL_HOME/.alexandria/.api_key")
 fi
 if [ -z "$API_KEY" ]; then
-  echo "[stranger] ABORT — no API key. Set ALEXANDRIA_TEST_KEY or have ~/Alexandria/.api_key"
+  echo "[stranger] ABORT — no API key. Set ALEXANDRIA_TEST_KEY or have ~/alexandria/system/.api_key"
   exit 1
 fi
 
@@ -125,7 +125,7 @@ echo "[stranger] pre-populated settings.json with existing hooks"
 echo ""
 echo "═══ Phase 2: Setup script ═══"
 
-SETUP_SCRIPT=$(curl -s --max-time 15 "https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/setup.sh" 2>/dev/null)
+SETUP_SCRIPT=$(curl -s --max-time 15 "https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh" 2>/dev/null)
 
 check "setup script fetched"       [ -n "$SETUP_SCRIPT" ]
 SETUP_FIRST_LINE=$(echo "$SETUP_SCRIPT" | head -1)
@@ -135,25 +135,25 @@ check "setup is bash script"       [ "$SETUP_FIRST_LINE" = "#!/usr/bin/env bash"
 echo "$SETUP_SCRIPT" | bash -s -- "$API_KEY" 2>/dev/null
 
 # Verify directory structure
-check "alexandria dir exists"      [ -d "$HOME/Alexandria" ]
-check "vault dir exists"           [ -d "$HOME/Alexandria/vault" ]
-check "hooks dir exists"           [ -d "$HOME/Alexandria/hooks" ]
-check "constitution dir exists"    [ -d "$HOME/Alexandria/constitution" ]
-check "ontology dir exists"        [ -d "$HOME/Alexandria/ontology" ]
-check "library dir exists"         [ -d "$HOME/Alexandria/library" ]
+check "alexandria dir exists"      [ -d "$HOME/alexandria" ]
+check "vault dir exists"           [ -d "$HOME/alexandria/files/vault" ]
+check "hooks dir exists"           [ -d "$HOME/alexandria/system/hooks" ]
+check "constitution dir exists"    [ -d "$HOME/alexandria/files/constitution" ]
+check "ontology dir exists"        [ -d "$HOME/alexandria/files/ontology" ]
+check "library dir exists"         [ -d "$HOME/alexandria/files/library" ]
 
 # Verify files
-check "feedback.md exists"         [ -f "$HOME/Alexandria/feedback.md" ]
-check "notepad.md exists"          [ -f "$HOME/Alexandria/notepad.md" ]
-check "machine.md exists"          [ -f "$HOME/Alexandria/machine.md" ]
-check "api_key written"            [ -f "$HOME/Alexandria/.api_key" ]
-check "api_key correct"            [ "$(cat "$HOME/Alexandria/.api_key")" = "$API_KEY" ]
-check "setup_complete marker"      [ -f "$HOME/Alexandria/.setup_complete" ]
+check "feedback.md exists"         [ -f "$HOME/alexandria/files/feedback.md" ]
+check "notepad.md exists"          [ -f "$HOME/alexandria/files/notepad.md" ]
+check "machine.md exists"          [ -f "$HOME/alexandria/files/machine.md" ]
+check "api_key written"            [ -f "$HOME/alexandria/system/.api_key" ]
+check "api_key correct"            [ "$(cat "$HOME/alexandria/system/.api_key")" = "$API_KEY" ]
+check "setup_complete marker"      [ -f "$HOME/alexandria/system/.setup_complete" ]
 
 # Permission check (skip on Windows — NTFS doesn't enforce Unix perms)
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*) ;;
-  *) check "api_key not world-readable" [ ! "$(stat -c '%a' "$HOME/Alexandria/.api_key" 2>/dev/null || stat -f '%Lp' "$HOME/Alexandria/.api_key" 2>/dev/null)" = "644" ] ;;
+  *) check "api_key not world-readable" [ ! "$(stat -c '%a' "$HOME/alexandria/system/.api_key" 2>/dev/null || stat -f '%Lp' "$HOME/alexandria/system/.api_key" 2>/dev/null)" = "644" ] ;;
 esac
 
 # ═══════════════════════════════════════════════════════════
@@ -163,13 +163,13 @@ esac
 echo ""
 echo "═══ Phase 3: Hooks installation ═══"
 
-check "shim.sh exists"             [ -f "$HOME/Alexandria/hooks/shim.sh" ]
-check "shim.sh executable"         [ -x "$HOME/Alexandria/hooks/shim.sh" ]
-check "shim.sh non-empty"          [ -s "$HOME/Alexandria/hooks/shim.sh" ]
+check "shim.sh exists"             [ -f "$HOME/alexandria/system/hooks/shim.sh" ]
+check "shim.sh executable"         [ -x "$HOME/alexandria/system/hooks/shim.sh" ]
+check "shim.sh non-empty"          [ -s "$HOME/alexandria/system/hooks/shim.sh" ]
 check "SKILL.md exists"            [ -f "$HOME/.claude/skills/alexandria/SKILL.md" ]
 check "SKILL.md has Alexandria"    grep -q "Alexandria" "$HOME/.claude/skills/alexandria/SKILL.md"
 check "scheduled task exists"      [ -f "$HOME/.claude/scheduled-tasks/alexandria/SKILL.md" ]
-check "canon cached"               [ -f "$HOME/Alexandria/.canon_local" ]
+check "canon cached"               [ -f "$HOME/alexandria/.canon_local" ]
 
 # settings.json integrity
 check "settings.json exists"       [ -f "$HOME/.claude/settings.json" ]
@@ -190,8 +190,8 @@ echo ""
 echo "═══ Phase 4: Session-start hook ═══"
 
 # Seed a test constitution so the hook has something to inject
-mkdir -p "$HOME/Alexandria/constitution"
-cat > "$HOME/Alexandria/constitution/test.md" << 'CONSTITUTION_TEST'
+mkdir -p "$HOME/alexandria/files/constitution"
+cat > "$HOME/alexandria/files/constitution/test.md" << 'CONSTITUTION_TEST'
 Test Author believes in first principles thinking.
 They prefer simple systems over ornate abstractions.
 When tradeoffs appear, they optimize for clarity, speed, and direct customer truth.
@@ -200,15 +200,15 @@ They dislike process theater and default to deletion before addition.
 CONSTITUTION_TEST
 
 # Seed ontology so all five context layers can be verified
-mkdir -p "$HOME/Alexandria/ontology"
-cat > "$HOME/Alexandria/ontology/test.md" << 'ONTOLOGY_TEST'
+mkdir -p "$HOME/alexandria/files/ontology"
+cat > "$HOME/alexandria/files/ontology/test.md" << 'ONTOLOGY_TEST'
 Early signal: this Author sees software architecture as compressed philosophy.
 ONTOLOGY_TEST
 
-touch "$HOME/Alexandria/.block_complete"
+touch "$HOME/alexandria/system/.block_complete"
 
 # Run the shim exactly as Claude Code would
-SESSION_START_OUTPUT=$(bash "$HOME/Alexandria/hooks/shim.sh" session-start 2>&1)
+SESSION_START_OUTPUT=$(bash "$HOME/alexandria/system/hooks/shim.sh" session-start 2>&1)
 SESSION_START_EXIT=$?
 
 check "session-start ran"                [ "$SESSION_START_EXIT" -eq 0 ]
@@ -218,10 +218,10 @@ check_output "ontology injected"         "ONTOLOGY"              "$SESSION_START
 check_output "machine injected"          "HOW TO WORK WITH THIS AUTHOR" "$SESSION_START_OUTPUT"
 check_output "notepad injected"          "NOTEPAD"               "$SESSION_START_OUTPUT"
 check_output "feedback injected"         "ENGINE FEEDBACK"       "$SESSION_START_OUTPUT"
-check "hooks_payload cached"             [ -f "$HOME/Alexandria/.hooks_payload" ]
-check "hooks_payload non-empty"          [ -s "$HOME/Alexandria/.hooks_payload" ]
-check "canon cached"                     [ -f "$HOME/Alexandria/.canon_local" ]
-CANON_SIZE=$(wc -c < "$HOME/Alexandria/.canon_local" 2>/dev/null | tr -d ' ' || echo 0)
+check "hooks_payload cached"             [ -f "$HOME/alexandria/system/.hooks_payload" ]
+check "hooks_payload non-empty"          [ -s "$HOME/alexandria/system/.hooks_payload" ]
+check "canon cached"                     [ -f "$HOME/alexandria/.canon_local" ]
+CANON_SIZE=$(wc -c < "$HOME/alexandria/.canon_local" 2>/dev/null | tr -d ' ' || echo 0)
 check "canon non-trivial"               [ "${CANON_SIZE:-0}" -gt 100 ]
 
 # ═══════════════════════════════════════════════════════════
@@ -236,13 +236,13 @@ FAKE_TRANSCRIPT="$TEMP_HOME/test_transcript.jsonl"
 echo '{"role":"user","content":"stranger test transcript"}' > "$FAKE_TRANSCRIPT"
 
 # Pipe the transcript path as JSON (how Claude Code sends it)
-echo "{\"transcript_path\":\"$FAKE_TRANSCRIPT\"}" | bash "$HOME/Alexandria/hooks/shim.sh" session-end 2>&1
+echo "{\"transcript_path\":\"$FAKE_TRANSCRIPT\"}" | bash "$HOME/alexandria/system/hooks/shim.sh" session-end 2>&1
 SESSION_END_EXIT=$?
 
 check "session-end ran"            [ "$SESSION_END_EXIT" -eq 0 ]
 
 # Check transcript was copied to vault
-VAULT_FILES=$(ls "$HOME/Alexandria/vault/"*.jsonl 2>/dev/null | head -1)
+VAULT_FILES=$(ls "$HOME/alexandria/files/vault/"*.jsonl 2>/dev/null | head -1)
 check "transcript in vault"        [ -n "$VAULT_FILES" ]
 if [ -n "$VAULT_FILES" ]; then
   check "vault file non-empty"     [ -s "$VAULT_FILES" ]
@@ -255,7 +255,7 @@ fi
 echo ""
 echo "═══ Phase 6: Subagent hook ═══"
 
-SUBAGENT_OUTPUT=$(bash "$HOME/Alexandria/hooks/shim.sh" subagent 2>&1)
+SUBAGENT_OUTPUT=$(bash "$HOME/alexandria/system/hooks/shim.sh" subagent 2>&1)
 SUBAGENT_EXIT=$?
 
 check "subagent ran"                     [ "$SUBAGENT_EXIT" -eq 0 ]

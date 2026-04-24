@@ -89,7 +89,7 @@ export async function sendUpgradeEmail(email: string): Promise<void> {
     `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 440px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
   <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 1.5rem;">your alexandria install is calling a removed endpoint.</p>
   <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 1.5rem;">the local cache is stale. reinstall to pick up the current version:</p>
-  <pre style="font-family: 'SF Mono', Monaco, 'Courier New', monospace; font-size: 0.82rem; background: #f5f3f0; padding: 1rem; text-align: left; overflow-x: auto; color: #3d3630;">curl -fsSL https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/setup.sh | bash</pre>
+  <pre style="font-family: 'SF Mono', Monaco, 'Courier New', monospace; font-size: 0.82rem; background: #f5f3f0; padding: 1rem; text-align: left; overflow-x: auto; color: #3d3630;">curl -fsSL https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | bash</pre>
   <p style="font-size: 0.78rem; color: #bbb4aa; margin-top: 1.5rem;">one-time note per week.</p>
 </div>`);
 }

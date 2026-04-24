@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Alexandria setup — creates ~/Alexandria/ and connects to the protocol
-# Usage: curl -sSL https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/setup.sh | bash -s -- <API_KEY>
+# Alexandria setup — creates ~/alexandria/ and connects to the protocol
+# Usage: curl -sSL https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | bash -s -- <API_KEY>
 # NO set -e — every section must succeed or fail independently.
 
-ALEX_DIR="$HOME/Alexandria"
+ALEX_DIR="$HOME/alexandria"
 API_KEY="$1"
-FACTORY_RAW="https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory"
+FACTORY_RAW="https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory"
 
 if [ -z "$API_KEY" ]; then
   echo "Usage: bash setup.sh <API_KEY>"
@@ -28,10 +28,10 @@ echo "Setting up Alexandria..."
 
 # ── 1. Directory structure ────────────────────────────────────────
 
-mkdir -p "$ALEX_DIR/vault" "$ALEX_DIR/hooks" "$ALEX_DIR/constitution" "$ALEX_DIR/ontology" "$ALEX_DIR/library" "$ALEX_DIR/inbox" "$ALEX_DIR/.autoloop"
-echo "$API_KEY" > "$ALEX_DIR/.api_key"
-chmod 600 "$ALEX_DIR/.api_key"
-touch "$ALEX_DIR/.last_processed"
+mkdir -p "$ALEX_DIR/files/vault" "$ALEX_DIR/system/hooks" "$ALEX_DIR/files/constitution" "$ALEX_DIR/files/ontology" "$ALEX_DIR/files/library" "$ALEX_DIR/files/vault/input" "$ALEX_DIR/system/.autoloop"
+echo "$API_KEY" > "$ALEX_DIR/system/.api_key"
+chmod 600 "$ALEX_DIR/system/.api_key"
+touch "$ALEX_DIR/system/.last_processed"
 date +%s > "$ALEX_DIR/.last_maintenance"
 
 # ── 2. Factory files from GitHub ──────────────────────────────────
@@ -45,12 +45,12 @@ for d in constitution ontology vault library; do
 done
 
 # Hooks (always update)
-curl -sS "$FACTORY_RAW/hooks/shim.sh" -o "$ALEX_DIR/hooks/shim.sh" 2>/dev/null
-chmod +x "$ALEX_DIR/hooks/shim.sh"
-curl -sS "$FACTORY_RAW/hooks/payload.sh" -o "$ALEX_DIR/.hooks_payload" 2>/dev/null
+curl -sS "$FACTORY_RAW/hooks/shim.sh" -o "$ALEX_DIR/system/hooks/shim.sh" 2>/dev/null
+chmod +x "$ALEX_DIR/system/hooks/shim.sh"
+curl -sS "$FACTORY_RAW/hooks/payload.sh" -o "$ALEX_DIR/system/.hooks_payload" 2>/dev/null
 
 # Canon (cache locally — one module)
-curl -sS "$FACTORY_RAW/canon/methodology.md" -o "$ALEX_DIR/.canon_local" 2>/dev/null
+curl -sS "$FACTORY_RAW/canon/methodology.md" -o "$ALEX_DIR/system/canon/methodology.md" 2>/dev/null
 
 # Block (cache locally for easy access)
 curl -sS "$FACTORY_RAW/block.md" -o "$ALEX_DIR/.block" 2>/dev/null
@@ -78,15 +78,15 @@ if command -v node &>/dev/null && { [ -d "$HOME/.claude" ] || command -v claude 
     const filter = arr => (arr || []).filter(h => !JSON.stringify(h).toLowerCase().includes('alexandria/hooks/shim'));
     settings.hooks.SessionStart = filter(settings.hooks.SessionStart);
     settings.hooks.SessionStart.push({
-      hooks: [{ type: 'command', command: 'bash \$HOME/Alexandria/hooks/shim.sh session-start', timeout: 10 }]
+      hooks: [{ type: 'command', command: 'bash \$HOME/alexandria/system/hooks/shim.sh session-start', timeout: 10 }]
     });
     settings.hooks.SessionEnd = filter(settings.hooks.SessionEnd);
     settings.hooks.SessionEnd.push({
-      hooks: [{ type: 'command', command: 'bash \$HOME/Alexandria/hooks/shim.sh session-end', timeout: 15 }]
+      hooks: [{ type: 'command', command: 'bash \$HOME/alexandria/system/hooks/shim.sh session-end', timeout: 15 }]
     });
     settings.hooks.SubagentStart = filter(settings.hooks.SubagentStart);
     settings.hooks.SubagentStart.push({
-      hooks: [{ type: 'command', command: 'bash \$HOME/Alexandria/hooks/shim.sh subagent' }]
+      hooks: [{ type: 'command', command: 'bash \$HOME/alexandria/system/hooks/shim.sh subagent' }]
     });
     fs.writeFileSync(f, JSON.stringify(settings, null, 2));
   " 2>/dev/null
@@ -178,13 +178,13 @@ fi
 
 # ── Done ──────────────────────────────────────────────────────────
 
-touch "$ALEX_DIR/.setup_complete"
+touch "$ALEX_DIR/system/.setup_complete"
 
 MISSING=""
-[ ! -f "$ALEX_DIR/.api_key" ] && MISSING="$MISSING api_key"
-[ ! -f "$ALEX_DIR/hooks/shim.sh" ] && MISSING="$MISSING hooks"
-[ ! -f "$ALEX_DIR/.canon_local" ] && MISSING="$MISSING canon"
-[ ! -f "$ALEX_DIR/.hooks_payload" ] && MISSING="$MISSING hooks_payload"
+[ ! -f "$ALEX_DIR/system/.api_key" ] && MISSING="$MISSING api_key"
+[ ! -f "$ALEX_DIR/system/hooks/shim.sh" ] && MISSING="$MISSING hooks"
+[ ! -f "$ALEX_DIR/system/canon/methodology.md" ] && MISSING="$MISSING canon"
+[ ! -f "$ALEX_DIR/system/.hooks_payload" ] && MISSING="$MISSING hooks_payload"
 [ ! -f "$ALEX_DIR/.block" ] && MISSING="$MISSING block"
 for f in machine.md notepad.md feedback.md; do
   [ ! -f "$ALEX_DIR/$f" ] && MISSING="$MISSING $f"
@@ -208,8 +208,8 @@ elif [ -n "$KEY_STATUS" ] && [ "$KEY_STATUS" != "200" ] && [ "$KEY_STATUS" != "0
   echo "Everything local works; the protocol may be degraded."
 else
   echo ""
-  echo "Alexandria installed. ~/Alexandria/ — your mind, on your machine."
+  echo "Alexandria installed. ~/alexandria/ — your mind, on your machine."
   echo ""
   echo "Open a new Claude Code or Cursor tab and paste the block."
-  echo "If it's not in your clipboard: cat ~/Alexandria/.block"
+  echo "If it's not in your clipboard: cat ~/alexandria/.block"
 fi

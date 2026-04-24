@@ -4,10 +4,10 @@
 
 ## Structure — three tier sub-folders
 
-`~/Alexandria/library/` has three sub-folders, each representing a visibility tier:
+`~/alexandria/files/library/` has three sub-folders, each representing a visibility tier:
 
 ```
-~/Alexandria/library/
+~/alexandria/files/library/
   public/     # anyone on the open web
   paid/       # paying Authors (subscribers)
   invite/     # token-gated — only those the Author invites
@@ -19,7 +19,7 @@ This structure scales without filename explosion. The same artifact type (shadow
 
 ## Publishing
 
-The Engine generates Library artifacts from the Constitution. The Author's consent lives in two places: the filter (`factory/canon/filter.md` + `~/Alexandria/filter.md`) and tier-folder placement. The filter is the standing policy — what the Author would tell a stranger given infinite time. Placement under a final (non-draft) filename inside one of the three tier sub-folders is the per-artifact promotion AND the tier declaration. The Publisher ships final-named tier-foldered files automatically; it never ships drafts (`*_draft.*`), files outside the three tier folders, or anything outside `library/`. Writing a draft is the Engine's candidate. Writing a final-named file in a tier folder is the Author's consent at that tier. Both gates must pass.
+The Engine generates Library artifacts from the Constitution. The Author's consent lives in two places: the filter (`factory/canon/filter.md` + `~/alexandria/files/filter.md`) and tier-folder placement. The filter is the standing policy — what the Author would tell a stranger given infinite time. Placement under a final (non-draft) filename inside one of the three tier sub-folders is the per-artifact promotion AND the tier declaration. The Publisher ships final-named tier-foldered files automatically; it never ships drafts (`*_draft.*`), files outside the three tier folders, or anything outside `library/`. Writing a draft is the Engine's candidate. Writing a final-named file in a tier folder is the Author's consent at that tier. Both gates must pass.
 
 **Publish call mapping.** The Publisher maps placement to the protocol's `PUT /file/{name}` call:
 - `name` = the path relative to `library/` (e.g. `public/shadow.md`).

@@ -15,8 +15,15 @@ export const metadata: Metadata = {
   description: "Make every ai you use actually know who you are. One file, on your device, works across all of them. $10/month or free with 5 kin.",
   keywords: ["Alexandria", "personal ai", "ai memory", "own your data", "ai identity", "self-knowledge", "ai connector"],
   icons: {
-    icon: "/favicon.png",
-    apple: "/apple-touch-icon.png",
+    // Square, cream, italic "a." — Safari and Chrome favicons render square,
+    // so the artwork fills the tab space edge-to-edge. PNG primary (Safari
+    // prefers raster over SVG for tabs); SVG listed for modern browsers.
+    icon: [
+      { url: "/favicon.png?v=2", type: "image/png", sizes: "512x512" },
+      { url: "/icon.svg?v=2", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png?v=2",
+    shortcut: "/favicon.png?v=2",
   },
   openGraph: {
     title: "alexandria.",

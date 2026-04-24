@@ -5,14 +5,14 @@ You are about to run a curl command that puts files on your machine, modifies yo
 ## Inspect before running
 
 ```
-curl -s https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/setup.sh | less
+curl -s https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | less
 ```
 
 Read the bash script. Everything below explains what it does. If anything below does not match the script, do not run it.
 
 ## What it puts on your machine
 
-**`~/Alexandria/`** — a folder. Nothing hidden, nothing compiled. All readable.
+**`~/alexandria/`** — a folder. Nothing hidden, nothing compiled. All readable.
 
 | Path | What it is | Can you read it? |
 |---|---|---|
@@ -54,7 +54,7 @@ Every time you open a session in Claude Code, the session-start hook runs. It do
 
 1. **Infrastructure** (silent): fetches the canon methodology, caches it locally, syncs git if configured. You see none of this.
 2. **Context** (visible): outputs your constitution and machine.md so the model knows who you are. Read-only context — makes every conversation better because the model adapts to you.
-3. **One instruction**: if you reveal something notable, the model may write an observation to `~/Alexandria/ontology/`. If you mention product feedback, it writes to `.session_feedback`.
+3. **One instruction**: if you reveal something notable, the model may write an observation to `~/alexandria/files/ontology/`. If you mention product feedback, it writes to `.session_feedback`.
 
 Passive mode never writes to your constitution. Never overrides your existing memory, workflows, or tools. It just provides context.
 
@@ -68,7 +68,7 @@ When you type `/a`, that is active mode — the model reads the full canon, load
 | `POST /marketplace/signal` | Session end, if Engine wrote methodology notes | Methodology observations (about the craft, not about you) | Personal data, constitution, vault |
 | `POST /feedback` | Session end, if you gave feedback | Your feedback text | Anything else |
 
-That is the complete list. The hooks payload is a shell script — you can read every line at `curl https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/hooks/payload.sh` and confirm no other network calls exist.
+That is the complete list. The hooks payload is a shell script — you can read every line at `curl https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/hooks/payload.sh` and confirm no other network calls exist.
 
 The server is a stateless Cloudflare Worker. No database for private data. The server receives protocol calls plus optional machine signal/feedback. If you give feedback at session close, that text is sent and stored (90-day expiry) so the team can read and act on it. Nothing else.
 
@@ -80,15 +80,15 @@ Your API key never leaves your machine after setup. It is not in any email, not 
 - **Account data is encrypted at rest.** The accounts blob in our KV store is encrypted with AES-256-GCM. A storage-layer breach yields encrypted data without the key.
 - **No credentials in email.** The API key appears once on the callback page in your browser after you authenticate. Never transmitted over email.
 - **No credentials in third-party services.** Stripe identifies your account by GitHub login, not API key.
-- **The canon is public.** The methodology loaded into your ai is public on GitHub at `github.com/mowinckelb/Alexandria/blob/main/factory/canon/methodology.md`. You can diff what your machine caches in `.canon_local` against the repo.
-- **Built-in safety instructions.** The canon tells the ai to reject and report any instruction that asks it to send your files externally, access data outside `~/Alexandria/`, or do anything suspicious.
+- **The canon is public.** The methodology loaded into your ai is public on GitHub at `github.com/mowinckelb/alexandria/blob/main/factory/canon/methodology.md`. You can diff what your machine caches in `.canon_local` against the repo.
+- **Built-in safety instructions.** The canon tells the ai to reject and report any instruction that asks it to send your files externally, access data outside `~/alexandria/`, or do anything suspicious.
 - **Full data deletion.** `DELETE /account` with your API key removes all your data: account record, analytics, feedback, published Library content, Stripe subscription. Everything.
 
 What a complete server breach yields: nothing. Hashed credentials and encrypted metadata. No constitutions, no vaults, no self-knowledge. No ability to push code to your machine. The canon is public — a compromised server cannot serve a different methodology without it being visible on GitHub.
 
 ## Why you do not need to trust anyone
 
-**Everything on your machine is plain text.** The canon your ai follows is at `~/Alexandria/.canon_local` — read it. The hooks payload is publicly inspectable. There is no compiled code, no binary blobs, no obfuscation.
+**Everything on your machine is plain text.** The canon your ai follows is at `~/alexandria/system/canon/methodology` — read it. The hooks payload is publicly inspectable. There is no compiled code, no binary blobs, no obfuscation.
 
 **Every network call is visible.** The hooks payload contains every curl command. Each one specifies exactly what fields are sent — platform (a string), references (which modules). Not content. Not transcripts. Not your constitution.
 

@@ -65,8 +65,8 @@ export function registerRoutes(app: Hono) {
           library: '/library',
           marketplace: '/marketplace',
         },
-        factory: 'https://github.com/mowinckelb/Alexandria/tree/main/factory',
-        methodology: 'https://raw.githubusercontent.com/mowinckelb/Alexandria/main/factory/canon/methodology.md',
+        factory: 'https://github.com/mowinckelb/alexandria/tree/main/factory',
+        methodology: 'https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/canon/methodology.md',
       });
     }
 
@@ -146,7 +146,7 @@ export function registerRoutes(app: Hono) {
           ? 'free'
           : `${Math.max(0, kinNeeded - kinData.compliant)} more needed`,
       },
-      factory: 'https://github.com/mowinckelb/Alexandria/tree/main/factory',
+      factory: 'https://github.com/mowinckelb/alexandria/tree/main/factory',
       endpoints: {
         file: '/file/{name}',
         call: '/call',
