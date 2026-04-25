@@ -290,13 +290,10 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
         const cutoff = Date.now() - 24 * 60 * 60 * 1000;
         const scan = scanEventsForAlarms(raw, cutoff);
         if (scan.serverErrors > 0) escalate('stroll', `${scan.serverErrors} server errors in 24h`);
-        if (scan.deprecatedHits > 0) {
-          const top = [...scan.deprecatedByPath.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([p, n]) => `${p}=${n}`).join(', ');
-          escalate('stroll', `${scan.deprecatedHits} hits to deprecated routes in 24h (${top}) — stale installs`);
-        }
-        if (scan.staleClientCalls > 0) {
-          escalate('stroll', `${scan.staleClientCalls} /call requests without X-Alexandria-Client header — pre-upgrade shims`);
-        }
+        // deprecatedHits / staleClientCalls intentionally don't escalate —
+        // auto-remediation already runs (worker sends upgrade email per stuck
+        // user, dedupe 7d). Counts still flow into the cached digest marker
+        // for /analytics/dashboard visibility, just no founder ping.
         if (scan.setupFailures > 0) {
           const dist = [...scan.setupFailuresByStatus.entries()].sort((a, b) => b[1] - a[1]).map(([s, n]) => `${s}=${n}`).join(', ');
           escalate('stroll', `${scan.setupFailures} setup reports with non-ok status in 24h (${dist})`);

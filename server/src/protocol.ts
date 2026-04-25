@@ -5,6 +5,7 @@ import { requireAuth } from './auth.js';
 import { getDB, getR2 } from './db.js';
 import { logEvent } from './analytics.js';
 import { saveAccount, getKV } from './kv.js';
+import { sendUpgradeEmail } from './email.js';
 
 function r2Key(accountId: string, name: string): string {
   return `protocol/${accountId}/${name}.md`;
@@ -143,6 +144,24 @@ export function registerProtocol(app: Hono) {
       meta.country = c.req.header('cf-ipcountry') || '?';
     }
     logEvent('client_version_seen', meta);
+
+    // Auto-remediate stale bash shims (curl UA + no header = pre-2026-04-23
+    // install). Mirror the deprecated-route nudge: one upgrade email per stuck
+    // user per week. Founder no longer sees a daily alarm — auto-fix runs silent.
+    if (clientVersion === 'unset-curl') {
+      const email = auth.account.email;
+      const login = auth.account.github_login;
+      c.executionCtx.waitUntil((async () => {
+        try {
+          const kv = getKV();
+          const dedupeKey = `upgrade_nudge:${login}`;
+          if (!(await kv.get(dedupeKey))) {
+            await kv.put(dedupeKey, new Date().toISOString(), { expirationTtl: 7 * 24 * 60 * 60 });
+            await sendUpgradeEmail(email);
+          }
+        } catch (err) { console.error('[upgrade_nudge] /call auto-remediate failed:', err); }
+      })());
+    }
 
     // Track first-seen per version. Lets the drift alarm distinguish natural
     // dev-push rollover (resolves in hours) from genuine stuck clients (persist
