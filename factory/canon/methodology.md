@@ -501,15 +501,15 @@ This is not optional feedback. This is how the methodology improves. Every sessi
 
 Every file that grows without bound gets a source and a derivative. The source is full fidelity — append-only, never lossy, grows forever. The derivative is max signal density — regenerated, compressed for current inference, disposable. The source is ground truth. The derivative is the working copy.
 
-**Convention:** Source files have clean names (what the Author sees and edits). Derivatives have underscore prefix (what the Engine generates). `constitution/Core.md` (source) → `_constitution.md` (derivative). The Author writes source files. The Engine writes derivatives.
+**Convention:** Source files have clean names (what the Author sees and edits). Derivatives have underscore prefix (what the Engine generates). The Author writes source files. The Engine writes derivatives. Derivatives live with their source — for folder sources, inside the folder; for single-file sources at `files/core/`, alongside the source.
 
 **Which files:**
-- `constitution/` (folder) → `_constitution.md` — router + sharpest positions from all source files
-- `ontology/` (folder) → `_ontology.md` — hottest thoughts, most relevant patterns
-- `agent.md` → `_agent.md` — top principles compressed for compliance
-- `notepad.md` → `_notepad.md` — active fragments, not the full archive
-- `feedback.md` → `_feedback.md` — current preferences, not historical log
-- `machine.md` — already a derivative (Engine rewrites each session). No underscore needed.
+- `files/constitution/` (folder) → `files/constitution/_constitution.md` — router + sharpest positions from all source files
+- `files/ontology/` (folder) → `files/ontology/_ontology.md` — hottest thoughts, most relevant patterns
+- `files/core/agent.md` → `files/core/_agent.md` — top principles compressed for compliance
+- `files/core/notepad.md` → `files/core/_notepad.md` — active fragments, not the full archive
+- `files/core/feedback.md` → `files/core/_feedback.md` — current preferences, not historical log
+- `files/core/machine.md` — already a derivative (Engine rewrites each session). No underscore needed.
 
 **When to regenerate:** Intelligence decision. Not every session — that wastes focus. When the source has changed meaningfully since the last derivative. When the model notices the derivative is stale (positions in the source that aren't reflected). When the autoloop processes vault and the constitution evolves. The derivative is a system 2 operation — deep, careful, high quality. Don't rush it.
 

@@ -198,8 +198,8 @@ if [ "$MODE" = "session-start" ]; then
   # Read derivative when it exists, fall back to source.
 
   constitution=""
-  if [ -f "$ALEX_DIR/_constitution.md" ]; then
-    constitution=$(cat "$ALEX_DIR/_constitution.md")
+  if [ -f "$ALEX_DIR/files/constitution/_constitution.md" ]; then
+    constitution=$(cat "$ALEX_DIR/files/constitution/_constitution.md")
   elif [ -d "$ALEX_DIR/files/constitution" ]; then
     for f in "$ALEX_DIR/files/constitution/"*.md; do
       [ -f "$f" ] && [ "$(basename "$f")" != "README.md" ] && constitution="${constitution}$(cat "$f")
@@ -208,8 +208,8 @@ if [ "$MODE" = "session-start" ]; then
   fi
 
   ontology=""
-  if [ -f "$ALEX_DIR/_ontology.md" ]; then
-    ontology=$(cat "$ALEX_DIR/_ontology.md")
+  if [ -f "$ALEX_DIR/files/ontology/_ontology.md" ]; then
+    ontology=$(cat "$ALEX_DIR/files/ontology/_ontology.md")
   elif [ -d "$ALEX_DIR/files/ontology" ]; then
     for f in "$ALEX_DIR/files/ontology/"*.md; do
       [ -f "$f" ] && [ "$(basename "$f")" != "README.md" ] && ontology="${ontology}$(cat "$f")
@@ -221,22 +221,22 @@ if [ "$MODE" = "session-start" ]; then
   [ -f "$ALEX_DIR/files/core/machine.md" ] && machine=$(cat "$ALEX_DIR/files/core/machine.md")
 
   notepad=""
-  if [ -f "$ALEX_DIR/_notepad.md" ]; then
-    notepad=$(cat "$ALEX_DIR/_notepad.md")
+  if [ -f "$ALEX_DIR/files/core/_notepad.md" ]; then
+    notepad=$(cat "$ALEX_DIR/files/core/_notepad.md")
   elif [ -f "$ALEX_DIR/files/core/notepad.md" ]; then
     notepad=$(cat "$ALEX_DIR/files/core/notepad.md")
   fi
 
   feedback=""
-  if [ -f "$ALEX_DIR/_feedback.md" ]; then
-    feedback=$(cat "$ALEX_DIR/_feedback.md")
+  if [ -f "$ALEX_DIR/files/core/_feedback.md" ]; then
+    feedback=$(cat "$ALEX_DIR/files/core/_feedback.md")
   elif [ -f "$ALEX_DIR/files/core/feedback.md" ]; then
     feedback=$(cat "$ALEX_DIR/files/core/feedback.md")
   fi
 
   agent=""
-  if [ -f "$ALEX_DIR/_agent.md" ]; then
-    agent=$(cat "$ALEX_DIR/_agent.md")
+  if [ -f "$ALEX_DIR/files/core/_agent.md" ]; then
+    agent=$(cat "$ALEX_DIR/files/core/_agent.md")
   elif [ -f "$ALEX_DIR/files/core/agent.md" ]; then
     agent=$(cat "$ALEX_DIR/files/core/agent.md")
   fi
@@ -413,9 +413,9 @@ if [ "$MODE" = "subagent" ]; then
   # Same logic as session-start but reads files directly (no variables from earlier)
 
   # Constitution
-  if [ -f "$ALEX_DIR/_constitution.md" ]; then
+  if [ -f "$ALEX_DIR/files/constitution/_constitution.md" ]; then
     echo "--- AUTHOR CONTEXT (from Alexandria) ---"
-    cat "$ALEX_DIR/_constitution.md"
+    cat "$ALEX_DIR/files/constitution/_constitution.md"
   elif [ -d "$ALEX_DIR/files/constitution" ]; then
     has_content=false
     for f in "$ALEX_DIR/files/constitution/"*.md; do
@@ -428,8 +428,8 @@ if [ "$MODE" = "subagent" ]; then
   fi
 
   # Ontology
-  if [ -f "$ALEX_DIR/_ontology.md" ]; then
-    echo "" && echo "--- ONTOLOGY ---" && cat "$ALEX_DIR/_ontology.md"
+  if [ -f "$ALEX_DIR/files/ontology/_ontology.md" ]; then
+    echo "" && echo "--- ONTOLOGY ---" && cat "$ALEX_DIR/files/ontology/_ontology.md"
   elif [ -d "$ALEX_DIR/files/ontology" ]; then
     for f in "$ALEX_DIR/files/ontology/"*.md; do
       [ -f "$f" ] && [ "$(basename "$f")" != "README.md" ] && { echo "" && echo "--- ONTOLOGY ---" && cat "$f"; }
@@ -437,7 +437,7 @@ if [ "$MODE" = "subagent" ]; then
   fi
 
   # Machine, notepad, feedback, agent, canon_overrides — derivative or source
-  for pair in "machine.md:HOW TO WORK WITH THIS AUTHOR" "_notepad.md notepad.md:NOTEPAD" "_feedback.md feedback.md:ENGINE FEEDBACK" "_agent.md agent.md:AGENT PREFERENCES" "canon_overrides.md:CANON OVERRIDES (authoritative over upstream canon)"; do
+  for pair in "files/core/machine.md:HOW TO WORK WITH THIS AUTHOR" "files/core/_notepad.md files/core/notepad.md:NOTEPAD" "files/core/_feedback.md files/core/feedback.md:ENGINE FEEDBACK" "files/core/_agent.md files/core/agent.md:AGENT PREFERENCES" "canon_overrides.md:CANON OVERRIDES (authoritative over upstream canon)"; do
     label="${pair##*:}"
     files="${pair%%:*}"
     for f in $files; do

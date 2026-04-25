@@ -383,37 +383,20 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
       {/* ═════ BOTTOM SLIDE — Fleet colophon, theme rotates ═════ */}
       <section className="bottom-slide" aria-label="Colophon">
         <div className="bottom-inner">
-          {/* Upper band — Fleet anchors:
-                LEFT  : wordmark TOP, ornament BOTTOM (space-between)
-                RIGHT : statement
-              The wordmark dominates the slide; the ornament tucks
-              into the empty corner like a maker's mark. */}
+          {/* UPPER BAND — Fleet structure:
+                LEFT  : ornament (the maker's mark, sits up top)
+                RIGHT : statement, then 3 columns under it
+              The big wordmark lives DOWN in the lower band, like Fleet's
+              "fleet" — that's the one mark that anchors the whole page. */}
           <div className="upper">
-            <div className="upper-left">
-              <div className="wordmark-block">
-                <h2 className="big-word">
-                  alexandria<span className="big-word-dot">.</span>
-                </h2>
-                <p className="dict-line">
-                  <em>n.</em>{' '}
-                  <a href="/vision">
-                    The vanished library of antiquity
-                  </a>{' '}
-                  &mdash; rebuilt in markdown, one Author at a time.
-                </p>
-              </div>
-
-              <div className="ornament-wrap">
-                <Ornament src={theme.image} id={theme.id} />
-              </div>
+            <div className="ornament-wrap">
+              <Ornament src={theme.image} id={theme.id} />
             </div>
 
-            {/* Statement — six numbered beats + one unnumbered dagger.
-                I. stakes · II. root node · III. mechanism · IV. product ·
-                V. collective · VI. signature · ❦ · dagger. Roman numerals
-                live in the margin; the fleuron separates the argument
-                from the call to action. */}
-            <div className="statement">
+            <div className="upper-right">
+              {/* Statement — six numbered beats + one unnumbered dagger.
+                  Roman numerals in the margin, fleuron before the dagger. */}
+              <div className="statement">
               <p>
                 AGI is inevitable. You can ignore it &mdash; and get
                 replaced. You can let it think for you &mdash; and get
@@ -475,54 +458,66 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
                 your file. Five minutes, free. Every thought stays;
                 every session compounds. <em>Keep thinking.</em>
               </p>
+              </div>
+
+              {/* Three branches, stacked under the statement on the
+                  right side, Fleet style. Plain links — no doormen. */}
+              <div className="upper-cols">
+                <div className="col">
+                  <span className="col-head">Begin</span>
+                  <Link href="/join" className="col-primary">try now</Link>
+                  <Link href="/follow">follow along</Link>
+                  <a href="tel:+14155038178">call the founder</a>
+                  <a href="/docs/abstract.pdf">Abstract (PDF)</a>
+                </div>
+                <div className="col">
+                  <span className="col-head">Read</span>
+                  <Link href="/vision">Vision</Link>
+                  <a href="/docs/concrete.md">Concrete</a>
+                  <Link href="/library">Library</Link>
+                  <Link href="/blueprint">Blueprint</Link>
+                </div>
+                <div className="col">
+                  <span className="col-head">Build</span>
+                  <a
+                    href="https://github.com/mowinckelb/Alexandria"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GitHub
+                  </a>
+                  <a href="/docs/trust.md">trust.md</a>
+                  <Link href="/canon">Canon</Link>
+                  <a
+                    href="https://mcp.mowinckel.ai/health"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Status
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Middle band — three branches, full width.
-              Plain Fleet-style links, no descriptive italics. The
-              statement does the persuading; these are just doors. */}
-          <div className="cols-band">
-            <div className="upper-cols">
-              <div className="col">
-                <span className="col-head">Begin</span>
-                <Link href="/join" className="col-primary">try now</Link>
-                <Link href="/follow">follow along</Link>
-                <a href="tel:+14155038178">call the founder</a>
-                <a href="/docs/abstract.pdf">Abstract (PDF)</a>
-              </div>
-              <div className="col">
-                <span className="col-head">Read</span>
-                <Link href="/vision">Vision</Link>
-                <a href="/docs/concrete.md">Concrete</a>
-                <Link href="/library">Library</Link>
-                <Link href="/blueprint">Blueprint</Link>
-              </div>
-              <div className="col">
-                <span className="col-head">Build</span>
-                <a
-                  href="https://github.com/mowinckelb/Alexandria"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  GitHub
-                </a>
-                <a href="/docs/trust.md">trust.md</a>
-                <Link href="/canon">Canon</Link>
-                <a
-                  href="https://mcp.mowinckel.ai/health"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Status
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Lower band — colophon footer.
-              LEFT empty.  CENTER motto (replacing the status pill).
-              RIGHT the legal row, then copyright, then founder line. */}
+          {/* LOWER BAND — the anchor.
+                LEFT  : HUGE wordmark + dict (Fleet's signature move)
+                CENTER: motto, italic
+                RIGHT : legal row, copyright, founder line */}
           <div className="lower">
+            <div className="wordmark-block">
+              <h2 className="big-word">
+                alexandria<span className="big-word-dot">.</span>
+              </h2>
+              <p className="dict-line">
+                <em>n.</em>{' '}
+                <a href="/vision">
+                  The vanished library of antiquity
+                </a>{' '}
+                &mdash; rebuilt in markdown, one Author at a time.
+              </p>
+            </div>
+
             <span className="motto-center" aria-hidden>
               <em>Keep thinking.</em>
             </span>
@@ -841,8 +836,10 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
         }
 
         /* ─── BOTTOM SLIDE ─── */
-        /* Three bands. Upper: ornament + statement. Middle: columns.
-           Lower: wordmark + status + copyright. Never scrolls. */
+        /* Two bands, Fleet structure.
+             UPPER: ornament left, statement+columns right
+             LOWER: HUGE wordmark+dict left, motto center, copyright right
+           The wordmark anchors the bottom-left like Fleet's "fleet". */
         .bottom-slide {
           position: fixed;
           inset: 0;
@@ -850,7 +847,7 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           background: ${theme.bg};
           color: ${theme.fg};
           overflow: hidden;
-          padding: clamp(52px, 7vh, 72px) 48px 14px;
+          padding: clamp(72px, 8vh, 88px) clamp(36px, 3.5vw, 56px) 8px;
           display: flex;
           flex-direction: column;
           transition: background 400ms ease, color 400ms ease;
@@ -863,49 +860,48 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          gap: clamp(10px, 1.8vh, 18px);
+          gap: clamp(12px, 2vh, 24px);
           min-height: 0;
         }
 
-        /* UPPER BAND — big ornament | statement column
-           The ornament returns to its proper size. The statement takes
-           the full vertical column to the right, freed from having the
-           three branch columns beside it. */
+        /* UPPER BAND — Fleet structure.
+             LEFT  : ornament, top-aligned
+             RIGHT : statement TOP, columns under it */
         .upper {
           display: grid;
-          grid-template-columns: clamp(280px, 30vh, 360px) 1fr;
-          gap: clamp(32px, 4vw, 56px);
+          grid-template-columns: minmax(220px, auto) minmax(0, 1fr);
+          gap: clamp(32px, 4vw, 80px);
           align-items: start;
-          padding-top: 2px;
         }
         .ornament-wrap {
           display: flex;
           align-items: flex-start;
           justify-content: flex-start;
-          padding-top: clamp(0px, 1vh, 8px);
+          padding-top: 4px;
         }
         .upper-right {
-          max-width: 720px;
-          padding-top: 2px;
+          display: flex;
+          flex-direction: column;
+          gap: clamp(8px, 1.1vh, 14px);
+          min-width: 0;
+          max-width: 820px;
         }
 
         /* Statement — 6 numbered paragraphs + 1 unnumbered dagger.
-           Roman numerals live in the margin, scarlet-muted. The dagger
-           is separated by a fleuron, not a border — an old-book device
-           earning its place. Form IS the content here. */
+           Roman numerals in the margin, fleuron before the dagger. */
         .statement {
           counter-reset: beat;
-          max-width: 640px;
           margin: 0;
           padding-left: clamp(20px, 1.8vw, 30px);
+          padding-top: 2px;
           display: flex;
           flex-direction: column;
-          gap: clamp(6px, 0.9vh, 11px);
+          gap: clamp(4px, 0.55vh, 7px);
         }
         .statement p {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: clamp(12.5px, 1.65vh, 14.8px);
-          line-height: 1.48;
+          font-size: clamp(11.5px, 1.25vh, 13.5px);
+          line-height: 1.44;
           color: ${theme.fg};
           margin: 0;
           position: relative;
@@ -914,8 +910,6 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
         .statement em {
           font-style: italic;
         }
-        /* Roman numerals on the six numbered beats. Absolute positioned
-           into the left margin so the prose column stays clean. */
         .statement > p:not(.statement-close) {
           counter-increment: beat;
         }
@@ -930,9 +924,6 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           color: ${theme.fgFaint};
           font-variant-numeric: lining-nums;
         }
-        /* Fleuron before the dagger — a proper rhetorical pause.
-           Lives centered in its own row, so the dagger reads as
-           something apart from the argument that preceded it. */
         .statement-fleuron {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 0.95em;
@@ -953,29 +944,27 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           color: ${theme.fg};
         }
 
-        /* MIDDLE BAND — three branch columns, full-width.
-           Freed from the statement, these can breathe horizontally. */
-        .cols-band {
-          padding: 0 clamp(4px, 1vw, 12px);
-        }
+        /* COLUMNS — stacked under the statement, on the right side.
+           Plain link text. The statement does the persuading; these
+           are just doors. */
         .upper-cols {
           display: grid;
-          grid-template-columns: repeat(3, minmax(180px, 1fr));
-          gap: clamp(28px, 4vw, 56px);
-          max-width: 1040px;
-          margin: 0 auto;
+          grid-template-columns: repeat(3, minmax(120px, 1fr));
+          gap: clamp(20px, 3vw, 48px);
+          max-width: 760px;
+          padding-left: clamp(20px, 1.8vw, 30px);
         }
         .col {
           display: flex;
           flex-direction: column;
-          gap: 5px;
+          gap: 3px;
         }
         .col-head {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-style: italic;
-          font-size: 11.5px;
+          font-size: 11px;
           color: ${theme.fgFaint};
-          margin-bottom: 3px;
+          margin-bottom: 2px;
           font-weight: 400;
           letter-spacing: 0.08em;
           text-transform: lowercase;
@@ -985,14 +974,8 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           font-size: 12.5px;
           color: ${theme.fg};
           text-decoration: none;
-          line-height: 1.24;
+          line-height: 1.42;
           transition: color 150ms ease;
-        }
-        .col :global(a em) {
-          font-style: italic;
-          color: ${theme.fgMuted};
-          font-size: 10.5px;
-          margin-left: 1px;
         }
         .col :global(a):hover {
           opacity: 0.72;
@@ -1005,29 +988,37 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           text-underline-offset: 3px;
         }
 
-        /* LOWER BAND — wordmark + one-line dict | status | copyright */
+        /* LOWER BAND — the anchor.
+             LEFT   : HUGE wordmark + dict (Fleet's "fleet" position)
+             CENTER : motto, italic, ground-level
+             RIGHT  : legal row → 2026 SF → founder line */
         .lower {
           display: grid;
-          grid-template-columns: 1fr auto 1fr;
+          grid-template-columns: minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
           align-items: end;
-          gap: 40px;
-          padding-bottom: 6px;
+          gap: clamp(24px, 3vw, 56px);
+          padding-bottom: 0;
         }
+
+        /* WORDMARK — the dominant mark of the whole page. Sits at
+           the bottom-left like Fleet's "fleet". Tight tracking, single
+           line, the dot reads as part of the word. */
         .wordmark-block {
           display: flex;
           flex-direction: column;
-          gap: 4px;
-          max-width: 560px;
+          gap: 6px;
+          align-self: end;
+          max-width: 100%;
         }
         .big-word {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-weight: 400;
           font-style: normal;
-          font-size: clamp(40px, 5.4vw, 76px);
-          line-height: 0.9;
-          letter-spacing: -0.022em;
+          font-size: clamp(64px, 9vw, 144px);
+          line-height: 1;
+          letter-spacing: -0.026em;
           color: ${theme.fg};
-          margin: 0 0 2px;
+          margin: 0;
           white-space: nowrap;
         }
         .big-word-dot {
@@ -1037,10 +1028,11 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
         }
         .dict-line {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 12.5px;
-          line-height: 1.44;
+          font-size: clamp(11.5px, 0.92vw, 13.5px);
+          line-height: 1.4;
           color: ${theme.fg};
           margin: 0;
+          max-width: 520px;
         }
         .dict-line em {
           font-style: italic;
@@ -1058,27 +1050,30 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           text-decoration-color: ${theme.fg};
         }
 
-        .status {
+        .motto-center {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 13px;
+          font-style: italic;
+          font-size: clamp(13px, 1.05vw, 15px);
           color: ${theme.fgMuted};
-          text-decoration: none;
+          letter-spacing: 0.005em;
           justify-self: center;
-          padding-bottom: 4px;
+          padding-bottom: 6px;
+          align-self: end;
         }
-        .status:hover {
-          color: ${theme.fg};
+        .motto-center em {
+          font-style: italic;
         }
+
         .copyright {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 12.5px;
+          font-size: 12px;
           color: ${theme.fgMuted};
           justify-self: end;
           padding-bottom: 4px;
           display: flex;
           flex-direction: column;
           align-items: flex-end;
-          gap: 4px;
+          gap: 3px;
           text-align: right;
         }
         .legal-row {
@@ -1098,41 +1093,60 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
         .legal-row .sep {
           color: ${theme.fgFaint};
         }
-        /* Motto sign-off — italic, slightly brighter than muted. The
-           two-word anti-WALL-E, tucked into the bottom bar where it
-           closes the page like a sign-off on a letter. */
-        .copyright .motto {
-          font-style: italic;
+        .footer-line {
+          color: ${theme.fgMuted};
+        }
+        /* Founder line — the human handle. Email link opens mail. */
+        .founder-line {
+          color: ${theme.fgMuted};
+        }
+        .founder-line .sep {
+          color: ${theme.fgFaint};
+          margin: 0 2px;
+        }
+        .founder-line :global(a) {
           color: ${theme.fg};
+          text-decoration: none;
+          border-bottom: 1px solid ${theme.borderSoft};
+          transition: border-color 180ms ease;
+          padding-bottom: 1px;
+        }
+        .founder-line :global(a):hover {
+          border-bottom-color: ${theme.fg};
         }
 
         /* ─── RESPONSIVE ─── */
         @media (max-width: 900px) {
           .upper {
             grid-template-columns: 1fr;
-            gap: 40px;
+            gap: 32px;
           }
           .ornament-wrap {
             justify-content: center;
           }
-          .statement {
-            margin-bottom: 40px;
-          }
           .upper-cols {
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
+            padding-left: 0;
           }
           .lower {
             grid-template-columns: 1fr;
             gap: 20px;
             text-align: left;
           }
-          .status,
+          .motto-center,
           .copyright {
             justify-self: start;
           }
+          .copyright {
+            align-items: flex-start;
+            text-align: left;
+          }
+          .legal-row {
+            justify-content: flex-start;
+          }
           .big-word {
-            font-size: clamp(60px, 16vw, 96px);
+            font-size: clamp(60px, 16vw, 112px);
           }
         }
 
@@ -1330,7 +1344,7 @@ function Ornament({ src, id }: { src: string; id: string }) {
       />
       <style jsx>{`
         .orn {
-          width: clamp(260px, 30vh, 360px);
+          width: clamp(200px, 28vh, 320px);
           aspect-ratio: 1;
           position: relative;
         }
