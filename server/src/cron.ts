@@ -184,25 +184,6 @@ async function checkFactoryLiveness(kv: KVNamespace, escalate: Escalate): Promis
   } catch { /* non-fatal */ }
 }
 
-/**
- * Orphan signups — account created >48h ago but never fired /call (never installed).
- * Either setup broke for them or they bailed. Paired with the installed_at write
- * in protocol.ts /call, which makes this field meaningful (previously always null).
- */
-async function checkOrphanSignups(escalate: Escalate): Promise<void> {
-  try {
-    const accounts = await loadAccounts<AccountStore>();
-    const cutoff = Date.now() - 48 * 60 * 60 * 1000;
-    const orphans = Object.values(accounts).filter(a =>
-      !a.installed_at && a.created_at && new Date(a.created_at).getTime() < cutoff
-    );
-    if (orphans.length > 0) {
-      const sample = orphans.slice(0, 3).map(o => o.github_login).join(', ');
-      escalate('stroll', `${orphans.length} signup${orphans.length > 1 ? 's' : ''} >48h without install (${sample}${orphans.length > 3 ? '…' : ''})`);
-    }
-  } catch { /* non-fatal */ }
-}
-
 export interface EventScanResult {
   serverErrors: number;
   deprecatedHits: number;
@@ -380,8 +361,6 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
         escalate('stroll', `feedback backlog ${feedbackPending.keys.length} > ${backlogCeiling} — Factory drain stuck?`);
       }
     } catch { /* non-fatal */ }
-
-    await checkOrphanSignups(escalate);
 
     // Cron marker (proves the job ran — includes issue list for debugging)
     try {
