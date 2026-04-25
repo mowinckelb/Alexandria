@@ -160,18 +160,18 @@ jobs:
           [ $fail -eq 1 ] && exit 1
           echo "✓ factory URLs all resolve"
 
-      - name: Awareness self-check (digest detects what it should)
+      - name: Awareness self-check (event log captures deprecated_hit)
         run: |
-          # Fire a known signal that should register as deprecated_hit
-          curl -s -o /dev/null "$SERVER/hooks/payload"
+          # Fire a known deprecated hit, tagged ?_smoke=1 so the daily alarm
+          # scanner ignores it (otherwise the test pollutes the signal it's
+          # verifying). Verify via /analytics/log — confirms the full
+          # write→flush→read pipeline still works.
+          curl -s -o /dev/null "$SERVER/hooks/payload?_smoke=1"
           # KV event batch flushes on request boundary; brief settle for read-after-write
-          sleep 2
-          # Trigger the digest manually; response includes the fresh issue list
-          RESULT=$(curl -sf -X POST "$SERVER/admin/cron/health-digest" \
-            -H "Authorization: Bearer $API_KEY")
-          echo "$RESULT"
-          echo "$RESULT" | grep -q 'deprecated' || {
-            echo "::error::Digest did not detect the deprecated_hit we just fired — awareness scanner broken"
+          sleep 3
+          LOG=$(curl -sf -H "Authorization: Bearer $API_KEY" "$SERVER/analytics/log")
+          echo "$LOG" | tail -100 | grep -q '"smoke":"true"' || {
+            echo "::error::Smoke-tagged deprecated_hit not in recent log — write/read pipeline broken"
             exit 1
           }
-          echo "✓ awareness self-check"
+          echo "✓ awareness self-check (event logged, scanner skips smoke-tagged)"

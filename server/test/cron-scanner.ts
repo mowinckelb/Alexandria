@@ -90,6 +90,17 @@ test('uses unset when client_version_seen has no version', () => {
   assert.strictEqual(r.staleClientCalls, 1);
 });
 
+test('skips smoke-tagged deprecated_hit events', () => {
+  const log = [
+    JSON.stringify({ t: inWindow, e: 'deprecated_hit', path: '/hooks/payload' }),
+    JSON.stringify({ t: inWindow, e: 'deprecated_hit', path: '/hooks/payload', smoke: 'true' }),
+    JSON.stringify({ t: inWindow, e: 'deprecated_hit', path: '/hooks/payload', smoke: 'true' }),
+  ].join('\n');
+  const r = scanEventsForAlarms(log, cutoff);
+  assert.strictEqual(r.deprecatedHits, 1);
+  assert.strictEqual(r.deprecatedByPath.get('/hooks/payload'), 1);
+});
+
 test('counts unset-curl as stale, unset-native as fine', () => {
   const log = [
     JSON.stringify({ t: inWindow, e: 'client_version_seen', version: 'unset-curl' }),
@@ -123,4 +134,4 @@ test('treats missing setup_report status as unknown failure', () => {
   assert.strictEqual(r.setupFailuresByStatus.get('unknown'), 1);
 });
 
-console.log(`\n${passed}/9 scanner tests passed.`);
+console.log(`\n${passed}/10 scanner tests passed.`);

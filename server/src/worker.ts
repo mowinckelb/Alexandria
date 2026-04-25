@@ -455,6 +455,12 @@ for (const path of DEPRECATED_ROUTES) {
     const actualPath = new URL(c.req.url).pathname;
     const details: Record<string, string> = { method: c.req.method, path: actualPath };
 
+    // CI smoke test fires a hit every 6h to verify the alarm pipeline. Tag those
+    // so the daily alarm scanner can exclude them — otherwise the test self-
+    // pollutes the signal it's supposed to verify.
+    const isSmoke = c.req.query('_smoke') === '1';
+    if (isSmoke) details.smoke = 'true';
+
     // Anonymous deprecated hits (no API key) need IP/UA to be traceable. Without
     // it, the alarm reports counts but can't tell us which install/scraper to
     // upgrade or block. Cheap to capture, only logged on the deprecated path.

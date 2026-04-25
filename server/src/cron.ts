@@ -237,6 +237,9 @@ export function scanEventsForAlarms(rawLog: string, cutoff: number): EventScanRe
       if (new Date(ev.t).getTime() < cutoff) continue;
       if (ev.e === 'server_error') r.serverErrors++;
       else if (ev.e === 'deprecated_hit') {
+        // CI smoke fires hits every 6h to verify the alarm path. Skip those —
+        // they're verification noise, not real stuck installs.
+        if (ev.smoke === 'true') continue;
         r.deprecatedHits++;
         const p = ev.path || '(unknown)';
         r.deprecatedByPath.set(p, (r.deprecatedByPath.get(p) || 0) + 1);

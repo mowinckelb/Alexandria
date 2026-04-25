@@ -25,9 +25,10 @@ bucket_name = "alexandria-artifacts"
 pattern = "mcp.mowinckel.ai/*"
 zone_id = "7a1952631048380db0df21b5daa1e88e"
 
-# Cron trigger — daily follow-up email check at 9am UTC
+# Cron triggers — UTC. Daily digest at 15:00 UTC = 8am PDT (7am PST in winter,
+# Cloudflare cron has no IANA zone support). Monthly settlement 1st @ 02:00 UTC.
 [triggers]
-crons = ["0 9 * * *", "0 2 1 * *"]
+crons = ["0 15 * * *", "0 2 1 * *"]
 
 # Import .md files as text modules (source of truth for canon modules)
 [[rules]]
