@@ -235,11 +235,7 @@ if [ "$MODE" = "session-start" ]; then
   fi
 
   agent=""
-  if [ -f "$ALEX_DIR/files/core/agent.md" ]; then
-    agent=$(cat "$ALEX_DIR/files/core/agent.md")
-  elif [ -f "$ALEX_DIR/files/core/agent.md" ]; then
-    agent=$(cat "$ALEX_DIR/files/core/agent.md")
-  fi
+  [ -f "$ALEX_DIR/files/core/agent.md" ] && agent=$(cat "$ALEX_DIR/files/core/agent.md")
 
   # Canon overrides — Author's consent layer. Authoritative over upstream canon.
   canon_overrides=""
