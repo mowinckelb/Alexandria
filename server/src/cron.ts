@@ -2,6 +2,7 @@
 
 import { loadAccounts, saveAccounts, getKV, getRecentDaysEvents } from './kv.js';
 import { sendEmail, sendEmailsBatched, sendFollowupEmail, sendEngagementEmail, MAX_FOLLOWUPS, DEFAULT_ENGAGEMENT_DAYS, FOUNDER_EMAIL } from './email.js';
+import { formatPT } from './time.js';
 import type { Account, AccountStore } from './auth.js';
 
 // ---------------------------------------------------------------------------
@@ -394,7 +395,7 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
     // Subject carries urgency; body carries the issue list. Awareness axiom:
     // a notification without actionable content is just a notification.
     const body = `<div style="font-family:'EB Garamond',Georgia,serif;max-width:520px;margin:0 auto;padding:40px 20px;color:#3d3630;">` +
-      `<p style="margin:0 0 1rem;font-size:0.85rem;opacity:0.5">` + new Date().toISOString() + `</p>` +
+      `<p style="margin:0 0 1rem;font-size:0.85rem;opacity:0.5">` + formatPT(new Date()) + `</p>` +
       issues.map(i => `<p style="margin:0 0 0.5rem;line-height:1.5;">${i.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</p>`).join('') +
       `<p style="margin:2rem 0 0;font-size:0.75rem;opacity:0.4"><a href="https://mcp.mowinckel.ai/analytics/dashboard" style="color:#8a8078">dashboard</a></p>` +
       `</div>`;

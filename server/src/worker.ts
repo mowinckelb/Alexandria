@@ -17,6 +17,7 @@ import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, flush
 import { setKV, getKV } from './kv.js';
 import { sendUpgradeEmail } from './email.js';
 import { getAllowedOrigins } from './cors.js';
+import { formatPT } from './time.js';
 
 // ---------------------------------------------------------------------------
 // Hono app
@@ -182,7 +183,12 @@ app.get('/health', async (c) => {
     const env = c.env as Record<string, unknown>;
     const kv = env.DATA as KVNamespace;
     const raw = await kv.get('cron:health_digest');
-    if (raw) awareness = JSON.parse(raw);
+    if (raw) {
+      awareness = JSON.parse(raw);
+      if (awareness && typeof (awareness as { t?: unknown }).t === 'string') {
+        (awareness as { t: string }).t = formatPT((awareness as { t: string }).t);
+      }
+    }
   } catch { /* non-fatal */ }
 
   const infraHealthy = Object.values(components).every(v => v === 'ok');

@@ -10,6 +10,7 @@
 
 import { appendEvent, getAllEvents, getRecentDaysEvents, getKV } from './kv.js';
 import { getDB } from './db.js';
+import { formatPT } from './time.js';
 
 // Metrics epoch — dashboard counts events from this date forward.
 // Set 2026-04-14: clean-slate after fixing all event sources (session_id, event types, test noise).
@@ -164,7 +165,13 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
     const kv = getKV();
     for (const job of ['followup', 'engagement', 'health_digest']) {
       const raw = await kv.get(`cron:${job}`);
-      cronStatus[job] = raw ? JSON.parse(raw) : { t: null, status: 'never_run' };
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object' && parsed.t) parsed.t = formatPT(parsed.t);
+        cronStatus[job] = parsed;
+      } else {
+        cronStatus[job] = { t: null, status: 'never_run' };
+      }
     }
   } catch { /* non-fatal */ }
 
@@ -201,7 +208,7 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
     auto: stat.auto,
     signals: stat.signals,
     feedback: stat.feedback,
-    last_seen: stat.last_seen,
+    last_seen: formatPT(stat.last_seen),
     hours_ago: Math.round((Date.now() - new Date(stat.last_seen).getTime()) / (1000 * 60 * 60) * 10) / 10,
     platforms: [...stat.platforms],
   })).sort((a, b) => a.hours_ago - b.hours_ago);
@@ -220,7 +227,7 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
   return {
     status,
     invariant_issues: invariantIssues,
-    time_range: { first: firstEvent, last: lastEvent, hours_since_last: hoursSinceLastEvent },
+    time_range: { first: formatPT(firstEvent), last: formatPT(lastEvent), hours_since_last: hoursSinceLastEvent },
     telemetry_health: {
       stale,
       parse_errors: parseErrors,
