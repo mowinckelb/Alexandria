@@ -206,8 +206,10 @@ export interface EventScanResult {
   serverErrors: number;
   deprecatedHits: number;
   staleClientCalls: number;
+  setupFailures: number;
   deprecatedByPath: Map<string, number>;
   clientVersions: Map<string, number>;
+  setupFailuresByStatus: Map<string, number>;
 }
 
 /**
@@ -222,8 +224,10 @@ export function scanEventsForAlarms(rawLog: string, cutoff: number): EventScanRe
     serverErrors: 0,
     deprecatedHits: 0,
     staleClientCalls: 0,
+    setupFailures: 0,
     deprecatedByPath: new Map(),
     clientVersions: new Map(),
+    setupFailuresByStatus: new Map(),
   };
   for (const line of rawLog.split('\n')) {
     if (!line) continue;
@@ -239,6 +243,12 @@ export function scanEventsForAlarms(rawLog: string, cutoff: number): EventScanRe
         const v = ev.version || 'unset';
         r.clientVersions.set(v, (r.clientVersions.get(v) || 0) + 1);
         if (v === 'unset') r.staleClientCalls++;
+      } else if (ev.e === 'setup_report') {
+        const status = ev.status || 'unknown';
+        if (status !== 'ok') {
+          r.setupFailures++;
+          r.setupFailuresByStatus.set(status, (r.setupFailuresByStatus.get(status) || 0) + 1);
+        }
       }
     } catch { continue; }
   }
@@ -299,6 +309,10 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
         }
         if (scan.staleClientCalls > 0) {
           escalate('stroll', `${scan.staleClientCalls} /call requests without X-Alexandria-Client header — pre-upgrade shims`);
+        }
+        if (scan.setupFailures > 0) {
+          const dist = [...scan.setupFailuresByStatus.entries()].sort((a, b) => b[1] - a[1]).map(([s, n]) => `${s}=${n}`).join(', ');
+          escalate('stroll', `${scan.setupFailures} setup reports with non-ok status in 24h (${dist})`);
         }
         const testTags = new Set(['smoke-test', 'ci-smoke', 'check-script', 'check-install', 'scheduled-agent']);
         const realVersions = [...scan.clientVersions.entries()].filter(([v]) => !testTags.has(v));

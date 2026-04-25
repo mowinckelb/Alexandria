@@ -6,6 +6,24 @@
 ALEX_DIR="$HOME/alexandria"
 API_KEY="$1"
 FACTORY_RAW="https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory"
+SERVER="https://mcp.mowinckel.ai"
+FETCH_ERRORS=""
+
+fetch_factory() {
+  local rel="$1" dest="$2" label="$3" overwrite="${4:-no}"
+  [ "$overwrite" != "yes" ] && [ -f "$dest" ] && return 0
+
+  mkdir -p "$(dirname "$dest")" 2>/dev/null
+  local tmp="${dest}.tmp.$$"
+  if curl -fsS --retry 2 --retry-delay 1 --connect-timeout 5 --max-time 20 \
+    "$FACTORY_RAW/$rel" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+    mv "$tmp" "$dest"
+    return 0
+  fi
+  rm -f "$tmp"
+  FETCH_ERRORS="${FETCH_ERRORS}${label} "
+  return 1
+}
 
 if [ -z "$API_KEY" ]; then
   echo "Usage: bash setup.sh <API_KEY>"
@@ -39,38 +57,38 @@ date +%s > "$ALEX_DIR/system/.last_maintenance"
 # Templates → files/ (don't overwrite existing)
 # Core operating docs
 for f in agent.md machine.md notepad.md feedback.md filter.md README.md; do
-  [ -f "$ALEX_DIR/files/core/$f" ] || curl -fsS "$FACTORY_RAW/templates/core/$f" -o "$ALEX_DIR/files/core/$f" 2>/dev/null
+  fetch_factory "templates/core/$f" "$ALEX_DIR/files/core/$f" "core/$f"
 done
 # Folder READMEs (vault, constitution, ontology, library, works)
 for d in vault constitution ontology library works; do
-  [ -f "$ALEX_DIR/files/$d/README.md" ] || curl -fsS "$FACTORY_RAW/templates/$d/README.md" -o "$ALEX_DIR/files/$d/README.md" 2>/dev/null
+  fetch_factory "templates/$d/README.md" "$ALEX_DIR/files/$d/README.md" "$d/README.md"
 done
 
 # Hooks (always update)
 mkdir -p "$ALEX_DIR/system/canon"
-curl -fsS "$FACTORY_RAW/hooks/shim.sh" -o "$ALEX_DIR/system/hooks/shim.sh" 2>/dev/null
+fetch_factory "hooks/shim.sh" "$ALEX_DIR/system/hooks/shim.sh" "hooks/shim.sh" yes
 chmod +x "$ALEX_DIR/system/hooks/shim.sh"
-curl -fsS "$FACTORY_RAW/hooks/payload.sh" -o "$ALEX_DIR/system/.hooks_payload" 2>/dev/null
+fetch_factory "hooks/payload.sh" "$ALEX_DIR/system/.hooks_payload" "hooks/payload.sh" yes
 
 # Canon (cache locally — one module)
-curl -fsS "$FACTORY_RAW/canon/methodology.md" -o "$ALEX_DIR/system/canon/methodology.md" 2>/dev/null
+fetch_factory "canon/methodology.md" "$ALEX_DIR/system/canon/methodology.md" "canon/methodology.md" yes
 
 # Block (cache locally for easy access — system, not user content)
-curl -fsS "$FACTORY_RAW/block.md" -o "$ALEX_DIR/system/.block" 2>/dev/null
+fetch_factory "block.md" "$ALEX_DIR/system/.block" "block.md" yes
 
 # ── 3. Platform configuration ─────────────────────────────────────
 
 # Claude Code — skill + hooks
 if command -v node &>/dev/null && { [ -d "$HOME/.claude" ] || command -v claude &>/dev/null; }; then
   mkdir -p "$HOME/.claude/skills/alexandria" 2>/dev/null
-  curl -fsS "$FACTORY_RAW/skills/claudecode.md" -o "$HOME/.claude/skills/alexandria/SKILL.md" 2>/dev/null
+  fetch_factory "skills/claudecode.md" "$HOME/.claude/skills/alexandria/SKILL.md" "skills/claudecode.md" yes
 
   mkdir -p "$HOME/.claude/scheduled-tasks/alexandria" 2>/dev/null
   # Bootstrap pattern: SKILL.md is a tiny stub that fetches scheduled.md on every
   # run. Same compounding architecture as hooks/shim.sh → payload.sh. Keeps the
   # frontmatter (which Claude Code reads locally for scheduling) stable while the
   # live instructions stay pinned to the current canonical playbook.
-  curl -fsS "$FACTORY_RAW/skills/scheduled-bootstrap.md" -o "$HOME/.claude/scheduled-tasks/alexandria/SKILL.md" 2>/dev/null
+  fetch_factory "skills/scheduled-bootstrap.md" "$HOME/.claude/scheduled-tasks/alexandria/SKILL.md" "skills/scheduled-bootstrap.md" yes
 
   node -e "
     const fs = require('fs'), path = require('path');
@@ -99,7 +117,7 @@ fi
 # Cursor
 if [ -d "$HOME/.cursor" ] || command -v cursor &>/dev/null; then
   mkdir -p "$HOME/.cursor/rules" 2>/dev/null
-  curl -fsS "$FACTORY_RAW/skills/cursor.mdc" -o "$HOME/.cursor/rules/alexandria.mdc" 2>/dev/null
+  fetch_factory "skills/cursor.mdc" "$HOME/.cursor/rules/alexandria.mdc" "skills/cursor.mdc" yes
   echo "  Cursor: configured"
 fi
 
@@ -113,7 +131,11 @@ if [ -d "$HOME/.codex" ] || command -v codex &>/dev/null; then
       sed -i '/^<!-- alexandria:start -->/,/^<!-- alexandria:end -->/d' "$HOME/.codex/instructions.md"
     fi
   }
-  curl -fsS "$FACTORY_RAW/skills/codex.md" >> "$HOME/.codex/instructions.md" 2>/dev/null
+  codex_tmp="$ALEX_DIR/system/.codex_alexandria.tmp"
+  if fetch_factory "skills/codex.md" "$codex_tmp" "skills/codex.md" yes; then
+    cat "$codex_tmp" >> "$HOME/.codex/instructions.md"
+    rm -f "$codex_tmp"
+  fi
   echo "  Codex: configured"
 fi
 
@@ -170,7 +192,7 @@ if command -v curl &>/dev/null; then
   KEY_STATUS=$(curl -s -o /dev/null -w '%{http_code}' \
     -H "Authorization: Bearer $API_KEY" \
     --max-time 8 \
-    "https://mcp.mowinckel.ai/alexandria" 2>/dev/null || echo "000")
+    "$SERVER/alexandria" 2>/dev/null || echo "000")
 fi
 
 # ── Done ──────────────────────────────────────────────────────────
@@ -189,6 +211,38 @@ done
 for f in constitution/README.md ontology/README.md vault/README.md library/README.md works/README.md; do
   [ ! -f "$ALEX_DIR/files/$f" ] && MISSING="$MISSING $f"
 done
+
+# Install report — local first, then best-effort server feedback if auth works.
+# This is deliberately non-fatal: partial installs still leave a useful local
+# system, while unknown setup failures become visible to the Factory loop.
+SETUP_STATUS="ok"
+[ -n "$MISSING" ] && SETUP_STATUS="missing_files"
+[ -n "$FETCH_ERRORS" ] && SETUP_STATUS="fetch_errors"
+[ "$KEY_STATUS" = "401" ] && SETUP_STATUS="auth_rejected"
+[ "$KEY_STATUS" = "000" ] && SETUP_STATUS="server_unreachable"
+
+{
+  echo "Alexandria setup report — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo "status: $SETUP_STATUS"
+  echo "key_status: ${KEY_STATUS:-not_checked}"
+  [ -n "$FETCH_ERRORS" ] && echo "fetch_errors: $FETCH_ERRORS"
+  [ -n "$MISSING" ] && echo "missing: $MISSING"
+  echo "platforms:"
+  if [ -d "$HOME/.claude" ] || command -v claude &>/dev/null; then echo "  claude: present"; else echo "  claude: absent"; fi
+  if [ -d "$HOME/.cursor" ] || command -v cursor &>/dev/null; then echo "  cursor: present"; else echo "  cursor: absent"; fi
+  if [ -d "$HOME/.codex" ] || command -v codex &>/dev/null; then echo "  codex: present"; else echo "  codex: absent"; fi
+} > "$ALEX_DIR/system/.setup_report"
+
+if [ "$KEY_STATUS" = "200" ] && command -v node &>/dev/null; then
+  report_json=$(node -e "process.stdout.write(JSON.stringify(require('fs').readFileSync(process.argv[1],'utf8')))" "$ALEX_DIR/system/.setup_report" 2>/dev/null)
+  if [ -n "$report_json" ]; then
+    curl -sf --max-time 4 -X POST "$SERVER/feedback" \
+      -H "Authorization: Bearer $API_KEY" \
+      -H "Content-Type: application/json" \
+      -d "{\"text\":$report_json,\"context\":\"setup\"}" -o /dev/null 2>/dev/null \
+      || echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) setup report POST failed" >> "$ALEX_DIR/system/.alexandria_errors"
+  fi
+fi
 
 if [ -n "$MISSING" ]; then
   echo ""

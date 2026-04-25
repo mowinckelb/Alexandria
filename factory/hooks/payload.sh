@@ -307,13 +307,14 @@ if [ "$MODE" = "session-start" ]; then
       manifest=$(cat "$ALEX_DIR/.call_manifest" 2>/dev/null)
       [ -n "$manifest" ] && call_payload="$manifest"
     fi
-    # Loud failure: -f makes curl exit non-zero on HTTP errors, logged to errors file
-    (curl -sf --max-time 4 -X POST "$SERVER/call" \
-      -H "Authorization: Bearer $API_KEY" \
-      -H "X-Alexandria-Client: $CLIENT_VERSION" \
-      -H "Content-Type: application/json" \
-      -d "$call_payload" -o /dev/null 2>/dev/null \
-      || echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) call POST failed" >> "$ALEX_DIR/system/.alexandria_errors") &
+    (
+      status=$(curl -s --max-time 4 -o /dev/null -w '%{http_code}' -X POST "$SERVER/call" \
+        -H "Authorization: Bearer $API_KEY" \
+        -H "X-Alexandria-Client: $CLIENT_VERSION" \
+        -H "Content-Type: application/json" \
+        -d "$call_payload" 2>/dev/null || echo "000")
+      [ "$status" = "200" ] || echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) call POST failed status=$status" >> "$ALEX_DIR/system/.alexandria_errors"
+    ) &
   fi
 
 fi

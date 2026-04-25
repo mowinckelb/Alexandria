@@ -28,6 +28,8 @@ test('counts each event type in window', () => {
     JSON.stringify({ t: inWindow, e: 'client_version_seen', version: 'abc1234' }),
     JSON.stringify({ t: inWindow, e: 'client_version_seen', version: 'abc1234' }),
     JSON.stringify({ t: inWindow, e: 'client_version_seen', version: 'unset' }),
+    JSON.stringify({ t: inWindow, e: 'setup_report', status: 'fetch_errors' }),
+    JSON.stringify({ t: inWindow, e: 'setup_report', status: 'ok' }),
   ].join('\n');
   const r = scanEventsForAlarms(log, cutoff);
   assert.strictEqual(r.serverErrors, 1);
@@ -37,6 +39,8 @@ test('counts each event type in window', () => {
   assert.strictEqual(r.staleClientCalls, 1);
   assert.strictEqual(r.clientVersions.get('abc1234'), 2);
   assert.strictEqual(r.clientVersions.get('unset'), 1);
+  assert.strictEqual(r.setupFailures, 1);
+  assert.strictEqual(r.setupFailuresByStatus.get('fetch_errors'), 1);
 });
 
 test('ignores events outside 24h cutoff', () => {
@@ -67,8 +71,10 @@ test('handles empty input', () => {
   assert.strictEqual(r.serverErrors, 0);
   assert.strictEqual(r.deprecatedHits, 0);
   assert.strictEqual(r.staleClientCalls, 0);
+  assert.strictEqual(r.setupFailures, 0);
   assert.strictEqual(r.deprecatedByPath.size, 0);
   assert.strictEqual(r.clientVersions.size, 0);
+  assert.strictEqual(r.setupFailuresByStatus.size, 0);
 });
 
 test('uses (unknown) when deprecated_hit has no path', () => {
@@ -96,4 +102,11 @@ test('ignores unrelated event types without error', () => {
   assert.strictEqual(r.clientVersions.size, 0);
 });
 
-console.log(`\n${passed}/7 scanner tests passed.`);
+test('treats missing setup_report status as unknown failure', () => {
+  const log = JSON.stringify({ t: inWindow, e: 'setup_report' });
+  const r = scanEventsForAlarms(log, cutoff);
+  assert.strictEqual(r.setupFailures, 1);
+  assert.strictEqual(r.setupFailuresByStatus.get('unknown'), 1);
+});
+
+console.log(`\n${passed}/8 scanner tests passed.`);

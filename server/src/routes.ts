@@ -554,6 +554,13 @@ export function registerRoutes(app: Hono) {
         context: context || 'direct',
         length: String(text.length),
       });
+      if (context === 'setup') {
+        const statusMatch = text.match(/^status:\s*([a-z0-9_-]+)/m);
+        logEvent('setup_report', {
+          author: account.github_login,
+          status: statusMatch?.[1] || 'unknown',
+        });
+      }
 
       return c.json({ ok: true });
     } catch (err) {
