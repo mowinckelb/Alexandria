@@ -50,3 +50,4 @@ server/.next/
 # prebuild generates from AGENTS.md (canonical) — not source
 CLAUDE.md
 .cursorrules
+.see/

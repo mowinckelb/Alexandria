@@ -96,12 +96,12 @@ factory/
 
 ## Visual Workflow
 
-**See before shipping.** For any frontend work, use `~/alexandria/system/scripts/see.mjs` (Playwright) to screenshot and visually verify. Read the PNGs with the Read tool — you are multimodal.
+**See before shipping.** For any frontend work, use `scripts/see.mjs` (Playwright) to screenshot and visually verify. Read the PNGs with the Read tool — you are multimodal.
 
-- **Screenshot any URL:** `node ~/alexandria/system/scripts/see.mjs <url> [--full] [--dark] [--only desktop|tablet|mobile]`
-- **Local dev:** `node ~/alexandria/system/scripts/see.mjs localhost --port 3000`
+- **Screenshot any URL:** `node scripts/see.mjs <url> [--full] [--dark] [--only desktop|tablet|mobile]`
+- **Local dev:** `node scripts/see.mjs localhost --port 3000`
 - **Design reference:** `~/alexandria/files/core/design.md` — craft substrate (900 lines of concrete CSS physics, anti-patterns, thresholds). Read before any frontend work. Not taste — that's `~/alexandria/files/constitution/Taste.md`.
-- Screenshots save to `~/alexandria/system/.see/`, auto-cleaned to last 30.
+- Screenshots save to `.see/` at repo root (gitignored), auto-cleaned to last 30.
 - **Loop:** build → screenshot → evaluate against design.md → fix → screenshot → ship.
 
 ## Style

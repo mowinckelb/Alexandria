@@ -333,27 +333,34 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
            is the only ornament. */}
       <div className="top-slide" ref={topRef}>
         <div className="top-inner">
-          {/* Forced line break at the comma — the natural poetic caesura.
-              First line states the tribe + the act; second line, italic,
-              delivers the purpose. The italic IS the turn. */}
+          {/* Three-line H1. Italic-normal-italic rhythm with the tribal
+              line tinted in the house burgundy — the identity carries
+              colour; the act is plain ink; the purpose returns to italic.
+              Form is content: the first line is who we are, second is what
+              we do, third is why it matters. */}
           <h1 className="hero-h1">
-            A tribe of humans who put their minds into writing,
+            <span className="hero-tribe">A tribe of humans</span>
+            <br />
+            who put their minds into writing,
             <br />
             <em>so ai thinks with them, not for them.</em>
           </h1>
 
-          {/* Manifesto body — user-authored. Two paragraphs:
-              1. The stance, process, and survival image.
-              2. The civilisational closer, italic as dramatic weight. */}
+          {/* Manifesto body. Fleuron separates the stance from the
+              civilisational closer — an old-book ornament earning its
+              place as a rhetorical beat, not a decoration. */}
           <div className="manifesto">
             <p>
               We have decided ai will not replace our thinking &mdash; it
-              will <em>augment</em> it. Together we find the optimal systems
-              for putting our minds into a medium ai can read. Your data
-              &mdash; <em>sovereign, model-agnostic, optimised</em> &mdash;
-              lets ai apply its intelligence to your mind, and you ride with
-              ai through the singularity.
+              will <em>augment</em>{' '}it. Together we find the optimal
+              systems for putting our minds into a medium ai can read. Your
+              data &mdash; <em>sovereign, model-agnostic, optimised</em>
+              {' '}&mdash; lets ai apply its intelligence to your mind, and
+              you ride with ai through the singularity.
             </p>
+            <span className="fleuron" aria-hidden>
+              ❦
+            </span>
             <p className="manifesto-close">
               <em>
                 Evolutionary pressure renders human thought extinct unless
@@ -376,114 +383,120 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
       {/* ═════ BOTTOM SLIDE — Fleet colophon, theme rotates ═════ */}
       <section className="bottom-slide" aria-label="Colophon">
         <div className="bottom-inner">
-          {/* Upper band: large ornament + statement (the manifesto) */}
+          {/* Upper band — Fleet anchors:
+                LEFT  : wordmark TOP, ornament BOTTOM (space-between)
+                RIGHT : statement
+              The wordmark dominates the slide; the ornament tucks
+              into the empty corner like a maker's mark. */}
           <div className="upper">
-            <div className="ornament-wrap">
-              <Ornament src={theme.image} id={theme.id} />
-            </div>
-
-            <div className="upper-right">
-              {/* Statement — 7-paragraph sales journey, Roman-numeral
-                  ornaments. Stakes → root node → mechanism → product →
-                  collective → signature → low-agency dagger. */}
-              <div className="statement">
-                <p>
-                  AGI is inevitable. You can ignore it &mdash; and get
-                  replaced. You can let it think for you &mdash; and get
-                  replaced. Or you can let it think with you &mdash; and
-                  keep thinking, <em>think better</em>.
-                </p>
-
-                <p>
-                  How you think is the <em>root node</em>. Thoughts become
-                  decisions, decisions become behaviours, behaviours become
-                  outcomes.
-                </p>
-
-                <p>
-                  But ai can&rsquo;t read your mind. It reads words. So you
-                  must transcribe your inner theatre &mdash; think out
-                  loud, however you want, over time. ai augments your
-                  thinking with what you write &mdash; the more you write,
-                  the more there is to multiply. You learn yourself; ai
-                  learns you. Your thinking is the point; ai is the
-                  multiplier.
-                </p>
-
-                <p>
-                  Everyone using ai ends up with a personal file and a
-                  system for building it. The file is the output. You are
-                  the input. The system is the process &mdash; the{' '}
-                  <em>mental gym</em>. Alexandria maintains the floor of
-                  that gym full-time: always current, designed to be
-                  personalised. The optimal thing a stranger can give you.
-                  Take it, make it yours.
-                </p>
-
-                <p>
-                  We also open the collective &mdash; everyone&rsquo;s
-                  systems, plus whatever files they choose to publish. All
-                  in service of your own file. Your file stays yours; we
-                  never see it. Pure marginal value. Free. No one else is
-                  deliberately doing this &mdash; we&rsquo;re neutral,
-                  public, open, determined to become the{' '}
-                  <em>global protocol</em>.
-                </p>
-
-                <p>
-                  This is the <em>protocol for human thought</em>. The{' '}
-                  <em>thinking republic</em> &mdash; humans tilting
-                  evolutionary pressure in our favour, so human thought
-                  survives and thrives.
-                </p>
-
-                <p className="statement-close">
-                  If you don&rsquo;t agree, fine. But agreeing and not
-                  acting is just low agency &mdash; and low agency gets
-                  replaced too. Click <em>try now</em>, sign up, start
-                  your file. Five minutes, free. Every thought stays;
-                  every session compounds. <em>Keep thinking.</em>
+            <div className="upper-left">
+              <div className="wordmark-block">
+                <h2 className="big-word">
+                  alexandria<span className="big-word-dot">.</span>
+                </h2>
+                <p className="dict-line">
+                  <em>n.</em>{' '}
+                  <a href="/vision">
+                    The vanished library of antiquity
+                  </a>{' '}
+                  &mdash; rebuilt in markdown, one Author at a time.
                 </p>
               </div>
+
+              <div className="ornament-wrap">
+                <Ornament src={theme.image} id={theme.id} />
+              </div>
+            </div>
+
+            {/* Statement — six numbered beats + one unnumbered dagger.
+                I. stakes · II. root node · III. mechanism · IV. product ·
+                V. collective · VI. signature · ❦ · dagger. Roman numerals
+                live in the margin; the fleuron separates the argument
+                from the call to action. */}
+            <div className="statement">
+              <p>
+                AGI is inevitable. You can ignore it &mdash; and get
+                replaced. You can let it think for you &mdash; and get
+                replaced. Or you can let it think with you &mdash; and
+                keep thinking, <em>think better</em>.
+              </p>
+
+              <p>
+                How you think is the <em>root node</em>. Thoughts become
+                decisions, decisions become behaviours, behaviours become
+                outcomes.
+              </p>
+
+              <p>
+                But ai can&rsquo;t read your mind. It reads words. So you
+                must transcribe your inner theatre &mdash; think out
+                loud, however you want, over time. ai augments your
+                thinking with what you write &mdash; the more you write,
+                the more there is to multiply. You learn yourself; ai
+                learns you. Your thinking is the point; ai is the
+                multiplier.
+              </p>
+
+              <p>
+                Everyone using ai ends up with a personal file and a
+                system for building it. The file is the output. You are
+                the input. The system is the process &mdash; the{' '}
+                <em>mental gym</em>. Alexandria maintains the floor of
+                that gym full-time: always current, designed to be
+                personalised. The optimal thing a stranger can give you.
+                Take it, make it yours.
+              </p>
+
+              <p>
+                We also open the collective &mdash; everyone&rsquo;s
+                systems, plus whatever files they choose to publish. All
+                in service of your own file. Your file stays yours; we
+                never see it. Pure marginal value. Free. No one else is
+                deliberately doing this &mdash; we&rsquo;re neutral,
+                public, open, determined to become the{' '}
+                <em>global protocol</em>.
+              </p>
+
+              <p>
+                This is the <em>protocol for human thought</em>. The{' '}
+                <em>thinking republic</em> &mdash; humans tilting
+                evolutionary pressure in our favour, so human thought
+                survives and thrives.
+              </p>
+
+              <div className="statement-fleuron" aria-hidden>
+                ❦
+              </div>
+
+              <p className="statement-close">
+                If you don&rsquo;t agree, fine. But agreeing and not
+                acting is just low agency &mdash; and low agency gets
+                replaced too. Click <em>try now</em>, sign up, start
+                your file. Five minutes, free. Every thought stays;
+                every session compounds. <em>Keep thinking.</em>
+              </p>
             </div>
           </div>
 
-          {/* Middle band: 3 columns full width — branches for the curious */}
+          {/* Middle band — three branches, full width.
+              Plain Fleet-style links, no descriptive italics. The
+              statement does the persuading; these are just doors. */}
           <div className="cols-band">
             <div className="upper-cols">
-              {/* Begin — conversion */}
               <div className="col">
                 <span className="col-head">Begin</span>
-                <Link href="/join" className="col-primary">
-                  try now <em>&mdash; $10/mo or free with 5 kin</em>
-                </Link>
-                <Link href="/follow">
-                  follow along <em>&mdash; if you don&rsquo;t code</em>
-                </Link>
-                <a href="tel:+14155038178">
-                  call the founder <em>&mdash; investors, partners</em>
-                </a>
-                <a href="/docs/abstract.pdf">
-                  Abstract (PDF) <em>&mdash; one breath</em>
-                </a>
+                <Link href="/join" className="col-primary">try now</Link>
+                <Link href="/follow">follow along</Link>
+                <a href="tel:+14155038178">call the founder</a>
+                <a href="/docs/abstract.pdf">Abstract (PDF)</a>
               </div>
-              {/* Read — philosophy */}
               <div className="col">
                 <span className="col-head">Read</span>
-                <Link href="/vision">
-                  Vision <em>&mdash; the full thesis, 20 min</em>
-                </Link>
-                <a href="/docs/concrete.md">
-                  Concrete <em>&mdash; the product, one breath</em>
-                </a>
-                <Link href="/library">
-                  Library <em>&mdash; minds in public</em>
-                </Link>
-                <Link href="/blueprint">
-                  Blueprint <em>&mdash; how it is built</em>
-                </Link>
+                <Link href="/vision">Vision</Link>
+                <a href="/docs/concrete.md">Concrete</a>
+                <Link href="/library">Library</Link>
+                <Link href="/blueprint">Blueprint</Link>
               </div>
-              {/* Build — engineering */}
               <div className="col">
                 <span className="col-head">Build</span>
                 <a
@@ -491,48 +504,28 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  GitHub <em>&mdash; open source</em>
+                  GitHub
                 </a>
-                <a href="/docs/trust.md">
-                  trust.md <em>&mdash; why to trust us</em>
-                </a>
-                <Link href="/canon">
-                  Canon <em>&mdash; the methodology</em>
-                </Link>
+                <a href="/docs/trust.md">trust.md</a>
+                <Link href="/canon">Canon</Link>
                 <a
                   href="https://mcp.mowinckel.ai/health"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Status <em>&mdash; live health</em>
+                  Status
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Lower band: giant wordmark + minimal dict | status | copyright */}
+          {/* Lower band — colophon footer.
+              LEFT empty.  CENTER motto (replacing the status pill).
+              RIGHT the legal row, then copyright, then founder line. */}
           <div className="lower">
-            <div className="wordmark-block">
-              <h2 className="big-word">
-                alexandria<span className="big-word-dot">.</span>
-              </h2>
-              <p className="dict-line">
-                <em>n.</em>{' '}
-                <a href="/vision">
-                  The vanished library of antiquity
-                </a>{' '}
-                &mdash; rebuilt in markdown, one Author at a time.
-              </p>
-            </div>
-
-            <a
-              className="status"
-              href="https://mcp.mowinckel.ai/health"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              • All Systems Operational
-            </a>
+            <span className="motto-center" aria-hidden>
+              <em>Keep thinking.</em>
+            </span>
 
             <span className="copyright">
               <span className="legal-row">
@@ -556,9 +549,13 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
                 <span className="sep">·</span>
                 <Link href="/privacy">Privacy</Link>
               </span>
-              <span>
-                2026, written in SF &mdash;{' '}
-                <em className="motto">Keep thinking.</em>
+              <span className="footer-line">2026, written in SF.</span>
+              <span className="founder-line">
+                Benjamin Mowinckel{' '}
+                <span className="sep">·</span>{' '}
+                <a href="mailto:benjamin@mowinckel.com">
+                  benjamin@mowinckel.com
+                </a>
               </span>
             </span>
           </div>
@@ -705,13 +702,18 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           gap: clamp(22px, 3.2vh, 36px);
         }
 
-        /* H1 — THE product pitch. What Alexandria is, in one read. */
+        /* H1 — three lines, three jobs.
+           Tribal line: italic, house burgundy, a hair of tracking.
+           Middle line: roman, plain ink (the matter-of-fact act).
+           Closing line: italic, plain ink (the purpose, the turn).
+           The burgundy tint carries the identity colour through from
+           the CTA; the roman middle is the anchor; the italics frame. */
         .hero-h1 {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-weight: 400;
           font-style: normal;
-          font-size: clamp(32px, 4.2vw, 56px);
-          line-height: 1.08;
+          font-size: clamp(30px, 3.9vw, 52px);
+          line-height: 1.1;
           letter-spacing: -0.014em;
           color: #1a1318;
           text-align: center;
@@ -721,10 +723,15 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
         .hero-h1 em {
           font-style: italic;
         }
+        .hero-tribe {
+          font-style: italic;
+          color: #3a0f3d;
+          letter-spacing: 0.002em;
+        }
 
-        /* Manifesto — two paragraphs. First is prose flow, second is
-           italic dramatic closer. Form is content: the italic closer
-           stands alone, carrying the civilisational weight. */
+        /* Manifesto — prose + fleuron + italic closer. The fleuron is
+           the rhetorical beat between stance and civilisational claim,
+           not decoration. Old book discipline. */
         .manifesto {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           color: #2a1f28;
@@ -732,23 +739,32 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           max-width: 640px;
           display: flex;
           flex-direction: column;
-          gap: clamp(12px, 1.6vh, 20px);
+          align-items: center;
+          gap: clamp(10px, 1.4vh, 18px);
         }
         .manifesto p {
           margin: 0;
-          font-size: clamp(16px, 1.4vw, 19px);
-          line-height: 1.48;
+          font-size: clamp(15.5px, 1.3vw, 18px);
+          line-height: 1.5;
         }
         .manifesto em {
           font-style: italic;
           color: #1a1318;
         }
+        .fleuron {
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-size: clamp(13px, 1.1vw, 15px);
+          color: rgba(58, 15, 61, 0.55);
+          line-height: 1;
+          user-select: none;
+          letter-spacing: 0.1em;
+        }
         .manifesto-close {
           font-style: italic;
           color: #1a1318;
-          font-size: clamp(15px, 1.3vw, 18px) !important;
+          font-size: clamp(14.5px, 1.2vw, 17px) !important;
           letter-spacing: 0.002em;
-          max-width: 580px;
+          max-width: 560px;
           margin: 0 auto !important;
         }
         .manifesto-close em {
@@ -825,8 +841,8 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
         }
 
         /* ─── BOTTOM SLIDE ─── */
-        /* Fleet parity — nav zone above, upper band, empty middle, lower
-           colophon, bottom bar with a small floor margin. Never scrolls. */
+        /* Three bands. Upper: ornament + statement. Middle: columns.
+           Lower: wordmark + status + copyright. Never scrolls. */
         .bottom-slide {
           position: fixed;
           inset: 0;
@@ -834,7 +850,7 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           background: ${theme.bg};
           color: ${theme.fg};
           overflow: hidden;
-          padding: clamp(60px, 8vh, 72px) 48px 16px;
+          padding: clamp(52px, 7vh, 72px) 48px 14px;
           display: flex;
           flex-direction: column;
           transition: background 400ms ease, color 400ms ease;
@@ -847,86 +863,136 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          gap: clamp(12px, 2vh, 20px);
+          gap: clamp(10px, 1.8vh, 18px);
           min-height: 0;
         }
 
-        /* UPPER BAND — ornament | paragraph + 3 cols */
+        /* UPPER BAND — big ornament | statement column
+           The ornament returns to its proper size. The statement takes
+           the full vertical column to the right, freed from having the
+           three branch columns beside it. */
         .upper {
           display: grid;
-          grid-template-columns: 340px 1fr;
-          gap: 44px;
+          grid-template-columns: clamp(280px, 30vh, 360px) 1fr;
+          gap: clamp(32px, 4vw, 56px);
           align-items: start;
-          padding-top: 4px;
+          padding-top: 2px;
         }
         .ornament-wrap {
           display: flex;
           align-items: flex-start;
           justify-content: flex-start;
+          padding-top: clamp(0px, 1vh, 8px);
         }
         .upper-right {
-          max-width: 820px;
-          padding-top: 4px;
-        }
-        /* Statement block — 7 paragraphs, each a conversion job.
-           Form is content: paragraph breaks mark the rhetorical beats.
-           Sized tight to fit all 7 + columns + wordmark on one slide. */
-        .statement {
           max-width: 720px;
+          padding-top: 2px;
+        }
+
+        /* Statement — 6 numbered paragraphs + 1 unnumbered dagger.
+           Roman numerals live in the margin, scarlet-muted. The dagger
+           is separated by a fleuron, not a border — an old-book device
+           earning its place. Form IS the content here. */
+        .statement {
+          counter-reset: beat;
+          max-width: 640px;
           margin: 0;
+          padding-left: clamp(20px, 1.8vw, 30px);
           display: flex;
           flex-direction: column;
-          gap: 5px;
+          gap: clamp(6px, 0.9vh, 11px);
         }
         .statement p {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 11.8px;
-          line-height: 1.4;
+          font-size: clamp(12.5px, 1.65vh, 14.8px);
+          line-height: 1.48;
           color: ${theme.fg};
           margin: 0;
+          position: relative;
+          hanging-punctuation: first last;
         }
         .statement em {
           font-style: italic;
         }
-        /* The dagger — low-agency paragraph gets its own weight. */
+        /* Roman numerals on the six numbered beats. Absolute positioned
+           into the left margin so the prose column stays clean. */
+        .statement > p:not(.statement-close) {
+          counter-increment: beat;
+        }
+        .statement > p:not(.statement-close)::before {
+          content: counter(beat, upper-roman) ".";
+          position: absolute;
+          left: clamp(-30px, -1.8vw, -20px);
+          top: 0.06em;
+          font-size: 0.72em;
+          font-style: italic;
+          letter-spacing: 0.06em;
+          color: ${theme.fgFaint};
+          font-variant-numeric: lining-nums;
+        }
+        /* Fleuron before the dagger — a proper rhetorical pause.
+           Lives centered in its own row, so the dagger reads as
+           something apart from the argument that preceded it. */
+        .statement-fleuron {
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-size: 0.95em;
+          color: ${theme.fgFaint};
+          text-align: center;
+          margin: clamp(2px, 0.4vh, 6px) auto clamp(2px, 0.4vh, 4px);
+          letter-spacing: 0.14em;
+          user-select: none;
+          line-height: 1;
+          padding-right: clamp(20px, 1.8vw, 30px);
+        }
         .statement-close {
-          margin-top: 4px !important;
-          padding-top: 8px !important;
-          border-top: 1px solid ${theme.borderSoft};
+          font-style: italic;
           letter-spacing: 0.003em;
+        }
+        .statement-close em {
+          font-style: italic;
+          color: ${theme.fg};
+        }
+
+        /* MIDDLE BAND — three branch columns, full-width.
+           Freed from the statement, these can breathe horizontally. */
+        .cols-band {
+          padding: 0 clamp(4px, 1vw, 12px);
         }
         .upper-cols {
           display: grid;
-          grid-template-columns: repeat(3, minmax(140px, 1fr));
-          gap: 24px;
-          max-width: 580px;
-          margin-top: 10px;
+          grid-template-columns: repeat(3, minmax(180px, 1fr));
+          gap: clamp(28px, 4vw, 56px);
+          max-width: 1040px;
+          margin: 0 auto;
         }
         .col {
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 5px;
         }
         .col-head {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 12px;
+          font-style: italic;
+          font-size: 11.5px;
           color: ${theme.fgFaint};
-          margin-bottom: 2px;
+          margin-bottom: 3px;
           font-weight: 400;
+          letter-spacing: 0.08em;
+          text-transform: lowercase;
         }
         .col :global(a) {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 13px;
+          font-size: 12.5px;
           color: ${theme.fg};
           text-decoration: none;
-          line-height: 1.22;
+          line-height: 1.24;
           transition: color 150ms ease;
         }
         .col :global(a em) {
           font-style: italic;
           color: ${theme.fgMuted};
-          font-size: 11px;
-          margin-left: 2px;
+          font-size: 10.5px;
+          margin-left: 1px;
         }
         .col :global(a):hover {
           opacity: 0.72;
@@ -939,76 +1005,57 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           text-underline-offset: 3px;
         }
 
-        /* LOWER BAND — wordmark dict | status | copyright */
+        /* LOWER BAND — wordmark + one-line dict | status | copyright */
         .lower {
           display: grid;
           grid-template-columns: 1fr auto 1fr;
           align-items: end;
           gap: 40px;
-          padding-bottom: 8px;
+          padding-bottom: 6px;
         }
         .wordmark-block {
           display: flex;
           flex-direction: column;
-          gap: 6px;
-          max-width: 520px;
+          gap: 4px;
+          max-width: 560px;
         }
         .big-word {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-weight: 400;
           font-style: normal;
-          font-size: clamp(36px, 4.2vw, 64px);
-          line-height: 0.88;
-          letter-spacing: -0.02em;
+          font-size: clamp(40px, 5.4vw, 76px);
+          line-height: 0.9;
+          letter-spacing: -0.022em;
           color: ${theme.fg};
           margin: 0 0 2px;
           white-space: nowrap;
-        }
-        .big-word sup {
-          font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 0.1em;
-          color: ${theme.fgFaint};
-          vertical-align: super;
-          margin-left: 6px;
-          font-weight: 400;
         }
         .big-word-dot {
           font-style: normal;
           color: ${theme.fg};
           margin-left: -0.04em;
         }
-        .phon {
-          font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-style: italic;
-          font-size: 11px;
-          color: ${theme.fgFaint};
-          margin: 0 0 6px;
-        }
         .dict-line {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 12.5px;
-          line-height: 1.38;
+          line-height: 1.44;
           color: ${theme.fg};
-          margin: 0 0 1px;
+          margin: 0;
         }
         .dict-line em {
           font-style: italic;
+          color: ${theme.fgFaint};
+          margin-right: 2px;
         }
-        .footnote {
-          font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 10.5px;
-          line-height: 1.4;
-          color: ${theme.fgMuted};
-          margin: 6px 0 0;
-        }
-        .footnote em {
-          font-style: italic;
-        }
-        .footnote :global(a) {
+        .dict-line :global(a) {
           color: ${theme.fg};
           text-decoration: underline;
           text-decoration-color: ${theme.borderSoft};
           text-underline-offset: 2px;
+          transition: text-decoration-color 180ms ease;
+        }
+        .dict-line :global(a):hover {
+          text-decoration-color: ${theme.fg};
         }
 
         .status {
@@ -1283,7 +1330,7 @@ function Ornament({ src, id }: { src: string; id: string }) {
       />
       <style jsx>{`
         .orn {
-          width: min(220px, 24vh);
+          width: clamp(260px, 30vh, 360px);
           aspect-ratio: 1;
           position: relative;
         }
