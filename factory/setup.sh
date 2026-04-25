@@ -247,6 +247,11 @@ fi
 if [ -n "$MISSING" ]; then
   echo ""
   echo "WARNING: missing:$MISSING — re-run to fix"
+elif [ -n "$FETCH_ERRORS" ]; then
+  echo ""
+  echo "WARNING: factory fetches failed:$FETCH_ERRORS"
+  echo "Some files may be stale from a previous install."
+  echo "Re-run setup when network is stable to refresh all modules."
 elif [ "$KEY_STATUS" = "401" ]; then
   echo ""
   echo "WARNING: API key rejected by server (401). Sign in again at"
