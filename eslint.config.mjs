@@ -22,6 +22,7 @@ const eslintConfig = defineConfig([
     // Generated and non-primary worktrees.
     ".claude/worktrees/**",
     ".factory/**",
+    "scripts/**",
     "server/.wrangler/**",
     "server/dist/**",
     "server/dist-worker/**",

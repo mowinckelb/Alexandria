@@ -43,7 +43,7 @@ export function authErrorHtml(message: string): string {
 export function callbackPageHtml(login: string, apiKey: string): string {
   const WEBSITE_URL = getWebsiteUrl();
   const isReturning = !apiKey;
-  const curlCmd = isReturning ? '' : `curl -sSL https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | bash -s -- ${apiKey}`;
+  const curlCmd = isReturning ? '' : `curl -fsSL https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | bash -s -- ${apiKey}`;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>

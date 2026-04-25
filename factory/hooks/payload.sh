@@ -358,7 +358,8 @@ if [ "$MODE" = "session-end" ]; then
     json_escape() { node -e "process.stdout.write(JSON.stringify(require('fs').readFileSync(process.argv[1],'utf8')))" "$1" 2>/dev/null; }
 
     machine_signal_file="$ALEX_DIR/system/.machine_signal"
-    feedback_file="$ALEX_DIR/.session_feedback"
+    feedback_file="$ALEX_DIR/system/.session_feedback"
+    [ ! -f "$feedback_file" ] && [ -f "$ALEX_DIR/.session_feedback" ] && feedback_file="$ALEX_DIR/.session_feedback"
     signal_pid=""
     feedback_pid=""
 

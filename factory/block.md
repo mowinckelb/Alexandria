@@ -59,4 +59,4 @@ Then give the Author a summary. The objective function of this summary: the Auth
 - What you understand about them (so they can verify — this is the "does this thing know me?" moment)
 - What threads you want to develop with them (the raw material for /a sessions)
 - How to use Alexandria going forward: type /a right here in this tab to start your first session. Keep this tab open — /a starts a session, a. closes it, then /a again. Share things to the vault anytime for more material.
-- If they ever want something different — features, behavior, methodology — they can just say it. You'll write it to ~/alexandria/.session_feedback and it flows directly to the team. No email, no ticket. Just say it.
+- If they ever want something different — features, behavior, methodology — they can just say it. You'll write it to ~/alexandria/system/.session_feedback and it flows directly to the team. No email, no ticket. Just say it.

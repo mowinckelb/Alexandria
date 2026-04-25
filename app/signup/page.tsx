@@ -70,10 +70,10 @@ function SignupPageContent() {
           </p>
 
           <div className="space-y-5 text-[0.85rem] sm:text-[0.9rem] tracking-wide leading-[1.9]" style={{ color: 'var(--text-secondary)' }}>
-            <p>Creates <code style={{ fontSize: '0.82em', color: 'var(--text-primary)' }}>~/.alexandria/</code> on your machine.</p>
+            <p>Creates <code style={{ fontSize: '0.82em', color: 'var(--text-primary)' }}>~/alexandria/</code> on your machine.</p>
             <p>Installs two hooks &mdash; one captures your sessions, one loads your profile at the start of each conversation.</p>
             <p>A file about you builds itself over time. Your <em>constitution</em>. Structured markdown you can read, edit, and take anywhere.</p>
-            <p>Works with Claude Code and Cursor. Nothing leaves your machine except anonymous metadata to improve the product.</p>
+            <p>Works with Claude Code, Cursor, and Codex. Nothing leaves your machine except anonymous metadata to improve the product.</p>
           </div>
 
         </div>

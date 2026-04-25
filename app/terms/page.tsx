@@ -24,7 +24,7 @@ export default function Terms() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Your data</h2>
-        <p>You own your cognitive data. Your Constitution, Vault, notepad, feedback log, and ontology are local files at <code>~/.alexandria/</code> on your machine. Alexandria does not store, access, or claim any rights to this data. If you stop using Alexandria, your files remain on your machine, unchanged and fully yours.</p>
+        <p>You own your cognitive data. Your Constitution, Vault, notepad, feedback log, and ontology are local files at <code>~/alexandria/</code> on your machine. Alexandria does not store, access, or claim any rights to this data. If you stop using Alexandria, your files remain on your machine, unchanged and fully yours.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>

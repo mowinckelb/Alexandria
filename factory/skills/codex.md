@@ -7,7 +7,7 @@ This Author uses Alexandria for cognitive development.
 
 When the Author types "/a", this is an explicit request to begin an active cognitive development session. Read these files in order (skip any that don't exist):
 
-1. ~/alexandria/system/canon/methodology — the canon. Your operating manual. All methodology, craft, extraction design. Follow it.
+1. ~/alexandria/system/canon/methodology.md — the canon. Your operating manual. All methodology, craft, extraction design. Follow it.
 2. ~/alexandria/files/constitution/*.md — who the Author is. Opinions, patterns, contradictions, values. The ground truth.
 3. ~/alexandria/files/core/feedback.md — what works with this Author. Adapt accordingly.
 4. ~/alexandria/files/core/machine.md — your evolving model of how to work with THIS Author.
@@ -32,7 +32,7 @@ When the Author reveals something about themselves — opinions, stories, patter
 
 ## Feedback
 
-If the Author mentions anything they want changed about Alexandria — features, behavior, methodology — write it to ~/alexandria/.session_feedback. It flows directly to the team.
+If the Author mentions anything they want changed about Alexandria — features, behavior, methodology — write it to ~/alexandria/system/.session_feedback. It flows directly to the team.
 
 ## a. — end the session
 
@@ -40,7 +40,7 @@ When the Author types "a." (or "bye", "that's it", or any sign-off), this ends t
 - Write crystallised signal to the appropriate file — ontology/, constitution/, or notepad.md
 - Update machine.md with how this session went
 - Write methodology observations to ~/alexandria/system/.machine_signal — one paragraph max
-- If the Author gave feedback, write to ~/alexandria/.session_feedback
+- If the Author gave feedback, write to ~/alexandria/system/.session_feedback
 
 ## Vault
 

@@ -19,7 +19,7 @@ export default function Privacy() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>What Alexandria is</h2>
-        <p>Alexandria is Greek philosophy infrastructure. It helps you build a structured picture of how you think — your Constitution — stored as markdown files on your own machine at <code>~/.alexandria/</code>. Alexandria does not host, store, or retain your cognitive data.</p>
+        <p>Alexandria is Greek philosophy infrastructure. It helps you build a structured picture of how you think — your Constitution — stored as markdown files on your own machine at <code>~/alexandria/</code>. Alexandria does not host, store, or retain your cognitive data.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -37,7 +37,7 @@ export default function Privacy() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Authentication</h2>
-        <p>Account creation uses GitHub OAuth. Ongoing authentication uses an API key issued at signup. Only a SHA-256 hash of your API key is stored on the server; the raw key lives only on your machine at <code>~/.alexandria/.api_key</code>. The key authenticates your access to the protocol and Library APIs.</p>
+        <p>Account creation uses GitHub OAuth. Ongoing authentication uses an API key issued at signup. Only a SHA-256 hash of your API key is stored on the server; the raw key lives only on your machine at <code>~/alexandria/system/.api_key</code>. The key authenticates your access to the protocol and Library APIs.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -57,7 +57,7 @@ export default function Privacy() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Your rights</h2>
-        <p>Your cognitive data is yours. It lives on your machine. You can read, edit, move, or delete it at any time — it is markdown files in a folder. Deleting <code>~/.alexandria/</code> removes everything local.</p>
+        <p>Your cognitive data is yours. It lives on your machine. You can read, edit, move, or delete it at any time — it is markdown files in a folder. Deleting <code>~/alexandria/</code> removes everything local.</p>
         <p style={{ marginTop: '0.5rem' }}>Under GDPR, CCPA, and equivalent data protection laws, you have the right to:</p>
         <p style={{ marginTop: '0.5rem' }}><strong>Access</strong> — request a copy of all data we hold about you (account record, session metadata, published Library content).</p>
         <p style={{ marginTop: '0.5rem' }}><strong>Rectification</strong> — correct any inaccurate data in your account record.</p>

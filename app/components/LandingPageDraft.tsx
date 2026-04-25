@@ -236,7 +236,10 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
 
   // Randomize theme on first client render.
   useEffect(() => {
-    setThemeIdx(Math.floor(Math.random() * THEMES.length));
+    const frame = requestAnimationFrame(() => {
+      setThemeIdx(Math.floor(Math.random() * THEMES.length));
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   // Peel mechanic — top slide translates up as user scrolls; revealing bottom.
@@ -315,10 +318,16 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
             alexandria<span className="nav-dot">.</span>
           </Link>
           <div className="nav-links">
-            <Link href="/vision">Vision</Link>
-            <Link href="/blueprint">Blueprint</Link>
-            <Link href="/library">Library</Link>
-            <Link href="/join" className="nav-cta">try now</Link>
+            <span className="nav-bio">
+              <a className="nav-name" href="mailto:benjamin@mowinckel.com">
+                Benjamin Mowinckel
+              </a>{' '}
+              <span className="nav-sep">·</span>{' '}
+              <span className="nav-role">founder</span>
+              <a className="nav-call" href="tel:+14155038178">
+                call now
+              </a>
+            </span>
           </div>
         </div>
       </nav>
@@ -374,7 +383,7 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
               try now
             </Link>
             <Link href="/follow" className="cta cta-ghost">
-              follow along
+              stay close
             </Link>
           </div>
         </div>
@@ -382,6 +391,15 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
 
       {/* ═════ BOTTOM SLIDE — Fleet colophon, theme rotates ═════ */}
       <section className="bottom-slide" aria-label="Colophon">
+        {/* For the designers who view source — a small acknowledgment. */}
+        <div
+          aria-hidden
+          style={{ display: 'none' }}
+          dangerouslySetInnerHTML={{
+            __html:
+              '<!-- with a fleeting thank you to fleetai.com -->',
+          }}
+        />
         <div className="bottom-inner">
           {/* UPPER BAND — Fleet structure:
                 LEFT  : ornament (the maker's mark, sits up top)
@@ -447,55 +465,6 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
                 survives and thrives.
               </p>
 
-              <div className="statement-fleuron" aria-hidden>
-                ❦
-              </div>
-
-              <p className="statement-close">
-                If you don&rsquo;t agree, fine. But agreeing and not
-                acting is just low agency &mdash; and low agency gets
-                replaced too. Click <em>try now</em>, sign up, start
-                your file. Five minutes, free. Every thought stays;
-                every session compounds. <em>Keep thinking.</em>
-              </p>
-              </div>
-
-              {/* Three branches, stacked under the statement on the
-                  right side, Fleet style. Plain links — no doormen. */}
-              <div className="upper-cols">
-                <div className="col">
-                  <span className="col-head">Begin</span>
-                  <Link href="/join" className="col-primary">try now</Link>
-                  <Link href="/follow">follow along</Link>
-                  <a href="tel:+14155038178">call the founder</a>
-                  <a href="/docs/abstract.pdf">Abstract (PDF)</a>
-                </div>
-                <div className="col">
-                  <span className="col-head">Read</span>
-                  <Link href="/vision">Vision</Link>
-                  <a href="/docs/concrete.md">Concrete</a>
-                  <Link href="/library">Library</Link>
-                  <Link href="/blueprint">Blueprint</Link>
-                </div>
-                <div className="col">
-                  <span className="col-head">Build</span>
-                  <a
-                    href="https://github.com/mowinckelb/Alexandria"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    GitHub
-                  </a>
-                  <a href="/docs/trust.md">trust.md</a>
-                  <Link href="/canon">Canon</Link>
-                  <a
-                    href="https://mcp.mowinckel.ai/health"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Status
-                  </a>
-                </div>
               </div>
             </div>
           </div>
@@ -513,54 +482,51 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
               </h2>
               <p className="phon">/ˌæl.ɪɡˈzæn.dri.ə/</p>
               <p className="dict-line">
-                <em>I. n.</em> The vanished library of antiquity, rebuilt
-                in markdown.
+                <em>I. n.</em> The library Alexander the Great founded
+                in Egypt; antiquity&rsquo;s archive of human knowledge,
+                lost to fire.
               </p>
               <p className="dict-line">
-                <em>II. n.</em> A tribe of humans putting their minds
-                into writing &mdash; so ai thinks with them, not for them.
-              </p>
-              <p className="footnote">
-                <sup>1</sup>{' '}Also See:{' '}
-                <a href="/vision">Library of Alexandria</a>, the singularity.
+                <em>II. n.</em> A protocol for transcribing human thought
+                into a medium ai can read; an archive of eternal minds.
               </p>
             </div>
 
-            <span className="motto-center" aria-hidden>
-              <em>Keep thinking.</em>
-            </span>
+            {/* Right stack — dagger lifted up so its bottom aligns
+                with the wordmark's bottom; CTAs + more-link anchored
+                to the bottom of the band like the dict-line bottom. */}
+            <div className="right-stack">
+              <div className="dagger-wrap">
+                <p className="dagger-text">
+                  If you don&rsquo;t agree, fine. But agreeing and not
+                  acting is just low agency &mdash; and low agency gets
+                  replaced too. Click <em>try now</em>, sign up, start
+                  your file. Five minutes, free. Every thought stays;
+                  every session compounds. <em>Keep thinking.</em>
+                </p>
+              </div>
+              <div className="cta-block">
+                <div className="cta-pair">
+                  <Link href="/join" className="lr-cta lr-cta-primary">
+                    try now
+                  </Link>
+                  <Link href="/follow" className="lr-cta lr-cta-ghost">
+                    stay close
+                  </Link>
+                </div>
+                <Link href="/more" className="more-link">
+                  Still not convinced?{' '}
+                  <em>Read more &rarr;</em>
+                </Link>
+              </div>
+            </div>
+          </div>
 
-            <span className="copyright">
-              <span className="legal-row">
-                <a
-                  href="https://x.com/benmowinckel"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  X
-                </a>
-                <span className="sep">·</span>
-                <a
-                  href="https://linkedin.com/in/mowinckel"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  LinkedIn
-                </a>
-                <span className="sep">·</span>
-                <Link href="/terms">Terms</Link>
-                <span className="sep">·</span>
-                <Link href="/privacy">Privacy</Link>
-              </span>
-              <span className="footer-line">2026, written in SF.</span>
-              <span className="founder-line">
-                Benjamin Mowinckel{' '}
-                <span className="sep">·</span>{' '}
-                <a href="mailto:benjamin@mowinckel.com">
-                  benjamin@mowinckel.com
-                </a>
-              </span>
-            </span>
+          {/* Legal — far in the corner, out of the way. */}
+          <div className="corner-legal">
+            <Link href="/terms">Terms</Link>{' '}
+            <span className="sep">·</span>{' '}
+            <Link href="/privacy">Privacy</Link>
           </div>
         </div>
       </section>
@@ -597,7 +563,7 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           left: 0;
           right: 0;
           z-index: 100;
-          padding: 28px 40px;
+          padding: 22px clamp(40px, 4vw, 64px);
           pointer-events: none;
         }
         .nav-inner {
@@ -664,7 +630,7 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
         .nav-links {
           display: flex;
           align-items: center;
-          gap: 36px;
+          gap: clamp(20px, 1.8vw, 32px);
         }
         .nav-links :global(a) {
           font-family: inherit;
@@ -677,6 +643,65 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           font-size: 0.6em;
           margin-left: 1px;
           font-variant-numeric: lining-nums;
+        }
+        /* Founder bio in the nav — name and role sit faint as
+           positioning context; "call now" is the prominent action,
+           italic and underlined to read as the live element.
+           Colors set explicitly per phase (top vs on-bottom) so the
+           opacity doesn't compound with the default link rgba. */
+        .nav-bio {
+          font-family: inherit;
+          font-size: 15px;
+          font-weight: 400;
+          letter-spacing: 0.003em;
+        }
+        /* Top phase — cream slide, dark ink */
+        .nav-bio .nav-sep {
+          color: rgba(26, 19, 24, 0.35);
+          margin: 0 2px;
+        }
+        .nav-links :global(a.nav-name) {
+          color: rgba(26, 19, 24, 0.5);
+          text-decoration: none;
+          transition: color 180ms ease;
+        }
+        .nav-links :global(a.nav-name):hover {
+          color: rgba(26, 19, 24, 0.95);
+        }
+        .nav-bio .nav-role {
+          color: rgba(26, 19, 24, 0.5);
+        }
+        .nav-links :global(a.nav-call) {
+          color: rgba(26, 19, 24, 0.95);
+          font-style: italic;
+          text-decoration: underline;
+          text-decoration-thickness: 1px;
+          text-underline-offset: 3px;
+          letter-spacing: 0.005em;
+          margin-left: clamp(18px, 1.6vw, 28px);
+          transition: color 180ms ease;
+        }
+        .nav-links :global(a.nav-call):hover {
+          color: rgba(26, 19, 24, 0.7);
+        }
+        /* Bottom phase — theme background */
+        .nav.on-bottom .nav-bio .nav-sep {
+          color: ${theme.fgFaint};
+        }
+        .nav.on-bottom .nav-links :global(a.nav-name) {
+          color: ${theme.fgMuted};
+        }
+        .nav.on-bottom .nav-links :global(a.nav-name):hover {
+          color: ${theme.fg};
+        }
+        .nav.on-bottom .nav-bio .nav-role {
+          color: ${theme.fgMuted};
+        }
+        .nav.on-bottom .nav-links :global(a.nav-call) {
+          color: ${theme.fg};
+        }
+        .nav.on-bottom .nav-links :global(a.nav-call):hover {
+          color: ${theme.fgMuted};
         }
 
         /* ─── TOP SLIDE (the peel layer) ─── */
@@ -855,7 +880,8 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           background: ${theme.bg};
           color: ${theme.fg};
           overflow: hidden;
-          padding: clamp(72px, 8vh, 88px) clamp(36px, 3.5vw, 56px) 8px;
+          padding: clamp(72px, 8vh, 88px) clamp(28px, 3vw, 48px)
+            clamp(36px, 5vh, 56px);
           display: flex;
           flex-direction: column;
           transition: background 400ms ease, color 400ms ease;
@@ -885,31 +911,34 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           display: flex;
           align-items: flex-start;
           justify-content: flex-start;
-          padding-top: 4px;
+          padding-top: clamp(96px, 12vh, 160px);
+          padding-left: 0;
+          margin-left: 0;
         }
         .upper-right {
           display: flex;
           flex-direction: column;
           gap: clamp(8px, 1.1vh, 14px);
           min-width: 0;
-          max-width: 820px;
+          max-width: 1100px;
+          padding-top: clamp(28px, 4vh, 56px);
         }
 
-        /* Statement — 6 numbered paragraphs + 1 unnumbered dagger.
-           Roman numerals in the margin, fleuron before the dagger. */
+        /* Statement — 6 numbered paragraphs (the dagger lives in the
+           bottom-right now). Bigger font; padding-left pushed further
+           in. Section 2 may wrap to 2 lines now — fine trade for size. */
         .statement {
           counter-reset: beat;
           margin: 0;
-          padding-left: clamp(20px, 1.8vw, 30px);
-          padding-top: 2px;
+          padding-left: clamp(68px, 5.7vw, 115px);
           display: flex;
           flex-direction: column;
-          gap: clamp(4px, 0.55vh, 7px);
+          gap: clamp(8px, 1.2vh, 16px);
         }
         .statement p {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: clamp(11.5px, 1.25vh, 13.5px);
-          line-height: 1.44;
+          font-size: clamp(17px, 2.2vh, 23px);
+          line-height: 1.5;
           color: ${theme.fg};
           margin: 0;
           position: relative;
@@ -952,15 +981,12 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           color: ${theme.fg};
         }
 
-        /* COLUMNS — stacked under the statement, on the right side.
-           Plain link text. The statement does the persuading; these
-           are just doors. */
+        /* COLUMNS — three branches, now in the bottom-right block.
+           Compact, plain link text, no doormen. */
         .upper-cols {
           display: grid;
-          grid-template-columns: repeat(3, minmax(120px, 1fr));
-          gap: clamp(20px, 3vw, 48px);
-          max-width: 760px;
-          padding-left: clamp(20px, 1.8vw, 30px);
+          grid-template-columns: repeat(3, minmax(96px, auto));
+          gap: clamp(20px, 2.4vw, 40px);
         }
         .col {
           display: flex;
@@ -996,16 +1022,164 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           text-underline-offset: 3px;
         }
 
-        /* LOWER BAND — the anchor.
-             LEFT   : HUGE wordmark + dict (Fleet's "fleet" position)
-             CENTER : motto, italic, ground-level
-             RIGHT  : legal row → 2026 SF → founder line */
+        /* LOWER BAND — two mirrored halves around page centre.
+             LEFT  : wordmark + dict stack (anchors bottom-left)
+             RIGHT : right-stack (dagger+CTAs+motto) anchored bottom-right
+           Each half is exactly 1fr, so the wordmark's right edge and
+           the right-stack's left edge sit at equal distances from the
+           viewport centre. */
         .lower {
           display: grid;
-          grid-template-columns: minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
-          align-items: end;
-          gap: clamp(24px, 3vw, 56px);
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          gap: clamp(24px, 3vw, 48px);
           padding-bottom: 0;
+        }
+        .wordmark-block {
+          align-self: end;
+          justify-self: start;
+        }
+        /* Right stack — grid mirroring the wordmark block.
+             Row 1 = wordmark zone, sized to wordmark BASELINE (not
+             the full line-box) so the dagger's last-line baseline
+             aligns with the wordmark's baseline.
+             Row 2 = phon zone (gap between wordmark and dictI)
+             Row 3 = dict zone (CTA block top-aligned at dictI top) */
+        .right-stack {
+          display: grid;
+          grid-template-rows:
+            clamp(60px, 7.4vw, 115px)
+            clamp(13px, 1.7vw, 25px)
+            1fr;
+          grid-template-columns: 1fr;
+          align-self: stretch;
+          justify-self: end;
+          width: 100%;
+          max-width: clamp(500px, 48vw, 720px);
+        }
+        .dagger-wrap {
+          grid-row: 1;
+          grid-column: 1;
+          display: flex;
+          align-items: flex-end;
+          width: 100%;
+          height: 100%;
+        }
+        .cta-block {
+          grid-row: 3;
+          grid-column: 1;
+          align-self: stretch;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: clamp(14px, 1.6vh, 22px);
+          width: 100%;
+        }
+        .dagger-text {
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-style: italic;
+          font-size: clamp(14px, 1.4vw, 18px);
+          line-height: 1.52;
+          color: ${theme.fg};
+          margin: 0;
+          letter-spacing: 0.003em;
+        }
+        .dagger-text em {
+          font-style: italic;
+          color: ${theme.fg};
+        }
+
+        /* CTA row — primary CTA, ghost CTA, and "still not convinced"
+           all on one line. Buttons cluster left, more-link pushed
+           all the way to the right edge via margin-left: auto. */
+        .cta-pair {
+          display: flex;
+          gap: clamp(8px, 1vw, 14px);
+          align-items: center;
+          flex-wrap: wrap;
+          width: 100%;
+        }
+        .cta-pair :global(a.lr-cta) {
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-size: clamp(12.5px, 1vw, 14px);
+          padding: 8px 18px;
+          border-radius: 8px;
+          text-decoration: none;
+          font-weight: 500;
+          font-style: normal;
+          letter-spacing: 0.003em;
+          transition:
+            background 180ms ease,
+            border-color 180ms ease,
+            color 180ms ease;
+        }
+        .cta-pair :global(a.lr-cta-primary) {
+          background: ${theme.fg};
+          color: ${theme.bg};
+        }
+        .cta-pair :global(a.lr-cta-primary):hover {
+          opacity: 0.86;
+        }
+        .cta-pair :global(a.lr-cta-ghost) {
+          background: transparent;
+          color: ${theme.fg};
+          border: 1px solid ${theme.borderSoft};
+        }
+        .cta-pair :global(a.lr-cta-ghost):hover {
+          border-color: ${theme.fg};
+        }
+
+        /* "Still not convinced?" anchor — sits below the motto, the
+           escape hatch for visitors not yet ready to convert. */
+        /* More-link — sits under the CTAs in the flex column,
+           left-aligned with them. */
+        .right-stack :global(a.more-link) {
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-size: clamp(11.5px, 0.9vw, 13px);
+          color: ${theme.fgMuted};
+          text-decoration: none;
+          line-height: 1.35;
+          letter-spacing: 0.003em;
+          align-self: flex-start;
+          transition: opacity 150ms ease;
+        }
+        .right-stack :global(a.more-link):hover {
+          color: ${theme.fg};
+        }
+        .lower-right :global(a.more-link em) {
+          font-style: italic;
+          color: ${theme.fgMuted};
+          margin-left: 4px;
+          transition: color 180ms ease;
+        }
+        .lower-right :global(a.more-link):hover em {
+          color: ${theme.fg};
+        }
+        /* Corner legal — sits at the same Y as the bottom of the
+           lower band (where the dict-line ends), tucked right. Aligned
+           to slide padding-bottom so it lines up with the lower band. */
+        .corner-legal {
+          position: absolute;
+          right: clamp(28px, 3vw, 48px);
+          bottom: clamp(36px, 5vh, 56px);
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-size: 10.5px;
+          color: ${theme.fgFaint};
+          letter-spacing: 0.005em;
+          z-index: 11;
+        }
+        .corner-legal .sep {
+          color: ${theme.fgFaint};
+          margin: 0 1px;
+          opacity: 0.6;
+        }
+        .corner-legal :global(a) {
+          color: ${theme.fgMuted};
+          text-decoration: none;
+          transition: color 180ms ease;
+        }
+        .corner-legal :global(a):hover {
+          color: ${theme.fg};
         }
 
         /* WORDMARK + DICT STACK — Fleet's signature anchor block.
@@ -1022,10 +1196,10 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           font-weight: 400;
           font-style: normal;
           font-size: clamp(64px, 9vw, 144px);
-          line-height: 1;
+          line-height: 0.9;
           letter-spacing: -0.026em;
           color: ${theme.fg};
-          margin: 0 0 2px;
+          margin: 0;
           white-space: nowrap;
         }
         .big-word-dot {
@@ -1035,19 +1209,22 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
         }
         .big-word-sup {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 0.18em;
+          font-size: 0.16em;
           color: ${theme.fgFaint};
           vertical-align: super;
-          margin-left: 0.12em;
+          margin-left: 0.04em;
           font-weight: 400;
           font-style: italic;
         }
+        /* Phon — tucked tight under the wordmark, indented so it sits
+           visually inside the word's footprint, not extending left. */
         .phon {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-style: italic;
           font-size: clamp(10.5px, 0.85vw, 12.5px);
           color: ${theme.fgFaint};
-          margin: 0 0 6px;
+          margin: -10px 0 10px;
+          padding-left: clamp(24px, 2.4vw, 44px);
         }
         .dict-line {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
@@ -1099,15 +1276,17 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
           color: ${theme.fg};
         }
 
+        /* Motto sign-off — sits at the bottom of the right-stack,
+           left-aligned so its left edge mirrors the wordmark's right
+           edge around page centre. */
         .motto-center {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-style: italic;
-          font-size: clamp(13px, 1.05vw, 15px);
+          font-size: clamp(13px, 1.05vw, 16px);
           color: ${theme.fgMuted};
           letter-spacing: 0.005em;
-          justify-self: center;
           padding-bottom: 6px;
-          align-self: end;
+          white-space: nowrap;
         }
         .motto-center em {
           font-style: italic;
@@ -1245,6 +1424,7 @@ export default function LandingPageDraft({ brandClassName = '' }: Props) {
    SEAL — rotating Greek + English text rings around the a.
    mark. The centerpiece of the front slide.
    ════════════════════════════════════════════════════════ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function Seal() {
   return (
     <div className="seal">
@@ -1393,7 +1573,7 @@ function Ornament({ src, id }: { src: string; id: string }) {
       />
       <style jsx>{`
         .orn {
-          width: clamp(200px, 28vh, 320px);
+          width: clamp(260px, 38vh, 380px);
           aspect-ratio: 1;
           position: relative;
         }

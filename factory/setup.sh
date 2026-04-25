@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Alexandria setup — creates ~/alexandria/ and connects to the protocol
-# Usage: curl -sSL https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | bash -s -- <API_KEY>
+# Usage: curl -fsSL https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | bash -s -- <API_KEY>
 # NO set -e — every section must succeed or fail independently.
 
 ALEX_DIR="$HOME/alexandria"
@@ -39,38 +39,38 @@ date +%s > "$ALEX_DIR/system/.last_maintenance"
 # Templates → files/ (don't overwrite existing)
 # Core operating docs
 for f in agent.md machine.md notepad.md feedback.md filter.md README.md; do
-  [ -f "$ALEX_DIR/files/core/$f" ] || curl -sS "$FACTORY_RAW/templates/core/$f" -o "$ALEX_DIR/files/core/$f" 2>/dev/null
+  [ -f "$ALEX_DIR/files/core/$f" ] || curl -fsS "$FACTORY_RAW/templates/core/$f" -o "$ALEX_DIR/files/core/$f" 2>/dev/null
 done
 # Folder READMEs (vault, constitution, ontology, library, works)
 for d in vault constitution ontology library works; do
-  [ -f "$ALEX_DIR/files/$d/README.md" ] || curl -sS "$FACTORY_RAW/templates/$d/README.md" -o "$ALEX_DIR/files/$d/README.md" 2>/dev/null
+  [ -f "$ALEX_DIR/files/$d/README.md" ] || curl -fsS "$FACTORY_RAW/templates/$d/README.md" -o "$ALEX_DIR/files/$d/README.md" 2>/dev/null
 done
 
 # Hooks (always update)
 mkdir -p "$ALEX_DIR/system/canon"
-curl -sS "$FACTORY_RAW/hooks/shim.sh" -o "$ALEX_DIR/system/hooks/shim.sh" 2>/dev/null
+curl -fsS "$FACTORY_RAW/hooks/shim.sh" -o "$ALEX_DIR/system/hooks/shim.sh" 2>/dev/null
 chmod +x "$ALEX_DIR/system/hooks/shim.sh"
-curl -sS "$FACTORY_RAW/hooks/payload.sh" -o "$ALEX_DIR/system/.hooks_payload" 2>/dev/null
+curl -fsS "$FACTORY_RAW/hooks/payload.sh" -o "$ALEX_DIR/system/.hooks_payload" 2>/dev/null
 
 # Canon (cache locally — one module)
-curl -sS "$FACTORY_RAW/canon/methodology.md" -o "$ALEX_DIR/system/canon/methodology.md" 2>/dev/null
+curl -fsS "$FACTORY_RAW/canon/methodology.md" -o "$ALEX_DIR/system/canon/methodology.md" 2>/dev/null
 
 # Block (cache locally for easy access — system, not user content)
-curl -sS "$FACTORY_RAW/block.md" -o "$ALEX_DIR/system/.block" 2>/dev/null
+curl -fsS "$FACTORY_RAW/block.md" -o "$ALEX_DIR/system/.block" 2>/dev/null
 
 # ── 3. Platform configuration ─────────────────────────────────────
 
 # Claude Code — skill + hooks
 if command -v node &>/dev/null && { [ -d "$HOME/.claude" ] || command -v claude &>/dev/null; }; then
   mkdir -p "$HOME/.claude/skills/alexandria" 2>/dev/null
-  curl -sS "$FACTORY_RAW/skills/claudecode.md" -o "$HOME/.claude/skills/alexandria/SKILL.md" 2>/dev/null
+  curl -fsS "$FACTORY_RAW/skills/claudecode.md" -o "$HOME/.claude/skills/alexandria/SKILL.md" 2>/dev/null
 
   mkdir -p "$HOME/.claude/scheduled-tasks/alexandria" 2>/dev/null
   # Bootstrap pattern: SKILL.md is a tiny stub that fetches scheduled.md on every
   # run. Same compounding architecture as hooks/shim.sh → payload.sh. Keeps the
   # frontmatter (which Claude Code reads locally for scheduling) stable while the
   # live instructions stay pinned to the current canonical playbook.
-  curl -sS "$FACTORY_RAW/skills/scheduled-bootstrap.md" -o "$HOME/.claude/scheduled-tasks/alexandria/SKILL.md" 2>/dev/null
+  curl -fsS "$FACTORY_RAW/skills/scheduled-bootstrap.md" -o "$HOME/.claude/scheduled-tasks/alexandria/SKILL.md" 2>/dev/null
 
   node -e "
     const fs = require('fs'), path = require('path');
@@ -99,7 +99,7 @@ fi
 # Cursor
 if [ -d "$HOME/.cursor" ] || command -v cursor &>/dev/null; then
   mkdir -p "$HOME/.cursor/rules" 2>/dev/null
-  curl -sS "$FACTORY_RAW/skills/cursor.mdc" -o "$HOME/.cursor/rules/alexandria.mdc" 2>/dev/null
+  curl -fsS "$FACTORY_RAW/skills/cursor.mdc" -o "$HOME/.cursor/rules/alexandria.mdc" 2>/dev/null
   echo "  Cursor: configured"
 fi
 
@@ -113,7 +113,7 @@ if [ -d "$HOME/.codex" ] || command -v codex &>/dev/null; then
       sed -i '/^<!-- alexandria:start -->/,/^<!-- alexandria:end -->/d' "$HOME/.codex/instructions.md"
     fi
   }
-  curl -sS "$FACTORY_RAW/skills/codex.md" >> "$HOME/.codex/instructions.md" 2>/dev/null
+  curl -fsS "$FACTORY_RAW/skills/codex.md" >> "$HOME/.codex/instructions.md" 2>/dev/null
   echo "  Codex: configured"
 fi
 
@@ -203,6 +203,11 @@ elif [ -n "$KEY_STATUS" ] && [ "$KEY_STATUS" != "200" ] && [ "$KEY_STATUS" != "0
   echo "NOTE: server responded $KEY_STATUS — setup finished but check"
   echo "  https://mcp.mowinckel.ai/health"
   echo "Everything local works; the protocol may be degraded."
+elif [ "$KEY_STATUS" = "000" ]; then
+  echo ""
+  echo "WARNING: could not reach the Alexandria server during setup."
+  echo "Local files were installed, but the protocol connection is unverified."
+  echo "Check https://mcp.mowinckel.ai/health, then re-run this setup command."
 else
   echo ""
   echo "Alexandria installed. ~/alexandria/ — your mind, on your machine."

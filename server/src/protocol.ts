@@ -161,9 +161,10 @@ export function registerProtocol(app: Hono) {
     if (!auth.account.installed_at) {
       auth.account.installed_at = new Date().toISOString();
       const login = auth.account.github_login;
+      const accountKey = `github_${auth.account.github_id}`;
       const payload = auth.account as unknown as Record<string, unknown>;
       c.executionCtx.waitUntil(
-        saveAccount(login, payload).catch(err => console.error('[install_completed] saveAccount failed:', err))
+        saveAccount(accountKey, payload).catch(err => console.error('[install_completed] saveAccount failed:', err))
       );
       logEvent('install_completed', { author: login });
     }
