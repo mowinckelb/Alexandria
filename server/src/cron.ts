@@ -242,7 +242,9 @@ export function scanEventsForAlarms(rawLog: string, cutoff: number): EventScanRe
       } else if (ev.e === 'client_version_seen') {
         const v = ev.version || 'unset';
         r.clientVersions.set(v, (r.clientVersions.get(v) || 0) + 1);
-        if (v === 'unset') r.staleClientCalls++;
+        // Only the bash shim path is upgradeable from our side. Native MCP clients
+        // (Claude Desktop/web) legitimately don't set X-Alexandria-Client.
+        if (v === 'unset' || v === 'unset-curl') r.staleClientCalls++;
       } else if (ev.e === 'setup_report') {
         const status = ev.status || 'unknown';
         if (status !== 'ok') {

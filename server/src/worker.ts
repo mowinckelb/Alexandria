@@ -449,11 +449,20 @@ for (const path of DEPRECATED_ROUTES) {
     const actualPath = new URL(c.req.url).pathname;
     const details: Record<string, string> = { method: c.req.method, path: actualPath };
 
+    // Anonymous deprecated hits (no API key) need IP/UA to be traceable. Without
+    // it, the alarm reports counts but can't tell us which install/scraper to
+    // upgrade or block. Cheap to capture, only logged on the deprecated path.
+    const key = extractApiKey(c);
+    if (!key) {
+      details.ip = c.req.header('cf-connecting-ip') || '?';
+      details.ua = (c.req.header('user-agent') || '?').slice(0, 120);
+      details.country = c.req.header('cf-ipcountry') || '?';
+    }
+
     // Stuck clients are invisible to the drift alarm (their cached payload
     // predates X-Alexandria-Client). Deprecated-route hits are the one place
     // we see them authenticated — nudge them here via email, the only channel
     // they can still receive (the shim swallows 410 response bodies).
-    const key = extractApiKey(c);
     if (key) {
       try {
         const account = await findByApiKey(key);

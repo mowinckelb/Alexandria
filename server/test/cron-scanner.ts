@@ -90,6 +90,20 @@ test('uses unset when client_version_seen has no version', () => {
   assert.strictEqual(r.staleClientCalls, 1);
 });
 
+test('counts unset-curl as stale, unset-native as fine', () => {
+  const log = [
+    JSON.stringify({ t: inWindow, e: 'client_version_seen', version: 'unset-curl' }),
+    JSON.stringify({ t: inWindow, e: 'client_version_seen', version: 'unset-curl' }),
+    JSON.stringify({ t: inWindow, e: 'client_version_seen', version: 'unset-native' }),
+    JSON.stringify({ t: inWindow, e: 'client_version_seen', version: 'unset-native' }),
+    JSON.stringify({ t: inWindow, e: 'client_version_seen', version: 'unset-native' }),
+  ].join('\n');
+  const r = scanEventsForAlarms(log, cutoff);
+  assert.strictEqual(r.staleClientCalls, 2);
+  assert.strictEqual(r.clientVersions.get('unset-curl'), 2);
+  assert.strictEqual(r.clientVersions.get('unset-native'), 3);
+});
+
 test('ignores unrelated event types without error', () => {
   const log = [
     JSON.stringify({ t: inWindow, e: 'waitlist_signup', type: 'author' }),
@@ -109,4 +123,4 @@ test('treats missing setup_report status as unknown failure', () => {
   assert.strictEqual(r.setupFailuresByStatus.get('unknown'), 1);
 });
 
-console.log(`\n${passed}/8 scanner tests passed.`);
+console.log(`\n${passed}/9 scanner tests passed.`);

@@ -125,16 +125,21 @@ export function registerProtocol(app: Hono) {
     if (!auth.account.github_id) return c.json({ error: 'Account missing github_id' }, 400);
 
     // Client version heartbeat — /call is the one authed endpoint every install hits
-    // regularly. Header absent means pre-header shim (install predates 2026-04-23).
-    // When unset, capture enough metadata to trace the source (IP, UA, referer).
-    const clientVersion = c.req.header('x-alexandria-client') || 'unset';
+    // regularly. Header absent means either a pre-header bash shim (real upgrade
+    // target) or a non-shim client (Claude Desktop/web MCP — node UA — legitimate,
+    // never set this header). Split by UA so the stale-shim alarm only fires on
+    // the case it can act on.
+    const headerVersion = c.req.header('x-alexandria-client');
+    const ua = (c.req.header('user-agent') || '').slice(0, 120);
+    const clientVersion = headerVersion
+      || (ua.toLowerCase().includes('curl') ? 'unset-curl' : 'unset-native');
     const meta: Record<string, string> = {
       author: auth.account.github_login,
       version: clientVersion,
     };
-    if (clientVersion === 'unset') {
+    if (!headerVersion) {
       meta.ip = c.req.header('cf-connecting-ip') || '?';
-      meta.ua = (c.req.header('user-agent') || '?').slice(0, 120);
+      meta.ua = ua || '?';
       meta.country = c.req.header('cf-ipcountry') || '?';
     }
     logEvent('client_version_seen', meta);
@@ -142,7 +147,7 @@ export function registerProtocol(app: Hono) {
     // Track first-seen per version. Lets the drift alarm distinguish natural
     // dev-push rollover (resolves in hours) from genuine stuck clients (persist
     // past a newer version). setnx-style: only the first observation wins.
-    if (clientVersion && clientVersion !== 'unset') {
+    if (headerVersion) {
       c.executionCtx.waitUntil((async () => {
         try {
           const kv = getKV();
