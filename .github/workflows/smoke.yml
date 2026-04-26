@@ -148,11 +148,14 @@ jobs:
           #   - .github/workflows/smoke.yml (this very file, from disk)
           PAYLOAD=$(curl -sf "$FACTORY/hooks/payload.sh")
           SCHED=$(curl -sf "$FACTORY/skills/scheduled.md")
-          # Strip GH Actions ${{ ... }} template lines — they yield partial paths
-          # (e.g. $SERVER/library/${{secrets.X}}/... → "/library/") that aren't
-          # real probes. Behavioral steps that template paths are covered by
-          # their own assertions; the meta-loop only catches literal probes.
-          SMOKE=$(grep -vF '${{' .github/workflows/smoke.yml || true)
+          # Strip GH Actions template lines — they yield partial paths (e.g.
+          # /library/<secret>/... -> "/library/") that aren't real probes.
+          # Behavioral steps that template paths are covered by their own
+          # assertions; the meta-loop only catches literal probes.
+          # Build the open-brace token at runtime — writing it literally in YAML
+          # would itself be parsed as a GH Actions expression and break the run.
+          OPEN='$'; OPEN="${OPEN}{{"
+          SMOKE=$(grep -vF "$OPEN" .github/workflows/smoke.yml || true)
           SCAN=$(printf '%s\n%s\n%s\n' "$PAYLOAD" "$SCHED" "$SMOKE")
           P1=$(printf '%s' "$SCAN" | grep -oE '\$SERVER/[a-zA-Z][a-zA-Z0-9/_-]*' | sed 's|^\$SERVER||')
           P2=$(printf '%s' "$SCAN" | grep -oE 'https://mcp\.mowinckel\.ai/[a-zA-Z][a-zA-Z0-9/_-]*' | sed 's|^https://mcp\.mowinckel\.ai||')
