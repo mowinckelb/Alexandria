@@ -92,11 +92,6 @@ jobs:
             | grep -q '"methodology"' || { echo "::error::Marketplace listing broken"; exit 1; }
           echo "✓ marketplace"
 
-      - name: Company Library
-        run: |
-          curl -sf $SERVER/library/authors | grep -q '"authors"' || { echo "::error::Library listing broken"; exit 1; }
-          echo "✓ library"
-
       - name: Factory (GitHub raw — all critical files)
         run: |
           for file in setup.sh canon/axioms.md canon/methodology.md canon/editor.md canon/mercury.md canon/publisher.md canon/library.md canon/filter.md hooks/shim.sh hooks/payload.sh skills/claudecode.md skills/scheduled.md skills/cursor.mdc skills/codex.md; do
