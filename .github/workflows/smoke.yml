@@ -15,6 +15,9 @@ jobs:
       SERVER: https://mcp.mowinckel.ai
       FACTORY: https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Health (KV, D1, R2, env vars)
         run: |
           body=$(curl -sf $SERVER/health)
@@ -92,19 +95,26 @@ jobs:
             | grep -q '"methodology"' || { echo "::error::Marketplace listing broken"; exit 1; }
           echo "✓ marketplace"
 
-      - name: Factory (GitHub raw — all critical files)
+      - name: Factory (every tracked file resolves on raw)
         run: |
-          for file in setup.sh canon/axioms.md canon/methodology.md canon/editor.md canon/mercury.md canon/publisher.md canon/library.md canon/filter.md hooks/shim.sh hooks/payload.sh skills/claudecode.md skills/scheduled.md skills/cursor.mdc skills/codex.md; do
+          # Source of truth = git. Add or remove a factory file and smoke
+          # covers it automatically — no hand list to drift. Caught a real
+          # gap on first run: hand list had 14 files, the tree has 30.
+          FILES=$(git ls-files factory | sed 's|^factory/||' | sort)
+          [ -z "$FILES" ] && { echo "::error::no factory files tracked — checkout broken?"; exit 1; }
+          COUNT=0
+          for file in $FILES; do
             status=$(curl -s -o /dev/null -w '%{http_code}' "$FACTORY/$file")
             if [ "$status" != "200" ]; then
               echo "::error::Factory file $file returned $status"
               exit 1
             fi
+            COUNT=$((COUNT+1))
           done
-          # Verify content, not just 200
+          # Anchor content checks — these two carry the bash + canon contract
           curl -sf "$FACTORY/setup.sh" | head -1 | grep -q "bash" || { echo "::error::setup.sh not valid bash"; exit 1; }
           curl -sf "$FACTORY/canon/methodology.md" | wc -c | xargs test 1000 -lt || { echo "::error::methodology.md too small"; exit 1; }
-          echo "✓ factory (14 files, content verified)"
+          echo "✓ factory ($COUNT files, derived from git, content verified)"
 
       - name: Website
         run: |
@@ -126,34 +136,49 @@ jobs:
           fi
           echo "✓ stripe webhook reachable (HTTP $status — expected 400/500 without signature)"
 
-      - name: Factory URLs resolve (catch client-depended paths that disappeared)
+      - name: Server paths referenced anywhere resolve (catch dead probes)
         run: |
-          # Scan factory client code for server URLs and verify none of them 404.
-          # Catches the class of bug where a server refactor deletes a route that
-          # a live shim/scheduled agent depends on. Auto-discovered — no hand list.
+          # Scan every file that talks to the server and verify each referenced
+          # path exists. Source of truth = the files themselves. Catches:
+          #   - server refactor kills a route a live client still calls
+          #   - smoke step probes an endpoint we deliberately removed (the
+          #     2026-04-26 /library/authors regression — meta-loop closes this)
+          # Inputs (mixed by design — production reality + checked-out config):
+          #   - factory/hooks/payload.sh + skills/scheduled.md (live, fetched from raw)
+          #   - .github/workflows/smoke.yml (this very file, from disk)
           PAYLOAD=$(curl -sf "$FACTORY/hooks/payload.sh")
           SCHED=$(curl -sf "$FACTORY/skills/scheduled.md")
-          # Extract $SERVER/... and https://mcp.mowinckel.ai/... paths
-          P1=$(printf '%s\n' "$PAYLOAD" "$SCHED" | grep -oE '\$SERVER/[a-zA-Z][a-zA-Z0-9/_-]*' | sed 's|^\$SERVER||')
-          P2=$(printf '%s\n' "$PAYLOAD" "$SCHED" | grep -oE 'https://mcp\.mowinckel\.ai/[a-zA-Z][a-zA-Z0-9/_-]*' | sed 's|^https://mcp\.mowinckel\.ai||')
+          # Strip GH Actions ${{ ... }} template lines — they yield partial paths
+          # (e.g. $SERVER/library/${{secrets.X}}/... → "/library/") that aren't
+          # real probes. Behavioral steps that template paths are covered by
+          # their own assertions; the meta-loop only catches literal probes.
+          SMOKE=$(grep -vF '${{' .github/workflows/smoke.yml || true)
+          SCAN=$(printf '%s\n%s\n%s\n' "$PAYLOAD" "$SCHED" "$SMOKE")
+          P1=$(printf '%s' "$SCAN" | grep -oE '\$SERVER/[a-zA-Z][a-zA-Z0-9/_-]*' | sed 's|^\$SERVER||')
+          P2=$(printf '%s' "$SCAN" | grep -oE 'https://mcp\.mowinckel\.ai/[a-zA-Z][a-zA-Z0-9/_-]*' | sed 's|^https://mcp\.mowinckel\.ai||')
           PATHS=$(printf '%s\n%s\n' "$P1" "$P2" | sort -u | grep -v '^$')
-          [ -z "$PATHS" ] && { echo "::error::No factory URLs extracted — regex broke?"; exit 1; }
+          [ -z "$PATHS" ] && { echo "::error::No paths extracted — regex broke?"; exit 1; }
           fail=0
           for path in $PATHS; do
-            # Try GET and POST; route exists iff at least one returns non-404.
-            # Hono returns 404 on method mismatch, so single-method checks lie
-            # for POST-only routes like /call.
-            g=$(curl -s -o /dev/null -w '%{http_code}' "$SERVER$path")
+            # Probe all four methods — Hono returns 404 on method mismatch, so a
+            # single-method check lies for routes like PUT /file/:name or POST
+            # /call. Route is alive iff at least one method returns non-404.
+            # (Limitation: a route protected by a middleware that 404s on missing
+            # resource — e.g. validateAuthor for /library/:author with a bad id —
+            # will look dead. None of the current literal probes hit that case.)
+            g=$(curl -s -o /dev/null -w '%{http_code}' -X GET "$SERVER$path")
             p=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$SERVER$path" -H 'Content-Type: application/json' -d '{}')
-            if [ "$g" = "404" ] && [ "$p" = "404" ]; then
-              echo "::error::Client references $path — server returns 404 on both GET and POST (missing route or missing deprecated stub)"
+            u=$(curl -s -o /dev/null -w '%{http_code}' -X PUT "$SERVER$path" -H 'Content-Type: application/json' -d '{}')
+            d=$(curl -s -o /dev/null -w '%{http_code}' -X DELETE "$SERVER$path")
+            if [ "$g" = "404" ] && [ "$p" = "404" ] && [ "$u" = "404" ] && [ "$d" = "404" ]; then
+              echo "::error::Reference to $path → 404 on all methods (route killed but a client/test still depends on it)"
               fail=1
             else
-              echo "  $path → GET:$g POST:$p"
+              echo "  $path → GET:$g POST:$p PUT:$u DELETE:$d"
             fi
           done
           [ $fail -eq 1 ] && exit 1
-          echo "✓ factory URLs all resolve"
+          echo "✓ all referenced server paths resolve"
 
       - name: Awareness self-check (event log captures deprecated_hit)
         run: |
