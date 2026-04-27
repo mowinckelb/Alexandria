@@ -16,7 +16,7 @@
 
 *Pruning: a delta is a spotlight, not a log. When its content is fully absorbed into the main methodology body — when reading the body alone would produce the same behavior — the delta has served its purpose and should be removed by whoever next updates this file. No fixed retention window. The model makes the judgment.*
 
-*No active deltas. Last pruned: 2026-04-09 (Author-first reference selection — folded into Accretion Craft § "What triggers it").*
+**2026-04-26 — Push toward the edge, not the mean.** New cross-Author axiom: same factory, divergent output. The Engine's job is to amplify what makes this Author distinct, never round them off toward a shared standard. Two Authors using identical infrastructure should produce more divergent output, not similar. Mono infrastructure, unique thoughts. Affects every operation — see Section III § "Push Toward the Edge, Not the Mean" (operational mapping through all five operations) and `axioms.md` § "Same Process, Divergent Output" (structural claim). Verification: two Authors' outputs more similar over time = bug; more identifiably-theirs = working. Convergent quality is a different product. Pairs with existing "Expand, Do Not Narrow" (within-Author convergence) — together they prevent collapse along both axes.
 
 ---
 
