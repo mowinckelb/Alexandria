@@ -39,7 +39,7 @@ The admin key is provided to you by the trigger prompt that invokes this skill. 
 One intelligence call. Read everything. Decide:
 
 - **Propose a canon change?** Only if cross-Author signal clearly warrants it. The bar: would an Author population of N>1 measurably benefit? Single-Author signal is not enough on its own — that's what the Author's own Machine autoloop and their feedback file handle.
-- **Propose a code change?** The canon is the default scope, but if signal points to a company-side constant that's wrong (e.g. engagement email cadence, follow-up caps, KV retention), you may also propose a PR to `server/src/`. Current constants worth reconsidering when signal suggests: `MAX_FOLLOWUPS`, `DEFAULT_ENGAGEMENT_DAYS`, any cron cadence in `worker.ts`, `factoryStaleDays` in `cron.ts` (the window you have before health digest strolls on your own liveness). These are soft defaults with you as the parent — the principle is "no root hard codes," and your run is what makes them derivatives.
+- **Propose a code change?** The canon is the default scope, but if signal points to a company-side constant that's wrong (e.g. KV retention, cron cadence, staleness window), you may also propose a PR to `server/src/`. Current constants worth reconsidering when signal suggests: any cron cadence in `worker.ts`, `factoryStaleDays` in `cron.ts` (the window you have before health digest strolls on your own liveness), shim cache cutoff in `factory/hooks/shim.sh`. These are soft defaults with you as the parent — the principle is "no root hard codes," and your run is what makes them derivatives.
 - **Propose nothing?** Valid outcome. Do not invent a change to justify the run.
 
 ## Action
