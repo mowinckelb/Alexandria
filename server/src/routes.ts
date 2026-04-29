@@ -302,7 +302,7 @@ export function registerRoutes(app: Hono) {
 
       // Skip Stripe if user already has payment info
       if (updatedAccount.stripe_customer_id) {
-        return c.html(callbackPageHtml(apiKey));
+        return c.html(callbackPageHtml(user.login, apiKey));
       }
 
       // Redirect to Stripe Checkout (skip in beta — no card friction)
@@ -322,7 +322,7 @@ export function registerRoutes(app: Hono) {
         }
       }
 
-      return c.html(callbackPageHtml(apiKey));
+      return c.html(callbackPageHtml(user.login, apiKey));
     } catch (err: any) {
       console.error('GitHub callback error:', err);
       return c.html(authErrorHtml('something broke signing you in. please try again.'), 500);
