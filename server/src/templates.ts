@@ -40,7 +40,7 @@ export function authErrorHtml(message: string): string {
 // Callback page — the first brand moment after signup
 // ---------------------------------------------------------------------------
 
-export function callbackPageHtml(login: string, apiKey: string): string {
+export function callbackPageHtml(apiKey: string): string {
   const WEBSITE_URL = getWebsiteUrl();
   const isReturning = !apiKey;
   const curlCmd = isReturning ? '' : `curl -fsSL https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | bash -s -- ${apiKey}`;
@@ -53,7 +53,7 @@ export function callbackPageHtml(login: string, apiKey: string): string {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="icon" href="${WEBSITE_URL}/favicon.png" type="image/png">
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -67,12 +67,18 @@ export function callbackPageHtml(login: string, apiKey: string): string {
     padding: 2rem;
   }
   .container { max-width: 420px; text-align: center; }
-  .section { margin-bottom: 2.5rem; }
-  .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin-bottom: 0.8rem; }
-  .line { font-size: 1.1rem; font-weight: 400; line-height: 1.9; color: #3d3630; }
+  .welcome { font-size: 1.5rem; font-weight: 400; line-height: 1.4; }
+  .line { font-size: 1.1rem; line-height: 1.9; }
+  .trust { font-size: 0.85rem; line-height: 1.7; color: #bbb4aa; margin-top: 2.5rem; }
+  .trust .action { color: #8a8078; }
+  .welcome-back { color: #8a8078; margin-top: 1.5rem; }
+  .steps { margin-top: 2.5rem; }
   .action {
-    color: #3d3630;
-    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -81,6 +87,7 @@ export function callbackPageHtml(login: string, apiKey: string): string {
     transition: opacity 0.15s;
   }
   .action:hover { opacity: 0.6; }
+  .action:focus-visible { outline: 1px dotted #8a8078; outline-offset: 3px; border-radius: 2px; }
   .action .icon { display: inline-flex; align-items: center; color: #bbb4aa; transition: color 0.15s; }
   .action:hover .icon { color: #3d3630; }
   .action.done .icon { color: #3d3630; }
@@ -88,6 +95,9 @@ export function callbackPageHtml(login: string, apiKey: string): string {
   .action.done .icon .icon-copy { display: none; }
   .action.done .icon .icon-check { display: inline; }
   .info {
+    background: none;
+    border: none;
+    padding: 0;
     display: inline-flex;
     align-items: center;
     color: #bbb4aa;
@@ -97,94 +107,78 @@ export function callbackPageHtml(login: string, apiKey: string): string {
     margin-left: 4px;
     position: relative;
   }
-  .info:hover { color: #8a8078; }
+  .info:hover, .info:focus-visible { color: #8a8078; outline: none; }
   .tooltip {
     display: none;
     position: absolute;
     bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
+    right: -8px;
     background: #3d3630;
     color: #f5f0e8;
     font-size: 0.78rem;
-    font-weight: 400;
     line-height: 1.6;
     padding: 10px 14px;
     border-radius: 6px;
     width: 260px;
+    max-width: calc(100vw - 4rem);
     text-align: left;
-    white-space: normal;
     z-index: 10;
   }
   .tooltip::after {
     content: '';
     position: absolute;
     top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 14px;
     border: 6px solid transparent;
     border-top-color: #3d3630;
   }
   .info.active .tooltip { display: block; }
-  .closing { font-size: 1.15rem; color: #3d3630; margin-top: 2.5rem; }
-  .footer { font-size: 0.78rem; color: #bbb4aa; margin-top: 2rem; }
-  .footer .action { font-size: 0.78rem; color: #8a8078; }
-  .footer .action .icon { color: #bbb4aa; }
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="section" style="margin-bottom: 1.5rem;">
-    <p class="line" style="font-size: 0.95rem; color: #8a8078; line-height: 1.7;">these three steps put files on your machine and tell your cli how to use them. no program. no app. just markdown and shell scripts you can read. we never see your data &mdash; it is <a class="action" onclick="copyTrust(this)" style="font-size: inherit;">architecturally impossible <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a></p>
-    <p class="line" style="font-size: 0.88rem; color: #bbb4aa; line-height: 1.6; margin-top: 0.4rem;">questions during setup? read the <a class="action" onclick="copyTrust(this)" style="font-size: inherit; color: #8a8078;">Trust.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; full disclosure of every file, every network call. or just ask in your cli or ide &mdash; it can read everything alexandria installs. once you're set up, it knows everything you know. ask it anything, give it feedback, make it yours.</p>
+  <h1 class="welcome">welcome to alexandria.</h1>
+  ${isReturning ? `<p class="line welcome-back">you're already set up. /a in your cli to start.</p>` : `<div class="steps">
+    <p class="line"><button type="button" class="action" onclick="copyCmd(this)" aria-label="copy install command">1. install <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> &mdash; paste in terminal <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">creates ~/alexandria/, checks your prerequisites, configures your cli and ide. everything local, nothing sent anywhere.</span></button></p>
+    <p class="line"><button type="button" class="action" onclick="copyBlock(this)" aria-label="copy begin block">2. begin <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> &mdash; paste in a new cli chat <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">opens your first session. it reads your files and builds your starter constitution.</span></button></p>
   </div>
-  ${isReturning ? `<div class="section">
-    <p class="label">welcome back</p>
-    <p class="line" style="color: #8a8078;">you're already set up. /a to start a session.</p>
-  </div>` : `<div class="section">
-    <p class="label">setup</p>
-    <p class="line"><a class="action" onclick="copyPrime(this)">1. prime <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in terminal <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">checks your machine has what alexandria needs. if github cli is installed, it logs you in for private backup. run this first.</span></span></p>
-    <p class="line"><a class="action" onclick="copyCmd(this)">2. curl <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in terminal <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">installs alexandria on your machine. creates ~/alexandria/, configures your cli and ide. everything local, nothing sent anywhere.</span></span></p>
-    <p class="line"><a class="action" onclick="copyBlock(this)">3. block <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> &mdash; paste in new tab <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">open a new conversation in your cli or ide. paste the block. it reads your files to understand you — builds your starter constitution. let it work.</span></span></p>
-  </div>`}
-  <div class="section">
-    <p class="label">you're set up</p>
-    <p class="line">/a to start a session. a. to close it.</p>
-    <p class="line"><a href="${WEBSITE_URL}/shortcut" target="_blank" style="color: #8a8078; text-decoration: none; transition: opacity 0.15s;" onmouseover="this.style.opacity='0.6'" onmouseout="this.style.opacity='1'">share</a> to feed the vault. <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">add the shortcut to your phone. voice notes, articles, podcasts, screenshots — anything with signal. hit share, pick alexandria, done. the more you share, the more /a has to work with.</span></span></p>
-    <p class="line" style="font-size: 0.95rem; color: #8a8078;">want something different? just say it in your cli or ide. feedback flows directly to the team.</p>
-  </div>
-  <div class="section">
-    <p class="label">kin</p>
-    <p class="line"><a class="action" onclick="copyKin(this)">your link <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a> <span class="info" onclick="toggleTip(this)">${ICON_INFO}<span class="tooltip">5 active kin and alexandria is free. send this to anyone who builds things.</span></span></p>
-  </div>
-  <p class="closing">welcome to alexandria.</p>
-  <p class="footer"><a class="action" onclick="copyTrust(this)">Trust.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></a></p>
+  <p class="trust">we never see your data &mdash; <button type="button" class="action" onclick="copyTrust(this)" aria-label="copy Trust.md">Trust.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button></p>`}
 </div>
 <script>
 function flash(el) {
   el.classList.add('done');
   setTimeout(function() { el.classList.remove('done'); }, 2000);
 }
-function copyPrime(el) {
-  var prime = 'echo "checking prerequisites..." && { command -v git >/dev/null 2>&1 && echo "  git: ok" || echo "  git: missing — install from https://git-scm.com"; } && { command -v node >/dev/null 2>&1 && echo "  node: ok" || echo "  node: missing — install from https://nodejs.org"; } && { if command -v gh >/dev/null 2>&1; then if gh auth status >/dev/null 2>&1; then echo "  github: ok"; else echo "  github: logging in..." && gh auth login; fi; else echo "" && echo "  github cli not found. it enables cloud backup and overnight processing." && echo "  install: brew install gh (mac) or https://cli.github.com" && echo "  then re-run this prime. or skip it — everything else still works."; fi; } && echo "" && echo "ready. run the curl."';
-  navigator.clipboard.writeText(prime).then(function() { flash(el); });
+function copyText(text, el) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).then(function() { flash(el); }).catch(function() { manualCopy(text, el); });
+  }
+  manualCopy(text, el);
+  return Promise.resolve();
 }
-function copyCmd(el) {
-  navigator.clipboard.writeText(${JSON.stringify(curlCmd)}).then(function() { flash(el); });
+function manualCopy(text, el) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    flash(el);
+  } catch (e) {
+    window.prompt('copy this:', text);
+  }
 }
-function copyBlock(el) {
-  fetch('https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/block.md').then(function(r) { return r.text(); }).then(function(text) {
-    navigator.clipboard.writeText(text).then(function() { flash(el); });
+function copyRemote(url, el) {
+  return fetch(url).then(function(r) {
+    if (!r.ok) throw new Error('fetch ' + r.status);
+    return r.text();
+  }).then(function(text) { return copyText(text, el); }).catch(function() {
+    window.open(url, '_blank', 'noopener');
   });
 }
-function copyKin(el) {
-  navigator.clipboard.writeText(${JSON.stringify(`${WEBSITE_URL}/signup?ref=${login}`)}).then(function() { flash(el); });
-}
-function copyTrust(el) {
-  fetch('${WEBSITE_URL}/docs/Trust.md').then(function(r) { return r.text(); }).then(function(text) {
-    navigator.clipboard.writeText(text).then(function() { flash(el); });
-  });
-}
+function copyCmd(el) { copyText(${JSON.stringify(curlCmd)}, el); }
+function copyBlock(el) { copyRemote('https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/block.md', el); }
+function copyTrust(el) { copyRemote('${WEBSITE_URL}/docs/Trust.md', el); }
 function toggleTip(el) {
   var wasActive = el.classList.contains('active');
   document.querySelectorAll('.info.active').forEach(function(e) { e.classList.remove('active'); });

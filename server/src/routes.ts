@@ -10,7 +10,7 @@ import { loadAccounts, loadAccount, saveAccount, setAuthIndex, deleteAccount, ge
 import { hashApiKey, generateToken } from './crypto.js';
 import { Account, AccountStore, extractApiKey, findByApiKey, requireAuth } from './auth.js';
 import { generateApiKey, getAccounts, requireAdmin } from './accounts.js';
-import { sendEmail, sendEmailsBatched, sendWelcomeEmail, sendMorningBrief, FOUNDER_EMAIL } from './email.js';
+import { sendEmail, sendEmailsBatched, sendMorningBrief, FOUNDER_EMAIL } from './email.js';
 import { runHealthDigest } from './cron.js';
 
 /**
@@ -295,14 +295,9 @@ export function registerRoutes(app: Hono) {
         }
       }
 
-      // Welcome email — no API key, just links to /signup
-      if (email && isNewAccount) {
-        await sendWelcomeEmail(email);
-      }
-
       // Skip Stripe if user already has payment info
       if (updatedAccount.stripe_customer_id) {
-        return c.html(callbackPageHtml(user.login, apiKey));
+        return c.html(callbackPageHtml(apiKey));
       }
 
       // Redirect to Stripe Checkout (skip in beta — no card friction)
@@ -322,7 +317,7 @@ export function registerRoutes(app: Hono) {
         }
       }
 
-      return c.html(callbackPageHtml(user.login, apiKey));
+      return c.html(callbackPageHtml(apiKey));
     } catch (err: any) {
       console.error('GitHub callback error:', err);
       return c.html(authErrorHtml('something broke signing you in. please try again.'), 500);
