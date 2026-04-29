@@ -13,9 +13,6 @@ export interface Account {
   created_at: string;
   last_session: string;
   installed_at?: string;
-  followup_count?: number;
-  last_engagement_email?: string;
-  engagement_interval_days?: number;
   engagement_opt_out?: boolean;
   stripe_customer_id?: string;
   subscription_status?: string;

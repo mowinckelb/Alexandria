@@ -1,99 +1,8 @@
-/** Cron jobs — health digest, followup, engagement. Called by worker scheduled handler. */
+/** Cron jobs — health digest. Called by worker scheduled handler. */
 
-import { loadAccounts, saveAccounts, getKV, getRecentDaysEvents } from './kv.js';
-import { sendEmail, sendEmailsBatched, sendFollowupEmail, sendEngagementEmail, MAX_FOLLOWUPS, DEFAULT_ENGAGEMENT_DAYS, FOUNDER_EMAIL } from './email.js';
+import { getKV, getRecentDaysEvents } from './kv.js';
+import { sendEmail, FOUNDER_EMAIL } from './email.js';
 import { formatPT } from './time.js';
-import type { Account, AccountStore } from './auth.js';
-
-// ---------------------------------------------------------------------------
-// Follow-up check — nudge signed-up users who haven't installed
-// ---------------------------------------------------------------------------
-
-/** Run follow-up check — called by Cron Trigger */
-export async function runFollowupCheck(): Promise<void> {
-  const accounts = await loadAccounts<AccountStore>();
-
-  const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
-  const tasks: { key: string; account: Account; nextCount: number }[] = [];
-  for (const [key, account] of Object.entries(accounts)) {
-    if (account.installed_at || !account.email) continue;
-    if (account.engagement_opt_out) continue;
-    const count = account.followup_count || 0;
-    if (count >= MAX_FOLLOWUPS) continue;
-    if (new Date(account.created_at).getTime() > dayAgo) continue;
-    tasks.push({ key, account, nextCount: count + 1 });
-  }
-
-  const { sent } = await sendEmailsBatched(tasks, async ({ key, account, nextCount }) => {
-    try {
-      await sendFollowupEmail(account.email, account.email_token, nextCount);
-      accounts[key].followup_count = nextCount;
-      return { ok: true };
-    } catch (e) {
-      return { ok: false, error: e instanceof Error ? e.message : String(e) };
-    }
-  });
-
-  if (sent > 0) await saveAccounts(accounts);
-
-  // Cron execution marker — health digest verifies this exists
-  try {
-    const kv = getKV();
-    await kv.put('cron:followup', JSON.stringify({
-      t: new Date().toISOString(),
-      followups_sent: sent,
-    }), { expirationTtl: 30 * 24 * 60 * 60 });
-  } catch { /* non-fatal */ }
-}
-
-// ---------------------------------------------------------------------------
-// Engagement check — nudge installed users who go quiet
-// ---------------------------------------------------------------------------
-
-/** Run engagement check — called by Cron Trigger */
-export async function runEngagementCheck(): Promise<void> {
-  const accounts = await loadAccounts<AccountStore>();
-  const now = Date.now();
-
-  const tasks: { key: string; account: Account }[] = [];
-  for (const [key, account] of Object.entries(accounts)) {
-    if (!account.installed_at || !account.email) continue;
-    if (account.engagement_opt_out) continue;
-
-    const intervalDays = account.engagement_interval_days || DEFAULT_ENGAGEMENT_DAYS;
-    const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
-
-    const lastActive = new Date(account.last_session || account.installed_at).getTime();
-    if (now - lastActive < intervalMs) continue;
-
-    // Skip if user recently received a morning brief — it serves the same purpose
-    if (account.last_brief && now - new Date(account.last_brief).getTime() < intervalMs) continue;
-    if (account.last_engagement_email && now - new Date(account.last_engagement_email).getTime() < intervalMs) continue;
-
-    tasks.push({ key, account });
-  }
-
-  const { sent } = await sendEmailsBatched(tasks, async ({ key, account }) => {
-    try {
-      await sendEngagementEmail(account.email, account.email_token);
-      accounts[key].last_engagement_email = new Date().toISOString();
-      return { ok: true };
-    } catch (e) {
-      return { ok: false, error: e instanceof Error ? e.message : String(e) };
-    }
-  });
-
-  if (sent > 0) await saveAccounts(accounts);
-
-  // Cron execution marker
-  try {
-    const kv = getKV();
-    await kv.put('cron:engagement', JSON.stringify({
-      t: new Date().toISOString(),
-      engagement_sent: sent,
-    }), { expirationTtl: 30 * 24 * 60 * 60 });
-  } catch { /* non-fatal */ }
-}
 
 // ---------------------------------------------------------------------------
 // Health digest — self-heal, only email the founder if he needs to log on
@@ -291,9 +200,9 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
         const scan = scanEventsForAlarms(raw, cutoff);
         if (scan.serverErrors > 0) escalate('stroll', `${scan.serverErrors} server errors in 24h`);
         // deprecatedHits / staleClientCalls intentionally don't escalate —
-        // auto-remediation already runs (worker sends upgrade email per stuck
-        // user, dedupe 7d). Counts still flow into the cached digest marker
-        // for /analytics/dashboard visibility, just no founder ping.
+        // counts flow into the cached digest marker for /analytics/dashboard
+        // visibility, but no founder ping. Stuck shims need a structural fix
+        // (shim self-update from GitHub), not an email nag.
         if (scan.setupFailures > 0) {
           const dist = [...scan.setupFailuresByStatus.entries()].sort((a, b) => b[1] - a[1]).map(([s, n]) => `${s}=${n}`).join(', ');
           escalate('stroll', `${scan.setupFailures} setup reports with non-ok status in 24h (${dist})`);

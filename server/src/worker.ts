@@ -8,14 +8,13 @@
 import { Hono } from 'hono';
 import { extractApiKey, findByApiKey } from './auth.js';
 import { updateAccountBilling, getBillingSummary } from './accounts.js';
-import { runFollowupCheck, runEngagementCheck, runHealthDigest } from './cron.js';
+import { runHealthDigest } from './cron.js';
 import { registerProtocol } from './protocol.js';
 import { registerRoutes } from './routes.js';
 import { registerBillingRoutes, settleMonthlyTabs, recalculateAllKinPricing, getStripe } from './billing.js';
 import { registerLibraryRoutes } from './library.js';
 import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, flushEvents } from './analytics.js';
 import { setKV, getKV } from './kv.js';
-import { sendUpgradeEmail } from './email.js';
 import { getAllowedOrigins } from './cors.js';
 import { formatPT } from './time.js';
 
@@ -471,26 +470,15 @@ for (const path of DEPRECATED_ROUTES) {
       details.country = c.req.header('cf-ipcountry') || '?';
     }
 
-    // Stuck clients are invisible to the drift alarm (their cached payload
-    // predates X-Alexandria-Client). Deprecated-route hits are the one place
-    // we see them authenticated — nudge them here via email, the only channel
-    // they can still receive (the shim swallows 410 response bodies).
+    // Authenticated stuck clients: log login for analytics. The 410 response
+    // body is swallowed by the shim, so we no longer try to email them — that
+    // gap belongs to a structural fix (shim self-update), not nag mail.
     if (key) {
       try {
         const account = await findByApiKey(key);
-        if (account) {
-          details.login = account.github_login;
-          const kv = getKV();
-          const dedupeKey = `upgrade_nudge:${account.github_login}`;
-          const seen = await kv.get(dedupeKey);
-          if (!seen) {
-            await kv.put(dedupeKey, new Date().toISOString(), { expirationTtl: 7 * 24 * 60 * 60 });
-            c.executionCtx.waitUntil(sendUpgradeEmail(account.email));
-            details.nudge_sent = 'true';
-          }
-        }
+        if (account) details.login = account.github_login;
       } catch (e) {
-        console.error('[deprecated_hit] nudge resolution failed:', e);
+        console.error('[deprecated_hit] auth lookup failed:', e);
       }
     }
 
@@ -512,12 +500,12 @@ app.notFound((c) => {
 export default {
   fetch: app.fetch,
 
-  // Cron Triggers — daily follow-up + monthly settlement
+  // Cron Triggers — daily health digest + monthly settlement
   async scheduled(_event: ScheduledEvent, env: Record<string, unknown>, ctx: ExecutionContext) {
     initEnv(env);
-    // Daily cron (0 9 * * *) + monthly settlement (0 2 1 * *)
-    // Settlement + engagement are idempotent so running on every cron trigger is safe
-    await Promise.all([runFollowupCheck(), runEngagementCheck(), runHealthDigest(), settleMonthlyTabs(), recalculateAllKinPricing()]);
+    // Daily 15:00 UTC (health digest) + monthly 1st @ 02:00 UTC (settlement).
+    // settleMonthlyTabs is idempotent — only does work on month-end keys.
+    await Promise.all([runHealthDigest(), settleMonthlyTabs(), recalculateAllKinPricing()]);
     ctx.waitUntil(flushEvents());
   },
 };

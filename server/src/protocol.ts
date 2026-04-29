@@ -5,7 +5,6 @@ import { requireAuth } from './auth.js';
 import { getDB, getR2 } from './db.js';
 import { logEvent } from './analytics.js';
 import { saveAccount, getKV } from './kv.js';
-import { sendUpgradeEmail } from './email.js';
 
 function r2Key(accountId: string, name: string): string {
   return `protocol/${accountId}/${name}.md`;
@@ -116,23 +115,9 @@ export function registerProtocol(app: Hono) {
     }
     logEvent('client_version_seen', meta);
 
-    // Auto-remediate stale bash shims (curl UA + no header = pre-2026-04-23
-    // install). Mirror the deprecated-route nudge: one upgrade email per stuck
-    // user per week. Founder no longer sees a daily alarm — auto-fix runs silent.
-    if (clientVersion === 'unset-curl') {
-      const email = auth.account.email;
-      const login = auth.account.github_login;
-      c.executionCtx.waitUntil((async () => {
-        try {
-          const kv = getKV();
-          const dedupeKey = `upgrade_nudge:${login}`;
-          if (!(await kv.get(dedupeKey))) {
-            await kv.put(dedupeKey, new Date().toISOString(), { expirationTtl: 7 * 24 * 60 * 60 });
-            await sendUpgradeEmail(email);
-          }
-        } catch (err) { console.error('[upgrade_nudge] /call auto-remediate failed:', err); }
-      })());
-    }
+    // Stale shim signal (curl UA + no header = pre-2026-04-23 install) flows
+    // into client_version_seen above. The structural fix is shim self-update
+    // from GitHub; nag mail does not solve it.
 
     // Track first-seen per version. Lets the drift alarm distinguish natural
     // dev-push rollover (resolves in hours) from genuine stuck clients (persist
@@ -151,7 +136,6 @@ export function registerProtocol(app: Hono) {
 
     // Install ground truth: /call firing proves the shim → payload → auth flow
     // works end-to-end. First successful /call per account stamps installed_at.
-    // Unblocks followup/engagement cron paths that gated on this field.
     // waitUntil so the KV write doesn't add latency to the /call response.
     if (!auth.account.installed_at) {
       auth.account.installed_at = new Date().toISOString();

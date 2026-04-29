@@ -10,7 +10,7 @@ import { loadAccounts, loadAccount, saveAccount, setAuthIndex, deleteAccount, ge
 import { hashApiKey, generateToken } from './crypto.js';
 import { Account, AccountStore, extractApiKey, findByApiKey, requireAuth } from './auth.js';
 import { generateApiKey, getAccounts, requireAdmin } from './accounts.js';
-import { sendEmail, sendEmailsBatched, sendWelcomeEmail, sendMorningBrief, FOUNDER_EMAIL, DEFAULT_ENGAGEMENT_DAYS } from './email.js';
+import { sendEmail, sendEmailsBatched, sendWelcomeEmail, sendMorningBrief, FOUNDER_EMAIL } from './email.js';
 import { runHealthDigest } from './cron.js';
 
 /**
@@ -297,12 +297,12 @@ export function registerRoutes(app: Hono) {
 
       // Welcome email — no API key, just links to /signup
       if (email && isNewAccount) {
-        await sendWelcomeEmail(email, user.login);
+        await sendWelcomeEmail(email);
       }
 
       // Skip Stripe if user already has payment info
       if (updatedAccount.stripe_customer_id) {
-        return c.html(callbackPageHtml(user.login, apiKey));
+        return c.html(callbackPageHtml(apiKey));
       }
 
       // Redirect to Stripe Checkout (skip in beta — no card friction)
@@ -322,7 +322,7 @@ export function registerRoutes(app: Hono) {
         }
       }
 
-      return c.html(callbackPageHtml(user.login, apiKey));
+      return c.html(callbackPageHtml(apiKey));
     } catch (err: any) {
       console.error('GitHub callback error:', err);
       return c.html(authErrorHtml('something broke signing you in. please try again.'), 500);
@@ -596,22 +596,7 @@ export function registerRoutes(app: Hono) {
   });
 
   // --- Email preferences (token-based, not raw API key) ---
-
-  app.get('/email/less', async (c) => {
-    const token = c.req.query('t');
-    if (!token) return c.text('missing token', 400);
-    const storeKey = await getEmailTokenIndex(token);
-    if (!storeKey) return c.text('not found', 404);
-    const acct = await loadAccount(storeKey) as Record<string, any> | null;
-    if (!acct) return c.text('not found', 404);
-    const current = acct.engagement_interval_days || DEFAULT_ENGAGEMENT_DAYS;
-    acct.engagement_interval_days = current * 2;
-    await saveAccount(storeKey, acct);
-    return c.html(`<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
-  <p style="font-size: 1.1rem; line-height: 1.9;">done. next email in ${current * 2} days.</p>
-  <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
-</div>`);
-  });
+  // /email/stop is the only remaining unsubscribe — it gates admin/nudge.
 
   app.get('/email/stop', async (c) => {
     const token = c.req.query('t');

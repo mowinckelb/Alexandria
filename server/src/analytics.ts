@@ -163,7 +163,7 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
   const cronStatus: Record<string, unknown> = {};
   try {
     const kv = getKV();
-    for (const job of ['followup', 'engagement', 'health_digest']) {
+    for (const job of ['health_digest']) {
       const raw = await kv.get(`cron:${job}`);
       if (raw) {
         const parsed = JSON.parse(raw);
