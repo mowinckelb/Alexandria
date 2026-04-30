@@ -26,6 +26,7 @@ const eslintConfig = defineConfig([
     "server/.wrangler/**",
     "server/dist/**",
     "server/dist-worker/**",
+    "server/server/dist/**",
   ]),
 ]);
 

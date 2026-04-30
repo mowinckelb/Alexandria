@@ -21,5 +21,6 @@ User-agent: *
 Allow: /
 Allow: /docs/
 Disallow: /confidential
+Disallow: /signup
 
 Sitemap: https://mowinckel.ai/sitemap.xml

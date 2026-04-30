@@ -31,6 +31,12 @@ if [ -z "$API_KEY" ]; then
   exit 1
 fi
 
+if [[ "$API_KEY" != alex_* ]]; then
+  echo "Invalid API key format. Your key should start with alex_."
+  echo "Get a fresh key at https://mowinckel.ai/signup"
+  exit 1
+fi
+
 # ── Prerequisites ─────────────────────────────────────────────────
 
 echo "Checking prerequisites..."

@@ -208,9 +208,9 @@ export default function QuizPageClient({ params }: { params: Promise<{ author: s
           <p id="shadow-info" style={{ display: 'none', fontSize: '0.7rem', color: 'var(--text-ghost)', fontStyle: 'italic', margin: 0, lineHeight: 1.6, maxWidth: '280px' }}>
             the shadow is a published mind — a file that maps how someone actually thinks. each chapter is a different dimension.
           </p>
-          <Link href={`/signup?ref=${authorId}`} style={{ color: 'var(--text-ghost)', textDecoration: 'none', fontSize: '0.78rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
+          <a href={`${SERVER_URL}/auth/github?ref=${encodeURIComponent(authorId)}&ref_source=library`} style={{ color: 'var(--text-ghost)', textDecoration: 'none', fontSize: '0.78rem', transition: 'opacity 0.15s' }} className="hover:opacity-60">
             make your own
-          </Link>
+          </a>
         </div>
 
         <div style={{ marginTop: '4rem', textAlign: 'center' }}>

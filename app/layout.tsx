@@ -11,9 +11,9 @@ const ebGaramond = EB_Garamond({
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://mowinckel.ai";
 
 export const metadata: Metadata = {
-  title: "alexandria.",
-  description: "Make every ai you use actually know who you are. One file, on your device, works across all of them. $10/month or free with 5 kin.",
-  keywords: ["Alexandria", "personal ai", "ai memory", "own your data", "ai identity", "self-knowledge", "ai connector"],
+  title: "alexandria — the thinking republic",
+  description:
+    "a tribe of humans who put their minds into writing, so ai thinks with them, not for them. the path through the singularity.",
   icons: {
     // Opaque cream square + upright black "a." — matches brand mark.
     // Opaque means no platform default backdrop ever leaks through;
@@ -26,18 +26,19 @@ export const metadata: Metadata = {
     shortcut: "/favicon.png?v=4",
   },
   openGraph: {
-    title: "alexandria.",
-    description: "Make every ai you use actually know who you are. One file, on your device, works across all of them.",
+    title: "alexandria — the thinking republic",
+    description:
+      "a tribe of humans who put their minds into writing, so ai thinks with them, not for them. the path through the singularity.",
     url: SITE,
-    siteName: "Alexandria",
+    siteName: "alexandria",
     type: "website",
-    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    // OG image is generated dynamically by app/opengraph-image.tsx
   },
   twitter: {
     card: "summary_large_image",
-    title: "alexandria.",
-    description: "Make every ai you use actually know who you are. One file, on your device, works across all of them.",
-    images: ["/og-image.png"],
+    title: "alexandria — the thinking republic",
+    description:
+      "a tribe of humans who put their minds into writing, so ai thinks with them, not for them. the path through the singularity.",
   },
   metadataBase: new URL(SITE),
   alternates: {

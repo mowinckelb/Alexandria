@@ -12,6 +12,13 @@ type Props = {
   homeHref?: string;
 };
 
+function slugify(children: React.ReactNode): string {
+  const text = (Array.isArray(children) ? children : [children])
+    .map(c => (typeof c === 'string' ? c : ''))
+    .join('');
+  return text.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+}
+
 export default function MarkdownDoc({ src, header, homeHref = '/' }: Props) {
   const [content, setContent] = useState<string | null>(null);
 
@@ -31,10 +38,10 @@ export default function MarkdownDoc({ src, header, homeHref = '/' }: Props) {
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-              h1: ({ children }) => <h1 className="pdoc-h1">{children}</h1>,
-              h2: ({ children }) => <h2 className="pdoc-h2">{children}</h2>,
-              h3: ({ children }) => <h3 className="pdoc-h3">{children}</h3>,
-              h4: ({ children }) => <h4 className="pdoc-h4">{children}</h4>,
+              h1: ({ children }) => <h1 id={slugify(children)} className="pdoc-h1">{children}</h1>,
+              h2: ({ children }) => <h2 id={slugify(children)} className="pdoc-h2">{children}</h2>,
+              h3: ({ children }) => <h3 id={slugify(children)} className="pdoc-h3">{children}</h3>,
+              h4: ({ children }) => <h4 id={slugify(children)} className="pdoc-h4">{children}</h4>,
               hr: () => <div className="pdoc-hr" />,
               p: ({ children }) => <p className="pdoc-p">{children}</p>,
               strong: ({ children }) => <strong className="pdoc-strong">{children}</strong>,

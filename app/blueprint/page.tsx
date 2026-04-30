@@ -5,7 +5,7 @@ export default function BlueprintPage() {
     <MarkdownDoc
       src="/docs/Blueprint.md"
       header="the blueprint. a map of the future worth wanting."
-      homeHref="/landing-v7.html"
+      homeHref="/"
     />
   );
 }

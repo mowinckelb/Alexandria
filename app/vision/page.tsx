@@ -5,7 +5,7 @@ export default function VisionPage() {
     <MarkdownDoc
       src="/docs/Vision.md"
       header="the philosophy in plain English. ~20 min."
-      homeHref="/landing-v7.html"
+      homeHref="/"
     />
   );
 }

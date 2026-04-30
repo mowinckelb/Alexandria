@@ -79,9 +79,9 @@ export default function ResultPageClient({ params }: { params: Promise<{ author:
         </div>
 
         <p style={{ fontSize: '0.75rem', color: 'var(--text-whisper)', marginTop: '4rem' }}>
-          <Link href={`/join?ref=${authorId}`} style={{ color: 'var(--text-whisper)', textDecoration: 'none' }} className="hover:opacity-60">
+          <a href={`${SERVER_URL}/auth/github?ref=${encodeURIComponent(authorId)}&ref_source=quiz`} style={{ color: 'var(--text-whisper)', textDecoration: 'none' }} className="hover:opacity-60">
             want your own?
-          </Link>
+          </a>
         </p>
 
         <p style={{ fontSize: '0.72rem', color: 'var(--text-whisper)', marginTop: '3rem' }}>
