@@ -87,7 +87,7 @@ export default function FollowForm({ initialDone }: { initialDone: boolean }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-              data-shake={shakeKey > 0 ? 'on' : 'off'}
+              data-follow-shake={shakeKey > 0 ? 'on' : 'off'}
               placeholder="email"
               autoComplete="email"
               spellCheck={false}
@@ -228,16 +228,13 @@ const styles = `
   .field input:focus {
     border-bottom-color: ${INK};
   }
-  .field input[data-shake="on"] {
-    animation: shake 520ms cubic-bezier(.36,.07,.19,.97);
+  .field input[data-follow-shake="on"] {
+    animation: follow-shake 320ms ease-in-out;
   }
-  @keyframes shake {
-    0%               { transform: translateX(0);  border-bottom-color: ${RULE}; }
-    10%, 90%         { transform: translateX(-2px); border-bottom-color: #b3261e; }
-    20%, 80%         { transform: translateX(4px);  border-bottom-color: #b3261e; }
-    30%, 50%, 70%    { transform: translateX(-7px); border-bottom-color: #b3261e; }
-    40%, 60%         { transform: translateX(7px);  border-bottom-color: #b3261e; }
-    100%             { transform: translateX(0);  border-bottom-color: ${RULE}; }
+  @keyframes follow-shake {
+    0%, 100%   { transform: translateX(0);    border-bottom-color: ${RULE}; }
+    25%        { transform: translateX(-3px); border-bottom-color: #b3261e; }
+    75%        { transform: translateX(3px);  border-bottom-color: #b3261e; }
   }
 
   .amount-block {
