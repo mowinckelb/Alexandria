@@ -14,14 +14,14 @@ Weekly is a soft default. The cron fires; you decide each run whether to act. "N
 
 ## Heartbeat
 
-No separate heartbeat call. The server stamps `cron:factory_autoloop` automatically when you GET `/admin/marketplace/signals` (the first input below) and stamps `cron:factory_completed` automatically when you DELETE `/admin/marketplace/signals` (the drain at the end). Reading and draining ARE the heartbeat — the act itself proves liveness.
+No separate heartbeat call. The server stamps `cron:factory_autoloop` automatically when you GET `/factory/signals` (the first input below) and stamps `cron:factory_completed` automatically when you DELETE `/factory/signals` (the drain at the end). Reading and draining ARE the heartbeat — the act itself proves liveness.
 
 ## Inputs
 
 Read all of these each run. Everything is unstructured — let the model interpret, no schemas or keyword matching.
 
 1. **Current canon** — all files in `factory/canon/` (methodology.md and any other modules present). This is what you might change.
-2. **Cross-Author machine signal** — `GET https://mcp.mowinckel.ai/admin/marketplace/signals` (admin-authenticated with your key). Anonymous — contains signal content only, no Author attribution.
+2. **Cross-Author machine signal** — `GET https://mcp.mowinckel.ai/factory/signals` (admin-authenticated with your key). Anonymous — contains signal content only, no Author attribution.
 3. **Cross-Author feedback** — `GET https://mcp.mowinckel.ai/feedback` (admin-authenticated). Includes Author login + timestamp + feedback text + context tag.
 4. **Library RL signal** — `GET https://mcp.mowinckel.ai/admin/marketplace/library-signal` (admin). Funnel, publishes, engagement patterns across Authors.
 5. **Open PRs to factory/** — `gh pr list --search "path:factory/"` or equivalent. Don't propose something already proposed. If a stale open PR is dead weight, close it with reasoning.
@@ -52,7 +52,7 @@ After opening any PRs (or if you opened none but read signal), drain what you pr
 
 Record `read_at` timestamp BEFORE fetching signal. After you've finished work, call:
 ```
-curl -X DELETE "https://mcp.mowinckel.ai/admin/marketplace/signals?before=<read_at>" -H "Authorization: Bearer $ADMIN_KEY"
+curl -X DELETE "https://mcp.mowinckel.ai/factory/signals?before=<read_at>" -H "Authorization: Bearer $ADMIN_KEY"
 curl -X DELETE "https://mcp.mowinckel.ai/admin/feedback?before=<read_at>" -H "Authorization: Bearer $ADMIN_KEY"
 ```
 

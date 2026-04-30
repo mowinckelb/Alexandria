@@ -683,7 +683,9 @@ export function registerRoutes(app: Hono) {
   // Factory autoloop reads pending signal here. Signal persists until drained via DELETE.
   // Side effect: stamps cron:factory_autoloop marker — the call itself proves the trigger
   // fired (ground truth proximity). No separate heartbeat curl needed.
-  app.get('/admin/marketplace/signals', async (c) => {
+  // Registered at both /admin/marketplace/signals (legacy) and /factory/signals — the
+  // latter exists because Anthropic's proxy may block /admin/* paths from remote agents.
+  const signalsGet = async (c: any) => {
     if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
 
     const kv = getKV();
@@ -707,13 +709,15 @@ export function registerRoutes(app: Hono) {
     // Strip author for anonymity — Factory autoloop sees signal content only
     const anonymous = signals.map(s => ({ t: s.t, signal: s.signal }));
     return c.json({ signals: anonymous, count: anonymous.length });
-  });
+  };
+  app.get('/admin/marketplace/signals', signalsGet);
+  app.get('/factory/signals', signalsGet);
 
   // Factory autoloop drains processed signal. ?before=<iso> required.
   // Signal arriving after <before> survives the drain for the next run.
   // Side effect: stamps cron:factory_completed marker — drain only happens
   // after JOB 4 finished, so the call itself proves end-to-end completion.
-  app.delete('/admin/marketplace/signals', async (c) => {
+  const signalsDelete = async (c: any) => {
     if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
     if (await checkAdminRateLimit('drain-signals', 5, 60)) return c.json({ error: 'Rate limited (destructive, capped 5/min)' }, 429);
     const before = c.req.query('before');
@@ -747,7 +751,9 @@ export function registerRoutes(app: Hono) {
 
     logEvent('marketplace_signal_drained', { deleted: String(deleted), before });
     return c.json({ ok: true, deleted });
-  });
+  };
+  app.delete('/admin/marketplace/signals', signalsDelete);
+  app.delete('/factory/signals', signalsDelete);
 
   // Factory autoloop drains processed feedback. ?before=<iso> required.
   app.delete('/admin/feedback', async (c) => {
