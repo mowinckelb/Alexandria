@@ -465,6 +465,83 @@ html.app-shell input:focus {
 }
 
 /* ============================================
+   Auto-TOC — Fleet-style hierarchical numbering.
+   Used by long-form docs that opt in via `numbered`.
+   ============================================ */
+.mdoc-toc {
+  margin: 3.5rem 0 4.5rem;
+}
+.mdoc-toc-label {
+  font-family: var(--font-eb-garamond);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: var(--accent);
+  margin: 0 0 1.5rem;
+}
+.mdoc-toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.mdoc-toc-item a {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.55rem 0;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-family: var(--font-eb-garamond);
+  font-size: 1.02rem;
+  line-height: 1.4;
+  border-bottom: 1px solid var(--border-light);
+  transition: color 200ms ease, border-color 200ms ease;
+}
+.mdoc-toc-item.lvl-1 a {
+  color: var(--text-primary);
+  font-style: italic;
+  font-size: 1.12rem;
+  margin-top: 1.4rem;
+  padding-top: 0.7rem;
+  border-bottom-color: var(--border-dashed);
+}
+.mdoc-toc-item.lvl-1:first-child a {
+  margin-top: 0;
+}
+.mdoc-toc-num {
+  color: var(--text-muted);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+}
+.mdoc-toc-item.lvl-1 .mdoc-toc-num {
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+.mdoc-toc-text {
+  color: inherit;
+}
+.mdoc-toc-item a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent-faint);
+}
+.mdoc-toc-item a:hover .mdoc-toc-num {
+  color: var(--accent);
+}
+/* Anchor jumps land below the (optional) ThemeToggle, with breathing room */
+.pdoc-longform [id] {
+  scroll-margin-top: 2rem;
+}
+@media (max-width: 640px) {
+  .mdoc-toc-item a { grid-template-columns: 2.6rem 1fr; gap: 0.7rem; font-size: 0.98rem; }
+  .mdoc-toc-item.lvl-1 a { font-size: 1.05rem; }
+}
+
+/* ============================================
    Logic document — the proof machine
    ============================================ */
 

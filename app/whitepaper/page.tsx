@@ -6,6 +6,7 @@ export default function WhitepaperPage() {
       src="/docs/Whitepaper.md"
       header="the whitepaper. the protocol, the argument, the lineage."
       homeHref="/"
+      numbered
     />
   );
 }
