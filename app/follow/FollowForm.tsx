@@ -6,7 +6,7 @@ import { SERVER_URL } from '../lib/config';
 
 const AMOUNT_MIN = 0;
 const AMOUNT_MAX = 200;
-const AMOUNT_DEFAULT = 0;
+const AMOUNT_DEFAULT = 15;
 
 const INK = '#1a1318';
 const PAPER = '#f7f2ec';
