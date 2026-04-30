@@ -453,12 +453,10 @@ export function registerRoutes(app: Hono) {
     const { brief, notepad, quote } = body as { brief?: string; notepad?: string; quote?: string };
     if (!brief) return c.json({ error: 'brief is required' }, 400);
 
-    // Gate: opt-out
     if (account.brief_opt_out) {
       return c.json({ ok: true, skipped: 'opt_out' });
     }
 
-    // Gate: interval (undefined = send every time)
     if (account.brief_interval_days && account.last_brief) {
       const elapsed = Date.now() - new Date(account.last_brief).getTime();
       if (elapsed < account.brief_interval_days * 24 * 60 * 60 * 1000) {
@@ -468,7 +466,6 @@ export function registerRoutes(app: Hono) {
 
     await sendMorningBrief(account.email, account.email_token, brief, notepad, quote);
 
-    // Update timestamp
     const githubKey = `github_${account.github_id}`;
     const acct = await loadAccount(githubKey);
     if (acct) {
@@ -477,7 +474,6 @@ export function registerRoutes(app: Hono) {
     }
 
     logEvent('morning_brief', { author: account.github_login, sent: 'true' });
-    logEvent('prosumer_session', { event: 'auto', author: account.github_login, platform: 'autoloop' });
     return c.json({ ok: true, sent: true });
   });
 

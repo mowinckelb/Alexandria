@@ -51,17 +51,6 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   }
 }
 
-export async function sendWelcomeEmail(email: string): Promise<void> {
-  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-
-  await sendEmail(email, 'alexandria.',
-    `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 0 auto; padding: 80px 20px; color: #1a1318; text-align: center;">
-  <p style="font-size: 1.1rem; margin: 0 0 2.5rem;"><em>alexandria</em>.</p>
-  <p style="font-size: 1rem; margin: 0 0 2.5rem;"><a href="${WEBSITE_URL}/signup" style="color: #1a1318;">sign in</a>.</p>
-  <p style="font-size: 1.4rem; margin: 0;"><em>a.</em></p>
-</div>`);
-}
-
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
@@ -77,23 +66,19 @@ export async function sendMorningBrief(
   const q = esc(quote || DEFAULT_BRIEF_QUOTE);
   const safeBrief = esc(brief);
 
-  let notepadSection = '';
-  if (notepad) {
-    notepadSection = `
-  <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 0 0 0.8rem;">notepad</p>
-  <p style="font-size: 1.1rem; line-height: 1.9; color: #3d3630; margin: 0 0 2.5rem;">${esc(notepad)}</p>`;
-  }
+  const notepadSection = notepad
+    ? `<p style="font-size: 1rem; line-height: 1.7; color: #8a8078; margin: 0 0 1.75rem;">${esc(notepad)}</p>`
+    : '';
 
   await sendEmail(email, 'alexandria.',
-    `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
-  <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: #bbb4aa; margin: 0 0 0.8rem;">overnight</p>
-  <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 2.5rem;">${safeBrief}</p>${notepadSection}
-  <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 0.5rem;">/a to start a session. a. to close it.</p>
-  <p style="font-size: 1rem; line-height: 1.9; color: #8a8078; font-style: italic; margin: 0 0 2.5rem;">${q}</p>
+    `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 48px 24px; color: #3d3630; text-align: left; line-height: 1.7;">
+  <p style="font-size: 1.05rem; margin: 0 0 1.75rem; color: #3d3630;">${safeBrief}</p>
+  ${notepadSection}<p style="font-size: 1rem; color: #8a8078; font-style: italic; margin: 0 0 2rem;">${q}</p>
+  <p style="font-size: 0.85rem; color: #8a8078; margin: 0 0 0.4rem;">/a to start a session; a. to close it.</p>
   <p style="font-size: 0.72rem; color: #bbb4aa; margin: 0;">
-    <a href="${SERVER_URL}/brief/less?t=${emailToken}" style="color: #8a8078; text-decoration: none;">send less</a>
+    <a href="${SERVER_URL}/brief/less?t=${emailToken}" style="color: #8a8078; text-decoration: none;">less</a>
     &nbsp;&middot;&nbsp;
-    <a href="${SERVER_URL}/brief/stop?t=${emailToken}" style="color: #8a8078; text-decoration: none;">send none</a>
+    <a href="${SERVER_URL}/brief/stop?t=${emailToken}" style="color: #8a8078; text-decoration: none;">stop</a>
   </p>
 </div>`);
 }

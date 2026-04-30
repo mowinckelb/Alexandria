@@ -68,8 +68,10 @@ async function probeD1(escalate: Escalate): Promise<void> {
  */
 async function checkFactoryLiveness(kv: KVNamespace, escalate: Escalate): Promise<void> {
   try {
-    // Soft default — owned by Factory autoloop (see factory/skills/factory.md). Reconsiderable.
-    const factoryStaleDays = 14;
+    // 3 days = "missed three daily runs in a row" — clear breakage signal, low false-positive rate
+    // for transient blips (Claude Code outage, network glitch). Tightened from 14d when the
+    // morning brief was deleted; this is now the fastest detection path for a broken autoloop.
+    const factoryStaleDays = 3;
     const staleMs = factoryStaleDays * 24 * 60 * 60 * 1000;
     const markerAgeMs = async (key: string): Promise<number | null> => {
       const raw = await kv.get(key);

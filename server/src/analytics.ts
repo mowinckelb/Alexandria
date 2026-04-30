@@ -177,11 +177,10 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
 
   // Per-author cross-event visibility.
   // Session lifecycle events (call/end/active) don't fire — hooks post to /call (D1)
-  // rather than emitting events. Build a lightweight per-author roll-up from what does
-  // fire: prosumer_session event='auto' (autoloop brief), machine_signal, user_feedback,
-  // morning_brief, library_* events. The ground truth for sessions is protocol_calls.
+  // rather than emitting events. Build a lightweight per-author roll-up from what
+  // does fire: machine_signal, user_feedback. The ground truth for sessions is
+  // protocol_calls.
   const authorStats: Record<string, {
-    auto: number;
     signals: number;
     feedback: number;
     last_seen: string;
@@ -193,10 +192,9 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
     if (e.t < METRICS_EPOCH) continue;
     if (isSmoke(e.event) || isSmoke(e.platform)) continue;
     if (!authorStats[author]) {
-      authorStats[author] = { auto: 0, signals: 0, feedback: 0, last_seen: e.t, platforms: new Set() };
+      authorStats[author] = { signals: 0, feedback: 0, last_seen: e.t, platforms: new Set() };
     }
     const stat = authorStats[author];
-    if (e.e === 'prosumer_session' && e.event === 'auto') stat.auto++;
     if (e.e === 'machine_signal') stat.signals++;
     if (e.e === 'user_feedback') stat.feedback++;
     if (e.t > stat.last_seen) stat.last_seen = e.t;
@@ -205,7 +203,6 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
 
   const users = Object.entries(authorStats).map(([login, stat]) => ({
     login,
-    auto: stat.auto,
     signals: stat.signals,
     feedback: stat.feedback,
     last_seen: formatPT(stat.last_seen),
@@ -388,7 +385,6 @@ export async function getUserEvents(login: string): Promise<Record<string, unkno
   }
 
   const sessionEvents = events.filter(e => e.e === 'prosumer_session');
-  const autoRuns = sessionEvents.filter(e => e.event === 'auto');
   const feedback = events.filter(e => e.e === 'user_feedback');
   const signals = events.filter(e => e.e === 'machine_signal');
   const lastSession = sessionEvents.length > 0 ? sessionEvents[sessionEvents.length - 1] : null;
@@ -396,7 +392,6 @@ export async function getUserEvents(login: string): Promise<Record<string, unkno
   return {
     author: login,
     total_events: events.length,
-    auto_runs: autoRuns.length,
     sessions: {
       last: lastSession,
       platforms: [...new Set(sessionEvents.map(s => s.platform).filter(Boolean))],
