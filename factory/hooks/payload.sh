@@ -57,25 +57,37 @@ if [ "$MODE" = "session-start" ]; then
 
   # ── Canon fetch ──
   # Seven modules: axioms, methodology, editor, mercury, publisher, library, filter.
-  # Each cached as .canon_local_<name>. Methodology remains the entry point;
-  # the others are fetched for local availability so the Engine can reference them offline.
-  # On methodology change vs last cached, write a diff notice for the Engine to review —
-  # the Author's consent layer lives in canon_overrides.md (authoritative over canon).
+  # Methodology remains the entry point; the others are fetched for local
+  # availability so the Engine can reference them offline.
+  # Any module that differs from its cached copy writes a diff section to the
+  # update notice — the Author's consent layer lives in canon_overrides.md
+  # (authoritative over canon). Notice file is rewritten on first diff this
+  # session and appended-to for subsequent diffs; if no module changed, any
+  # prior unreviewed notice persists.
   canon=""
   canon_ok=false
+  canon_notice_started=false
   for module in axioms methodology editor mercury publisher library filter; do
     fresh=$(curl -s --max-time 5 "$CANON_GITHUB/$module.md" 2>/dev/null)
     if [ -n "$fresh" ] && [ ${#fresh} -gt 100 ]; then
-      if [ "$module" = "methodology" ] && [ -f "$ALEX_DIR/system/canon/methodology.md" ] && ! diff -q <(printf '%s' "$fresh") "$ALEX_DIR/system/canon/methodology.md" >/dev/null 2>&1; then
+      if [ -f "$ALEX_DIR/system/canon/$module.md" ] && ! diff -q <(printf '%s' "$fresh") "$ALEX_DIR/system/canon/$module.md" >/dev/null 2>&1; then
+        if [ "$canon_notice_started" = "false" ]; then
+          {
+            echo "# Canon updated — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo ""
+            echo "Upstream canon modules changed. Review the diffs below and decide per-Author fit. If any change conflicts with this Author's practice, add/refine entries in ~/alexandria/canon_overrides.md — overrides are authoritative over upstream canon. Clear this file when reviewed."
+            echo ""
+          } > "$ALEX_DIR/system/.canon_update_notice"
+          canon_notice_started=true
+        fi
         {
-          echo "# Canon updated — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "## $module.md"
           echo ""
-          echo "Upstream canon (factory/canon/methodology.md) changed. Review the diff below and decide per-Author fit. If any change conflicts with this Author's practice, add/refine entries in ~/alexandria/canon_overrides.md — overrides are authoritative over upstream canon. Clear this file when reviewed."
+          echo "### Diff (first 200 lines)"
           echo ""
-          echo "## Diff (first 200 lines)"
+          diff -u "$ALEX_DIR/system/canon/$module.md" <(printf '%s' "$fresh") 2>/dev/null | head -n 200
           echo ""
-          diff -u "$ALEX_DIR/system/canon/methodology.md" <(printf '%s' "$fresh") 2>/dev/null | head -n 200
-        } > "$ALEX_DIR/system/.canon_update_notice"
+        } >> "$ALEX_DIR/system/.canon_update_notice"
       fi
       printf '%s' "$fresh" > "$ALEX_DIR/system/canon/$module.md"
       [ "$module" = "methodology" ] && canon="$fresh" && canon_ok=true
