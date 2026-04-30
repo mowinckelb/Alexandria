@@ -258,7 +258,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
       const y = window.scrollY;
       const h = window.innerHeight;
       if (y > h * 0.6) wasRevealed = true;
-      if (y < h * 0.05 && wasRevealed) {
+      // Advance only when the user has fully returned to the top — at this
+      // point the front slide covers the viewport, so the bottom-slide
+      // theme swap happens out of sight.
+      if (y < 1 && wasRevealed) {
         wasRevealed = false;
         setThemeIdx((i) => (i + 1) % THEMES.length);
       }
@@ -278,6 +281,20 @@ export default function LandingPage({ brandClassName = '' }: Props) {
   }, []);
 
   const theme = THEMES[themeIdx];
+
+  // Push theme palette into CSS variables on :root so the static stylesheet
+  // can pick them up via var(...). This avoids re-parsing the entire
+  // ~1500-line <style> block on theme change — the previous template-string
+  // approach caused a brief paint flicker on the front slide as the user
+  // scrolled back up and the next theme advanced.
+  useEffect(() => {
+    const root = document.documentElement.style;
+    root.setProperty('--theme-bg', theme.bg);
+    root.setProperty('--theme-fg', theme.fg);
+    root.setProperty('--theme-fg-muted', theme.fgMuted);
+    root.setProperty('--theme-fg-faint', theme.fgFaint);
+    root.setProperty('--theme-border-soft', theme.borderSoft);
+  }, [theme]);
   return (
     <div className="landing-root" data-theme={theme.id} data-adam="1">
       {/* ═════ PERSISTENT NAV — fixed over both slides. Colors switch at
@@ -514,8 +531,21 @@ export default function LandingPage({ brandClassName = '' }: Props) {
       <div className="runway" aria-hidden />
 
       <style>{`
+        /* Initial theme palette — matches THEMES[0] (wax-circle), the first
+           theme rendered on every fresh load. The useEffect below pushes
+           the active theme's values into these same vars on rotation, so
+           the static stylesheet stays static and theme changes don't
+           re-parse the CSSOM (which caused a flicker on the front slide). */
+        :root {
+          --theme-bg: #f7f2ec;
+          --theme-fg: #0e1a4c;
+          --theme-fg-muted: #4a5080;
+          --theme-fg-faint: #8288a8;
+          --theme-border-soft: rgba(14, 26, 76, 0.18);
+        }
+
         body {
-          background: ${theme.bg};
+          background: var(--theme-bg);
           transition: background 400ms ease;
         }
 
@@ -524,7 +554,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           min-height: 100vh;
           min-height: 100dvh;
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           -webkit-font-smoothing: antialiased;
         }
 
@@ -577,16 +607,16 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         /* Bottom phase — swap to theme fg once peel crosses midpoint */
         .nav.on-bottom .nav-brand,
         .nav.on-bottom .nav-brand .nav-dot {
-          color: ${theme.fg};
+          color: var(--theme-fg);
         }
         .nav.on-bottom .nav-links a {
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
         }
         .nav.on-bottom .nav-links a:hover {
-          color: ${theme.fg};
+          color: var(--theme-fg);
         }
         .nav.on-bottom .nav-links a sup {
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
         }
 
         .nav-brand {
@@ -678,19 +708,19 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         }
         /* Bottom-phase color overrides for the new nav groups */
         .nav.on-bottom .nav-group a {
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
         }
         .nav.on-bottom .nav-group a:hover {
-          color: ${theme.fg};
+          color: var(--theme-fg);
         }
         .nav.on-bottom .nav-group .nav-sep {
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
         }
         .nav.on-bottom .nav-copy {
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
         }
         .nav.on-bottom .nav-copy:hover {
-          color: ${theme.fg};
+          color: var(--theme-fg);
         }
         /* Founder bio in the nav — name and role sit faint as
            positioning context; "call now" is the prominent action,
@@ -734,22 +764,22 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         }
         /* Bottom phase — theme background */
         .nav.on-bottom .nav-bio .nav-sep {
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
         }
         .nav.on-bottom .nav-links a.nav-name {
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
         }
         .nav.on-bottom .nav-links a.nav-name:hover {
-          color: ${theme.fg};
+          color: var(--theme-fg);
         }
         .nav.on-bottom .nav-bio .nav-role {
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
         }
         .nav.on-bottom .nav-links a.nav-call {
-          color: ${theme.fg};
+          color: var(--theme-fg);
         }
         .nav.on-bottom .nav-links a.nav-call:hover {
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
         }
 
         /* ─── TOP SLIDE (the peel layer) ─── */
@@ -1159,11 +1189,11 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           color: #f4efe2;
         }
         .nav.on-bottom .nav-links .nav-cta {
-          color: ${theme.bg};
-          background: ${theme.fg};
+          color: var(--theme-bg);
+          background: var(--theme-fg);
         }
         .nav.on-bottom .nav-links .nav-cta:hover {
-          color: ${theme.bg};
+          color: var(--theme-bg);
           opacity: 0.85;
         }
 
@@ -1221,8 +1251,8 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           position: fixed;
           inset: 0;
           z-index: 10;
-          background-color: ${theme.bg};
-          color: ${theme.fg};
+          background-color: var(--theme-bg);
+          color: var(--theme-fg);
           overflow: hidden;
           transition: background-color 400ms ease, color 400ms ease;
         }
@@ -1305,14 +1335,14 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-size: 0.72em;
           font-style: italic;
           letter-spacing: 0.06em;
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
           font-variant-numeric: lining-nums;
         }
         .statement p {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 22px;
           line-height: 1.31;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           margin: 0;
           position: relative;
           hanging-punctuation: first last;
@@ -1325,7 +1355,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-size: 84px;
           font-style: italic;
           font-weight: 400;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           float: left;
           line-height: 0.82;
           padding: 6px 14px 0 0;
@@ -1339,23 +1369,23 @@ export default function LandingPage({ brandClassName = '' }: Props) {
            hover; the page becomes tactile under the cursor. */
         .statement em {
           font-style: italic;
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
           transition: color 280ms ease, text-shadow 280ms ease;
         }
         .statement em:hover {
-          color: ${theme.fg};
-          text-shadow: 0 0 14px ${theme.fgFaint};
+          color: var(--theme-fg);
+          text-shadow: 0 0 14px var(--theme-fg-faint);
         }
         /* Strong emphasis — the load-bearing claims. Full colour, heavier
            italic, never broken across lines. The eye lands here whether the
            reader skims or reads. Atomic phrase: wraps as a unit. */
         .statement em.em-strong {
           font-weight: 600;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           white-space: nowrap;
         }
         .statement em.em-strong:hover {
-          text-shadow: 0 0 18px ${theme.fgMuted};
+          text-shadow: 0 0 18px var(--theme-fg-muted);
         }
         /* "hence, alexandria." — the reveal beat. The name carries the
            wordmark treatment from the nav: italic, slight weight, tight
@@ -1364,10 +1394,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-style: italic;
           font-weight: 500;
           letter-spacing: -0.01em;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           text-decoration: underline;
           text-decoration-thickness: 1px;
-          text-decoration-color: ${theme.fgMuted};
+          text-decoration-color: var(--theme-fg-muted);
           text-underline-offset: 0.16em;
         }
         .statement .hence-dot {
@@ -1382,7 +1412,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .statement .republic-coda {
           font-style: italic;
           font-weight: 500;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           letter-spacing: 0.005em;
           white-space: nowrap;
         }
@@ -1401,7 +1431,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           line-height: 1.42;
           font-style: normal;
           letter-spacing: 0.003em;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           hanging-punctuation: first last;
         }
         .statement-close::before {
@@ -1411,7 +1441,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           left: 96px;
           width: 72px;
           height: 1px;
-          background: ${theme.fgFaint};
+          background: var(--theme-fg-faint);
         }
         /* Forcing function — the single load-bearing claim that converts.
            Same vocabulary as .statement em.em-strong but tuned for the
@@ -1419,20 +1449,20 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .statement-close .close-em-strong {
           font-style: italic;
           font-weight: 600;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           transition: text-shadow 280ms ease;
         }
         .statement-close .close-em-strong:hover {
-          text-shadow: 0 0 18px ${theme.fgMuted};
+          text-shadow: 0 0 18px var(--theme-fg-muted);
         }
         /* Destination — "welcome to alexandria." The reader's eye arrival.
            Underlined like a place on a map, not a link. */
         .statement-close .close-strong {
-          color: ${theme.fg};
+          color: var(--theme-fg);
           font-style: italic;
           font-weight: 500;
           text-decoration: underline;
-          text-decoration-color: ${theme.fgFaint};
+          text-decoration-color: var(--theme-fg-faint);
           text-decoration-thickness: 1px;
           text-underline-offset: 4px;
         }
@@ -1453,7 +1483,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-style: italic;
           font-size: 11px;
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
           margin-bottom: 2px;
           font-weight: 400;
           letter-spacing: 0.08em;
@@ -1462,7 +1492,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .col a {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 12.5px;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           text-decoration: none;
           line-height: 1.42;
           transition: color 150ms ease;
@@ -1471,10 +1501,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           opacity: 0.72;
         }
         .col a.col-primary {
-          color: ${theme.fg};
+          color: var(--theme-fg);
           font-weight: 500;
           text-decoration: underline;
-          text-decoration-color: ${theme.borderSoft};
+          text-decoration-color: var(--theme-border-soft);
           text-underline-offset: 3px;
         }
 
@@ -1528,8 +1558,8 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             opacity 180ms ease;
         }
         .cta-pair a.lr-cta-primary {
-          background: ${theme.fg};
-          color: ${theme.bg};
+          background: var(--theme-fg);
+          color: var(--theme-bg);
         }
         .cta-pair a.lr-cta-primary:hover {
           opacity: 0.86;
@@ -1541,14 +1571,14 @@ export default function LandingPage({ brandClassName = '' }: Props) {
            primary's subtitle. Wakes on hover. */
         .cta-pair a.lr-cta-ghost {
           background: transparent;
-          color: ${theme.fg};
-          box-shadow: inset 0 0 0 1px ${theme.borderSoft};
+          color: var(--theme-fg);
+          box-shadow: inset 0 0 0 1px var(--theme-border-soft);
           transition:
             box-shadow 180ms ease,
             background 180ms ease;
         }
         .cta-pair a.lr-cta-ghost:hover {
-          box-shadow: inset 0 0 0 1px ${theme.fgMuted};
+          box-shadow: inset 0 0 0 1px var(--theme-fg-muted);
           background: rgba(0, 0, 0, 0.02);
         }
         /* Subtitle — does the explanatory work so the buttons stay
@@ -1558,7 +1588,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 11.5px;
           font-style: italic;
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
           letter-spacing: 0.012em;
           line-height: 1.35;
           padding-left: 0;
@@ -1581,19 +1611,19 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-size: 144px;
           line-height: 0.9;
           letter-spacing: -0.026em;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           margin: 0;
           white-space: nowrap;
         }
         .big-word-dot {
           font-style: normal;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           margin-left: -0.04em;
         }
         .big-word-sup {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 0.16em;
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
           vertical-align: super;
           margin-left: 0.04em;
           font-weight: 400;
@@ -1605,7 +1635,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-style: italic;
           font-size: 12.5px;
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
           margin: -8px 0 10px 0;
           padding-left: 0;
         }
@@ -1613,7 +1643,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 13.5px;
           line-height: 1.42;
-          color: ${theme.fg};
+          color: var(--theme-fg);
           margin: 0;
           max-width: 520px;
         }
@@ -1622,25 +1652,25 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         }
         .dict-line em {
           font-style: italic;
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
           margin-right: 4px;
         }
         .dict-line a {
-          color: ${theme.fg};
+          color: var(--theme-fg);
           text-decoration: underline;
-          text-decoration-color: ${theme.borderSoft};
+          text-decoration-color: var(--theme-border-soft);
           text-underline-offset: 2px;
           transition: text-decoration-color 180ms ease;
         }
         .dict-line a:hover {
-          text-decoration-color: ${theme.fg};
+          text-decoration-color: var(--theme-fg);
         }
         .footnote {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-style: italic;
           font-size: clamp(10px, 0.78vw, 11.5px);
           line-height: 1.4;
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
           margin: 8px 0 0;
           max-width: 520px;
         }
@@ -1650,13 +1680,13 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-style: normal;
         }
         .footnote a {
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
           text-decoration: underline;
-          text-decoration-color: ${theme.borderSoft};
+          text-decoration-color: var(--theme-border-soft);
           text-underline-offset: 2px;
         }
         .footnote a:hover {
-          color: ${theme.fg};
+          color: var(--theme-fg);
         }
 
         /* Motto sign-off — sits at the bottom of the right-stack,
@@ -1666,7 +1696,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-style: italic;
           font-size: clamp(13px, 1.05vw, 16px);
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
           letter-spacing: 0.005em;
           padding-bottom: 6px;
           white-space: nowrap;
@@ -1678,7 +1708,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .copyright {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 12px;
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
           justify-self: end;
           padding-bottom: 4px;
           display: flex;
@@ -1695,35 +1725,35 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           justify-content: flex-end;
         }
         .legal-row a {
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
           text-decoration: none;
         }
         .legal-row a:hover {
-          color: ${theme.fg};
+          color: var(--theme-fg);
         }
         .legal-row .sep {
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
         }
         .footer-line {
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
         }
         /* Founder line — the human handle. Email link opens mail. */
         .founder-line {
-          color: ${theme.fgMuted};
+          color: var(--theme-fg-muted);
         }
         .founder-line .sep {
-          color: ${theme.fgFaint};
+          color: var(--theme-fg-faint);
           margin: 0 2px;
         }
         .founder-line a {
-          color: ${theme.fg};
+          color: var(--theme-fg);
           text-decoration: none;
-          border-bottom: 1px solid ${theme.borderSoft};
+          border-bottom: 1px solid var(--theme-border-soft);
           transition: border-color 180ms ease;
           padding-bottom: 1px;
         }
         .founder-line a:hover {
-          border-bottom-color: ${theme.fg};
+          border-bottom-color: var(--theme-fg);
         }
 
         /* ─── MOBILE & TABLET PORTRAIT ───
@@ -1752,8 +1782,8 @@ export default function LandingPage({ brandClassName = '' }: Props) {
               to bottom,
               #f3eee3 0,
               #f3eee3 100dvh,
-              ${theme.bg} 100dvh,
-              ${theme.bg} 100%
+              var(--theme-bg) 100dvh,
+              var(--theme-bg) 100%
             ) !important;
           }
           .runway {
@@ -1795,7 +1825,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             left: 40%;
             transform: translateX(-50%);
             font-size: clamp(160px, 44vw, 260px);
-            color: ${theme.fg};
+            color: var(--theme-fg);
             opacity: 0.06;
           }
 

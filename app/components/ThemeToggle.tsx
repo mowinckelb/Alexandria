@@ -9,7 +9,10 @@ export function ThemeToggle() {
   // icon must wait until mount — otherwise SSR and CSR disagree, and
   // dark-mode users see a flash of the light-mode icon.
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   return (
     <button
