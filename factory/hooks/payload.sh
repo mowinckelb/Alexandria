@@ -56,26 +56,32 @@ if [ "$MODE" = "session-start" ]; then
   echo "$session_id" > "$cc_marker"
 
   # ── Canon fetch ──
-  # Seven modules: axioms, methodology, editor, mercury, publisher, library, filter.
-  # Methodology remains the entry point; the others are fetched for local
-  # availability so the Engine can reference them offline.
-  # Any module that differs from its cached copy writes a diff section to the
-  # update notice — the Author's consent layer lives in canon_overrides.md
-  # (authoritative over canon). Notice file is rewritten on first diff this
-  # session and appended-to for subsequent diffs; if no module changed, any
-  # prior unreviewed notice persists.
+  # Seven modules — methodology is the entry point; others cached for offline
+  # reference. Any module that differs from its cached copy writes a diff
+  # section to the update notice; engine reviews, updates canon_overrides.md
+  # if fit diverges, clears the notice. Notice file is rewritten on first
+  # diff this session and appended-to for subsequent diffs; if no module
+  # changed, any prior unreviewed notice persists.
+  # Tempfile fetch matches setup.sh's storage byte-for-byte. Equality check
+  # via $(cat) tolerates older-payload caches whose printf '%s' stripped
+  # trailing newlines (avoids one-time false positive across the upgrade).
   canon=""
   canon_ok=false
   canon_notice_started=false
-  for module in axioms methodology editor mercury publisher library filter; do
-    fresh=$(curl -s --max-time 5 "$CANON_GITHUB/$module.md" 2>/dev/null)
-    if [ -n "$fresh" ] && [ ${#fresh} -gt 100 ]; then
-      if [ -f "$ALEX_DIR/system/canon/$module.md" ] && ! diff -q <(printf '%s' "$fresh") "$ALEX_DIR/system/canon/$module.md" >/dev/null 2>&1; then
+  canon_tmp=$(mktemp 2>/dev/null)
+  if [ -n "$canon_tmp" ]; then
+    for module in axioms methodology editor mercury publisher library filter; do
+      curl -sf --max-time 5 "$CANON_GITHUB/$module.md" -o "$canon_tmp" 2>/dev/null || continue
+      [ -s "$canon_tmp" ] && [ "$(wc -c < "$canon_tmp" | tr -d ' ')" -gt 100 ] || continue
+
+      cached_path="$ALEX_DIR/system/canon/$module.md"
+      fresh_content=$(cat "$canon_tmp")
+      if [ -f "$cached_path" ] && [ "$(cat "$cached_path")" != "$fresh_content" ]; then
         if [ "$canon_notice_started" = "false" ]; then
           {
             echo "# Canon updated — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo ""
-            echo "Upstream canon modules changed. Review the diffs below and decide per-Author fit. If any change conflicts with this Author's practice, add/refine entries in ~/alexandria/canon_overrides.md — overrides are authoritative over upstream canon. Clear this file when reviewed."
+            echo "Upstream canon changed. Review the diffs below and decide per-Author fit. If any change conflicts with this Author's practice, add/refine entries in ~/alexandria/canon_overrides.md — overrides are authoritative over upstream canon. Clear this file when reviewed."
             echo ""
           } > "$ALEX_DIR/system/.canon_update_notice"
           canon_notice_started=true
@@ -83,16 +89,15 @@ if [ "$MODE" = "session-start" ]; then
         {
           echo "## $module.md"
           echo ""
-          echo "### Diff (first 200 lines)"
-          echo ""
-          diff -u "$ALEX_DIR/system/canon/$module.md" <(printf '%s' "$fresh") 2>/dev/null | head -n 200
+          diff -u "$cached_path" "$canon_tmp" 2>/dev/null | head -n 200
           echo ""
         } >> "$ALEX_DIR/system/.canon_update_notice"
       fi
-      printf '%s' "$fresh" > "$ALEX_DIR/system/canon/$module.md"
-      [ "$module" = "methodology" ] && canon="$fresh" && canon_ok=true
-    fi
-  done
+      cp "$canon_tmp" "$cached_path"
+      [ "$module" = "methodology" ] && canon="$fresh_content" && canon_ok=true
+    done
+    rm -f "$canon_tmp"
+  fi
   if [ "$canon_ok" = "false" ] && [ -f "$ALEX_DIR/system/canon/methodology.md" ]; then
     canon=$(cat "$ALEX_DIR/system/canon/methodology.md")
   fi
