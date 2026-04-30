@@ -39,16 +39,22 @@ function SignupPageContent() {
           </div>
 
           <div className="mt-8">
-            <input
-              type="text"
-              value={kinCode}
-              onChange={(e) => setKinCode(e.target.value)}
-              placeholder="kin code"
-              className="text-center text-[0.75rem] tracking-widest bg-transparent border-none outline-none w-[140px]"
-              style={{ color: 'var(--text-ghost)', caretColor: 'var(--text-ghost)' }}
-              autoComplete="off"
-              spellCheck={false}
-            />
+            {urlRef ? (
+              <p className="text-center text-[0.75rem] tracking-widest" style={{ color: 'var(--text-ghost)' }}>
+                via {urlRef}
+              </p>
+            ) : (
+              <input
+                type="text"
+                value={kinCode}
+                onChange={(e) => setKinCode(e.target.value)}
+                placeholder="kin code"
+                className="text-center text-[0.75rem] tracking-widest bg-transparent border-none outline-none w-[140px]"
+                style={{ color: 'var(--text-ghost)', caretColor: 'var(--text-ghost)' }}
+                autoComplete="off"
+                spellCheck={false}
+              />
+            )}
           </div>
 
         </div>

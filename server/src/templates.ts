@@ -80,7 +80,9 @@ export function callbackPageHtml(apiKey: string, githubLogin = ''): string {
   .container { max-width: 420px; text-align: center; }
   .welcome { font-size: 1.5rem; font-weight: 400; line-height: 1.4; }
   .line { font-size: 1.1rem; line-height: 1.9; }
-  .trust { font-size: 0.85rem; line-height: 1.7; color: #bbb4aa; margin-top: 2.5rem; }
+  .trust { font-size: 0.85rem; line-height: 1.9; color: #bbb4aa; margin-top: 2.5rem; }
+  .trust-row { display: block; }
+  .trust-hint { color: #bbb4aa; }
   .trust .action { color: #8a8078; }
   .kin { font-size: 0.9rem; line-height: 1.9; color: #8a8078; margin-top: 2rem; }
   .kin-row { display: block; }
@@ -164,7 +166,10 @@ export function callbackPageHtml(apiKey: string, githubLogin = ''): string {
     <span class="kin-row">your kin code: <button type="button" class="action" onclick="copyKinCode(this)" aria-label="copy kin code"><code>${kinCode}</code> <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button></span>
     <span class="kin-row"><button type="button" class="action" onclick="copyKinLink(this)" aria-label="copy invite link">copy invite link <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> <button type="button" class="info" onclick="toggleTip(this)" aria-label="how kin works">${ICON_INFO}<span class="tooltip">share the link or just the code. when five kin become active, alexandria is free.</span></button></span>
   </div>` : ''}
-  <p class="trust">we never see your data &mdash; <button type="button" class="action" onclick="copyTrust(this)" aria-label="copy Trust.md">Trust.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> paste in your ai chat to verify.</p>
+  <div class="trust">
+    <span class="trust-row">we never see your data &mdash; <button type="button" class="action" onclick="copyTrust(this)" aria-label="copy Trust.md">Trust.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button></span>
+    <span class="trust-row trust-hint">paste in your ai chat to verify.</span>
+  </div>
   <p class="signout">wrong account? <a href="https://github.com/logout" target="_blank" rel="noopener noreferrer">sign out of github</a></p>
 </div>
 <script>
