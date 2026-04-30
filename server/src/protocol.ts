@@ -121,24 +121,9 @@ export function registerProtocol(app: Hono) {
     }
     logEvent('client_version_seen', meta);
 
-    // Stale shim signal (curl UA + no header = pre-2026-04-23 install) flows
-    // into client_version_seen above. The structural fix is shim self-update
-    // from GitHub; nag mail does not solve it.
-
-    // Track first-seen per version. Lets the drift alarm distinguish natural
-    // dev-push rollover (resolves in hours) from genuine stuck clients (persist
-    // past a newer version). setnx-style: only the first observation wins.
-    if (headerVersion) {
-      c.executionCtx.waitUntil((async () => {
-        try {
-          const kv = getKV();
-          const key = `version_first_seen:${clientVersion}`;
-          if (!(await kv.get(key))) {
-            await kv.put(key, new Date().toISOString(), { expirationTtl: 14 * 24 * 60 * 60 });
-          }
-        } catch (err) { console.error('[version_first_seen] kv write failed:', err); }
-      })());
-    }
+    // Stale shim / payload version drift flows into client_version_seen above
+    // for dashboard visibility. The shim self-updates payload from GitHub on
+    // every session-start, so "stuck" versions resolve on their own — no nag.
 
     // Install ground truth: /call firing proves the shim → payload → auth flow
     // works end-to-end. First successful /call per account stamps installed_at.

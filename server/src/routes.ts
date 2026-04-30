@@ -681,10 +681,17 @@ export function registerRoutes(app: Hono) {
   // --- Marketplace: read signals (admin only, called by meta trigger) ---
 
   // Factory autoloop reads pending signal here. Signal persists until drained via DELETE.
+  // Side effect: stamps cron:factory_autoloop marker — the call itself proves the trigger
+  // fired (ground truth proximity). No separate heartbeat curl needed.
   app.get('/admin/marketplace/signals', async (c) => {
     if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
 
     const kv = getKV();
+    c.executionCtx.waitUntil((async () => {
+      try { await kv.put('cron:factory_autoloop', JSON.stringify({ t: new Date().toISOString() })); }
+      catch (err) { console.error('[factory_autoloop_marker] kv write failed:', err); }
+    })());
+
     const signals: { t: string; author: string; signal: string }[] = [];
     let cursor: string | undefined;
     do {
@@ -704,6 +711,8 @@ export function registerRoutes(app: Hono) {
 
   // Factory autoloop drains processed signal. ?before=<iso> required.
   // Signal arriving after <before> survives the drain for the next run.
+  // Side effect: stamps cron:factory_completed marker — drain only happens
+  // after JOB 4 finished, so the call itself proves end-to-end completion.
   app.delete('/admin/marketplace/signals', async (c) => {
     if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
     if (await checkAdminRateLimit('drain-signals', 5, 60)) return c.json({ error: 'Rate limited (destructive, capped 5/min)' }, 429);
@@ -713,6 +722,11 @@ export function registerRoutes(app: Hono) {
     if (isNaN(cutoff)) return c.json({ error: 'before must be parseable ISO timestamp' }, 400);
 
     const kv = getKV();
+    c.executionCtx.waitUntil((async () => {
+      try { await kv.put('cron:factory_completed', JSON.stringify({ t: new Date().toISOString() })); }
+      catch (err) { console.error('[factory_completed_marker] kv write failed:', err); }
+    })());
+
     let deleted = 0;
     let cursor: string | undefined;
     do {
@@ -765,29 +779,6 @@ export function registerRoutes(app: Hono) {
 
     logEvent('feedback_drained', { deleted: String(deleted), before });
     return c.json({ ok: true, deleted });
-  });
-
-  // Factory trigger fires this at JOB 0 (proves the trigger fired). Health digest alerts if missing.
-  app.post('/admin/cron/factory_autoloop_marker', async (c) => {
-    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
-    const kv = getKV();
-    await kv.put('cron:factory_autoloop', JSON.stringify({
-      t: new Date().toISOString(),
-    }));
-    logEvent('factory_autoloop_marker', {});
-    return c.json({ ok: true });
-  });
-
-  // Factory trigger fires this after JOB 4 completes (proves canon evolution actually ran).
-  // Paired with factory_autoloop_marker: if fired is fresh but completed is stale, JOB 4 is silently broken.
-  app.post('/admin/cron/factory_completed_marker', async (c) => {
-    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
-    const kv = getKV();
-    await kv.put('cron:factory_completed', JSON.stringify({
-      t: new Date().toISOString(),
-    }));
-    logEvent('factory_completed_marker', {});
-    return c.json({ ok: true });
   });
 
   // Manual digest trigger. Scheduled daily at 09:00 UTC, but that's a 24h feedback

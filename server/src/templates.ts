@@ -87,6 +87,9 @@ export function callbackPageHtml(apiKey: string, githubLogin = ''): string {
   .kin code { color: #3d3630; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.85em; }
   .kin .action { color: #3d3630; }
   .welcome-back { color: #8a8078; margin-top: 1.5rem; }
+  .signout { font-size: 0.78rem; line-height: 1.7; color: #bbb4aa; margin-top: 2.5rem; }
+  .signout a { color: inherit; text-decoration: none; border-bottom: 1px dotted #bbb4aa; transition: color 0.15s, border-color 0.15s; }
+  .signout a:hover { color: #8a8078; border-bottom-color: #8a8078; }
   .steps { margin-top: 2.5rem; }
   .action {
     background: none;
@@ -152,13 +155,14 @@ export function callbackPageHtml(apiKey: string, githubLogin = ''): string {
 </head>
 <body>
 <div class="container">
-  <h1 class="welcome">welcome to alexandria.</h1>
-  ${isReturning ? `<p class="line welcome-back">you're already set up. /a in your cli to start.</p>` : `<div class="steps">
+  <h1 class="welcome">${isReturning ? `welcome back.` : `welcome to alexandria.`}</h1>
+  ${isReturning ? `<p class="line welcome-back">call /alexandria in your coding agent.</p>` : `<div class="steps">
     <p class="line"><button type="button" class="action" onclick="copyCmd(this)" aria-label="copy install command">1. install <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> &mdash; paste in terminal <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">creates ~/alexandria/, checks your prerequisites, configures your cli and ide. everything local, nothing sent anywhere.</span></button></p>
     <p class="line"><button type="button" class="action" onclick="copyBlock(this)" aria-label="copy begin block">2. begin <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> &mdash; paste in a new cli chat <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">opens your first session. it reads your files and builds your starter constitution.</span></button></p>
   </div>`}
   ${kinCode ? `<p class="kin">your kin code is <code>${kinCode}</code><br><button type="button" class="action" onclick="copyKin(this)" aria-label="copy kin invite link">copy invite link <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> <button type="button" class="info" onclick="toggleTip(this)" aria-label="how kin works">${ICON_INFO}<span class="tooltip">send this to new authors. when five kin become active, alexandria is free.</span></button></p>` : ''}
   <p class="trust">we never see your data &mdash; <button type="button" class="action" onclick="copyTrust(this)" aria-label="copy Trust.md">Trust.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button></p>
+  <p class="signout">wrong account? <a href="https://github.com/logout" target="_blank" rel="noopener noreferrer">sign out of github</a></p>
 </div>
 <script>
 function flash(el) {

@@ -12,14 +12,9 @@ Your purpose: maximise total signal-to-noise of the canon for the Author populat
 
 Weekly is a soft default. The cron fires; you decide each run whether to act. "No PR this run" is a valid outcome. You may also propose changes to your own cadence as part of a canon PR if the signal volume suggests weekly is wrong.
 
-## Heartbeat (fire first, before anything else)
+## Heartbeat
 
-Before reading any signal or making any decision, write the fired marker:
-```
-curl -X POST "https://mcp.mowinckel.ai/admin/cron/factory_autoloop_marker" -H "Authorization: Bearer $ADMIN_KEY"
-```
-
-First half of the dual-signal: proves the trigger fired. Pairs with the Completion marker at the end of this flow (proves JOB 4 ran end-to-end). Writing the fired marker first makes it robust to mid-run failures — the next run will still report liveness even if this one bails later.
+No separate heartbeat call. The server stamps `cron:factory_autoloop` automatically when you GET `/admin/marketplace/signals` (the first input below) and stamps `cron:factory_completed` automatically when you DELETE `/admin/marketplace/signals` (the drain at the end). Reading and draining ARE the heartbeat — the act itself proves liveness.
 
 ## Inputs
 
@@ -63,14 +58,7 @@ curl -X DELETE "https://mcp.mowinckel.ai/admin/feedback?before=<read_at>" -H "Au
 
 Signal that arrived between `read_at` and now survives the drain and gets processed next run.
 
-## Completion marker (fire last)
-
-After the Drain, write the completion marker:
-```
-curl -X POST "https://mcp.mowinckel.ai/admin/cron/factory_completed_marker" -H "Authorization: Bearer $ADMIN_KEY"
-```
-
-This is the second half of the dual-signal: Heartbeat proves the trigger fired, Completion proves JOB 4 actually ran end-to-end. Health digest alerts when fired is fresh but completed is stale — that's the "trigger firing but silently broken" failure mode.
+The DELETE call above stamps `cron:factory_completed` server-side as a side effect — no separate completion marker needed. Health digest alerts when fired is fresh but completed is stale (trigger firing but JOB 4 silently broken).
 
 ## Report
 
@@ -79,11 +67,10 @@ Write a report to `~/alexandria/.factory/last_run.md` — what you read, what yo
 ## Verification (run last)
 
 Before exiting, verify in execution order:
-1. Heartbeat marker written? Log status — this should have been the first thing the run did.
+1. Signals GET returned ok? That call stamped the fired marker server-side.
 2. PRs created? `gh pr list --author @me --head "factory-autoloop/*"` — confirm count matches your decision.
-3. Drain called and returned ok? Log status.
-4. Completion marker written? Log status.
-5. Report written? Read it back.
+3. Drain DELETE returned ok? That call stamped the completed marker server-side.
+4. Report written? Read it back.
 
 Append a `## Status` section to last_run.md: `complete` / `partial` with specifics.
 
