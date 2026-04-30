@@ -46,6 +46,7 @@ files/private/Vault/
 .agents/
 .font_cache/
 server/.next/
+server/dist-check/
 
 # prebuild generates from AGENTS.md (canonical) — not source
 CLAUDE.md
