@@ -573,7 +573,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           left: 0;
           right: 0;
           z-index: 100;
-          padding: 22px clamp(24px, 6vw, 120px);
+          padding: 22px clamp(56px, 8vw, 160px);
           pointer-events: none;
         }
         .nav-inner {
@@ -1304,7 +1304,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           justify-content: flex-start;
           padding-top: 120px;
           padding-left: 0;
-          margin-left: 0;
+          /* Match the wordmark's negative offset below so ornament + wordmark
+             share the same left edge — both sit further left than the
+             stage-bottom padding suggests. */
+          margin-left: -32px;
         }
 
         /* Statement — the argument. Drop cap on the first letter (mirrors
@@ -1315,7 +1318,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .statement {
           counter-reset: beat;
           margin: 24px 0 0 0;
-          padding-left: 96px;
+          padding-left: 48px;
           display: flex;
           flex-direction: column;
           gap: 13px;
@@ -1424,7 +1427,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .statement-close {
           position: relative;
           margin: 0;
-          padding-left: 96px;
+          padding-left: 48px;
           padding-top: 14px;
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 20px;
@@ -1438,7 +1441,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           content: '';
           position: absolute;
           top: 0;
-          left: 96px;
+          left: 48px;
           width: 72px;
           height: 1px;
           background: var(--theme-fg-faint);
@@ -1529,7 +1532,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
            so the buttons themselves stay as terse two-word verbs. */
         .cta-pair {
           margin: 0;
-          padding-left: 96px;
+          padding-left: 48px;
           display: flex;
           flex-direction: row;
           flex-wrap: wrap;
