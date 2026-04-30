@@ -118,6 +118,11 @@ export default function FollowForm({ initialDone }: { initialDone: boolean }) {
                 <em>honourary alexandrian.</em>
               </span>
             </div>
+            <div className="hint-row" aria-hidden>
+              <span className="hint" data-mute={amount >= 45 ? 'on' : 'off'}>
+                <em>avg. honourary &mdash; $45 / month</em>
+              </span>
+            </div>
           </div>
 
           <p className="caption">
@@ -308,6 +313,20 @@ const styles = `
   .tier-right { text-align: right; }
   .tier.is-on  { color: ${INK};       opacity: 1;    }
   .tier.is-dim { color: ${INK_MUTED}; opacity: 0.42; }
+
+  .hint-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+  .hint {
+    color: ${INK_MUTED};
+    opacity: 0.55;
+    transition: opacity 320ms ease;
+  }
+  .hint[data-mute="on"] { opacity: 0.18; }
 
   .caption {
     margin: 0;
