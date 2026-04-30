@@ -19,12 +19,13 @@ export default function FollowForm({ initialDone }: { initialDone: boolean }) {
   const [amount, setAmount] = useState(AMOUNT_DEFAULT);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [shakeKey, setShakeKey] = useState(0);
   const [done, setDone] = useState(initialDone);
 
   const handleSubmit = async () => {
     const trimmed = email.trim();
     if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      setError('enter a valid email');
+      setShakeKey((k) => k + 1);
       return;
     }
     setLoading(true);
@@ -81,10 +82,12 @@ export default function FollowForm({ initialDone }: { initialDone: boolean }) {
 
           <label className="field">
             <input
+              key={shakeKey}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+              data-shake={shakeKey > 0 ? 'on' : 'off'}
               placeholder="email"
               autoComplete="email"
               spellCheck={false}
@@ -224,6 +227,17 @@ const styles = `
   }
   .field input:focus {
     border-bottom-color: ${INK};
+  }
+  .field input[data-shake="on"] {
+    animation: shake 520ms cubic-bezier(.36,.07,.19,.97);
+  }
+  @keyframes shake {
+    0%               { transform: translateX(0);  border-bottom-color: ${RULE}; }
+    10%, 90%         { transform: translateX(-2px); border-bottom-color: #b3261e; }
+    20%, 80%         { transform: translateX(4px);  border-bottom-color: #b3261e; }
+    30%, 50%, 70%    { transform: translateX(-7px); border-bottom-color: #b3261e; }
+    40%, 60%         { transform: translateX(7px);  border-bottom-color: #b3261e; }
+    100%             { transform: translateX(0);  border-bottom-color: ${RULE}; }
   }
 
   .amount-block {
