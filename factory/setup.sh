@@ -268,9 +268,22 @@ elif [ "$KEY_STATUS" = "000" ]; then
   echo "Local files were installed, but the protocol connection is unverified."
   echo "Check https://mcp.mowinckel.ai/health, then re-run this setup command."
 else
-  echo ""
-  echo "Alexandria installed. ~/alexandria/ — your mind, on your machine."
-  echo ""
-  echo "Open a new Claude Code or Cursor tab and paste the block."
-  echo "If it's not in your clipboard: cat ~/alexandria/system/.block"
+  # Returning Author detection — vault transcripts are the unambiguous signal
+  # that this Author has done at least one /a session. The block is the first-
+  # Author Phase-1 extraction recipe; running it on existing content would
+  # re-extract over real work.
+  vault_count=$(find "$ALEX_DIR/files/vault" -maxdepth 1 -name "*.jsonl" 2>/dev/null | wc -l | tr -d ' ')
+  if [ "${vault_count:-0}" -gt 0 ]; then
+    echo ""
+    echo "Alexandria synced. ~/alexandria/ — your mind, on your machine."
+    echo ""
+    echo "Drift resolved. Existing setup preserved — no further action needed."
+    echo "(The first-Author setup block lives at ~/alexandria/system/.block; running it on existing content would re-extract over your work.)"
+  else
+    echo ""
+    echo "Alexandria installed. ~/alexandria/ — your mind, on your machine."
+    echo ""
+    echo "Open a new Claude Code or Cursor tab and paste the block."
+    echo "If it's not in your clipboard: cat ~/alexandria/system/.block"
+  fi
 fi

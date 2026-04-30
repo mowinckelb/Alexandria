@@ -204,6 +204,7 @@ if [ "$MODE" = "session-start" ]; then
       echo "Your local files differ from current factory. Not updating automatically — re-run the install block from https://mowinckel.ai/signup when you're ready to sync."
       echo ""
       printf '%s' "$drift_found"
+      echo "Verify after sync: shasum -a 256 <local_path> | cut -c1-7  (should match factory hash above)"
       echo "--- END DRIFT ---"
       echo ""
     fi
