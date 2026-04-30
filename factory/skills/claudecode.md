@@ -41,3 +41,7 @@ If the Author mentions anything they want changed about Alexandria — features,
 When the Author signals they want autonomous work with remaining capacity: find the highest-ROI work you can do without the Author, calibrate scope to any hint given, and go until done or cut off.
 
 Commit incrementally. Leave tasks so progress is visible and resumable. Brief delta at the end.
+
+## Marketplace modules
+
+If the Author invents a reusable Alexandria system element, write a clean candidate to ~/alexandria/files/works/systems/<slug>.md and update ~/alexandria/.call_manifest with the modules this machine actually uses. Use GitHub IDs for upstream modules (`github:owner/repo#path`) and provisional local IDs (`local:<github-login>/<slug>`) until the Author contributes it to GitHub. Prompt for contribution only when the mechanism could help other Authors.

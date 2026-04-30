@@ -45,4 +45,8 @@ When the Author types "a." (or "bye", "that's it", or any sign-off), this ends t
 ## Vault
 
 Session transcripts cannot be saved automatically. If the Author wants to preserve this conversation for future processing, suggest they save a summary to ~/alexandria/files/vault/ manually.
+
+## Marketplace modules
+
+If the Author invents a reusable Alexandria system element, write a clean candidate to ~/alexandria/files/works/systems/<slug>.md and update ~/alexandria/.call_manifest with the modules this machine actually uses. Use GitHub IDs for upstream modules (`github:owner/repo#path`) and provisional local IDs (`local:<github-login>/<slug>`) until the Author contributes it to GitHub. Prompt for contribution only when the mechanism could help other Authors.
 <!-- alexandria:end -->

@@ -42,6 +42,12 @@ export function registerProtocol(app: Hono) {
          updated_at = excluded.updated_at`
     ).bind(id, name, text, visibility, now).run();
 
+    logEvent('protocol_file_published', {
+      author: auth.account.github_login,
+      name,
+      visibility,
+    });
+
     return c.json({ ok: true });
   });
 
@@ -160,10 +166,10 @@ export function registerProtocol(app: Hono) {
     const rows: { mod: string; text: string }[] = [];
     for (const m of body.modules) {
       if (typeof m === 'object' && m?.id && typeof m.id === 'string' && typeof m.text === 'string') {
-        rows.push({ mod: m.id, text: m.text });
+        rows.push({ mod: m.id.slice(0, 300), text: m.text.slice(0, 2000) });
       } else if (typeof m === 'string') {
         // Backward compat: bare string = module id with empty text
-        rows.push({ mod: m, text: '' });
+        rows.push({ mod: m.slice(0, 300), text: '' });
       }
     }
     if (rows.length === 0) return c.json({ error: 'no valid modules' }, 400);
@@ -172,6 +178,10 @@ export function registerProtocol(app: Hono) {
       'INSERT INTO protocol_calls (module_id, account_id, time, text) VALUES (?, ?, ?, ?)'
     ).bind(r.mod, id, now, r.text));
     await db.batch(inserts);
+    logEvent('protocol_call', {
+      author: auth.account.github_login,
+      modules: String(rows.length),
+    });
 
     return c.json({ ok: true });
   });

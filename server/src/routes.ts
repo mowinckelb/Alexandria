@@ -10,7 +10,7 @@ import { loadAccounts, loadAccount, saveAccount, setAuthIndex, deleteAccount, ge
 import { hashApiKey, generateToken } from './crypto.js';
 import { Account, AccountStore, extractApiKey, findByApiKey, requireAuth } from './auth.js';
 import { generateApiKey, getAccounts, requireAdmin } from './accounts.js';
-import { sendEmail, sendEmailsBatched, sendMorningBrief, FOUNDER_EMAIL } from './email.js';
+import { sendEmail, sendEmailsBatched, sendWelcomeEmail, sendMorningBrief, FOUNDER_EMAIL } from './email.js';
 import { runHealthDigest } from './cron.js';
 
 /**
@@ -47,6 +47,11 @@ export function registerRoutes(app: Hono) {
 
   app.get('/alexandria', async (c) => {
     const key = extractApiKey(c);
+    const suppliedAuth = Boolean(c.req.header('authorization') || c.req.query('key'));
+
+    if (!key && suppliedAuth) {
+      return c.json({ connected: false, error: 'Invalid API key' }, 401);
+    }
 
     // Unauthenticated: return protocol spec only
     if (!key) {
@@ -295,9 +300,14 @@ export function registerRoutes(app: Hono) {
         }
       }
 
+      // Welcome email — no API key, just links to /signup
+      if (email && isNewAccount) {
+        await sendWelcomeEmail(email);
+      }
+
       // Skip Stripe if user already has payment info
       if (updatedAccount.stripe_customer_id) {
-        return c.html(callbackPageHtml(apiKey));
+        return c.html(callbackPageHtml(apiKey, user.login));
       }
 
       // Redirect to Stripe Checkout (skip in beta — no card friction)
@@ -317,7 +327,7 @@ export function registerRoutes(app: Hono) {
         }
       }
 
-      return c.html(callbackPageHtml(apiKey));
+      return c.html(callbackPageHtml(apiKey, user.login));
     } catch (err: any) {
       console.error('GitHub callback error:', err);
       return c.html(authErrorHtml('something broke signing you in. please try again.'), 500);
@@ -453,10 +463,12 @@ export function registerRoutes(app: Hono) {
     const { brief, notepad, quote } = body as { brief?: string; notepad?: string; quote?: string };
     if (!brief) return c.json({ error: 'brief is required' }, 400);
 
+    // Gate: opt-out
     if (account.brief_opt_out) {
       return c.json({ ok: true, skipped: 'opt_out' });
     }
 
+    // Gate: interval (undefined = send every time)
     if (account.brief_interval_days && account.last_brief) {
       const elapsed = Date.now() - new Date(account.last_brief).getTime();
       if (elapsed < account.brief_interval_days * 24 * 60 * 60 * 1000) {
@@ -466,6 +478,7 @@ export function registerRoutes(app: Hono) {
 
     await sendMorningBrief(account.email, account.email_token, brief, notepad, quote);
 
+    // Update timestamp
     const githubKey = `github_${account.github_id}`;
     const acct = await loadAccount(githubKey);
     if (acct) {
@@ -474,6 +487,7 @@ export function registerRoutes(app: Hono) {
     }
 
     logEvent('morning_brief', { author: account.github_login, sent: 'true' });
+    logEvent('prosumer_session', { event: 'auto', author: account.github_login, platform: 'autoloop' });
     return c.json({ ok: true, sent: true });
   });
 
@@ -831,6 +845,17 @@ export function registerRoutes(app: Hono) {
          WHERE created_at > ? GROUP BY author_id, source_type`
       ).bind(since).all();
 
+      const protocolFiles = await db.prepare(
+        `SELECT account_id, name, visibility, updated_at FROM protocol_files
+         WHERE updated_at > ? ORDER BY updated_at`
+      ).bind(since).all();
+
+      const moduleUsage = await db.prepare(
+        `SELECT module_id, COUNT(*) as count, COUNT(DISTINCT account_id) as accounts
+         FROM protocol_calls WHERE time > ?
+         GROUP BY module_id ORDER BY accounts DESC, count DESC LIMIT 100`
+      ).bind(since).all();
+
       // Event distribution — the marketplace determines which patterns matter
       const funnelCounts = await db.prepare(
         `SELECT event, COUNT(*) as count, COUNT(DISTINCT author_id) as authors,
@@ -884,6 +909,22 @@ export function registerRoutes(app: Hono) {
               lines.push(`  ${event}: ${count}`);
             }
           }
+        }
+      }
+
+      const pfiles = (protocolFiles.results || []) as Array<{ account_id: string; name: string; visibility: string; updated_at: string }>;
+      if (pfiles.length > 0) {
+        lines.push('', '## Protocol Files Published');
+        for (const f of pfiles.slice(-200)) {
+          lines.push(`- account ${f.account_id}: ${f.name} (${f.visibility}) at ${f.updated_at}`);
+        }
+      }
+
+      const modules = (moduleUsage.results || []) as Array<{ module_id: string; count: number; accounts: number }>;
+      if (modules.length > 0) {
+        lines.push('', '## Module Usage Signal');
+        for (const m of modules) {
+          lines.push(`- ${m.module_id}: ${m.accounts} accounts, ${m.count} calls`);
         }
       }
 

@@ -51,6 +51,16 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   }
 }
 
+export async function sendWelcomeEmail(email: string): Promise<void> {
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+  await sendEmail(email, 'welcome to alexandria.',
+    `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 48px 24px; color: #3d3630; text-align: left; line-height: 1.7;">
+  <p style="font-size: 1.1rem; margin: 0 0 1.75rem;">welcome to alexandria.</p>
+  <p style="font-size: 1rem; color: #8a8078; margin: 0 0 1.75rem;">your data lives on your machine. your kin code is your GitHub username. share it with new authors, or send them your invite link.</p>
+  <p style="font-size: 0.95rem; margin: 0;"><a href="${WEBSITE_URL}/signup" style="color: #3d3630; text-decoration: none;">open alexandria</a></p>
+</div>`);
+}
+
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

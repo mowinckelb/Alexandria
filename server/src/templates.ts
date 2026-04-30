@@ -5,6 +5,15 @@
 
 function getWebsiteUrl() { return process.env.WEBSITE_URL || 'https://mowinckel.ai'; }
 
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
 // ---------------------------------------------------------------------------
 // Inline SVG icons — small enough to inline, no external deps
 // ---------------------------------------------------------------------------
@@ -40,10 +49,13 @@ export function authErrorHtml(message: string): string {
 // Callback page — the first brand moment after signup
 // ---------------------------------------------------------------------------
 
-export function callbackPageHtml(apiKey: string): string {
+export function callbackPageHtml(apiKey: string, githubLogin = ''): string {
   const WEBSITE_URL = getWebsiteUrl();
   const isReturning = !apiKey;
   const curlCmd = isReturning ? '' : `curl -fsSL https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | bash -s -- ${apiKey}`;
+  const kinCode = githubLogin ? escapeHtml(githubLogin) : '';
+  const kinLink = githubLogin ? `${WEBSITE_URL}/signup?ref=${encodeURIComponent(githubLogin)}` : '';
+  const kinCopy = kinLink ? `${kinLink}\n\nkin code: ${githubLogin}` : '';
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,6 +83,9 @@ export function callbackPageHtml(apiKey: string): string {
   .line { font-size: 1.1rem; line-height: 1.9; }
   .trust { font-size: 0.85rem; line-height: 1.7; color: #bbb4aa; margin-top: 2.5rem; }
   .trust .action { color: #8a8078; }
+  .kin { font-size: 0.9rem; line-height: 1.8; color: #8a8078; margin-top: 1.75rem; }
+  .kin code { color: #3d3630; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.85em; }
+  .kin .action { color: #3d3630; }
   .welcome-back { color: #8a8078; margin-top: 1.5rem; }
   .steps { margin-top: 2.5rem; }
   .action {
@@ -141,8 +156,9 @@ export function callbackPageHtml(apiKey: string): string {
   ${isReturning ? `<p class="line welcome-back">you're already set up. /a in your cli to start.</p>` : `<div class="steps">
     <p class="line"><button type="button" class="action" onclick="copyCmd(this)" aria-label="copy install command">1. install <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> &mdash; paste in terminal <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">creates ~/alexandria/, checks your prerequisites, configures your cli and ide. everything local, nothing sent anywhere.</span></button></p>
     <p class="line"><button type="button" class="action" onclick="copyBlock(this)" aria-label="copy begin block">2. begin <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> &mdash; paste in a new cli chat <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">opens your first session. it reads your files and builds your starter constitution.</span></button></p>
-  </div>
-  <p class="trust">we never see your data &mdash; <button type="button" class="action" onclick="copyTrust(this)" aria-label="copy Trust.md">Trust.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button></p>`}
+  </div>`}
+  ${kinCode ? `<p class="kin">your kin code is <code>${kinCode}</code><br><button type="button" class="action" onclick="copyKin(this)" aria-label="copy kin invite link">copy invite link <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> <button type="button" class="info" onclick="toggleTip(this)" aria-label="how kin works">${ICON_INFO}<span class="tooltip">send this to new authors. when five kin become active, alexandria is free.</span></button></p>` : ''}
+  <p class="trust">we never see your data &mdash; <button type="button" class="action" onclick="copyTrust(this)" aria-label="copy Trust.md">Trust.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button></p>
 </div>
 <script>
 function flash(el) {
@@ -179,6 +195,7 @@ function copyRemote(url, el) {
 function copyCmd(el) { copyText(${JSON.stringify(curlCmd)}, el); }
 function copyBlock(el) { copyRemote('https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/block.md', el); }
 function copyTrust(el) { copyRemote('${WEBSITE_URL}/docs/Trust.md', el); }
+function copyKin(el) { copyText(${JSON.stringify(kinCopy)}, el); }
 function toggleTip(el) {
   var wasActive = el.classList.contains('active');
   document.querySelectorAll('.info.active').forEach(function(e) { e.classList.remove('active'); });
