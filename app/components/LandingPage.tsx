@@ -446,9 +446,9 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           <div className="right-col">
               <div className="statement">
               <p>
-                <span className="drop-cap">a</span>i can&rsquo;t read minds,
-                but it can read words. so if we translate our thoughts into
-                words, our minds can be augmented, not replaced &mdash;{' '}
+                ai can&rsquo;t read minds, but it can read words. so if we
+                translate our thoughts into words, our minds can be
+                augmented, not replaced &mdash;{' '}
                 <em>the symbolic layer of our minds transcribed into private
                 files</em>, so the exponential intelligence{' '}
                 <em className="em-strong">thinks with us, not for us</em>.
@@ -490,35 +490,37 @@ export default function LandingPage({ brandClassName = '' }: Props) {
 
               </div>
 
-              <p className="statement-close">
-                if you believe human thought matters through the
-                singularity,{' '}
-                <em className="close-em-strong">making it permanent is pure
-                upside</em>. five minutes to close the loop &mdash;{' '}
-                <em>pure marginal value, nothing to lose</em>. low agency
-                is the only friction left.<br />
-                <em className="close-strong">welcome to alexandria.</em>
-              </p>
+              <div className="right-lower">
+                <p className="statement-close">
+                  if you believe human thought matters through the
+                  singularity,{' '}
+                  <em className="close-em-strong">making it permanent is pure
+                  upside</em>. five minutes to close the loop &mdash;{' '}
+                  <em>pure marginal value, nothing to lose</em>. low agency
+                  is the only friction left.<br />
+                  <em className="close-strong">welcome to alexandria.</em>
+                </p>
 
-              <div className="cta-pair">
-                <div className="cta-block">
-                  <a
-                    href={`${SERVER_URL}/auth/github?ref_source=landing`}
-                    className="lr-cta lr-cta-primary"
-                  >
-                    join the tribe
-                  </a>
-                  <span className="cta-sub">
-                    free in beta &middot; open source &mdash; works with any ai coding agent
-                  </span>
-                </div>
-                <div className="cta-block">
-                  <Link href="/follow" className="lr-cta lr-cta-ghost">
-                    stay close
-                  </Link>
-                  <span className="cta-sub">
-                    not ready to join, but want to follow along?
-                  </span>
+                <div className="cta-pair">
+                  <div className="cta-block">
+                    <a
+                      href={`${SERVER_URL}/auth/github?ref_source=landing`}
+                      className="lr-cta lr-cta-primary"
+                    >
+                      join the tribe
+                    </a>
+                    <span className="cta-sub">
+                      free in beta &middot; open source &mdash; works with any ai coding agent
+                    </span>
+                  </div>
+                  <div className="cta-block">
+                    <Link href="/follow" className="lr-cta lr-cta-ghost">
+                      stay close
+                    </Link>
+                    <span className="cta-sub">
+                      not ready to join, but want to follow along?
+                    </span>
+                  </div>
                 </div>
               </div>
           </div>
@@ -1274,6 +1276,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           flex-direction: column;
         }
         .bottom-inner {
+          --lower-block-bottom: 14px;
           max-width: 1700px;
           margin: 0 auto;
           width: 100%;
@@ -1292,10 +1295,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         }
         .right-col {
           flex: 0 0 auto;
-          width: 720px;
+          width: 880px;
           display: flex;
           flex-direction: column;
-          gap: 18px;
+          justify-content: space-between;
           min-width: 0;
         }
         .ornament-wrap {
@@ -1310,18 +1313,26 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           margin-left: -32px;
         }
 
-        /* Statement — the argument. Drop cap on the first letter (mirrors
-           front), inline emphasis on the load-bearing phrases, fleuron beat
-           between III and IV (the pivot from 'what alexandria is' to 'why
-           it matters civilisationally'). No numbering — drop cap + para
-           breaks + fleuron carry the rhythm, like the front. */
+        /* Statement — the argument. Roman beats in the margin (I–V); opening
+           is plain prose starting with “ai” — no drop cap here so it does not
+           compete with the front slide’s “t”. */
         .statement {
           counter-reset: beat;
-          margin: 24px 0 0 0;
-          padding-left: 48px;
+          align-self: flex-end;
+          max-width: 820px;
+          margin: 96px 0 0 0;
+          padding-left: 64px;
           display: flex;
           flex-direction: column;
-          gap: 13px;
+          gap: 15px;
+        }
+        .right-lower {
+          align-self: flex-end;
+          width: 720px;
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+          margin-bottom: var(--lower-block-bottom);
         }
         /* Roman numeral marginalia — four argument beats. The split's
            second half (.continuation) inherits the prior numeral by not
@@ -1333,9 +1344,9 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .statement > p:not(.statement-close):not(.continuation)::before {
           content: counter(beat, upper-roman) ".";
           position: absolute;
-          left: -29px;
-          top: 0.06em;
-          font-size: 0.72em;
+          left: -36px;
+          top: 0.08em;
+          font-size: 0.68em;
           font-style: italic;
           letter-spacing: 0.06em;
           color: var(--theme-fg-faint);
@@ -1343,28 +1354,14 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         }
         .statement p {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 22px;
-          line-height: 1.31;
+          font-size: 21px;
+          line-height: 1.36;
+          letter-spacing: 0.002em;
           color: var(--theme-fg);
           margin: 0;
           position: relative;
           hanging-punctuation: first last;
-        }
-        /* Drop cap — first letter of paragraph I, the 'a' of 'ai'. Floats
-           left so prose wraps. Subtle bob animation, ink settling. Theme
-           colour, not a hardcoded hue — the back slide can run in any
-           palette and this still reads. */
-        .statement .drop-cap {
-          font-size: 84px;
-          font-style: italic;
-          font-weight: 400;
-          color: var(--theme-fg);
-          float: left;
-          line-height: 0.82;
-          padding: 6px 14px 0 0;
-          margin-top: 4px;
-          display: inline-block;
-          animation: dropCapBob 6.5s ease-in-out infinite;
+          text-wrap: pretty;
         }
         /* Inline emphasis — three voices: body (regular), soft em (muted
            italic — definitions, pull-phrases), strong em (full colour +
@@ -1422,13 +1419,15 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         /* Close — the deal-closing prose. Sits in natural flow inside
            .right-col, after the argument. Reads as straight prose with
            italic emphasis on the load-bearing claim and the destination.
-           A delicate left-aligned hairline above marks the transition
-           from argument to conversion — a breath, not a wall. */
+           The spatial break from the upper argument is enough separation;
+           keeping this block text-only makes the lower band feel less
+           mechanically divided. */
         .statement-close {
           position: relative;
           margin: 0;
-          padding-left: 48px;
+          padding-left: 0;
           padding-top: 14px;
+          transform: translateY(-20px);
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 20px;
           line-height: 1.42;
@@ -1438,13 +1437,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           hanging-punctuation: first last;
         }
         .statement-close::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 48px;
-          width: 72px;
-          height: 1px;
-          background: var(--theme-fg-faint);
+          content: none;
         }
         /* Forcing function — the single load-bearing claim that converts.
            Same vocabulary as .statement em.em-strong but tuned for the
@@ -1532,7 +1525,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
            so the buttons themselves stay as terse two-word verbs. */
         .cta-pair {
           margin: 0;
-          padding-left: 48px;
+          padding-left: 0;
           display: flex;
           flex-direction: row;
           flex-wrap: wrap;
@@ -1605,7 +1598,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           align-self: flex-start;
           max-width: 540px;
           margin-left: -32px;
-          margin-bottom: 14px;
+          margin-bottom: var(--lower-block-bottom);
         }
         .big-word {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
@@ -1898,7 +1891,14 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             display: flex;
             flex-direction: column;
             gap: 24px;
+            justify-content: flex-start;
             transform: none;
+          }
+          .right-lower {
+            align-self: stretch;
+            width: 100%;
+            gap: 18px;
+            margin-bottom: 0;
           }
           .wordmark-block {
             order: 3;
@@ -1909,6 +1909,8 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           /* Statement — drop the absolute roman numerals (they hang in
              the left margin, no room for that here) and tighten padding. */
           .statement {
+            align-self: stretch;
+            max-width: 100%;
             margin-top: 0;
             padding-left: 0;
             gap: 14px;
@@ -1922,10 +1924,6 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           .statement p {
             font-size: clamp(17px, 2.1vw, 21px);
             line-height: 1.42;
-          }
-          .statement .drop-cap {
-            font-size: clamp(48px, 7vw, 64px);
-            padding: 4px 10px 0 0;
           }
           .statement-close {
             padding-left: 0;
@@ -2182,6 +2180,19 @@ function Ornament({ src, id }: { src: string; id: string }) {
   const isDeep = DEEP_CHISEL.has(id);
   const isChisel = CHISELED.has(id) || isDeep;
   const isRaised = RAISED.has(id);
+  const ORNAMENT_SCALES: Record<string, number> = {
+    alabaster: 1.06,
+    azulejo: 1.16,
+    'bronze-laurel': 1.08,
+    'greek-shard': 1.2,
+    'light-stone': 1.12,
+    'roman-mosaic': 1.04,
+  };
+  const ORNAMENT_FRAME_SCALES: Record<string, number> = {
+    'wax-circle': 1.14,
+  };
+  const imageScale = ORNAMENT_SCALES[id] ?? 1;
+  const frameScale = ORNAMENT_FRAME_SCALES[id] ?? 1;
   // Deep chisel: uniform 4-side cavity rim — slab pressed evenly into the page,
   // not lit from one direction. Plus a touch of directional emphasis on top-left
   // for natural ambient lighting.
@@ -2189,26 +2200,31 @@ function Ornament({ src, id }: { src: string; id: string }) {
     ? 'inset 0 0 28px rgba(0, 0, 0, 0.22), inset 6px 7px 16px rgba(0, 0, 0, 0.18)'
     : 'inset 5px 5px 14px rgba(0, 0, 0, 0.22), inset -3px -3px 10px rgba(255, 255, 255, 0.10)';
   return (
-    <div className="orn" aria-hidden>
+    <div
+      className="orn"
+      aria-hidden
+      style={{ transform: `scale(${frameScale})` }}
+    >
       <Image
         key={id}
         src={src}
         alt=""
         width={1024}
         height={1024}
-        sizes="380px"
+        sizes="480px"
         className="orn-img"
         priority
-        style={
-          isRaised
+        style={{
+          transform: `scale(${imageScale})`,
+          ...(isRaised
             ? {
                 // Natural directional drop — gentle lift off the page without
                 // the halo/diffuse look. Tight blur + small offset reads as a
                 // real cast shadow rather than ambient occlusion.
                 filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.18))',
               }
-            : undefined
-        }
+            : {}),
+        }}
       />
       {isChisel && (
         <div
@@ -2224,7 +2240,7 @@ function Ornament({ src, id }: { src: string; id: string }) {
       )}
       <style>{`
         .orn {
-          width: clamp(260px, 38vh, 380px);
+          width: clamp(340px, 46vh, 480px);
           aspect-ratio: 1;
           position: relative;
           overflow: hidden;
