@@ -100,27 +100,34 @@ export default function FollowForm({ initialDone }: { initialDone: boolean }) {
               <span className="amount-value">${amount}</span>
               <span className="amount-unit">{amount === 0 ? '' : '/ month'}</span>
             </div>
-            <input
-              type="range"
-              min={AMOUNT_MIN}
-              max={AMOUNT_MAX}
-              step={5}
-              value={amount}
-              onChange={(e) => setAmount(parseInt(e.target.value, 10))}
-              className="slider"
-              aria-label="monthly amount"
-            />
+            <div className="slider-wrap">
+              <input
+                type="range"
+                min={AMOUNT_MIN}
+                max={AMOUNT_MAX}
+                step={5}
+                value={amount}
+                onChange={(e) => setAmount(parseInt(e.target.value, 10))}
+                className="slider"
+                aria-label="monthly amount"
+              />
+              <div className="slider-marks" aria-hidden>
+                <span className="mark" style={{ left: '0%' }}>
+                  <i className="mark-tick" />
+                  <em>free</em>
+                </span>
+                <span className="mark" style={{ left: '22.5%' }}>
+                  <i className="mark-tick" />
+                  <em>avg. $45</em>
+                </span>
+              </div>
+            </div>
             <div className="tier-row" aria-live="polite">
               <span className={`tier ${isHonourary ? 'is-dim' : 'is-on'}`}>
                 <em>follower of alexandria.</em>
               </span>
               <span className={`tier tier-right ${isHonourary ? 'is-on' : 'is-dim'}`}>
                 <em>honourary alexandrian.</em>
-              </span>
-            </div>
-            <div className="hint-row" aria-hidden>
-              <span className="hint" data-mute={amount >= 45 ? 'on' : 'off'}>
-                <em>avg. honourary &mdash; $45 / month</em>
               </span>
             </div>
           </div>
@@ -265,6 +272,10 @@ const styles = `
     letter-spacing: 0.02em;
   }
 
+  .slider-wrap {
+    position: relative;
+    padding-bottom: 28px;
+  }
   .slider {
     -webkit-appearance: none;
     appearance: none;
@@ -274,6 +285,8 @@ const styles = `
     outline: none;
     cursor: pointer;
     margin: 4px 0 2px;
+    position: relative;
+    z-index: 1;
   }
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -281,12 +294,16 @@ const styles = `
     height: 12px;
     border-radius: 50%;
     background: ${INK};
-    cursor: pointer;
+    cursor: grab;
+    box-shadow: 0 0 0 0 rgba(26, 19, 24, 0.28);
+    animation: slider-pulse 2.6s ease-out infinite;
     transition: transform 160ms ease;
   }
   .slider::-webkit-slider-thumb:hover { transform: scale(1.18); }
+  .slider::-webkit-slider-thumb:active { cursor: grabbing; animation: none; }
   .slider:focus-visible::-webkit-slider-thumb {
     box-shadow: 0 0 0 4px rgba(26, 19, 24, 0.18);
+    animation: none;
   }
   .slider::-moz-range-thumb {
     width: 12px;
@@ -294,10 +311,52 @@ const styles = `
     border-radius: 50%;
     background: ${INK};
     border: none;
-    cursor: pointer;
+    cursor: grab;
+    box-shadow: 0 0 0 0 rgba(26, 19, 24, 0.28);
+    animation: slider-pulse 2.6s ease-out infinite;
   }
+  .slider::-moz-range-thumb:active { cursor: grabbing; animation: none; }
   .slider:focus-visible::-moz-range-thumb {
     box-shadow: 0 0 0 4px rgba(26, 19, 24, 0.18);
+    animation: none;
+  }
+  @keyframes slider-pulse {
+    0%   { box-shadow: 0 0 0 0   rgba(26, 19, 24, 0.32); }
+    70%  { box-shadow: 0 0 0 9px rgba(26, 19, 24, 0);    }
+    100% { box-shadow: 0 0 0 0   rgba(26, 19, 24, 0);    }
+  }
+
+  .slider-marks {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 100%;
+    pointer-events: none;
+  }
+  .mark {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: ${INK_MUTED};
+    opacity: 0.6;
+    white-space: nowrap;
+  }
+  .mark-tick {
+    display: block;
+    width: 1px;
+    height: 6px;
+    background: ${INK_MUTED};
+    margin-top: 5px;
+  }
+  .mark em {
+    font-style: italic;
+    margin-top: 6px;
   }
 
   .tier-row {
@@ -313,20 +372,6 @@ const styles = `
   .tier-right { text-align: right; }
   .tier.is-on  { color: ${INK};       opacity: 1;    }
   .tier.is-dim { color: ${INK_MUTED}; opacity: 0.42; }
-
-  .hint-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 6px;
-    font-size: 12px;
-    letter-spacing: 0.02em;
-  }
-  .hint {
-    color: ${INK_MUTED};
-    opacity: 0.55;
-    transition: opacity 320ms ease;
-  }
-  .hint[data-mute="on"] { opacity: 0.18; }
 
   .caption {
     margin: 0;
