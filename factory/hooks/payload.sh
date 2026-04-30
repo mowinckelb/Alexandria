@@ -81,7 +81,7 @@ if [ "$MODE" = "session-start" ]; then
           {
             echo "# Canon updated — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo ""
-            echo "Upstream canon changed. Review the diffs below and decide per-Author fit. If any change conflicts with this Author's practice, add/refine entries in ~/alexandria/canon_overrides.md — overrides are authoritative over upstream canon. Clear this file when reviewed."
+            echo "Upstream canon changed. Review the diffs below and decide per-Author fit. Add/refine entries in ~/alexandria/canon_overrides.md (authoritative over upstream canon) for anything that conflicts with this Author's practice. Delete ~/alexandria/system/.canon_update_notice when done."
             echo ""
           } > "$ALEX_DIR/system/.canon_update_notice"
           canon_notice_started=true
