@@ -339,12 +339,26 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           san francisco · MMXXVI
         </span>
         <div className="top-inner">
-          {/* Three-line H1. Italic-normal-italic rhythm with the tribal
-              line tinted in the house burgundy — the identity carries
-              colour; the act is plain ink; the purpose returns to italic.
-              Form is content: the first line is who we are, second is what
-              we do, third is why it matters. */}
-          <h1 className="hero-h1">
+          {/* Masthead — incipit, the medieval manuscript word for
+              "here begins". Mirrored by the folio at the bottom-right
+              ("san francisco · mmxxvi"). Frames the bubble as the
+              opening folio of an artifact. */}
+          <span className="masthead" aria-hidden>
+            <span className="masthead-rule" />
+            <span className="masthead-text">incipit &middot; mmxxvi</span>
+            <span className="masthead-rule" />
+          </span>
+
+          {/* Banner — promoted from the bottom slide. "the thinking
+              republic." is the load-bearing claim. Italic + dot mirrors
+              the alexandria. wordmark; the period is set in rubric ink
+              (oxblood) — the single mark of colour on the page, like
+              the red initials in a medieval manuscript. */}
+          <h1 className="hero-banner">
+            the thinking republic<span className="hero-banner-dot">.</span>
+          </h1>
+
+          <div className="hero-sub" aria-hidden="false">
             <span className="hero-bracket bracket-left">
               we help humans
             </span>
@@ -354,7 +368,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             <span className="hero-bracket bracket-right">
               and not lose our minds&hellip;
             </span>
-          </h1>
+          </div>
 
           {/* Manifesto body. Fleuron separates the stance from the
               civilisational closer — an old-book ornament earning its
@@ -892,13 +906,14 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             inset 0 0 30px rgba(255, 255, 255, 0.04);
           pointer-events: none;
         }
-        /* Adam mode — the bubble sits over the fresco. Slightly warmer
-           cream tint and stronger saturate so the figures' colours sing
-           through the glass, not get blurred to grey. */
+        /* Adam mode — the bubble sits over the fresco. Cream tint is
+           opaque enough to give text a proper reading surface; the fresco
+           stays present in the margins (top/sides/bottom) where there's
+           no copy. Stronger blur softens any bleed-through. */
         [data-adam='1'] .top-inner::before {
-          background: rgba(248, 240, 225, 0.58);
-          backdrop-filter: blur(13px) saturate(1.18);
-          -webkit-backdrop-filter: blur(13px) saturate(1.18);
+          background: rgba(248, 240, 225, 0.62);
+          backdrop-filter: blur(14px) saturate(1.15);
+          -webkit-backdrop-filter: blur(14px) saturate(1.15);
         }
         /* Glass breathe — the rim highlight and inner luminance gently
            pulse, as if ambient light were slowly playing across a real
@@ -947,52 +962,99 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           50% { transform: translateY(-3px); }
         }
 
-        /* H1 — three lines, three jobs.
-           Tribal line: italic, house burgundy, a hair of tracking.
-           Middle line: roman, plain ink (the matter-of-fact act).
-           Closing line: italic, plain ink (the purpose, the turn).
-           The burgundy tint carries the identity colour through from
-           the CTA; the roman middle is the anchor; the italics frame. */
-        .hero-h1 {
+        /* Banner — the load-bearing claim. Italic display, a touch
+           wider letter-spacing than the body so it carries from across
+           the room; the period mirrors the wordmark dot. */
+        .hero-banner {
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-weight: 400;
+          font-style: italic;
+          font-size: 92px;
+          line-height: 1;
+          letter-spacing: -0.018em;
+          color: #1a1318;
+          text-align: center;
+          margin: 0;
+          max-width: 1100px;
+        }
+        .hero-banner-dot {
+          font-style: normal;
+          display: inline-block;
+          margin-left: 0.02em;
+          animation: dotBreathe 3.2s ease-in-out infinite;
+        }
+        /* Masthead — top of the page, mirrors the bottom-right folio.
+           Tiny italic mark flanked by hairline rules, like the running
+           head of a printed book. Frames the bubble as page one. */
+        .masthead {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 14px;
+          width: 100%;
+          max-width: 360px;
+          margin: 0 auto -10px;
+          opacity: 0.72;
+          user-select: none;
+        }
+        .masthead-rule {
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(
+            to right,
+            transparent 0%,
+            rgba(26, 19, 24, 0.32) 50%,
+            transparent 100%
+          );
+        }
+        .masthead-text {
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-style: italic;
+          font-size: 11.5px;
+          letter-spacing: 0.22em;
+          text-transform: lowercase;
+          color: rgba(26, 19, 24, 0.55);
+          white-space: nowrap;
+        }
+        /* Sub-banner — the old three-line poem, now elaboration.
+           Italic-roman-italic rhythm preserved at smaller scale.
+           Brackets sit at the extremes; middle line takes the weight. */
+        .hero-sub {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-weight: 400;
           font-style: normal;
-          font-size: 52px;
-          line-height: 1.1;
-          letter-spacing: -0.014em;
+          font-size: 46px;
+          line-height: 1.15;
+          letter-spacing: -0.012em;
           color: #1a1318;
           text-align: center;
           margin: 0;
           max-width: 980px;
         }
-        .hero-h1 em {
+        .hero-sub em {
           font-style: italic;
         }
-        /* H1 line variants — asymmetric bracketed layout.
-           Brackets sit at the extremes (left, right), faint and small,
-           framing the load-bearing middle line which gets the full
-           visual weight. */
-        .hero-h1 .hero-bracket {
+        .hero-sub .hero-bracket {
           display: block;
-          font-size: 22px;
+          font-size: 24px;
           font-style: italic;
           font-weight: 400;
-          color: rgba(26, 19, 24, 0.42);
+          color: rgba(26, 19, 24, 0.55);
           letter-spacing: 0.002em;
           line-height: 1.3;
         }
-        .hero-h1 .bracket-left {
+        .hero-sub .bracket-left {
           text-align: left;
         }
-        .hero-h1 .bracket-right {
+        .hero-sub .bracket-right {
           text-align: right;
         }
-        .hero-h1 .hero-main {
+        .hero-sub .hero-main {
           display: inline-block;
           font-style: normal;
           color: #1a1318;
           text-align: center;
-          padding: 11px 0 4px;
+          padding: 10px 0 4px;
           position: relative;
         }
         @keyframes pageFadeIn {
@@ -1105,7 +1167,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           color: rgba(26, 19, 24, 0.5);
         }
         .close-strong {
-          color: #1a1318;
+          color: #3a0f3d;
+          font-style: italic;
+          font-weight: 500;
+          letter-spacing: 0.004em;
           text-decoration: underline;
           text-decoration-color: rgba(58, 15, 61, 0.55);
           text-decoration-thickness: 1px;
@@ -1850,8 +1915,15 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             inset: -16px -12px;
             border-radius: 16px;
           }
-          .hero-h1 {
-            font-size: clamp(30px, 7vw, 56px);
+          .hero-banner {
+            font-size: clamp(44px, 11vw, 84px);
+            letter-spacing: -0.02em;
+          }
+          .hero-sub {
+            font-size: clamp(26px, 6.4vw, 46px);
+          }
+          .hero-sub .hero-bracket {
+            font-size: clamp(16px, 4vw, 24px);
           }
           .alpha-mark,
           .folio {
@@ -1980,9 +2052,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           background-position: 50% 30%;
           background-size: cover;
           background-repeat: no-repeat;
-          /* Opacity tracks the peel: 0.35 on front, fades to 0.08 on back so
-             the bottom-slide content reads cleanly. */
-          opacity: calc(0.35 - var(--peel-progress, 0) * 0.27);
+          /* Opacity tracks the peel: 0.18 on front (faint watermark — the
+             fresco frames, doesn't compete with text), fades to 0.04 on
+             back so the bottom-slide content reads cleanly. */
+          opacity: calc(0.18 - var(--peel-progress, 0) * 0.14);
           filter: sepia(0.7) saturate(0.5) contrast(0.95);
           pointer-events: none;
           z-index: 22;
@@ -2004,7 +2077,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           .adam-bg {
             background-position: 28% 50%;
             background-size: cover;
-            opacity: calc(0.42 - var(--peel-progress, 0) * 0.34);
+            opacity: calc(0.22 - var(--peel-progress, 0) * 0.18);
             -webkit-mask-image: radial-gradient(ellipse 100% 28% at 55% 30%, #000 0%, rgba(0,0,0,0.9) 45%, rgba(0,0,0,0) 100%);
             mask-image: radial-gradient(ellipse 100% 28% at 55% 30%, #000 0%, rgba(0,0,0,0.9) 45%, rgba(0,0,0,0) 100%);
           }

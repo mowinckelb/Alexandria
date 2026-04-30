@@ -15,6 +15,7 @@ import { registerBillingRoutes, settleMonthlyTabs, recalculateAllKinPricing, get
 import { registerLibraryRoutes } from './library.js';
 import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, flushEvents } from './analytics.js';
 import { setKV, getKV } from './kv.js';
+import { sendFollowerWelcome } from './email.js';
 import { getAllowedOrigins } from './cors.js';
 import { formatPT } from './time.js';
 
@@ -332,11 +333,21 @@ app.post('/follow', async (c) => {
     if (!db) {
       return c.json({ error: 'Database not available.' }, 503);
     }
-    await db.prepare(
-      'INSERT OR REPLACE INTO waitlist (email, type, source, created_at) VALUES (?, ?, ?, ?)'
+    const insertResult = await db.prepare(
+      'INSERT OR IGNORE INTO waitlist (email, type, source, created_at) VALUES (?, ?, ?, ?)'
     ).bind(normalizedEmail, 'follow', 'public', new Date().toISOString()).run();
 
-    logEvent('follow_signup', { amount: String(amount) });
+    const isNewSignup = ((insertResult as unknown as { meta?: { changes?: number } }).meta?.changes || 0) > 0;
+    logEvent('follow_signup', { amount: String(amount), new: isNewSignup ? 'true' : 'false' });
+
+    if (isNewSignup) {
+      // Fire-and-forget welcome — don't block Stripe checkout on email send
+      c.executionCtx.waitUntil(
+        sendFollowerWelcome(normalizedEmail).catch((err) => {
+          console.error('Follower welcome email failed:', err);
+        })
+      );
+    }
   } catch (err: any) {
     console.error('Follow signup error:', err?.message || err);
     return c.json({ error: 'Failed to sign up.' }, 500);

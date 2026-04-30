@@ -51,6 +51,26 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   }
 }
 
+export async function sendFollowerWelcome(email: string): Promise<{ ok: boolean; error?: string }> {
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+  const html = `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 48px 24px; color: #3d3630; font-size: 1.05rem; line-height: 1.7;">
+  <p style="margin: 0 0 1.4rem;">welcome to alexandria. :)</p>
+  <p style="margin: 0 0 1.4rem;">
+    every week or so i'll send an email with updates on the project; stories, photos, vlogs, etc. keeping you in the loop with how things are going -- both good and bad!<br>
+    when we come out with new products or its available for new users then you will also be the first to know.
+  </p>
+  <p style="margin: 0 0 1.4rem;">
+    feel free to reply whenever you want. i'll read all of them!<br>
+    and also if there are others you know who might be interested in following then just send them <a href="${WEBSITE_URL}" style="color: #3d3630;">the website link</a>.
+  </p>
+  <p style="margin: 0 0 1.8rem;">ok, that's all. bye for now :)</p>
+  <p style="margin: 0 0 0.4rem;">Benjamin a. Mowinckel</p>
+  <p style="margin: 0; font-style: italic; color: #8a8078;">a.</p>
+</div>`;
+
+  return await sendEmail(email, 'welcome to alexandria.', html);
+}
+
 export async function sendWelcomeEmail(email: string): Promise<void> {
   const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
   await sendEmail(email, 'welcome to alexandria.',

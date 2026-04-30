@@ -14,6 +14,12 @@ a.
 
 ---
 
+*A document about what humans are for once ai does the work. Three parts — why, what, how — and a four-sentence coda.*
+
+*It can be read two ways. Follow your curiosity through the table of contents, or read it front to back like a book. Each chapter opens with an italicised compression of itself — read those alone and the argument is yours. The bold sentences thread through the prose; read the bolds alone and the spine still stands.*
+
+---
+
 ## contents.
 
 *why.*
@@ -40,10 +46,6 @@ a.
 *coda.*
 
 13. *the four sentences.*
-
----
-
-*This document can be read two ways. Follow your curiosity through the table of contents, or read it front to back like a book. Each chapter opens with an italicised compression of itself — read those alone and the argument is yours. The bold sentences thread through the prose; read the bolds alone and the spine still stands.*
 
 ---
 
@@ -589,7 +591,7 @@ Three of the four anchor in matter. One anchors in time (coordinated incumbency 
 
 Most conservation-anchored assets are flat on this axis. *A Hermès bag does not gain value when GPT-7 ships.* A barrel of oil does not gain value when robotics improves. The assets are durable. They are also inert relative to ai progress.
 
-The rare assets that *amplify* with intelligence are the ones whose value-extraction function scales with model quality. *The same corpus yields more with every model release.* The same dataset, run through better models, produces deeper signal, sharper personalisation, richer interaction.
+The rare assets that *amplify* with intelligence are the ones whose value-extraction function scales with model quality. *The same live frame yields more with every model release.* The same Author's frame, continuously updated and read by better models, produces deeper signal, sharper personalisation, richer interaction.
 
 These assets ride the exponential. **Most assets do not.**
 
@@ -632,13 +634,15 @@ Microsoft could rebuild GitHub's codebase in a month. They could not rebuild the
 
 Alexandria is the same shape. Data portable by design. Tribe and default habitat earned through being there first and right. *No built-capital hoarding. No dataset wall.*
 
+The moat is not possession of files. Public Shadows can be copied. A bot can mirror yesterday's text. That does not copy the living project. The defensible layer is canonical liveness: the place where Authors write, update, verify, set permissions, revoke access, monetise, and route their frames into other systems. A mirror has a snapshot. Alexandria has the current approved version.
+
 Two conservation legs hold up the architecture.
 
 **Living matter — the Alexandrians.** Each Author is a finite, unique source — no model can manufacture another one. Cognition cannot be replicated by inspecting someone else's data; the Author *is* the unit of scarcity. Synthesis cannot reproduce a specific Author because the Author is the source. *This sets the type of moat.* Pre-product, it does not yet hold anyone — the data is portable — but it determines what the moat must be made of.
 
 **Coordinated incumbency — the default habitat.** Alexandria as the place Alexandrians keep their minds alive. Once being *where Alexandrians gather* is what Alexandria is, leaving means losing access to the network of other Alexandrians' minds. Aspirational pre-scale; engineered for from day one through the Library, the Marketplace, the survival counts.
 
-Built capital is forfeited by design. Marketplace signal is open to any account holder. Shadows are portable. Data is local. **You cannot have user-portable data and a dataset moat simultaneously.** Portability is the principle that makes the tribe possible. Break it and the tribe dies.
+Built capital is forfeited by design. Marketplace signal is open to any account holder. Shadows are portable. Data is local. **You cannot have user-portable data and a dataset moat simultaneously.** Portability is the principle that makes the tribe possible. Break it and the tribe dies. The company only compounds if Alexandria becomes the canonical write path and permission layer for human frames.
 
 ---
 
@@ -660,7 +664,7 @@ Companies that improve survive. Companies that degrade get absorbed.
 
 Most ai investments degrade. Their value is the gap between what the model can do and what the user needs, *and that gap closes with every release.* Most pure SaaS dies on the same axis — the floor of what a user can do with raw ai keeps rising, and the SaaS ceiling stops moving.
 
-The companies that improve do so because the architecture itself rides the exponential. **Better models extract more from the same corpus. Better models make the same data more valuable.** Better models do more with the same intent layer.
+The companies that improve do so because the architecture itself rides the exponential. **Better models extract more from the same living frame. Better models make the canonical frame layer more valuable.** Better models do more with the same intent layer.
 
 This is the test. Run it on every company you know. It is brutal. It is honest.
 
@@ -1175,7 +1179,7 @@ The architectural axiom underneath everything.
 
 This is the bitter lesson applied to product architecture. Hand-engineered intelligence converges every model to the same output — the same suggestions, the same completions, the same flattening toward a shared mean. *Delegated intelligence lets each model bring its own mind.*
 
-Every layer of structure must be optimisable by the model. *Unstructured markdown. No schemas. No prescribed formats.* When models improve, the same data yields more. **Zero workflow changes.**
+Every layer of structure must be optimisable by the model. *Unstructured markdown. No schemas. No prescribed formats.* When models improve, the same living frame yields more. **Zero workflow changes.**
 
 The Author's data and the Author's intent are the only fixed inputs. The intelligence is whatever model is running today, whichever model runs tomorrow, whichever model has not been trained yet. **The horse changes. The rider does not.**
 
@@ -1384,7 +1388,7 @@ The protocol, in five lines.
 1. *Open methodology, gated network.* The canon is public on GitHub. The account gates the collective layers — Library, Marketplace, the call.
 2. *Three constants.* Account, file, call. Everything else is canon or company, removable without ceasing to exist.
 3. *Sovereignty by design.* Local markdown. No private database. No proprietary format. Switching cost is zero.
-4. *Ride the exponential.* Better models extract more from the same corpus. Every capability advance compounds the practice.
+4. *Ride the exponential.* Better models extract more from the same living frame. Every capability advance compounds the practice.
 5. *The practice is the product.* Set the angels free. Absorb the abundance. Die empty. *The changed Author is the metric.*
 
 ---
