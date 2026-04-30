@@ -226,7 +226,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
     const TOP_W = 1440;
     const TOP_H = 900;
     const BOT_W = 1600;
-    const BOT_H = 1200;
+    const BOT_H = 1000;
     const MIN_SCALE = 0.55;
     let frame = 0;
     const update = () => {
@@ -265,6 +265,16 @@ export default function LandingPage({ brandClassName = '' }: Props) {
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Warm the browser cache for every ornament on mount so theme rotation
+  // doesn't fetch a multi-MB PNG mid-interaction. The first ornament has
+  // priority via next/image; the rest pre-fetch in the background.
+  useEffect(() => {
+    THEMES.slice(1).forEach((t) => {
+      const img = new window.Image();
+      img.src = t.image;
+    });
   }, []);
 
   const theme = THEMES[themeIdx];
@@ -1216,19 +1226,19 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           overflow: hidden;
           transition: background-color 400ms ease, color 400ms ease;
         }
-        /* Stage — pixel-locked 1600×1200 canvas, centred, uniformly scaled.
-           Taller than the top-slide canvas because the colophon's long
-           statement + close + CTAs need ~1000px of vertical content height,
-           plus 130px top/bottom padding. JS sets --stage-scale-bottom. */
+        /* Stage — pixel-locked 1600×1000 canvas, centred, uniformly scaled.
+           Same proportions as the top-slide canvas so the bottom renders at
+           the same scale (no shrinkage when peeling). JS sets
+           --stage-scale-bottom. */
         .stage-bottom {
           position: absolute;
           top: 50%;
           left: 50%;
           width: 1600px;
-          height: 1200px;
+          height: 1000px;
           transform: translate(-50%, -50%) scale(var(--stage-scale-bottom, 1));
           transform-origin: center center;
-          padding: 80px 96px 50px;
+          padding: 56px 96px 40px;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
@@ -1255,7 +1265,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           width: 720px;
           display: flex;
           flex-direction: column;
-          gap: 30px;
+          gap: 18px;
           min-width: 0;
         }
         .ornament-wrap {
@@ -1274,7 +1284,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
            breaks + fleuron carry the rhythm, like the front. */
         .statement {
           counter-reset: beat;
-          margin: 85px 0 0 0;
+          margin: 24px 0 0 0;
           padding-left: 96px;
           display: flex;
           flex-direction: column;
@@ -1385,7 +1395,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           position: relative;
           margin: 0;
           padding-left: 96px;
-          padding-top: 24px;
+          padding-top: 14px;
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-size: 20px;
           line-height: 1.42;
@@ -2153,6 +2163,7 @@ function Ornament({ src, id }: { src: string; id: string }) {
         alt=""
         width={1024}
         height={1024}
+        sizes="380px"
         className="orn-img"
         priority
         style={
