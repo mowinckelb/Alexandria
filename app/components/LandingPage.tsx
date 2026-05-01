@@ -199,9 +199,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           topRef.current.style.removeProperty('--peel-shadow');
         }
         navRef.current?.classList.remove('on-bottom');
-      } else {
-        updatePeel();
       }
+      // Always run so --peel-progress is set on mobile too (used by
+      // the nav tagline fade), even at scrollY > 0 on initial mount.
+      updatePeel();
     };
 
     onModeChange();
@@ -249,25 +250,33 @@ export default function LandingPage({ brandClassName = '' }: Props) {
   }, []);
 
   // Every time the user scrolls deep into the page and then returns to the top
-  // (scrollY → 0 after having been past 60% of viewport), advance to the NEXT
-  // theme in the sequence. Same trigger desktop and mobile — desktop's "peel
-  // reveals back" and mobile's "scroll past h1" both cross the same threshold.
+  // Desktop peel-cycle rotation: when the user scrolls past 60% of
+  // viewport and back near the top, advance to the next theme. The
+  // bottom slide is hidden under the front when this triggers, so the
+  // swap happens out of sight.
   useEffect(() => {
     let wasRevealed = false;
     const onScroll = () => {
       const y = window.scrollY;
       const h = window.innerHeight;
       if (y > h * 0.6) wasRevealed = true;
-      // Advance only when the user has fully returned to the top — at this
-      // point the front slide covers the viewport, so the bottom-slide
-      // theme swap happens out of sight.
-      if (y < 1 && wasRevealed) {
+      if (y < 60 && wasRevealed) {
         wasRevealed = false;
         setThemeIdx((i) => (i + 1) % THEMES.length);
       }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Auto-rotate while the page is open — primary rotation mechanism
+  // for mobile (where the peel-cycle rarely fires). 8s is slow enough
+  // to feel intentional, fast enough to see in a visit.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setThemeIdx((i) => (i + 1) % THEMES.length);
+    }, 8000);
+    return () => clearInterval(interval);
   }, []);
 
   // Warm the browser cache for every ornament on mount so theme rotation
@@ -367,7 +376,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
               <span className="drop-cap">t</span>houghts are the root
               node.{' '}
               <em className="em-strong">
-                if we stop thinking,{' '}<br className="mob-br" />we stop deciding.
+                if we stop thinking, we stop deciding.
               </em>{' '}
               if we stop deciding,{' '}
               <em className="em-strong">our minds atrophy</em>. and
@@ -380,8 +389,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
               <span className="close-faint">
                 the singularity is humanity&rsquo;s last
                 challenge&nbsp;&mdash;
-              </span>
-              <br className="mob-br" />
+              </span>{' '}
               <span className="close-strong">
                 we offer a path through.
               </span>
@@ -400,6 +408,8 @@ export default function LandingPage({ brandClassName = '' }: Props) {
       <span className="watermark" aria-hidden>
         <em>a.</em>
       </span>
+
+
 
       {/* ═════ BOTTOM SLIDE — Fleet colophon, theme rotates ═════ */}
       <section className="bottom-slide" aria-label="Colophon">
@@ -682,10 +692,11 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           white-space: nowrap;
           pointer-events: none;
           user-select: none;
-          transition: opacity 320ms ease;
-        }
-        .nav.on-bottom .nav-tagline {
-          opacity: 0;
+          /* Fade with scroll on both desktop and mobile. --peel-progress
+             is set by the scroll handler on every viewport. Multiplier 2
+             so the tagline is fully gone by the time the front content
+             has scrolled half off. */
+          opacity: calc(1 - var(--peel-progress, 0) * 2);
         }
         .nav-links {
           display: flex;
@@ -1838,7 +1849,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             box-shadow: none !important;
           }
           .top-slide {
-            padding: 96px clamp(20px, 5vw, 64px) 88px;
+            padding: 152px clamp(20px, 5vw, 64px) 96px;
           }
           /* Mobile bypasses the desktop scaled canvases — display:contents
              makes the wrappers invisible to layout so children flow as if
@@ -1881,17 +1892,13 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             font-size: 13px;
           }
 
-          /* TOP SLIDE — bubble extends OUT past the content on mobile.
-             Desktop's positive horizontal inset works because h1 stays
-             narrower than top-inner (large font, centered, natural width).
-             On mobile h1 wraps and fills top-inner edge-to-edge, so positive
-             inset would clip the text inside the bubble. Negative side inset
-             (-12px) makes the bubble wider than the text by 24px total —
-             still within the top-slide's 20px outer padding so the bubble
-             never touches the viewport edge. */
+          /* TOP SLIDE — drop the glass bubble on mobile. The desktop
+             bubble framed centered content beautifully; on mobile the
+             content fills edge-to-edge and the bubble adds visual
+             noise without earning its place. Let the cream paper +
+             fresco watermark carry the front slide instead. */
           .top-inner::before {
-            inset: -16px -12px;
-            border-radius: 16px;
+            display: none;
           }
           .hero-h1 {
             font-size: clamp(30px, 7vw, 56px);
@@ -1905,20 +1912,33 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           .alpha-mark { left: 20px; }
           .folio { right: 20px; font-size: 9.5px; letter-spacing: 0.14em; }
 
+          /* Mobile spacing — the two-slide peel format is gone here;
+             everything flows naturally. Give every block more
+             breathing room than desktop allows. */
+
+          /* FRONT SLIDE breathing — manifesto and h1 stack with more
+             air between them. */
+          .top-inner {
+            gap: 64px;
+          }
+          .manifesto {
+            gap: 32px;
+          }
+
           /* BOTTOM SLIDE — single column, ornament first as a decorative
              beat, then statement (the argument), then close + CTA, then
              wordmark + dict-lines as the closing identity block. Order is
              set via flex order so we don't have to touch JSX. */
           .bottom-inner {
             flex-direction: column;
-            gap: 32px;
+            gap: 64px;
             align-items: stretch;
           }
           .left-col,
           .right-col {
             width: 100%;
             flex: 0 0 auto;
-            gap: 24px;
+            gap: 32px;
           }
           .left-col {
             display: contents;
@@ -1933,14 +1953,14 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             order: 2;
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 32px;
             justify-content: flex-start;
             transform: none;
           }
           .right-lower {
             align-self: stretch;
             width: 100%;
-            gap: 18px;
+            gap: 24px;
             margin-bottom: 0;
           }
           .wordmark-block {
@@ -1950,13 +1970,14 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           }
 
           /* Statement — drop the absolute roman numerals (they hang in
-             the left margin, no room for that here) and tighten padding. */
+             the left margin, no room for that here). More gap between
+             the five beats so each one lands as its own breath. */
           .statement {
             align-self: stretch;
             max-width: 100%;
             margin-top: 0;
             padding-left: 0;
-            gap: 14px;
+            gap: 32px;
           }
           .statement > p:not(.statement-close):not(.continuation)::before {
             position: static;
