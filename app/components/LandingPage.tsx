@@ -393,6 +393,16 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           like the watermark. Stays put when the peel runs. */}
       <div className="adam-bg" aria-hidden />
 
+      {/* Atmospheric label — "the thinking republic" floats in the
+          negative space between the alexandria. wordmark (top-left)
+          and the meeting hands of the fresco. Same family as the
+          watermark, but larger and a hair more present, so it reads
+          as a phrase whispered into the composition rather than a
+          background mark. */}
+      <span className="republic-mark" aria-hidden>
+        <em>the thinking republic.</em>
+      </span>
+
       {/* Persistent watermark — sits across both slides like the nav. */}
       <span className="watermark" aria-hidden>
         <em>a.</em>
@@ -472,9 +482,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
 
               <p>
                 alexandria distills this collective signal into a{' '}
-                <em>canonical system</em>{' '}offered to new members &mdash; a{' '}
-                <em className="em-strong">continuously self-personalising floor</em>:
-                zero maintenance by default, the optimal foundation for
+                <em>canonical system</em>{' '}offered to new members: a{' '}
+                <em className="em-strong">self-personalising floor</em>{' '}&mdash;{' '}
+                <em>rides the exponential, continuously refined</em>. zero
+                maintenance by default, the optimal foundation for
                 your own system when you have time.
               </p>
 
@@ -494,10 +505,12 @@ export default function LandingPage({ brandClassName = '' }: Props) {
                 <p className="statement-close">
                   if you believe human thought matters through the
                   singularity,{' '}
-                  <em className="close-em-strong">making it permanent is pure
-                  upside</em>. five minutes to close the loop &mdash;{' '}
-                  <em>pure marginal value, nothing to lose</em>. low agency
-                  is the only friction left.<br />
+                  <em className="close-em-strong">making it permanent is all
+                  upside</em>. alexandria is the closed-loop system
+                  &mdash;{' '}
+                  <em>one curl command, five minutes, and the
+                  compounding starts; tune it later</em>. low agency is
+                  the only friction&nbsp;left.<br />
                   <em className="close-strong">welcome to alexandria.</em>
                 </p>
 
@@ -1134,6 +1147,30 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           pointer-events: none;
           z-index: 25;
         }
+        /* Republic mark — phrase floating in the upper negative space
+           between the alexandria. wordmark and the fresco's meeting
+           hands. Same italic serif family as the watermark, but at a
+           more readable scale and twice the opacity — a presence in
+           the composition, not a hidden mark. */
+        .republic-mark {
+          position: fixed;
+          top: 9.5%;
+          left: 15%;
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-style: italic;
+          font-size: clamp(28px, 3.6vw, 56px);
+          font-weight: 400;
+          color: rgba(58, 15, 61, 0.13);
+          letter-spacing: -0.012em;
+          line-height: 1;
+          white-space: nowrap;
+          user-select: none;
+          pointer-events: none;
+          z-index: 24;
+        }
+        .republic-mark em {
+          font-style: italic;
+        }
         /* Alpha mark — bottom-left founder colophon, with a quiet
            CTA tucked at the end. Mirrors 'vol. i' on the right so
            the page is bracketed by manuscript marginalia. */
@@ -1323,8 +1360,8 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .statement {
           counter-reset: beat;
           align-self: flex-end;
-          max-width: 820px;
-          margin: 96px 0 0 0;
+          max-width: 852px;
+          margin: 124px -32px 0 0;
           padding-left: 64px;
           display: flex;
           flex-direction: column;
@@ -1332,7 +1369,8 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         }
         .right-lower {
           align-self: flex-end;
-          width: 720px;
+          width: 752px;
+          margin-right: -32px;
           display: flex;
           flex-direction: column;
           gap: 18px;
