@@ -302,9 +302,12 @@ export default function LandingPage({ brandClassName = '' }: Props) {
              any bottom-slide theme. ═════ */}
       <nav className="nav" ref={navRef} aria-label="Primary">
         <div className="nav-inner">
-          <Link href="/" className={`nav-brand ${brandClassName}`}>
-            alexandria<span className="nav-dot">.</span>
-          </Link>
+          <div className="nav-brand-block">
+            <Link href="/" className={`nav-brand ${brandClassName}`}>
+              alexandria<span className="nav-dot">.</span>
+            </Link>
+            <span className="nav-tagline" aria-hidden>the thinking republic</span>
+          </div>
           <div className="nav-links">
             <span className="nav-group">
               <a href="/docs/letter.pdf" target="_blank" rel="noopener noreferrer">letter</a>
@@ -392,16 +395,6 @@ export default function LandingPage({ brandClassName = '' }: Props) {
       {/* Persistent fresco — atmospheric layer across both slides, subtle
           like the watermark. Stays put when the peel runs. */}
       <div className="adam-bg" aria-hidden />
-
-      {/* Atmospheric label — "the thinking republic" floats in the
-          negative space between the alexandria. wordmark (top-left)
-          and the meeting hands of the fresco. Same family as the
-          watermark, but larger and a hair more present, so it reads
-          as a phrase whispered into the composition rather than a
-          background mark. */}
-      <span className="republic-mark" aria-hidden>
-        <em>the thinking republic.</em>
-      </span>
 
       {/* Persistent watermark — sits across both slides like the nav. */}
       <span className="watermark" aria-hidden>
@@ -661,6 +654,38 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         }
         .nav-brand:hover {
           opacity: 0.72;
+        }
+        /* Brand block — wordmark + tagline stacked. The block is
+           collapsed to the wordmark's height (tagline is absolute
+           below) so the nav's center alignment doesn't shift. */
+        .nav-brand-block {
+          position: relative;
+          display: inline-flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        /* Tagline — italic slogan under the wordmark. Visible only on
+           the front slide; fades out on peel because the bottom slide's
+           dictionary already names "the thinking republic" twice. */
+        .nav-tagline {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          margin-top: 4px;
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-style: italic;
+          font-weight: 400;
+          font-size: 14px;
+          line-height: 1;
+          letter-spacing: 0.008em;
+          color: rgba(26, 19, 24, 0.6);
+          white-space: nowrap;
+          pointer-events: none;
+          user-select: none;
+          transition: opacity 320ms ease;
+        }
+        .nav.on-bottom .nav-tagline {
+          opacity: 0;
         }
         .nav-links {
           display: flex;
@@ -1146,30 +1171,6 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           user-select: none;
           pointer-events: none;
           z-index: 25;
-        }
-        /* Republic mark — phrase floating in the upper negative space
-           between the alexandria. wordmark and the fresco's meeting
-           hands. Same italic serif family as the watermark, but at a
-           more readable scale and twice the opacity — a presence in
-           the composition, not a hidden mark. */
-        .republic-mark {
-          position: fixed;
-          top: 9.5%;
-          left: 15%;
-          font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-style: italic;
-          font-size: clamp(28px, 3.6vw, 56px);
-          font-weight: 400;
-          color: rgba(58, 15, 61, 0.13);
-          letter-spacing: -0.012em;
-          line-height: 1;
-          white-space: nowrap;
-          user-select: none;
-          pointer-events: none;
-          z-index: 24;
-        }
-        .republic-mark em {
-          font-style: italic;
         }
         /* Alpha mark — bottom-left founder colophon, with a quiet
            CTA tucked at the end. Mirrors 'vol. i' on the right so
