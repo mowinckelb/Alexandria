@@ -3,6 +3,8 @@
 import { getKV, getRecentDaysEvents } from './kv.js';
 import { sendEmail, FOUNDER_EMAIL } from './email.js';
 import { formatPT } from './time.js';
+import { publishLibrarySignalSnapshot } from './marketplace.js';
+import { computeLibrarySignalText } from './library-signal.js';
 
 // ---------------------------------------------------------------------------
 // Health digest — self-heal, only email the founder if he needs to log on
@@ -220,6 +222,17 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
     } catch { /* non-fatal */ }
 
     await checkFactoryLiveness(escalate);
+
+    // Refresh the library-signal snapshot in alexandria-marketplace. The factory
+    // reads this on its weekly run; daily refresh keeps it ≤24h stale. Non-fatal
+    // if it fails — just logged, no escalate (the factory will see a stale snapshot
+    // but other signals still flow).
+    try {
+      const text = await computeLibrarySignalText(30);
+      await publishLibrarySignalSnapshot(text);
+    } catch (err) {
+      console.error('[cron] library-signal snapshot failed:', err);
+    }
 
     // Cron marker (proves the job ran — includes issue list for debugging)
     try {
