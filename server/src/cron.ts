@@ -63,34 +63,22 @@ async function probeD1(escalate: Escalate): Promise<void> {
 }
 
 /**
- * Factory autoloop liveness — two markers: fired (JOB 0) + completed (end of JOB 4).
- * Fired stale → trigger dead. Completed stale while fired fresh → JOB 4 silently broken.
+ * Factory liveness — the marketplace github repo's pushedAt is the ground truth.
+ * Stale → either the server isn't relaying signals or the meta trigger hasn't drained.
+ * Either way, surface it. 14d soft default; the meta itself can change this.
  */
-async function checkFactoryLiveness(kv: KVNamespace, escalate: Escalate): Promise<void> {
+async function checkFactoryLiveness(escalate: Escalate): Promise<void> {
   try {
-    // 3 days = "missed three daily runs in a row" — clear breakage signal, low false-positive rate
-    // for transient blips (Claude Code outage, network glitch). Tightened from 14d when the
-    // morning brief was deleted; this is now the fastest detection path for a broken autoloop.
-    const factoryStaleDays = 3;
-    const staleMs = factoryStaleDays * 24 * 60 * 60 * 1000;
-    const markerAgeMs = async (key: string): Promise<number | null> => {
-      const raw = await kv.get(key);
-      if (!raw) return null;
-      return Date.now() - new Date(JSON.parse(raw).t).getTime();
-    };
-
-    const firedAge = await markerAgeMs('cron:factory_autoloop');
-    if (firedAge === null) {
-      escalate('stroll', 'Factory autoloop: no fired marker yet — never run?');
-    } else if (firedAge > staleMs) {
-      escalate('stroll', `Factory autoloop stale (${Math.floor(firedAge / 86400000)}d since trigger fired)`);
-    } else {
-      // Fired is fresh. If completed was ever written and has since gone stale, JOB 4 is broken.
-      // If completed is absent entirely, treat as bootstrap — wait until it exists before alerting.
-      const completedAge = await markerAgeMs('cron:factory_completed');
-      if (completedAge !== null && completedAge > staleMs) {
-        escalate('stroll', `Factory fires but JOB 4 not completing (${Math.floor(completedAge / 86400000)}d since last completion)`);
-      }
+    const token = process.env.GITHUB_BOT_TOKEN;
+    if (!token) return; // not configured yet — skip silently during bootstrap
+    const resp = await fetch('https://api.github.com/repos/mowinckelb/alexandria-marketplace', {
+      headers: { Authorization: `Bearer ${token}`, 'User-Agent': 'alexandria-server' },
+    });
+    if (!resp.ok) return; // non-fatal probe
+    const data = await resp.json() as { pushed_at: string };
+    const ageDays = Math.floor((Date.now() - new Date(data.pushed_at).getTime()) / 86400000);
+    if (ageDays > 14) {
+      escalate('stroll', `marketplace repo stale (${ageDays}d since last push) — relay or factory broken`);
     }
   } catch { /* non-fatal */ }
 }
@@ -231,21 +219,7 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
       if (missing.length > 0) escalate('sprint', `Missing env vars: ${missing.join(', ')}`);
     } catch { /* non-fatal */ }
 
-    await checkFactoryLiveness(kv, escalate);
-
-    // Signal backlog check — if Factory autoloop drains regularly, pending should stay modest.
-    // Soft default threshold (Factory may reconsider as scale grows)
-    try {
-      const signalPending = await kv.list({ prefix: 'marketplace:signal:' });
-      const feedbackPending = await kv.list({ prefix: 'feedback:' });
-      const backlogCeiling = 5000;
-      if (signalPending.keys.length > backlogCeiling) {
-        escalate('stroll', `marketplace:signal backlog ${signalPending.keys.length} > ${backlogCeiling} — Factory drain stuck?`);
-      }
-      if (feedbackPending.keys.length > backlogCeiling) {
-        escalate('stroll', `feedback backlog ${feedbackPending.keys.length} > ${backlogCeiling} — Factory drain stuck?`);
-      }
-    } catch { /* non-fatal */ }
+    await checkFactoryLiveness(escalate);
 
     // Cron marker (proves the job ran — includes issue list for debugging)
     try {

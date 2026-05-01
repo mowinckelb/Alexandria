@@ -18,6 +18,17 @@ import { setKV, getKV } from './kv.js';
 import { sendFollowerWelcome } from './email.js';
 import { getAllowedOrigins } from './cors.js';
 import { formatPT } from './time.js';
+import { publishLibrarySignalSnapshot } from './marketplace.js';
+import { computeLibrarySignalText } from './library-signal.js';
+
+async function publishDailyLibrarySignal(): Promise<void> {
+  try {
+    const text = await computeLibrarySignalText(30);
+    await publishLibrarySignalSnapshot(text);
+  } catch (err) {
+    console.error('[cron] library-signal snapshot failed:', err);
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Hono app
@@ -516,7 +527,14 @@ export default {
     initEnv(env);
     // Daily 15:00 UTC (health digest) + monthly 1st @ 02:00 UTC (settlement).
     // settleMonthlyTabs is idempotent — only does work on month-end keys.
-    await Promise.all([runHealthDigest(), settleMonthlyTabs(), recalculateAllKinPricing()]);
+    // Library-signal snapshot also publishes daily so the factory always reads
+    // a fresh aggregate from github (its only reachable substrate).
+    await Promise.all([
+      runHealthDigest(),
+      settleMonthlyTabs(),
+      recalculateAllKinPricing(),
+      publishDailyLibrarySignal(),
+    ]);
     ctx.waitUntil(flushEvents());
   },
 };

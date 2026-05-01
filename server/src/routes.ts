@@ -12,6 +12,7 @@ import { Account, AccountStore, extractApiKey, findByApiKey, requireAuth } from 
 import { generateApiKey, getAccounts, requireAdmin } from './accounts.js';
 import { sendEmail, sendEmailsBatched, sendWelcomeEmail, sendMorningBrief, FOUNDER_EMAIL } from './email.js';
 import { runHealthDigest } from './cron.js';
+import { publishSignal, publishFeedback } from './marketplace.js';
 
 /**
  * KV-backed rate limit for destructive/expensive admin endpoints.
@@ -422,30 +423,12 @@ export function registerRoutes(app: Hono) {
       console.error('[account] R2 cleanup failed:', e);
     }
 
-    // Remove KV feedback and marketplace signals attributed to this user
-    try {
-      const kv = getKV();
-      const login = account.github_login;
-      for (const prefix of ['feedback:', 'marketplace:signal:']) {
-        let cursor: string | undefined;
-        do {
-          const page = await kv.list({ prefix, cursor });
-          const entries = await Promise.all(
-            page.keys.map(async (k) => ({ name: k.name, raw: await kv.get(k.name) }))
-          );
-          await Promise.all(entries.map(async ({ name, raw }) => {
-            try {
-              if (!raw) return;
-              const data = JSON.parse(raw);
-              if (data.author === login) await kv.delete(name);
-            } catch { /* skip */ }
-          }));
-          cursor = page.list_complete ? undefined : page.cursor;
-        } while (cursor);
-      }
-    } catch (e) {
-      console.error('[account] KV cleanup failed:', e);
-    }
+    // Note: signals/feedback published to alexandria-marketplace github repo are
+    // deliberately NOT deleted here. Marketplace signals are anonymized at the relay
+    // boundary (no author info). Feedback retains the github_login but the marketplace
+    // repo is private; deleting requires gh API write access from the worker, which
+    // isn't worth the complexity given the data is already minimal (5KB per piece).
+    // If an Author requests right-to-be-forgotten, we delete via gh manually.
 
     logEvent('account_deleted', { github_login: account.github_login });
     return c.json({ ok: true, deleted: account.github_login });
@@ -493,10 +476,13 @@ export function registerRoutes(app: Hono) {
 
   // --- Machine signal (Engine → marketplace) ---
 
+  // Relays anonymized signal to alexandria-marketplace github repo. Author is
+  // stripped at the boundary — factory reads only signal content. Failure to
+  // relay returns 502 so the Machine retries on its next session (better than
+  // silent loss).
   async function handleSignal(c: any) {
     const auth = await requireAuth(c);
     if (!auth) return c.json({ error: 'Unauthorized' }, 401);
-    const { account } = auth;
 
     const body = await c.req.json().catch(() => ({}));
     const { signal } = body;
@@ -504,27 +490,14 @@ export function registerRoutes(app: Hono) {
       return c.json({ error: 'Empty signal' }, 400);
     }
 
-    // Store as individual timestamped key (avoids read-modify-write on a growing blob)
-    // Author attribution enables filtering/weighting during delta processing
-    // No TTL: Factory autoloop drains signal after processing via DELETE /admin/marketplace/signals
     try {
-      const kv = getKV();
-      const ts = new Date().toISOString().replace(/[:.]/g, '-');
-      const key_name = `marketplace:signal:${ts}`;
-      await kv.put(key_name, JSON.stringify({
-        t: new Date().toISOString(),
-        author: account.github_login,
-        signal: signal.slice(0, 10000),
-      }));
-
+      await publishSignal(signal.slice(0, 10000));
       logEvent('machine_signal', { length: String(signal.length) });
-
       return c.json({ ok: true });
     } catch (err) {
-      console.error('Marketplace signal write failed:', err);
-      // Log the event even if KV write fails
-      logEvent('machine_signal', { length: String(signal.length), error: 'kv_write_failed' });
-      return c.json({ ok: true });
+      console.error('Marketplace signal relay failed:', err);
+      logEvent('machine_signal', { length: String(signal.length), error: 'relay_failed' });
+      return c.json({ error: 'relay_failed' }, 502);
     }
   }
 
@@ -543,16 +516,14 @@ export function registerRoutes(app: Hono) {
       return c.json({ error: 'Empty feedback' }, 400);
     }
 
+    const t = new Date().toISOString();
     try {
-      const kv = getKV();
-      const ts = new Date().toISOString().replace(/[:.]/g, '-');
-      // No TTL: Factory autoloop drains feedback after processing via DELETE /admin/feedback
-      await kv.put(`feedback:${ts}`, JSON.stringify({
-        t: new Date().toISOString(),
+      await publishFeedback({
         author: account.github_login,
+        t,
         text: text.slice(0, 5000),
         context: context?.slice?.(0, 200) || 'direct',
-      }));
+      });
 
       logEvent('user_feedback', {
         author: account.github_login,
@@ -569,34 +540,9 @@ export function registerRoutes(app: Hono) {
 
       return c.json({ ok: true });
     } catch (err) {
-      console.error('Feedback write failed:', err);
-      logEvent('user_feedback', { error: 'kv_write_failed' });
-      return c.json({ ok: true });
-    }
-  });
-
-  app.get('/feedback', async (c) => {
-    if (!await requireAdmin(c)) return c.json({ error: 'Unauthorized' }, 403);
-
-    try {
-      const kv = getKV();
-      const items: unknown[] = [];
-      let cursor: string | undefined;
-      do {
-        const page = await kv.list({ prefix: 'feedback:', cursor });
-        const raws = await Promise.all(page.keys.map(k => kv.get(k.name)));
-        for (const raw of raws) {
-          if (!raw) continue;
-          try { items.push(JSON.parse(raw)); } catch { /* skip corrupted */ }
-        }
-        cursor = page.list_complete ? undefined : page.cursor;
-      } while (cursor);
-      // Sort newest first
-      items.sort((a: any, b: any) => new Date(b.t).getTime() - new Date(a.t).getTime());
-      return c.json({ feedback: items });
-    } catch (err) {
-      console.error('Feedback read failed:', err);
-      return c.json({ feedback: [] });
+      console.error('Feedback relay failed:', err);
+      logEvent('user_feedback', { error: 'relay_failed' });
+      return c.json({ error: 'relay_failed' }, 502);
     }
   });
 
@@ -678,114 +624,8 @@ export function registerRoutes(app: Hono) {
     return c.json({ ok: true, sent, failed, total: recipients.length });
   });
 
-  // --- Marketplace: read signals (admin only, called by meta trigger) ---
-
-  // Factory autoloop reads pending signal here. Signal persists until drained via DELETE.
-  // Side effect: stamps cron:factory_autoloop marker — the call itself proves the trigger
-  // fired (ground truth proximity). No separate heartbeat curl needed.
-  // Registered at both /admin/marketplace/signals (legacy) and /factory/signals — the
-  // latter exists because Anthropic's proxy may block /admin/* paths from remote agents.
-  const signalsGet = async (c: any) => {
-    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
-
-    const kv = getKV();
-    c.executionCtx.waitUntil((async () => {
-      try { await kv.put('cron:factory_autoloop', JSON.stringify({ t: new Date().toISOString() })); }
-      catch (err) { console.error('[factory_autoloop_marker] kv write failed:', err); }
-    })());
-
-    const signals: { t: string; author: string; signal: string }[] = [];
-    let cursor: string | undefined;
-    do {
-      const page = await kv.list({ prefix: 'marketplace:signal:', cursor });
-      const raws = await Promise.all(page.keys.map(k => kv.get(k.name)));
-      for (const raw of raws) {
-        if (!raw) continue;
-        try { signals.push(JSON.parse(raw)); } catch { continue; }
-      }
-      cursor = page.list_complete ? undefined : page.cursor;
-    } while (cursor);
-
-    // Strip author for anonymity — Factory autoloop sees signal content only
-    const anonymous = signals.map(s => ({ t: s.t, signal: s.signal }));
-    return c.json({ signals: anonymous, count: anonymous.length });
-  };
-  app.get('/admin/marketplace/signals', signalsGet);
-  app.get('/factory/signals', signalsGet);
-
-  // Factory autoloop drains processed signal. ?before=<iso> required.
-  // Signal arriving after <before> survives the drain for the next run.
-  // Side effect: stamps cron:factory_completed marker — drain only happens
-  // after JOB 4 finished, so the call itself proves end-to-end completion.
-  const signalsDelete = async (c: any) => {
-    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
-    if (await checkAdminRateLimit('drain-signals', 5, 60)) return c.json({ error: 'Rate limited (destructive, capped 5/min)' }, 429);
-    const before = c.req.query('before');
-    if (!before) return c.json({ error: 'before=<iso> required' }, 400);
-    const cutoff = Date.parse(before);
-    if (isNaN(cutoff)) return c.json({ error: 'before must be parseable ISO timestamp' }, 400);
-
-    const kv = getKV();
-    c.executionCtx.waitUntil((async () => {
-      try { await kv.put('cron:factory_completed', JSON.stringify({ t: new Date().toISOString() })); }
-      catch (err) { console.error('[factory_completed_marker] kv write failed:', err); }
-    })());
-
-    let deleted = 0;
-    let cursor: string | undefined;
-    do {
-      const page = await kv.list({ prefix: 'marketplace:signal:', cursor });
-      const raws = await Promise.all(page.keys.map(k => kv.get(k.name).then(v => ({ key: k.name, v }))));
-      for (const { key, v } of raws) {
-        if (!v) continue;
-        try {
-          const obj = JSON.parse(v);
-          if (obj.t && Date.parse(obj.t) < cutoff) {
-            await kv.delete(key);
-            deleted++;
-          }
-        } catch { continue; }
-      }
-      cursor = page.list_complete ? undefined : page.cursor;
-    } while (cursor);
-
-    logEvent('marketplace_signal_drained', { deleted: String(deleted), before });
-    return c.json({ ok: true, deleted });
-  };
-  app.delete('/admin/marketplace/signals', signalsDelete);
-  app.delete('/factory/signals', signalsDelete);
-
-  // Factory autoloop drains processed feedback. ?before=<iso> required.
-  app.delete('/admin/feedback', async (c) => {
-    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
-    if (await checkAdminRateLimit('drain-feedback', 5, 60)) return c.json({ error: 'Rate limited (destructive, capped 5/min)' }, 429);
-    const before = c.req.query('before');
-    if (!before) return c.json({ error: 'before=<iso> required' }, 400);
-    const cutoff = Date.parse(before);
-    if (isNaN(cutoff)) return c.json({ error: 'before must be parseable ISO timestamp' }, 400);
-
-    const kv = getKV();
-    let deleted = 0;
-    let cursor: string | undefined;
-    do {
-      const page = await kv.list({ prefix: 'feedback:', cursor });
-      const raws = await Promise.all(page.keys.map(k => kv.get(k.name).then(v => ({ key: k.name, v }))));
-      for (const { key, v } of raws) {
-        if (!v) continue;
-        try {
-          const obj = JSON.parse(v);
-          if (obj.t && Date.parse(obj.t) < cutoff) {
-            await kv.delete(key);
-            deleted++;
-          }
-        } catch { continue; }
-      }
-      cursor = page.list_complete ? undefined : page.cursor;
-    } while (cursor);
-
-    logEvent('feedback_drained', { deleted: String(deleted), before });
-    return c.json({ ok: true, deleted });
-  });
+  // (Marketplace read/drain endpoints removed — substrate is now the
+  // alexandria-marketplace github repo, agent reads via gh.)
 
   // Manual digest trigger. Scheduled daily at 09:00 UTC, but that's a 24h feedback
   // loop for any digest-logic change. This shortens it: make changes, curl this,
@@ -803,165 +643,6 @@ export function registerRoutes(app: Hono) {
     return c.json({ ok: true, email_sent: sendEmailOnAlarm, result: raw ? JSON.parse(raw) : null });
   });
 
-  // --- Library signal (RL aggregation for meta trigger) ---
-
-  app.get('/admin/marketplace/library-signal', async (c) => {
-    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
-
-    // Read window — default last 30 days, configurable
-    const days = parseInt(c.req.query('days') || '30', 10);
-    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-
-    try {
-      const db = getDB();
-
-      // Per-author aggregate: what they published, what engagement they got
-      const publishEvents = await db.prepare(
-        `SELECT author_id, event, meta, created_at FROM access_log
-         WHERE event LIKE 'publish_%' AND created_at > ? ORDER BY created_at`
-      ).bind(since).all();
-
-      const engagementEvents = await db.prepare(
-        `SELECT author_id, event, COUNT(*) as count FROM access_log
-         WHERE event NOT LIKE 'publish_%' AND created_at > ?
-         GROUP BY author_id, event ORDER BY count DESC`
-      ).bind(since).all();
-
-      // Quiz outcomes — score distribution is RL signal
-      const quizOutcomes = await db.prepare(
-        `SELECT q.author_id, qr.quiz_id, qr.score_pct, qr.taken_at
-         FROM quiz_results qr
-         JOIN quizzes q ON qr.quiz_id = q.id
-         WHERE qr.taken_at > ?
-         ORDER BY qr.taken_at`
-      ).bind(since).all();
-
-      // Referral conversions — which artifacts drove signups
-      const referrals = await db.prepare(
-        `SELECT author_id, source_type, COUNT(*) as count FROM referrals
-         WHERE created_at > ? GROUP BY author_id, source_type`
-      ).bind(since).all();
-
-      const protocolFiles = await db.prepare(
-        `SELECT account_id, name, visibility, updated_at FROM protocol_files
-         WHERE updated_at > ? ORDER BY updated_at`
-      ).bind(since).all();
-
-      const moduleUsage = await db.prepare(
-        `SELECT module_id, COUNT(*) as count, COUNT(DISTINCT account_id) as accounts
-         FROM protocol_calls WHERE time > ?
-         GROUP BY module_id ORDER BY accounts DESC, count DESC LIMIT 100`
-      ).bind(since).all();
-
-      // Event distribution — the marketplace determines which patterns matter
-      const funnelCounts = await db.prepare(
-        `SELECT event, COUNT(*) as count, COUNT(DISTINCT author_id) as authors,
-                COUNT(DISTINCT accessor_id) as unique_accessors
-         FROM access_log WHERE created_at > ?
-         GROUP BY event ORDER BY count DESC`
-      ).bind(since).all();
-
-      // Build unstructured text for Opus to interpret
-      const lines: string[] = [
-        `# Library RL Signal — last ${days} days (since ${since.slice(0, 10)})`,
-        '',
-        '## Funnel Overview',
-      ];
-
-      for (const row of (funnelCounts.results || []) as Array<{ event: string; count: number; authors: number; unique_accessors: number }>) {
-        lines.push(`- ${row.event}: ${row.count} events, ${row.authors} authors, ${row.unique_accessors} unique accessors`);
-      }
-
-      // Per-author publishing patterns
-      const authorPublishes: Record<string, Array<{ event: string; meta: string | null; at: string }>> = {};
-      for (const row of (publishEvents.results || []) as Array<{ author_id: string; event: string; meta: string | null; created_at: string }>) {
-        if (!authorPublishes[row.author_id]) authorPublishes[row.author_id] = [];
-        authorPublishes[row.author_id].push({ event: row.event, meta: row.meta, at: row.created_at });
-      }
-
-      // Per-author engagement received (pre-aggregated by SQL)
-      const authorEngagement: Record<string, Record<string, number>> = {};
-      for (const row of (engagementEvents.results || []) as Array<{ author_id: string; event: string; count: number }>) {
-        if (!authorEngagement[row.author_id]) authorEngagement[row.author_id] = {};
-        authorEngagement[row.author_id][row.event] = row.count;
-      }
-
-      const allAuthors = new Set([...Object.keys(authorPublishes), ...Object.keys(authorEngagement)]);
-      if (allAuthors.size > 0) {
-        lines.push('', '## Per-Author Signal');
-        for (const author of allAuthors) {
-          lines.push('', `### ${author}`);
-          const pubs = authorPublishes[author] || [];
-          if (pubs.length > 0) {
-            lines.push('Published:');
-            for (const p of pubs) {
-              const meta = p.meta ? ` — ${p.meta}` : '';
-              lines.push(`  ${p.event} at ${p.at}${meta}`);
-            }
-          }
-          const eng = authorEngagement[author] || {};
-          if (Object.keys(eng).length > 0) {
-            lines.push('Engagement received:');
-            for (const [event, count] of Object.entries(eng)) {
-              lines.push(`  ${event}: ${count}`);
-            }
-          }
-        }
-      }
-
-      const pfiles = (protocolFiles.results || []) as Array<{ account_id: string; name: string; visibility: string; updated_at: string }>;
-      if (pfiles.length > 0) {
-        lines.push('', '## Protocol Files Published');
-        for (const f of pfiles.slice(-200)) {
-          lines.push(`- account ${f.account_id}: ${f.name} (${f.visibility}) at ${f.updated_at}`);
-        }
-      }
-
-      const modules = (moduleUsage.results || []) as Array<{ module_id: string; count: number; accounts: number }>;
-      if (modules.length > 0) {
-        lines.push('', '## Module Usage Signal');
-        for (const m of modules) {
-          lines.push(`- ${m.module_id}: ${m.accounts} accounts, ${m.count} calls`);
-        }
-      }
-
-      // Quiz score distributions — what correlates with shares/conversions
-      const quizResults = (quizOutcomes.results || []) as Array<{ author_id: string; quiz_id: string; score_pct: number }>;
-      if (quizResults.length > 0) {
-        lines.push('', '## Quiz Score Distribution');
-        const byQuiz: Record<string, number[]> = {};
-        for (const r of quizResults) {
-          const key = `${r.author_id}/${r.quiz_id}`;
-          if (!byQuiz[key]) byQuiz[key] = [];
-          byQuiz[key].push(r.score_pct);
-        }
-        for (const [key, scores] of Object.entries(byQuiz)) {
-          const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-          const min = Math.min(...scores);
-          const max = Math.max(...scores);
-          lines.push(`- ${key}: ${scores.length} takes, avg ${avg}%, range ${min}-${max}%`);
-        }
-      }
-
-      // Referral conversions
-      const refs = (referrals.results || []) as Array<{ author_id: string; source_type: string; count: number }>;
-      if (refs.length > 0) {
-        lines.push('', '## Referral Conversions');
-        for (const r of refs) {
-          lines.push(`- ${r.author_id}: ${r.count} via ${r.source_type}`);
-        }
-      }
-
-      lines.push('', '---', 'Raw structural signal. No content. The marketplace interprets patterns and updates canon defaults.');
-
-      const output = lines.join('\n');
-      // Cap output — Workers have memory limits, and the meta trigger has context limits
-      return c.text(output.slice(0, 50000));
-    } catch (err) {
-      console.error('[marketplace] library-signal error:', err);
-      return c.text('error reading library signal', 500);
-    }
-  });
 
   // --- CTO → CEO email channel (any autonomous agent can reach the founder) ---
 

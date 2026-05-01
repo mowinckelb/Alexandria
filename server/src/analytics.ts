@@ -253,42 +253,34 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
 
 /**
  * Marketplace status — is the cross-Author learning loop working?
- * Signal lives in marketplace:signal:* until drained by Factory autoloop.
+ * Signals are relayed to alexandria-marketplace github repo. Liveness =
+ * the repo's pushedAt timestamp (advances on every relay or factory drain).
  */
 async function getMarketplaceStatus(events: Record<string, string>[]): Promise<Record<string, unknown>> {
+  const signalEvents = events.filter(e => e.e === 'machine_signal');
+  const signalsThisWeek = signalEvents.filter(e =>
+    Date.now() - new Date(e.t).getTime() < 7 * 24 * 60 * 60 * 1000
+  ).length;
+
+  let lastPushedAt: string | null = null;
   try {
-    const kv = getKV();
-
-    // Pending signals — what Factory autoloop will process next
-    const pending = await kv.list({ prefix: 'marketplace:signal:' });
-
-    // Signal ingest rate from event log (window is soft default — Factory may reconsider)
-    const signalEvents = events.filter(e => e.e === 'machine_signal');
-    const signalsThisWeek = signalEvents.filter(e =>
-      Date.now() - new Date(e.t).getTime() < 7 * 24 * 60 * 60 * 1000
-    ).length;
-
-    // Factory autoloop liveness — cron:factory_autoloop is written by Factory on each run
-    const markerRaw = await kv.get('cron:factory_autoloop');
-    let lastFactoryRun: string | null = null;
-    if (markerRaw) {
-      try { lastFactoryRun = JSON.parse(markerRaw).t; } catch { /* ignore */ }
+    const token = process.env.GITHUB_BOT_TOKEN;
+    if (token) {
+      const resp = await fetch('https://api.github.com/repos/mowinckelb/alexandria-marketplace', {
+        headers: { Authorization: `Bearer ${token}`, 'User-Agent': 'alexandria-server' },
+      });
+      if (resp.ok) {
+        const data = await resp.json() as { pushed_at: string };
+        lastPushedAt = data.pushed_at;
+      }
     }
+  } catch { /* non-fatal */ }
 
-    // Last drain from event log
-    const drainEvents = events.filter(e => e.e === 'marketplace_signal_drained');
-    const lastDrain = drainEvents.length > 0 ? drainEvents[drainEvents.length - 1].t : null;
-
-    return {
-      status: signalsThisWeek > 0 ? 'ok' : 'no signal this week',
-      signals_pending: pending.keys.length,
-      signals_this_week: signalsThisWeek,
-      last_factory_run: lastFactoryRun,
-      last_drain: lastDrain,
-    };
-  } catch {
-    return { status: 'error reading marketplace state' };
-  }
+  return {
+    status: signalsThisWeek > 0 ? 'ok' : 'no signal this week',
+    signals_this_week: signalsThisWeek,
+    marketplace_repo_last_push: lastPushedAt,
+  };
 }
 
 /**
@@ -402,5 +394,5 @@ export async function getUserEvents(login: string): Promise<Record<string, unkno
   };
 }
 
-// Archive mechanism removed — Factory autoloop drains processed signal directly via
-// DELETE /admin/marketplace/signals. Signal lives until consumed, not until time expires.
+// Signals + feedback are relayed straight to alexandria-marketplace github repo
+// (no KV storage). Factory drains by deleting files in that repo.

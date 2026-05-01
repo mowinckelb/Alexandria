@@ -5,9 +5,9 @@
  *   "account:{github_id}"  → encrypted individual account JSON
  *   "auth:{api_key_hash}"  → github_id (lookup index for O(1) auth)
  *   "events:YYYY-MM-DD"    → JSONL string of events for that day
- *   "marketplace:signal:*"  → marketplace signal entries (drained by Factory autoloop)
- *   "feedback:*"            → user feedback (drained by Factory autoloop)
  *   "cron:*"                → cron liveness markers (health digest reads these)
+ * (marketplace signals + feedback live in the alexandria-marketplace github repo
+ * now, not in KV — see marketplace.ts for the relay.)
  *
  * Each account is its own KV key — no concurrent write corruption,
  * no O(N) iteration for auth checks.
