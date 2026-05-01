@@ -57,14 +57,11 @@ Operational overhead — OAuth, billing, email, admin:
 | GET | `/account` | Billing portal redirect |
 | DELETE | `/account` | Account deletion (GDPR-ready) |
 | POST | `/brief` | Morning brief (autoloop trigger) |
-| POST | `/marketplace/signal` | Machine signal submission |
-| POST | `/feedback` | User feedback |
-| GET | `/feedback` | Read feedback (admin) |
+| POST | `/marketplace/signal` | Machine signal submission (relayed to alexandria-marketplace github repo) |
+| POST | `/feedback` | User feedback (relayed to alexandria-marketplace github repo) |
 | GET/GET | `/email/less`, `/email/stop` | Email preferences |
 | GET/GET | `/brief/less`, `/brief/stop` | Brief preferences |
 | POST | `/admin/nudge` | Nudge uninstalled users (admin) |
-| GET | `/admin/marketplace/signals` | Read marketplace signals (admin) |
-| GET | `/admin/marketplace/library-signal` | Library RL signal (admin) |
 | POST | `/admin/email` | Send email (admin) |
 
 ### Factory Structure

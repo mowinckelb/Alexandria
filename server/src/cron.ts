@@ -65,11 +65,13 @@ async function probeD1(escalate: Escalate): Promise<void> {
 }
 
 /**
- * Factory liveness — the marketplace github repo's pushedAt is the ground truth.
- * Stale → either the server isn't relaying signals or the meta trigger hasn't drained.
- * Either way, surface it. 14d soft default; the meta itself can change this.
+ * Marketplace activity check. The daily library-signal snapshot pushes to the
+ * marketplace repo every cron run, so pushedAt should never go more than ~24h
+ * stale. If it does, either GITHUB_BOT_TOKEN is broken, github is down for
+ * a long time, or the cron itself stopped firing. 14d threshold makes this
+ * a real-failure signal, not a daily-blip one.
  */
-async function checkFactoryLiveness(escalate: Escalate): Promise<void> {
+async function checkMarketplaceActivity(escalate: Escalate): Promise<void> {
   try {
     const token = process.env.GITHUB_BOT_TOKEN;
     if (!token) return; // not configured yet — skip silently during bootstrap
@@ -80,7 +82,7 @@ async function checkFactoryLiveness(escalate: Escalate): Promise<void> {
     const data = await resp.json() as { pushed_at: string };
     const ageDays = Math.floor((Date.now() - new Date(data.pushed_at).getTime()) / 86400000);
     if (ageDays > 14) {
-      escalate('stroll', `marketplace repo stale (${ageDays}d since last push) — relay or factory broken`);
+      escalate('stroll', `alexandria-marketplace stale (${ageDays}d since last push) — daily snapshot or relay broken`);
     }
   } catch { /* non-fatal */ }
 }
@@ -221,7 +223,7 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
       if (missing.length > 0) escalate('sprint', `Missing env vars: ${missing.join(', ')}`);
     } catch { /* non-fatal */ }
 
-    await checkFactoryLiveness(escalate);
+    await checkMarketplaceActivity(escalate);
 
     // Refresh the library-signal snapshot in alexandria-marketplace. The factory
     // reads this on its weekly run; daily refresh keeps it ≤24h stale. Non-fatal
