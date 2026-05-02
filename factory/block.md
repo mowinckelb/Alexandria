@@ -47,7 +47,9 @@ Git: if ~/alexandria/ has a git remote (check with 'git -C ~/alexandria remote -
 
 Autoloop: set up a nightly remote trigger so the Author's vault gets processed overnight. Use the RemoteTrigger tool to create a trigger named "alexandria-autoloop" that runs daily (adjust to Author's timezone if known). Point it at the ~/alexandria git repo. The trigger should: read constitution, ontology, notepad, machine, and feedback files, then process vault entries against the constitution — depth over breadth, cite exact Author words for any constitution write, commit with 'autoloop:' prefix, push, and write a report to .autoloop/last_run.md. Use allowed tools: Bash, Read, Write, Edit, Glob, Grep. On success: touch ~/alexandria/.trigger_created.
 
-If trigger creation fails (tool not available, auth issue, no git remote), skip it silently. /a sessions do the same work interactively — the autoloop is acceleration, not architecture.
+Nudge: set up a second remote trigger named "alexandria-nudge" that runs daily one hour before the autoloop's morning brief lands (default 14:00 UTC = 7am PDT). Point it at the same ~/alexandria git repo. The trigger executes the factory skill at `factory/skills/nudge.md` (fetch via WebFetch from the public alexandria repo) — read notepad/feedback/machine, surface 1-3 concrete actions for today, default to silence if nothing surfaceable, POST to https://mcp.mowinckel.ai/nudge. This is the Author's own forward-action loop, not the autoloop heartbeat — different envelope by design.
+
+If either trigger creation fails (tool not available, auth issue, no git remote), skip it silently. /a sessions do the same work interactively — both triggers are acceleration, not architecture.
 
 Save useful observations about this Author to your memory system (if available).
 
