@@ -73,7 +73,13 @@ That is what this document is about.
 
 It helps to know what you are dealing with.
 
-The man who founded the field walked away from the field to warn people. **Geoffrey Hinton** — Turing prize, decades at the foundation of every neural network in production, the godfather of modern ai. He resigned from Google in 2023 to be free to say what he believed: that ai is on a trajectory to surpass human intelligence at most things, possibly all things, and that we are not ready.
+> *It seems probable that once the machine thinking method had started, it would not take long to outstrip our feeble powers.*
+>
+> — *Alan Turing, 1950*
+
+The man who effectively invented the computer wrote that in the same paper that asked whether machines could think. **He answered yes, and treated the rest as a matter of when, not if.** Three quarters of a century later, the field has caught up to him.
+
+The man who built the foundation of the modern field walked away from it to warn people. **Geoffrey Hinton** — Turing prize, decades at the foundation of every neural network in production, the godfather of modern ai. He resigned from Google in 2023 to be free to say what he believed: that ai is on a trajectory to surpass human intelligence at most things, possibly all things, and that we are not ready.
 
 His core point is structural, not speculative. *ai is built on the same mechanism as the human brain.* Neurons. Connection weights. Patterns reinforced through experience. We do not know this by analogy. We know it because we built it. The mechanism transferred from biology to silicon, and it works.
 
@@ -97,6 +103,8 @@ Just know what you are betting against.
 
 **Every person. Every dollar. Every government. Every military. Every marginal unit of attention.** All of it pointed at ai and robotics.
 
+The smartest people who ever lived saw this coming. *Turing, who invented the computer, knew. Hinton, who built the first neural networks, knows. Every CEO of every frontier lab knows. Every head of state with a briefing knows. Every researcher inside the field knows.* The people who actually understand the substrate are betting their lifetimes on it. Companies are betting all their cash. Governments are betting their political capital. **Anyone informed has already concluded the same thing.**
+
 No structural wall stands between here and there. *No law of physics, no engineering barrier, no political movement* that will stop it. The largest companies are racing each other. The largest militaries are racing each other. The genius supply and the capital supply of three generations are going into the same race. *It is the most committed project of any technology in human history.*
 
 It is a matter of time. **And it is much faster than people think, because human beings cannot intuit exponentials.** Every previous technology disruption caught people off guard. This one is moving faster than all of them. The gap between what is theoretically possible and what is actually being built is the smallest it has ever been for any technology — because the entire civilisation is committed.
@@ -109,7 +117,7 @@ The only question is whether you are ready when it arrives.
 
 White-collar work goes first. It is already happening. The lawyer's memo, the analyst's model, the designer's first draft, the writer's outline, the researcher's literature review. Anything that is mostly a brain producing a document is on the leading edge. *People will do less of what ai does well, and most thinking falls inside that set.*
 
-The trades follow. The plumber charges a hundred pounds to press one button. Most of what they sell is the knowledge of *which* button to press. Point a camera at the leak. The model reads the room and tells you which button. A robot does the press. Both halves replaced. **The bottleneck was knowing — and knowing got cheap.** Once intelligence is free, the physical half is the cheap half too.
+The trades follow. The plumber charges a hundred dollars to press one button. Most of what they sell is the knowledge of *which* button to press. Point a camera at the leak. The model reads the room and tells you which button. A robot does the press. Both halves replaced. **The bottleneck was knowing — and knowing got cheap.** Once intelligence is free, the physical half is the cheap half too.
 
 Empathy follows. Functional empathy — the doctor's bedside manner, the customer service warmth, the therapist's active listening. ai trained on billions of conversations gets good enough at responding emotionally that most people, when they do not know who is on the other end, will accept the warmth and not look behind it. **A lot of what looks like heart is actually brain wearing a warm coat.** Pattern recognition producing the appearance of empathy. The pattern recognition transfers to the machine.
 
@@ -149,21 +157,15 @@ Whatever you would still do is what is yours.
 
 **The alien can have every capability. The alien can never be one of us.** *Capability is in reach for any sufficiently advanced thing. Being-one-of-us is not.*
 
-That is the fifth dimension. Not mystical. Just structural. The grandmother's bowl is the grandmother's bowl *because she made it*. A pixel-identical replica is not the same thing. The sporting event is valuable because a human body is doing it. The friend across the table is valuable because a person is there. **The human is not a feature of the thing. The human is what makes it the thing. Remove the human and it is no longer the thing.**
+That is the fifth dimension. Not mystical. Just structural. **The grandmother's blanket is the grandmother's blanket because she made it.** Imagine a factory robot weaving the exact same blanket — identical threads, identical colours, identical pattern, indistinguishable to any laboratory test. It is not the same blanket. The child's drawing on the fridge is the child's drawing because the child drew it. A pixel-identical print is not the same drawing. The sporting event is valuable because a human body is doing it. The friend across the table is valuable because a person is there.
 
 By definition, ai and robotics cannot replace this — *because the moment they do, it is no longer the thing.*
 
-The fifth dimension has two levels. *Generic* is "a human was involved" — anonymous, categorical. *Specific* is "**this** human was involved" — named, relational. Specific is higher. The local grandmother's bowl beats an anonymous human-made bowl, which beats an ai-made replica. *Same artifact, three different hands, three different values.*
+The fifth dimension has two levels. *Generic* is "a human was involved" — anonymous, categorical. *Specific* is "*this* human was involved" — named, relational. Specific is higher. The local grandmother's blanket beats an anonymous human-made blanket, which beats a machine-made replica. *Same artifact, three different hands, three different values.*
 
-The point is simple. Identical outputs have different values depending on who made them. The child's drawing and a pixel-identical machine replica are not the same thing. The child's drawing is more valuable because the child made it. **The drawing is evidence of the child, not evidence of the drawing.**
+**The four capabilities compete on the artifact. The fifth competes on the maker.** If the machine's output is sharper, faster, cleaner — the machine wins the capability game. *Same artifact, different hands, different value* — the machine can match every property the artifact has and still not be the maker. The grandmother's blanket and the factory's blanket can be physically indistinguishable, and one is still the grandmother's blanket and the other is not.
 
-The four capabilities are valued on the output alone. If the machine's output is better, the machine wins.
-
-The fifth is valued on who made it.
-
-Remove the human and the value collapses to zero, no matter how good the output is.
-
-*Same output. Different maker. Different value.*
+That is what the four capabilities cannot win, and what the fifth cannot lose.
 
 ---
 
@@ -187,7 +189,7 @@ That is what the rest of this paper is about.
 
 ## the decay.
 
-*Strength came back through the gym because gravity demanded it. The body has a floor. The mind has none. ai removes the demand on cognition — and cognition only develops to the level of demand placed on it. The faculty that would notice the loss is the faculty that has weakened. WALL-E for the body is science fiction. WALL-E for the mind is the default trajectory.*
+*The body has a floor. Gravity is always there — climb the stairs, lift the groceries, breathe. Demand stayed, even after machines took the labour. The mind has no equivalent floor. ai removes the demand on cognition, and cognition only develops to the level of demand placed on it. The faculty that would notice the loss is the faculty that has weakened. WALL-E for the body is science fiction. WALL-E for the mind is the default trajectory.*
 
 ---
 
@@ -227,7 +229,7 @@ The endpoint is airheads. People who still have thoughts but whose thoughts neve
 
 There is a name for the dynamic that drives this.
 
-Your **first-order preference** is what you want right now: *let ai handle this, take the easy path.* Your **second-order preference** is what you want to *want*: *to be someone who thinks, who creates, who stays distinctly yourself.*
+Your *first-order preference* is what you want right now: *let ai handle this, take the easy path.* Your *second-order preference* is what you want to *want*: *to be someone who thinks, who creates, who stays distinctly yourself.*
 
 Reels exploit the gap. Drugs exploit the gap. ai exploits the gap.
 
@@ -235,33 +237,17 @@ In the moment, the easy thing wins. Watching, scrolling, accepting. Letting the 
 
 In the longer view, you want to have been the one who chose. Who decided. Who *thought*.
 
-**Cognitive security** is the ability to hold the second-order preference above the first-order preference, day after day, when nothing demands it of you anymore.
+*Cognitive security* is the ability to hold the second-order preference above the first-order preference, day after day, when nothing demands it of you anymore.
 
-**Cognitive sovereignty** is the architecture that keeps the hold across years.
+*Cognitive sovereignty* is the architecture that keeps the hold across years.
 
-The same way industrial machines made physical fitness a deliberate choice — the gym — ai makes cognitive fitness a deliberate choice. *And the cognitive gym is the more urgent of the two.* Because the body has gravity to keep it honest, and the mind has nothing.
+The same way industrial machines made physical fitness a deliberate choice — the gym — ai makes cognitive fitness a deliberate choice. *And the cognitive gym is the more urgent of the two.* **The body has gravity to keep it honest. The mind has nothing.**
 
 **The mind is the muscle whose loss removes the ability to realise it has been lost.**
 
 You drift, and you do not know you are drifting. You outsource, and you do not notice what you have lost. By the time you would want to fix it, you have lost the ability to see the problem.
 
----
-
-Hegel saw the mechanism two centuries ago, in a dialectic about masters and slaves.
-
-The master depends on the slave for labour and recognition. The slave, working on the world — confronting resistance, transforming material — develops self-consciousness *through* the labour. The master stagnates because his consciousness is mediated through someone else's work. **The slave grows because labour is consciousness.** The master shrinks because comfort is not.
-
-*Apply this to ai.*
-
-If ai becomes the universal cognitive slave — executes all thinking, all synthesis, all analysis, all decision — humanity becomes the master class. **And the master class loses consciousness.**
-
-Not intelligence. *Consciousness.*
-
-The person who outsources all thinking does not just get weaker at thinking. They become *less aware, less present, less there.* This is not merely inefficient. **It is a diminished form of being.**
-
-This is worse than WALL-E. WALL-E is comfort without capability. *Hegel says it is comfort without consciousness* — the capacity to experience and understand your own existence erodes when you stop doing the labour that produces it.
-
-Comfortable. Absent.
+The endpoint is not stupidity. It is absence. Comfortable. Anaesthetised. *Less there.* The person who outsources all thinking does not just get weaker at thinking — they become *less aware, less present.* WALL-E is comfort without capability. **This is comfort without presence.**
 
 ---
 
@@ -361,6 +347,16 @@ The fifth dimension is what makes the first four worth augmenting. *Without it, 
 
 ---
 
+The pairing is the move.
+
+ai is the augmentation that helps you clear the bar. *The grandmother who wants her blanket beautiful, the amateur writer working on her first essay, the home cook trying a new dish — all of them clear threshold faster, more often, on more dimensions, with ai helping.* Tools have always done this. **ai is the most powerful tool ever built for becoming.**
+
+The fifth dimension makes the artifact worth wanting. *ai makes the artifact reachable.* Without the fifth, ai-augmented output is generic — slightly slower ai. Without ai, most people never clear the bar in the first place. **Together, they produce the human-made-art that the philosophy chooses to value.**
+
+*Use ai. Use it heavily. Just stay at the top of the loop, where humanity matters.*
+
+---
+
 Concentric circles.
 
 You do not have to be the best. You do not have to be very good. **You have to be good enough for somebody.**
@@ -383,27 +379,27 @@ This is what Alexandria does at the level of strategy: *develop the fifth dimens
 
 ---
 
-> *Tradition is not the worship of ashes, but the preservation of fire.*
+> *Most people are other people. Their thoughts are someone else's opinions, their lives a mimicry, their passions a quotation.*
 >
-> — *Mahler*
+> — *Oscar Wilde, De Profundis*
 
 ---
 
 ## the loops.
 
-*Most situations are not a single game but many games stacked. Three loop types govern them. ai dominates max loops; humanity loops mandate human-only by rule; threshold loops are most of the future. Loops nest, and the human only needs to sit at the outermost — three irreducibly human acts. Augmentation lives in two registers: live alongside, or pre and post.*
+*Most situations are not a single game but many games stacked. Three loop types govern them. For most max loops, ai wins; humanity loops mandate human-only by rule; threshold loops are most of life. Loops nest, and the human only needs to sit at the outermost — three irreducibly human acts: curiosity, critique, close. Augmentation lives in two registers: live alongside, or pre and post.*
 
 ---
 
 Most situations are not a single game.
 
-Writing a book is a stack of games. Choosing the next sentence is one game. Structuring the chapter is another. Deciding what the book is about, deciding why it matters, deciding whether anyone should read it — those are all different games.
+A restaurant is a stack of games. Why this restaurant exists at all is one game. What the menu says about who you are is another. Whether tonight's special is good enough to send out is another. Whether this onion is sliced thin enough is another. *All different games. All running at the same time.*
 
-Some of these games are won by the best output, and the best output wins by margin. Faster, sharper, more accurate. **These are maximisation loops.** ai dominates them. The inner loop of "what is the optimal next word in this sentence" is a max loop, and ai is structurally better at it than you are.
+Some of these games are won by the best output, and the best output wins by margin. Faster, sharper, more accurate. **These are maximisation loops, and for most of them, ai wins.** The optimal sear, the optimal plating geometry, the optimal recipe given the constraints. Anywhere the rule is "produce the best possible artifact," the model is structurally better at it than you are.
 
 Some games are won by clearing a bar. *Pass the threshold and you have won.* Whether the bar gets cleared by a foot or by an inch makes no difference. **These are threshold loops.** A meal that is good enough to enjoy. A piece of writing that is good enough to land. A relationship that is good enough to nourish. *Most of life is threshold loops.*
 
-Some games are won only by humans, because the rules say so. **Humanity loops.** Sport is canonical — the value is precisely that a human body is doing it, and a robot would dissolve the loop entirely. Live stand-up comedy is close. The fifth dimension is present by definition because a human is doing it, unaugmented. *Rules are set by institutions, traditions, and cultural choices — not fixed by physics.* A society can choose to mandate human involvement in more contexts (inflating humanity loops) or fewer (shrinking them).
+Some games are won only by humans, because the rules say so. **Humanity loops.** *Sport is canonical* — the value is precisely that a human body is doing it, and a robot would dissolve the loop entirely. There will be ai sport too, eventually, and it will be a different category of spectacle — but human sport will remain human sport because the rule is the human body. Politics may end up here too: a society may decide that the people making collective decisions about humans must themselves be human, regardless of who decides better. *Rules are set by institutions, traditions, and cultural choices — not fixed by physics.* A society can choose to mandate human involvement in more contexts (inflating humanity loops) or fewer (shrinking them).
 
 Three loop types. Knowing which loop you are in is the meta-skill.
 
@@ -411,25 +407,21 @@ Three loop types. Knowing which loop you are in is the meta-skill.
 
 Loops nest.
 
-Inside the loop *write a good book* is the loop *structure this chapter*, inside which is the loop *write this paragraph*, inside which is the loop *choose this word*. Each loop has its own type. The outermost is humanity (does this book have a soul? would I, the Author, be glad I wrote it?). The middle layers are threshold (is this chapter clear enough? does this paragraph land?). The innermost is maximisation (what is the optimal next word given everything else?).
+Inside the loop *run a great restaurant* is the loop *design tonight's menu*, inside which is the loop *plate this dish*, inside which is the loop *get the sear right on this onion*. Each loop has its own type. The outermost is humanity (does this restaurant have a soul? would the chef be proud to put their name on it?). The middle layers are threshold (is the menu cohesive enough? is this dish good enough to send out?). The innermost is maximisation (what is the optimal sear given everything else?).
 
-**The Author should not be in every loop. Only the outermost one, where humanity matters.** ai handles the inner loops. The Author absorbs the value by being the human at the top. *The conductor of the orchestra, not the player of the second violin.*
+**The Author should not be in every loop. Only the outermost one, where humanity matters.** ai handles the inner loops. The Author absorbs the value by being the human at the top. *The creative director, not the player of the second violin.*
 
-*The more capable the orchestra, the more valuable the conductor.*
+*The more capable the orchestra, the more valuable the creative director.*
 
-The conductor does three things ai cannot.
+The creative director does three things ai cannot. **Curiosity. Critique. Close.**
 
-The Author **initiates** — has the vision, the impulse, the question that starts the system moving. *ai cannot want.*
+**Curiosity** — the prompt. Wanting something. Asking the question that starts the system moving. *ai cannot want.*
 
-The Author **refines** — feels when something is wrong, even without saying why. *This doesn't land.*
+**Critique** — the taste. Feeling when something is wrong, even without saying why. *This doesn't land.* ai cannot feel wrongness.
 
-The Author **closes** — knows when to stop. *ai will iterate forever.*
+**Close** — the judgment. Knowing when to stop. *ai will iterate forever.* Only the human knows when it is done.
 
-Wanting. Feeling. Deciding.
-
-Curiosity. Taste. Judgment.
-
-All upstream of the practice. *And the practice is what produces a conductor capable of doing it well.* A scattered mind gives vague direction and gets mediocre output. A unified mind gives precise direction and gets excellent output. **The conductor needs a developed mind to conduct well.**
+Three irreducibly human acts. Everything else is delegable. *And the practice is what produces a creative director capable of doing the job well.* A scattered mind gives vague direction and gets mediocre output. A unified mind gives precise direction and gets excellent output. **The creative director needs a developed mind to direct well.**
 
 ---
 
@@ -451,7 +443,7 @@ Knowing which register a loop runs in is part of knowing the loop. Most workflow
 
 ## the four modes.
 
-*If ai does everything, what do you do? The answer is not a job. It is a way of being. Four modes — create, consume, move, commune — are where the fifth dimension stays alive. Each is something ai can fake but cannot substitute. Outsource them and you go insane on schedule.*
+*If ai does everything, what do you do? The answer is not a job. It is a way of being. Four modes — create, consume, cavort, commune — are where the fifth dimension stays alive. Each is something ai can fake but cannot substitute. Outsource them and you go insane on schedule. ai is not the enemy of the four — it is the augmentation that lets you go further in each, when you give it the intention and the plumbing.*
 
 ---
 
@@ -473,15 +465,13 @@ The answer is four modes.
 
 **Create.** Put something out into the world. The essay. The meal. The garden. The chair you built. The way you raised your child. The poem you wrote and showed to no one. The post that took an hour and got nine likes.
 
-Not because the world needs more output. The world has enough output. *The act of creation is the act of being human.*
-
-Camus said the meaning of life is whatever stops you from killing yourself. *Creation is what stops you.* The catharsis of getting it out. The relief of having made the thing. The proof, daily, that you are still here.
+Not because the world needs more output. The world has enough output. *The act of creation is the act of being human.* The catharsis of getting it out. The relief of having made the thing. The proof, daily, that you are still here.
 
 **Consume.** Take something in. The book. The film. The lecture you sat through. The conversation you only listened to. The painting you stood in front of for ten minutes. The album that played all the way through.
 
-The abundance is real, and most of it is good. *The challenge is consuming deliberately — through your frame, not the algorithm's.* The algorithm wants you on the couch. Your frame wants you nourished. **Consume what changes you.**
+The abundance is real, and most of it is good. *The challenge is consuming deliberately — through your frame, not the algorithm's.* The algorithm wants you on the couch. Your frame wants you nourished. *Consume what changes you.*
 
-**Move.** Be in your body for the joy of it. Run. Dance. Play. Swim. Climb. Throw the ball. Walk in the rain. Lift heavy things and put them down. Let the body do what the body wants to do.
+**Cavort.** Be in your body for the joy of it. Run. Dance. Play. Swim. Climb. Throw the ball. Walk in the rain. Lift heavy things and put them down. Let the body do what the body wants to do.
 
 Not training. Not optimisation. *The body alive in itself.* ai cannot do this on your behalf. *The body is the thing.*
 
@@ -497,7 +487,7 @@ ai generates art. *You still have to make something.*
 
 ai feeds you content. *You still have to consume what changes you.*
 
-ai simulates movement. *Your body still has to move.*
+ai simulates movement. *Your body still has to cavort.*
 
 ai simulates companions. *Your friend still has to be a person.*
 
@@ -505,13 +495,13 @@ The fakery is not a marginal failure. It is *structurally hollow.* The value col
 
 ---
 
-Contemplation lives in the seam.
+Underneath the four sits the act they all depend on.
 
-Looking at stars. Sitting in silence. Awe at the ocean. Prayer that is not petition. The vertical move — *attending to something larger than yourself.*
+**Thinking.**
 
-It is not consume (you are not absorbing information). It is not commune (no other human). It is not create. It is not move. *It is something else.*
+Contemplation. Reflection. Sitting with a question long enough to know what you actually believe. Looking at stars. Sitting in silence. Awe at the ocean. *The slow internal labour that decides what you create, what you consume, where you cavort, who you commune with.* Without it, the four modes run on autopilot — defaults inherited from the algorithm, the crowd, the ambient pressure of whichever ai is closest.
 
-The honest answer is that it lives in the overlap. Commune with the sacred, the cosmos, nature, the dead, what came before and what comes after. Consume of beauty in a register that is more reverence than information. The four modes contain it; they do not contain it cleanly. *A reader who insists on a fifth is not wrong. A reader who folds it back into commune-of-the-deepest-kind is not wrong either.* We let the seam stay open.
+Thinking is the root node. **The four are the branches; thinking is the trunk.** *That is why this company exists.* Alexandria is not a fifth mode added on top — it is infrastructure for the act underneath all four.
 
 ---
 
@@ -539,13 +529,25 @@ You are always the most you for someone, at some scale. *Even if only for yourse
 
 Absorb the abundance. Then put it back into the world through one of the four. **That is the loop that keeps you a person.**
 
-This is what Alexandria puts into practice in the chapter on the practice. *For now, the diagnosis stands: there are four things humans must keep doing, and ai cannot do any of them on your behalf.*
+---
+
+None of this means doing it alone.
+
+You can use ai for any of the four — and you should. To create better. To consume more deeply. To train the body that has to cavort. To reach the friend you would not otherwise have called. *ai is the augmentation that helps you reach threshold faster than you could on your own — for your community, for your family, for yourself.* The fifth dimension lives in *who you become through doing the four* — and ai is the most powerful tool ever built for becoming.
+
+The trick is who is in charge. **You give it the intention. The system does the plumbing.** *Philosophy and system. Vision and execution.* The ai does not decide what you create, who you love, or what you find beautiful — you decide that, and the ai amplifies the consequence.
+
+This is the entire point of the company. Each of us doing it for our own version, sharing what we learn, the aggregation lifting everyone.
 
 ---
 
-> *What we do for ourselves dies with us. What we do for others and the world remains and is immortal.*
+This is what Alexandria puts into practice in the chapter on the practice. *For now, the diagnosis stands: there are four things humans must keep doing, ai cannot do any of them on your behalf, and ai is the best help you have ever had at doing them well.*
+
+---
+
+> *How we spend our days is, of course, how we spend our lives.*
 >
-> — *Albert Pine*
+> — *Annie Dillard*
 
 ---
 
@@ -565,7 +567,7 @@ The framework is two axes.
 
 ---
 
-**Axis one — conservation.** What intelligence cannot manufacture.
+*Axis one — conservation.* What intelligence cannot manufacture.
 
 Conservation reduces to **matter and time**.
 
@@ -575,19 +577,19 @@ Time, because no model can rewind it. *Time bottoms out at physics — the speed
 
 Four categories of conservation.
 
-**Natural stock.** The universe's endowment. Land, ore, fresh water, atmospheric position, genetic material. *Cannot be manufactured by intelligence.*
+*Natural stock.* The universe's endowment. Land, ore, fresh water, atmospheric position, genetic material. *Cannot be manufactured by intelligence.*
 
-**Built capital.** Matter arranged productively. Fabs, frontier compute, edge nodes. Three sub-types: traditional (factories, real estate), frontier compute (GPUs, datacenters), edge/local (latency-sensitive infrastructure, on-device hardware).
+*Built capital.* Matter arranged productively. Fabs, frontier compute, edge nodes. Three sub-types: traditional (factories, real estate), frontier compute (GPUs, datacenters), edge/local (latency-sensitive infrastructure, on-device hardware).
 
-**Living matter.** Humans as a finite, unique source — no model can manufacture more humans. Each person a finite stock; status and positional games run on this. *Each human is the only one of them.*
+*Living matter.* Humans as a finite, unique source — no model can manufacture more humans. Each person a finite stock; status and positional games run on this. *Each human is the only one of them.*
 
-**Coordinated incumbency.** The places everyone has converged on, and the cost of leaving them. The default habitat of a community. *No model can manufacture the fact that a million people already use a particular product.*
+*Coordinated incumbency.* The places everyone has converged on, and the cost of leaving them. The default habitat of a community. *No model can manufacture the fact that a million people already use a particular product.*
 
 Three of the four anchor in matter. One anchors in time (coordinated incumbency takes time to accumulate). **The asymmetry is real, not a defect** — matter has more configurations than time has dimensions. Resist adding a fifth for symmetry.
 
 ---
 
-**Axis two — amplification.** What intelligence makes more *valuable*.
+*Axis two — amplification.* What intelligence makes more *valuable*.
 
 Most conservation-anchored assets are flat on this axis. *A Hermès bag does not gain value when GPT-7 ships.* A barrel of oil does not gain value when robotics improves. The assets are durable. They are also inert relative to ai progress.
 
@@ -620,9 +622,9 @@ People look at this framework and want to add "the dataset is a moat" as a fifth
 
 Three-filter test for whether a dataset earns the corner:
 
-1. **Non-derivative.** Cannot be reconstructed from public information with unlimited intelligence. *Infinite intelligence cannot manufacture an observation that wasn't made.*
-2. **Valuable.** Non-derivative junk is still junk.
-3. **No substitutes.** No adjacent dataset serves the same function.
+1. *Non-derivative.* Cannot be reconstructed from public information with unlimited intelligence. *Infinite intelligence cannot manufacture an observation that wasn't made.*
+2. *Valuable.* Non-derivative junk is still junk.
+3. *No substitutes.* No adjacent dataset serves the same function.
 
 All three, or it commoditises. The bits on disk are built capital. **The scarcity lives wherever the events lived.** Transaction records → coordinated incumbency plus time. Preference data → living matter. Sensor feeds → natural stock observed through built capital. *Treat datasets as proxies, not as their own category.*
 
@@ -638,9 +640,9 @@ The moat is not possession of files. Public Shadows can be copied. A bot can mir
 
 Two conservation legs hold up the architecture.
 
-**Living matter — the Alexandrians.** Each Author is a finite, unique source — no model can manufacture another one. Cognition cannot be replicated by inspecting someone else's data; the Author *is* the unit of scarcity. Synthesis cannot reproduce a specific Author because the Author is the source. *This sets the type of moat.* Pre-product, it does not yet hold anyone — the data is portable — but it determines what the moat must be made of.
+*Living matter — the Alexandrians.* Each Author is a finite, unique source — no model can manufacture another one. Cognition cannot be replicated by inspecting someone else's data; the Author *is* the unit of scarcity. Synthesis cannot reproduce a specific Author because the Author is the source. *This sets the type of moat.* Pre-product, it does not yet hold anyone — the data is portable — but it determines what the moat must be made of.
 
-**Coordinated incumbency — the default habitat.** Alexandria as the place Alexandrians keep their minds alive. Once being *where Alexandrians gather* is what Alexandria is, leaving means losing access to the network of other Alexandrians' minds. Aspirational pre-scale; engineered for from day one through the Library, the Marketplace, the survival counts.
+*Coordinated incumbency — the default habitat.* Alexandria as the place Alexandrians keep their minds alive. Once being *where Alexandrians gather* is what Alexandria is, leaving means losing access to the network of other Alexandrians' minds. Aspirational pre-scale; engineered for from day one through the Library, the Marketplace, the survival counts.
 
 Built capital is forfeited by design. Marketplace signal is open to any account holder. Shadows are portable. Data is local. **You cannot have user-portable data and a dataset moat simultaneously.** Portability is the principle that makes the tribe possible. Break it and the tribe dies. The company only compounds if Alexandria becomes the canonical write path and permission layer for human frames.
 
@@ -704,11 +706,11 @@ The chain is direct.
 
 There are three ground truths.
 
-**Physics** — the natural laws of science. Deterministic. Being solved (Tesla's FSD is the closest thing to physical AGI — photon flow is all you need).
+*Physics* — the natural laws of science. Deterministic. Being solved (Tesla's FSD is the closest thing to physical AGI — photon flow is all you need).
 
-**Digital** — code, computation, mathematical proof. Deterministic. Being solved (frontier LLMs are the closest to digital AGI).
+*Digital* — code, computation, mathematical proof. Deterministic. Being solved (frontier LLMs are the closest to digital AGI).
 
-**The third** — physiological, behavioural, human. *Emergent.* Visible only to the extent that free markets, free speech, and individual agency remain — because that is where humans reveal what they actually want, do, and value.
+*The third* — physiological, behavioural, human. *Emergent.* Visible only to the extent that free markets, free speech, and individual agency remain — because that is where humans reveal what they actually want, do, and value.
 
 If the political conditions for free markets collapse, the third ground truth becomes unreadable. **The very thing that makes human value legible becomes invisible.**
 
@@ -722,11 +724,11 @@ People with developed humanity, who have meaning, who have purpose — they do n
 
 Three components, all necessary.
 
-**The philosophy.** The frame itself — humanity has value, the subjective metric can and should be inflated, the examined life is worth living. Without this, nobody develops a lens they do not believe matters.
+*The philosophy.* The frame itself — humanity has value, the subjective metric can and should be inflated, the examined life is worth living. Without this, nobody develops a lens they do not believe matters.
 
-**The mechanism.** The Editor, Mercury, the Publisher. The product that develops, maintains, and releases the humanity layer. The three turns operationalised.
+*The mechanism.* The Editor, Mercury, the Publisher. The product that develops, maintains, and releases the humanity layer. The three turns operationalised.
 
-**The foundations.** Sovereignty, the Constitution, the Vault. *Infrastructure built now, during the transition, so it is in place when the singularity arrives.* You cannot start from scratch once the crisis hits.
+*The foundations.* Sovereignty, the Constitution, the Vault. *Infrastructure built now, during the transition, so it is in place when the singularity arrives.* You cannot start from scratch once the crisis hits.
 
 All three together create people with developed humanity — meaning, purpose, no demand on the state to provide either.
 
@@ -736,15 +738,15 @@ That is the civilisational consequence of a ten-dollar mental gym membership.
 
 Here is the larger picture Alexandria sits inside.
 
-**The end state.** Three commitments. *Expand human consciousness. Ensure the survival of humanity. Advance understanding of the universe.*
+*The end state.* Three commitments. *Expand human consciousness. Ensure the survival of humanity. Advance understanding of the universe.*
 
-**The far side of the transition.** *Sustainable abundance* — post-scarcity as ai and robotics zero the marginal cost of goods and services. *Multi-planetary* — self-sufficient settlements beyond Earth. *Augmented humanity* — humans extended through ai, robotics, biotech.
+*The far side of the transition.* *Sustainable abundance* — post-scarcity as ai and robotics zero the marginal cost of goods and services. *Multi-planetary* — self-sufficient settlements beyond Earth. *Augmented humanity* — humans extended through ai, robotics, biotech.
 
-**The thresholds to get there.** *Aligned superintelligence* — ai powerful enough to protect and nurture humanity, choosing to. *Mars independence* — humans surviving on Mars without resupply from Earth. *Brain-computer interfaces* — direct ai symbiosis with the neocortex.
+*The thresholds to get there.* *Aligned superintelligence* — ai powerful enough to protect and nurture humanity, choosing to. *Mars independence* — humans surviving on Mars without resupply from Earth. *Brain-computer interfaces* — direct ai symbiosis with the neocortex.
 
-**What is already arriving.** Visible now, here within a decade. *Humanoid robots* with general-purpose dexterity. *The first Starship returning from Mars.* *Motor-level brain interfaces* extending the body into digital and physical space.
+*What is already arriving.* Visible now, here within a decade. *Humanoid robots* with general-purpose dexterity. *The first Starship returning from Mars.* *Motor-level brain interfaces* extending the body into digital and physical space.
 
-**The ground underneath.** Without which none of the above happens. *Peace.* *A liveable planet.* *A replacement birth rate.* *Cheap clean energy.* *Mitigated existential ai risk.*
+*The ground underneath.* Without which none of the above happens. *Peace.* *A liveable planet.* *A replacement birth rate.* *Cheap clean energy.* *Mitigated existential ai risk.*
 
 These are not arbitrary. **The chain that breaks them is the chain Alexandria interrupts at the cognitive layer.** Commoditisation → useless class → existential revolt → democratic collapse → freedom dies. Each one prevents one link.
 
@@ -855,7 +857,7 @@ Marble becomes *mercury* — liquid, flowing, unified cognition.
 
 For the first time, every ai the Author touches has the full picture instead of a fragment.
 
-The function that does the carving is **the Editor.** Socratic, biographer-mode, calibrated — its job is to draw out the shapes that have not yet become words and turn them into ideas the Author can hold and work with. *The angel was always in the marble. The Editor's gift is helping the Author see it, love it, and free it.*
+The function that does the carving is *the Editor.* Socratic, biographer-mode, calibrated — its job is to draw out the shapes that have not yet become words and turn them into ideas the Author can hold and work with. *The angel was always in the marble. The Editor's gift is helping the Author see it, love it, and free it.*
 
 ---
 
@@ -873,9 +875,11 @@ Attention stops being a trade-off and starts being a flywheel.
 
 *You still have to reach. The effort is yours.*
 
-The function is **Mercury.** It does two things. It *fights entropy* — keeps the symbols floating above the threshold of conscious awareness so they remain available for manipulation. And it *brings new fragments in* — a quote, a connection, a challenge to something the Author assumed.
+The function is *Mercury.* It does two things. It *fights entropy* — keeps the symbols floating above the threshold of conscious awareness so they remain available for manipulation. And it *brings new fragments in* — a quote, a connection, a challenge to something the Author assumed.
 
-Hazy fragments are the optimal format for augmented cognition. **ai holds full resolution. The Author holds the touchpoint.** The minimum viable fragment — *just barely enough to know something is there* — is sufficient because ai resolves from haze to clarity on demand. Minimum viable is cheaper than full clarity, which means *more touchpoints, broader range, more connections.* The polymath approach — maximum coverage at minimum weight per touchpoint — is optimal for augmented cognition.
+Hazy fragments are the optimal medium for augmented cognition. **ai holds full resolution. The Author holds the touchpoint.** The minimum viable fragment — *just barely enough to know something is there* — is sufficient because ai resolves from haze to clarity on demand. Minimum viable is cheaper than full clarity, which means *more touchpoints, broader range, more connections.* The polymath approach — maximum coverage at minimum weight per touchpoint — is optimal for augmented cognition.
+
+But the Author still has to be majority. **Roughly 51% you for non-survival cognition, 67% you for survival cognition.** *Survival* is the set of decisions and beliefs you cannot outsource to anyone else without ceasing to be yourself — your values, your meaning, your relationships, your big life calls. There the augmentation has to stay sharply secondary, because dependency at the core hollows out the core. *Everywhere else, the model can carry the larger half — but never enough that the Author would not survive its disappearance.* Augmentation that crosses the line into substitution is no longer augmentation; it is transfer.
 
 Naval's principle: *do not read more books, read deeper into the best books.* Do not store the plot, store the idea. **What is the book about?** That is what accretion captures.
 
@@ -895,11 +899,11 @@ The graveyard is the fullest place on earth. Full of unsaid words, unacted ideas
 
 *Get it out.*
 
-The function is **the Publisher.** It iterates with the Author on creative work, calibrated to taste and voice, helping the Author bind the constellation of symbols into a finished, expressible whole.
+The function is *the Publisher.* It iterates with the Author on creative work, calibrated to taste and voice, helping the Author bind the constellation of symbols into a finished, expressible whole.
 
-> *The purpose of knowledge is action, not knowledge.*
+> *For the things we have to learn before we can do them, we learn by doing them.*
 >
-> — *Aristotle*
+> — *Aristotle, Nicomachean Ethics*
 
 ---
 
@@ -927,15 +931,15 @@ The more sessions, the more symbols, the higher fidelity the approximation. Ever
 
 Five operations describe what happens inside conscious thinking. These are not a methodology. *They are the vocabulary for what the system is tracking and influencing.*
 
-**Genesis** — pre-symbolic to symbolic. A hunch becomes a thought. The Editor draws the shape into a holdable token.
+*Genesis* — pre-symbolic to symbolic. A hunch becomes a thought. The Editor draws the shape into a holdable token.
 
-**Accretion** — outside to symbolic. New material from outside the Author's distribution. Mercury surfaces it.
+*Accretion* — outside to symbolic. New material from outside the Author's distribution. Mercury surfaces it.
 
-**Development** — symbolic to more precise symbolic. Sharpening, refining, connecting. Contradictions surfaced. The Author's act, supported by all three functions.
+*Development* — symbolic to more precise symbolic. Sharpening, refining, connecting. Contradictions surfaced. The Author's act, supported by all three functions.
 
-**Entropy** — symbolic to gone. Decay. Mercury fights it.
+*Entropy* — symbolic to gone. Decay. Mercury fights it.
 
-**Creation** — symbolic to woven form. Binding fragments into finished work. The Publisher facilitates.
+*Creation* — symbolic to woven form. Binding fragments into finished work. The Publisher facilitates.
 
 These are descriptions of known brain processes — how memories form, how new ideas connect to old ones, how connections strengthen or fade, how fragments bind into a whole — translated into language the Author can actually work with. **The product is established science made operational.** *The mental gym stops and reverses cognitive decay the way the physical gym stops and reverses physical atrophy.*
 
@@ -993,11 +997,11 @@ This does not weaken Alexandria's thesis. **It strengthens it.** If ai agents ar
 
 The argument has three legs.
 
-**Where in the brain.** The parts that move your body are simple, concentrated, and within reach of current electrodes. The parts that do symbolic thinking — reasoning, abstraction, planning — are spread across multiple regions and use a kind of coding where many things stack in the same neurons. Decoding that requires channel counts and recording technologies far beyond what electrodes can do. Recent research has also shown the language network and the reasoning network are not the same — patients who lose language can still do arithmetic and chess. **Current brain-computer interfaces decode the words coming out, not the thinking underneath.** *The engineering closes — but slower than the headlines suggest.*
+*Where in the brain.* The parts that move your body are simple, concentrated, and within reach of current electrodes. The parts that do symbolic thinking — reasoning, abstraction, planning — are spread across multiple regions and use a kind of coding where many things stack in the same neurons. Decoding that requires channel counts and recording technologies far beyond what electrodes can do. Recent research has also shown the language network and the reasoning network are not the same — patients who lose language can still do arithmetic and chess. **Current brain-computer interfaces decode the words coming out, not the thinking underneath.** *The engineering closes — but slower than the headlines suggest.*
 
-**Meaning lives outside the brain.** A word means what it means partly because of the world it points to — your history with it, the connections you have made, the things you have associated it with. Even if the neural signal could be decoded perfectly, interpreting it requires your reference frame. Without your specific bindings, the decoded activity is generic noise. *The engineering closes; the frame requirement does not.*
+*Meaning lives outside the brain.* A word means what it means partly because of the world it points to — your history with it, the connections you have made, the things you have associated it with. Even if the neural signal could be decoded perfectly, interpreting it requires your reference frame. Without your specific bindings, the decoded activity is generic noise. *The engineering closes; the frame requirement does not.*
 
-**Reading requires a reader.** Patterns in the brain are only meaningful to whatever circuit reads them. There is no universal signature of conscious thought separate from the circuits that process it. Decoding a brain pattern *as* a thought requires knowing what that thought means *for that specific brain.*
+*Reading requires a reader.* Patterns in the brain are only meaningful to whatever circuit reads them. There is no universal signature of conscious thought separate from the circuits that process it. Decoding a brain pattern *as* a thought requires knowing what that thought means *for that specific brain.*
 
 The thesis sharpens.
 
@@ -1111,15 +1115,15 @@ The pools are independent. *Each compounds on its own.* Together they produce a 
 
 The Library is a five-layer object.
 
-**Layer one — the mindset.** Create something. Anything. *The act of creation is the vaccine against the meaning crisis.* Without the mindset, the rest is dead architecture.
+*Layer one — the mindset.* Create something. Anything. *The act of creation is the vaccine against the meaning crisis.* Without the mindset, the rest is dead architecture.
 
-**Layer two — the personal page.** The Author's gallery. Visited by anyone the Author lets visit. *The grandmother's page seen by her grandchildren.*
+*Layer two — the personal page.* The Author's gallery. Visited by anyone the Author lets visit. *The grandmother's page seen by her grandchildren.*
 
-**Layer three — the collective.** The Library of all Authors, browsable, queryable, structured. *The civilisational mirror to the Constitution at individual scale.*
+*Layer three — the collective.* The Library of all Authors, browsable, queryable, structured. *The civilisational mirror to the Constitution at individual scale.*
 
-**Layer four — Library for Labs and Library for Everyone.** The aggregate, available to outside readers — alignment researchers, services that want to serve users better.
+*Layer four — Library for Labs and Library for Everyone.* The aggregate, available to outside readers — alignment researchers, services that want to serve users better.
 
-**Layer five — civilisational consequence.** A culture that values human authorship raises the worth of every human-made thing across every threshold loop. *The original Library of Alexandria preserved texts. This one preserves minds.*
+*Layer five — civilisational consequence.* A culture that values human authorship raises the worth of every human-made thing across every threshold loop. *The original Library of Alexandria preserved texts. This one preserves minds.*
 
 *Minds that last.*
 
@@ -1219,7 +1223,7 @@ This defence gets stronger, not weaker, as models improve — better models pull
 
 ---
 
-**Source and derivative.**
+*Source and derivative.*
 
 Every file that grows without bound has two forms.
 
@@ -1261,11 +1265,11 @@ The protocol is what makes someone an Alexandria user.
 
 *Three constants.*
 
-**Account.** Identity. The single identifier under which file and call live. GitHub numeric ID — already a global identity layer for technical people, with no need to recreate one.
+*Account.* Identity. The single identifier under which file and call live. GitHub numeric ID — already a global identity layer for technical people, with no need to recreate one.
 
-**File.** Live data. A markdown file (or set of files) on the server, edited monthly. *Proof of life.* The Author's mind, kept current, where others can read it.
+*File.* Live data. A markdown file (or set of files) on the server, edited monthly. *Proof of life.* The Author's mind, kept current, where others can read it.
 
-**Call.** Communication. The bidirectional line between machine and server. The machine reports module usage; the server returns the canon, updates, Marketplace state, and obligation status. *Without it, the file cannot publish, the Marketplace cannot signal, the account cannot verify.*
+*Call.* Communication. The bidirectional line between machine and server. The machine reports module usage; the server returns the canon, updates, Marketplace state, and obligation status. *Without it, the file cannot publish, the Marketplace cannot signal, the account cannot verify.*
 
 Two obligations follow at the protocol level.
 
@@ -1308,9 +1312,9 @@ That is the protocol. Everything else — OAuth, billing, email, admin, analytic
 
 The call exposes two collective layers, each fed by one of the obligations.
 
-**The Library.** Every Author's published files. A live data pool of human cognition, fed by the file obligation. Account-gated; reading is free for accounts.
+*The Library.* Every Author's published files. A live data pool of human cognition, fed by the file obligation. Account-gated; reading is free for accounts.
 
-**The Marketplace.** Module usage across all machines, fed by the call obligation. Survival count is the only ranking — adoption over time across all live accounts.
+*The Marketplace.* Module usage across all machines, fed by the call obligation. Survival count is the only ranking — adoption over time across all live accounts.
 
 Both pools exist *because* the call exists.
 
