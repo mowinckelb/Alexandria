@@ -250,33 +250,27 @@ export default function LandingPage({ brandClassName = '' }: Props) {
   }, []);
 
   // Every time the user scrolls deep into the page and then returns to the top
-  // Desktop peel-cycle rotation: when the user scrolls past 60% of
-  // viewport and back near the top, advance to the next theme. The
-  // bottom slide is hidden under the front when this triggers, so the
-  // swap happens out of sight.
+  // Advance to the next ornament each time the user scrolls down to
+  // the back slide. Triggers as scroll crosses 50% of viewport
+  // (mid-peel on desktop; entering back-slide content on mobile) so
+  // the new ornament is what the user sees when they arrive. Resets
+  // when they scroll back up past the threshold, so the next swipe
+  // down triggers another advance.
   useEffect(() => {
-    let wasRevealed = false;
+    let wasOnBack = false;
     const onScroll = () => {
       const y = window.scrollY;
       const h = window.innerHeight;
-      if (y > h * 0.6) wasRevealed = true;
-      if (y < 60 && wasRevealed) {
-        wasRevealed = false;
+      const isOnBack = y > h * 0.5;
+      if (isOnBack && !wasOnBack) {
+        wasOnBack = true;
         setThemeIdx((i) => (i + 1) % THEMES.length);
+      } else if (!isOnBack && wasOnBack) {
+        wasOnBack = false;
       }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Auto-rotate while the page is open — primary rotation mechanism
-  // for mobile (where the peel-cycle rarely fires). 8s is slow enough
-  // to feel intentional, fast enough to see in a visit.
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setThemeIdx((i) => (i + 1) % THEMES.length);
-    }, 8000);
-    return () => clearInterval(interval);
   }, []);
 
   // Warm the browser cache for every ornament on mount so theme rotation
@@ -459,6 +453,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           <div className="right-col">
               <div className="statement">
               <p>
+                <span className="beat-title">the augmentation</span>
                 ai can&rsquo;t read minds, but it can read words. so if we
                 translate our thoughts into words, our minds can be
                 augmented, not replaced &mdash;{' '}
@@ -468,6 +463,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
               </p>
 
               <p>
+                <span className="beat-title">the system</span>
                 but the files don&rsquo;t write themselves, so we need a
                 system &mdash; <em>optimised for each individual</em>.
                 impossible to perfect alone. hence,{' '}
@@ -475,6 +471,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
               </p>
 
               <p>
+                <span className="beat-title">the protocol</span>
                 we built{' '}
                 <em className="em-strong">the protocol</em>{' '}for aggregating
                 files and systems into a singular collective &mdash; a
@@ -484,6 +481,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
               </p>
 
               <p>
+                <span className="beat-title">the floor</span>
                 alexandria distills this collective signal into a{' '}
                 <em>canonical system</em>{' '}offered to new members: a{' '}
                 <em className="em-strong">self-personalising floor</em>{' '}&mdash;{' '}
@@ -493,6 +491,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
               </p>
 
               <p>
+                <span className="beat-title">the republic</span>
                 it seems we are first, but we didn&rsquo;t come to impose.
                 we built the foundation others will build on &mdash; a
                 founding republic modeled on athens, rome, and america:{' '}
@@ -1372,12 +1371,24 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .statement {
           counter-reset: beat;
           align-self: flex-end;
-          max-width: 852px;
-          margin: 124px -32px 0 0;
+          max-width: 920px;
+          margin: 124px -32px 0 -28px;
           padding-left: 64px;
           display: flex;
           flex-direction: column;
-          gap: 15px;
+          gap: 18px;
+        }
+        /* Beat title — italic chapter label that sits inline at the
+           start of each beat, followed by an em-dash and the body. */
+        .statement .beat-title {
+          font-style: italic;
+          font-weight: 400;
+          letter-spacing: 0.06em;
+          color: var(--theme-fg-muted);
+        }
+        .statement .beat-title::after {
+          content: ' — ';
+          color: var(--theme-fg-faint);
         }
         .right-lower {
           align-self: flex-end;
@@ -1408,8 +1419,8 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         }
         .statement p {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 21px;
-          line-height: 1.36;
+          font-size: 19px;
+          line-height: 1.4;
           letter-spacing: 0.002em;
           color: var(--theme-fg);
           margin: 0;
