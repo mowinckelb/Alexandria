@@ -42,6 +42,7 @@ fi
 echo "Checking prerequisites..."
 command -v git &>/dev/null && echo "  git: ok" || echo "  git: missing — install from https://git-scm.com (optional, enables backup)"
 command -v node &>/dev/null && echo "  node: ok" || echo "  node: missing — install from https://nodejs.org (required for Claude Code)"
+command -v python3 &>/dev/null && echo "  python3: ok" || echo "  python3: missing — install Python 3 (required for Cursor hooks)"
 if command -v gh &>/dev/null; then
   gh auth status &>/dev/null 2>&1 && echo "  github cli: ok" || echo "  github cli: not logged in — run 'gh auth login' (optional, enables cloud backup)"
 else
@@ -122,7 +123,66 @@ fi
 
 # Cursor
 if [ -d "$HOME/.cursor" ] || command -v cursor &>/dev/null; then
+  mkdir -p "$HOME/.cursor/hooks" 2>/dev/null
   mkdir -p "$HOME/.cursor/rules" 2>/dev/null
+  fetch_factory "hooks/cursor/alexandria-session-start.py" "$HOME/.cursor/hooks/alexandria-session-start.py" "hooks/cursor/alexandria-session-start.py" yes
+  fetch_factory "hooks/cursor/alexandria-session-end.py" "$HOME/.cursor/hooks/alexandria-session-end.py" "hooks/cursor/alexandria-session-end.py" yes
+  fetch_factory "hooks/cursor/alexandria-stop.py" "$HOME/.cursor/hooks/alexandria-stop.py" "hooks/cursor/alexandria-stop.py" yes
+  chmod +x "$HOME/.cursor/hooks/alexandria-session-start.py" "$HOME/.cursor/hooks/alexandria-session-end.py" "$HOME/.cursor/hooks/alexandria-stop.py" 2>/dev/null
+
+  if command -v python3 &>/dev/null; then
+    python3 - <<'PY' 2>/dev/null
+import json
+from pathlib import Path
+
+path = Path.home() / ".cursor" / "hooks.json"
+cfg = {}
+try:
+    cfg = json.loads(path.read_text(encoding="utf-8"))
+except Exception:
+    cfg = {}
+
+if not isinstance(cfg, dict):
+    cfg = {}
+
+cfg["version"] = 1
+hooks = cfg.get("hooks")
+if not isinstance(hooks, dict):
+    hooks = {}
+cfg["hooks"] = hooks
+
+def is_alex_hook(entry):
+    if not isinstance(entry, dict):
+        return False
+    cmd = str(entry.get("command", "")).lower()
+    return (
+        "alexandria-session-start.py" in cmd
+        or "alexandria-session-end.py" in cmd
+        or "alexandria-stop.py" in cmd
+    )
+
+def clean(event):
+    arr = hooks.get(event)
+    if not isinstance(arr, list):
+        return []
+    return [item for item in arr if not is_alex_hook(item)]
+
+hooks["sessionStart"] = clean("sessionStart") + [
+    {"command": "./hooks/alexandria-session-start.py", "timeout": 8}
+]
+hooks["sessionEnd"] = clean("sessionEnd") + [
+    {"command": "./hooks/alexandria-session-end.py", "timeout": 8}
+]
+hooks["stop"] = clean("stop") + [
+    {"command": "./hooks/alexandria-stop.py", "timeout": 8, "loop_limit": None}
+]
+
+path.write_text(json.dumps(cfg, indent=2) + "\n", encoding="utf-8")
+PY
+  else
+    echo "  Cursor: python3 missing — hook registration skipped"
+  fi
+
   fetch_factory "skills/cursor.mdc" "$HOME/.cursor/rules/alexandria.mdc" "skills/cursor.mdc" yes
   echo "  Cursor: configured"
 fi
