@@ -249,38 +249,47 @@ export default function LandingPage({ brandClassName = '' }: Props) {
     };
   }, []);
 
-  // Every time the user scrolls deep into the page and then returns to the top
-  // Advance to the next ornament each time the user scrolls down to
-  // the back slide. Triggers as scroll crosses 50% of viewport
-  // (mid-peel on desktop; entering back-slide content on mobile) so
-  // the new ornament is what the user sees when they arrive. Resets
-  // when they scroll back up past the threshold, so the next swipe
-  // down triggers another advance.
+  // After each full peek at the back slide, advance when the user scrolls
+  // *back to the hero* (cross above the peel midpoint). Advancing on the
+  // way *down* swapped the theme before the bottom slide was visible, so the
+  // first peel never showed ornament 1. Same 50% threshold as `--peel-progress`.
+  // `wasOnBack` matches the live scroll position on mount (restore-safe).
   useEffect(() => {
-    let wasOnBack = false;
+    let wasOnBack = window.scrollY > window.innerHeight * 0.5;
     const onScroll = () => {
       const y = window.scrollY;
       const h = window.innerHeight;
       const isOnBack = y > h * 0.5;
-      if (isOnBack && !wasOnBack) {
-        wasOnBack = true;
+      if (!isOnBack && wasOnBack) {
         setThemeIdx((i) => (i + 1) % THEMES.length);
-      } else if (!isOnBack && wasOnBack) {
-        wasOnBack = false;
       }
+      wasOnBack = isOnBack;
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Warm the browser cache for every ornament on mount so theme rotation
-  // doesn't fetch a multi-MB PNG mid-interaction. The first ornament has
-  // priority via next/image; the rest pre-fetch in the background.
+  // Decode every ornament into the image cache before first scroll so a peel
+  // never waits on network (first ornament was already priority via next/image;
+  // the rest were only fire-and-forget loaded before).
   useEffect(() => {
-    THEMES.slice(1).forEach((t) => {
-      const img = new window.Image();
-      img.src = t.image;
-    });
+    void Promise.all(
+      THEMES.map(
+        (t) =>
+          new Promise<void>((resolve) => {
+            const img = new window.Image();
+            img.onload = () => {
+              if (img.decode) {
+                img.decode().then(resolve, resolve);
+              } else {
+                resolve();
+              }
+            };
+            img.onerror = () => resolve();
+            img.src = t.image;
+          }),
+      ),
+    );
   }, []);
 
   const theme = THEMES[themeIdx];

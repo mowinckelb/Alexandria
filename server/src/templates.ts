@@ -153,9 +153,23 @@ export function callbackPageHtml(apiKey: string, githubLogin = ''): string {
     border-top-color: #3d3630;
   }
   .info.active .tooltip { display: block; }
+  .brand-corner {
+    position: fixed;
+    top: 1.25rem;
+    left: 1.5rem;
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: #3d3630;
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    transition: opacity 0.15s;
+    z-index: 20;
+  }
+  .brand-corner:hover { opacity: 0.6; }
 </style>
 </head>
 <body>
+${isReturning ? `<a class="brand-corner" href="${WEBSITE_URL}/">alexandria.</a>` : ''}
 <div class="container">
   <h1 class="welcome">${isReturning ? `welcome back.` : `welcome to alexandria.`}</h1>
   ${isReturning ? `<p class="line welcome-back">call /alexandria in your coding agent.</p>` : `<div class="steps">
