@@ -103,7 +103,13 @@ if command -v node &>/dev/null && { [ -d "$HOME/.claude" ] || command -v claude 
     let settings = {};
     try { settings = JSON.parse(fs.readFileSync(f, 'utf-8')); } catch {}
     if (!settings.hooks) settings.hooks = {};
-    const filter = arr => (arr || []).filter(h => !JSON.stringify(h).toLowerCase().includes('alexandria/hooks/shim'));
+    // Match any prior shim registration regardless of path form (~ vs \$HOME,
+    // /system/hooks/shim vs /hooks/shim) — substring on 'alexandria' AND 'shim.sh'
+    // de-dupes across naming variants so reinstalls replace rather than append.
+    const filter = arr => (arr || []).filter(h => {
+      const s = JSON.stringify(h).toLowerCase();
+      return !(s.includes('alexandria') && s.includes('shim.sh'));
+    });
     settings.hooks.SessionStart = filter(settings.hooks.SessionStart);
     settings.hooks.SessionStart.push({
       hooks: [{ type: 'command', command: 'bash \$HOME/alexandria/system/hooks/shim.sh session-start', timeout: 10 }]
