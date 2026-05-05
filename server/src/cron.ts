@@ -1,12 +1,11 @@
-/** Cron jobs — health digest + daily briefs. Called by worker scheduled handler. */
+/** Cron jobs — health digest. Called by worker scheduled handler. */
 
-import { getKV, getRecentDaysEvents, loadAccount, saveAccount } from './kv.js';
-import { sendEmail, sendMorningBrief, FOUNDER_EMAIL } from './email.js';
+import { getKV, getRecentDaysEvents } from './kv.js';
+import { sendEmail, FOUNDER_EMAIL } from './email.js';
 import { formatPT } from './time.js';
 import { publishLibrarySignalSnapshot } from './marketplace.js';
 import { computeLibrarySignalText } from './library-signal.js';
 import { reconcilePatronSubscriptions } from './billing.js';
-import { logEvent } from './analytics.js';
 
 // ---------------------------------------------------------------------------
 // Health digest — self-heal, only email the founder if he needs to log on
@@ -73,6 +72,49 @@ async function probeD1(escalate: Escalate): Promise<void> {
  * a long time, or the cron itself stopped firing. 14d threshold makes this
  * a real-failure signal, not a daily-blip one.
  */
+/**
+ * Brief delivery staleness probe. The autoloop trigger is supposed to POST
+ * to /brief once per period (default daily). When the trigger fires but its
+ * heartbeat call fails silently (egress proxy, MCP misconfig, etc.), the
+ * Author stops getting emails and nothing surfaces. This probe inverts the
+ * check: ground-truth `last_brief` per account, alarm if past per-account
+ * threshold + tolerance. Closes the loop server-side regardless of why the
+ * client-side delivery broke.
+ */
+async function checkStaleBriefs(escalate: Escalate): Promise<void> {
+  try {
+    const kv = getKV();
+    const TOLERANCE_HOURS = 2;
+    const now = Date.now();
+    const stale: string[] = [];
+    let cursor: string | undefined;
+    do {
+      const page = await kv.list({ prefix: 'account:', cursor });
+      for (const k of page.keys) {
+        const acct = await kv.get(k.name, 'json') as any;
+        if (!acct || !acct.installed_at) continue;
+        if (acct.brief_opt_out) continue;
+        const intervalDays = acct.brief_interval_days ?? 1;
+        const thresholdMs = (intervalDays * 24 + TOLERANCE_HOURS) * 60 * 60 * 1000;
+        const lastBrief = acct.last_brief ? new Date(acct.last_brief).getTime() : 0;
+        const installed = new Date(acct.installed_at).getTime();
+        const reference = lastBrief || installed;
+        if (now - reference > thresholdMs) {
+          const days = Math.floor((now - reference) / (24 * 60 * 60 * 1000));
+          stale.push(`${acct.github_login || k.name}(${lastBrief ? `${days}d` : 'never'})`);
+        }
+      }
+      cursor = page.list_complete ? undefined : page.cursor;
+    } while (cursor);
+
+    if (stale.length > 0) {
+      escalate('stroll', `Brief delivery stale for ${stale.length} account(s): ${stale.slice(0, 10).join(', ')}${stale.length > 10 ? '…' : ''}`);
+    }
+  } catch (err) {
+    console.error('[cron] checkStaleBriefs failed:', err);
+  }
+}
+
 async function checkMarketplaceActivity(escalate: Escalate): Promise<void> {
   try {
     const token = process.env.GITHUB_BOT_TOKEN;
@@ -234,6 +276,8 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
 
     await checkMarketplaceActivity(escalate);
 
+    await checkStaleBriefs(escalate);
+
     // Refresh the library-signal snapshot in alexandria-marketplace. The factory
     // reads this on its weekly run; daily refresh keeps it ≤24h stale. Non-fatal
     // if it fails — just logged, no escalate (the factory will see a stale snapshot
@@ -275,56 +319,5 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
     await sendEmail(FOUNDER_EMAIL, `alexandria. — ${urgency}`, body);
   } catch (err) {
     console.error('Health digest failed:', err);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Daily briefs — server-driven email to every active opted-in Author.
-// Same delivery pattern as the health digest: server cron fires, sendEmail
-// goes out via Resend, no per-user trigger setup. Default body is "no
-// material change overnight." — Authors who want richer briefs replace it
-// by POSTing to /brief during the previous 24h (e.g. from their autoloop).
-// ---------------------------------------------------------------------------
-
-const DEFAULT_BRIEF = "no material change overnight.";
-
-export async function runDailyBriefs(): Promise<void> {
-  try {
-    const kv = getKV();
-    const today = new Date().toISOString().slice(0, 10);
-    let cursor: string | undefined;
-    let sent = 0;
-    let skipped = 0;
-    do {
-      const page = await kv.list({ prefix: "account:", cursor });
-      for (const k of page.keys) {
-        const githubKey = k.name.replace("account:", "");
-        const acct = await loadAccount(githubKey) as any;
-        if (!acct || !acct.email || !acct.email_token) { skipped++; continue; }
-        if (acct.brief_opt_out) { skipped++; continue; }
-        // Date-based gates (compare YYYY-MM-DD, not timestamps): skip if
-        // a brief already went out today (autoloop already populated, or this
-        // cron already ran), and respect any per-account interval in days.
-        const lastDate = acct.last_brief ? acct.last_brief.slice(0, 10) : null;
-        if (lastDate === today) { skipped++; continue; }
-        if (acct.brief_interval_days && lastDate) {
-          const daysSince = Math.floor((Date.now() - new Date(lastDate).getTime()) / 86400000);
-          if (daysSince < acct.brief_interval_days) { skipped++; continue; }
-        }
-        try {
-          await sendMorningBrief(acct.email, acct.email_token, DEFAULT_BRIEF);
-          acct.last_brief = new Date().toISOString();
-          await saveAccount(githubKey, acct);
-          logEvent("morning_brief", { author: acct.github_login, sent: "true", source: "cron_default" });
-          sent++;
-        } catch (err) {
-          console.error(`[cron] brief send failed for ${acct.github_login}:`, err);
-        }
-      }
-      cursor = page.list_complete ? undefined : page.cursor;
-    } while (cursor);
-    console.log(`[cron] daily briefs: ${sent} sent, ${skipped} skipped`);
-  } catch (err) {
-    console.error("[cron] runDailyBriefs failed:", err);
   }
 }
