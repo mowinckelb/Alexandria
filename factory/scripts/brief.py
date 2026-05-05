@@ -44,11 +44,15 @@ def main() -> int:
         return 1
 
     body = DEFAULT_BODY
+    outbox_consumed = False
     if OUTBOX.exists():
         text = OUTBOX.read_text().strip()
         if text:
             body = text
-        OUTBOX.unlink()  # consume — outbox is single-shot
+            outbox_consumed = True
+        else:
+            # Empty file — clean up; nothing to preserve.
+            OUTBOX.unlink()
 
     msg = EmailMessage()
     msg["Subject"] = creds.get("subject", "alexandria.")
@@ -68,6 +72,11 @@ def main() -> int:
                 srv.starttls(context=ctx)
                 srv.login(creds["user"], creds["password"])
                 srv.send_message(msg)
+        # Consume the outbox only on successful send — failed attempts leave
+        # the content in place so the next run retries the same body. User
+        # can rm the file manually to skip a stuck send.
+        if outbox_consumed and OUTBOX.exists():
+            OUTBOX.unlink()
         log(f"sent: {body[:80]}")
         return 0
     except Exception as e:

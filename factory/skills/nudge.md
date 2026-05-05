@@ -36,15 +36,12 @@ If you have something:
 
 ## Deliver
 
-Write the nudge text to `~/alexandria/system/.nudge_outbox`:
+Email delivery is a separate, fully sovereign loop on the Author's machine (parallel to the brief sender). When the nudge-sender install lands, this skill writes `~/alexandria/system/.nudge_outbox` BUT only when running on the same machine as the local sender — i.e. a local cron / launchd-driven nudge job. For remote runtimes (claude.ai trigger, github actions) the file write does not reach the local sender; in that case skip the outbox and treat silence as the right answer.
 
 ```bash
+# Only when running on the same machine as the local nudge sender:
 echo "<one to three lines>" > ~/alexandria/system/.nudge_outbox
 ```
-
-The Author's local nudge sender (parallel to the brief sender — same pattern, separate launchd plist installed by the `brief-setup` skill family) reads `.nudge_outbox`, SMTP-sends through the Author's own credentials, clears the file. Sovereign by construction: no company endpoint involved.
-
-If the local nudge sender isn't installed yet, writing to `.nudge_outbox` is still the right move — once the Author runs the nudge-setup skill, queued lines flush on the next fire.
 
 ## Privacy
 

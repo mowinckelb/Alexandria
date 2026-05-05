@@ -105,6 +105,14 @@ Then read `~/alexandria/system/.brief_log` — confirm the last line is `sent: .
 
 If it's `sent`, ask the Author to check their inbox. If the test email landed, the loop is closed. Tell them the next brief will fire at their scheduled time tomorrow, and that any process can write to `~/alexandria/system/.brief_outbox` (one line) to override the default body.
 
+## Maintenance the Author should know
+
+- **Change the time:** edit the `Hour`/`Minute` integers in `~/Library/LaunchAgents/com.alexandria.brief.plist`, then `launchctl unload <path> && launchctl load <path>`. Takes effect on the next scheduled fire.
+- **Pause briefs without uninstalling:** `launchctl unload ~/Library/LaunchAgents/com.alexandria.brief.plist`. Re-enable with `launchctl load <path>`.
+- **Uninstall completely:** unload + delete the plist + delete `~/alexandria/system/.brief_email` and `~/alexandria/system/brief.py` if desired. Logs at `~/alexandria/system/.brief_log` are append-only — clear them manually if they grow.
+- **Override tomorrow's brief content:** `echo "<one line>" > ~/alexandria/system/.brief_outbox`. The next fire reads + sends + clears.
+- **Update brief.py:** re-fetch from `https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/scripts/brief.py` and overwrite. No automatic updates by design — the Author chooses when to take new versions.
+
 ## Sovereignty test
 
 After setup is complete, every piece of the brief delivery loop lives on the Author's machine:
