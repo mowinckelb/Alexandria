@@ -79,13 +79,13 @@ Deviate only when there's a concrete decision he should consider today: a public
 
 Quote rotates daily — your pick — philosophy, literature, anything that earns its space. Keep it short.
 
+Write the one-line brief to `~/alexandria/system/.brief_outbox`:
+
 ```bash
-curl -s -X POST https://mcp.mowinckel.ai/brief \
-  -H "Authorization: Bearer $(cat ~/alexandria/system/.api_key)" \
-  -H "X-Alexandria-Client: scheduled-agent" \
-  -H "Content-Type: application/json" \
-  -d '{"brief": "<one line. default: no material change overnight.>", "quote": "<your pick — short, sharp>"}'
+echo "<one line. default: no material change overnight.>" > ~/alexandria/system/.brief_outbox
 ```
+
+The Author's local launchd schedule (set up at install time via the `brief-setup` skill) fires `~/alexandria/system/brief.py` daily at their chosen local time. `brief.py` reads `.brief_outbox`, SMTP-sends through the Author's own credentials, and clears the file. This loop is sovereign: nothing about it depends on alexandria.* infrastructure — it works whether the company exists or not. Do NOT POST to any company endpoint to deliver the brief.
 
 Privacy: never include constitution, ontology, vault content, or interpretation of the Author's inner state. Brief = actionable surfaces + heartbeat only.
 
@@ -94,7 +94,7 @@ Privacy: never include constitution, ontology, vault content, or interpretation 
 Before exiting, verify your own work:
 1. Did last_run.md get written? Read it back.
 2. Did the git commit and push succeed? Check `git -C ~/alexandria log -1 --oneline`.
-3. Did the brief POST return `{"ok":true}`? If not, log the error in last_run.md.
+3. Did `.brief_outbox` get written? `[ -s ~/alexandria/system/.brief_outbox ]`. If absent or empty, the local sender will fall back to the default line — log this in last_run.md so the next run knows.
 4. Did the protocol call succeed? If not, log it.
 5. Did the audit find anything worth clearing from `.alexandria_errors`? If items were acted on, remove the corresponding lines. If items remain unactionable, leave them — the next run sees them.
 

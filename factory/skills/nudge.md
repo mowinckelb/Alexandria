@@ -34,17 +34,17 @@ If you have something:
 - No metadata, no fragment counts, no vault entry IDs. Naked actions only.
 - Author's voice — no "I noticed that..." or "you might consider..." Direct.
 
-## Verify and POST
+## Deliver
+
+Write the nudge text to `~/alexandria/system/.nudge_outbox`:
 
 ```bash
-curl -s -X POST https://mcp.mowinckel.ai/nudge \
-  -H "Authorization: Bearer $(cat ~/alexandria/system/.api_key)" \
-  -H "X-Alexandria-Client: scheduled-agent" \
-  -H "Content-Type: application/json" \
-  -d '{"nudge": "<one to three lines>", "quote": "<your pick — short, sharp, optional>"}'
+echo "<one to three lines>" > ~/alexandria/system/.nudge_outbox
 ```
 
-The endpoint returns `{"ok":true}` on send, `{"ok":true,"skipped":"opt_out"}` if the Author has opted out (still success), or `{"ok":true,"skipped":"too_recent"}` if interval-gated.
+The Author's local nudge sender (parallel to the brief sender — same pattern, separate launchd plist installed by the `brief-setup` skill family) reads `.nudge_outbox`, SMTP-sends through the Author's own credentials, clears the file. Sovereign by construction: no company endpoint involved.
+
+If the local nudge sender isn't installed yet, writing to `.nudge_outbox` is still the right move — once the Author runs the nudge-setup skill, queued lines flush on the next fire.
 
 ## Privacy
 
@@ -52,5 +52,5 @@ Never include constitution content, ontology entries, vault excerpts, or interpr
 
 ## Verification (run last)
 
-1. POST returned `{"ok":true}` or expected skip — log to `~/alexandria/system/.nudge_last_run`.
-2. If POST failed, write the error to `~/alexandria/system/.alexandria_errors` so the autoloop audit catches it.
+1. `.nudge_outbox` written — log the line that went out to `~/alexandria/system/.nudge_last_run`.
+2. If you hit silence (default), write `silent: <reason>` to `.nudge_last_run`. Don't write `.nudge_outbox` — the local sender will skip a missing/empty outbox and that's the right behaviour.

@@ -1,8 +1,6 @@
 /** Email primitives — Resend API (hybrid dependency, API-controllable, free 100/day). */
 
 export const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL || 'benjamin@mowinckel.com';
-const DEFAULT_BRIEF_QUOTE = '“We are what we repeatedly do. Excellence, then, is not an act, but a habit.”';
-const DEFAULT_NUDGE_QUOTE = '“The cave you fear to enter holds the treasure you seek.”';
 
 /**
  * Run up to `concurrency` email sends in parallel, draining the task list in
@@ -95,57 +93,7 @@ export async function sendWelcomeEmail(email: string): Promise<void> {
 </div>`);
 }
 
-function esc(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-export async function sendMorningBrief(
-  email: string,
-  emailToken: string,
-  brief: string,
-  notepad?: string,
-  quote?: string,
-): Promise<void> {
-  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
-  const q = esc(quote || DEFAULT_BRIEF_QUOTE);
-  const safeBrief = esc(brief);
-
-  const notepadSection = notepad
-    ? `<p style="font-size: 1rem; line-height: 1.7; color: #8a8078; margin: 0 0 1.75rem;">${esc(notepad)}</p>`
-    : '';
-
-  await sendEmail(email, 'alexandria.',
-    `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 48px 24px; color: #3d3630; text-align: left; line-height: 1.7;">
-  <p style="font-size: 1.05rem; margin: 0 0 1.75rem; color: #3d3630;">${safeBrief}</p>
-  ${notepadSection}<p style="font-size: 1rem; color: #8a8078; font-style: italic; margin: 0 0 2rem;">${q}</p>
-  <p style="font-size: 0.85rem; color: #8a8078; margin: 0 0 0.4rem;">/a to start a session; a. to close it.</p>
-  <p style="font-size: 0.72rem; color: #bbb4aa; margin: 0;">
-    <a href="${SERVER_URL}/brief/less?t=${emailToken}" style="color: #8a8078; text-decoration: none;">less</a>
-    &nbsp;&middot;&nbsp;
-    <a href="${SERVER_URL}/brief/stop?t=${emailToken}" style="color: #8a8078; text-decoration: none;">stop</a>
-  </p>
-</div>`);
-}
-
-export async function sendMorningNudge(
-  email: string,
-  emailToken: string,
-  nudge: string,
-  quote?: string,
-): Promise<void> {
-  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
-  const q = esc(quote || DEFAULT_NUDGE_QUOTE);
-  const safeNudge = esc(nudge);
-
-  await sendEmail(email, 'a nudge.',
-    `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 48px 24px; color: #3d3630; text-align: left; line-height: 1.7;">
-  <p style="font-size: 1.05rem; margin: 0 0 1.75rem; color: #3d3630;">${safeNudge}</p>
-  <p style="font-size: 1rem; color: #8a8078; font-style: italic; margin: 0 0 2rem;">${q}</p>
-  <p style="font-size: 0.85rem; color: #8a8078; margin: 0 0 0.4rem;">today. nothing more.</p>
-  <p style="font-size: 0.72rem; color: #bbb4aa; margin: 0;">
-    <a href="${SERVER_URL}/nudge/less?t=${emailToken}" style="color: #8a8078; text-decoration: none;">less</a>
-    &nbsp;&middot;&nbsp;
-    <a href="${SERVER_URL}/nudge/stop?t=${emailToken}" style="color: #8a8078; text-decoration: none;">stop</a>
-  </p>
-</div>`);
-}
+// sendMorningBrief / sendMorningNudge removed: morning brief + nudge are now
+// fully sovereign on each Author's machine (factory/scripts/brief.py + their
+// own SMTP creds + their own launchd schedule). Email-on-behalf-of-users is
+// out of scope for the company server — see factory/skills/brief-setup.md.

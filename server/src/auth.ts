@@ -23,12 +23,6 @@ export interface Account {
   subscription_id?: string;
   current_period_end?: string;
   constitution_size?: number;
-  brief_opt_out?: boolean;
-  brief_interval_days?: number;
-  last_brief?: string;
-  nudge_opt_out?: boolean;
-  nudge_interval_days?: number;
-  last_nudge?: string;
 }
 
 export type AccountStore = Record<string, Account>;

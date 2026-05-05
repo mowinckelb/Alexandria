@@ -10,7 +10,7 @@ import { loadAccounts, loadAccount, saveAccount, setAuthIndex, deleteAccount, ge
 import { hashApiKey, generateToken } from './crypto.js';
 import { Account, AccountStore, extractApiKey, findByApiKey, requireAuth } from './auth.js';
 import { generateApiKey, getAccounts, requireAdmin } from './accounts.js';
-import { sendEmail, sendEmailsBatched, sendWelcomeEmail, sendMorningBrief, sendMorningNudge, FOUNDER_EMAIL } from './email.js';
+import { sendEmail, sendEmailsBatched, sendWelcomeEmail, FOUNDER_EMAIL } from './email.js';
 import { runHealthDigest } from './cron.js';
 import { publishSignal, publishFeedback } from './marketplace.js';
 
@@ -535,46 +535,6 @@ export function registerRoutes(app: Hono) {
     return c.json({ ok: true, removed: login });
   });
 
-  // --- Morning brief (autoloop trigger → email) ---
-
-  app.post('/brief', async (c) => {
-    const auth = await requireAuth(c);
-    if (!auth) return c.json({ error: 'Unauthorized' }, 401);
-    const { account } = auth;
-    if (!account.email) return c.json({ ok: true, skipped: 'no_email' });
-
-    const body = await c.req.json().catch(() => ({}));
-    const { brief, notepad, quote } = body as { brief?: string; notepad?: string; quote?: string };
-    if (!brief) return c.json({ error: 'brief is required' }, 400);
-
-    // Gate: opt-out
-    if (account.brief_opt_out) {
-      return c.json({ ok: true, skipped: 'opt_out' });
-    }
-
-    // Gate: interval (undefined = send every time)
-    if (account.brief_interval_days && account.last_brief) {
-      const elapsed = Date.now() - new Date(account.last_brief).getTime();
-      if (elapsed < account.brief_interval_days * 24 * 60 * 60 * 1000) {
-        return c.json({ ok: true, skipped: 'too_recent' });
-      }
-    }
-
-    await sendMorningBrief(account.email, account.email_token, brief, notepad, quote);
-
-    // Update timestamp
-    const githubKey = `github_${account.github_id}`;
-    const acct = await loadAccount(githubKey);
-    if (acct) {
-      acct.last_brief = new Date().toISOString();
-      await saveAccount(githubKey, acct);
-    }
-
-    logEvent('morning_brief', { author: account.github_login, sent: 'true' });
-    logEvent('prosumer_session', { event: 'auto', author: account.github_login, platform: 'autoloop' });
-    return c.json({ ok: true, sent: true });
-  });
-
   // --- Machine signal (Engine → marketplace) ---
 
   // Relays anonymized signal to alexandria-marketplace github repo. Author is
@@ -661,113 +621,6 @@ export function registerRoutes(app: Hono) {
     await saveAccount(storeKey, acct);
     return c.html(`<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
   <p style="font-size: 1.1rem; line-height: 1.9;">stopped. we&rsquo;ll be here when you&rsquo;re ready.</p>
-  <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
-</div>`);
-  });
-
-  // --- Brief preferences ---
-
-  app.get('/brief/less', async (c) => {
-    const token = c.req.query('t');
-    if (!token) return c.text('missing token', 400);
-    const storeKey = await getEmailTokenIndex(token);
-    if (!storeKey) return c.text('not found', 404);
-    const acct = await loadAccount(storeKey) as Record<string, any> | null;
-    if (!acct) return c.text('not found', 404);
-    const current = acct.brief_interval_days || 1;
-    acct.brief_interval_days = current * 2;
-    await saveAccount(storeKey, acct);
-    logEvent('brief_preference', { author: acct.github_login, action: 'less', interval: String(current * 2) });
-    return c.html(`<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
-  <p style="font-size: 1.1rem; line-height: 1.9;">done. next brief in ${current * 2} days.</p>
-  <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
-</div>`);
-  });
-
-  app.get('/brief/stop', async (c) => {
-    const token = c.req.query('t');
-    if (!token) return c.text('missing token', 400);
-    const storeKey = await getEmailTokenIndex(token);
-    if (!storeKey) return c.text('not found', 404);
-    const acct = await loadAccount(storeKey) as Record<string, any> | null;
-    if (!acct) return c.text('not found', 404);
-    acct.brief_opt_out = true;
-    await saveAccount(storeKey, acct);
-    logEvent('brief_preference', { author: acct.github_login, action: 'stop' });
-    return c.html(`<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
-  <p style="font-size: 1.1rem; line-height: 1.9;">stopped. your autoloop still runs &mdash; just no email.</p>
-  <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
-</div>`);
-  });
-
-  // --- Morning nudge (Author's daily forward-action prompt → email) ---
-  // Distinct from /brief: nudge is the Author's own action-prompt loop (today's
-  // surfacing from notepad), while /brief is the autoloop heartbeat (vault
-  // processing summary). Different envelopes by design — do not muddle.
-
-  app.post('/nudge', async (c) => {
-    const auth = await requireAuth(c);
-    if (!auth) return c.json({ error: 'Unauthorized' }, 401);
-    const { account } = auth;
-    if (!account.email) return c.json({ ok: true, skipped: 'no_email' });
-
-    const body = await c.req.json().catch(() => ({}));
-    const { nudge, quote } = body as { nudge?: string; quote?: string };
-    if (!nudge) return c.json({ error: 'nudge is required' }, 400);
-
-    if (account.nudge_opt_out) {
-      return c.json({ ok: true, skipped: 'opt_out' });
-    }
-
-    if (account.nudge_interval_days && account.last_nudge) {
-      const elapsed = Date.now() - new Date(account.last_nudge).getTime();
-      if (elapsed < account.nudge_interval_days * 24 * 60 * 60 * 1000) {
-        return c.json({ ok: true, skipped: 'too_recent' });
-      }
-    }
-
-    await sendMorningNudge(account.email, account.email_token, nudge, quote);
-
-    const githubKey = `github_${account.github_id}`;
-    const acct = await loadAccount(githubKey);
-    if (acct) {
-      acct.last_nudge = new Date().toISOString();
-      await saveAccount(githubKey, acct);
-    }
-
-    logEvent('morning_nudge', { author: account.github_login, sent: 'true' });
-    return c.json({ ok: true, sent: true });
-  });
-
-  app.get('/nudge/less', async (c) => {
-    const token = c.req.query('t');
-    if (!token) return c.text('missing token', 400);
-    const storeKey = await getEmailTokenIndex(token);
-    if (!storeKey) return c.text('not found', 404);
-    const acct = await loadAccount(storeKey) as Record<string, any> | null;
-    if (!acct) return c.text('not found', 404);
-    const current = acct.nudge_interval_days || 1;
-    acct.nudge_interval_days = current * 2;
-    await saveAccount(storeKey, acct);
-    logEvent('nudge_preference', { author: acct.github_login, action: 'less', interval: String(current * 2) });
-    return c.html(`<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
-  <p style="font-size: 1.1rem; line-height: 1.9;">done. next nudge in ${current * 2} days.</p>
-  <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
-</div>`);
-  });
-
-  app.get('/nudge/stop', async (c) => {
-    const token = c.req.query('t');
-    if (!token) return c.text('missing token', 400);
-    const storeKey = await getEmailTokenIndex(token);
-    if (!storeKey) return c.text('not found', 404);
-    const acct = await loadAccount(storeKey) as Record<string, any> | null;
-    if (!acct) return c.text('not found', 404);
-    acct.nudge_opt_out = true;
-    await saveAccount(storeKey, acct);
-    logEvent('nudge_preference', { author: acct.github_login, action: 'stop' });
-    return c.html(`<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
-  <p style="font-size: 1.1rem; line-height: 1.9;">stopped. your nudge loop still runs &mdash; just no email.</p>
   <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
 </div>`);
   });
