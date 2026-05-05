@@ -306,6 +306,23 @@ html.app-shell input:focus {
   font-family: var(--font-eb-garamond);
   min-height: 100vh;
 }
+
+/* Faint shelf link — sits left of the fixed theme control (see ThemeToggle). */
+.mdoc-shelf-link {
+  position: fixed;
+  top: 1rem;
+  right: 5.75rem;
+  z-index: 199;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--text-ghost);
+  text-decoration: none;
+  opacity: 0.42;
+  transition: opacity 0.2s ease;
+}
+.mdoc-shelf-link:hover {
+  opacity: 0.72;
+}
 .mdoc-frame {
   max-width: 680px;
   margin: 0 auto;

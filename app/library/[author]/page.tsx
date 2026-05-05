@@ -5,24 +5,24 @@ import { SERVER_URL } from '../../lib/config';
 export async function generateMetadata({ params }: { params: Promise<{ author: string }> }): Promise<Metadata> {
   const { author } = await params;
   try {
-    const res = await fetch(`${SERVER_URL}/library/${author}`, { next: { revalidate: 300 } });
-    if (!res.ok) return { title: 'the library — alexandria.' };
+    const res = await fetch(`${SERVER_URL}/library/${author}`, { cache: 'no-store' });
+    if (!res.ok) return { title: 'library — alexandria.' };
     const data = await res.json();
-    const name = data.author?.display_name || author;
-    const bio = data.author?.bio || 'mens aeterna.';
+    const name = data.author?.display_name || data.author?.id || author;
+    const description = data.author?.text || `${data.author?.alexandria_id || author} — Alexandria Author`;
     return {
-      title: `${name} — the library`,
-      description: bio,
+      title: `${name} — library`,
+      description,
       openGraph: {
-        title: `${name}`,
-        description: bio,
+        title: name,
+        description,
         siteName: 'Alexandria',
         type: 'profile',
       },
-      twitter: { card: 'summary', title: name, description: bio },
+      twitter: { card: 'summary', title: name, description },
     };
   } catch {
-    return { title: 'the library — alexandria.' };
+    return { title: 'library — alexandria.' };
   }
 }
 

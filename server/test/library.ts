@@ -53,20 +53,46 @@ async function main() {
   // -----------------------------------------------------------------------
   console.log('Phase 1: Public Library endpoints');
 
-  // Per-Author URLs survive; the public catalog does not. Tests use a known
-  // Author id (the founder's GitHub login) as the fixture.
+  // The catalog is the company layer over protocol accounts/files. Per-Author
+  // URLs remain the canonical shelf for each Author.
   const authorId = process.env.TEST_AUTHOR_ID || 'mowinckelb';
+
+  await test('Author catalog returns structured data', async () => {
+    const res = await fetch(`${BASE}/library`);
+    const body = await res.json() as { authors: unknown[] };
+    return {
+      test: 'Author catalog',
+      passed: res.ok && Array.isArray(body.authors),
+      details: `HTTP ${res.status}, authors: ${body.authors?.length || 0}`,
+    };
+  });
 
   await test('Author profile returns structured data', async () => {
     const res = await fetch(`${BASE}/library/${authorId}`);
-    const body = await res.json() as { author: { id: string; display_name: string }; shadows: unknown[]; quizzes: unknown[] };
+    const body = await res.json() as { author: { id: string; display_name: string }; files: unknown[] };
     const hasAuthor = !!body.author?.id;
-    const hasShadows = Array.isArray(body.shadows);
-    const hasQuizzes = Array.isArray(body.quizzes);
+    const hasFiles = Array.isArray(body.files);
     return {
       test: 'Author profile',
-      passed: res.ok && hasAuthor && hasShadows && hasQuizzes,
-      details: `author: ${hasAuthor}, shadows: ${body.shadows?.length}, quizzes: ${body.quizzes?.length}`,
+      passed: res.ok && hasAuthor && hasFiles,
+      details: `author: ${hasAuthor}, files: ${body.files?.length}`,
+    };
+  });
+
+  await test('Author profile hides internal protocol test files', async () => {
+    const res = await fetch(`${BASE}/library/${authorId}`);
+    const body = await res.json() as { files?: Array<{ name: string }> };
+    const names = (body.files || []).map(f => f.name);
+    const leaked = names.filter(name =>
+      /^lifecycle-\d+$/.test(name)
+      || /^ci-smoke(?:-\d+)?$/.test(name)
+      || name === 'smoke-test'
+      || name === 'test-check'
+    );
+    return {
+      test: 'Hide internal protocol files',
+      passed: res.ok && leaked.length === 0,
+      details: `HTTP ${res.status}, leaked: ${leaked.join(', ') || 'none'}`,
     };
   });
 

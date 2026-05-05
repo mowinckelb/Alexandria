@@ -585,8 +585,9 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
             break;
           }
 
-          // Library one-time purchase (non-Author)
-          if (session.metadata?.library_purchase === 'true') {
+          // Library one-time purchase (non-Author).
+          // Accept either kind='library' (new convention) or library_purchase='true' (legacy).
+          if (session.metadata?.kind === 'library' || session.metadata?.library_purchase === 'true') {
             const amountCents = session.amount_total || 0;
             const authorId = session.metadata?.author_id || '';
             const artifactType = session.metadata?.artifact_type || 'shadow';
@@ -728,7 +729,7 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
           // Send kin nudge receipt after each billing cycle
           const invoice = event.data.object as Stripe.Invoice;
           // Skip Library purchases and non-subscription invoices
-          if (invoice.metadata?.library_purchase === 'true') break;
+          if (invoice.metadata?.kind === 'library' || invoice.metadata?.library_purchase === 'true') break;
           const subId = extractSubscriptionId(invoice);
           if (subId) {
             try {

@@ -9,8 +9,17 @@
 import { Hono } from 'hono';
 import { getDB, getR2, generateId } from './db.js';
 import { logEvent } from './analytics.js';
-import { extractApiKey, findByApiKey } from './auth.js';
+import {
+  extractApiKey,
+  extractApiKeyHeaderOnly,
+  extractLibrarySessionToken,
+  findByApiKey,
+  findByLibrarySessionToken,
+  type Account,
+} from './auth.js';
 import { getAllowedOrigins } from './cors.js';
+import { getStripe } from './billing.js';
+import { getKV, loadAccounts } from './kv.js';
 
 // ---------------------------------------------------------------------------
 // CORS-safe R2 response
@@ -26,6 +35,7 @@ function r2Response(body: ReadableStream | null, contentType: string, reqOrigin?
     headers['Access-Control-Allow-Origin'] = reqOrigin;
     headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
     headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+    headers['Access-Control-Allow-Credentials'] = 'true';
   }
   if (cache) headers['Cache-Control'] = cache;
   return new Response(body, { headers });
@@ -37,6 +47,110 @@ function r2Response(body: ReadableStream | null, contentType: string, reqOrigin?
 
 function isValidAuthorId(id: string): boolean {
   return /^[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(id) && id.length <= 39;
+}
+
+function isValidFileName(name: string): boolean {
+  return /^[a-z0-9][a-z0-9-]*$/.test(name) && name.length <= 64;
+}
+
+// Internal protocol test artifacts should never surface in the public Library.
+const INTERNAL_PROTOCOL_FILE_PATTERNS = [
+  /^lifecycle-\d+$/,
+  /^ci-smoke(?:-\d+)?$/,
+  /^smoke-test$/,
+  /^test-check$/,
+];
+
+function isInternalProtocolFileName(name: string): boolean {
+  return INTERNAL_PROTOCOL_FILE_PATTERNS.some((pattern) => pattern.test(name));
+}
+
+type LibraryAccessGrant = {
+  author_id?: string;
+  artifact_type?: string;
+  artifact_id?: string;
+};
+
+function clampPaidAmount(amountCents: number): number {
+  return Math.max(100, Math.min(100000, amountCents));
+}
+
+type AccountStore = Record<string, Account>;
+
+interface CompanyAuthorRow {
+  id: string;
+  display_name?: string | null;
+  settings?: string | null;
+  bio?: string | null;
+}
+
+interface ProtocolFileRow {
+  account_id: string;
+  name: string;
+  text: string | null;
+  visibility: string;
+  updated_at: string;
+}
+
+function parseJson<T>(value: string | null | undefined, fallback: T): T {
+  if (!value) return fallback;
+  try { return JSON.parse(value) as T; } catch { return fallback; }
+}
+
+function librarySettings(profile?: CompanyAuthorRow | null): Record<string, unknown> {
+  return parseJson<Record<string, unknown>>(profile?.settings, {});
+}
+
+function stringSlot(settings: Record<string, unknown>, name: string): string | null {
+  const value = settings[name];
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function slugSlot(value: string | null): string | null {
+  if (!value) return null;
+  const slug = value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || null;
+}
+
+function textSlot(settings: Record<string, unknown>, profile?: CompanyAuthorRow | null): string | null {
+  const value = stringSlot(settings, 'text') || profile?.bio || null;
+  if (!value) return null;
+  return value.length > 160 ? `${value.slice(0, 157).trimEnd()}...` : value;
+}
+
+function alexandriaId(account: Account, profile: CompanyAuthorRow | null, fallbackIndex: number): string {
+  const settings = librarySettings(profile);
+  return stringSlot(settings, 'library_id') || stringSlot(settings, 'alexandria_id') || `a.${fallbackIndex}`;
+}
+
+function directoryAuthor(account: Account, profile: CompanyAuthorRow | null, fallbackIndex: number) {
+  const settings = librarySettings(profile);
+  const location = stringSlot(settings, 'location');
+  const displayName =
+    stringSlot(settings, 'display_name')
+    || account.github_name?.trim()
+    || null;
+  return {
+    id: account.github_login,
+    account_id: account.github_id ? String(account.github_id) : null,
+    alexandria_id: alexandriaId(account, profile, fallbackIndex),
+    display_name: displayName,
+    location,
+    location_key: slugSlot(stringSlot(settings, 'location_key')) || slugSlot(location),
+    contact: stringSlot(settings, 'contact'),
+    website: stringSlot(settings, 'website'),
+    text: textSlot(settings, profile),
+    files_url: `/library/${account.github_login}`,
+  };
+}
+
+function fileAccessUrl(authorId: string, name: string): string {
+  return `/library/${authorId}/file/${name}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -60,36 +174,267 @@ export function registerLibraryRoutes(app: Hono): void {
   // AUTHOR PROFILE
   // =========================================================================
 
+  app.get('/library/session', async (c) => {
+    const key = extractApiKeyHeaderOnly(c);
+    const byKey = key ? await findByApiKey(key) : null;
+    const token = extractLibrarySessionToken(c);
+    const bySession = token ? await findByLibrarySessionToken(token) : null;
+    const account = byKey || bySession;
+    return c.json({
+      signed_in: !!account,
+      github_login: account?.github_login || null,
+      github_name: account?.github_name || null,
+    });
+  });
+
+  // Company directory over accounts. Protocol files remain on author pages.
+  app.get('/library', async (c) => {
+    const db = getDB();
+    const accounts = await loadAccounts<AccountStore>();
+    const authorRows = await db.prepare('SELECT id, display_name, settings, bio FROM authors')
+      .all<CompanyAuthorRow>()
+      .catch(() => ({ results: [] as CompanyAuthorRow[] }));
+    const profilesById = new Map<string, CompanyAuthorRow>();
+    for (const profile of authorRows.results || []) profilesById.set(profile.id, profile);
+
+    const accountList = Object.values(accounts)
+      .filter((account) => !!account?.github_id && !!account.github_login)
+      .sort((a, b) => {
+        const ta = a.created_at || '';
+        const tb = b.created_at || '';
+        if (ta !== tb) return ta.localeCompare(tb);
+        return String(a.github_id).localeCompare(String(b.github_id));
+      });
+
+    const authors = accountList
+      .map((account, index) => {
+        if (!account?.github_id || !account.github_login) return null;
+        return directoryAuthor(account, profilesById.get(account.github_login) || null, index);
+      })
+      .filter((author): author is NonNullable<typeof author> => !!author?.id)
+      .sort((a, b) => b.id.localeCompare(a.id, undefined, { sensitivity: 'base' }));
+
+    logEvent('library_directory_view', { authors: String(authors.length) });
+    return c.json({ authors });
+  });
+
   app.get('/library/:author', async (c) => {
     const authorId = c.req.param('author');
     const db = getDB();
-    const author = await db.prepare('SELECT * FROM authors WHERE id = ?').bind(authorId).first();
-    if (!author) return c.json({ error: 'Author not found' }, 404);
+    const accounts = await loadAccounts<AccountStore>();
+    const account = Object.values(accounts).find((candidate) => candidate.github_login === authorId) || null;
+    const accountId = account?.github_id ? String(account.github_id) : null;
 
-    const [shadows, quizzes, works, latestPulse] = await Promise.all([
-      db.prepare('SELECT id, visibility, price_cents, size_bytes, title, updated_at, r2_key FROM shadows WHERE author_id = ?').bind(authorId).all(),
-      db.prepare('SELECT id, title, subtitle, published_at FROM quizzes WHERE author_id = ? AND active = 1').bind(authorId).all(),
-      db.prepare('SELECT id, title, medium, tier, url, published_at FROM works WHERE author_id = ?').bind(authorId).all(),
-      db.prepare('SELECT * FROM pulses WHERE author_id = ? ORDER BY month DESC LIMIT 1').bind(authorId).first(),
-    ]);
+    if (!accountId) return c.json({ error: 'Author not found' }, 404);
 
-    // Extract chapter titles from first non-public shadow for TOC teaser
-    let shadow_chapters: string[] = [];
-    const gatedShadow = shadows.results?.find((s: any) => s.visibility !== 'public');
-    if (gatedShadow) {
-      try {
-        const r2 = getR2();
-        const obj = await r2.get((gatedShadow as any).r2_key || '');
-        if (obj) {
-          const text = await obj.text();
-          shadow_chapters = text.split('\n').filter((l: string) => l.startsWith('## ')).map((l: string) => l.replace('## ', ''));
-        }
-      } catch {}
-    }
+    const files = await db.prepare(
+      `SELECT account_id, name, text, visibility, updated_at
+       FROM protocol_files
+       WHERE account_id = ?
+       ORDER BY CASE name WHEN 'shadow' THEN 0 ELSE 1 END, updated_at DESC`
+    ).bind(accountId).all<ProtocolFileRow>();
+
+    const protocolFiles = (files.results || []).filter(file => !isInternalProtocolFileName(file.name));
 
     logEvent('library_author_view', { author: authorId });
 
-    return c.json({ author, shadows: shadows.results, quizzes: quizzes.results, works: works.results, latest_pulse: latestPulse, shadow_chapters });
+    const accountList = Object.values(accounts)
+      .filter((candidate) => !!candidate?.github_id && !!candidate.github_login)
+      .sort((a, b) => {
+        const ta = a.created_at || '';
+        const tb = b.created_at || '';
+        if (ta !== tb) return ta.localeCompare(tb);
+        return String(a.github_id).localeCompare(String(b.github_id));
+      });
+    const fallbackIndex = Math.max(0, accountList.findIndex(candidate => candidate.github_login === authorId));
+
+    const legacyAuthor = await db.prepare('SELECT id, display_name, settings, bio FROM authors WHERE id = ?')
+      .bind(authorId)
+      .first<CompanyAuthorRow>()
+      .catch(() => null);
+
+    return c.json({
+      author: directoryAuthor(account!, legacyAuthor, fallbackIndex),
+      files: protocolFiles.map(file => ({
+        name: file.name,
+        text: file.text,
+        visibility: file.visibility,
+        updated_at: file.updated_at,
+        url: fileAccessUrl(authorId, file.name),
+      })),
+    });
+  });
+
+  // Protocol-backed file content, rendered by the company Library.
+  // Public files are open, paid files are one-time checkout gated,
+  // and author/invite files are read-only and restricted to Authors.
+  app.post('/library/:author/checkout/file/:name', async (c) => {
+    const authorId = c.req.param('author');
+    const name = c.req.param('name');
+    if (!isValidFileName(name)) return c.json({ error: 'Invalid file name' }, 400);
+    if (isInternalProtocolFileName(name)) return c.json({ error: 'File not found' }, 404);
+
+    const accounts = await loadAccounts<AccountStore>();
+    const authorAccount = Object.values(accounts).find((candidate) => candidate.github_login === authorId);
+    if (!authorAccount?.github_id) return c.json({ error: 'Author not found' }, 404);
+
+    const db = getDB();
+    const file = await db.prepare(
+      'SELECT account_id, name, visibility FROM protocol_files WHERE account_id = ? AND name = ?'
+    ).bind(String(authorAccount.github_id), name).first<{ account_id: string; name: string; visibility: string }>();
+    if (!file) return c.json({ error: 'File not found' }, 404);
+    if (file.visibility !== 'paid') return c.json({ error: 'Only paid files can be checked out' }, 400);
+
+    const profile = await db.prepare('SELECT settings FROM authors WHERE id = ?')
+      .bind(authorId)
+      .first<{ settings: string | null }>()
+      .catch(() => null);
+    const settings = parseJson<Record<string, unknown>>(profile?.settings, {});
+    const defaultAmountCents = typeof settings.paid_price_cents === 'number'
+      ? clampPaidAmount(Math.round(settings.paid_price_cents))
+      : 200;
+
+    const body = await c.req.json().catch(() => ({})) as { amount_cents?: unknown; return_origin?: unknown };
+    const requestedAmount = typeof body.amount_cents === 'number' && Number.isFinite(body.amount_cents)
+      ? Math.round(body.amount_cents)
+      : defaultAmountCents;
+    const amountCents = clampPaidAmount(requestedAmount);
+
+    const accessorKey = extractApiKey(c);
+    const accessor = accessorKey ? await findByApiKey(accessorKey) : null;
+    const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+    const requestedOrigin = typeof body.return_origin === 'string' ? body.return_origin.trim() : '';
+    const allowedOrigins = new Set(getAllowedOrigins());
+    const returnOrigin = requestedOrigin && allowedOrigins.has(requestedOrigin) ? requestedOrigin : WEBSITE_URL;
+    const gatePath = `/library/${encodeURIComponent(authorId)}/open/${encodeURIComponent(name)}`;
+
+    const session = await getStripe().checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          unit_amount: amountCents,
+          product_data: {
+            name: `${authorId}/${name}.md`,
+            description: `Alexandria Library protocol file by ${authorId}`,
+          },
+        },
+        quantity: 1,
+      }],
+      metadata: {
+        kind: 'library',
+        library_purchase: 'true',
+        author_id: authorId,
+        artifact_type: 'protocol_file',
+        artifact_id: name,
+        ...(accessor?.github_login ? { github_login: accessor.github_login } : {}),
+      },
+      success_url: `${returnOrigin}${gatePath}?session_id={CHECKOUT_SESSION_ID}&purchased=1`,
+      cancel_url: `${returnOrigin}${gatePath}?cancel=1`,
+    });
+
+    if (!session.url) return c.json({ error: 'Failed to create checkout session' }, 500);
+    return c.json({ url: session.url });
+  });
+
+  app.get('/library/:author/file/:name', async (c) => {
+    const authorId = c.req.param('author');
+    const name = c.req.param('name');
+    if (!isValidFileName(name)) return c.json({ error: 'Invalid file name' }, 400);
+    if (isInternalProtocolFileName(name)) return c.json({ error: 'File not found' }, 404);
+
+    const accounts = await loadAccounts<AccountStore>();
+    const authorAccount = Object.values(accounts).find((candidate) => candidate.github_login === authorId);
+    if (!authorAccount?.github_id) return c.json({ error: 'Author not found' }, 404);
+
+    const db = getDB();
+    const file = await db.prepare(
+      'SELECT account_id, name, text, visibility, updated_at FROM protocol_files WHERE account_id = ? AND name = ?'
+    ).bind(String(authorAccount.github_id), name).first<ProtocolFileRow>();
+    if (!file) return c.json({ error: 'File not found' }, 404);
+
+    const accessorKey = extractApiKeyHeaderOnly(c);
+    const accessorFromKey = accessorKey ? await findByApiKey(accessorKey) : null;
+    const sessionToken = extractLibrarySessionToken(c);
+    const accessorFromSession = sessionToken ? await findByLibrarySessionToken(sessionToken) : null;
+    const accessor = accessorFromKey || accessorFromSession;
+    const visibility = file.visibility;
+    const purchaseSessionId = c.req.query('session_id')?.trim() || null;
+    const inviteCode = c.req.query('invite')?.trim() || c.req.query('token')?.trim() || null;
+
+    let paidAccess = false;
+    if (visibility === 'paid') {
+      // Author owns their file without purchasing.
+      if (accessor?.github_login === authorId) {
+        paidAccess = true;
+      } else if (purchaseSessionId) {
+        const raw = await getKV().get(`library:access:${purchaseSessionId}`);
+        if (raw) {
+          const grant = parseJson<LibraryAccessGrant>(raw, {});
+          paidAccess = grant.author_id === authorId
+            && grant.artifact_id === name
+            && grant.artifact_type === 'protocol_file';
+        }
+      }
+      if (!paidAccess) {
+        return c.json({
+          error: 'Payment required for this file',
+          visibility: 'paid',
+          checkout_url: `${process.env.WEBSITE_URL || 'https://mowinckel.ai'}/library/${encodeURIComponent(authorId)}/checkout/file/${encodeURIComponent(name)}`,
+        }, 402);
+      }
+    } else if (visibility === 'invite') {
+      const ownerAccess = accessor?.github_login === authorId;
+      let inviteAccess = false;
+      if (inviteCode) {
+        const accessRow = await db.prepare(
+          'SELECT id FROM access_codes WHERE author_id = ? AND code = ? AND revoked_at IS NULL LIMIT 1'
+        ).bind(authorId, inviteCode).first<{ id: string }>();
+        inviteAccess = !!accessRow?.id;
+      }
+      if (!ownerAccess && !inviteAccess) {
+        return c.json({
+          error: 'Invite code required',
+          visibility: 'invite',
+        }, 401);
+      }
+    } else if (visibility === 'authors') {
+      if (!accessor) {
+        return c.json({ error: 'Sign in required', visibility: 'authors' }, 401);
+      }
+    } else if (visibility !== 'public') {
+      return c.json({ error: 'Access denied', visibility }, 403);
+    }
+
+    const objectCandidates: Array<{ key: string; contentType: string }> = file.name === 'on-love'
+      ? [
+          { key: `protocol/${file.account_id}/${file.name}.pdf`, contentType: 'application/pdf' },
+          { key: `protocol/${file.account_id}/${file.name}.md`, contentType: 'text/markdown; charset=utf-8' },
+        ]
+      : [
+          { key: `protocol/${file.account_id}/${file.name}.md`, contentType: 'text/markdown; charset=utf-8' },
+          { key: `protocol/${file.account_id}/${file.name}.pdf`, contentType: 'application/pdf' },
+        ];
+    let obj: R2ObjectBody | null = null;
+    let contentType = 'text/markdown; charset=utf-8';
+    for (const candidate of objectCandidates) {
+      obj = await getR2().get(candidate.key);
+      if (obj) {
+        contentType = candidate.contentType;
+        break;
+      }
+    }
+    if (!obj) return c.json({ error: 'File content not found' }, 404);
+
+    logEvent('library_protocol_file_view', {
+      author: authorId,
+      name,
+      visibility,
+      accessor: accessor?.github_login || (paidAccess ? 'purchase' : 'public'),
+    });
+
+    const cache = visibility === 'public' ? 'public, max-age=300' : 'no-store';
+    return r2Response(obj.body, contentType, c.req.header('Origin'), cache);
   });
 
   // =========================================================================

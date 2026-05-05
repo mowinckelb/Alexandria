@@ -37,12 +37,82 @@ async function checkAdminRateLimit(endpoint: string, limit = 10, windowSec = 60)
   }
 }
 
+/** Stripe cancel + KV + D1 + R2 — shared by DELETE /account and admin removal.
+ *  Marketplace repo signals/feedback are unchanged (same as self-delete). */
+async function purgeAuthorAccount(account: Account, storeKey: string | null, authKeyHash: string | null) {
+  if (account.subscription_id) {
+    try {
+      const stripe = getStripe();
+      await stripe.subscriptions.cancel(account.subscription_id);
+    } catch (e) {
+      console.error('[account] Stripe subscription cancel failed:', e);
+    }
+  }
+  if (storeKey && authKeyHash) await deleteAccount(storeKey, authKeyHash);
+  else if (storeKey) await getKV().delete(`account:${storeKey}`);
+
+  try {
+    const db = getDB();
+    const login = account.github_login;
+    const email = account.email;
+    await db.batch([
+      db.prepare('DELETE FROM waitlist WHERE email = ?').bind(email),
+      db.prepare('DELETE FROM referrals WHERE author_id = ? OR referred_github_login = ?').bind(login, login),
+      db.prepare('DELETE FROM access_log WHERE accessor_id = ? OR author_id = ?').bind(login, login),
+      db.prepare('DELETE FROM billing_tab WHERE accessor_id = ? OR author_id = ?').bind(login, login),
+      db.prepare('DELETE FROM quiz_results WHERE quiz_id IN (SELECT id FROM quizzes WHERE author_id = ?)').bind(login),
+      db.prepare('DELETE FROM quizzes WHERE author_id = ?').bind(login),
+      db.prepare('DELETE FROM shadows WHERE author_id = ?').bind(login),
+      db.prepare('DELETE FROM pulses WHERE author_id = ?').bind(login),
+      db.prepare('DELETE FROM works WHERE author_id = ?').bind(login),
+      db.prepare('DELETE FROM shadow_tokens WHERE author_id = ?').bind(login),
+      db.prepare('DELETE FROM promo_codes WHERE author_id = ?').bind(login),
+      db.prepare('DELETE FROM access_codes WHERE author_id = ?').bind(login),
+      db.prepare('DELETE FROM authors WHERE id = ?').bind(login),
+    ]);
+  } catch (e) {
+    console.error('[account] D1 cleanup failed:', e);
+  }
+
+  try {
+    const r2 = getR2();
+    const login = account.github_login;
+    for (const prefix of [`shadows/${login}/`, `pulses/${login}/`, `quizzes/${login}/`, `works/${login}/`]) {
+      let cursor: string | undefined;
+      do {
+        const listed = await r2.list({ prefix, cursor });
+        await Promise.all(listed.objects.map(obj => r2.delete(obj.key)));
+        cursor = listed.truncated ? listed.cursor : undefined;
+      } while (cursor);
+    }
+  } catch (e) {
+    console.error('[account] R2 cleanup failed:', e);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Company routes — registered on Hono app
 // ---------------------------------------------------------------------------
 
 export function registerRoutes(app: Hono) {
   const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+  const websiteHost = (() => {
+    try { return new URL(WEBSITE_URL).hostname; } catch { return ''; }
+  })();
+  const sessionCookieDomain = websiteHost.endsWith('mowinckel.ai') ? '; Domain=.mowinckel.ai' : '';
+
+  const sanitizeNextPath = (raw: string | undefined): string => {
+    if (!raw) return '';
+    try {
+      const value = decodeURIComponent(raw).trim();
+      if (!value.startsWith('/')) return '';
+      if (value.startsWith('//')) return '';
+      return value.startsWith('/library/') ? value : '';
+    } catch {
+      return '';
+    }
+  };
 
   // --- Protocol handshake ---
 
@@ -172,11 +242,17 @@ export function registerRoutes(app: Hono) {
 
     const state = randomBytes(16).toString('hex');
     const kv = getKV();
-    // Preserve referral params through OAuth round-trip
+    // Preserve referral params (and optional post-login redirect) through OAuth round-trip
     const ref = c.req.query('ref') || '';
     const refSource = c.req.query('ref_source') || '';
     const refId = c.req.query('ref_id') || '';
-    await kv.put(`oauth:${state}`, JSON.stringify({ valid: true, ref, ref_source: refSource, ref_id: refId }), { expirationTtl: 600 });
+    const next = sanitizeNextPath(c.req.query('next'));
+    const intent = c.req.query('intent') === 'library' ? 'library' : '';
+    await kv.put(
+      `oauth:${state}`,
+      JSON.stringify({ valid: true, ref, ref_source: refSource, ref_id: refId, next, intent }),
+      { expirationTtl: 600 },
+    );
 
     const params = new URLSearchParams({
       client_id: clientId,
@@ -198,7 +274,7 @@ export function registerRoutes(app: Hono) {
       return c.html(authErrorHtml('this sign-in link has expired or is no longer valid.'), 400);
     }
     // Parse state — supports both legacy '1' and new JSON format
-    let stateData: { ref?: string; ref_source?: string; ref_id?: string } = {};
+    let stateData: { ref?: string; ref_source?: string; ref_id?: string; next?: string; intent?: string } = {};
     try { stateData = JSON.parse(stateRaw); } catch { /* legacy format */ }
     await kv.delete(`oauth:${state}`);
 
@@ -234,7 +310,15 @@ export function registerRoutes(app: Hono) {
       const userResp = await fetch('https://api.github.com/user', {
         headers: { Authorization: `Bearer ${tokenData.access_token}`, 'User-Agent': 'Alexandria' },
       });
-      const user = await safeJson(userResp, 'User profile') as { id: number; login: string; email?: string };
+      const user = await safeJson(userResp, 'User profile') as {
+        id: number;
+        login: string;
+        email?: string;
+        name?: string | null;
+        blog?: string | null;
+        location?: string | null;
+        html_url?: string | null;
+      };
 
       // Fetch email if not public
       let email = user.email || '';
@@ -269,6 +353,10 @@ export function registerRoutes(app: Hono) {
         ...existing,
         github_id: user.id,
         github_login: user.login,
+        github_name: user.name || null,
+        github_url: user.html_url || `https://github.com/${user.login}`,
+        website: user.blog || user.html_url || `https://github.com/${user.login}`,
+        location: user.location || null,
         email,
         api_key_hash: apiKeyHash,
         email_token: emailToken,
@@ -279,6 +367,45 @@ export function registerRoutes(app: Hono) {
       await saveAccount(key, updatedAccount as unknown as Record<string, unknown>);
       if (needsKey) await setAuthIndex(apiKeyHash, key);
       await setEmailTokenIndex(emailToken, key);
+
+      // Browser Library session (for human navigation on /library/*).
+      const librarySessionToken = randomBytes(24).toString('hex');
+      await kv.put(`library:session:${librarySessionToken}`, JSON.stringify({
+        account_key: key,
+        github_login: user.login,
+      }), { expirationTtl: 30 * 24 * 60 * 60 });
+      c.header('Set-Cookie', `alex_library_session=${librarySessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${sessionCookieDomain}`);
+
+      // Company Library profile. This mirrors GitHub account metadata for
+      // discovery; protocol file content still arrives only through /file.
+      try {
+        const now = new Date().toISOString();
+        const githubUrl = user.html_url || `https://github.com/${user.login}`;
+        const website = user.blog || githubUrl;
+        await getDB().prepare(
+          `INSERT INTO authors (id, display_name, website, location, social_links, settings, published_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, '{}', ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             display_name = COALESCE(authors.display_name, excluded.display_name),
+             website = COALESCE(authors.website, excluded.website),
+             location = COALESCE(authors.location, excluded.location),
+             social_links = CASE
+               WHEN authors.social_links IS NULL OR authors.social_links = '[]' THEN excluded.social_links
+               ELSE authors.social_links
+             END,
+             updated_at = excluded.updated_at`
+        ).bind(
+          user.login,
+          user.name || user.login,
+          website,
+          user.location || null,
+          JSON.stringify([{ platform: 'github', url: githubUrl }]),
+          now,
+          now
+        ).run();
+      } catch (e) {
+        console.error('[routes] Library profile upsert failed:', e);
+      }
 
       logEvent('prosumer_signup', {
         github_login: user.login,
@@ -308,12 +435,16 @@ export function registerRoutes(app: Hono) {
 
       // Skip Stripe if user already has payment info
       if (updatedAccount.stripe_customer_id) {
+        if (stateData.intent === 'library' && stateData.next) {
+          return c.redirect(`${WEBSITE_URL}${stateData.next}`);
+        }
         return c.html(callbackPageHtml(apiKey, user.login));
       }
 
-      // Redirect to Stripe Checkout (skip in beta — no card friction)
+      // Redirect to Stripe Checkout (skip in beta — no card friction).
+      // For pure Library login intent we skip billing redirect.
       const isBeta = process.env.BETA_MODE === 'true';
-      if (!isBeta && process.env.STRIPE_SECRET_KEY && email) {
+      if (stateData.intent !== 'library' && !isBeta && process.env.STRIPE_SECRET_KEY && email) {
         try {
           const checkoutUrl = await createCheckoutSession({
             email,
@@ -328,6 +459,9 @@ export function registerRoutes(app: Hono) {
         }
       }
 
+      if (stateData.intent === 'library' && stateData.next) {
+        return c.redirect(`${WEBSITE_URL}${stateData.next}`);
+      }
       return c.html(callbackPageHtml(apiKey, user.login));
     } catch (err: any) {
       console.error('GitHub callback error:', err);
@@ -368,70 +502,37 @@ export function registerRoutes(app: Hono) {
       storeKey = Object.keys(accounts).find(k => accounts[k].api_key_hash === keyHash) || null;
     }
 
-    // Cancel Stripe subscription before deleting account data
-    if (account.subscription_id) {
-      try {
-        const stripe = getStripe();
-        await stripe.subscriptions.cancel(account.subscription_id);
-      } catch (e) {
-        console.error('[account] Stripe subscription cancel failed:', e);
-      }
-    }
-
-    // Remove from KV accounts
-    if (storeKey) {
-      await deleteAccount(storeKey, keyHash);
-    }
-
-    // Remove from D1 — batched for atomicity and performance
-    try {
-      const db = getDB();
-      const login = account.github_login;
-      const email = account.email;
-      await db.batch([
-        db.prepare('DELETE FROM waitlist WHERE email = ?').bind(email),
-        db.prepare('DELETE FROM referrals WHERE author_id = ? OR referred_github_login = ?').bind(login, login),
-        db.prepare('DELETE FROM access_log WHERE accessor_id = ? OR author_id = ?').bind(login, login),
-        db.prepare('DELETE FROM billing_tab WHERE accessor_id = ? OR author_id = ?').bind(login, login),
-        db.prepare('DELETE FROM quiz_results WHERE quiz_id IN (SELECT id FROM quizzes WHERE author_id = ?)').bind(login),
-        db.prepare('DELETE FROM quizzes WHERE author_id = ?').bind(login),
-        db.prepare('DELETE FROM shadows WHERE author_id = ?').bind(login),
-        db.prepare('DELETE FROM pulses WHERE author_id = ?').bind(login),
-        db.prepare('DELETE FROM works WHERE author_id = ?').bind(login),
-        db.prepare('DELETE FROM shadow_tokens WHERE author_id = ?').bind(login),
-        db.prepare('DELETE FROM promo_codes WHERE author_id = ?').bind(login),
-        db.prepare('DELETE FROM access_codes WHERE author_id = ?').bind(login),
-        db.prepare('DELETE FROM authors WHERE id = ?').bind(login),
-      ]);
-    } catch (e) {
-      console.error('[account] D1 cleanup failed:', e);
-    }
-
-    // Remove published artifacts from R2
-    try {
-      const r2 = getR2();
-      const login = account.github_login;
-      for (const prefix of [`shadows/${login}/`, `pulses/${login}/`, `quizzes/${login}/`, `works/${login}/`]) {
-        let cursor: string | undefined;
-        do {
-          const listed = await r2.list({ prefix, cursor });
-          await Promise.all(listed.objects.map(obj => r2.delete(obj.key)));
-          cursor = listed.truncated ? listed.cursor : undefined;
-        } while (cursor);
-      }
-    } catch (e) {
-      console.error('[account] R2 cleanup failed:', e);
-    }
-
-    // Note: signals/feedback published to alexandria-marketplace github repo are
-    // deliberately NOT deleted here. Marketplace signals are anonymized at the relay
-    // boundary (no author info). Feedback retains the github_login but the marketplace
-    // repo is private; deleting requires gh API write access from the worker, which
-    // isn't worth the complexity given the data is already minimal (5KB per piece).
-    // If an Author requests right-to-be-forgotten, we delete via gh manually.
+    await purgeAuthorAccount(account, storeKey, storeKey ? keyHash : null);
 
     logEvent('account_deleted', { github_login: account.github_login });
     return c.json({ ok: true, deleted: account.github_login });
+  });
+
+  // --- Admin: remove another account (KV + D1 + R2; same footprint as DELETE /account) ---
+
+  app.post('/admin/account/remove', async (c) => {
+    const auth = await requireAdmin(c);
+    if (!auth) return c.json({ error: 'Unauthorized' }, 403);
+    if (await checkAdminRateLimit('account-remove', 5, 600)) return c.json({ error: 'Rate limited (5/10min)' }, 429);
+
+    const body = await c.req.json().catch(() => ({}));
+    const login = typeof body.login === 'string' ? body.login.trim() : '';
+    const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
+    if (!login || login.length > 39 || !/^[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(login)) {
+      return c.json({ error: 'Invalid login' }, 400);
+    }
+    if (login === adminLogin) return c.json({ error: 'Cannot remove admin account' }, 400);
+
+    const accounts = await loadAccounts<AccountStore>();
+    const storeKey = Object.keys(accounts).find(k => accounts[k].github_login === login);
+    if (!storeKey) return c.json({ error: 'Account not found' }, 404);
+
+    const victim = accounts[storeKey] as Account;
+    const apiKeyHash = typeof victim.api_key_hash === 'string' ? victim.api_key_hash : null;
+    await purgeAuthorAccount(victim, storeKey, apiKeyHash);
+
+    logEvent('admin_account_removed', { github_login: login });
+    return c.json({ ok: true, removed: login });
   });
 
   // --- Morning brief (autoloop trigger → email) ---

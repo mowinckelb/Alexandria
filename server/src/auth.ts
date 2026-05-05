@@ -1,11 +1,15 @@
 /** Protocol auth — account type, key extraction, lookup. */
 
-import { loadAccount, getAuthIndex } from './kv.js';
+import { getAuthIndex, getKV, loadAccount, loadAccounts } from './kv.js';
 import { hashApiKey } from './crypto.js';
 
 export interface Account {
   github_id: number;
   github_login: string;
+  github_name?: string | null;
+  github_url?: string | null;
+  website?: string | null;
+  location?: string | null;
   email: string;
   api_key_hash: string;
   email_token: string;
@@ -29,11 +33,40 @@ export interface Account {
 
 export type AccountStore = Record<string, Account>;
 
+interface CookieSource {
+  req: { header: (name: string) => string | undefined };
+}
+
+function parseCookieHeader(raw: string | undefined): Record<string, string> {
+  if (!raw) return {};
+  const out: Record<string, string> = {};
+  for (const pair of raw.split(';')) {
+    const idx = pair.indexOf('=');
+    if (idx <= 0) continue;
+    const key = pair.slice(0, idx).trim();
+    const value = pair.slice(idx + 1).trim();
+    if (!key) continue;
+    try {
+      out[key] = decodeURIComponent(value);
+    } catch {
+      out[key] = value;
+    }
+  }
+  return out;
+}
+
 export function extractApiKey(c: { req: { header: (name: string) => string | undefined; query: (name: string) => string | undefined } }): string | null {
   const auth = c.req.header('authorization');
   if (auth && auth.startsWith('Bearer alex_')) return auth.slice(7);
   const qKey = c.req.query('key');
   if (qKey && qKey.startsWith('alex_')) return qKey;
+  return null;
+}
+
+/** API key from Authorization header only — avoids leaking keys via ?key= in URLs. */
+export function extractApiKeyHeaderOnly(c: { req: { header: (name: string) => string | undefined } }): string | null {
+  const auth = c.req.header('authorization');
+  if (auth && auth.startsWith('Bearer alex_')) return auth.slice(7);
   return null;
 }
 
@@ -45,6 +78,35 @@ export async function findByApiKey(key: string): Promise<Account | null> {
     if (account) return account as unknown as Account;
   }
   return null;
+}
+
+export function extractLibrarySessionToken(c: CookieSource): string | null {
+  const cookies = parseCookieHeader(c.req.header('cookie'));
+  const token = cookies.alex_library_session;
+  return token && token.length >= 24 ? token : null;
+}
+
+export async function findByLibrarySessionToken(token: string): Promise<Account | null> {
+  const raw = await getKV().get(`library:session:${token}`);
+  if (!raw) return null;
+
+  const parsed = (() => {
+    try {
+      return JSON.parse(raw) as { account_key?: string; github_login?: string };
+    } catch {
+      return {} as { account_key?: string; github_login?: string };
+    }
+  })();
+
+  if (parsed.account_key) {
+    const account = await loadAccount(parsed.account_key);
+    if (account) return account as unknown as Account;
+  }
+  if (!parsed.github_login) return null;
+
+  const all = await loadAccounts<AccountStore>();
+  const key = Object.keys(all).find((k) => all[k]?.github_login === parsed.github_login);
+  return key ? all[key] : null;
 }
 
 export async function requireAuth(c: { req: { header: (name: string) => string | undefined; query: (name: string) => string | undefined } }): Promise<{ key: string; account: Account } | null> {

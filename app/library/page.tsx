@@ -1,0 +1,70 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { ThemeToggle } from '../components/ThemeToggle';
+import { SERVER_URL } from '../lib/config';
+import { LibraryDirectory, type DirectoryAuthor } from './LibraryDirectory';
+
+export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'library — alexandria.',
+  description: 'Alexandria protocol files.',
+};
+
+async function loadAuthors(): Promise<DirectoryAuthor[]> {
+  try {
+    const res = await fetch(`${SERVER_URL}/library`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json() as { authors?: Partial<DirectoryAuthor>[] };
+    const rows = data.authors || [];
+    return rows.map((author) => ({
+      id: String(author.id ?? ''),
+      alexandria_id: String(author.alexandria_id ?? ''),
+      display_name: author.display_name ?? null,
+      location: author.location ?? null,
+      location_key: author.location_key ?? null,
+      contact: author.contact ?? null,
+      text: author.text ?? null,
+      files_url: typeof author.files_url === 'string' ? author.files_url : `/library/${author.id ?? ''}`,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export default async function LibraryPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ locations?: string; location?: string }>;
+}) {
+  const params = await searchParams;
+  const initialLocationKeys = (params?.locations || params?.location || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const authors = await loadAuthors();
+
+  return (
+    <>
+      <ThemeToggle />
+      <main style={{ maxWidth: '560px', margin: '0 auto', padding: '6rem 2rem 4rem', fontFamily: 'var(--font-eb-garamond)' }}>
+        <header style={{ marginBottom: '1.5rem' }}>
+          <Link href="/" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem' }}>
+            alexandria.
+          </Link>
+          <h1 style={{ fontSize: '1.55rem', fontWeight: 400, color: 'var(--text-primary)', margin: '2rem 0 0', letterSpacing: '-0.01em' }}>
+            library
+          </h1>
+        </header>
+
+        {authors.length === 0 ? (
+          <p style={{ color: 'var(--text-ghost)', fontSize: '0.9rem' }}>
+            no Authors yet.
+          </p>
+        ) : (
+          <LibraryDirectory authors={authors} initialLocationKeys={initialLocationKeys} />
+        )}
+      </main>
+    </>
+  );
+}

@@ -321,6 +321,9 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             <span className="nav-tagline" aria-hidden>the thinking republic</span>
           </div>
           <div className="nav-links">
+            <span className="nav-shelf">
+              <Link href="/library" className="nav-shelf-link">library</Link>
+            </span>
             <span className="nav-group">
               <a href="/docs/letter.pdf" target="_blank" rel="noopener noreferrer">letter</a>
               <span className="nav-sep">·</span>
@@ -709,7 +712,37 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .nav-links {
           display: flex;
           align-items: center;
-          gap: clamp(28px, 2.6vw, 48px);
+          gap: clamp(20px, 2.2vw, 40px);
+        }
+        /* Library — shelf entry: serif italic, quieter than letter/whitepaper */
+        .nav-shelf {
+          display: inline-flex;
+          align-items: center;
+          padding-right: clamp(16px, 2.2vw, 28px);
+          margin-right: clamp(2px, 0.4vw, 6px);
+          border-right: 1px solid rgba(26, 19, 24, 0.14);
+        }
+        .nav.on-bottom .nav-shelf {
+          border-right-color: color-mix(in srgb, var(--theme-fg) 18%, transparent);
+        }
+        .nav-links .nav-shelf-link {
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-style: italic;
+          font-weight: 400;
+          font-size: 15px;
+          letter-spacing: 0.04em;
+          text-decoration: none;
+          color: rgba(26, 19, 24, 0.5);
+          transition: color 180ms ease;
+        }
+        .nav-links .nav-shelf-link:hover {
+          color: #1a1318;
+        }
+        .nav.on-bottom .nav-links .nav-shelf-link {
+          color: var(--theme-fg-faint);
+        }
+        .nav.on-bottom .nav-links .nav-shelf-link:hover {
+          color: var(--theme-fg);
         }
         .nav-links a {
           font-family: inherit;
@@ -1906,7 +1939,15 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             font-size: 24px;
           }
           .nav-links {
-            gap: 16px;
+            gap: 12px;
+          }
+          .nav-shelf {
+            padding-right: 12px;
+            margin-right: 0;
+          }
+          .nav-links .nav-shelf-link {
+            font-size: 13px;
+            letter-spacing: 0.06em;
           }
           .nav-links a {
             font-size: 13px;

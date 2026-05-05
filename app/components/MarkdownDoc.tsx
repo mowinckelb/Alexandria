@@ -155,16 +155,19 @@ export default function MarkdownDoc({ src, header, homeHref = '/', numbered = fa
     return numbered ? processNumbered(content) : null;
   }, [content, numbered]);
 
-  if (content === null) return <main className="mdoc" />;
-
   return (
     <>
       <ThemeToggle />
+      <Link href="/library" className="mdoc-shelf-link">
+        library
+      </Link>
       <main className="mdoc">
         <div className="mdoc-frame mdoc-header">{header}</div>
 
         <article className="mdoc-frame mdoc-article pdoc pdoc-longform">
-          {parsed ? (
+          {content === null ? (
+            <p className="pdoc-p" style={{ color: 'var(--text-ghost)', fontSize: '0.85rem', letterSpacing: '0.08em' }}>...</p>
+          ) : parsed ? (
             <>
               <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
                 {parsed.pre}
