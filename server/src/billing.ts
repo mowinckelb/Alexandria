@@ -585,16 +585,23 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
         console.error('Webhook rejected — STRIPE_WEBHOOK_SECRET or signature missing');
         return c.text('Webhook not configured', 500);
       }
-      event = stripe.webhooks.constructEvent(rawBody, sig, WEBHOOK_SECRET);
+      // Workers' V8 isolate runs subtle.crypto async-only. Stripe's sync
+      // constructEvent throws "SubtleCryptoProvider cannot be used in a
+      // synchronous context." Use constructEventAsync instead.
+      event = await stripe.webhooks.constructEventAsync(rawBody, sig, WEBHOOK_SECRET);
     } catch (err) {
       // Surface enough info to triage signature drift without exposing the
-      // secret. First/last 4 chars of bound secret + length + first chars of
-      // the signature header. Compare against Stripe Dashboard's revealed
-      // secret to see if the right value got into wrangler.
+      // secret. Body & header fingerprints reveal mid-flight modification
+      // (encoding shifts, trailing whitespace) when the secret matches.
       const fp = WEBHOOK_SECRET
         ? `${WEBHOOK_SECRET.slice(0, 8)}…${WEBHOOK_SECRET.slice(-4)} (len=${WEBHOOK_SECRET.length})`
         : '<unset>';
-      console.error(`[webhook] signature mismatch — bound=${fp} sig_prefix=${sig.slice(0, 24)}`);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      console.error(`[webhook] signature mismatch — bound=${fp}`);
+      console.error(`[webhook] sig_header=${sig}`);
+      console.error(`[webhook] body_len=${rawBody.length} body_head=${JSON.stringify(rawBody.slice(0, 80))}`);
+      console.error(`[webhook] body_tail=${JSON.stringify(rawBody.slice(-30))}`);
+      console.error(`[webhook] err=${errMsg}`);
       return c.text('Invalid signature', 400);
     }
 
