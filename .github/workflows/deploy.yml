@@ -23,7 +23,11 @@ jobs:
       - name: Deploy to Cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: cd server && npx wrangler deploy 2>&1 | grep -E "Uploaded|Deployed|Version"
+        # Full wrangler output reaches CI logs (was being filtered through
+        # grep, which silently swallowed real errors and left only an
+        # opaque "exit 1" — see 2026-05-06 verification-must-check-pipeline
+        # incident).
+        run: cd server && npx wrangler deploy
 
       - name: Verify health
         run: |
