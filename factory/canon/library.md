@@ -158,9 +158,23 @@ The server keeps one combined KV entry per module: `{frontmatter, body, last_fet
 
 On the website: `mowinckel.ai/marketplace/<user>/<repo>/<path>` — friendly, link-shareable, mirrors the Library URL pattern. The module ID `github:<user>/<repo>#<path>` maps trivially. Server-side, the public detail endpoint is `GET /marketplace/<user>/<repo>/*`.
 
-## Worked example — `optimise`
+## Worked example — `brief-setup`
 
-(Worked example will reference whichever module ships as the inaugural Marketplace entry. Pending Phase 6.)
+The first module on the public Marketplace is `factory/skills/brief-setup` from this repo — the one-time setup walkthrough for the daily morning brief (sovereign SMTP + local launchd). Its module ID is `github:mowinckelb/alexandria#factory/skills/brief-setup`. It's already in the canonical alexandria repo with valid `name` + `description` front-matter, so no separate publish step was needed — the protocol's logic carries: write to a public path, register in `.call_manifest`, the next `/call` POST surfaces it.
+
+Catalog entry it produced:
+
+```json
+{
+  "id": "github:mowinckelb/alexandria#factory/skills/brief-setup",
+  "name": "brief-setup",
+  "description": "One-time setup for the daily morning brief — local launchd schedule + user-owned SMTP credentials. Sovereign by construction; survives Alexandria the company vanishing.",
+  "author_github_login": "mowinckelb",
+  "status": "ok"
+}
+```
+
+Browsable at `mowinckel.ai/marketplace/mowinckelb/alexandria/factory/skills/brief-setup`. Install on any machine with `bash install.sh github:mowinckelb/alexandria#factory/skills/brief-setup`.
 
 ## When to suggest contributing
 
