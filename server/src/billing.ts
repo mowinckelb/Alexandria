@@ -305,6 +305,18 @@ export interface BillingInfo {
 // Checkout
 // ---------------------------------------------------------------------------
 
+/**
+ * True for Stripe errors thrown when a referenced customer/subscription/price
+ * doesn't exist on the API key's mode — the canonical signal that a stored
+ * test-mode ID is being used against live (or vice-versa). Retrying without
+ * the stale reference lets the call recover by creating a fresh resource.
+ */
+function isResourceMissing(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const e = err as { type?: string; code?: string };
+  return e.type === 'StripeInvalidRequestError' && e.code === 'resource_missing';
+}
+
 export async function createCheckoutSession(opts: {
   email: string;
   githubLogin: string;
@@ -315,41 +327,60 @@ export async function createCheckoutSession(opts: {
   const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
   const BETA = process.env.BETA_MODE === 'true';
 
-  const customer = opts.stripeCustomerId
-    ? { customer: opts.stripeCustomerId }
-    : { customer_email: opts.email };
-
-  // No API keys in Stripe metadata — identify accounts by github_login only
-  if (BETA) {
-    const session = await stripe.checkout.sessions.create({
-      mode: 'setup',
-      currency: 'usd',
+  // First attempt uses the stored customer if any; if Stripe rejects it as
+  // missing (test→live transition leaves stale IDs behind), retry once with
+  // email-only so the next checkout creates a fresh customer in the active
+  // mode. New subscription_id will land in the account on webhook completion.
+  const buildParams = (useStored: boolean) => {
+    const customer = useStored && opts.stripeCustomerId
+      ? { customer: opts.stripeCustomerId }
+      : { customer_email: opts.email };
+    if (BETA) {
+      return {
+        mode: 'setup' as const,
+        currency: 'usd',
+        ...customer,
+        metadata: { kind: 'author', github_login: opts.githubLogin },
+        custom_text: {
+          submit: { message: 'free in beta. we\'ll let you know before billing starts.' },
+        },
+        success_url: `${SERVER_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${WEBSITE_URL}/signup?billing=cancel`,
+      };
+    }
+    return {
+      mode: 'subscription' as const,
+      line_items: [{ price: '', quantity: 1 }],
       ...customer,
-      metadata: { kind: 'author', github_login: opts.githubLogin },
-      custom_text: {
-        submit: { message: 'free in beta. we\'ll let you know before billing starts.' },
+      subscription_data: {
+        description: 'the examined life',
+        metadata: { kind: 'author', github_login: opts.githubLogin },
       },
+      metadata: { kind: 'author', github_login: opts.githubLogin },
       success_url: `${SERVER_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${WEBSITE_URL}/signup?billing=cancel`,
-    });
+    };
+  };
+
+  const tryCreate = async (useStored: boolean): Promise<string> => {
+    const params = buildParams(useStored);
+    if (!BETA) {
+      const priceId = await ensurePrice();
+      (params as { line_items: { price: string; quantity: number }[] }).line_items = [{ price: priceId, quantity: 1 }];
+    }
+    const session = await stripe.checkout.sessions.create(params as Parameters<typeof stripe.checkout.sessions.create>[0]);
     return session.url || '';
+  };
+
+  try {
+    return await tryCreate(true);
+  } catch (err) {
+    if (isResourceMissing(err) && opts.stripeCustomerId) {
+      console.warn(`[billing] stale customer ${opts.stripeCustomerId} for ${opts.githubLogin} — retrying without`);
+      return await tryCreate(false);
+    }
+    throw err;
   }
-
-  const priceId = await ensurePrice();
-  const session = await stripe.checkout.sessions.create({
-    mode: 'subscription',
-    line_items: [{ price: priceId, quantity: 1 }],
-    ...customer,
-    subscription_data: {
-      description: 'the examined life',
-      metadata: { kind: 'author', github_login: opts.githubLogin },
-    },
-    metadata: { kind: 'author', github_login: opts.githubLogin },
-    success_url: `${SERVER_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${WEBSITE_URL}/signup?billing=cancel`,
-  });
-
-  return session.url || '';
 }
 
 // ---------------------------------------------------------------------------
