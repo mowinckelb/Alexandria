@@ -91,8 +91,11 @@ jobs:
 
       - name: Protocol marketplace listing
         run: |
+          # Listing curates to status === 'ok' (installable modules with valid
+          # front-matter). brief-setup is a stable canonical skill — assert it
+          # surfaces. Catches both endpoint breakage and over-aggressive filtering.
           curl -sf $SERVER/marketplace -H "Authorization: Bearer $API_KEY" \
-            | grep -q '"methodology"' || { echo "::error::Marketplace listing broken"; exit 1; }
+            | grep -q '"brief-setup"' || { echo "::error::Marketplace listing broken"; exit 1; }
           echo "✓ marketplace"
 
       - name: Factory (every tracked file resolves on raw)
