@@ -239,7 +239,99 @@ GITIGNORE
   ) &>/dev/null || true
 fi
 
-# ── 5. iCloud input pipe (macOS) ─────────────────────────────────
+# ── 5. Public fork (where Author additions surface in the marketplace) ──
+#
+# Vault → private (alexandria-private, step 4 above).
+# Machine additions → public (Author's fork of canonical alexandria).
+#
+# Author drops new skills/hooks/scripts in ~/alexandria-fork/factory/.
+# An hourly launchd job pushes those to github.com/<their-handle>/alexandria.
+# Their machine /calls each module when it uses it; the marketplace
+# registers it from the github URL. Compounding loop: passive contribution
+# without an explicit /publish step.
+#
+# Fail-soft: skips cleanly when gh isn't authenticated or the OS isn't
+# macOS — the rest of setup is unaffected.
+
+FORK_DIR="$HOME/alexandria-fork"
+GITHUB_USER=""
+if command -v gh &>/dev/null && gh auth status &>/dev/null 2>&1; then
+  GITHUB_USER=$(gh api user --jq .login 2>/dev/null)
+fi
+
+if [ -z "$GITHUB_USER" ]; then
+  echo "  public fork: skipped (gh CLI not authenticated — run 'gh auth login' and re-run setup)"
+elif [ "$GITHUB_USER" = "mowinckelb" ]; then
+  echo "  public fork: skipped (canonical owner — no self-fork needed)"
+else
+  if [ ! -d "$FORK_DIR/.git" ]; then
+    # Idempotent: if the fork already exists on github, just clone it.
+    if gh repo view "$GITHUB_USER/alexandria" &>/dev/null; then
+      git clone --filter=blob:none --no-checkout "https://github.com/$GITHUB_USER/alexandria.git" "$FORK_DIR" 2>/dev/null
+    else
+      gh repo fork mowinckelb/alexandria --clone="$FORK_DIR" --remote=false 2>/dev/null
+    fi
+
+    if [ -d "$FORK_DIR/.git" ]; then
+      # Sparse-checkout factory/ only — the rest of canonical (server, app)
+      # is fork droppings the Author doesn't need locally.
+      (cd "$FORK_DIR" && \
+        git sparse-checkout init --cone 2>/dev/null && \
+        git sparse-checkout set factory 2>/dev/null && \
+        git checkout main 2>/dev/null) || true
+      echo "  public fork: $FORK_DIR (additions to factory/ auto-publish to github.com/$GITHUB_USER/alexandria)"
+    else
+      echo "  public fork: clone/fork failed — check gh auth and re-run setup"
+    fi
+  fi
+
+  # Auto-publish helper script (downloaded into the Author's local system/)
+  mkdir -p "$ALEX_DIR/system/scripts" 2>/dev/null
+  fetch_factory "scripts/publish-fork.sh" "$ALEX_DIR/system/scripts/publish-fork.sh" "scripts/publish-fork.sh" yes
+  chmod +x "$ALEX_DIR/system/scripts/publish-fork.sh" 2>/dev/null
+
+  # Hourly auto-publish via launchd (macOS only). Linux Authors can run the
+  # script from cron themselves — `man 5 crontab`, suggested: `0 * * * *`.
+  if [ -d "$FORK_DIR/.git" ] && [ -f "$ALEX_DIR/system/scripts/publish-fork.sh" ] && [ "$(uname)" = "Darwin" ]; then
+    PLIST_DIR="$HOME/Library/LaunchAgents"
+    PLIST="$PLIST_DIR/io.alexandria.publish.plist"
+    mkdir -p "$PLIST_DIR" 2>/dev/null
+    cat > "$PLIST" <<PLIST_END
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>io.alexandria.publish</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>$ALEX_DIR/system/scripts/publish-fork.sh</string>
+    <string>$FORK_DIR</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>3600</integer>
+  <key>RunAtLoad</key>
+  <false/>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/opt/homebrew/bin:/bin</string>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>$ALEX_DIR/system/.publish.log</string>
+  <key>StandardErrorPath</key>
+  <string>$ALEX_DIR/system/.publish.log</string>
+</dict>
+</plist>
+PLIST_END
+    launchctl unload "$PLIST" 2>/dev/null
+    launchctl load "$PLIST" 2>/dev/null
+    echo "  auto-publish: hourly via launchd"
+  fi
+fi
+
+# ── 6. iCloud input pipe (macOS) ─────────────────────────────────
 # iCloud holds Apple-native captures only (Shortcuts, Voice Memos, Files drops,
 # future Apple Intelligence). Engine ingests on session start per canon.
 

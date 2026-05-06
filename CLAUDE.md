@@ -20,9 +20,13 @@ Alexandria decomposes into atomic entities. Each is exactly one thing; together 
 
 **Per-Author Machine** — The Author's AI in active use, doing Alexandria work. NOT a single tool — a composition of pieces (skills running in Claude Code or Cursor or Codex; editor hooks; local launchd jobs; their AI subscription budget). Built from Canonical Machine parts at install, then diverges as the Author personalizes. The founder's user0 Machine is one instance; every other Author has their own.
 
-**Per-Author Files & System** — The Author's content (vault, constitution, ontology, notepad) plus their personal machine config (which skills installed, which hooks running, SMTP creds, launchd plists). Lives on their stuff: their disk, their git repo (`alexandria-private`), their accounts.
+**Per-Author Files & System** — The Author's content + machine config, split across two git repos by privacy:
+- **Vault** (private): `~/alexandria/` → `<their-handle>/alexandria-private`. Constitution, ontology, notepad, library drafts, machine local state (.api_key, .last_processed). Their cognition.
+- **Public fork** (public): `~/alexandria-fork/` → `<their-handle>/alexandria` (a fork of `mowinckelb/alexandria`). Anything they want to circulate as a marketplace module — skills, hooks, scripts they wrote — goes in `factory/`. An hourly launchd job auto-publishes additions. Their machine's `/call` then registers the github URL in the marketplace.
 
-**Marketplace of Systems** — Public, on github (`mowinckelb/alexandria` + future fork ecosystem). Where machine parts circulate. Today: signal-only via the `alexandria-signal` repo. Future: a true parts marketplace where Authors publish novel modules for others. Survives Alexandria's death only as long as the github org does — accepted tradeoff.
+The fork-on-install is a setup-time step (`factory/setup.sh`); existing Authors who lack a fork keep working — the fork section just no-ops if `gh` isn't authenticated.
+
+**Marketplace of Systems** — Public, on github. Conceptually the union of `mowinckelb/alexandria` (canonical) plus every Author's fork plus any other public repo with a markdown module. Where machine parts circulate. Authors don't push to a central repo; they push to their own fork, and the marketplace registers via `/call`. Survives Alexandria's death only as long as the github org does — accepted tradeoff.
 
 **Marketplace Signal** — Private, on the Company server. Anonymized cross-Author usage telemetry (file PUTs, calls, setup status). Only the Company sees raw signal; Authors get derivatives via the daily snapshot pushed to `alexandria-signal` for the factory to drain.
 
@@ -145,12 +149,14 @@ Operational overhead — OAuth, billing, email, admin:
 ```
 factory/
   block.md                  # Onboarding block instructions
-  setup.sh                  # Setup script (curl → install)
+  setup.sh                  # Setup script (curl → install) — also forks canonical and installs the auto-publish launchd job
   canon/
     methodology.md          # The canon — how to develop human cognition
   hooks/
     shim.sh                 # Immutable local shim
     payload.sh              # GitHub-delivered hook logic
+  scripts/
+    publish-fork.sh         # Hourly auto-publish of Author additions in ~/alexandria-fork/factory/
   skills/
     claudecode.md           # Claude Code skill definition
     codex.md                # Codex skill definition
