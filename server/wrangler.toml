@@ -20,7 +20,15 @@ database_id = "d76e2219-dbcc-43da-b618-1b0ae0095db8"
 binding = "ARTIFACTS"
 bucket_name = "alexandria-artifacts"
 
-# Route-based binding — intercepts when DNS record is proxied
+# Route-based bindings — intercept when DNS records are proxied.
+# api.mowinckel.ai is the canonical hostname; mcp.mowinckel.ai is kept
+# during soak so existing installs (Author shims that cached the old
+# URL in .hooks_payload) keep working until they refresh from github.
+# Retire mcp.mowinckel.ai after 24-48h of clean api.mowinckel.ai traffic.
+[[routes]]
+pattern = "api.mowinckel.ai"
+custom_domain = true
+
 [[routes]]
 pattern = "mcp.mowinckel.ai/*"
 zone_id = "7a1952631048380db0df21b5daa1e88e"

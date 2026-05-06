@@ -95,7 +95,7 @@ async function purgeAuthorAccount(account: Account, storeKey: string | null, aut
 // ---------------------------------------------------------------------------
 
 export function registerRoutes(app: Hono) {
-  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+  const SERVER_URL = process.env.SERVER_URL || 'https://api.mowinckel.ai';
   const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
   const websiteHost = (() => {
     try { return new URL(WEBSITE_URL).hostname; } catch { return ''; }
@@ -632,7 +632,7 @@ export function registerRoutes(app: Hono) {
     if (await checkAdminRateLimit('nudge', 3, 300)) return c.json({ error: 'Rate limited (sends emails, capped 3/5min)' }, 429);
 
     const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-    const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+    const SERVER_URL = process.env.SERVER_URL || 'https://api.mowinckel.ai';
     const accounts = await loadAccounts<AccountStore>();
     const recipients = Object.values(accounts).filter(acct =>
       !acct.installed_at && acct.email && !acct.engagement_opt_out && acct.github_login !== auth.account.github_login

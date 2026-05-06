@@ -4,13 +4,13 @@
  *
  * Usage: npx tsx test/library.ts
  * Requires: ~/alexandria/system/.api_key (a real account)
- * Set TEST_URL to override (default: https://mcp.mowinckel.ai)
+ * Set TEST_URL to override (default: https://api.mowinckel.ai)
  */
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-const BASE = process.env.TEST_URL || 'https://mcp.mowinckel.ai';
+const BASE = process.env.TEST_URL || 'https://api.mowinckel.ai';
 const HOME = process.env.HOME || process.env.USERPROFILE || '';
 const API_KEY_PATH = join(HOME, 'alexandria', 'system', '.api_key');
 

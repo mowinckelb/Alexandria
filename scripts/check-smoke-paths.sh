@@ -14,7 +14,7 @@
 # parsing it as an expression.
 set -euo pipefail
 
-: "${SERVER:=https://mcp.mowinckel.ai}"
+: "${SERVER:=https://api.mowinckel.ai}"
 : "${FACTORY:=https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory}"
 
 PAYLOAD=$(curl -sf "$FACTORY/hooks/payload.sh")

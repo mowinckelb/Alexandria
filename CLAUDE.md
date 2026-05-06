@@ -43,7 +43,7 @@ But CAN depend on:
 Collective surfaces depend on Alexandria *by definition*:
 - Library (hosting)
 - Marketplace Signal (private collective state)
-- Protocol-as-a-service (the live `mcp.mowinckel.ai` endpoint)
+- Protocol-as-a-service (the live `api.mowinckel.ai` endpoint)
 - Canon iteration (factory routine)
 
 These are accepted dependencies — they ARE Alexandria. Alexandria is *purely marginal value add*: provides collective surfaces and a canonical machine; never holds the Author's thinking hostage.
@@ -102,7 +102,7 @@ Death-test mapping:
 - **Investor docs:** kept out of this public repo. Live in `~/AlexandriaInc/partners/` (private GitHub `alexandria-inc`). Shared directly with partners (email/DM) when needed — no public URL, no `/partners/` route.
 - **Pre-commit hook:** `scripts/pre-commit` gates server type check + app build (mirrors CI). Activate on fresh clone: `git config core.hooksPath scripts`.
 - **Build:** `cd server && npx wrangler deploy --dry-run --outdir=dist` (server). **Deploy:** `cd server && npx wrangler deploy` then check health. **Push:** `bash scripts/push.sh` (pushes + waits for CI + reports results). Always use `push.sh` instead of raw `git push`.
-- **Server health:** `curl https://mcp.mowinckel.ai/health`
+- **Server health:** `curl https://api.mowinckel.ai/health`
 - **Stack:** Vercel (website), Cloudflare (DNS + server + KV + D1 + R2), Resend (email), GitHub (code + OAuth), Stripe (billing), Mercury (banking, API), Claude (intelligence). All hybrid (CLI or API-controllable). Zero external dependencies.
 - **Storage architecture:** Stateless server, sovereign local files (`~/alexandria/` — local + private GitHub; `iCloud/alexandria/` is Apple-native input only), thin persistence for collective Library (D1 for metadata/discovery, R2 for published content, KV for accounts/events).
 
@@ -235,7 +235,7 @@ Before committing any server code change:
 4. **No regressions:** Review recent commits for anything the change might break.
 5. **Bitter lesson compliance:** No structured parameters, fixed schemas, or hand-crafted rules. Unstructured text/JSONL. Soft defaults that thin as models improve.
 6. **Statelessness:** Server stores nothing user-specific. Encrypted refresh token IS the access token.
-7. **Deployment:** After deploying (`cd server && npx wrangler deploy`), check health: `curl https://mcp.mowinckel.ai/health`.
+7. **Deployment:** After deploying (`cd server && npx wrangler deploy`), check health: `curl https://api.mowinckel.ai/health`.
 
 ## Working With the Founder
 

@@ -19,7 +19,7 @@ Your purpose: maximise total signal-to-noise of the canon for the Author populat
 - `library-signal.md` — funnel/engagement aggregate, refreshed daily by the server cron
 - `.factory/last_run.md` — your report from the previous run
 
-The Alexandria server (mcp.mowinckel.ai) relays each signal/feedback POST into this repo and refreshes the library-signal snapshot daily. You read everything from your local working tree and drain by deleting files and pushing.
+The Alexandria server (api.mowinckel.ai) relays each signal/feedback POST into this repo and refreshes the library-signal snapshot daily. You read everything from your local working tree and drain by deleting files and pushing.
 
 ## Cadence
 

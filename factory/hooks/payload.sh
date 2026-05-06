@@ -7,7 +7,7 @@ MODE="$1"
 ALEX_DIR="$2"
 API_KEY="$3"
 EXTRA="$4"
-SERVER="https://mcp.mowinckel.ai"
+SERVER="https://api.mowinckel.ai"
 CANON_GITHUB="https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/canon"
 PAYLOAD_FRESH="$5"
 

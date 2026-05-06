@@ -311,7 +311,7 @@ export async function createCheckoutSession(opts: {
   stripeCustomerId?: string;
 }): Promise<string> {
   const stripe = getStripe();
-  const SERVER_URL = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+  const SERVER_URL = process.env.SERVER_URL || 'https://api.mowinckel.ai';
   const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
   const BETA = process.env.BETA_MODE === 'true';
 

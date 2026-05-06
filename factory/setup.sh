@@ -6,7 +6,7 @@
 ALEX_DIR="$HOME/alexandria"
 API_KEY="$1"
 FACTORY_RAW="https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory"
-SERVER="https://mcp.mowinckel.ai"
+SERVER="https://api.mowinckel.ai"
 FETCH_ERRORS=""
 
 fetch_factory() {
@@ -332,13 +332,13 @@ elif [ "$KEY_STATUS" = "401" ]; then
 elif [ -n "$KEY_STATUS" ] && [ "$KEY_STATUS" != "200" ] && [ "$KEY_STATUS" != "000" ]; then
   echo ""
   echo "NOTE: server responded $KEY_STATUS — setup finished but check"
-  echo "  https://mcp.mowinckel.ai/health"
+  echo "  https://api.mowinckel.ai/health"
   echo "Everything local works; the protocol may be degraded."
 elif [ "$KEY_STATUS" = "000" ]; then
   echo ""
   echo "WARNING: could not reach the Alexandria server during setup."
   echo "Local files were installed, but the protocol connection is unverified."
-  echo "Check https://mcp.mowinckel.ai/health, then re-run this setup command."
+  echo "Check https://api.mowinckel.ai/health, then re-run this setup command."
 else
   echo ""
   echo "Alexandria installed. ~/alexandria/ — your mind, on your machine."

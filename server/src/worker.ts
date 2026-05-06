@@ -72,7 +72,7 @@ app.use('*', async (c, next) => {
   c.header('X-Frame-Options', 'DENY');
   c.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
-  const serverUrl = process.env.SERVER_URL || 'https://mcp.mowinckel.ai';
+  const serverUrl = process.env.SERVER_URL || 'https://api.mowinckel.ai';
   const websiteUrl = process.env.WEBSITE_URL || 'https://mowinckel.ai';
   c.header('Content-Security-Policy', `default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' ${serverUrl} ${websiteUrl}; img-src 'self' ${websiteUrl}`);
 });
@@ -88,7 +88,7 @@ app.use('*', async (c, next) => {
 
 // Allowed CORS origins — imported from cors.ts (single source of truth)
 
-// CORS for Library API (website at mowinckel.ai calls server at mcp.mowinckel.ai)
+// CORS for Library API (website at mowinckel.ai calls server at api.mowinckel.ai)
 app.use('/library/*', async (c, next) => {
   const allowed = getAllowedOrigins();
   const reqOrigin = c.req.header('Origin') || '';

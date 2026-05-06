@@ -2,7 +2,7 @@
  * Marketplace signal substrate — relays signals/feedback to a private GitHub repo.
  *
  * Why github not KV: the factory agent runs on Anthropic's CCR runtime which can't
- * reach mcp.mowinckel.ai/* but CAN reach github via gh. So github is the only
+ * reach api.mowinckel.ai/* but CAN reach github via gh. So github is the only
  * substrate where both the server (writer) and agent (reader+drainer) overlap.
  *
  * Server is a thin relay. No data lives on the server long-term.
