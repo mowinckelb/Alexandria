@@ -83,8 +83,9 @@ else
   check "call" "${call_status:-0}"
 fi
 
-# 5. Company Library
-library_out=$(curl -sS -w "\n%{http_code}" "$BASE/library/authors" 2>&1) || true
+# 5. Company Library — /library is the canonical authors-listing endpoint;
+# /library/authors was a stale path from an earlier shape and now 404s.
+library_out=$(curl -sS -w "\n%{http_code}" "$BASE/library" 2>&1) || true
 library_status=$(echo "$library_out" | tail -1)
 library_body=$(echo "$library_out" | sed '$d')
 if [ "$library_status" = "200" ] && echo "$library_body" | grep -q '"authors"'; then
