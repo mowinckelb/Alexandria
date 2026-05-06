@@ -323,6 +323,8 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           <div className="nav-links">
             <span className="nav-shelf">
               <Link href="/library" className="nav-shelf-link">library</Link>
+              <span className="nav-shelf-sep">·</span>
+              <Link href="/marketplace" className="nav-shelf-link">marketplace</Link>
             </span>
             <span className="nav-group">
               <a href="/docs/letter.pdf" target="_blank" rel="noopener noreferrer">letter</a>
@@ -737,6 +739,14 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         }
         .nav-links .nav-shelf-link:hover {
           color: #1a1318;
+        }
+        .nav-shelf-sep {
+          margin: 0 clamp(8px, 1vw, 14px);
+          color: rgba(26, 19, 24, 0.3);
+          font-size: 14px;
+        }
+        .nav.on-bottom .nav-shelf-sep {
+          color: var(--theme-fg-faint);
         }
         .nav.on-bottom .nav-links .nav-shelf-link {
           color: var(--theme-fg-faint);

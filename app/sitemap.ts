@@ -5,6 +5,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: SITE_URL, lastModified: new Date(), priority: 1 },
     { url: `${SITE_URL}/whitepaper`, lastModified: new Date(), priority: 0.9 },
+    { url: `${SITE_URL}/library`, lastModified: new Date(), priority: 0.85 },
+    { url: `${SITE_URL}/marketplace`, lastModified: new Date(), priority: 0.85 },
     { url: `${SITE_URL}/mechanics`, lastModified: new Date(), priority: 0.8 },
     { url: `${SITE_URL}/vision`, lastModified: new Date(), priority: 0.8 },
     { url: `${SITE_URL}/blueprint`, lastModified: new Date(), priority: 0.7 },
