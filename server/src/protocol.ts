@@ -184,36 +184,32 @@ export function registerProtocol(app: Hono) {
   app.get('/marketplace', async (c, next) => {
     if (new URL(c.req.url).pathname !== '/marketplace') return next();
 
+    // Public listing is the catalog only — module identity, name, description,
+    // canonical-or-not. Usage telemetry (counts, recency, per-call text) is
+    // private Marketplace Signal exposed only via the auth-gated
+    // `/marketplace/:module` endpoint.
     const { results } = await getDB().prepare(
-      `SELECT module_id,
-              COUNT(DISTINCT account_id) as usage_count,
-              MAX(time) as last_used,
-              MIN(time) as first_seen
-       FROM protocol_calls
-       WHERE module_id LIKE 'github:%'
-       GROUP BY module_id
-       ORDER BY usage_count DESC, last_used DESC
-       LIMIT 1000`
-    ).all<{ module_id: string; usage_count: number; last_used: string; first_seen: string }>();
+      `SELECT DISTINCT module_id FROM protocol_calls WHERE module_id LIKE 'github:%' LIMIT 1000`
+    ).all<{ module_id: string }>();
 
     const rows = results || [];
-    const enriched = await Promise.all(rows.map(async (r) => {
+    const modules = await Promise.all(rows.map(async (r) => {
       const meta = await resolveModule(r.module_id);
       return {
         id: r.module_id,
         name: meta?.name || r.module_id,
         description: meta?.description || '',
         author_github_login: authorFromModuleId(r.module_id),
-        usage_count: r.usage_count,
-        last_used: r.last_used,
-        first_seen: r.first_seen,
         status: meta?.status || 'unreachable',
       };
     }));
-    // Public listing curates to installable modules only — items whose front-matter
-    // failed to parse (canon docs, prose) and unreachable paths stay in the DB for
-    // the factory's signal pipeline but don't surface here.
-    const modules = enriched.filter((m) => m.status === 'ok');
+    // Canonical (mowinckelb/alexandria) first, then alphabetical by name.
+    modules.sort((a, b) => {
+      const aCanon = a.id.startsWith('github:mowinckelb/alexandria#');
+      const bCanon = b.id.startsWith('github:mowinckelb/alexandria#');
+      if (aCanon !== bCanon) return aCanon ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
 
     return c.json({ modules });
   });
@@ -226,16 +222,10 @@ export function registerProtocol(app: Hono) {
     const path = url.pathname.startsWith(prefix) ? url.pathname.slice(prefix.length) : '';
     if (!user || !repo || !path) return c.json({ error: 'Not found' }, 404);
 
+    // Public detail mirrors the listing — catalog only. Usage history lives
+    // behind auth at `/marketplace/:module`.
     const id = buildModuleId(user, repo, path);
     const meta = await resolveModule(id);
-
-    const stats = await getDB().prepare(
-      `SELECT COUNT(DISTINCT account_id) as usage_count,
-              MAX(time) as last_used,
-              MIN(time) as first_seen
-       FROM protocol_calls
-       WHERE module_id = ?`
-    ).bind(id).first<{ usage_count: number; last_used: string | null; first_seen: string | null }>();
 
     return c.json({
       id,
@@ -243,9 +233,6 @@ export function registerProtocol(app: Hono) {
       description: meta?.description || '',
       body: meta?.body || '',
       author_github_login: user,
-      usage_count: stats?.usage_count || 0,
-      last_used: stats?.last_used,
-      first_seen: stats?.first_seen,
       status: meta?.status || 'unreachable',
     });
   });

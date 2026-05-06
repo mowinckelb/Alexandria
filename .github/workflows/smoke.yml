@@ -91,11 +91,16 @@ jobs:
 
       - name: Protocol marketplace listing
         run: |
-          # Listing curates to status === 'ok' (installable modules with valid
-          # front-matter). brief-setup is a stable canonical skill — assert it
-          # surfaces. Catches both endpoint breakage and over-aggressive filtering.
-          curl -sf $SERVER/marketplace -H "Authorization: Bearer $API_KEY" \
-            | grep -q '"brief-setup"' || { echo "::error::Marketplace listing broken"; exit 1; }
+          # Listing surfaces every catalogued module — skills (with front-matter)
+          # AND canon docs (without). Assert both shapes appear: brief-setup is a
+          # canonical skill; methodology is a canonical canon doc whose name and
+          # description are derived from the file rather than YAML.
+          BODY=$(curl -sf $SERVER/marketplace -H "Authorization: Bearer $API_KEY")
+          echo "$BODY" | grep -q '"brief-setup"' || { echo "::error::Marketplace missing canonical skill (brief-setup)"; exit 1; }
+          echo "$BODY" | grep -q '"methodology"' || { echo "::error::Marketplace missing canonical canon doc (methodology) — frontmatter-tolerant parsing regressed"; exit 1; }
+          # Private signal must NOT appear in the public listing.
+          if echo "$BODY" | grep -q '"usage_count"'; then echo "::error::Public marketplace leaks usage_count (private signal)"; exit 1; fi
+          if echo "$BODY" | grep -q '"last_used"'; then echo "::error::Public marketplace leaks last_used (private signal)"; exit 1; fi
           echo "✓ marketplace"
 
       - name: Factory (every tracked file resolves on raw)

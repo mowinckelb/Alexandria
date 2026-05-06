@@ -45,10 +45,10 @@ export function buildModuleId(user: string, repo: string, path: string): string 
 }
 
 /** Hand-rolled YAML parser — only `name` and `description` matter. */
-export function parseFrontmatter(content: string): { name?: string; description?: string; body: string; ok: boolean } {
+export function parseFrontmatter(content: string): { name?: string; description?: string; body: string } {
   const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!m) return { body: content, ok: false };
-  const out: { name?: string; description?: string; body: string; ok: boolean } = { body: m[2], ok: false };
+  if (!m) return { body: content };
+  const out: { name?: string; description?: string; body: string } = { body: m[2] };
   for (const line of m[1].split(/\r?\n/)) {
     const kv = line.match(/^([a-z][a-z0-9_-]*)\s*:\s*(.*)$/i);
     if (!kv) continue;
@@ -59,8 +59,43 @@ export function parseFrontmatter(content: string): { name?: string; description?
     if (kv[1] === 'name') out.name = v;
     else if (kv[1] === 'description') out.description = v;
   }
-  out.ok = !!out.name && SLUG_RE.test(out.name) && !!out.description;
   return out;
+}
+
+/**
+ * Pull a description from raw markdown when front-matter doesn't have one.
+ * Skip leading blank lines and any heading (H1/H2/...), then take the next
+ * prose paragraph. Canon docs lead with `*...*` italic intros — strip the
+ * wrapping asterisks so the rendered description shows no markdown syntax.
+ */
+export function deriveDescription(body: string): string {
+  const lines = body.split(/\r?\n/);
+  let i = 0;
+  while (i < lines.length) {
+    // Skip blanks and ATX headings.
+    while (i < lines.length) {
+      const t = lines[i].trim();
+      if (t === '' || /^#+\s/.test(t)) { i++; continue; }
+      break;
+    }
+    if (i >= lines.length) break;
+    // Read one paragraph.
+    const paragraph: string[] = [];
+    while (i < lines.length && lines[i].trim() !== '') {
+      paragraph.push(lines[i]);
+      i++;
+    }
+    let p = paragraph.join(' ').trim();
+    // Strip wrapping italics canon docs often lead with.
+    if (p.length > 2 && p.startsWith('*') && p.endsWith('*') && !p.startsWith('**')) {
+      p = p.slice(1, -1).trim();
+    }
+    // Skip paragraphs that are wholly inline code (e.g. a module-id line) —
+    // they're metadata, not prose; try the next paragraph instead.
+    if (/^`[^`]+`$/.test(p)) continue;
+    if (p) return p;
+  }
+  return '';
 }
 
 function cacheKey(id: string): string {
@@ -110,21 +145,17 @@ async function refreshCache(id: string, parsed: ParsedModuleId): Promise<ModuleM
     await writeCache(id, meta, TTL_UNREACHABLE);
     return meta;
   }
+  // The marketplace catalogues any markdown file. Front-matter is preferred
+  // but not required — name falls back to the path's leaf, description to
+  // the first body paragraph. Schema-free by construction (bitter lesson):
+  // when models can lift more from raw markdown, the same data yields more
+  // with no migration.
   const fm = parseFrontmatter(fetched.content);
-  if (!fm.ok) {
-    const meta: ModuleMeta = {
-      name: fm.name && SLUG_RE.test(fm.name) ? fm.name : fallbackName(parsed, id),
-      description: fm.description || '',
-      body: fm.body,
-      status: 'parse_error',
-      last_fetched: now,
-    };
-    await writeCache(id, meta, TTL_OK);
-    return meta;
-  }
+  const name = fm.name && SLUG_RE.test(fm.name) ? fm.name : fallbackName(parsed, id);
+  const description = fm.description || deriveDescription(fm.body);
   const meta: ModuleMeta = {
-    name: fm.name!,
-    description: fm.description!,
+    name,
+    description,
     body: fm.body,
     status: 'ok',
     last_fetched: now,
@@ -141,9 +172,12 @@ export async function resolveModule(id: string): Promise<ModuleMeta | null> {
   const raw = await getKV().get(cacheKey(id));
   if (raw) {
     try {
-      return JSON.parse(raw) as ModuleMeta;
+      const cached = JSON.parse(raw) as ModuleMeta;
+      // Refresh entries cached under the old `parse_error` status — the catalog
+      // no longer treats missing front-matter as an error.
+      if (cached.status !== 'parse_error') return cached;
     } catch {
-      // fall through to refresh on parse error
+      // fall through to refresh on JSON parse error
     }
   }
   return await refreshCache(id, parsed);

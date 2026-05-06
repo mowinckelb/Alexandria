@@ -13,10 +13,7 @@ interface ModuleDetail {
   description: string;
   body: string;
   author_github_login: string;
-  usage_count: number;
-  last_used: string | null;
-  first_seen: string | null;
-  status: 'ok' | 'unreachable' | 'parse_error';
+  status: 'ok' | 'unreachable';
 }
 
 async function loadModule(user: string, repo: string, path: string): Promise<ModuleDetail | null> {
@@ -58,7 +55,6 @@ const MD_COMPONENTS = {
 
 function statusLabel(status: ModuleDetail['status']): string | null {
   if (status === 'unreachable') return 'unreachable on github — install will fail until the path resolves';
-  if (status === 'parse_error') return 'front-matter missing or invalid — degraded display';
   return null;
 }
 
@@ -135,14 +131,6 @@ export default async function MarketplaceModulePage({
         <article className="mdoc-frame mdoc-article pdoc">
           <div style={{ fontSize: '0.85rem', color: 'var(--text-ghost)', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
             <span>{author}</span>
-            <span>·</span>
-            <span>{m.usage_count} {m.usage_count === 1 ? 'use' : 'uses'}</span>
-            {m.last_used && (
-              <>
-                <span>·</span>
-                <span>last used {new Date(m.last_used).toISOString().slice(0, 10)}</span>
-              </>
-            )}
             <span>·</span>
             <a href={githubUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)' }}>
               source on github
