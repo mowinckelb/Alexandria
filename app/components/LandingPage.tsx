@@ -160,6 +160,7 @@ const THEMES: Theme[] = [
 export default function LandingPage({ brandClassName = '' }: Props) {
   const [themeIdx, setThemeIdx] = useState(0);
   const [slideAdam, setSlideAdam] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
   const topRef = useRef<HTMLDivElement>(null);
   const middleRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -395,7 +396,7 @@ export default function LandingPage({ brandClassName = '' }: Props) {
       {/* ═════ PERSISTENT NAV — fixed over both slides. Colors switch at
              the peel midpoint so it stays readable on top (cream) and on
              any bottom-slide theme. ═════ */}
-      <nav className="nav" ref={navRef} aria-label="Primary">
+      <nav className="nav" ref={navRef} aria-label="Primary" data-nav-open={navOpen ? '1' : undefined}>
         <div className="nav-inner">
           <div className="nav-brand-block">
             <Link href="/" className={`nav-brand ${brandClassName}`}>
@@ -415,6 +416,33 @@ export default function LandingPage({ brandClassName = '' }: Props) {
               <Link href="/whitepaper">whitepaper</Link>
             </span>
           </div>
+          {/* Mobile-only hamburger toggle. Three thin lines that morph
+              into an × when navOpen is true. Hidden on desktop where
+              the inline nav-links are visible. */}
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-label={navOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={navOpen}
+            aria-controls="nav-menu"
+            onClick={() => setNavOpen((o) => !o)}
+          >
+            <span /><span /><span />
+          </button>
+        </div>
+        {/* Mobile menu panel — appears when the hamburger is toggled.
+            Closes when any link is clicked. */}
+        <div
+          id="nav-menu"
+          className="nav-menu"
+          role="menu"
+          aria-hidden={!navOpen}
+          onClick={() => setNavOpen(false)}
+        >
+          <Link href="/library" className="nav-menu-link" role="menuitem">library</Link>
+          <Link href="/marketplace" className="nav-menu-link" role="menuitem">marketplace</Link>
+          <a href="/docs/letter.pdf" target="_blank" rel="noopener noreferrer" className="nav-menu-link" role="menuitem">letter</a>
+          <Link href="/whitepaper" className="nav-menu-link" role="menuitem">whitepaper</Link>
         </div>
       </nav>
 
@@ -846,6 +874,91 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         .nav-group a:hover {
           color: #1a1318;
         }
+        /* Mobile hamburger toggle — three thin lines that morph into an
+           × when navOpen is true. Hidden on desktop where inline links
+           are visible. The pointer-events on the surrounding .nav are
+           none, so we re-enable on this button. */
+        .nav-toggle {
+          display: none;
+          background: none;
+          border: none;
+          padding: 8px;
+          margin: -8px;
+          cursor: pointer;
+          pointer-events: auto;
+          width: 36px;
+          height: 36px;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .nav-toggle span {
+          display: block;
+          width: 20px;
+          height: 1.5px;
+          background: rgba(26, 19, 24, 0.7);
+          transition: transform 220ms ease, opacity 180ms ease, background 180ms ease;
+          transform-origin: center;
+        }
+        .nav.on-bottom .nav-toggle span {
+          background: var(--theme-fg);
+        }
+        /* Open state — top and bottom rotate to form an ×, middle fades. */
+        .nav[data-nav-open='1'] .nav-toggle span:nth-child(1) {
+          transform: translateY(5.5px) rotate(45deg);
+        }
+        .nav[data-nav-open='1'] .nav-toggle span:nth-child(2) {
+          opacity: 0;
+        }
+        .nav[data-nav-open='1'] .nav-toggle span:nth-child(3) {
+          transform: translateY(-5.5px) rotate(-45deg);
+        }
+        /* Mobile menu panel — slides in below the nav when open. Sits
+           position:fixed at the same z-index as the nav so it floats
+           above all slides. Closed state collapses height to 0 and
+           hides via opacity + pointer-events. */
+        .nav-menu {
+          /* Always rendered (so opacity/transform can transition) but
+             pointer-events disabled and opacity 0 by default so it's
+             invisible. Toggling [data-nav-open='1'] on the nav fades it
+             in. Hidden entirely on desktop where inline nav-links carry
+             the navigation. */
+          display: none;
+          position: fixed;
+          top: 64px;
+          right: 18px;
+          z-index: 100;
+          flex-direction: column;
+          gap: 14px;
+          padding: 20px 28px;
+          background: var(--theme-bg, #f7f2ec);
+          border: 1px solid rgba(26, 19, 24, 0.10);
+          border-radius: 12px;
+          box-shadow: 0 18px 50px rgba(26, 19, 24, 0.10), 0 4px 12px rgba(26, 19, 24, 0.06);
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
+          font-size: 17px;
+          letter-spacing: 0.01em;
+          opacity: 0;
+          transform: translateY(-8px);
+          pointer-events: none;
+          transition: opacity 220ms ease, transform 220ms ease;
+        }
+        .nav[data-nav-open='1'] .nav-menu {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: auto;
+        }
+        .nav-menu-link {
+          color: var(--theme-fg, #1a1318);
+          text-decoration: none;
+          padding: 4px 0;
+          transition: color 160ms ease;
+        }
+        .nav-menu-link:hover {
+          color: var(--theme-fg-muted, rgba(26, 19, 24, 0.6));
+        }
+
         .nav-copy {
           background: none;
           border: none;
@@ -2088,19 +2201,25 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           .nav-brand {
             font-size: 22px;
           }
-          /* Library/marketplace shelf and the tagline both hide on mobile
-             to keep the row from crashing into the brand. Library and
-             marketplace remain reachable via the dict on slide 3 and via
-             direct URL; the tagline is repeated in the dict. */
-          .nav-shelf,
-          .nav-tagline {
+          /* Mobile collapses the inline links into a hamburger menu.
+             The nav-links stay in the DOM (still rendered for desktop)
+             but hide visually; the toggle button appears in their place
+             and reveals the panel below the nav. */
+          .nav-links {
             display: none;
           }
-          .nav-links {
-            gap: 14px;
+          .nav-toggle {
+            display: flex;
           }
-          .nav-links a {
-            font-size: 13px;
+          /* Mobile-only: render the menu panel so it can fade in when
+             toggled. Display stays flex; opacity + pointer-events do
+             the actual showing/hiding. */
+          .nav-menu {
+            display: flex;
+          }
+          /* Tagline visible on mobile under the brand. */
+          .nav-tagline {
+            font-size: 12px;
           }
 
           /* TOP SLIDE — drop the glass bubble on mobile. The desktop
