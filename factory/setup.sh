@@ -193,6 +193,13 @@ PY
   echo "  Cursor: configured"
 fi
 
+# Factory (droid CLI)
+if [ -d "$HOME/.factory" ] || command -v droid &>/dev/null; then
+  mkdir -p "$HOME/.factory/droids" 2>/dev/null
+  fetch_factory "skills/droid.md" "$HOME/.factory/droids/a.md" "skills/droid.md" yes
+  echo "  Factory: configured"
+fi
+
 # Codex
 if [ -d "$HOME/.codex" ] || command -v codex &>/dev/null; then
   mkdir -p "$HOME/.codex" 2>/dev/null
@@ -421,6 +428,7 @@ SETUP_STATUS="ok"
   echo "platforms:"
   if [ -d "$HOME/.claude" ] || command -v claude &>/dev/null; then echo "  claude: present"; else echo "  claude: absent"; fi
   if [ -d "$HOME/.cursor" ] || command -v cursor &>/dev/null; then echo "  cursor: present"; else echo "  cursor: absent"; fi
+  if [ -d "$HOME/.factory" ] || command -v droid &>/dev/null; then echo "  factory: present"; else echo "  factory: absent"; fi
   if [ -d "$HOME/.codex" ] || command -v codex &>/dev/null; then echo "  codex: present"; else echo "  codex: absent"; fi
 } > "$ALEX_DIR/system/.setup_report"
 
