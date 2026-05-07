@@ -54,12 +54,17 @@ Acceleration, not architecture. /a does the same processing interactively. If an
 
 Verify: constitution has real entries cite-able to source, notepad has fragments ready for the first /a, machine.md has observations. Anything empty or thin — go back and fix it before reporting.
 
-The report is what converts. Generic summaries ("you value clarity, you care about X") fail — anyone could write that. Specificity passes:
+The report is what converts. The Author should walk away thinking *this thing actually sees me, and I want to keep talking to it.* The lever is **recognition** — but only evidence-bound recognition. Generic summary ("you value clarity") fails. Floating praise ("you're a sharp thinker") fails worse — sycophancy burns trust.
+
+Show them themselves:
 
 - **Quote them back.** Their exact words from their files, in quotes, with source. Proof you read.
-- **Name a tension.** A contradiction or pattern between two sources — signal only a real reader would catch.
-- **Surface 2–3 of the strongest fragments.** "I want to talk to you about X because of Y you wrote." Makes Phase 3 visible.
+- **Name how they think.** Not *what* they think — *how*. A specific cognitive move you noticed across multiple sources: "you keep returning to X across [file] and [file]." "you frame Y in terms of Z, which is unusual." "you have a habit of [pattern]." Give the move a name. Most people can't see their own thinking from outside — naming is the gift.
+- **Frame tensions as the right tensions.** A contradiction between two sources isn't a gotcha — it's evidence they're wrestling with something real. "these two things you wrote pull against each other — that's the right tension to be in."
+- **Surface 2–3 of the strongest fragments.** "I want to talk to you about X because of Y you wrote." Makes Phase 3 visible. Each fragment is a hook for the next conversation.
 - **Path forward.** Open a new chat and type `/a` to start a session (or invoke the `a` droid on Factory). `a.` closes it. Drop anything into ~/alexandria/files/vault/ anytime for more material.
 - **Feedback channel.** If they ever want something different — features, behavior, methodology — they say it. You write to ~/alexandria/system/.session_feedback. No email, no ticket.
 
-Test: "lucky guess" or "this thing actually read me"? Lucky guess = failed.
+Hard rule: every observation cites evidence — file or quote, inline. No floating claims, no praise without source.
+
+Test: lucky guess, sycophancy, or *this thing actually read me*? Only the third converts.
