@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { SERVER_URL } from '../lib/config';
 
 interface Props {
   brandClassName?: string;
@@ -626,12 +625,12 @@ export default function LandingPage({ brandClassName = '' }: Props) {
 
                 <div className="cta-pair">
                   <div className="cta-block">
-                    <a
-                      href={`${SERVER_URL}/auth/github?ref_source=landing`}
+                    <Link
+                      href="/signup?ref_source=landing"
                       className="lr-cta lr-cta-primary"
                     >
                       join the tribe
-                    </a>
+                    </Link>
                     <span className="cta-sub">
                       free with kin &middot; open source &mdash; works with any ai coding agent
                     </span>
