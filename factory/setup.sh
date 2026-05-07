@@ -462,6 +462,7 @@ else
   echo ""
   echo "Alexandria installed. ~/alexandria/ — your mind, on your machine."
   echo ""
-  echo "Open a new Claude Code or Cursor tab and paste the block."
-  echo "If it's not in your clipboard: cat ~/alexandria/system/.block"
+  echo "Next: go back to your alexandria browser tab, click \"2. begin\","
+  echo "then paste it into a new chat in your coding agent."
+  echo "(Tab closed? cat ~/alexandria/system/.block)"
 fi
