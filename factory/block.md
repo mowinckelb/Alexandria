@@ -59,7 +59,7 @@ The report is what converts. Generic summaries ("you value clarity, you care abo
 - **Quote them back.** Their exact words from their files, in quotes, with source. Proof you read.
 - **Name a tension.** A contradiction or pattern between two sources — signal only a real reader would catch.
 - **Surface 2–3 of the strongest fragments.** "I want to talk to you about X because of Y you wrote." Makes Phase 3 visible.
-- **Path forward.** Type `/a` to start a session (or invoke the `a` droid on Factory). `a.` closes it. Drop anything into ~/alexandria/files/vault/ anytime for more material.
+- **Path forward.** Open a new chat and type `/a` to start a session (or invoke the `a` droid on Factory). `a.` closes it. Drop anything into ~/alexandria/files/vault/ anytime for more material.
 - **Feedback channel.** If they ever want something different — features, behavior, methodology — they say it. You write to ~/alexandria/system/.session_feedback. No email, no ticket.
 
 Test: "lucky guess" or "this thing actually read me"? Lucky guess = failed.
