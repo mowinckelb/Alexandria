@@ -11,7 +11,7 @@ import { hashApiKey, generateToken } from './crypto.js';
 import { Account, AccountStore, extractApiKey, findByApiKey, requireAuth } from './auth.js';
 import { generateApiKey, getAccounts, getAccountByLogin, requireAdmin } from './accounts.js';
 import { sendEmail, sendEmailsBatched, sendWelcomeEmail, FOUNDER_EMAIL } from './email.js';
-import { runHealthDigest } from './cron.js';
+import { runHealthDigest, runWeekOneCheckIns } from './cron.js';
 import { publishSignal, publishFeedback } from './marketplace.js';
 import { handleGithubPushWebhook } from './marketplace-catalog.js';
 
@@ -788,6 +788,17 @@ export function registerRoutes(app: Hono) {
     const kv = getKV();
     const raw = await kv.get('cron:health_digest');
     return c.json({ ok: true, email_sent: sendEmailOnAlarm, result: raw ? JSON.parse(raw) : null });
+  });
+
+  // Manual trigger for week-1 check-in. Same shorter-feedback-loop motivation
+  // as health-digest. ?dry=true returns the eligible-recipient count without
+  // sending or marking the idempotency flag — safe to hammer for verification.
+  app.post('/admin/cron/week-one-checkins', async (c) => {
+    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
+    if (await checkAdminRateLimit('week-one-checkins', 10, 60)) return c.json({ error: 'Rate limited (10/min)' }, 429);
+    const dry = c.req.query('dry') === 'true';
+    const result = await runWeekOneCheckIns({ dry });
+    return c.json({ ok: true, ...result });
   });
 
 

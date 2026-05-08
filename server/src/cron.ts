@@ -284,10 +284,12 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
 // patron slider as the upside-capture path.
 // ---------------------------------------------------------------------------
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-const WEEK_MS = 7 * DAY_MS;
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-export async function runWeekOneCheckIns(): Promise<void> {
+export async function runWeekOneCheckIns(
+  opts: { dry?: boolean } = {},
+): Promise<{ candidates: number; sent: number; failed: number; dry: boolean }> {
+  const dry = opts.dry === true;
   try {
     const accounts = await loadAccounts<AccountStore>();
     const now = Date.now();
@@ -307,7 +309,8 @@ export async function runWeekOneCheckIns(): Promise<void> {
       recipients.push({ key, account: acct });
     }
 
-    if (recipients.length === 0) return;
+    if (dry) return { candidates: recipients.length, sent: 0, failed: 0, dry: true };
+    if (recipients.length === 0) return { candidates: 0, sent: 0, failed: 0, dry: false };
 
     const { sent, failed } = await sendEmailsBatched(recipients, async ({ key, account }) => {
       const result = await sendWeekOneCheckIn(account.email, account.email_token);
@@ -319,7 +322,9 @@ export async function runWeekOneCheckIns(): Promise<void> {
     });
 
     console.log(`[cron] week-1 check-in: sent=${sent} failed=${failed} total=${recipients.length}`);
+    return { candidates: recipients.length, sent, failed, dry: false };
   } catch (err) {
     console.error('[cron] week-1 check-in failed:', err);
+    return { candidates: 0, sent: 0, failed: 0, dry };
   }
 }

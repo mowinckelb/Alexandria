@@ -103,7 +103,7 @@ export async function sendWeekOneCheckIn(
   <p style="margin: 0 0 1.4rem;">hey :)</p>
   <p style="margin: 0 0 1.4rem;">you signed up to alexandria a week ago &mdash; just dropping in.</p>
   <p style="margin: 0 0 1.4rem;">if anything's broken, confusing, or you've got thoughts on the thing &mdash; call me: <a href="tel:+14155038178" style="color: #3d3630;">+1 (415) 503-8178</a>. seriously, just call.</p>
-  <p style="margin: 0 0 1.4rem;">if you want to follow along more closely (and support the work), there's <a href="${WEBSITE_URL}/follow" style="color: #3d3630;">stay close</a>.</p>
+  <p style="margin: 0 0 1.4rem;">if you want to follow along more closely (and support the work), there's <a href="${WEBSITE_URL}/follow?source=week1" style="color: #3d3630;">stay close</a>.</p>
   <p style="margin: 0 0 1.8rem;">ok, that's all for now.</p>
   <p style="margin: 0 0 0.4rem;">Benjamin a. Mowinckel</p>
   <p style="margin: 0; font-style: italic; color: #8a8078;">a.</p>
