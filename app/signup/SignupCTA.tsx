@@ -38,7 +38,7 @@ export default function SignupCTA({ urlRef, refSource }: { urlRef?: string; refS
     const t = setTimeout(async () => {
       try {
         const res = await fetch(`${SERVER_URL}/check-kin?code=${encodeURIComponent(trimmed)}`, { signal: ctrl.signal });
-        if (!res.ok) { setKinStatus('invalid'); return; }
+        if (!res.ok) { setKinStatus('idle'); return; }
         const data = await res.json() as { valid?: boolean };
         setKinStatus(data.valid ? 'valid' : 'invalid');
       } catch (e) {
@@ -48,8 +48,9 @@ export default function SignupCTA({ urlRef, refSource }: { urlRef?: string; refS
     return () => { ctrl.abort(); clearTimeout(t); };
   }, [kinCode]);
 
-  // Only include ref in auth URL if validated as valid (or if it came from URL)
-  const ref = urlRef || (kinStatus === 'valid' ? kinCode.trim() : '');
+  // Include ref in auth URL unless we explicitly know it's invalid; server-side gate is the actual loop-closer.
+  // This handles both "user clicks before debounce fires" and "network error during check" without dropping valid refs.
+  const ref = urlRef || (kinStatus !== 'invalid' && kinCode.trim() ? kinCode.trim() : '');
   const authParams = [ref && `ref=${encodeURIComponent(ref)}`, refSource && `ref_source=${encodeURIComponent(refSource)}`].filter(Boolean).join('&');
   const authUrl = `${SERVER_URL}/auth/github${authParams ? `?${authParams}` : ''}`;
 

@@ -272,10 +272,10 @@ export default async function SignupPage({
           color: var(--text-ghost);
         }
         .kin-status.valid {
-          color: #4a7a4a;
+          color: var(--accent);
         }
         .kin-status.invalid {
-          color: #a85a5a;
+          color: var(--text-muted);
         }
         .kin-warn {
           font-size: 0.7rem;
