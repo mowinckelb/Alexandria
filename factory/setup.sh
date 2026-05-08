@@ -397,22 +397,177 @@ fi
 
 touch "$ALEX_DIR/system/.setup_complete"
 
-MISSING=""
-[ ! -f "$ALEX_DIR/system/.api_key" ] && MISSING="$MISSING api_key"
-[ ! -f "$ALEX_DIR/system/hooks/shim.sh" ] && MISSING="$MISSING hooks"
-[ ! -f "$ALEX_DIR/system/canon/methodology.md" ] && MISSING="$MISSING canon"
-[ ! -f "$ALEX_DIR/system/.hooks_payload" ] && MISSING="$MISSING hooks_payload"
-[ ! -f "$ALEX_DIR/system/.block" ] && MISSING="$MISSING block"
+# ── Functional probes ─────────────────────────────────────────────
+# Each subsystem is verified by exercising it (write-test, syntax-check,
+# resolved symlink, loaded launchd job) rather than just checking file
+# presence. Idempotent — re-running setup re-runs every probe and
+# refreshes the matrix.
+
+# files: directory structure + write-test
+WRITE_TEST="$ALEX_DIR/system/.write_test.$$"
+if [ -d "$ALEX_DIR/files" ] && [ -d "$ALEX_DIR/system" ] && \
+   echo "ok" > "$WRITE_TEST" 2>/dev/null && [ -f "$WRITE_TEST" ]; then
+  rm -f "$WRITE_TEST"
+  STATUS_FILES="ok"; DETAIL_FILES="$ALEX_DIR/ writable"
+else
+  rm -f "$WRITE_TEST" 2>/dev/null
+  STATUS_FILES="fail"; DETAIL_FILES="$ALEX_DIR/ not writable — check permissions and re-run"
+fi
+
+# canon: present and non-empty
+if [ -s "$ALEX_DIR/system/canon/methodology.md" ]; then
+  CANON_BYTES=$(wc -c < "$ALEX_DIR/system/canon/methodology.md" | tr -d ' ')
+  STATUS_CANON="ok"; DETAIL_CANON="methodology.md (${CANON_BYTES}b)"
+else
+  STATUS_CANON="fail"; DETAIL_CANON="methodology.md missing — re-run setup (network?)"
+fi
+
+# hooks: executable shim that parses + non-empty payload
+if [ -x "$ALEX_DIR/system/hooks/shim.sh" ] && \
+   bash -n "$ALEX_DIR/system/hooks/shim.sh" 2>/dev/null && \
+   [ -s "$ALEX_DIR/system/.hooks_payload" ]; then
+  STATUS_HOOKS="ok"; DETAIL_HOOKS="shim.sh + payload ready"
+else
+  STATUS_HOOKS="fail"; DETAIL_HOOKS="hooks not installed — re-run setup"
+fi
+
+# core templates: agent.md / machine.md / notepad.md / feedback.md / filter.md
+CORE_MISSING=""
 for f in agent.md machine.md notepad.md feedback.md filter.md; do
-  [ ! -f "$ALEX_DIR/files/core/$f" ] && MISSING="$MISSING $f"
+  [ ! -f "$ALEX_DIR/files/core/$f" ] && CORE_MISSING="$CORE_MISSING $f"
 done
+if [ -z "$CORE_MISSING" ]; then
+  STATUS_CORE="ok"; DETAIL_CORE="agent + machine + notepad + feedback + filter"
+else
+  STATUS_CORE="fail"; DETAIL_CORE="missing:${CORE_MISSING} — re-run setup"
+fi
+
+# api key: HTTP probe (already done above)
+case "$KEY_STATUS" in
+  200) STATUS_KEY="ok"; DETAIL_KEY="verified (HTTP 200)" ;;
+  401) STATUS_KEY="fail"; DETAIL_KEY="rejected — get a fresh key at https://mowinckel.ai/signup" ;;
+  000|"") STATUS_KEY="fail"; DETAIL_KEY="server unreachable — check https://api.mowinckel.ai/health" ;;
+  *) STATUS_KEY="fail"; DETAIL_KEY="server returned HTTP $KEY_STATUS — protocol may be degraded" ;;
+esac
+
+# Coding agents: only show rows for ones the user has installed.
+# Functional probe = the config file the agent reads at startup actually
+# contains the Alexandria entry, not just that the agent's dir exists.
+
+CLAUDE_DETECTED="no"
+if [ -d "$HOME/.claude" ] || command -v claude &>/dev/null; then
+  CLAUDE_DETECTED="yes"
+  if [ -f "$HOME/.claude/settings.json" ] && \
+     grep -q "alexandria/system/hooks/shim.sh" "$HOME/.claude/settings.json" 2>/dev/null && \
+     [ -f "$HOME/.claude/skills/alexandria/SKILL.md" ]; then
+    STATUS_CLAUDE="ok"; DETAIL_CLAUDE="/a skill + session hooks wired"
+  else
+    STATUS_CLAUDE="fail"; DETAIL_CLAUDE="Claude Code detected but not configured — re-run setup"
+  fi
+fi
+
+CURSOR_DETECTED="no"
+if [ -d "$HOME/.cursor" ] || command -v cursor &>/dev/null; then
+  CURSOR_DETECTED="yes"
+  if [ -f "$HOME/.cursor/hooks.json" ] && \
+     grep -q "alexandria-session-start" "$HOME/.cursor/hooks.json" 2>/dev/null && \
+     [ -f "$HOME/.cursor/rules/alexandria.mdc" ]; then
+    STATUS_CURSOR="ok"; DETAIL_CURSOR="hooks + rules registered"
+  else
+    STATUS_CURSOR="fail"; DETAIL_CURSOR="Cursor detected but not configured — re-run setup"
+  fi
+fi
+
+CODEX_DETECTED="no"
+if [ -d "$HOME/.codex" ] || command -v codex &>/dev/null; then
+  CODEX_DETECTED="yes"
+  if [ -f "$HOME/.codex/instructions.md" ] && \
+     grep -q "alexandria:start" "$HOME/.codex/instructions.md" 2>/dev/null; then
+    STATUS_CODEX="ok"; DETAIL_CODEX="instructions appended"
+  else
+    STATUS_CODEX="fail"; DETAIL_CODEX="Codex detected but not configured — re-run setup"
+  fi
+fi
+
+FACTORY_DETECTED="no"
+if [ -d "$HOME/.factory" ] || command -v droid &>/dev/null; then
+  FACTORY_DETECTED="yes"
+  if [ -f "$HOME/.factory/droids/a.md" ]; then
+    STATUS_FACTORY="ok"; DETAIL_FACTORY="droid skill installed"
+  else
+    STATUS_FACTORY="fail"; DETAIL_FACTORY="Factory detected but skill not installed — re-run setup"
+  fi
+fi
+
+# private repo: alexandria-private remote configured + gh authenticated
+if [ -d "$ALEX_DIR/.git" ]; then
+  if command -v gh &>/dev/null && gh auth status &>/dev/null 2>&1; then
+    REPO_URL=$(cd "$ALEX_DIR" && git remote get-url origin 2>/dev/null)
+    if [ -n "$REPO_URL" ] && echo "$REPO_URL" | grep -q "alexandria-private"; then
+      STATUS_REPO="ok"; DETAIL_REPO="$REPO_URL"
+    else
+      STATUS_REPO="fail"; DETAIL_REPO="local git ok but no GitHub remote — re-run setup"
+    fi
+  else
+    STATUS_REPO="skip"; DETAIL_REPO="local git only — install gh CLI for cloud backup (https://cli.github.com)"
+  fi
+elif command -v git &>/dev/null; then
+  STATUS_REPO="fail"; DETAIL_REPO="git installed but repo not initialized — re-run setup"
+else
+  STATUS_REPO="skip"; DETAIL_REPO="git not installed — install git for backup (https://git-scm.com)"
+fi
+
+# public fork: ~/alexandria-fork exists + auto-publish job loaded
+if [ -d "$FORK_DIR/.git" ]; then
+  AUTO_PUBLISH=""
+  if [ "$(uname)" = "Darwin" ] && launchctl list 2>/dev/null | grep -q "io.alexandria.publish"; then
+    AUTO_PUBLISH="auto-publish hourly (launchd)"
+  elif [ "$(uname)" = "Linux" ] && command -v crontab &>/dev/null && crontab -l 2>/dev/null | grep -q "publish-fork.sh"; then
+    AUTO_PUBLISH="auto-publish hourly (cron)"
+  fi
+  if [ -n "$AUTO_PUBLISH" ]; then
+    STATUS_FORK="ok"; DETAIL_FORK="$FORK_DIR — $AUTO_PUBLISH"
+  else
+    STATUS_FORK="fail"; DETAIL_FORK="$FORK_DIR exists but auto-publish not scheduled — re-run setup"
+  fi
+elif [ "$GITHUB_USER" = "mowinckelb" ]; then
+  STATUS_FORK="skip"; DETAIL_FORK="canonical owner — no self-fork needed"
+elif [ -z "$GITHUB_USER" ]; then
+  STATUS_FORK="skip"; DETAIL_FORK="gh CLI not authenticated — run 'gh auth login' and re-run setup"
+else
+  STATUS_FORK="fail"; DETAIL_FORK="fork not created for $GITHUB_USER — re-run setup"
+fi
+
+# iCloud input pipe: macOS-only; symlink resolves to a real iCloud dir
+ICLOUD_APPLICABLE="no"
+if [ "$(uname)" = "Darwin" ]; then
+  ICLOUD_APPLICABLE="yes"
+  ICLOUD_TARGET="$HOME/Library/Mobile Documents/com~apple~CloudDocs"
+  if [ -L "$ALEX_DIR/files/vault/input" ] && [ -d "$ALEX_DIR/files/vault/input/" ]; then
+    STATUS_ICLOUD="ok"; DETAIL_ICLOUD="input pipe → iCloud/alexandria"
+  elif [ -d "$ICLOUD_TARGET" ]; then
+    STATUS_ICLOUD="fail"; DETAIL_ICLOUD="iCloud detected but pipe not linked — re-run setup"
+  else
+    STATUS_ICLOUD="skip"; DETAIL_ICLOUD="iCloud Drive not enabled — sign in via System Settings"
+  fi
+fi
+
+# ── Setup report (server-side feedback) ──────────────────────────
+# Preserves the original status / key_status / fetch_errors / missing /
+# platforms keys for backward compat with the /feedback handler. Adds a
+# subsystems block that the factory can drain for cross-Author install
+# health signal.
+
+MISSING=""
+[ "$STATUS_FILES" != "ok" ] && MISSING="$MISSING files"
+[ "$STATUS_CANON" != "ok" ] && MISSING="$MISSING canon"
+[ "$STATUS_HOOKS" != "ok" ] && MISSING="$MISSING hooks"
+[ "$STATUS_CORE" != "ok" ] && MISSING="$MISSING${CORE_MISSING}"
+[ ! -f "$ALEX_DIR/system/.block" ] && MISSING="$MISSING block"
 for f in constitution/README.md ontology/README.md vault/README.md library/README.md works/README.md; do
   [ ! -f "$ALEX_DIR/files/$f" ] && MISSING="$MISSING $f"
 done
 
-# Install report — local first, then best-effort server feedback if auth works.
-# This is deliberately non-fatal: partial installs still leave a useful local
-# system, while unknown setup failures become visible to the Factory loop.
 SETUP_STATUS="ok"
 [ -n "$MISSING" ] && SETUP_STATUS="missing_files"
 [ -n "$FETCH_ERRORS" ] && SETUP_STATUS="fetch_errors"
@@ -424,12 +579,25 @@ SETUP_STATUS="ok"
   echo "status: $SETUP_STATUS"
   echo "key_status: ${KEY_STATUS:-not_checked}"
   [ -n "$FETCH_ERRORS" ] && echo "fetch_errors: $FETCH_ERRORS"
-  [ -n "$MISSING" ] && echo "missing: $MISSING"
+  [ -n "$MISSING" ] && echo "missing:$MISSING"
   echo "platforms:"
   if [ -d "$HOME/.claude" ] || command -v claude &>/dev/null; then echo "  claude: present"; else echo "  claude: absent"; fi
   if [ -d "$HOME/.cursor" ] || command -v cursor &>/dev/null; then echo "  cursor: present"; else echo "  cursor: absent"; fi
   if [ -d "$HOME/.factory" ] || command -v droid &>/dev/null; then echo "  factory: present"; else echo "  factory: absent"; fi
   if [ -d "$HOME/.codex" ] || command -v codex &>/dev/null; then echo "  codex: present"; else echo "  codex: absent"; fi
+  echo "subsystems:"
+  echo "  files: $STATUS_FILES"
+  echo "  canon: $STATUS_CANON"
+  echo "  hooks: $STATUS_HOOKS"
+  echo "  core: $STATUS_CORE"
+  echo "  api_key: $STATUS_KEY"
+  [ "$CLAUDE_DETECTED" = "yes" ] && echo "  claude_skill: $STATUS_CLAUDE"
+  [ "$CURSOR_DETECTED" = "yes" ] && echo "  cursor_skill: $STATUS_CURSOR"
+  [ "$CODEX_DETECTED" = "yes" ] && echo "  codex_skill: $STATUS_CODEX"
+  [ "$FACTORY_DETECTED" = "yes" ] && echo "  factory_skill: $STATUS_FACTORY"
+  echo "  private_repo: $STATUS_REPO"
+  echo "  public_fork: $STATUS_FORK"
+  [ "$ICLOUD_APPLICABLE" = "yes" ] && echo "  icloud: $STATUS_ICLOUD"
 } > "$ALEX_DIR/system/.setup_report"
 
 if [ "$KEY_STATUS" = "200" ] && command -v node &>/dev/null; then
@@ -443,34 +611,75 @@ if [ "$KEY_STATUS" = "200" ] && command -v node &>/dev/null; then
   fi
 fi
 
-if [ -n "$MISSING" ]; then
-  echo ""
-  echo "WARNING: missing:$MISSING — re-run to fix"
-elif [ -n "$FETCH_ERRORS" ]; then
-  echo ""
-  echo "WARNING: factory fetches failed:$FETCH_ERRORS"
-  echo "Some files may be stale from a previous install."
-  echo "Re-run setup when network is stable to refresh all modules."
-elif [ "$KEY_STATUS" = "401" ]; then
-  echo ""
-  echo "WARNING: API key rejected by server (401). Sign in again at"
-  echo "  https://mowinckel.ai/signup"
-  echo "to get a fresh key, then re-run the curl."
-elif [ -n "$KEY_STATUS" ] && [ "$KEY_STATUS" != "200" ] && [ "$KEY_STATUS" != "000" ]; then
-  echo ""
-  echo "NOTE: server responded $KEY_STATUS — setup finished but check"
-  echo "  https://api.mowinckel.ai/health"
-  echo "Everything local works; the protocol may be degraded."
-elif [ "$KEY_STATUS" = "000" ]; then
-  echo ""
-  echo "WARNING: could not reach the Alexandria server during setup."
-  echo "Local files were installed, but the protocol connection is unverified."
-  echo "Check https://api.mowinckel.ai/health, then re-run this setup command."
+# ── Status matrix (terminal output) ──────────────────────────────
+# At-a-glance: every subsystem the installer attempted, with one-line
+# remediation for any gap. Visible to both the user and anyone watching
+# the install. Re-running setup re-prints the matrix with current state.
+
+icon_for() {
+  case "$1" in
+    ok) printf "✓" ;;
+    fail) printf "✗" ;;
+    skip) printf "·" ;;
+    *) printf "?" ;;
+  esac
+}
+
+emit_row() {
+  printf "  %s %-15s %s\n" "$(icon_for "$1")" "$2" "$3"
+}
+
+TOTAL_OK=0
+TOTAL_FAIL=0
+TOTAL_SKIP=0
+
+count_status() {
+  case "$1" in
+    ok) TOTAL_OK=$((TOTAL_OK+1)) ;;
+    fail) TOTAL_FAIL=$((TOTAL_FAIL+1)) ;;
+    skip) TOTAL_SKIP=$((TOTAL_SKIP+1)) ;;
+  esac
+}
+
+count_status "$STATUS_FILES"
+count_status "$STATUS_CANON"
+count_status "$STATUS_HOOKS"
+count_status "$STATUS_CORE"
+count_status "$STATUS_KEY"
+[ "$CLAUDE_DETECTED" = "yes" ] && count_status "$STATUS_CLAUDE"
+[ "$CURSOR_DETECTED" = "yes" ] && count_status "$STATUS_CURSOR"
+[ "$CODEX_DETECTED" = "yes" ] && count_status "$STATUS_CODEX"
+[ "$FACTORY_DETECTED" = "yes" ] && count_status "$STATUS_FACTORY"
+count_status "$STATUS_REPO"
+count_status "$STATUS_FORK"
+[ "$ICLOUD_APPLICABLE" = "yes" ] && count_status "$STATUS_ICLOUD"
+
+echo ""
+if [ "$TOTAL_FAIL" -gt 0 ]; then
+  echo "Alexandria install complete with gaps. ${TOTAL_OK} ok · ${TOTAL_FAIL} failed · ${TOTAL_SKIP} skipped"
 else
-  echo ""
-  echo "Alexandria installed. ~/alexandria/ — your mind, on your machine."
-  echo ""
+  echo "Alexandria installed. ${TOTAL_OK} ok · ${TOTAL_SKIP} skipped"
+fi
+echo ""
+
+emit_row "$STATUS_FILES" "files" "$DETAIL_FILES"
+emit_row "$STATUS_CANON" "canon" "$DETAIL_CANON"
+emit_row "$STATUS_HOOKS" "hooks" "$DETAIL_HOOKS"
+emit_row "$STATUS_CORE" "core templates" "$DETAIL_CORE"
+emit_row "$STATUS_KEY" "api key" "$DETAIL_KEY"
+[ "$CLAUDE_DETECTED" = "yes" ] && emit_row "$STATUS_CLAUDE" "Claude Code" "$DETAIL_CLAUDE"
+[ "$CURSOR_DETECTED" = "yes" ] && emit_row "$STATUS_CURSOR" "Cursor" "$DETAIL_CURSOR"
+[ "$CODEX_DETECTED" = "yes" ] && emit_row "$STATUS_CODEX" "Codex" "$DETAIL_CODEX"
+[ "$FACTORY_DETECTED" = "yes" ] && emit_row "$STATUS_FACTORY" "Factory" "$DETAIL_FACTORY"
+emit_row "$STATUS_REPO" "private repo" "$DETAIL_REPO"
+emit_row "$STATUS_FORK" "public fork" "$DETAIL_FORK"
+[ "$ICLOUD_APPLICABLE" = "yes" ] && emit_row "$STATUS_ICLOUD" "iCloud" "$DETAIL_ICLOUD"
+
+echo ""
+if [ "$STATUS_KEY" = "ok" ]; then
   echo "Next: go back to your alexandria browser tab, click \"2. begin\","
   echo "then paste it into a new chat in your coding agent."
   echo "(Tab closed? cat ~/alexandria/system/.block)"
+else
+  echo "Re-run anytime: curl -fsSL https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/setup.sh | bash -s -- \$API_KEY"
 fi
