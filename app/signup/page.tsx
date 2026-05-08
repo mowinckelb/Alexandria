@@ -216,11 +216,17 @@ export default async function SignupPage({
         .primary-cta:hover {
           opacity: 0.6;
         }
+        .kin-form {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
         .kin-via {
           font-size: 0.75rem;
           letter-spacing: 0.15em;
           text-align: center;
           color: var(--text-ghost);
+          margin: 0;
         }
         .kin-input {
           font-size: 0.75rem;
@@ -228,13 +234,37 @@ export default async function SignupPage({
           text-align: center;
           background: transparent;
           border: none;
+          border-bottom: 1px solid var(--bg-tertiary);
           outline: none;
           width: 140px;
+          padding: 0.2rem 0;
           color: var(--text-ghost);
           caret-color: var(--text-ghost);
+          transition: border-bottom-color 200ms;
+        }
+        .kin-input:focus {
+          border-bottom-color: var(--text-ghost);
         }
         .kin-input::placeholder {
           color: var(--text-ghost);
+        }
+        .kin-submit {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          border: none;
+          padding: 0.2rem;
+          margin: 0;
+          cursor: pointer;
+          color: var(--text-ghost);
+          transition: opacity 200ms, color 200ms;
+        }
+        .kin-submit[hidden] {
+          display: none;
+        }
+        .kin-submit:hover {
+          color: var(--text-primary);
         }
       `}</style>
     </div>
