@@ -248,34 +248,25 @@ export default async function SignupPage({
         .kin-input::placeholder {
           color: var(--text-ghost);
         }
-        .kin-submit {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          background: transparent;
-          border: none;
-          padding: 0.2rem;
-          margin: 0;
-          cursor: pointer;
-          color: var(--text-ghost);
-          transition: opacity 200ms, color 200ms;
-        }
-        .kin-submit[hidden] {
-          display: none;
-        }
-        .kin-submit:hover {
-          color: var(--text-primary);
-        }
         .kin-status {
           display: inline-flex;
           align-items: center;
-          color: var(--text-ghost);
+          padding: 0;
+          margin: 0;
+          background: transparent;
+          border: none;
+          font: inherit;
         }
         .kin-status.valid {
           color: var(--accent);
         }
-        .kin-status.invalid {
+        button.kin-status.invalid {
           color: var(--text-muted);
+          cursor: pointer;
+          transition: color 200ms;
+        }
+        button.kin-status.invalid:hover {
+          color: var(--text-primary);
         }
         .kin-feedback {
           font-size: 0.7rem;

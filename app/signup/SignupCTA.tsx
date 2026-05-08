@@ -3,13 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SERVER_URL } from '../lib/config';
 
-const ICON_ARROW = (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <line x1="5" y1="12" x2="19" y2="12" />
-    <polyline points="12 5 19 12 12 19" />
-  </svg>
-);
-
 const ICON_CHECK = (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
     <polyline points="20 6 9 17 4 12" />
@@ -46,9 +39,8 @@ export default function SignupCTA({ urlRef, refSource }: { urlRef?: string; refS
     }
   }, []);
 
-  // Passive debounced check while typing — for users who never press enter.
-  // Set 'checking' immediately so a stale ✓/✗ from the previous code doesn't linger
-  // while the user types more characters.
+  // Debounced auto-check while typing. Sets 'checking' immediately on every keystroke
+  // so a stale ✓/✗ from the previous code doesn't linger while the user types more.
   useEffect(() => {
     if (!kinCode.trim()) { setKinStatus('idle'); return; }
     setKinStatus('checking');
@@ -56,26 +48,27 @@ export default function SignupCTA({ urlRef, refSource }: { urlRef?: string; refS
     return () => clearTimeout(t);
   }, [kinCode, checkKin]);
 
-  // Include ref unless we know it's invalid; server callback gate is the actual loop-closer.
+  // Include ref unless we explicitly know it's invalid; server callback gate is the actual loop-closer.
   const ref = urlRef || (kinStatus !== 'invalid' && kinCode.trim() ? kinCode.trim() : '');
   const authParams = [ref && `ref=${encodeURIComponent(ref)}`, refSource && `ref_source=${encodeURIComponent(refSource)}`].filter(Boolean).join('&');
   const authUrl = `${SERVER_URL}/auth/github${authParams ? `?${authParams}` : ''}`;
 
-  // Form submit (Enter or arrow click) triggers an immediate check — does NOT navigate.
-  // Navigation is reserved for the "sign up with github" button so the user always sees feedback first.
-  const handleConfirm = (e: React.FormEvent) => {
+  // Form submit (Enter) just triggers an immediate check — useful for impatient users
+  // who don't want to wait the 350ms debounce. Never navigates; the GitHub button is the only nav.
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     checkKin(kinCode);
   };
 
-  const showSubmit = kinCode.trim().length > 0;
-  const statusIcon = kinStatus === 'valid' ? ICON_CHECK : kinStatus === 'invalid' ? ICON_X : null;
-  const statusClass = `kin-status ${kinStatus === 'valid' ? 'valid' : 'invalid'}`;
+  const clearKin = () => {
+    setKinCode('');
+    setKinStatus('idle');
+  };
 
   return (
     <section className="cta-section">
       <a href={authUrl} className="primary-cta">sign up with github</a>
-      <form onSubmit={handleConfirm} className="kin-form">
+      <form onSubmit={handleSubmit} className="kin-form">
         {urlRef ? (
           <p className="kin-via">via {urlRef}</p>
         ) : (
@@ -90,15 +83,14 @@ export default function SignupCTA({ urlRef, refSource }: { urlRef?: string; refS
               spellCheck={false}
               aria-label="kin code"
             />
-            {statusIcon && <span className={statusClass} aria-hidden>{statusIcon}</span>}
-            <button
-              type="submit"
-              className="kin-submit"
-              aria-label="check kin code"
-              hidden={!showSubmit}
-            >
-              {ICON_ARROW}
-            </button>
+            {kinStatus === 'valid' && (
+              <span className="kin-status valid" aria-hidden>{ICON_CHECK}</span>
+            )}
+            {kinStatus === 'invalid' && (
+              <button type="button" onClick={clearKin} className="kin-status invalid" aria-label="clear kin code">
+                {ICON_X}
+              </button>
+            )}
           </>
         )}
       </form>
