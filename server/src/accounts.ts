@@ -1,7 +1,7 @@
 /** Company account management — billing, admin, key generation, account operations. */
 
 import { randomBytes } from 'crypto';
-import { getAuthIndex, getLoginIndex, deleteLoginIndex, loadAccount, loadAccounts, saveAccount, getKV } from './kv.js';
+import { getAuthIndex, getLoginIndex, setLoginIndex, deleteLoginIndex, loadAccount, loadAccounts, saveAccount } from './kv.js';
 import { hashApiKey } from './crypto.js';
 import { requireAuth } from './auth.js';
 import type { Account, AccountStore } from './auth.js';
@@ -35,8 +35,7 @@ export async function getAccountByLogin(login: string): Promise<{ storeKey: stri
   const accounts = await loadAccounts<AccountStore>();
   const storeKey = Object.keys(accounts).find(k => (accounts[k].github_login || '').toLowerCase() === lower);
   if (!storeKey) return null;
-  const kv = getKV();
-  await kv.put(`login:${lower}`, storeKey);
+  await setLoginIndex(lower, storeKey);
   return { storeKey, account: accounts[storeKey] as Account };
 }
 

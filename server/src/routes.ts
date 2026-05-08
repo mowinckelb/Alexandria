@@ -440,8 +440,9 @@ export function registerRoutes(app: Hono) {
       const ref = stateData.ref || c.req.query('ref');
       const refSource = stateData.ref_source || c.req.query('ref_source');
       const refId = stateData.ref_id || c.req.query('ref_id');
-      if (ref && isNewAccount) {
-        // Validate ref maps to an existing github_login before inserting — drop dangling rows
+      if (ref && isNewAccount && ref.toLowerCase() !== user.login.toLowerCase()) {
+        // Validate ref maps to an existing github_login before inserting — drop dangling rows.
+        // Self-referral (ref === own login) is rejected above so users can't credit themselves.
         const refResult = await getAccountByLogin(ref);
         if (!refResult) {
           logEvent('library_signup_referral_invalid', { attempted_ref: ref, source: refSource || 'direct', referred: user.login });
@@ -454,15 +455,17 @@ export function registerRoutes(app: Hono) {
             logEvent('library_signup_referral', { author: refResult.account.github_login, source: refSource || 'direct', referred: user.login });
             // New referral may push the kin sender across the threshold — recalc their pricing now
             // so the next invoice (typically days away) reflects the change instead of waiting a full cycle.
-            try {
-              await recalculateKinPricing(refResult.account.github_login);
-            } catch (e) {
-              console.error('[routes] Kin pricing recalc after referral failed:', e);
-            }
+            // Fire-and-forget via waitUntil so the OAuth response isn't blocked on Stripe API.
+            const refLogin = refResult.account.github_login;
+            c.executionCtx.waitUntil(
+              recalculateKinPricing(refLogin).catch(e => console.error('[routes] Kin pricing recalc after referral failed:', e))
+            );
           } catch (e) {
             console.error('[routes] Referral tracking failed:', e);
           }
         }
+      } else if (ref && isNewAccount) {
+        logEvent('library_signup_referral_self', { attempted_ref: ref, referred: user.login });
       }
 
       // Welcome email — no API key, just links to /signup

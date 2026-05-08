@@ -46,9 +46,12 @@ export default function SignupCTA({ urlRef, refSource }: { urlRef?: string; refS
     }
   }, []);
 
-  // Passive debounced check while typing — for users who never press enter
+  // Passive debounced check while typing — for users who never press enter.
+  // Set 'checking' immediately so a stale ✓/✗ from the previous code doesn't linger
+  // while the user types more characters.
   useEffect(() => {
     if (!kinCode.trim()) { setKinStatus('idle'); return; }
+    setKinStatus('checking');
     const t = setTimeout(() => checkKin(kinCode), 350);
     return () => clearTimeout(t);
   }, [kinCode, checkKin]);
@@ -65,7 +68,7 @@ export default function SignupCTA({ urlRef, refSource }: { urlRef?: string; refS
     checkKin(kinCode);
   };
 
-  const showSubmit = kinCode.trim().length > 0 && kinStatus !== 'valid';
+  const showSubmit = kinCode.trim().length > 0;
   const statusIcon = kinStatus === 'valid' ? ICON_CHECK : kinStatus === 'invalid' ? ICON_X : null;
   const statusClass = `kin-status ${kinStatus === 'valid' ? 'valid' : 'invalid'}`;
 

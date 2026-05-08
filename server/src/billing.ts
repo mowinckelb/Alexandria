@@ -192,12 +192,13 @@ export async function countActiveKin(githubLogin: string): Promise<{ count: numb
   // 3. Call made this month (protocol_calls table)
   const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
 
-  // Resolve each kin's account via the login index (O(1) per lookup, no full-account scan)
+  // Resolve each kin's account in parallel via the login index (O(1) per lookup, no full-account scan)
+  const kinResults = await Promise.all(kinLogins.map(login => getAccountByLogin(login)));
   const kinWithAccounts: { login: string; githubId: string }[] = [];
-  for (const login of kinLogins) {
-    const kinResult = await getAccountByLogin(login);
-    if (!kinResult) continue; // No account — not compliant
-    kinWithAccounts.push({ login, githubId: String(kinResult.account.github_id) });
+  for (let i = 0; i < kinLogins.length; i++) {
+    const r = kinResults[i];
+    if (!r) continue; // No account — not compliant
+    kinWithAccounts.push({ login: kinLogins[i], githubId: String(r.account.github_id) });
   }
 
   if (kinWithAccounts.length === 0) return { count: kinLogins.length, compliant: 0 };
