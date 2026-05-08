@@ -50,11 +50,17 @@ export default async function SignupPage({
             your ai is a little living entity on your computer, eager to help. we&rsquo;ve just given it a new role it can sometimes adopt &mdash; thinking partner, biographer, helper, alexandria, alex, whatever you want to call it. we ship a starter version because most people are starting from scratch; if you already have your own setup, yours is the floor and ours is gone. either way, what your thinking partner becomes is yours. we just handle the plumbing.
           </p>
 
-          <p>
-            don&rsquo;t like a tone? say so. find a topic boring? say so. anything you don&rsquo;t like, you literally just say so, and it changes. and if you want to rip out the infra and rebuild it, fine &mdash; it&rsquo;s all plain markdown, all on your disk.
-          </p>
-
           <p className="motto">a republic of thought. similar uniqueness. we&rsquo;re all in this together.</p>
+
+          <h2>the mindset</h2>
+
+          <p>ai is the first tool you can ask <em>how to use it</em>. that&rsquo;s the unlock &mdash; but only if you bring it.</p>
+
+          <p>don&rsquo;t know how alexandria works? ask it. find the tone boring? tell it. want a daily email about a specific topic? ask for one. don&rsquo;t want fragments about socrates anymore? say so. confused why it keeps doing X? ask, then tell it what you actually want instead. you should never sit there wondering. you should just ask.</p>
+
+          <p>want to rip out the infra and rebuild it? fine &mdash; it&rsquo;s all plain markdown, all on your disk.</p>
+
+          <p>agency and ownership. technology is leverage &mdash; you provide the input, it multiplies. wait passively and you get average. shape it actively to exactly what you want and you get something specifically yours. the same mindset that makes claude or chatgpt useful is the one that makes alexandria useful.</p>
 
           <h2>the one thing we ask</h2>
 
