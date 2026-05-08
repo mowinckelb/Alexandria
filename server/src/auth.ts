@@ -23,6 +23,7 @@ export interface Account {
   subscription_id?: string;
   current_period_end?: string;
   constitution_size?: number;
+  week_one_email_sent_at?: string;
 }
 
 export type AccountStore = Record<string, Account>;

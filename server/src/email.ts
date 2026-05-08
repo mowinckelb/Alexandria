@@ -93,6 +93,25 @@ export async function sendWelcomeEmail(email: string): Promise<void> {
 </div>`);
 }
 
+export async function sendWeekOneCheckIn(
+  email: string,
+  emailToken: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+  const SERVER_URL = process.env.SERVER_URL || 'https://api.mowinckel.ai';
+  const html = `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 48px 24px; color: #3d3630; font-size: 1.05rem; line-height: 1.7;">
+  <p style="margin: 0 0 1.4rem;">hey :)</p>
+  <p style="margin: 0 0 1.4rem;">you signed up to alexandria a week ago &mdash; just dropping in.</p>
+  <p style="margin: 0 0 1.4rem;">if anything's broken, confusing, or you've got thoughts on the thing &mdash; call me: <a href="tel:+14155038178" style="color: #3d3630;">+1 (415) 503-8178</a>. seriously, just call.</p>
+  <p style="margin: 0 0 1.4rem;">if you want to follow along more closely (and support the work), there's <a href="${WEBSITE_URL}/follow" style="color: #3d3630;">stay close</a>.</p>
+  <p style="margin: 0 0 1.8rem;">ok, that's all for now.</p>
+  <p style="margin: 0 0 0.4rem;">Benjamin a. Mowinckel</p>
+  <p style="margin: 0; font-style: italic; color: #8a8078;">a.</p>
+  <p style="margin: 1.5rem 0 0; font-size: 0.72rem; color: #bbb4aa;"><a href="${SERVER_URL}/email/stop?t=${emailToken}" style="color: #8a8078;">stop these emails</a></p>
+</div>`;
+  return await sendEmail(email, 'checking in.', html);
+}
+
 // sendMorningBrief / sendMorningNudge removed: morning brief + nudge are now
 // fully sovereign on each Author's machine (factory/scripts/brief.py + their
 // own SMTP creds + their own launchd schedule). Email-on-behalf-of-users is

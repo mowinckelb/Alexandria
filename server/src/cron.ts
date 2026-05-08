@@ -1,11 +1,12 @@
 /** Cron jobs — health digest. Called by worker scheduled handler. */
 
-import { getKV, getRecentDaysEvents } from './kv.js';
-import { sendEmail, FOUNDER_EMAIL } from './email.js';
+import { getKV, getRecentDaysEvents, loadAccounts, saveAccount } from './kv.js';
+import { sendEmail, sendEmailsBatched, sendWeekOneCheckIn, FOUNDER_EMAIL } from './email.js';
 import { formatPT } from './time.js';
 import { publishLibrarySignalSnapshot } from './marketplace.js';
 import { computeLibrarySignalText } from './library-signal.js';
 import { reconcilePatronSubscriptions } from './billing.js';
+import type { AccountStore, Account } from './auth.js';
 
 // ---------------------------------------------------------------------------
 // Health digest — self-heal, only email the founder if he needs to log on
@@ -274,5 +275,51 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
     await sendEmail(FOUNDER_EMAIL, `alexandria. — ${urgency}`, body);
   } catch (err) {
     console.error('Health digest failed:', err);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Week-1 check-in — delayed welcome to active users at signup_at + 7d.
+// One-shot per user (idempotent via week_one_email_sent_at). Surfaces the
+// patron slider as the upside-capture path.
+// ---------------------------------------------------------------------------
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const WEEK_MS = 7 * DAY_MS;
+
+export async function runWeekOneCheckIns(): Promise<void> {
+  try {
+    const accounts = await loadAccounts<AccountStore>();
+    const now = Date.now();
+    const recipients: { key: string; account: Account }[] = [];
+    for (const [key, acct] of Object.entries(accounts)) {
+      if (!acct.email) continue;
+      if (acct.engagement_opt_out) continue;
+      if (acct.week_one_email_sent_at) continue;
+      if (acct.subscription_status !== 'active' && acct.subscription_status !== 'beta') continue;
+      if (!acct.created_at) continue;
+      const age = now - new Date(acct.created_at).getTime();
+      if (age < WEEK_MS) continue;
+      // Upper bound: skip users older than 14d. Cron has 7-day window to catch
+      // each cohort; outside it, "you signed up a week ago" stops being true.
+      // Backfills (existing users past the window at deploy time) don't get this.
+      if (age > 2 * WEEK_MS) continue;
+      recipients.push({ key, account: acct });
+    }
+
+    if (recipients.length === 0) return;
+
+    const { sent, failed } = await sendEmailsBatched(recipients, async ({ key, account }) => {
+      const result = await sendWeekOneCheckIn(account.email, account.email_token);
+      if (result.ok) {
+        account.week_one_email_sent_at = new Date().toISOString();
+        await saveAccount(key, account as unknown as Record<string, unknown>);
+      }
+      return result;
+    });
+
+    console.log(`[cron] week-1 check-in: sent=${sent} failed=${failed} total=${recipients.length}`);
+  } catch (err) {
+    console.error('[cron] week-1 check-in failed:', err);
   }
 }
