@@ -247,6 +247,16 @@ export function registerRoutes(app: Hono) {
     });
   });
 
+  // --- Kin code validation (public, called by /signup before OAuth) ---
+
+  app.get('/check-kin', async (c) => {
+    const code = (c.req.query('code') || '').trim().toLowerCase();
+    if (!code) return c.json({ valid: false }, 400);
+    const accounts = await loadAccounts<AccountStore>();
+    const valid = Object.values(accounts).some(a => (a.github_login || '').toLowerCase() === code);
+    return c.json({ valid });
+  });
+
   // --- GitHub OAuth ---
 
   app.get('/auth/github', async (c) => {
@@ -432,14 +442,21 @@ export function registerRoutes(app: Hono) {
       const refSource = stateData.ref_source || c.req.query('ref_source');
       const refId = stateData.ref_id || c.req.query('ref_id');
       if (ref && isNewAccount) {
-        try {
-          const db = getDB();
-          await db.prepare(
-            `INSERT INTO referrals (author_id, source_type, source_id, referred_github_login, created_at) VALUES (?, ?, ?, ?, ?)`
-          ).bind(ref, refSource || 'direct', refId || null, user.login, new Date().toISOString()).run();
-          logEvent('library_signup_referral', { author: ref, source: refSource || 'direct', referred: user.login });
-        } catch (e) {
-          console.error('[routes] Referral tracking failed:', e);
+        // Validate ref maps to an existing github_login before inserting — drop dangling rows
+        const allForRefCheck = await loadAccounts<AccountStore>();
+        const refValid = Object.values(allForRefCheck).some(a => (a.github_login || '').toLowerCase() === ref.toLowerCase());
+        if (!refValid) {
+          logEvent('library_signup_referral_invalid', { attempted_ref: ref, source: refSource || 'direct', referred: user.login });
+        } else {
+          try {
+            const db = getDB();
+            await db.prepare(
+              `INSERT INTO referrals (author_id, source_type, source_id, referred_github_login, created_at) VALUES (?, ?, ?, ?, ?)`
+            ).bind(ref, refSource || 'direct', refId || null, user.login, new Date().toISOString()).run();
+            logEvent('library_signup_referral', { author: ref, source: refSource || 'direct', referred: user.login });
+          } catch (e) {
+            console.error('[routes] Referral tracking failed:', e);
+          }
         }
       }
 

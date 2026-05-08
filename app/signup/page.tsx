@@ -266,6 +266,25 @@ export default async function SignupPage({
         .kin-submit:hover {
           color: var(--text-primary);
         }
+        .kin-status {
+          display: inline-flex;
+          align-items: center;
+          color: var(--text-ghost);
+        }
+        .kin-status.valid {
+          color: #4a7a4a;
+        }
+        .kin-status.invalid {
+          color: #a85a5a;
+        }
+        .kin-warn {
+          font-size: 0.7rem;
+          letter-spacing: 0.02em;
+          text-align: center;
+          color: var(--text-muted);
+          margin: 0.5rem 0 0;
+          max-width: 280px;
+        }
       `}</style>
     </div>
   );

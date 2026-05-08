@@ -88,6 +88,22 @@ app.use('*', async (c, next) => {
 
 // Allowed CORS origins — imported from cors.ts (single source of truth)
 
+// CORS for kin code validation (website /signup calls api.mowinckel.ai/check-kin)
+app.use('/check-kin', async (c, next) => {
+  const allowed = getAllowedOrigins();
+  const reqOrigin = c.req.header('Origin') || '';
+  if (!allowed.includes(reqOrigin)) {
+    if (c.req.method === 'OPTIONS') return c.text('', 403);
+  } else {
+    c.header('Access-Control-Allow-Origin', reqOrigin);
+    c.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    c.header('Access-Control-Allow-Headers', 'Content-Type');
+    c.header('Vary', 'Origin');
+  }
+  if (c.req.method === 'OPTIONS') return c.body(null, 204);
+  await next();
+});
+
 // CORS for Library API (website at mowinckel.ai calls server at api.mowinckel.ai)
 app.use('/library/*', async (c, next) => {
   const allowed = getAllowedOrigins();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SERVER_URL } from '../lib/config';
 
 const ICON_ARROW = (
@@ -10,9 +10,46 @@ const ICON_ARROW = (
   </svg>
 );
 
+const ICON_CHECK = (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+const ICON_X = (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+type KinStatus = 'idle' | 'checking' | 'valid' | 'invalid';
+
 export default function SignupCTA({ urlRef, refSource }: { urlRef?: string; refSource?: string }) {
   const [kinCode, setKinCode] = useState('');
-  const ref = kinCode.trim() || urlRef;
+  const [kinStatus, setKinStatus] = useState<KinStatus>('idle');
+
+  // Debounced kin code validation
+  useEffect(() => {
+    const trimmed = kinCode.trim();
+    if (!trimmed) { setKinStatus('idle'); return; }
+    setKinStatus('checking');
+    const ctrl = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`${SERVER_URL}/check-kin?code=${encodeURIComponent(trimmed)}`, { signal: ctrl.signal });
+        if (!res.ok) { setKinStatus('invalid'); return; }
+        const data = await res.json() as { valid?: boolean };
+        setKinStatus(data.valid ? 'valid' : 'invalid');
+      } catch (e) {
+        if ((e as Error).name !== 'AbortError') setKinStatus('idle');
+      }
+    }, 350);
+    return () => { ctrl.abort(); clearTimeout(t); };
+  }, [kinCode]);
+
+  // Only include ref in auth URL if validated as valid (or if it came from URL)
+  const ref = urlRef || (kinStatus === 'valid' ? kinCode.trim() : '');
   const authParams = [ref && `ref=${encodeURIComponent(ref)}`, refSource && `ref_source=${encodeURIComponent(refSource)}`].filter(Boolean).join('&');
   const authUrl = `${SERVER_URL}/auth/github${authParams ? `?${authParams}` : ''}`;
 
@@ -20,6 +57,10 @@ export default function SignupCTA({ urlRef, refSource }: { urlRef?: string; refS
     e.preventDefault();
     window.location.href = authUrl;
   };
+
+  const showSubmit = kinCode.trim().length > 0;
+  const statusIcon = kinStatus === 'valid' ? ICON_CHECK : kinStatus === 'invalid' ? ICON_X : null;
+  const statusClass = kinStatus === 'valid' ? 'kin-status valid' : kinStatus === 'invalid' ? 'kin-status invalid' : 'kin-status';
 
   return (
     <section className="cta-section">
@@ -39,17 +80,19 @@ export default function SignupCTA({ urlRef, refSource }: { urlRef?: string; refS
               spellCheck={false}
               aria-label="kin code"
             />
+            {statusIcon && <span className={statusClass} aria-hidden>{statusIcon}</span>}
             <button
               type="submit"
               className="kin-submit"
               aria-label="continue with kin code"
-              hidden={!kinCode.trim()}
+              hidden={!showSubmit}
             >
               {ICON_ARROW}
             </button>
           </>
         )}
       </form>
+      {kinStatus === 'invalid' && <p className="kin-warn">not a kin we know &mdash; double-check the code, or proceed without it.</p>}
     </section>
   );
 }
