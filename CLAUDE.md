@@ -181,20 +181,6 @@ factory/
 
 - "ai" is always lowercase unless at the start of a sentence or in a proper noun (e.g. "Apple Intelligence"). This is a brand and taste decision.
 
-## Releases (Author-facing change awareness)
-
-Authors install Alexandria once via the curl one-liner. Re-running it refreshes canonical files (skills, canon, hooks, block) — `setup.sh` is already idempotent, never touches Author content (`files/`). The missing piece is *awareness*: how does an Author know there's something worth refreshing for?
-
-**Convention: GitHub Releases on `mowinckelb/alexandria` are the single source of truth for "Author-facing changes."** Cut a release whenever a merged change affects what installed Authors would receive on a re-run — new skill behavior, canon evolution, block flow change, hook change. Skip for purely internal work (server refactors, build pipeline, dependency bumps).
-
-- **Title:** one-line summary of what changed for Authors. Plain English, present tense. Not the commit subject — the *Author-experienced* change.
-- **Body:** 1-3 sentences. What changed and why an Author might want to pull. Link to the diff if useful.
-- **Tag:** `vYYYY-MM-DD` or `vYYYY-MM-DD-N` if multiple in a day. No semver — these aren't software versions, they're dated waypoints.
-
-Authors who care subscribe via GitHub Watch (Releases-only) and get email natively; no Alexandria-side notification infra needed at this scale. As cohort grows, a daily-brief delta line backed by the GitHub Releases API can layer on top — same source of truth, second surface. Don't build that surface on speculation.
-
-The factory autoloop, when it merges an Author-facing canon PR, follows the same convention. PR descriptions should include the release notes inline so the merger (founder or routine) can paste them directly when cutting the release.
-
 ## Design Constraints
 
 - **Pure marginal value add.** Alexandria must never override, compete with, or degrade the user's existing workflows, memory, or tools. Passive mode is read-only context + optional ontology writes. Active mode (/a) is opt-in. The user's existing system is the floor — Alexandria only adds.
