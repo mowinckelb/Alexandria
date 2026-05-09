@@ -1152,33 +1152,8 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           justify-content: space-between;
           padding: 36px 0;
         }
-        /* Adam centerpiece — full-bleed atmospheric scene. The arched
-           stone niche image is sized large to occupy the centre band
-           of the slide; cream marble wall extends to the page bg via
-           radial mask at the edges so the image dissolves into the
-           cream paper rather than sitting in a contained rectangle.
-           Text floats above and below in the cream wall regions. The
-           image already has a baked-in leaf shadow on the lower-left;
-           for movement (the breeze the Author wants), swap the
-           background-image declaration for a <video> in the same slot
-           — same positioning, same purpose, real footage. */
-        .adam-centerpiece {
-           position: relative;
-           width: 100%;
-           max-width: 1320px;
-           height: 560px;
-           background-image: url(/adam-arch.png);
-           background-position: 50% 50%;
-           background-size: cover;
-           background-repeat: no-repeat;
-           /* Wide soft mask — image dissolves into the cream page bg
-              at all edges; centre stays clean and visible. */
-           -webkit-mask-image: radial-gradient(ellipse 80% 88% at 50% 50%, #000 55%, rgba(0,0,0,0.95) 75%, rgba(0,0,0,0) 100%);
-           mask-image: radial-gradient(ellipse 80% 88% at 50% 50%, #000 55%, rgba(0,0,0,0.95) 75%, rgba(0,0,0,0) 100%);
-           pointer-events: none;
-        }
-        /* Alpha glyph — kept in case anywhere else uses it; centerpiece
-           replaces its function on the front slide. */
+        /* Alpha glyph — legacy class, kept in case any other surface
+           still references it. */
         .alpha-glyph {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-style: italic;
@@ -1463,17 +1438,6 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           font-style: italic;
           font-weight: 300;
           letter-spacing: 0.02em;
-        }
-        .close-strong {
-          color: #3a0f3d;
-          font-style: italic;
-          font-weight: 500;
-          font-size: 1.08em;
-          letter-spacing: 0.004em;
-          text-decoration: underline;
-          text-decoration-color: rgba(58, 15, 61, 0.55);
-          text-decoration-thickness: 1px;
-          text-underline-offset: 5px;
         }
         /* Watermark — large faint italic 'a.' sitting behind everything,
            lower portion of the slide, off-centre to the left. Marks the
@@ -1781,22 +1745,6 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           display: flex;
           flex-direction: column;
         }
-        /* Colophon imprint — Latin motto at the bottom-right of the
-           stage, like a faint mark on the closing page of a book.
-           Subtle: italic, generous letter-spacing for breath. */
-        .colophon-imprint {
-          position: absolute;
-          bottom: 32px;
-          right: 96px;
-          font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-style: italic;
-          font-weight: 400;
-          font-size: 12px;
-          letter-spacing: 0.18em;
-          color: var(--theme-fg-faint);
-          user-select: none;
-          pointer-events: none;
-        }
         .bottom-inner {
           --lower-block-bottom: 14px;
           max-width: 1700px;
@@ -2022,99 +1970,6 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           text-transform: lowercase;
           user-select: none;
         }
-        /* Section fleuron — manuscript ornament between body and
-           aphorism. Centered, faint, the visual breath that marks
-           the turn from offer to invitation. */
-        .statement-fleuron {
-          margin: 6px 0;
-          text-align: center;
-          font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 20px;
-          line-height: 1;
-          color: var(--theme-fg-faint);
-          letter-spacing: 0;
-          user-select: none;
-        }
-        /* Aphorism — the centerpiece self-id line, pulled out of the
-           trust prose into its own centered italic display register.
-           Larger than body, smaller than welcome — the page's quiet
-           climax. */
-        .statement-aphorism {
-          margin: 4px 0;
-          padding: 0;
-          text-align: center;
-          font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 22px;
-          line-height: 1.4;
-          font-style: italic;
-          font-weight: 400;
-          color: var(--theme-fg);
-          letter-spacing: 0.005em;
-        }
-        /* Welcome benediction — pulled out of the trust paragraph
-           into its own framed display element. Bracketed by fleurons
-           so it reads as a chapter-close benediction, not a footnote.
-           The frame creates ceremonial weight: ❦ ... ❦ */
-        .statement-welcome-frame {
-          margin: 18px 0 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 22px;
-          user-select: none;
-        }
-        .welcome-flourish {
-          font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-size: 20px;
-          font-style: normal;
-          color: var(--theme-fg-faint);
-          letter-spacing: 0;
-          line-height: 1;
-        }
-        .statement-welcome {
-          font-family: var(--font-serif), ui-serif, Georgia, serif;
-          font-style: italic;
-          font-weight: 500;
-          font-size: 30px;
-          line-height: 1.2;
-          letter-spacing: 0;
-          color: var(--theme-fg);
-          text-decoration: underline;
-          text-decoration-color: var(--theme-fg-faint);
-          text-decoration-thickness: 1px;
-          text-underline-offset: 6px;
-        }
-        /* Forcing function — the single load-bearing claim that converts.
-           Same vocabulary as .statement em.em-strong but tuned for the
-           close (allowed to wrap, this phrase is too long for nowrap). */
-        .statement-close .close-em-strong {
-          font-style: italic;
-          font-weight: 600;
-          color: var(--theme-fg);
-          transition: text-shadow 280ms ease;
-        }
-        .statement-close .close-em-strong:hover {
-          text-shadow: 0 0 18px var(--theme-fg-muted);
-        }
-        /* Destination — "welcome to alexandria." The reader's eye arrival.
-           Underlined like a place on a map, not a link. Sized larger
-           than the body so it lands as the climactic destination, not
-           a footnote. */
-        .statement-close .close-strong {
-          display: inline-block;
-          margin-top: 6px;
-          color: var(--theme-fg);
-          font-style: italic;
-          font-weight: 500;
-          font-size: 24px;
-          line-height: 1.25;
-          letter-spacing: 0;
-          text-decoration: underline;
-          text-decoration-color: var(--theme-fg-faint);
-          text-decoration-thickness: 1px;
-          text-underline-offset: 5px;
-        }
-
         /* COLUMNS — three branches, now in the bottom-right block.
            Compact, plain link text, no doormen. */
         .upper-cols {
@@ -2706,10 +2561,6 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             padding-top: 18px;
             font-size: clamp(16px, 1.9vw, 19px);
             line-height: 1.5;
-          }
-          .statement-close .close-strong {
-            font-size: clamp(22px, 3.2vw, 28px);
-            margin-top: 6px;
           }
           .statement-close::before {
             left: 0;

@@ -52,9 +52,9 @@ export default async function SignupPage({
           <section className="primer-section">
             <p className="primer-label">the mindset.</p>
             <p>
-              this is leverage, not magic. you ask, it answers; you
-              shape, it sharpens. wait passively and you get
-              average; participate actively and you get something
+              agency is the input. you ask, it answers; you shape,
+              it sharpens. wait passively and you get average;
+              participate actively and you get something
               specifically yours. you should never sit there
               wondering &mdash; just ask.
             </p>
