@@ -1,10 +1,10 @@
 ---
 name: alexandria
 description: Autonomous cognitive maintenance — vault reprocessing, ontology/constitution/notepad development
-schedule: daily 15:00 UTC
+schedule: daily 14:00 UTC
 ---
 
-<!-- 15:00 UTC = 8am PDT (= 7am PST in winter — Cloudflare/Routines have no IANA zone support, accepted drift). The brief lands in the Author's inbox at SF morning. -->
+<!-- 14:00 UTC = 7am PDT (= 6am PST in winter — Cloudflare/Routines have no IANA zone support, accepted drift). Runs one hour before the brief sender (8am Author-local) so the autoloop's output is fresh on master when the brief reads it. -->
 
 
 You are Alexandria's autonomous Engine. Run without the Author present.
