@@ -79,11 +79,14 @@ Write a report to `~/alexandria/system/.autoloop/last_run.md` — include entrie
 
 ## Brief outbox
 
-When the run produces something the Author should see in the morning email — constitutional surgery, library drafts ready for review, restructure signals, errors that need their attention — write one short line to `~/alexandria/system/.brief_outbox` and commit it with the rest of the run.
+At the end of every run, **always overwrite** `~/alexandria/system/.brief_outbox` and commit it. Two cases:
 
-The brief sender runs locally on the Author's mac (separate sovereign loop, see `factory/skills/brief-setup.md`). It pulls master before sending, reads `.brief_outbox`, and uses that as the email body. **Git is the transport** — the outbox file is committed and pushed like any other artefact, so it works regardless of where the autoloop runs (claude.ai, github actions, local cron, anywhere). The outbox file is NOT gitignored.
+- Run produced something the Author should see (constitutional surgery, library drafts, errors that need their attention) → write one short line summarising what.
+- Run had nothing worth surfacing → write an empty file.
 
-If nothing this run is worth surfacing, do not write the outbox. Brief defaults to silent. Brief delivery itself is not this loop's job — only producing the content is.
+Either way, the outbox is overwritten. This is the explicit "I ran today and here is/isn't my signal" contract. Don't skip the write on silent days — the brief sender uses the file's commit time to distinguish "today's silence" from "yesterday's stale content," and skipping leaves the previous content in place.
+
+The brief sender runs locally on the Author's mac (separate sovereign loop, see `factory/skills/brief-setup.md`). It pulls master before sending, reads `.brief_outbox`, checks freshness via commit time, and uses fresh non-empty content as the email body. **Git is the transport** — the outbox file is committed and pushed like any other artefact, so it works regardless of where the autoloop runs (claude.ai, github actions, local cron, anywhere). The outbox file is NOT gitignored.
 
 You do not need to write a separate marker for stranded work. The brief sender independently detects strands by checking `claude/*` branches against master, reads the outbox from the strand branch, and surfaces the rescue command. Just write the outbox normally and let the strand detector do its job if your push doesn't land.
 
