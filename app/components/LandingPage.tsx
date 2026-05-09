@@ -213,12 +213,15 @@ export default function LandingPage({ brandClassName = '' }: Props) {
         const progress = y1 / peelDistance;
         document.documentElement.style.setProperty('--peel-progress', String(progress));
         document.documentElement.style.setProperty('--peel-progress-2', String(progress));
+        // on-bottom flips once the top slide is past the midpoint. Toggled
+        // on mobile too so the nav can switch from transparent (over the
+        // painting) to solid (over the back slide) without the desktop
+        // peel transform.
+        navRef.current?.classList.toggle('on-bottom', progress > 0.5);
         if (mq.matches) return;
         if (topRef.current) {
           topRef.current.style.transform = `translate3d(0, ${-y1}px, 0)`;
         }
-        // on-bottom flips once the top slide is past the midpoint of its peel
-        navRef.current?.classList.toggle('on-bottom', progress > 0.5);
       });
     };
 
@@ -284,6 +287,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
   // first peel never showed ornament 1. Same 50% threshold as `--peel-progress`.
   // `wasOnBack` matches the live scroll position on mount (restore-safe).
   useEffect(() => {
+    // Mobile keeps the wax seal as a fixed brand mark — rotation is
+    // a desktop-only delight that reads as "look how many themes" on
+    // small screens; the founder prefers the wax seal alone there.
+    if (window.matchMedia('(max-width: 899px)').matches) return;
     let wasOnBack = window.scrollY > window.innerHeight * 0.5;
     const onScroll = () => {
       const y = window.scrollY;
@@ -2344,8 +2351,11 @@ export default function LandingPage({ brandClassName = '' }: Props) {
           .bottom-slide {
             position: relative;
             inset: auto;
-            min-height: 100vh;
-            min-height: 100dvh;
+            /* svh (small viewport height) is stable across iOS Safari's
+               address-bar collapse/expand. dvh changes with chrome state,
+               which rescales background-size: cover on .top-slide and
+               reads as the painting "zooming" on scroll. svh holds. */
+            min-height: 100svh;
             transform: none !important;
             box-shadow: none !important;
           }
@@ -2425,11 +2435,17 @@ export default function LandingPage({ brandClassName = '' }: Props) {
 
           .nav {
             padding: 18px 18px;
-            /* Solid backdrop — on mobile the slides flow naturally
-               (no peel), so prose scrolls up THROUGH the fixed nav.
-               Need an opaque-enough background that body text behind
-               doesn't bleed through and overlap the brand. Blur stays
-               for the soft frosted edge feel. */
+            /* Two states. Default (front slide, .nav not .on-bottom):
+               transparent so the nav reads as part of the painting —
+               the wordmark + nav links sit on the marble wall, no
+               cream bar floating in front. .on-bottom (set by the
+               peel-midpoint toggle, mobile too): solid theme-bg with
+               blur so back-slide prose scrolling under doesn't bleed
+               through the brand. */
+            background: transparent;
+            transition: background 320ms ease;
+          }
+          .nav.on-bottom {
             background: color-mix(in srgb, var(--theme-bg, #f7f2ec) 94%, transparent);
             backdrop-filter: blur(14px) saturate(1.05);
             -webkit-backdrop-filter: blur(14px) saturate(1.05);
@@ -2504,7 +2520,14 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             flex: 0 0 auto;
             gap: 32px;
           }
-          .left-col {
+          /* Mobile flattens the entire two-column desktop structure
+             into a single column at bottom-inner level. left-col,
+             right-col, and right-lower all use display: contents,
+             so their children become direct flex children of
+             bottom-inner. Each element then orders itself. */
+          .left-col,
+          .right-col,
+          .right-col .right-lower {
             display: contents;
           }
           .ornament-wrap {
@@ -2513,27 +2536,26 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             padding-top: 8px;
             padding-left: 0;
           }
-          .right-col {
+          .statement-salutation {
             order: 2;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-            justify-content: flex-start;
-            transform: none;
           }
-          /* Selector includes .right-col so it beats the desktop
-             .right-col .right-lower rule (squeezed 680px width +
-             126px margin-top) — mobile reverts to full-width flow. */
-          .right-col .right-lower {
-            align-self: stretch;
-            width: 100%;
-            gap: 24px;
-            margin: 0;
+          .statement-epigraph {
+            order: 3;
+          }
+          .statement-close {
+            order: 4;
+          }
+          .cta-pair {
+            order: 5;
           }
           .wordmark-block {
-            order: 3;
+            order: 6;
             margin-left: 0;
             max-width: 100%;
+          }
+          .footer-cols {
+            order: 7;
+            margin-top: 0;
           }
 
           /* Statement — drop the absolute roman numerals (they hang in
