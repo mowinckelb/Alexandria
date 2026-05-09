@@ -2552,6 +2552,10 @@ export default function LandingPage({ brandClassName = '' }: Props) {
             order: 6;
             margin-left: 0;
             max-width: 100%;
+            /* Extra breath above so the brand block reads as its
+               own closing section, not as the next paragraph after
+               the CTAs. Adds to the bottom-inner 64px flex gap. */
+            margin-top: 40px;
           }
           .footer-cols {
             order: 7;
