@@ -506,12 +506,7 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
             reflow with viewport changes. Mobile (<899px) sets this to
             display:contents so the existing flow layout takes over. */}
         <div className="stage-top">
-        <span className="alpha-mark">
-          <a href="tel:+14155038178" className="alpha-cta">
-            investor?{' '}<span className="alpha-cta-underline">call me</span>
-          </a>
-          <span className="alpha-mark-loc">san francisco</span>
-        </span>
+        <span className="alpha-mark">San Francisco · mmxxvi</span>
         {/* Frontispiece composition. The wall + niche + fresco + tree
             shadow ARE the slide (background on .top-slide). The title
             block sits in the top-left nav (wordmark + small-caps
@@ -1498,9 +1493,9 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
           pointer-events: none;
           z-index: 25;
         }
-        /* Alpha mark — bottom-left founder colophon, with a quiet
-           CTA tucked at the end. Mirrors 'vol. i' on the right so
-           the page is bracketed by manuscript marginalia. */
+        /* Alpha mark — bottom-left colophon (place + year in
+           lowercase Roman). Mirrors 'vol. i' on the right so the
+           page is bracketed by manuscript marginalia. */
         .alpha-mark {
           position: absolute;
           bottom: 56px;
@@ -1512,39 +1507,6 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
           letter-spacing: 0.02em;
           user-select: none;
           z-index: 2;
-        }
-        .alpha-mark a.alpha-cta {
-          color: rgba(58, 15, 61, 0.75);
-          text-decoration: none;
-          transition: color 180ms ease;
-          /* Extend tap target without changing visual — the marginalia
-             stays where it is, but iPhone fingers can land it. */
-          display: inline-block;
-          padding: 10px 6px;
-          margin: -10px -6px;
-        }
-        .alpha-mark a.alpha-cta .alpha-cta-underline {
-          text-decoration: underline;
-          text-decoration-color: rgba(58, 15, 61, 0.35);
-          text-underline-offset: 3px;
-          transition: text-decoration-color 180ms ease;
-        }
-        .alpha-mark a.alpha-cta:hover {
-          color: #3a0f3d;
-        }
-        .alpha-mark a.alpha-cta:hover .alpha-cta-underline {
-          text-decoration-color: #3a0f3d;
-        }
-        /* Location line — small italic geographic credit beneath the
-           investor CTA. Reads as a museum credits subtitle. Quieter
-           than the CTA above so the call-me line stays primary. */
-        .alpha-mark-loc {
-          display: block;
-          margin-top: 3px;
-          font-style: italic;
-          font-size: 11px;
-          letter-spacing: 0.08em;
-          color: rgba(26, 19, 24, 0.32);
         }
         /* Scroll cue — soft pulsing chevron beneath the close.
            Tells the reader where to go without saying it. */
