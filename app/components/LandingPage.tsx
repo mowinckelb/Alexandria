@@ -937,19 +937,21 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
           opacity: 0.45;
         }
         .nav-group a {
+          font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-style: italic;
-          font-size: 16px;
-          letter-spacing: 0.005em;
-          color: rgba(26, 19, 24, 0.85);
+          font-weight: 400;
+          font-size: 15px;
+          letter-spacing: 0.04em;
+          color: rgba(26, 19, 24, 0.5);
           text-decoration: underline;
-          text-decoration-color: rgba(26, 19, 24, 0.28);
+          text-decoration-color: rgba(26, 19, 24, 0.25);
           text-underline-offset: 5px;
           text-decoration-thickness: 1px;
           transition: color 180ms ease, text-decoration-color 180ms ease;
         }
         .nav-group a:hover {
           color: #1a1318;
-          text-decoration-color: rgba(26, 19, 24, 0.7);
+          text-decoration-color: rgba(26, 19, 24, 0.6);
         }
         /* Mobile hamburger toggle — three thin lines that morph into an
            × when navOpen is true. Hidden on desktop where inline links
@@ -1058,7 +1060,7 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
         }
         /* Bottom-phase color overrides for the new nav groups */
         .nav.on-bottom .nav-group a {
-          color: var(--theme-fg-muted);
+          color: var(--theme-fg-faint);
           text-decoration-color: var(--theme-border-soft);
         }
         .nav.on-bottom .nav-group a:hover {
