@@ -235,9 +235,10 @@ async function main() {
 
   const stamp = Date.now();
   const fileName = `lifecycle-${stamp}`;
-  // Use github: format so the public listing (which filters to github:%) reflects this call.
-  // The repo path is fictitious — the listing aggregates protocol_calls, not GitHub reachability.
-  const moduleId = `github:lifecycle-test/repo#mod-${stamp}`;
+  // Non-github prefix: the public /marketplace listing filters to github:%, so test
+  // residue never appears there. The auth-gated /marketplace/:module endpoint keys
+  // off raw module_id and works regardless of prefix.
+  const moduleId = `test:lifecycle/mod-${stamp}`;
   const callText = `Lifecycle call verification ${stamp}`;
 
   await test('File obligation write accepted', async () => {
@@ -286,25 +287,23 @@ async function main() {
     };
   });
 
-  await test('Marketplace listing (public) includes lifecycle module', async () => {
+  await test('Marketplace listing envelope', async () => {
     const res = await fetch(`${BASE}/marketplace`);
     const body = await safeJson(res) as { modules?: Array<{ id: string; status: string; kind: string }>; total?: number; next_cursor?: string | null } | null;
     const modules = body?.modules || [];
-    const entry = modules.find((m) => m.id === moduleId);
+    const shapeOk = modules.every((m) => typeof m.id === 'string' && typeof m.status === 'string' && typeof m.kind === 'string');
 
-    // Public listing: catalog only — no usage telemetry. The lifecycle module
-    // points at a fake repo so resolveModule correctly returns 'unreachable'
-    // (github fetch fails). Envelope must carry total + next_cursor for the
-    // forward-compat pagination contract.
+    // Catalog-only public projection. We assert envelope shape (modules / total /
+    // next_cursor for pagination) and per-entry shape — without inserting a test
+    // module into the listing. The github:% filter keeps test residue out by design.
     return {
       test: 'Marketplace listing',
       passed: res.ok
-        && !!entry
-        && entry.status === 'unreachable'
-        && typeof entry.kind === 'string'
+        && Array.isArray(body?.modules)
+        && shapeOk
         && body?.total !== undefined
         && body?.next_cursor === null,
-      details: `HTTP ${res.status}, found=${!!entry}, status=${entry?.status}, kind=${entry?.kind}, module_count=${modules.length}, total=${body?.total}, next_cursor=${body?.next_cursor}`,
+      details: `HTTP ${res.status}, module_count=${modules.length}, total=${body?.total}, next_cursor=${body?.next_cursor}, shape_ok=${shapeOk}`,
     };
   });
 
