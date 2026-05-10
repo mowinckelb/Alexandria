@@ -569,7 +569,7 @@ The reference-frame argument is the philosophical foundation. The strategic moat
 
 **Two. The network of populated minds.** Every Author with a populated Constitution and Library page contributes to the discovery surface for every other Author. *Each new Author adds value continuously — a fork has empty shelves; recruiting equivalents is years of work.* Selection of the founding cohort is about *seed quality*, not threshold.
 
-**Three. Integration sprawl.** Every ai tool, agent platform, app, and service that reads from `.alexandria/` adds switching cost. *The user can leave. The ecosystem points back at Alexandria the moment the user wants their context anywhere.*
+**Three. Integration sprawl.** Every ai tool, agent platform, app, and service that reads from the user's local Alexandria folder adds switching cost. *The user can leave. The ecosystem points back at Alexandria the moment the user wants their context anywhere.*
 
 **Four. Signal asymmetry.** Private survivability data — *which methodology modules actually survive across all live accounts* — accumulates on the server as a side effect of the call obligation. **A clone of the public methodology starts with zero signal. Alexandria has the signal of every Author across years.**
 
@@ -639,13 +639,15 @@ The substrate is layered.
 
 Five tiers. *Each Author chooses the depth of every fragment.*
 
-| Tier | Visible to | Purpose |
-|---|---|---|
-| L1 — local private | the Author only, on their machine | sovereign personalisation; the ai tools the Author uses read this for the Author's own interactions |
-| L2 — hosted private | the Author only, accessible from anywhere | same as L1 but cloud-mirrored |
-| L3 — shared with network | specific people the Author invites | the substrate for the friend's-mind primitive |
-| L4 — public routing overview | anyone | topics, interests, table-of-contents — *not raw thinking*; lets private Authors participate first-class |
-| L5 — public marketplace | anyone | forkable modules, full public minds the Author chooses to publish |
+**L1 — local private.** Visible only to the Author on their own machine. Sovereign personalisation; the ai tools the Author uses read this for the Author's own interactions.
+
+**L2 — hosted private.** Visible only to the Author, accessible from anywhere. Same as L1 but cloud-mirrored.
+
+**L3 — shared with network.** Visible to specific people the Author invites. The substrate for the friend's-mind primitive.
+
+**L4 — public routing overview.** Visible to anyone. Topics, interests, a table of contents — *not raw thinking*; lets private Authors participate first-class.
+
+**L5 — public marketplace.** Visible to anyone. Forkable modules, full public minds the Author chooses to publish.
 
 *Every Author moves up and down the stack at will.* The Library is the projection of L4 and L5 — the public-facing surface. **The deeper tiers are where the work actually lives.**
 
@@ -781,12 +783,7 @@ The vacuum followed. *God died, the practice was already gone, nothing replaced 
 
 The structure of the arc.
 
-```
-god (nature, natural law, the source code)
- └─ greece (first to apply it to thought + governance — neither survived; the library burned)
-      ├─ nation → america    → survived (constitutional protocol)
-      └─ human  → alexandria → survives (sovereign, distributed, unburnable)
-```
+*God is the root — nature, natural law, the source code.* From God, Greece — first to apply it to thought and to governance; neither survived, and the library burned. Two branches descend from Greece. *The nation branch ran through America, which survived as a constitutional protocol.* **The human branch runs through Alexandria, which survives by being sovereign, distributed, unburnable.**
 
 *America protects the right to think.*
 
@@ -880,7 +877,7 @@ The Author writes sources. *The agent that maintains the vault — the Engine �
 
 *Signal is never lost because the source always has everything.*
 
-Convention: source = clean name. Derivative = underscore prefix. `constitution/` → `_constitution.md`.
+Convention: the source carries the clean name; the derivative is prefixed with an underscore.
 
 ---
 
@@ -929,15 +926,7 @@ The obligations are minimal because the *practice* is the product, and the pract
 
 *Seven endpoints.*
 
-```
-PUT    /file/{name}           — publish a file (file obligation)
-GET    /library               — list authors and discovery text
-GET    /library/{id}          — list one author's files
-GET    /library/{id}/{name}   — read one file
-POST   /call                  — report module IDs (call obligation)
-GET    /marketplace           — browse module usage
-GET    /marketplace/{module}  — read usage for one module
-```
+One publishes a file. One lists every Author. One lists a single Author's files. One reads a specific file. One reports which methodology modules an Author used this month. One browses how Authors across the network are using modules. One reads the usage history of a single module.
 
 *That is the protocol.* Everything else — OAuth, billing, email, admin, analytics — is operational overhead. **Company, not protocol. Scaffolding around a small spine.**
 
@@ -957,10 +946,13 @@ Both pools exist *because* the call exists. *The call is the port. The pools are
 
 *The 2×2.*
 
-| | **file** | **system** |
-|---|---|---|
-| **individual** | your mind (your files, wherever you keep them) | your methodology (personalised from canon) |
-| **collective** | the Library (every Author's files) | the Marketplace (survival-ranked methodology) |
+**Individual file.** Your mind — your files, wherever you keep them.
+
+**Individual system.** Your methodology — personalised from canon.
+
+**Collective file.** The Library — every Author's files.
+
+**Collective system.** The Marketplace — survival-ranked methodology.
 
 Individual quadrants are *facilitated* — the canon provides a starting point.
 
