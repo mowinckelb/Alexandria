@@ -611,7 +611,7 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
                       stay close
                     </Link>
                     <span className="cta-sub">
-                      friends, family, the curious.
+                      friends, family, the curious
                     </span>
                   </div>
                 </div>
