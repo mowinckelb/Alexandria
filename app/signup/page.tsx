@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import Link from 'next/link';
 import { ThemeToggle } from '../components/ThemeToggle';
 import SignupCTA from './SignupCTA';
@@ -13,6 +15,11 @@ export default async function SignupPage({
   const sp = await searchParams;
   const urlRef = sp.ref;
   const refSource = sp.ref_source;
+
+  const trustContent = await readFile(
+    path.join(process.cwd(), 'public', 'docs', 'Trust.md'),
+    'utf8',
+  );
 
   return (
     <div className="primer-page">
@@ -77,7 +84,7 @@ export default async function SignupPage({
               your files live on your own machine and your
               github. we never see what you do not publish. if
               alexandria disappears tomorrow, you keep everything.{' '}
-              <TrustCopy /> lists every byte that touches our server.
+              <TrustCopy content={trustContent} /> lists every byte that touches our server.
             </p>
           </section>
 

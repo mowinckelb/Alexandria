@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { SITE_URL } from '../lib/config';
 
 const ICON_COPY = (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -16,13 +15,12 @@ const ICON_CHECK = (
   </svg>
 );
 
-export default function TrustCopy() {
+export default function TrustCopy({ content }: { content: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    const url = `${SITE_URL}/docs/Trust.md`;
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(content);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -35,7 +33,7 @@ export default function TrustCopy() {
       type="button"
       onClick={handleCopy}
       className="trust-copy"
-      aria-label={copied ? 'copied' : 'copy trust.md url'}
+      aria-label={copied ? 'copied' : 'copy trust.md contents'}
     >
       <span>trust.md</span>
       <span className="trust-copy-icon">{copied ? ICON_CHECK : ICON_COPY}</span>
