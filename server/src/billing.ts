@@ -996,6 +996,7 @@ export function registerBillingRoutes(app: Hono, onAccountUpdate: AccountUpdater
         case 'checkout.session.expired': {
           const session = event.data.object as Stripe.Checkout.Session;
           logEvent('billing_checkout_expired', {
+            session_id: session.id,
             kind: session.metadata?.kind || 'unknown',
             mode: session.mode || 'unknown',
             email: session.customer_email || '',
