@@ -30,6 +30,71 @@ export function getStripe(): Stripe {
 }
 
 // ---------------------------------------------------------------------------
+// Single source of truth for which Stripe events the webhook handler below
+// processes. cron.ts:runHealthDigest calls syncStripeWebhookEvents on every
+// daily tick — drift between this list and the live webhook's enabled_events
+// gets auto-corrected, with a stroll alarm so it's visible in the digest.
+// When adding a `case` to the switch, add the event here too.
+// ---------------------------------------------------------------------------
+
+export const HANDLED_EVENTS = [
+  'checkout.session.completed',
+  'customer.subscription.updated',
+  'customer.subscription.deleted',
+  'invoice.upcoming',
+  'invoice.paid',
+  'invoice.payment_failed',
+  'setup_intent.setup_failed',
+  'payment_intent.payment_failed',
+  'checkout.session.expired',
+] as const;
+
+/**
+ * Diff this server's HANDLED_EVENTS against the live Stripe webhook's
+ * enabled_events. Drift detected → auto-update the webhook. Called from
+ * runHealthDigest. Closes the loop on the failure mode where a new `case`
+ * lands in the webhook switch but the live webhook subscription is never
+ * updated, silently dropping that event class. Found 2026-05-10 after the
+ * SetupIntent / PaymentIntent / expiry-failure cases drifted for ~5 days.
+ */
+export async function syncStripeWebhookEvents(
+  escalate: (urgency: 'sprint' | 'stroll', reason: string) => void,
+): Promise<void> {
+  try {
+    const stripe = getStripe();
+    const canonicalUrl = `${process.env.SERVER_URL || ''}/billing/webhook`;
+    const endpoints = await stripe.webhookEndpoints.list({ limit: 100 });
+    const ours = endpoints.data.find(e => e.url === canonicalUrl && e.livemode);
+
+    if (!ours) {
+      escalate('sprint', `No live Stripe webhook at ${canonicalUrl} — manual create required`);
+      return;
+    }
+
+    const subscribed = new Set<string>(ours.enabled_events);
+    const expected = new Set<string>(HANDLED_EVENTS);
+    const missing = [...expected].filter(e => !subscribed.has(e));
+    const extra = [...subscribed].filter(e => !expected.has(e));
+
+    if (missing.length === 0 && extra.length === 0) return;
+
+    try {
+      await stripe.webhookEndpoints.update(ours.id, {
+        enabled_events: [...HANDLED_EVENTS] as Stripe.WebhookEndpointUpdateParams.EnabledEvent[],
+      });
+      const parts: string[] = [];
+      if (missing.length > 0) parts.push(`+${missing.join(',')}`);
+      if (extra.length > 0) parts.push(`-${extra.join(',')}`);
+      escalate('stroll', `Stripe webhook drift auto-corrected: ${parts.join(' ')}`);
+    } catch (e) {
+      escalate('sprint', `Stripe webhook drift detected, auto-fix failed: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  } catch (e) {
+    escalate('stroll', `Stripe webhook sync threw: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Invoice → subscription ID extraction (Stripe nests this differently by event)
 // ---------------------------------------------------------------------------
 

@@ -5,7 +5,7 @@ import { sendEmail, sendEmailsBatched, sendWeekOneCheckIn, FOUNDER_EMAIL } from 
 import { formatPT } from './time.js';
 import { publishLibrarySignalSnapshot } from './marketplace.js';
 import { computeLibrarySignalText } from './library-signal.js';
-import { reconcilePatronSubscriptions } from './billing.js';
+import { reconcilePatronSubscriptions, syncStripeWebhookEvents } from './billing.js';
 import type { AccountStore, Account } from './auth.js';
 
 // ---------------------------------------------------------------------------
@@ -252,6 +252,10 @@ export async function runHealthDigest(opts: { sendEmailOnAlarm?: boolean } = { s
     } catch (err) {
       escalate('stroll', `patron reconcile failed: ${err instanceof Error ? err.message : String(err)}`);
     }
+
+    // Stripe webhook enabled_events ↔ billing.ts HANDLED_EVENTS drift check.
+    // Self-healing: auto-corrects on detection, strolls so the fix is visible.
+    await syncStripeWebhookEvents(escalate);
 
     // Cron marker (proves the job ran — includes issue list for debugging)
     try {
