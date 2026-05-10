@@ -449,6 +449,7 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
         </div>
       </nav>
 
+      <main className="landing-main">
       {/* ═════ TOP SLIDE ═════
            Three blocks. Everything conversion-critical.
              H1    → the tribe pitch (locked public headline, from a4)
@@ -465,23 +466,33 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
             seamless with no visible cut. Reduced-motion users keep the
             still PNG (video is hidden via media query). */}
         {showBreeze && (
-          <video
-            ref={videoRef}
-            className="adam-video"
-            src="/adam-scene.mp4"
-            poster="/adam-arch-wide.png"
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            aria-hidden
-          />
+          <>
+            <video
+              ref={videoRef}
+              className="adam-video"
+              poster="/adam-arch-wide.png"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              aria-hidden
+            >
+              {/* WebM (137KB, VP9) first — Android Chrome and most
+                  modern browsers pick it. Safari falls through to the
+                  H.264 MP4 (923KB). preload="metadata" so cellular
+                  users don't eat the full download until the canplay
+                  event drives the fade-in. */}
+              <source src="/adam-scene.webm" type="video/webm" />
+              <source src="/adam-scene.mp4" type="video/mp4" />
+            </video>
+            {/* Veo watermark mask — Fast-plan output stamps "Veo" in
+                the bottom-right; soft cream radial blend covers the
+                corner. Only rendered with the video — the PNG poster
+                has no watermark. */}
+            <div className="veo-mask" aria-hidden />
+          </>
         )}
-        {/* Veo watermark mask — Fast-plan output stamps "Veo" in the
-            bottom-right. Soft cream radial gradient over the corner
-            blends it into the wall. Cream matches #d8ccb6. */}
-        <div className="veo-mask" aria-hidden />
         {/* Stage canvas — pixel-locked 1440×900 frame uniformly scaled to
             the viewport via --stage-scale-top. Inside this wrapper everything
             is absolute pixels, so type, drop-caps, and corner marks never
@@ -659,6 +670,7 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
 
       {/* Runway gives scroll range for the peel */}
       <div className="runway" aria-hidden />
+      </main>
 
       <style>{`
         /* Initial theme palette — matches THEMES[0] (wax-circle), the first
@@ -2231,12 +2243,15 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
           font-style: italic;
         }
         /* Phon — tucked tight under the wordmark, indented so it sits
-           visually inside the word's footprint, not extending left. */
+           visually inside the word's footprint, not extending left.
+           Colour uses fg-muted (was fg-faint) so the IPA passes WCAG
+           AA contrast on every theme background; faint was ≈3:1 which
+           failed for body-sized text. */
         .phon {
           font-family: var(--font-serif), ui-serif, Georgia, serif;
           font-style: italic;
           font-size: 12.5px;
-          color: var(--theme-fg-faint);
+          color: var(--theme-fg-muted);
           margin: -8px 0 10px 0;
           padding-left: 0;
         }
