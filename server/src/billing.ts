@@ -1054,21 +1054,34 @@ async function sendPreBillWarningEmail(
   const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
   const kinLink = `${WEBSITE_URL}/signup?ref=${encodeURIComponent(githubLogin)}`;
 
-  // Warning only fires when at least one obligation is unmet, so todos is never empty here.
-  const todos: string[] = [];
-  if (!state.authorHasFile) todos.push('edit at least one alexandria file');
-  if (!state.authorHasCall) todos.push('use alexandria (any /a or skill call)');
-  if (state.kinNeeded > 0) todos.push(`get ${state.kinNeeded} more active kin (you have ${state.kinCompliant}/5)`);
-  const todoLine = 'to stay free: ' + todos.join('; ') + '.';
+  // Warning fires only when not-free, so at least one of (kinShort, authorQuiet) is true.
+  const kinShort = state.kinNeeded > 0;
+  const authorQuiet = !state.authorHasFile || !state.authorHasCall;
 
-  const dueLine = dueAt
-    ? `your next bill is $${amountDollars.toFixed(0)}, due ${dueAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}.`
-    : `your next bill is $${amountDollars.toFixed(0)}.`;
+  let affirmationLine: string;
+  let actionLine: string | null = null;
+  if (kinShort && authorQuiet) {
+    affirmationLine = `${state.kinCompliant} active kin, just ${state.kinNeeded} more &mdash; plus a quick file edit or /a from you &mdash; and it&rsquo;s free.`;
+    actionLine = 'send your link to a couple friends.';
+  } else if (kinShort) {
+    affirmationLine = `you&rsquo;re nearly there. ${state.kinCompliant} active kin, just ${state.kinNeeded} more and it&rsquo;s free.`;
+    actionLine = 'send your link to a couple friends.';
+  } else {
+    affirmationLine = `${state.kinCompliant} active kin already. one quick file edit or /a from you and it&rsquo;s free.`;
+  }
 
-  const html = `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
-  <p style="font-size: 1.15rem; color: #3d3630; margin: 0 0 1.5rem;">${dueLine}</p>
-  <p style="font-size: 1rem; color: #3d3630; margin: 0 0 1.5rem;">${todoLine}</p>
-  <p style="font-size: 0.85rem; color: #8a8078; margin: 1.5rem 0 0;"><a href="${kinLink}" style="color: #8a8078;">your kin link</a></p>
+  const dateStr = dueAt
+    ? dueAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+    : null;
+  const billLine = dateStr
+    ? `$${amountDollars.toFixed(0)} on ${dateStr} otherwise.`
+    : `$${amountDollars.toFixed(0)} otherwise.`;
+
+  const html = `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">
+  <p style="font-size: 1.15rem; color: #3d3630; margin: 0 0 1.5rem;">${affirmationLine}</p>
+  ${actionLine ? `<p style="font-size: 1rem; color: #3d3630; margin: 0 0 1.5rem;">${actionLine}</p>` : ''}
+  <p style="font-size: 0.9rem; color: #8a8078; margin: 0 0 2rem;">${billLine}</p>
+  <p style="font-size: 0.85rem; color: #8a8078; margin: 0;"><a href="${kinLink}" style="color: #8a8078;">your kin link</a></p>
   <p style="font-size: 0.78rem; color: #bbb4aa; margin-top: 2rem;">the examined life.</p>
 </div>`;
 
@@ -1082,7 +1095,7 @@ async function sendPreBillWarningEmail(
       body: JSON.stringify({
         from: 'Alexandria <a@mowinckel.ai>',
         to: email,
-        subject: `alexandria. — $${amountDollars.toFixed(0)} coming up`,
+        subject: 'alexandria. — heads up',
         html,
       }),
     });
