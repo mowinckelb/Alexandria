@@ -332,12 +332,13 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
   }, []);
 
   // Theme rotation pre-decode — pull only the NEXT ornament into cache
-  // on idle, not all 10. The previous "preload everything" loaded 15MB+
-  // of raw PNGs (bypassing Next/Image's WebP optimization) on every
-  // first paint, dominating page weight and starving everything else on
-  // cellular. The first ornament is already `priority` via next/image;
-  // the next one prefetched in the idle window covers the typical first
-  // peel; the remaining 8 load on-demand when the user rotates that far.
+  // on idle, not all 10. Prefetch goes through Next's /_next/image
+  // optimizer so the cached response is WebP (≈70% smaller than the
+  // raw PNG, and the same URL the Ornament component will request when
+  // it actually renders — cache hit). Direct `new Image()` against the
+  // raw PNG would bypass the optimizer and waste both the bandwidth
+  // and the cache slot. requestIdleCallback so we never compete with
+  // the active ornament's load.
   useEffect(() => {
     const next = THEMES[(themeIdx + 1) % THEMES.length];
     const schedule = (cb: () => void) => {
@@ -346,8 +347,17 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
       else setTimeout(cb, 800);
     };
     schedule(() => {
-      const img = new window.Image();
-      img.src = next.image;
+      // 1080w is the width Next/Image picks for the Ornament's
+      // sizes="480px" prop on a 2× retina viewport — matches what the
+      // <Image> request will be, so the prefetch primes the right cache
+      // entry. Quality 75 matches Next's default.
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.as = 'image';
+      link.href = `/_next/image?url=${encodeURIComponent(next.image)}&w=1080&q=75`;
+      document.head.appendChild(link);
+      const cleanup = setTimeout(() => link.remove(), 8000);
+      return () => clearTimeout(cleanup);
     });
   }, [themeIdx]);
 
