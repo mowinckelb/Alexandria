@@ -2,8 +2,6 @@
 
 ## *the library of human minds.*
 
----
-
 ## *contents.*
 
 *why.*
