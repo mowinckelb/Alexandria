@@ -174,12 +174,6 @@ export async function readProtocolFile(opts: ReadProtocolFileOpts): Promise<Read
   const accountId = String(opts.authorGithubId);
   const name = opts.fileName;
 
-  // Internal/test names are never resolvable from any read route — same 404
-  // shape as a genuinely missing file, so existence isn't leaked.
-  if (isInternalProtocolFileName(name)) {
-    return { ok: false, status: 404, reason: 'not_found', body: { error: 'File not found' } };
-  }
-
   const file = await getDB().prepare(
     'SELECT account_id, name, text, visibility, updated_at FROM protocol_files WHERE account_id = ? AND name = ?'
   ).bind(accountId, name).first<ProtocolFileMetadata>();
@@ -195,6 +189,15 @@ export async function readProtocolFile(opts: ReadProtocolFileOpts): Promise<Read
   });
   if (!decision.allowed) {
     return { ok: false, status: decision.status, reason: decision.reason, body: decision.body };
+  }
+
+  // Internal/CI artifacts (lifecycle-*, ci-smoke, smoke-test, test-check) are
+  // filtered from public listings + factory signal + dashboards, but the
+  // owner of the file MUST be able to read it back — CI smoke tests publish
+  // and read these to verify the pipeline. Non-owners see 404, same as a
+  // genuinely missing file (no existence-leak).
+  if (decision.reason !== 'owner' && isInternalProtocolFileName(name)) {
+    return { ok: false, status: 404, reason: 'not_found', body: { error: 'File not found' } };
   }
 
   // Content-type detection — try the known extension order. Markdown is the
