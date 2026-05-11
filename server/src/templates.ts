@@ -21,6 +21,7 @@ function escapeHtml(value: string): string {
 const ICON_COPY = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 const ICON_CHECK = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 const ICON_INFO = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+const ICON_EXTERNAL = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
 
 // ---------------------------------------------------------------------------
 // Auth error page — shown when OAuth callback can't complete
@@ -51,6 +52,8 @@ export function authErrorHtml(message: string): string {
 
 const BLOCK_URL = 'https://raw.githubusercontent.com/mowinckelb/alexandria/main/factory/block.md';
 const MECHANICS_URL = 'https://raw.githubusercontent.com/mowinckelb/alexandria/main/public/docs/Mechanics.md';
+// Keep in sync with app/shortcut/page.tsx — the iCloud Shortcuts install URL.
+const SHORTCUT_URL = 'https://www.icloud.com/shortcuts/0ea1bb7333fd43a9881e9c7b9938a337';
 
 async function fetchRawText(url: string): Promise<string> {
   try {
@@ -122,6 +125,7 @@ export async function callbackPageHtml(apiKey: string, githubLogin = ''): Promis
     align-items: center;
     vertical-align: baseline;
     gap: 6px;
+    text-decoration: none;
     transition: opacity 0.15s;
   }
   .action:hover { opacity: 0.6; }
@@ -191,8 +195,9 @@ ${isReturning ? `<a class="brand-corner" href="${WEBSITE_URL}/">alexandria.</a>`
 <div class="container">
   <h1 class="welcome">${isReturning ? `welcome back.` : `welcome to alexandria.`}</h1>
   ${isReturning ? `<p class="line welcome-back">call /alexandria in your coding agent.</p>` : `<div class="steps">
-    <p class="line"><button type="button" class="action" onclick="copyCmd(this)" aria-label="copy install command">1. install <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> &mdash; paste in your coding agent <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">creates ~/alexandria/, checks your prerequisites, configures your system. everything local, nothing sent anywhere.</span></button></p>
-    <p class="line"><button type="button" class="action" onclick="copyBlock(this)" aria-label="copy begin block">2. begin <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> &mdash; paste in a new chat <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">opens your first session. it reads your files and builds your starter constitution.</span></button></p>
+    <p class="line"><button type="button" class="action" onclick="copyCmd(this)" aria-label="copy install command">1. install <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> &mdash; everything local, nothing sent anywhere <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">paste into your coding agent. creates ~/alexandria/, installs hooks and the /a skill, configures cursor / claude code / codex. under 10 seconds.</span></button></p>
+    <p class="line"><button type="button" class="action" onclick="copyBlock(this)" aria-label="copy begin block">2. begin <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button> &mdash; drafts a constitution from your files <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">paste into a new chat. also syncs from your existing ai memory (claude, chatgpt) and loads your notepad with accretion fragments from the web. takes up to an hour.</span></button></p>
+    <p class="line"><a class="action" href="${SHORTCUT_URL}" target="_blank" rel="noopener">3. shortcut <span class="icon">${ICON_EXTERNAL}</span></a> &mdash; save anything worth thinking about <button type="button" class="info" onclick="toggleTip(this)" aria-label="what this does">${ICON_INFO}<span class="tooltip">anything you don't capture, you lose. saved fragments get processed and woven into your context &mdash; surfaced by the engine when relevant, or asked about directly.</span></button></p>
   </div>`}
   ${kinCode ? `<div class="kin">
     <span class="kin-row">your kin code: <button type="button" class="action" onclick="copyKinCode(this)" aria-label="copy kin code"><code>${kinCode}</code> <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button></span>
@@ -200,7 +205,7 @@ ${isReturning ? `<a class="brand-corner" href="${WEBSITE_URL}/">alexandria.</a>`
   </div>` : ''}
   ${isReturning ? '' : `<div class="mechanics">
     <span class="mechanics-row">we never see your data &mdash; <button type="button" class="action" onclick="copyMechanics(this)" aria-label="copy Mechanics.md">Mechanics.md <span class="icon"><span class="icon-copy">${ICON_COPY}</span><span class="icon-check">${ICON_CHECK}</span></span></button></span>
-    <span class="mechanics-row mechanics-hint">paste in your ai chat to verify.</span>
+    <span class="mechanics-row mechanics-hint">paste into your ai chat to verify.</span>
   </div>`}
   <p class="signout">wrong account? <a href="https://github.com/logout" target="_blank" rel="noopener noreferrer">sign out of github</a></p>
 </div>
