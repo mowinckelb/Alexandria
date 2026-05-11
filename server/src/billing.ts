@@ -487,10 +487,8 @@ export async function createCheckoutSession(opts: {
 
   const tryCreate = async (useStored: boolean): Promise<string> => {
     const params = buildParams(useStored);
-    if (!BETA) {
-      const priceId = await ensurePrice();
-      (params as { line_items: { price: string; quantity: number }[] }).line_items = [{ price: priceId, quantity: 1 }];
-    }
+    const priceId = await ensurePrice();
+    (params as { line_items: { price: string; quantity: number }[] }).line_items = [{ price: priceId, quantity: 1 }];
     const session = await stripe.checkout.sessions.create(params as Parameters<typeof stripe.checkout.sessions.create>[0]);
     return session.url || '';
   };
