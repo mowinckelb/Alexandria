@@ -139,7 +139,28 @@ export interface ProtocolFileMetadata {
   text: string | null;
   visibility: string;
   updated_at: string;
+  content_type: string;
 }
+
+// Map a stored content_type to the file extension used in the R2 key. The
+// extension is presentation; content_type is the truth. Adding a new type
+// only requires extending this map — no route code changes.
+const EXTENSION_BY_CONTENT_TYPE: Record<string, string> = {
+  'text/markdown; charset=utf-8': 'md',
+  'application/pdf': 'pdf',
+};
+
+const DEFAULT_CONTENT_TYPE = 'text/markdown; charset=utf-8';
+
+export function r2ExtensionForContentType(contentType: string): string {
+  return EXTENSION_BY_CONTENT_TYPE[contentType] ?? 'md';
+}
+
+export function isAcceptedContentType(value: unknown): value is string {
+  return typeof value === 'string' && value in EXTENSION_BY_CONTENT_TYPE;
+}
+
+export { DEFAULT_CONTENT_TYPE };
 
 export type ReadDenialStatus = 401 | 402 | 403 | 404;
 export type ReadProtocolFileResult =
@@ -175,7 +196,7 @@ export async function readProtocolFile(opts: ReadProtocolFileOpts): Promise<Read
   const name = opts.fileName;
 
   const file = await getDB().prepare(
-    'SELECT account_id, name, text, visibility, updated_at FROM protocol_files WHERE account_id = ? AND name = ?'
+    'SELECT account_id, name, text, visibility, updated_at, content_type FROM protocol_files WHERE account_id = ? AND name = ?'
   ).bind(accountId, name).first<ProtocolFileMetadata>();
   if (!file) {
     return { ok: false, status: 404, reason: 'not_found', body: { error: 'File not found' } };
@@ -200,25 +221,14 @@ export async function readProtocolFile(opts: ReadProtocolFileOpts): Promise<Read
     return { ok: false, status: 404, reason: 'not_found', body: { error: 'File not found' } };
   }
 
-  // Content-type detection — try the known extension order. Markdown is the
-  // PUT-handler default; PDFs are uploaded out-of-band today (e.g. on-love).
-  // The first candidate that resolves wins.
-  const candidates: Array<{ key: string; contentType: string }> = name === 'on-love'
-    ? [
-        { key: `protocol/${accountId}/${name}.pdf`, contentType: 'application/pdf' },
-        { key: `protocol/${accountId}/${name}.md`, contentType: 'text/markdown; charset=utf-8' },
-      ]
-    : [
-        { key: `protocol/${accountId}/${name}.md`, contentType: 'text/markdown; charset=utf-8' },
-        { key: `protocol/${accountId}/${name}.pdf`, contentType: 'application/pdf' },
-      ];
-
-  for (const c of candidates) {
-    const obj = await getR2().get(c.key);
-    if (obj) {
-      return { ok: true, reason: decision.reason, file, obj, contentType: c.contentType };
-    }
+  // Content type lives on the row — derive the R2 extension from it. One
+  // fetch, no probing, no per-file conditionals.
+  const contentType = file.content_type || DEFAULT_CONTENT_TYPE;
+  const ext = r2ExtensionForContentType(contentType);
+  const obj = await getR2().get(`protocol/${accountId}/${name}.${ext}`);
+  if (!obj) {
+    return { ok: false, status: 404, reason: 'content_missing', body: { error: 'File content not found' } };
   }
 
-  return { ok: false, status: 404, reason: 'content_missing', body: { error: 'File content not found' } };
+  return { ok: true, reason: decision.reason, file, obj, contentType };
 }

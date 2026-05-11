@@ -6,11 +6,12 @@ import { getDB, getR2 } from './db.js';
 import { logEvent } from './analytics.js';
 import { saveAccount, getKV } from './kv.js';
 import { resolveModule, authorFromModuleId, deriveKind } from './marketplace-catalog.js';
-import { readProtocolFile } from './file-access.js';
-
-function r2Key(accountId: string, name: string): string {
-  return `protocol/${accountId}/${name}.md`;
-}
+import {
+  DEFAULT_CONTENT_TYPE,
+  isAcceptedContentType,
+  r2ExtensionForContentType,
+  readProtocolFile,
+} from './file-access.js';
 
 export function registerProtocol(app: Hono) {
 
@@ -33,21 +34,28 @@ export function registerProtocol(app: Hono) {
     const now = new Date().toISOString();
     const text = typeof body.text === 'string' ? body.text : null;
     const visibility = ['authors', 'public', 'invite', 'paid'].includes(body.visibility) ? body.visibility : 'authors';
+    // Default markdown when the field is absent; allow only the types we
+    // know how to serve. Future types (e.g. application/json for structured
+    // files) get added in one place: file-access.ts EXTENSION_BY_CONTENT_TYPE.
+    const contentType = isAcceptedContentType(body.content_type) ? body.content_type : DEFAULT_CONTENT_TYPE;
+    const ext = r2ExtensionForContentType(contentType);
 
-    await getR2().put(r2Key(id, name), body.content);
+    await getR2().put(`protocol/${id}/${name}.${ext}`, body.content);
     await getDB().prepare(
-      `INSERT INTO protocol_files (account_id, name, text, visibility, updated_at)
-       VALUES (?, ?, ?, ?, ?)
+      `INSERT INTO protocol_files (account_id, name, text, visibility, updated_at, content_type)
+       VALUES (?, ?, ?, ?, ?, ?)
        ON CONFLICT(account_id, name) DO UPDATE SET
          text = COALESCE(excluded.text, protocol_files.text),
          visibility = excluded.visibility,
-         updated_at = excluded.updated_at`
-    ).bind(id, name, text, visibility, now).run();
+         updated_at = excluded.updated_at,
+         content_type = excluded.content_type`
+    ).bind(id, name, text, visibility, now, contentType).run();
 
     logEvent('protocol_file_published', {
       author: auth.account.github_login,
       name,
       visibility,
+      content_type: contentType,
     });
 
     return c.json({ ok: true });
