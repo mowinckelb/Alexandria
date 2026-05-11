@@ -5,7 +5,7 @@ User-agent: Yandex
 Disallow: /confidential
 Disallow: /memo
 Disallow: /pitch
-Disallow: /walkthrough
+Disallow: /demo
 Disallow: /demo.mp4
 Disallow: /docs/Memo.md
 Disallow: /docs/confidential.concrete.md
@@ -28,7 +28,7 @@ Allow: /docs/
 Disallow: /confidential
 Disallow: /memo
 Disallow: /pitch
-Disallow: /walkthrough
+Disallow: /demo
 Disallow: /demo.mp4
 Disallow: /docs/Memo.md
 Disallow: /signup
