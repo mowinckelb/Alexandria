@@ -609,7 +609,7 @@ The frame is not a wall keeping ai out. **It is what makes each Author distinctl
 
 ## the tribe.
 
-*Alexandria is the place Alexandrians keep their minds alive. The Library is named for the ancient one — built, then burned, with centuries of human thought lost. We are building it again. The substrate is layered — five tiers — so the most private Author and the most public are both first-class. The collective layer delivers value through five parallel channels — each Author needs only one resonant. The friend's-mind primitive is the felt-value that a network makes possible: your ai stops guessing about the people in your life and reads their actual minds, with their permission.*
+*Alexandria is the place Alexandrians keep their minds alive. The Library is named for the ancient one — built, then burned, with centuries of human thought lost. We are building it again. The substrate is layered — five tiers — so the most private Author and the most public are both first-class. The collective layer delivers value through five concentric rings — sorted by social distance, activating outward as the Author's network density grows; each Author needs only one resonant. The friend's-mind primitive is the innermost ring and the felt-value that a network makes possible: your ai stops guessing about the people in your life and reads their actual minds, with their permission.*
 
 ---
 
@@ -653,19 +653,19 @@ Five tiers. *Each Author chooses the depth of every fragment.*
 
 ---
 
-The collective layer delivers value through five parallel channels — *each Author needs only one resonant to derive value.*
+The collective layer delivers value through five rings — *sorted by social distance from the Author. Concentric, not parallel. Each Author needs only one resonant to derive value. The kin mechanism maps directly onto ring activation — the closest ring opens with the first kin, each new ring with the next, no plateau between.*
 
-**Marketplace.** Browse and fork others' systems and minds. *The HF-shaped channel.* The Author goes to the Library to find what someone else figured out, processes it against their own frame, takes what compounds, leaves the rest.
+**Network presence.** *The innermost ring.* The Author's circle being there for relational ai context — *the friend's-mind primitive below.* **Activates at pair level — you and the first kin you bring in.** The richest channel for the Author who values their relationships above their visibility, and the first one to deliver value before any aggregate network exists.
 
-**Membership and credential.** Third parties — apps, agents, enterprises, peers — recognise an Alexandrian as a trust signal. *The verified-mark dynamic.* Being identified as one carries weight, attracts opportunity, opens doors.
+**Membership and credential.** Third parties — apps, agents, enterprises, peers — recognise an Alexandrian as a trust signal. *The verified-mark dynamic.* **Activates as the Author's professional cohort overlaps with the network.** Being identified as one carries weight, attracts opportunity, opens doors.
 
-**Access and collective deals.** The tribe operates as a buying group. *Negotiating power, in aggregate, on goods, services, ai tools, partnerships.*
+**Access and collective deals.** The tribe operates as a buying group. *Negotiating power, in aggregate, on goods, services, ai tools, partnerships.* **Activates at local cluster density — hundreds of Alexandrians in a geography or profession.**
 
-**Status and identity.** *Being an Alexandrian is a marker of seriousness.* The badge has value independent of usage — being part of the tribe is itself the value.
+**Status and identity.** *Being an Alexandrian is a marker of seriousness.* The badge has value independent of usage — being part of the tribe is itself the value. **Activates as the cultural slot is recognised in affinity communities.**
 
-**Network presence.** The Author's circle being there for relational ai context — *the friend's-mind primitive below.* The richest channel for the Author who values their relationships above their visibility.
+**Marketplace.** *The outermost ring — the HF-shaped channel.* Browse and fork others' systems and minds. The Author goes to the Library to find what someone else figured out, processes it against their own frame, takes what compounds, leaves the rest. **Activates at global density across affinity domains.**
 
-A clone has to replicate *all five* channels simultaneously. *Different Authors weight them differently — but the architecture serves all of them at once, and the moat compounds across all five.*
+A clone has to replicate *all five rings* AND the per-Author trajectory through them. *Different Authors weight them differently — but the architecture serves all of them at once, and the moat compounds across all five.* The aggregate of millions of per-Author ring trajectories is how the company-level moat compounds — *the convention slot at global scale is the byproduct of concentric-ring population at individual scale, not a separate platform-growth loop.*
 
 ---
 
