@@ -20,6 +20,7 @@ import {
 import { getAllowedOrigins } from './cors.js';
 import { getStripe } from './billing.js';
 import { getKV, loadAccounts } from './kv.js';
+import { authorizeFileRead, isInternalProtocolFileName } from './file-access.js';
 
 // ---------------------------------------------------------------------------
 // CORS-safe R2 response
@@ -51,18 +52,6 @@ function isValidAuthorId(id: string): boolean {
 
 function isValidFileName(name: string): boolean {
   return /^[a-z0-9][a-z0-9-]*$/.test(name) && name.length <= 64;
-}
-
-// Internal protocol test artifacts should never surface in the public Library.
-const INTERNAL_PROTOCOL_FILE_PATTERNS = [
-  /^lifecycle-\d+$/,
-  /^ci-smoke(?:-\d+)?$/,
-  /^smoke-test$/,
-  /^test-check$/,
-];
-
-function isInternalProtocolFileName(name: string): boolean {
-  return INTERNAL_PROTOCOL_FILE_PATTERNS.some((pattern) => pattern.test(name));
 }
 
 type LibraryAccessGrant = {
@@ -362,48 +351,42 @@ export function registerLibraryRoutes(app: Hono): void {
     const purchaseSessionId = c.req.query('session_id')?.trim() || null;
     const inviteCode = c.req.query('invite')?.trim() || c.req.query('token')?.trim() || null;
 
-    let paidAccess = false;
-    if (visibility === 'paid') {
-      // Author owns their file without purchasing.
-      if (accessor?.github_login === authorId) {
-        paidAccess = true;
-      } else if (purchaseSessionId) {
-        const raw = await getKV().get(`library:access:${purchaseSessionId}`);
-        if (raw) {
-          const grant = parseJson<LibraryAccessGrant>(raw, {});
-          paidAccess = grant.author_id === authorId
-            && grant.artifact_id === name
-            && grant.artifact_type === 'protocol_file';
-        }
+    // Resolve invite + purchase grants outside the gate so the gate stays pure.
+    let inviteValid = false;
+    if (visibility === 'invite' && inviteCode) {
+      const accessRow = await db.prepare(
+        'SELECT id FROM access_codes WHERE author_id = ? AND code = ? AND revoked_at IS NULL LIMIT 1'
+      ).bind(authorId, inviteCode).first<{ id: string }>();
+      inviteValid = !!accessRow?.id;
+    }
+
+    let purchaseValid = false;
+    if (visibility === 'paid' && purchaseSessionId) {
+      const raw = await getKV().get(`library:access:${purchaseSessionId}`);
+      if (raw) {
+        const grant = parseJson<LibraryAccessGrant>(raw, {});
+        purchaseValid = grant.author_id === authorId
+          && grant.artifact_id === name
+          && grant.artifact_type === 'protocol_file';
       }
-      if (!paidAccess) {
+    }
+
+    const decision = authorizeFileRead({
+      visibility,
+      authorGithubId: authorAccount.github_id,
+      accessorGithubId: accessor?.github_id ?? null,
+      context: { purchaseValid, inviteValid },
+    });
+
+    if (!decision.allowed) {
+      // 402 paid → include checkout URL so callers can launch the purchase flow.
+      if (decision.status === 402 && visibility === 'paid') {
         return c.json({
-          error: 'Payment required for this file',
-          visibility: 'paid',
+          ...decision.body,
           checkout_url: `${process.env.WEBSITE_URL || 'https://mowinckel.ai'}/library/${encodeURIComponent(authorId)}/checkout/file/${encodeURIComponent(name)}`,
         }, 402);
       }
-    } else if (visibility === 'invite') {
-      const ownerAccess = accessor?.github_login === authorId;
-      let inviteAccess = false;
-      if (inviteCode) {
-        const accessRow = await db.prepare(
-          'SELECT id FROM access_codes WHERE author_id = ? AND code = ? AND revoked_at IS NULL LIMIT 1'
-        ).bind(authorId, inviteCode).first<{ id: string }>();
-        inviteAccess = !!accessRow?.id;
-      }
-      if (!ownerAccess && !inviteAccess) {
-        return c.json({
-          error: 'Invite code required',
-          visibility: 'invite',
-        }, 401);
-      }
-    } else if (visibility === 'authors') {
-      if (!accessor) {
-        return c.json({ error: 'Sign in required', visibility: 'authors' }, 401);
-      }
-    } else if (visibility !== 'public') {
-      return c.json({ error: 'Access denied', visibility }, 403);
+      return c.json(decision.body, decision.status);
     }
 
     const objectCandidates: Array<{ key: string; contentType: string }> = file.name === 'on-love'
@@ -430,7 +413,8 @@ export function registerLibraryRoutes(app: Hono): void {
       author: authorId,
       name,
       visibility,
-      accessor: accessor?.github_login || (paidAccess ? 'purchase' : 'public'),
+      accessor: accessor?.github_login || (decision.reason === 'paid' ? 'purchase' : decision.reason === 'invite' ? 'invite' : 'public'),
+      access_reason: decision.reason,
     });
 
     const cache = visibility === 'public' ? 'public, max-age=300' : 'no-store';

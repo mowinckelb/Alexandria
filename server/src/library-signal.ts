@@ -8,6 +8,7 @@
  * instead — read-via-gh, drained-on-overwrite (one file, not per-day).
  */
 import { getDB } from './db.js';
+import { isInternalProtocolFileName } from './file-access.js';
 
 export async function computeLibrarySignalText(days = 30): Promise<string> {
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
@@ -96,7 +97,11 @@ export async function computeLibrarySignalText(days = 30): Promise<string> {
     }
   }
 
-  const pfiles = (protocolFiles.results || []) as Array<{ account_id: string; name: string; visibility: string; updated_at: string }>;
+  // Same internal-name filter the public Library route applies — lifecycle /
+  // smoke / CI artifacts are infrastructure noise and must never reach the
+  // factory's signal pile.
+  const pfiles = ((protocolFiles.results || []) as Array<{ account_id: string; name: string; visibility: string; updated_at: string }>)
+    .filter((f) => !isInternalProtocolFileName(f.name));
   if (pfiles.length > 0) {
     lines.push('', '## Protocol Files Published');
     for (const f of pfiles.slice(-200)) {

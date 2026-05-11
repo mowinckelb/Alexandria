@@ -4,8 +4,10 @@ import type { Hono } from 'hono';
 import { requireAuth } from './auth.js';
 import { getDB, getR2 } from './db.js';
 import { logEvent } from './analytics.js';
-import { saveAccount, getKV } from './kv.js';
+import { loadAccounts, saveAccount, getKV } from './kv.js';
+import type { AccountStore } from './auth.js';
 import { resolveModule, authorFromModuleId, deriveKind } from './marketplace-catalog.js';
+import { authorizeFileRead } from './file-access.js';
 
 function r2Key(accountId: string, name: string): string {
   return `protocol/${accountId}/${name}.md`;
@@ -74,6 +76,10 @@ export function registerProtocol(app: Hono) {
     const name = c.req.param('name');
     if (!/^\d+$/.test(id)) return next();
 
+    // Authentication is necessary but not sufficient — the gate enforces
+    // visibility uniformly so this route cannot be used to bypass paid/invite
+    // restrictions. Same policy as the website route; one source of truth in
+    // `file-access.ts`.
     const auth = await requireAuth(c);
     if (!auth) return c.text('Unauthorized', 401);
 
@@ -82,8 +88,44 @@ export function registerProtocol(app: Hono) {
     ).bind(id, name).first<{ text: string | null; visibility: string; updated_at: string }>();
     if (!file) return c.json({ error: 'Not found' }, 404);
 
+    // The protocol route is the canonical Author-to-Author interface — free
+    // reads only. Paid/invite flows live on the website (Stripe checkout,
+    // invite tokens); a 402/401 here directs callers there rather than
+    // accepting payment proofs at the protocol layer.
+    const decision = authorizeFileRead({
+      visibility: file.visibility,
+      authorGithubId: id,
+      accessorGithubId: auth.account.github_id ?? null,
+    });
+
+    if (!decision.allowed) {
+      // Resolve owner's login lazily — only when we need to point the caller
+      // at a website fallback URL.
+      let websiteUrl: string | null = null;
+      try {
+        const accounts = await loadAccounts<AccountStore>();
+        const owner = Object.values(accounts).find((a) => String(a?.github_id) === id);
+        if (owner?.github_login) {
+          const base = process.env.WEBSITE_URL || 'https://mowinckel.ai';
+          websiteUrl = `${base}/library/${encodeURIComponent(owner.github_login)}/file/${encodeURIComponent(name)}`;
+        }
+      } catch { /* non-fatal; just omit the redirect */ }
+      return c.json(
+        websiteUrl ? { ...decision.body, redirect: websiteUrl } : decision.body,
+        decision.status,
+      );
+    }
+
     const obj = await getR2().get(r2Key(id, name));
     if (!obj) return c.json({ error: 'Not found' }, 404);
+
+    logEvent('protocol_file_view', {
+      author_id: id,
+      name,
+      visibility: file.visibility,
+      accessor: auth.account.github_login,
+      access_reason: decision.reason,
+    });
 
     return c.json({
       account_id: id,

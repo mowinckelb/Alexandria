@@ -294,10 +294,16 @@ async function getLibraryMetrics(events: Record<string, string>[]): Promise<Reco
   const quizzesTaken = libraryEvents.filter(e => e.e === 'library_quiz_taken').length;
   const workViews = libraryEvents.filter(e => e.e === 'library_work_view').length;
   const paidAccess = libraryEvents.filter(e => e.e === 'library_paid_access').length;
-  const publishes = libraryEvents.filter(e => e.e === 'library_publish_shadow').length;
+  // Protocol file publishes — count from the event log (PUT /file/{name} fires
+  // `protocol_file_published`). Legacy shadow-style publishes from the prior
+  // Library are kept in the same counter so existing dashboards don't lose
+  // history when the protocol path took over.
+  const publishes = events.filter(e =>
+    e.e === 'protocol_file_published' || e.e === 'library_publish_shadow'
+  ).length;
   const purchases = libraryEvents.filter(e => e.e === 'library_purchase').length;
 
-  // D1 metrics (if available)
+  // D1 metrics (if available) — ground truth for total file counts.
   let d1Metrics: Record<string, unknown> = {};
   try {
     const db = getDB();
@@ -308,7 +314,12 @@ async function getLibraryMetrics(events: Record<string, string>[]): Promise<Reco
         (SELECT COUNT(*) FROM quizzes WHERE active = 1) as total_quizzes,
         (SELECT COUNT(*) FROM works) as total_works,
         (SELECT COUNT(*) FROM quiz_results) as total_quiz_completions,
-        (SELECT COUNT(*) FROM referrals) as total_referrals
+        (SELECT COUNT(*) FROM referrals) as total_referrals,
+        (SELECT COUNT(*) FROM protocol_files
+           WHERE name NOT GLOB 'lifecycle-*'
+             AND name NOT GLOB 'ci-smoke*'
+             AND name NOT IN ('smoke-test', 'test-check')
+        ) as total_protocol_files
     `).first();
     if (counts) d1Metrics = counts as Record<string, unknown>;
   } catch {
