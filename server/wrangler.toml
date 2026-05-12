@@ -21,10 +21,11 @@ binding = "ARTIFACTS"
 bucket_name = "alexandria-artifacts"
 
 # Route-based bindings — intercept when DNS records are proxied.
-# api.mowinckel.ai is the canonical hostname; mcp.mowinckel.ai is kept
-# during soak so existing installs (Author shims that cached the old
-# URL in .hooks_payload) keep working until they refresh from github.
-# Retire mcp.mowinckel.ai after 24-48h of clean api.mowinckel.ai traffic.
+# api.alexandria-library.com is the canonical hostname. api.mowinckel.ai
+# stays bound to the same Worker so legacy CLI/skill installs that cached
+# the old URL keep working until they refresh from github. mcp.mowinckel.ai
+# is the original alias from before the api.* migration — retire when its
+# traffic is clean.
 [[routes]]
 pattern = "api.mowinckel.ai"
 custom_domain = true

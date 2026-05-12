@@ -4,7 +4,7 @@ Greek philosophy infrastructure. Rides the user's existing ai. Does not run its 
 
 Founder: Benjamin Mowinckel. Solo founder + ai agents. Relocating to SF April 2026.
 
-**Production API (canonical):** `https://api.mowinckel.ai` — Cloudflare Worker for protocol, OAuth, billing, Library, cron. `mcp.mowinckel.ai` may remain as a temporary compatibility alias during soak; treat it as deprecated and do not use it as a default in code, tests, webhooks, or agent instructions. Override only via `SERVER_URL` / `NEXT_PUBLIC_SERVER_URL` when intentional.
+**Canonical surfaces:** `https://alexandria-library.com` (website, Vercel) and `https://api.alexandria-library.com` (API, Cloudflare Worker — protocol, OAuth, billing, Library, cron). `mowinckel.ai` + `www.mowinckel.ai` 308-redirect to the canonical apex. `api.mowinckel.ai` stays bound to the same Worker so legacy CLI/skill installs that cached the old URL keep working; treat it as deprecated. `mcp.mowinckel.ai` is the older alias on the same retire path. Override only via `SERVER_URL` / `NEXT_PUBLIC_SERVER_URL` when intentional.
 
 ## Architecture — Four Layers
 
@@ -30,7 +30,7 @@ Everything in Alexandria maps to one of four layers:
 - **Investor docs:** kept out of this public repo. Live in `~/AlexandriaInc/private/partners/` (private GitHub `alexandria-inc`). Shared directly with partners (email/DM) when needed — no public URL, no `/partners/` route.
 - **Pre-commit hook:** `scripts/pre-commit` gates server type check + app build (mirrors CI). Activate on fresh clone: `git config core.hooksPath scripts`.
 - **Build:** `cd server && npx wrangler deploy --dry-run --outdir=dist` (server). **Deploy:** `cd server && npx wrangler deploy` then check health. **Push:** `bash scripts/push.sh` (pushes + waits for CI + reports results). Always use `push.sh` instead of raw `git push`.
-- **Server health:** `curl https://api.mowinckel.ai/health`
+- **Server health:** `curl https://api.alexandria-library.com/health`
 - **Stack:** Vercel (website), Cloudflare (DNS + server + KV + D1 + R2), Resend (email), GitHub (code + OAuth), Stripe (billing), Mercury (banking, API), Claude (intelligence). All hybrid (CLI or API-controllable). Zero external dependencies.
 - **Storage architecture:** Stateless server, sovereign local files (`~/alexandria/` — local + private GitHub; `iCloud/alexandria/` is Apple-native input only), thin persistence for collective Library (D1 for metadata/discovery, R2 for published content, KV for accounts/events).
 
@@ -163,7 +163,7 @@ Before committing any server code change:
 4. **No regressions:** Review recent commits for anything the change might break.
 5. **Bitter lesson compliance:** No structured parameters, fixed schemas, or hand-crafted rules. Unstructured text/JSONL. Soft defaults that thin as models improve.
 6. **Statelessness:** Server stores nothing user-specific. Encrypted refresh token IS the access token.
-7. **Deployment:** After deploying (`cd server && npx wrangler deploy`), check health: `curl https://api.mowinckel.ai/health`.
+7. **Deployment:** After deploying (`cd server && npx wrangler deploy`), check health: `curl https://api.alexandria-library.com/health`.
 
 ## Working With the Founder
 

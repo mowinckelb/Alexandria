@@ -95,17 +95,13 @@ async function purgeAuthorAccount(account: Account, storeKey: string | null, aut
 // Company routes — registered on Hono app
 // ---------------------------------------------------------------------------
 
-// Domains we serve as twin canonicals. Cookies attach to whichever the
-// request came in on, so a user on either domain gets a same-site cookie.
-const COOKIE_DOMAINS = ['mowinckel.ai', 'alexandria-library.com'];
-
+// Cookie scoped to the registrable domain of the request host — strips
+// leading "api." or "www." to land on the apex. Works for any canonical
+// the Worker is bound to without code changes.
 function deriveCookieDomain(reqUrl: string): string {
   try {
-    const host = new URL(reqUrl).hostname;
-    for (const d of COOKIE_DOMAINS) {
-      if (host === d || host.endsWith('.' + d)) return `; Domain=.${d}`;
-    }
-    return '';
+    const apex = new URL(reqUrl).hostname.replace(/^(api|www)\./, '');
+    return apex ? `; Domain=.${apex}` : '';
   } catch {
     return '';
   }
