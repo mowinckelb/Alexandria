@@ -1,6 +1,10 @@
 /** CORS — single source of truth for allowed origins. */
 
 export function getAllowedOrigins(): string[] {
-  const base = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-  return [base, base.replace('https://', 'https://www.'), 'http://localhost:3000'];
+  const bases = ['https://alexandria-library.com', 'https://mowinckel.ai'];
+  return [
+    ...bases,
+    ...bases.map((b) => b.replace('https://', 'https://www.')),
+    'http://localhost:3000',
+  ];
 }

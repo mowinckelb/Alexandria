@@ -30,6 +30,10 @@ pattern = "api.mowinckel.ai"
 custom_domain = true
 
 [[routes]]
+pattern = "api.alexandria-library.com"
+custom_domain = true
+
+[[routes]]
 pattern = "mcp.mowinckel.ai/*"
 zone_id = "7a1952631048380db0df21b5daa1e88e"
 
@@ -46,9 +50,9 @@ fallthrough = false
 
 [vars]
 BETA_MODE = "false"
-SERVER_URL = "https://api.mowinckel.ai"
+SERVER_URL = "https://api.alexandria-library.com"
 FOUNDER_EMAIL = "benjamin@mowinckel.com"
 ADMIN_GITHUB_LOGIN = "mowinckelb"
-WEBSITE_URL = "https://mowinckel.ai"
+WEBSITE_URL = "https://alexandria-library.com"
 LIBRARY_CUT_PERCENT = "50"
 KIN_THRESHOLD = "5"

@@ -95,13 +95,25 @@ async function purgeAuthorAccount(account: Account, storeKey: string | null, aut
 // Company routes — registered on Hono app
 // ---------------------------------------------------------------------------
 
+// Domains we serve as twin canonicals. Cookies attach to whichever the
+// request came in on, so a user on either domain gets a same-site cookie.
+const COOKIE_DOMAINS = ['mowinckel.ai', 'alexandria-library.com'];
+
+function deriveCookieDomain(reqUrl: string): string {
+  try {
+    const host = new URL(reqUrl).hostname;
+    for (const d of COOKIE_DOMAINS) {
+      if (host === d || host.endsWith('.' + d)) return `; Domain=.${d}`;
+    }
+    return '';
+  } catch {
+    return '';
+  }
+}
+
 export function registerRoutes(app: Hono) {
   const SERVER_URL = process.env.SERVER_URL || 'https://api.mowinckel.ai';
   const WEBSITE_URL = process.env.WEBSITE_URL || 'https://mowinckel.ai';
-  const websiteHost = (() => {
-    try { return new URL(WEBSITE_URL).hostname; } catch { return ''; }
-  })();
-  const sessionCookieDomain = websiteHost.endsWith('mowinckel.ai') ? '; Domain=.mowinckel.ai' : '';
 
   const sanitizeNextPath = (raw: string | undefined): string => {
     if (!raw) return '';
@@ -398,7 +410,7 @@ export function registerRoutes(app: Hono) {
         account_key: key,
         github_login: user.login,
       }), { expirationTtl: 30 * 24 * 60 * 60 });
-      c.header('Set-Cookie', `alex_library_session=${librarySessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${sessionCookieDomain}`);
+      c.header('Set-Cookie', `alex_library_session=${librarySessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${deriveCookieDomain(c.req.url)}`);
 
       // Company Library profile. This mirrors GitHub account metadata for
       // discovery; protocol file content still arrives only through /file.
