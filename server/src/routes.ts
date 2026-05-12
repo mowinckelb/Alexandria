@@ -108,8 +108,11 @@ function deriveCookieDomain(reqUrl: string): string {
 }
 
 export function registerRoutes(app: Hono) {
-  const SERVER_URL = process.env.SERVER_URL || 'https://api.alexandria-library.com';
-  const WEBSITE_URL = process.env.WEBSITE_URL || 'https://alexandria-library.com';
+  // Per-request getters. Module-scope `const X = process.env.X || ...`
+  // would evaluate before initEnv() populates process.env, silently locking
+  // in the fallback string instead of the wrangler.toml [vars] value.
+  const getServerUrl = () => process.env.SERVER_URL || 'https://api.alexandria-library.com';
+  const getWebsiteUrl = () => process.env.WEBSITE_URL || 'https://alexandria-library.com';
 
   const sanitizeNextPath = (raw: string | undefined): string => {
     if (!raw) return '';
@@ -289,7 +292,7 @@ export function registerRoutes(app: Hono) {
 
     const params = new URLSearchParams({
       client_id: clientId,
-      redirect_uri: `${SERVER_URL}/auth/github/callback`,
+      redirect_uri: `${getServerUrl()}/auth/github/callback`,
       scope: 'read:user user:email',
       state,
     });
@@ -484,7 +487,7 @@ export function registerRoutes(app: Hono) {
       // Skip Stripe if user already has payment info
       if (updatedAccount.stripe_customer_id) {
         if (stateData.intent === 'library' && stateData.next) {
-          return c.redirect(`${WEBSITE_URL}${stateData.next}`);
+          return c.redirect(`${getWebsiteUrl()}${stateData.next}`);
         }
         return c.html(await callbackPageHtml(apiKey, user.login));
       }
@@ -506,7 +509,7 @@ export function registerRoutes(app: Hono) {
       }
 
       if (stateData.intent === 'library' && stateData.next) {
-        return c.redirect(`${WEBSITE_URL}${stateData.next}`);
+        return c.redirect(`${getWebsiteUrl()}${stateData.next}`);
       }
       return c.html(await callbackPageHtml(apiKey, user.login));
     } catch (err: any) {
@@ -535,7 +538,6 @@ export function registerRoutes(app: Hono) {
       // creates a fresh live customer on next /signup.
       const e = err as { type?: string; code?: string };
       if (e?.type === 'StripeInvalidRequestError' && e?.code === 'resource_missing') {
-        const WEBSITE_URL = process.env.WEBSITE_URL || 'https://alexandria-library.com';
         console.warn(`[account] stale stripe_customer_id ${account.stripe_customer_id} — clearing and redirecting`);
         try {
           const storeKey = await getAuthIndex(hashApiKey(key));
@@ -549,7 +551,7 @@ export function registerRoutes(app: Hono) {
         } catch (clearErr) {
           console.error('[account] failed to clear stale customer:', clearErr);
         }
-        return c.redirect(`${WEBSITE_URL}/signup?billing=refresh`);
+        return c.redirect(`${getWebsiteUrl()}/signup?billing=refresh`);
       }
       console.error('Portal error:', err);
       return c.text('Failed to create billing portal session.', 500);
@@ -758,8 +760,6 @@ export function registerRoutes(app: Hono) {
     if (!auth) return c.text('Unauthorized', 403);
     if (await checkAdminRateLimit('nudge', 3, 300)) return c.json({ error: 'Rate limited (sends emails, capped 3/5min)' }, 429);
 
-    const WEBSITE_URL = process.env.WEBSITE_URL || 'https://alexandria-library.com';
-    const SERVER_URL = process.env.SERVER_URL || 'https://api.alexandria-library.com';
     const accounts = await loadAccounts<AccountStore>();
     const recipients = Object.values(accounts).filter(acct =>
       !acct.installed_at && acct.email && !acct.engagement_opt_out && acct.github_login !== auth.account.github_login
@@ -767,8 +767,8 @@ export function registerRoutes(app: Hono) {
 
     const html = (acct: Account) =>
       '<div style="font-family: \'EB Garamond\', Georgia, serif; max-width: 420px; margin: 0 auto; padding: 40px 20px; color: #3d3630; text-align: center;">' +
-      '<p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 1.5rem;">we fixed a setup issue. <a href="' + WEBSITE_URL + '/signup" style="color: #3d3630;">sign in</a> to get your updated setup command.</p>' +
-      '<p style="font-size: 0.72rem; color: #bbb4aa; margin-top: 1.5rem;"><a href="' + SERVER_URL + '/email/stop?t=' + acct.email_token + '" style="color: #8a8078;">stop these emails</a></p>' +
+      '<p style="font-size: 1rem; line-height: 1.9; color: #8a8078; margin: 0 0 1.5rem;">we fixed a setup issue. <a href="' + getWebsiteUrl() + '/signup" style="color: #3d3630;">sign in</a> to get your updated setup command.</p>' +
+      '<p style="font-size: 0.72rem; color: #bbb4aa; margin-top: 1.5rem;"><a href="' + getServerUrl() + '/email/stop?t=' + acct.email_token + '" style="color: #8a8078;">stop these emails</a></p>' +
       '</div>';
 
     const { sent, failed } = await sendEmailsBatched(recipients, acct =>
