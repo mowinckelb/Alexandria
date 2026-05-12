@@ -20,7 +20,7 @@ const spectral = Spectral({
   style: ["normal", "italic"],
 });
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://mowinckel.ai";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://alexandria-library.com";
 
 // Canonical product sentence — used for SEO meta description because it's
 // keyword-dense, classical, and reads well as a search snippet under the

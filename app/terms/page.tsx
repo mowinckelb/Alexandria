@@ -19,7 +19,7 @@ export default function Terms() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>What this is</h2>
-        <p>Alexandria is Greek philosophy infrastructure. It distributes a canonical machine — modular parts (skills, hooks, scripts, methodology) on our public GitHub repository — that you install into your ai environment (Claude Code, Cursor, Codex, or any compatible tool). After installation, your machine is yours: it runs on your hardware against your files using credentials you control. We host a Protocol endpoint, the Library where Authors publish files, and a private cross-Author signal layer used to evolve the canonical machine over time. Nothing personal to you flows through us unless you publish it. These terms govern your use of the Alexandria server, website, and Library at mowinckel.ai.</p>
+        <p>Alexandria is Greek philosophy infrastructure. It distributes a canonical machine — modular parts (skills, hooks, scripts, methodology) on our public GitHub repository — that you install into your ai environment (Claude Code, Cursor, Codex, or any compatible tool). After installation, your machine is yours: it runs on your hardware against your files using credentials you control. We host a Protocol endpoint, the Library where Authors publish files, and a private cross-Author signal layer used to evolve the canonical machine over time. Nothing personal to you flows through us unless you publish it. These terms govern your use of the Alexandria server, website, and Library at alexandria-library.com.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>

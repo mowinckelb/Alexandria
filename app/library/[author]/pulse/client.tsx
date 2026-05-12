@@ -58,11 +58,11 @@ function SimilarityCard({ card, authorName, authorId }: { card: PulseCard; autho
         <Link href={`/library/${authorId}`}
           style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s', letterSpacing: '0.02em' }}
           className="hover:opacity-60"
-        >mowinckel.ai/library/{authorId}</Link>
+        >alexandria-library.com/library/{authorId}</Link>
         <Link href={`/signup?ref=${authorId}&ref_source=library`}
           style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s', letterSpacing: '0.02em' }}
           className="hover:opacity-60"
-        >mowinckel.ai — use code {authorId}</Link>
+        >alexandria-library.com — use code {authorId}</Link>
       </div>
     </div>
   );
@@ -96,11 +96,11 @@ function FragmentCard({ card, authorName, authorId }: { card: PulseCard; authorN
         <Link href={`/library/${authorId}`}
           style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s', letterSpacing: '0.02em' }}
           className="hover:opacity-60"
-        >mowinckel.ai/library/{authorId}</Link>
+        >alexandria-library.com/library/{authorId}</Link>
         <Link href={`/signup?ref=${authorId}&ref_source=library`}
           style={{ fontSize: '0.58rem', color: 'var(--text-ghost)', textDecoration: 'none', transition: 'opacity 0.15s', letterSpacing: '0.02em' }}
           className="hover:opacity-60"
-        >mowinckel.ai — use code {authorId}</Link>
+        >alexandria-library.com — use code {authorId}</Link>
       </div>
     </div>
   );
