@@ -1,4 +1,4 @@
-# Alexandria — Memo
+# Alexandria — Brief
 
 > **Most AI investments cannot defend their terminal value. Alexandria's compounds when a new model ships.**
 
