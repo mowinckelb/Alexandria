@@ -63,7 +63,7 @@ date +%s > "$ALEX_DIR/system/.last_maintenance"
 
 # Templates → files/ (don't overwrite existing)
 # Core operating docs
-for f in agent.md machine.md notepad.md feedback.md filter.md README.md; do
+for f in agent.md machine.md notepad.md feedback.md filter.md shelf.md README.md; do
   fetch_factory "templates/core/$f" "$ALEX_DIR/files/core/$f" "core/$f"
 done
 # Folder READMEs (vault, constitution, ontology, library, works)
@@ -431,13 +431,13 @@ else
   STATUS_HOOKS="fail"; DETAIL_HOOKS="hooks not installed — re-run setup"
 fi
 
-# core templates: agent.md / machine.md / notepad.md / feedback.md / filter.md
+# core templates: agent.md / machine.md / notepad.md / feedback.md / filter.md / shelf.md
 CORE_MISSING=""
-for f in agent.md machine.md notepad.md feedback.md filter.md; do
+for f in agent.md machine.md notepad.md feedback.md filter.md shelf.md; do
   [ ! -f "$ALEX_DIR/files/core/$f" ] && CORE_MISSING="$CORE_MISSING $f"
 done
 if [ -z "$CORE_MISSING" ]; then
-  STATUS_CORE="ok"; DETAIL_CORE="agent + machine + notepad + feedback + filter"
+  STATUS_CORE="ok"; DETAIL_CORE="agent + machine + notepad + feedback + filter + shelf"
 else
   STATUS_CORE="fail"; DETAIL_CORE="missing:${CORE_MISSING} — re-run setup"
 fi
