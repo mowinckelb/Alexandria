@@ -1,6 +1,6 @@
 /** Email primitives — Resend API (hybrid dependency, API-controllable, free 100/day). */
 
-export const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL || 'benjamin@mowinckel.com';
+export const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL || 'mowinckel.b@gmail.com';
 
 /**
  * Run up to `concurrency` email sends in parallel, draining the task list in

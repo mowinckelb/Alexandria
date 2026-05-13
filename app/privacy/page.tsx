@@ -64,7 +64,7 @@ export default function Privacy() {
         <p style={{ marginTop: '0.5rem' }}><strong>Erasure</strong> — request deletion of your account and all associated data. Email us and we will delete your account record, session metadata, and any published Library content within 30 days.</p>
         <p style={{ marginTop: '0.5rem' }}><strong>Portability</strong> — your cognitive data is already on your machine in open markdown format. For server-side data, we will provide your account record and published content in JSON/markdown format on request.</p>
         <p style={{ marginTop: '0.5rem' }}><strong>Objection</strong> — you may object to processing of your session metadata. Email us and we will stop collecting it for your account.</p>
-        <p style={{ marginTop: '0.5rem' }}>To exercise any of these rights, email <a href="mailto:benjamin@mowinckel.com" style={{ color: 'var(--text-primary)' }}>benjamin@mowinckel.com</a>.</p>
+        <p style={{ marginTop: '0.5rem' }}>To exercise any of these rights, email <a href="mailto:mowinckel.b@gmail.com" style={{ color: 'var(--text-primary)' }}>mowinckel.b@gmail.com</a>.</p>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -74,7 +74,7 @@ export default function Privacy() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 400 }}>Contact</h2>
-        <p>Benjamin Mowinckel — <a href="mailto:benjamin@mowinckel.com" style={{ color: 'var(--text-primary)' }}>benjamin@mowinckel.com</a></p>
+        <p>Benjamin Mowinckel — <a href="mailto:mowinckel.b@gmail.com" style={{ color: 'var(--text-primary)' }}>mowinckel.b@gmail.com</a></p>
       </section>
     </main>
   );
