@@ -2,7 +2,7 @@ name = "alexandria-server"
 main = "src/worker.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-workers_dev = true
+workers_dev = false
 
 # KV namespace — single namespace with key prefixes
 [[kv_namespaces]]

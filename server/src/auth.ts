@@ -50,20 +50,14 @@ function parseCookieHeader(raw: string | undefined): Record<string, string> {
   return out;
 }
 
-export function extractApiKey(c: { req: { header: (name: string) => string | undefined; query: (name: string) => string | undefined } }): string | null {
+export function extractApiKey(c: { req: { header: (name: string) => string | undefined } }): string | null {
   const auth = c.req.header('authorization');
   if (auth && auth.startsWith('Bearer alex_')) return auth.slice(7);
-  const qKey = c.req.query('key');
-  if (qKey && qKey.startsWith('alex_')) return qKey;
   return null;
 }
 
-/** API key from Authorization header only — avoids leaking keys via ?key= in URLs. */
-export function extractApiKeyHeaderOnly(c: { req: { header: (name: string) => string | undefined } }): string | null {
-  const auth = c.req.header('authorization');
-  if (auth && auth.startsWith('Bearer alex_')) return auth.slice(7);
-  return null;
-}
+/** @deprecated kept for call-site compatibility — use extractApiKey */
+export const extractApiKeyHeaderOnly = extractApiKey;
 
 export async function findByApiKey(key: string): Promise<Account | null> {
   const keyHash = hashApiKey(key);
