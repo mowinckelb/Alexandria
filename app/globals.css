@@ -961,3 +961,240 @@ html.app-shell input:focus {
   outline-offset: 2px;
   border-radius: 2px;
 }
+
+/* ============================================
+   /cancel — founder's letter.
+   The save-screen carries a letter register: italic
+   opener, prose paragraphs, two soft-italic contact
+   CTAs in the middle (email / call), a single
+   explicit-verb cancel button at the bottom.
+
+   Styles live in globals.css (not styled-jsx) so the
+   page renders correctly even if hydration stalls —
+   styled-jsx in Next 16 client components is fragile
+   and would leave a critical conversion surface
+   unstyled. Same CSS variables as /signup so the
+   cathedral aesthetic carries through.
+   ============================================ */
+.cancel-page {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  background-image:
+    radial-gradient(ellipse 120% 80% at 30% 20%, rgba(91, 31, 71, 0.025) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 70% at 70% 80%, rgba(74, 50, 30, 0.020) 0%, transparent 60%);
+  animation: cancelFadeIn 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes cancelFadeIn {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.cancel-header {
+  padding: 28px 32px 0;
+}
+.cancel-brand {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 21px;
+  color: var(--text-primary);
+  text-decoration: none;
+  letter-spacing: 0.005em;
+  transition: opacity 220ms ease;
+  display: inline-block;
+  padding: 10px 8px;
+  margin: -10px -8px;
+}
+.cancel-brand:hover {
+  opacity: 0.6;
+}
+.cancel-brand-dot {
+  font-style: normal;
+}
+
+.cancel-main {
+  max-width: 580px;
+  margin: 0 auto;
+  padding: 5rem 24px 6rem;
+}
+
+/* Letter — body of the page. Single article element, prose typography
+   matching .primer on /signup. Paragraphs handle their own margin. */
+.cancel-letter p {
+  margin: 0 0 16px;
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text-secondary, rgba(26, 19, 24, 0.85));
+  letter-spacing: 0.005em;
+  font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
+  text-wrap: pretty;
+}
+.cancel-letter em {
+  font-style: italic;
+  color: var(--text-primary);
+}
+.cancel-letter blockquote {
+  margin: 18px 0 18px 0;
+  padding: 0 0 0 18px;
+  border-left: 2px solid var(--border-light, rgba(26, 19, 24, 0.18));
+}
+.cancel-letter blockquote em {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Salutation — museum-plate opener. Letter-spaced italic lowercase to
+   match /signup's .primer-salutation register. */
+.cancel-salutation {
+  margin: 0 0 28px !important;
+  font-style: italic;
+  font-size: 14px !important;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: var(--text-muted, rgba(26, 19, 24, 0.55)) !important;
+  text-transform: lowercase;
+}
+
+/* The opening declarative line — "i'm benjamin. i built this." — gets a
+   tiny bit more weight than the body so it sits as the letter's first
+   beat without shouting. */
+.cancel-line {
+  font-size: 19px !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 24px !important;
+}
+
+/* Contact row — email + call CTAs side-by-side. Italic underlined
+   text-buttons, no filled buttons, mirroring /signup's primary-cta. */
+.cancel-contact {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 36px 0 28px;
+}
+.cancel-contact-cta {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--text-muted, rgba(26, 19, 24, 0.4));
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  padding: 6px 4px;
+  transition: text-decoration-color 200ms, opacity 200ms;
+}
+.cancel-contact-cta:hover {
+  text-decoration-color: var(--text-primary);
+  opacity: 0.92;
+}
+
+/* Sign-off + aside — "— b" + "no hard feelings if neither." */
+.cancel-sign {
+  margin: 28px 0 8px !important;
+  font-style: italic;
+  color: var(--text-primary) !important;
+}
+.cancel-aside {
+  margin: 8px 0 40px !important;
+  font-size: 15px !important;
+  color: var(--text-muted) !important;
+}
+
+/* Action — the destructive button + error. Centered, padded above the
+   letter close. Same fleuron divider trick as /signup so the action
+   doesn't read as a form submit. */
+.cancel-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-top: 48px;
+  margin-top: 16px;
+  position: relative;
+}
+.cancel-action::before {
+  content: '❦';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--accent);
+  opacity: 0.45;
+  line-height: 1;
+  padding: 0 14px;
+  background: var(--bg-primary);
+  letter-spacing: 0.3em;
+}
+
+/* Cancel / reactivate button — italic text-button, soft underline. The
+   irreversibility of the action sits in the verb, not in colour
+   intensity; we don't paint cancel red. */
+.cancel-confirm {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: 0;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--text-muted, rgba(26, 19, 24, 0.4));
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  padding: 6px 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: text-decoration-color 200ms, opacity 200ms;
+}
+.cancel-confirm:hover:not(:disabled) {
+  text-decoration-color: var(--text-primary);
+  opacity: 0.92;
+}
+.cancel-confirm:disabled {
+  cursor: progress;
+  opacity: 0.55;
+}
+.cancel-confirm-link {
+  text-decoration: underline;
+  display: inline-block;
+}
+.cancel-error {
+  font-style: italic;
+  font-size: 14px !important;
+  color: var(--accent) !important;
+  text-align: center;
+  margin: 0 !important;
+  max-width: 320px;
+}
+
+@media (max-width: 640px) {
+  .cancel-main {
+    padding: 3rem 20px 4rem;
+  }
+  .cancel-letter p {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  .cancel-line {
+    font-size: 17px !important;
+  }
+  .cancel-contact {
+    gap: 20px;
+  }
+  .cancel-contact-cta {
+    font-size: 18px;
+  }
+  .cancel-confirm {
+    font-size: 18px;
+  }
+}

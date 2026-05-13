@@ -656,6 +656,11 @@ export default function LandingPage({ brandClassName = '', mechanicsContent = ''
                     >
                       x
                     </a>
+                    {/* Discreet save-screen entry. Lives in the company
+                        column rather than getting its own surface — it
+                        belongs in the same register as careers / x: a
+                        small one-word doorway, not a marketing CTA. */}
+                    <Link href="/cancel" className="footer-col-link">cancel</Link>
                   </div>
                   <div className="footer-col">
                     <span className="footer-col-head">about</span>
