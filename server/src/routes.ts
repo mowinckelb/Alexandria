@@ -481,7 +481,7 @@ export function registerRoutes(app: Hono) {
 
       // Welcome email — no API key, just links to /signup
       if (email && isNewAccount) {
-        await sendWelcomeEmail(email);
+        await sendWelcomeEmail(email, emailToken);
       }
 
       // Skip Stripe if user already has payment info
