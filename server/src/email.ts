@@ -32,7 +32,7 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
       },
       body: JSON.stringify({
         from: 'Alexandria <a@alexandria-library.com>',
-        reply_to: FOUNDER_EMAIL,
+        reply_to: 'a@alexandria-library.com',
         to,
         subject,
         html,
