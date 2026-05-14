@@ -89,8 +89,9 @@ export async function sendEmail(
   }
 }
 
-export async function sendFollowerWelcome(email: string): Promise<{ ok: boolean; error?: string }> {
+export async function sendFollowerWelcome(email: string, unsubscribeToken?: string): Promise<{ ok: boolean; error?: string }> {
   const WEBSITE_URL = process.env.WEBSITE_URL || 'https://alexandria-library.com';
+  const SERVER_URL = process.env.SERVER_URL || 'https://api.alexandria-library.com';
   const html = `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 48px 24px; color: #3d3630; font-size: 1.05rem; line-height: 1.7;">
   <p style="margin: 0 0 1.4rem;">welcome to alexandria. :)</p>
   <p style="margin: 0 0 1.4rem;">
@@ -103,10 +104,12 @@ export async function sendFollowerWelcome(email: string): Promise<{ ok: boolean;
   </p>
   <p style="margin: 0 0 1.8rem;">ok, that's all. bye for now :)</p>
   <p style="margin: 0 0 0.4rem;">Benjamin a. Mowinckel</p>
-  <p style="margin: 0; font-style: italic; color: #8a8078;">a.</p>
+  <p style="margin: 0; font-style: italic; color: #8a8078;">a.</p>${unsubscribeToken ? `
+  <p style="margin: 1.5rem 0 0; font-size: 0.72rem; color: #bbb4aa;"><a href="${SERVER_URL}/email/stop?t=${unsubscribeToken}" style="color: #8a8078;">stop these emails</a></p>` : ''}
 </div>`;
 
-  return await sendEmail(email, 'welcome to alexandria.', html);
+  return await sendEmail(email, 'welcome to alexandria.', html,
+    unsubscribeToken ? { unsubscribeUrl: `${SERVER_URL}/email/stop?t=${unsubscribeToken}` } : undefined);
 }
 
 export async function sendWelcomeEmail(email: string, emailToken?: string): Promise<void> {

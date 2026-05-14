@@ -17,6 +17,7 @@ import { getAnalytics, getEventLog, getDashboard, getUserEvents, logEvent, flush
 import { setKV, getKV } from './kv.js';
 import { getDB } from './db.js';
 import { sendFollowerWelcome } from './email.js';
+import { generateToken } from './crypto.js';
 import { getAllowedOrigins } from './cors.js';
 import { formatPT } from './time.js';
 
@@ -432,9 +433,10 @@ app.post('/follow', async (c) => {
     if (!db) {
       return c.json({ error: 'Database not available.' }, 503);
     }
+    const unsubscribeToken = generateToken();
     const insertResult = await db.prepare(
-      'INSERT OR IGNORE INTO waitlist (email, type, source, created_at) VALUES (?, ?, ?, ?)'
-    ).bind(normalizedEmail, 'follow', 'public', new Date().toISOString()).run();
+      'INSERT OR IGNORE INTO waitlist (email, type, source, created_at, unsubscribe_token) VALUES (?, ?, ?, ?, ?)'
+    ).bind(normalizedEmail, 'follow', 'public', new Date().toISOString(), unsubscribeToken).run();
 
     const isNewSignup = ((insertResult as unknown as { meta?: { changes?: number } }).meta?.changes || 0) > 0;
     logEvent('follow_signup', { amount: String(amount), new: isNewSignup ? 'true' : 'false' });
@@ -442,7 +444,7 @@ app.post('/follow', async (c) => {
     if (isNewSignup) {
       // Fire-and-forget welcome — don't block Stripe checkout on email send
       c.executionCtx.waitUntil(
-        sendFollowerWelcome(normalizedEmail).catch((err) => {
+        sendFollowerWelcome(normalizedEmail, unsubscribeToken).catch((err) => {
           console.error('Follower welcome email failed:', err);
         })
       );

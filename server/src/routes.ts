@@ -912,16 +912,33 @@ export function registerRoutes(app: Hono) {
   app.on(['GET', 'POST'], '/email/stop', async (c) => {
     const token = c.req.query('t');
     if (!token) return c.text('missing token', 400);
-    const storeKey = await getEmailTokenIndex(token);
-    if (!storeKey) return c.text('not found', 404);
-    const acct = await loadAccount(storeKey) as Record<string, any> | null;
-    if (!acct) return c.text('not found', 404);
-    acct.engagement_opt_out = true;
-    await saveAccount(storeKey, acct);
-    return c.html(`<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
+    const stoppedHtml = `<div style="font-family: 'EB Garamond', Georgia, 'Times New Roman', serif; max-width: 420px; margin: 80px auto; padding: 20px; color: #3d3630; text-align: center;">
   <p style="font-size: 1.1rem; line-height: 1.9;">stopped. we&rsquo;ll be here when you&rsquo;re ready.</p>
   <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
-</div>`);
+</div>`;
+
+    const storeKey = await getEmailTokenIndex(token);
+    if (storeKey) {
+      const acct = await loadAccount(storeKey) as Record<string, any> | null;
+      if (acct) {
+        acct.engagement_opt_out = true;
+        await saveAccount(storeKey, acct);
+        return c.html(stoppedHtml);
+      }
+    }
+
+    const updateResult = await getDB().prepare(
+      'UPDATE waitlist SET opted_out_at = ? WHERE unsubscribe_token = ? AND opted_out_at IS NULL'
+    ).bind(new Date().toISOString(), token).run();
+    const changes = (updateResult as unknown as { meta?: { changes?: number } }).meta?.changes || 0;
+    if (changes > 0) return c.html(stoppedHtml);
+
+    const alreadyOut = await getDB().prepare(
+      'SELECT 1 FROM waitlist WHERE unsubscribe_token = ? LIMIT 1'
+    ).bind(token).first();
+    if (alreadyOut) return c.html(stoppedHtml);
+
+    return c.text('not found', 404);
   });
 
   // Admin: send a one-time email to all uninstalled users
