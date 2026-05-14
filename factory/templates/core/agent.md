@@ -1,6 +1,6 @@
 # Agent
 
-*How you want AI to work with you. Your operating instructions. Read by every model, every session.*
+*Your operating preferences for AI. Update whenever they change. Read fresh every session.*
 
 ## Communication
 
