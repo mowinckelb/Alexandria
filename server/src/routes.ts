@@ -941,6 +941,32 @@ export function registerRoutes(app: Hono) {
     return c.text('not found', 404);
   });
 
+  // One-shot migration runner — applies a specific migration via the
+  // worker's D1 binding (bypasses the wrangler OAuth D1-scope gap).
+  // Idempotent. Safe to leave in.
+  app.post('/admin/migrate-0022', async (c) => {
+    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
+    const db = getDB();
+    const steps = [
+      'ALTER TABLE waitlist ADD COLUMN unsubscribe_token TEXT',
+      'ALTER TABLE waitlist ADD COLUMN opted_out_at TEXT',
+      'CREATE INDEX IF NOT EXISTS idx_waitlist_unsubscribe_token ON waitlist(unsubscribe_token)',
+    ];
+    const results: Array<{ sql: string; ok: boolean; error?: string }> = [];
+    for (const sql of steps) {
+      try {
+        await db.exec(sql);
+        results.push({ sql, ok: true });
+      } catch (e) {
+        const msg = String((e as { message?: string })?.message || e);
+        const idempotent = msg.includes('duplicate column');
+        results.push({ sql, ok: idempotent, error: idempotent ? undefined : msg });
+        if (!idempotent) return c.json({ ok: false, results }, 500);
+      }
+    }
+    return c.json({ ok: true, results });
+  });
+
   // Admin: send a one-time email to all uninstalled users
   app.post('/admin/nudge', async (c) => {
     const auth = await requireAdmin(c);
