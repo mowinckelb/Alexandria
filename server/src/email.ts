@@ -22,21 +22,60 @@ export async function sendEmailsBatched<T>(
   return { sent, failed };
 }
 
-export async function sendEmail(to: string, subject: string, html: string): Promise<{ ok: boolean; error?: string }> {
+function htmlToText(html: string): string {
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>\s*/gi, '\n\n')
+    .replace(/<a [^>]*href="(https?:[^"]+)"[^>]*>([^<]*)<\/a>/gi, '$2: $1')
+    .replace(/<a [^>]*href="(?:tel|mailto):[^"]+"[^>]*>([^<]*)<\/a>/gi, '$1')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&mdash;/g, '—')
+    .replace(/&ndash;/g, '–')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&rsquo;/g, '’')
+    .replace(/&lsquo;/g, '‘')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/ +/g, ' ')
+    .replace(/\n /g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+export async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  opts?: { unsubscribeUrl?: string },
+): Promise<{ ok: boolean; error?: string }> {
   try {
+    const text = htmlToText(html);
+    const headers: Record<string, string> = {};
+    if (opts?.unsubscribeUrl) {
+      headers['List-Unsubscribe'] = `<${opts.unsubscribeUrl}>`;
+      headers['List-Unsubscribe-Post'] = 'List-Unsubscribe=One-Click';
+    }
+    const body: Record<string, unknown> = {
+      from: 'Alexandria <a@alexandria-library.com>',
+      reply_to: 'a@alexandria-library.com',
+      to,
+      subject,
+      html,
+      text,
+    };
+    if (Object.keys(headers).length) body.headers = headers;
     const resp = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
       },
-      body: JSON.stringify({
-        from: 'Alexandria <a@alexandria-library.com>',
-        reply_to: 'a@alexandria-library.com',
-        to,
-        subject,
-        html,
-      }),
+      body: JSON.stringify(body),
     });
     if (!resp.ok) {
       const error = `Resend ${resp.status}: ${await resp.text()}`;
@@ -92,13 +131,15 @@ export async function sendWeekOneCheckIn(
   <p style="margin: 0 0 1.4rem;">you signed up to alexandria a week ago &mdash; just dropping in.</p>
   <p style="margin: 0 0 1.4rem;">it's like the gym &mdash; the more you put in, the more you get out. and the unusual part is it molds to you. so anything you want &mdash; say it. anything you don't &mdash; say it. anything confusing &mdash; just ask.</p>
   <p style="margin: 0 0 2.2rem;">what's going well, what's not, what you like, what you don't &mdash; reply to this, or call: <a href="tel:+14155038178" style="color: #3d3630;">+1 (415) 503-8178</a>. you're early, so what you tell me actually shapes this. i read all of it. anything annoying &mdash; i'll cut it. anything missing &mdash; i'll add it.</p>
-  <p style="margin: 0 0 1.4rem;">if you want to follow along more closely (and support the work), there's <a href="${WEBSITE_URL}/follow?source=week1" style="color: #3d3630;">stay close</a>.</p>
+  <p style="margin: 0 0 1.4rem;">if you want to follow along more closely (and support the work), there's <a href="${WEBSITE_URL}/follow" style="color: #3d3630;">stay close</a>.</p>
   <p style="margin: 0 0 1.8rem;">ok, that's all for now.</p>
   <p style="margin: 0 0 0.4rem;">Benjamin a. Mowinckel</p>
   <p style="margin: 0; font-style: italic; color: #8a8078;">a.</p>
   <p style="margin: 1.5rem 0 0; font-size: 0.72rem; color: #bbb4aa;"><a href="${SERVER_URL}/email/stop?t=${emailToken}" style="color: #8a8078;">stop these emails</a></p>
 </div>`;
-  return await sendEmail(email, 'checking in.', html);
+  return await sendEmail(email, 'checking in.', html, {
+    unsubscribeUrl: `${SERVER_URL}/email/stop?t=${emailToken}`,
+  });
 }
 
 // sendMorningBrief / sendMorningNudge removed: morning brief + nudge are now

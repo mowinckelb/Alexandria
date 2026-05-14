@@ -1,7 +1,7 @@
 /** Alexandria HTTP routes. */
 
 import { randomBytes } from 'crypto';
-import type { Hono } from 'hono';
+import type { Context, Hono } from 'hono';
 import { logEvent } from './analytics.js';
 import { countActiveKin, createCheckoutSession, createPortalSession, getStripe, recalculateKinPricing, resolveActiveSubscription } from './billing.js';
 import { authErrorHtml, callbackPageHtml } from './templates.js';
@@ -909,7 +909,7 @@ export function registerRoutes(app: Hono) {
   // --- Email preferences (token-based, not raw API key) ---
   // /email/stop is the only remaining unsubscribe — it gates admin/nudge.
 
-  app.get('/email/stop', async (c) => {
+  const stopHandler = async (c: Context) => {
     const token = c.req.query('t');
     if (!token) return c.text('missing token', 400);
     const storeKey = await getEmailTokenIndex(token);
@@ -922,7 +922,9 @@ export function registerRoutes(app: Hono) {
   <p style="font-size: 1.1rem; line-height: 1.9;">stopped. we&rsquo;ll be here when you&rsquo;re ready.</p>
   <p style="font-size: 0.85rem; color: #8a8078; margin-top: 1rem;">a.</p>
 </div>`);
-  });
+  };
+  app.get('/email/stop', stopHandler);
+  app.post('/email/stop', stopHandler);
 
   // Admin: send a one-time email to all uninstalled users
   app.post('/admin/nudge', async (c) => {
