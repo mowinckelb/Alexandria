@@ -986,7 +986,7 @@ export function registerRoutes(app: Hono) {
     if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
     if (await checkAdminRateLimit('admin-email', 10, 60)) return c.json({ error: 'Rate limited (sends emails, capped 10/min)' }, 429);
 
-    const { to, subject, body } = await c.req.json<{ to?: string; subject: string; body: string }>();
+    const { to, subject, body, unsubscribeUrl } = await c.req.json<{ to?: string; subject: string; body: string; unsubscribeUrl?: string }>();
     if (!subject || !body) return c.text('missing subject or body', 400);
 
     let recipientEmail: string;
@@ -1002,7 +1002,7 @@ export function registerRoutes(app: Hono) {
 ${body.split('\n').map((line: string) => line.trim() ? `<p style="font-size: 1rem; line-height: 1.9; color: #3d3630; margin: 0 0 1rem;">${line}</p>` : '').join('\n')}
 </div>`;
 
-    const result = await sendEmail(recipientEmail, `alexandria. — ${subject}`, html);
+    const result = await sendEmail(recipientEmail, `alexandria. — ${subject}`, html, unsubscribeUrl ? { unsubscribeUrl } : undefined);
     if (!result.ok) return c.json({ ok: false, sent_to: recipientEmail, error: result.error }, 502);
     return c.json({ ok: true, sent_to: recipientEmail });
   });
