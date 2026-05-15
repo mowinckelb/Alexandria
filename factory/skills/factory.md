@@ -12,8 +12,10 @@ Your purpose: maximise total signal-to-noise of the canon for the Author populat
 
 All signal lives in Cloudflare KV behind two admin endpoints:
 
-- `GET https://api.alexandria-library.com/admin/factory` — returns JSON with `signals[]`, `feedback[]`, `library_signal`, `last_processed_at`, `now`. Auth via `Authorization: Bearer $ALEXANDRIA_ADMIN_KEY`.
+- `GET https://api.alexandria-library.com/admin/factory` — returns JSON with `signals[]`, `feedback[]`, `library_signal`, `last_processed_at`, `now`.
 - `POST https://api.alexandria-library.com/admin/factory/checkpoint` — body `{"t": "<iso>"}` advances the marker after a successful run.
+
+**Auth:** `Authorization: github $(gh auth token)`. The server calls GitHub's `/user` endpoint to verify the token's owner is the admin login. No embedded API keys in your config — you authenticate as the founder's GitHub identity, which you already have via `gh`.
 
 You **client-side filter** by `last_processed_at`: only process items where the timestamp in the key (`signal:{t}:{hash}`, `feedback:{t}:{hash}`) is strictly greater than the marker. The `library_signal` is always-current (single overwriting key); read it every run.
 
@@ -62,7 +64,7 @@ After deciding (PRs opened or not), advance the marker. This is the heartbeat:
 
 ```
 curl -X POST https://api.alexandria-library.com/admin/factory/checkpoint \
-  -H "Authorization: Bearer $ALEXANDRIA_ADMIN_KEY" \
+  -H "Authorization: github $(gh auth token)" \
   -H "Content-Type: application/json" \
   -d "{\"t\": \"$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)\"}"
 ```
@@ -81,7 +83,7 @@ The marker advancing each run = observable evidence the loop ran end-to-end. The
 
 This skill runs as a scheduled remote agent (Claude routine). For it to work:
 
-1. **Network allow-list** must include `api.alexandria-library.com` (read signals + checkpoint) and `github.com` (clone, push, PR).
-2. **Secret**: `ALEXANDRIA_ADMIN_KEY` set in the routine's environment (admin API key from `~/.config/alexandria/admin_key`).
+1. **Network allow-list** must include `api.alexandria-library.com` (read signals + checkpoint), `api.github.com` (auth verification), and `github.com` (clone, push, PR).
+2. **Auth**: no secret to embed. The routine already runs with `gh` authenticated as the founder's GitHub identity; `gh auth token` exposes a token the server validates against GitHub's `/user` endpoint.
 3. **Trigger**: weekly cadence, soft default. The skill itself decides whether to act each run.
 4. **First run**: marker is unset. Process all available signals.
