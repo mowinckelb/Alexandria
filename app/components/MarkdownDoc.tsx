@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, isValidElement } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -42,8 +42,9 @@ function slugify(node: React.ReactNode): string {
 }
 
 const TOC_MARKER = '\n%%MDOC_TOC%%\n';
+const ABSTRACT_MARKER = '\n%%MDOC_ABSTRACT%%\n';
 
-function processNumbered(md: string): { pre: string; post: string; toc: TocEntry[] } {
+function processNumbered(md: string): { pre: string; abstract: string; post: string; toc: TocEntry[] } {
   const lines = md.split('\n');
   const out: string[] = [];
   const toc: TocEntry[] = [];
@@ -52,7 +53,9 @@ function processNumbered(md: string): { pre: string; post: string; toc: TocEntry
   let isFirstH1 = true;
   let inFence = false;
   let inContents = false;
+  let inAbstract = false;
   let tocInserted = false;
+  let abstractInserted = false;
 
   for (const line of lines) {
     if (line.startsWith('```')) inFence = !inFence;
@@ -60,6 +63,10 @@ function processNumbered(md: string): { pre: string; post: string; toc: TocEntry
     if (!inFence) {
       // Strip the manual `## contents.` block — runs until the next H1.
       if (/^##\s+\*?contents\.?\*?\s*$/i.test(line)) {
+        if (inAbstract) {
+          inAbstract = false;
+          out.push(ABSTRACT_MARKER);
+        }
         inContents = true;
         if (!tocInserted) {
           out.push(TOC_MARKER);
@@ -74,6 +81,24 @@ function processNumbered(md: string): { pre: string; post: string; toc: TocEntry
         } else {
           continue;
         }
+      }
+
+      // Abstract section — capture content between `## abstract.` and the
+      // next heading. Heading itself is dropped; content gets wrapped in a
+      // distinct block at render time so CSS can give the abstract its
+      // own visual treatment without polluting body paragraphs.
+      if (/^##\s+\*?abstract\.?\*?\s*$/i.test(line)) {
+        inAbstract = true;
+        if (!abstractInserted) {
+          out.push(ABSTRACT_MARKER);
+          abstractInserted = true;
+        }
+        continue;
+      }
+      if (inAbstract && /^(# |## )/.test(line)) {
+        inAbstract = false;
+        out.push(ABSTRACT_MARKER);
+        // Fall through — process this heading below.
       }
 
       const h1 = /^# (.+)$/.exec(line);
@@ -109,8 +134,23 @@ function processNumbered(md: string): { pre: string; post: string; toc: TocEntry
   }
 
   const full = out.join('\n');
-  const [pre, post = ''] = full.split(TOC_MARKER);
-  return { pre, post, toc };
+  // Pull the abstract block out of the pre stream, leaving the rest intact.
+  let pre = '';
+  let abstract = '';
+  let post = '';
+  const [beforeToc, afterToc = ''] = full.split(TOC_MARKER);
+  post = afterToc;
+  const absParts = beforeToc.split(ABSTRACT_MARKER);
+  if (absParts.length >= 3) {
+    pre = absParts[0];
+    abstract = absParts[1].trim();
+    // Anything after the closing marker rejoins pre (rare — currently nothing
+    // sits between abstract end and TOC, but allow it).
+    if (absParts[2].trim()) pre = pre + '\n' + absParts[2];
+  } else {
+    pre = beforeToc;
+  }
+  return { pre, abstract, post, toc };
 }
 
 function TocBlock({ entries }: { entries: TocEntry[] }) {
@@ -260,6 +300,47 @@ const MD_COMPONENTS = {
   blockquote: ({ children }: { children?: React.ReactNode }) => <blockquote className="pdoc-bq">{children}</blockquote>,
 };
 
+// Abstract paragraphs follow a named-beat structure: each paragraph leads
+// with a bolded beat name (`**the augmentation.**`), then prose. We split
+// that into a hanging gutter label + body column, echoing the marginalia
+// folio the website originally used.
+function AbstractParagraph({ children }: { children?: React.ReactNode }) {
+  const kids = Array.isArray(children) ? children : [children];
+  // Skip leading whitespace-only text nodes, then expect a React element
+  // (the strong lead). When ReactMarkdown maps strong → a custom component,
+  // the child's `type` is the component function and the className lives
+  // inside the function — so check element-ness, not className.
+  let labelIdx = -1;
+  for (let i = 0; i < kids.length; i++) {
+    const k = kids[i];
+    if (typeof k === 'string' && k.trim() === '') continue;
+    if (isValidElement(k)) {
+      labelIdx = i;
+    }
+    break;
+  }
+  if (labelIdx === -1) return <p className="pdoc-p">{children}</p>;
+
+  const labelEl = kids[labelIdx] as React.ReactElement<{ children?: React.ReactNode }>;
+  const label = labelEl.props.children;
+  const rest = kids.slice(labelIdx + 1);
+  // Strip the single space markdown emits between **bold** lead and body.
+  const body = rest.length > 0 && typeof rest[0] === 'string'
+    ? [rest[0].replace(/^\s+/, ''), ...rest.slice(1)]
+    : rest;
+  return (
+    <p className="pdoc-p pdoc-abstract-beat">
+      <span className="pdoc-abstract-beat-label">{label}</span>
+      <span className="pdoc-abstract-beat-body">{body}</span>
+    </p>
+  );
+}
+
+const MD_COMPONENTS_ABSTRACT = {
+  ...MD_COMPONENTS,
+  p: AbstractParagraph,
+};
+
 export default function MarkdownDoc({ src, header, homeHref = '/', numbered = false }: Props) {
   const [content, setContent] = useState<string | null>(null);
 
@@ -313,6 +394,16 @@ export default function MarkdownDoc({ src, header, homeHref = '/', numbered = fa
               <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
                 {parsed.pre}
               </ReactMarkdown>
+              {parsed.abstract && (
+                <section className="pdoc-abstract" aria-label="Abstract">
+                  <p className="pdoc-abstract-label">abstract.</p>
+                  <div className="pdoc-abstract-body">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS_ABSTRACT}>
+                      {parsed.abstract}
+                    </ReactMarkdown>
+                  </div>
+                </section>
+              )}
               {parsed.toc.length > 0 && <TocBlock entries={parsed.toc} />}
               <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
                 {parsed.post}

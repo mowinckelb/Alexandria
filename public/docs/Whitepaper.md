@@ -2,6 +2,18 @@
 
 ## *the library of human minds.*
 
+## abstract.
+
+**the augmentation.** ai can't read minds, but it can read words. so if we translate our thoughts into words, our minds can be augmented, not replaced — *the symbolic layer of our minds transcribed into private files*, so the exponential intelligence **thinks with us, not for us**.
+
+**the system.** but the files don't write themselves, so we need a system — *optimised for each individual*. impossible to perfect alone. hence, **alexandria.**
+
+**the protocol.** we built **the protocol** for aggregating files and systems into a singular collective — a library of files and marketplace of systems where alexandrians learn from each other and *refine their own*.
+
+**the floor.** alexandria distills this collective signal into a *canonical system* offered to new members: a **self-personalising floor** — *rides the exponential, continuously refined*. zero maintenance by default, the optimal foundation for your own system when you have time.
+
+**the republic.** it seems we are first, but we didn't come to impose. we built the foundation others will build on — a founding republic modeled on athens, rome, and america: **natural law applied to thought**, tilting the pressures of evolution towards *human survival*. founded not on land, but on thought. *the thinking republic.*
+
 ## *contents.*
 
 *why.*

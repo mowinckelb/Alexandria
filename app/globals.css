@@ -629,6 +629,106 @@ html.app-shell input:focus {
 }
 
 /* ============================================
+   Abstract — marginalia folio, top of doc.
+   Five named beats: label hangs in a left gutter, body in the right
+   column. The named-beat structure IS the grapple-handle for a cold
+   prosumer reader who lands on the whitepaper before they've absorbed
+   the website. Form is content: the labels themselves are part of the
+   argument, not decoration.
+   ============================================ */
+.pdoc-longform .pdoc-abstract {
+  margin: 3rem 0 4rem;
+  padding: 0;
+  border: none;
+}
+.pdoc-longform .pdoc-abstract-label {
+  font-family: var(--font-eb-garamond);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: var(--accent);
+  margin: 0 0 1.6rem;
+}
+.pdoc-longform .pdoc-abstract-body {
+  border-top: 1px solid var(--rule-soft, color-mix(in srgb, var(--accent) 22%, transparent));
+  border-bottom: 1px solid var(--rule-soft, color-mix(in srgb, var(--accent) 22%, transparent));
+  padding: 1.8rem 0 2rem;
+}
+.pdoc-longform .pdoc-abstract-beat {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  column-gap: 1.4rem;
+  align-items: baseline;
+  margin: 0 0 1.65rem;
+  text-align: left;
+  text-align-last: left;
+  hyphens: auto;
+}
+.pdoc-longform .pdoc-abstract-beat:last-child {
+  margin-bottom: 0;
+}
+/* Suppress drop-cap that would otherwise hit the body's first letter. */
+.pdoc-longform .pdoc-abstract-beat::first-letter {
+  font-family: inherit;
+  font-style: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+  padding-right: 0;
+  color: inherit;
+  text-shadow: none;
+}
+.pdoc-longform .pdoc-abstract-beat-label {
+  font-family: var(--font-eb-garamond);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  text-align: right;
+  text-transform: lowercase;
+  line-height: 1.72;
+}
+.pdoc-longform .pdoc-abstract-beat-body {
+  font-size: 1.04rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+.pdoc-longform .pdoc-abstract-beat-body em {
+  font-style: italic;
+  color: var(--text-primary);
+}
+.pdoc-longform .pdoc-abstract-beat-body .pdoc-strong {
+  color: var(--accent);
+  font-weight: 500;
+  font-style: italic;
+}
+
+@media (max-width: 720px) {
+  .pdoc-longform .pdoc-abstract { margin: 2rem 0 3rem; }
+  .pdoc-longform .pdoc-abstract-body { padding: 1.3rem 0 1.5rem; }
+  .pdoc-longform .pdoc-abstract-beat {
+    display: block;
+    margin-bottom: 1.2rem;
+  }
+  .pdoc-longform .pdoc-abstract-beat-label {
+    display: block;
+    text-align: left;
+    padding-top: 0;
+    margin-bottom: 0.25rem;
+    font-size: 0.88rem;
+  }
+  .pdoc-longform .pdoc-abstract-beat-body {
+    display: block;
+    font-size: 1rem;
+  }
+}
+
+/* ============================================
    Auto-TOC — Fleet-style hierarchical numbering.
    Used by long-form docs that opt in via `numbered`.
    ============================================ */
