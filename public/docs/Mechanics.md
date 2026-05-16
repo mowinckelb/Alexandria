@@ -137,13 +137,13 @@ Cloudflare Worker, stateless re: your private content. KV + D1 + R2 on the serve
 | Event log: which endpoints your account hit, with timestamps | KV (60-day TTL) | Debugging, abuse signal |
 | Library files you explicitly publish | R2 | Public Library content |
 | Library file metadata (visibility, updated_at) | D1 | Discovery, listing |
-| Feedback text you explicitly type and submit | KV under `feedback:` prefix (no TTL) | Founder reads to evolve canon |
+| Feedback text you explicitly type and submit | Private GitHub repo `mowinckelb/alexandria-feedback` (founder-only access) | Founder reads + factory autoloop processes weekly to draft canon updates |
 
 **Not stored anywhere we control:** your constitution, vault, ontology, transcripts, machine.md, notepad, raw API key, AI-vendor (Anthropic/OpenAI/etc) API keys, or any file you did not explicitly `PUT /file/...`. There is no endpoint that accepts them.
 
 **What a complete server breach yields:** account emails, GitHub user IDs, hashed (un-reversible) API keys, the 60-day event log, published Library content (already public), and Cloudflare-level access logs (IPs, timing). It does not yield private cognition, unpublished files, or AI-vendor credentials, because those never reach the server.
 
-**What a feedback KV breach yields:** feedback text users explicitly typed and submitted (attributed — they chose what to send). Protected by the same Cloudflare auth model as the rest of our infrastructure.
+**What a `mowinckelb/alexandria-feedback` breach yields:** feedback text users explicitly typed and submitted (attributed — they chose what to send, knowing it goes to the founder). Same trust posture as the public repo: protected by GitHub account security.
 
 ## Why your API key is safe
 

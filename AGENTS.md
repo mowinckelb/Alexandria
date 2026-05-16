@@ -60,7 +60,7 @@ Operational overhead — OAuth, billing, email, admin:
 | GET | `/account` | Billing portal redirect |
 | DELETE | `/account` | Account deletion (GDPR-ready) |
 | POST | `/brief` | Morning brief (autoloop trigger) |
-| POST | `/feedback` | Author-explicit feedback (typed into `~/alexandria/system/.session_feedback`, posted at session end, stored in DATA KV under `feedback:` prefix) |
+| POST | `/feedback` | Author-explicit feedback (typed into `~/alexandria/system/.session_feedback`, posted at session end, stored in private `mowinckelb/alexandria-feedback` GitHub repo) |
 | GET/GET | `/email/less`, `/email/stop` | Email preferences |
 | GET/GET | `/brief/less`, `/brief/stop` | Brief preferences |
 | POST | `/admin/nudge` | Nudge uninstalled users (admin) |
