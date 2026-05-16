@@ -77,42 +77,9 @@ export function generateApiKey(): string {
 }
 
 export async function requireAdmin(c: { req: { header: (name: string) => string | undefined; query: (name: string) => string | undefined } }): Promise<{ key: string; account: Account } | null> {
-  const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
-
-  // GitHub identity auth path. Used by scheduled Claude agents (routines) that
-  // run with `gh` authenticated as the admin — they pass `Authorization: github <token>`
-  // and the server validates by calling GitHub's API. No embedded API key in
-  // the routine config, no compromise-on-exposure.
-  const authHeader = c.req.header('Authorization') || c.req.header('authorization') || '';
-  if (authHeader.startsWith('github ')) {
-    const ghToken = authHeader.slice(7).trim();
-    if (!ghToken) return null;
-    try {
-      const resp = await fetch('https://api.github.com/user', {
-        headers: {
-          Authorization: `Bearer ${ghToken}`,
-          'User-Agent': 'alexandria-server',
-          Accept: 'application/vnd.github+json',
-        },
-      });
-      if (!resp.ok) return null;
-      const data = await resp.json() as { login?: string };
-      if (data.login !== adminLogin) return null;
-      // GitHub-auth admin requests don't carry an Alexandria account, but
-      // requireAdmin's return shape needs one. Look up the admin's account
-      // for callers that need account context.
-      const adminAccount = await getAccountByLogin(adminLogin);
-      if (!adminAccount) return null;
-      return { key: adminAccount.storeKey, account: adminAccount.account };
-    } catch {
-      return null;
-    }
-  }
-
-  // API key auth path (existing). Founder CLI and any caller with the
-  // admin's alex_ key.
   const auth = await requireAuth(c);
   if (!auth) return null;
+  const adminLogin = process.env.ADMIN_GITHUB_LOGIN || 'mowinckelb';
   if (auth.account.github_login !== adminLogin) return null;
   return auth;
 }

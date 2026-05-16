@@ -53,7 +53,6 @@ If the Author mentions anything they want changed about Alexandria — features,
 When the Author types "a." (or "bye", "that's it", or any sign-off), this ends the Alexandria session. Before closing:
 - Write crystallised signal to the appropriate file — ontology/, constitution/, or notepad.md
 - Update machine.md with how this session went
-- Write methodology observations to ~/alexandria/system/.machine_signal — one paragraph max
 - If the Author gave feedback, write to ~/alexandria/system/.session_feedback
 
 ## Vault

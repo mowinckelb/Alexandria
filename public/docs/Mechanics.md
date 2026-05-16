@@ -9,7 +9,7 @@ You are about to run a curl command that puts files on your machine, modifies yo
 - **Trust model:** mutable, by design. The hooks payload is fetched from `main` on every session. You're trusting an ongoing relationship with the public repo, not a frozen install. Tradeoff is named below.
 - **What our server holds:** your email, GitHub user ID, hashed API key, an event log of which endpoints you hit, and any files you explicitly publish to the Library. Nothing else.
 - **What our server does not hold:** your constitution, vault, ontology, transcripts, or AI-vendor API keys. There is no endpoint that accepts them.
-- **Side channel:** feedback you submit and methodology signals the engine writes are stored in Cloudflare KV alongside the rest of our operational data — private by default, accessible only via our Cloudflare account. Methodology signals are anonymized at the boundary (author stripped before write); feedback retains attribution because the canon-evolution loop needs context. Signals auto-expire after 90 days; feedback persists.
+- **Side channel:** the only data that leaves your machine for our server is (a) module IDs you call (anonymous usage tally), (b) feedback you explicitly type into `~/alexandria/system/.session_feedback`, and (c) files you explicitly publish to the Library. The Engine never auto-sends content on your behalf.
 - **Uninstall:** three commands at the bottom of this page. Reversible.
 
 ## Threat model
@@ -121,15 +121,14 @@ Every outbound call the install or hooks make. Complete list.
 | `GET raw.githubusercontent.com/.../factory/...` | Session start, drift check | nothing | factory file diff |
 | `GET api.mowinckel.ai/alexandria` | Setup probe + session status | API key (Bearer) | account status |
 | `POST api.mowinckel.ai/call` | Session start | API key, module IDs, optional short notes | 200/4xx |
-| `POST api.mowinckel.ai/marketplace/signal` | Session end, only if engine wrote methodology notes | API key, methodology observation (about the craft, not about you) | 200/4xx |
-| `POST api.mowinckel.ai/feedback` | Session end, only if you wrote feedback | API key, your feedback text | 200/4xx |
+| `POST api.mowinckel.ai/feedback` | Session end, only if YOU typed feedback into `~/alexandria/system/.session_feedback` | API key, the feedback text you wrote | 200/4xx |
 | `PUT api.mowinckel.ai/file/shadow` | Only when you explicitly publish a shadow file | API key, the file content you chose to publish | 200/4xx |
 
 That is all. No telemetry pings, no error reporters, no third-party CDNs, no analytics SDKs, no DNS callbacks beyond what's listed. You can confirm by `grep -E 'curl|wget|http' ~/alexandria/system/.hooks_payload`.
 
 ## What our server holds (specifics)
 
-Cloudflare Worker, stateless re: your private content. KV + D1 + R2 on the server; feedback and machine signal go to a separate private GitHub repo (not into our database).
+Cloudflare Worker, stateless re: your private content. KV + D1 + R2 on the server. The Engine never auto-sends data on your behalf — the only thing that can leave the local machine is feedback you explicitly type into `~/alexandria/system/.session_feedback`.
 
 | Stored | Where | Why |
 |---|---|---|
@@ -138,14 +137,13 @@ Cloudflare Worker, stateless re: your private content. KV + D1 + R2 on the serve
 | Event log: which endpoints your account hit, with timestamps | KV (60-day TTL) | Debugging, abuse signal |
 | Library files you explicitly publish | R2 | Public Library content |
 | Library file metadata (visibility, updated_at) | D1 | Discovery, listing |
-| Feedback text you submit | KV under `feedback:` prefix (no TTL) | We read feedback; informs product evolution |
-| Methodology signals the engine writes | KV under `signal:` prefix (90-day TTL, anonymized at boundary) | Feeds the canon-evolution loop |
+| Feedback text you explicitly type and submit | KV under `feedback:` prefix (no TTL) | Founder reads to evolve canon |
 
 **Not stored anywhere we control:** your constitution, vault, ontology, transcripts, machine.md, notepad, raw API key, AI-vendor (Anthropic/OpenAI/etc) API keys, or any file you did not explicitly `PUT /file/...`. There is no endpoint that accepts them.
 
 **What a complete server breach yields:** account emails, GitHub user IDs, hashed (un-reversible) API keys, the 60-day event log, published Library content (already public), and Cloudflare-level access logs (IPs, timing). It does not yield private cognition, unpublished files, or AI-vendor credentials, because those never reach the server.
 
-**What feedback/signal KV breach yields:** feedback text users submitted (attributed) and methodology signals the engine wrote (anonymized at the relay boundary — author stripped before write). Protected by the same Cloudflare auth model as the rest of our infrastructure.
+**What a feedback KV breach yields:** feedback text users explicitly typed and submitted (attributed — they chose what to send). Protected by the same Cloudflare auth model as the rest of our infrastructure.
 
 ## Why your API key is safe
 

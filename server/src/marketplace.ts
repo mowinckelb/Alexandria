@@ -1,24 +1,23 @@
 /**
- * Marketplace signal substrate — stores anonymous machine signals, attributed
- * feedback, and the daily library-signal snapshot in Cloudflare KV.
+ * Marketplace feedback substrate — stores Author-explicit feedback and the
+ * daily library-signal snapshot in Cloudflare KV.
  *
- * Migrated from `alexandria-signal` private GitHub repo to KV on 2026-05-15.
- * KV is the right primitive for ephemeral operational data: encrypted at rest,
- * private by default, TTL handles cleanup, no git noise.
+ * History: this module previously also stored anonymous "machine signals"
+ * the Engine wrote auto-on-session-close. Deleted 2026-05-15 — sovereignty
+ * was promissory (the Engine was instructed not to include Author content,
+ * but Authors had to trust the prompt). Replaced by Author-explicit
+ * feedback only: Authors type what they want to send via the feedback
+ * pulse, attribution is intentional, consent is mechanical.
  *
  * Key layout (in the DATA KV namespace):
- *   signal:{iso-ts}:{hash}     → JSON {t, signal}.   TTL 90d.
  *   feedback:{iso-ts}:{hash}   → JSON {author, t, text, context}.  No TTL.
- *   library-signal             → raw text body, single key, overwriting.
+ *   library-signal             → server-computed funnel snapshot, single key.
  *
- * Reads: founder inspects via `wrangler kv:key list --binding=DATA --prefix=...`
- * and `wrangler kv:key get`. No admin endpoint yet — add one if list/get via
- * CLI becomes painful.
+ * Reads: founder inspects via `wrangler kv key list --binding=DATA --remote --prefix=feedback:`
+ * and `wrangler kv key get`. Add an admin endpoint if/when CLI grows painful.
  */
 import { logEvent } from './analytics.js';
 import { getKV } from './kv.js';
-
-const SIGNAL_TTL_SECONDS = 90 * 24 * 60 * 60;
 
 /** Stable short hash for key uniqueness. Not security-sensitive. */
 async function shortHash(s: string): Promise<string> {
@@ -28,17 +27,7 @@ async function shortHash(s: string): Promise<string> {
   return hex.slice(0, 8);
 }
 
-/** Anonymous machine signal — author stripped at the relay boundary. */
-export async function publishSignal(signal: string): Promise<void> {
-  const t = new Date().toISOString();
-  const hash = await shortHash(signal + t);
-  const key = `signal:${t}:${hash}`;
-  const value = JSON.stringify({ t, signal });
-  await getKV().put(key, value, { expirationTtl: SIGNAL_TTL_SECONDS });
-  logEvent('marketplace_signal_published', { key });
-}
-
-/** Feedback — keeps author attribution (factory needs it for context). */
+/** Author-explicit feedback. Attributed (Authors type it; founder reads it for context). */
 export async function publishFeedback(payload: { author: string; t: string; text: string; context?: string }): Promise<void> {
   const hash = await shortHash(payload.text + payload.t);
   const key = `feedback:${payload.t}:${hash}`;
@@ -47,8 +36,8 @@ export async function publishFeedback(payload: { author: string; t: string; text
   logEvent('feedback_published', { key });
 }
 
-/** Daily snapshot of library funnel/engagement. Single overwriting key — only
- *  the latest snapshot matters once the next lands. */
+/** Daily snapshot of library funnel/engagement. Server-computed (no Author
+ *  content). Single overwriting key — only the latest snapshot matters. */
 export async function publishLibrarySignalSnapshot(text: string): Promise<void> {
   await getKV().put('library-signal', text);
   logEvent('library_signal_snapshot_published', {});

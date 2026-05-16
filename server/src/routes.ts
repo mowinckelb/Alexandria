@@ -12,7 +12,7 @@ import { Account, AccountStore, extractApiKey, extractLibrarySessionToken, findB
 import { generateApiKey, getAccounts, getAccountByLogin, requireAdmin } from './accounts.js';
 import { sendEmail, sendEmailsBatched, sendWelcomeEmail, FOUNDER_EMAIL } from './email.js';
 import { runHealthDigest, runWeekOneCheckIns } from './cron.js';
-import { publishSignal, publishFeedback } from './marketplace.js';
+import { publishFeedback } from './marketplace.js';
 import { handleGithubPushWebhook } from './marketplace-catalog.js';
 
 /**
@@ -775,34 +775,10 @@ export function registerRoutes(app: Hono) {
     return c.json({ ok: true, removed: login });
   });
 
-  // --- Machine signal (Engine → marketplace) ---
-
-  // Stores anonymized signal in KV under `signal:` prefix. Author is stripped
-  // at the boundary — factory reads only signal content. Failure to write
-  // returns 502 so the Machine retries on its next session (better than
-  // silent loss).
-  async function handleSignal(c: any) {
-    const auth = await requireAuth(c);
-    if (!auth) return c.json({ error: 'Unauthorized' }, 401);
-
-    const body = await c.req.json().catch(() => ({}));
-    const { signal } = body;
-    if (!signal || typeof signal !== 'string' || signal.length === 0) {
-      return c.json({ error: 'Empty signal' }, 400);
-    }
-
-    try {
-      await publishSignal(signal.slice(0, 10000));
-      logEvent('machine_signal', { length: String(signal.length) });
-      return c.json({ ok: true });
-    } catch (err) {
-      console.error('Marketplace signal relay failed:', err);
-      logEvent('machine_signal', { length: String(signal.length), error: 'relay_failed' });
-      return c.json({ error: 'relay_failed' }, 502);
-    }
-  }
-
-  app.post('/marketplace/signal', handleSignal);
+  // (POST /marketplace/signal removed 2026-05-15 — anonymous machine signal
+  //  was a sovereignty-promissory feature: Engines were instructed not to
+  //  include Author content, but Authors had to trust the prompt. Replaced
+  //  by Author-explicit feedback only via POST /marketplace/feedback.)
 
   // --- Github webhook — instant marketplace cache invalidation on push ---
   //
@@ -1053,44 +1029,8 @@ ${body.split('\n').map((line: string) => line.trim() ? `<p style="font-size: 1re
   // for tests and autonomous triggers. Health digest email includes issue list.
   // The HTML dashboard was a human-in-the-loop on a maximisation game.
 
-  // --- Factory autoloop substrate (Loop 3: methodology canon evolution) ---
-  //
-  // The factory autoloop is a scheduled Claude agent that fetches accumulated
-  // machine signals + feedback + library-signal from KV, analyzes for cross-
-  // Author patterns, and drafts canon PRs to mowinckelb/alexandria.
-  //
-  // Two endpoints — read everything since the marker, then checkpoint when done.
-  // Client-side filtering by the agent (intelligence decision); server is the
-  // data layer.
-  app.get('/admin/factory', async (c) => {
-    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
-    const kv = getKV();
-    const [signalList, feedbackList, librarySignal, marker] = await Promise.all([
-      kv.list({ prefix: 'signal:' }),
-      kv.list({ prefix: 'feedback:' }),
-      kv.get('library-signal'),
-      kv.get('factory:last-processed-at'),
-    ]);
-    const fetchAll = async (keys: { name: string }[]) =>
-      Promise.all(keys.map(async k => ({ key: k.name, value: await kv.get(k.name) })));
-    const [signals, feedback] = await Promise.all([
-      fetchAll(signalList.keys),
-      fetchAll(feedbackList.keys),
-    ]);
-    return c.json({
-      signals,
-      feedback,
-      library_signal: librarySignal,
-      last_processed_at: marker,
-      now: new Date().toISOString(),
-    });
-  });
-
-  app.post('/admin/factory/checkpoint', async (c) => {
-    if (!await requireAdmin(c)) return c.text('Unauthorized', 403);
-    const { t } = await c.req.json<{ t?: string }>();
-    if (!t || isNaN(new Date(t).getTime())) return c.text('missing or invalid t (ISO 8601)', 400);
-    await getKV().put('factory:last-processed-at', t);
-    return c.json({ ok: true, last_processed_at: t });
-  });
+  // (Factory autoloop substrate removed 2026-05-15. Was part of the deleted
+  //  machine-signal flow. Canon evolution is now founder-as-user: read
+  //  feedback via `wrangler kv key list --binding=DATA --remote --prefix=feedback:`,
+  //  analyze, edit factory/canon/*.md directly.)
 }

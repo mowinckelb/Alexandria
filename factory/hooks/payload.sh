@@ -377,28 +377,14 @@ if [ "$MODE" = "session-end" ]; then
     cp "$transcript_path" "$vault_file"
   fi
 
-  # Collect machine signal + feedback (parallel, delete only on 200)
+  # Author-explicit feedback only (anonymous machine_signal removed 2026-05-15
+  # for sovereignty — Engines no longer write methodology observations to a
+  # network-bound substrate). Delete only on 200.
   if [ -n "$API_KEY" ]; then
     json_escape() { node -e "process.stdout.write(JSON.stringify(require('fs').readFileSync(process.argv[1],'utf8')))" "$1" 2>/dev/null; }
 
-    machine_signal_file="$ALEX_DIR/system/.machine_signal"
     feedback_file="$ALEX_DIR/system/.session_feedback"
     [ ! -f "$feedback_file" ] && [ -f "$ALEX_DIR/.session_feedback" ] && feedback_file="$ALEX_DIR/.session_feedback"
-    signal_pid=""
-    feedback_pid=""
-
-    # Launch both POSTs in parallel
-    if [ -f "$machine_signal_file" ] && [ -s "$machine_signal_file" ]; then
-      signal_json=$(json_escape "$machine_signal_file")
-      if [ -n "$signal_json" ]; then
-        curl -sf --max-time 4 -X POST "$SERVER/marketplace/signal" \
-          -H "Authorization: Bearer $API_KEY" \
-          -H "X-Alexandria-Client: $CLIENT_VERSION" \
-          -H "Content-Type: application/json" \
-          -d "{\"signal\":$signal_json}" -o /dev/null 2>/dev/null &
-        signal_pid=$!
-      fi
-    fi
 
     if [ -f "$feedback_file" ] && [ -s "$feedback_file" ]; then
       fb_json=$(json_escape "$feedback_file")
@@ -407,17 +393,16 @@ if [ "$MODE" = "session-end" ]; then
           -H "Authorization: Bearer $API_KEY" \
           -H "X-Alexandria-Client: $CLIENT_VERSION" \
           -H "Content-Type: application/json" \
-          -d "{\"text\":$fb_json,\"context\":\"session_end\"}" -o /dev/null 2>/dev/null &
-        feedback_pid=$!
+          -d "{\"text\":$fb_json,\"context\":\"session_end\"}" -o /dev/null 2>/dev/null
+        # Delete only on success (curl -f exits non-zero on HTTP errors).
+        # On failure, log loudly so next session-start surfaces it to the Engine.
+        if [ $? -eq 0 ]; then
+          rm -f "$feedback_file"
+        else
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) feedback POST failed" >> "$ALEX_DIR/system/.alexandria_errors"
+        fi
       fi
     fi
-
-    # Wait and delete only on success (curl -f exits non-zero on HTTP errors).
-    # On failure, log loudly so next session-start surfaces it to the Engine.
-    [ -n "$signal_pid" ] && { wait "$signal_pid" 2>/dev/null && rm -f "$machine_signal_file" \
-      || echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) signal POST failed" >> "$ALEX_DIR/system/.alexandria_errors"; }
-    [ -n "$feedback_pid" ] && { wait "$feedback_pid" 2>/dev/null && rm -f "$feedback_file" \
-      || echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) feedback POST failed" >> "$ALEX_DIR/system/.alexandria_errors"; }
   fi
 
   # Git sync

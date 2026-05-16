@@ -178,11 +178,9 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
 
   // Per-author cross-event visibility.
   // Session lifecycle events (call/end/active) don't fire — hooks post to /call (D1)
-  // rather than emitting events. Build a lightweight per-author roll-up from what
-  // does fire: machine_signal, user_feedback. The ground truth for sessions is
-  // protocol_calls.
+  // rather than emitting events. Build a lightweight per-author roll-up from
+  // user_feedback events. Ground truth for sessions is protocol_calls.
   const authorStats: Record<string, {
-    signals: number;
     feedback: number;
     last_seen: string;
     platforms: Set<string>;
@@ -193,10 +191,9 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
     if (e.t < METRICS_EPOCH) continue;
     if (isSmoke(e.event) || isSmoke(e.platform)) continue;
     if (!authorStats[author]) {
-      authorStats[author] = { signals: 0, feedback: 0, last_seen: e.t, platforms: new Set() };
+      authorStats[author] = { feedback: 0, last_seen: e.t, platforms: new Set() };
     }
     const stat = authorStats[author];
-    if (e.e === 'machine_signal') stat.signals++;
     if (e.e === 'user_feedback') stat.feedback++;
     if (e.t > stat.last_seen) stat.last_seen = e.t;
     if (e.platform) stat.platforms.add(e.platform);
@@ -204,7 +201,6 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
 
   const users = Object.entries(authorStats).map(([login, stat]) => ({
     login,
-    signals: stat.signals,
     feedback: stat.feedback,
     last_seen: formatPT(stat.last_seen),
     hours_ago: Math.round((Date.now() - new Date(stat.last_seen).getTime()) / (1000 * 60 * 60) * 10) / 10,
@@ -254,41 +250,23 @@ export async function getDashboard(): Promise<Record<string, unknown> & { _event
 
 /**
  * Marketplace status — is the cross-Author learning loop working?
- * Signals live in KV (migrated from alexandria-signal repo 2026-05-15).
- * Liveness reads from the local event log — every successful
- * /marketplace/signal POST emits a `machine_signal` event.
+ * Liveness reads feedback events from the local event log. Anonymous
+ * machine signals were removed 2026-05-15; only Author-explicit feedback
+ * flows through the marketplace now.
  */
 async function getMarketplaceStatus(events: Record<string, string>[]): Promise<Record<string, unknown>> {
-  const signalEvents = events.filter(e => e.e === 'machine_signal');
-  const signalsThisWeek = signalEvents.filter(e =>
+  const feedbackEvents = events.filter(e => e.e === 'feedback_published');
+  const feedbackThisWeek = feedbackEvents.filter(e =>
     Date.now() - new Date(e.t).getTime() < 7 * 24 * 60 * 60 * 1000
   ).length;
-  const lastSignalAt = signalEvents.length > 0
-    ? signalEvents[signalEvents.length - 1].t
+  const lastFeedbackAt = feedbackEvents.length > 0
+    ? feedbackEvents[feedbackEvents.length - 1].t
     : null;
 
-  // Factory autoloop liveness — marker advances every weekly run.
-  // > 14d stale = the autoloop is broken (trigger disabled, admin key
-  // rotated, network allow-list excludes api.alexandria-library.com, etc).
-  const { getKV } = await import('./kv.js');
-  let factoryMarker: string | null = null;
-  let factoryStatus = 'no marker yet (autoloop never run)';
-  try {
-    factoryMarker = await getKV().get('factory:last-processed-at');
-    if (factoryMarker) {
-      const ageDays = (Date.now() - new Date(factoryMarker).getTime()) / 86400000;
-      factoryStatus = ageDays > 14
-        ? `stale: ${Math.floor(ageDays)}d since last autoloop run`
-        : 'ok';
-    }
-  } catch { /* non-fatal */ }
-
   return {
-    status: signalsThisWeek > 0 ? 'ok' : 'no signal this week',
-    signals_this_week: signalsThisWeek,
-    last_signal_at: lastSignalAt,
-    factory_autoloop_status: factoryStatus,
-    factory_last_processed_at: factoryMarker,
+    status: feedbackThisWeek > 0 ? 'ok' : 'no feedback this week',
+    feedback_this_week: feedbackThisWeek,
+    last_feedback_at: lastFeedbackAt,
   };
 }
 
@@ -401,7 +379,6 @@ export async function getUserEvents(login: string): Promise<Record<string, unkno
 
   const sessionEvents = events.filter(e => e.e === 'prosumer_session');
   const feedback = events.filter(e => e.e === 'user_feedback');
-  const signals = events.filter(e => e.e === 'machine_signal');
   const lastSession = sessionEvents.length > 0 ? sessionEvents[sessionEvents.length - 1] : null;
 
   return {
@@ -412,10 +389,9 @@ export async function getUserEvents(login: string): Promise<Record<string, unkno
       platforms: [...new Set(sessionEvents.map(s => s.platform).filter(Boolean))],
     },
     feedback: feedback.slice(-10),
-    machine_signals: signals.length,
     recent_events: events.slice(-20),
   };
 }
 
-// Signals + feedback live in the DATA KV namespace under `signal:` and
-// `feedback:` key prefixes. See marketplace.ts.
+// Author-explicit feedback lives in the DATA KV namespace under `feedback:`
+// key prefix. See marketplace.ts.

@@ -8,8 +8,7 @@
  *   "emailtoken:{token}"   → github_id (lookup index for O(1) email-token auth)
  *   "events:YYYY-MM-DD:HH-mm-ss-SSS-{rand}" → JSONL batch from one request
  *   "cron:*"                → cron liveness markers (health digest reads these)
- *   "signal:{t}:{hash}"     → anonymous machine signal (90d TTL)
- *   "feedback:{t}:{hash}"   → attributed feedback (no TTL)
+ *   "feedback:{t}:{hash}"   → Author-explicit attributed feedback (no TTL)
  *   "library-signal"        → daily library-signal snapshot (single key)
  *
  * Each account is its own KV key — no concurrent write corruption,
