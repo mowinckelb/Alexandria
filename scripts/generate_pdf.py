@@ -334,6 +334,12 @@ def parse_md(path):
             i += 1
             continue
 
+        # Page break directive
+        if stripped == "<!-- pagebreak -->":
+            story.append(PageBreak())
+            i += 1
+            continue
+
         # H2
         if stripped.startswith("## "):
             title = stripped[3:].strip()
@@ -416,7 +422,7 @@ def build_pdf(md_path, pdf_path):
         topMargin=MARGIN_TOP,
         bottomMargin=MARGIN_BOTTOM,
         title=md_path.stem.lower(),
-        author="Benjamin A. Mowinckel",
+        author="Benjamin a. Mowinckel",
     )
 
     cover_frame = Frame(MARGIN_LEFT, MARGIN_BOTTOM, FRAME_W, FRAME_H, id="cover")
@@ -544,7 +550,7 @@ def build_pdf(md_path, pdf_path):
         story.append(Spacer(1, 24))
         story.append(GoldRule())
         story.append(Spacer(1, 20))
-        story.append(Paragraph("Benjamin A. Mowinckel  \u2014  March 2026", S_COVER_META))
+        story.append(Paragraph("Benjamin a. Mowinckel  \u2014  est. March 2026", S_COVER_META))
 
         # Add confidential notice if applicable
         is_confidential = "confidential" in str(md_path).lower()

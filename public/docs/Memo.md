@@ -1,6 +1,6 @@
 # Alexandria — Memo
 
-> **Most AI investments cannot defend their terminal value. Alexandria's compounds when a new model ships.**
+> **Most AI investments cannot defend their terminal value. Alexandria's compounds with every model release — especially post-singularity.**
 
 > *The cognitive layer of AI — where human minds remain machine-readable across the transition.*
 
@@ -10,33 +10,35 @@
 
 Most AI products are transition assets — value decays into the model with each release. Alexandria's asset is a **private, accumulating, machine-readable record of how a specific person thinks** — sovereign to the user, unsynthesizable from outside, *worth more from every better model.* The strategic prize is the canonical write path for those records: same shape as WordPress, GitHub, Hugging Face. Winner-takes-most. Technical and survival risks are zero. **The only existential question is demand. That is the only thing capital is for.**
 
-*In April 2026 Andrej Karpathy publicly described this architecture — "LLM Knowledge Bases… raw data compiled into structured markdown that compounds with every model release… there is room here for an incredible new product."* **Alexandria had already shipped it.**
+*In April 2026 Andrej Karpathy publicly described this architecture — raw data compiled into structured markdown, incrementally enhanced, queries that compound back into the knowledge base — and said "there is room here for an incredible new product."* **Alexandria had already shipped it.**
 
 ---
 
 ## the asset.
 
-A structured record of who each user is — worldview, values, mental models, taste, blind spots — accumulated decision by decision through daily Socratic sessions. Local files the user owns. Portable across every AI provider. *The record cannot be back-filled: inbox-scraping reaches what the user does, never what they mean. Five years of biographer-interviews cannot be compressed into a six-month rush.* **The compounding is the years.**
+A structured record of who each user is — whatever they choose to put in it: worldview, values, mental models, taste, personal thoughts, decisions, blind spots, anything. **The product is the framework; the practice is theirs** (daily Socratic sessions, journals, decision logs, any system works). Local files the user owns. Portable across every AI provider. *The record cannot be back-filled: inbox-scraping reaches what the user does, never what they mean.* **The compounding is the years.**
 
-*Engineering is done. One curl command. Ten dollars a month, free with five referred friends, slider open above.* The only open question is whether enough people want it.
+*Engineering is done. One curl command. $10/month floor, free with five referred friends, users choose what they pay above that.* The only open question is whether enough people want it.
 
 ---
 
 ## the moat.
 
-No technical moat — *by design.* The moats that compound in a world of infinite intelligence are social, cultural, and infrastructural.
+*Alexandria is sovereign by design — any individual user can take their files and walk at zero cost. **The defensibility is one layer up: coordination.** Alexandria only works as the read **and** write path for personal thought — writers chase readers, readers chase writers, both terminate on the same place.* Once the network gathers there, displacing Alexandria requires getting everyone to switch at once. That doesn't happen — same as HTTP, SMTP, GitHub, Hugging Face. **The scarce asset in a world of cheap intelligence is not capability; it is coordination.**
 
-**The convention slot.** *"If you take your thinking seriously, you have one of these."* Same shape as *build-it-on-WordPress*, *push-it-to-GitHub*, *host-it-on-Hugging-Face*. Winner-takes-most. **12–36 month window. Move as if 12.**
+**1. Convention.** *Be the canonical place where people host their cognitive records.* Same shape as *build-it-on-WordPress*, *push-it-to-GitHub*, *host-it-on-Hugging-Face*. **Apple can build the tool; Apple cannot build the cathedral.** *Winner-takes-most. 12–36 month window — move as if 12.*
 
-**The tribe.** Not a network effect — *an identity.* People do not leave tribes because a bigger tribe launches. **Apple can build the tool. Apple cannot build the cathedral.**
+**2. Network.** *Your circle on Alexandria means your AI can read their frames when planning with or about them.* The friend's-mind primitive turns recruitment into self-interest. *A clone starts with no population.*
+
+**3. Integration.** *Every AI tool reading from the user's local Alexandria directory is another terminal point.* Claude Code, Cursor, Codex today; every personalised app tomorrow. **The user can leave; the ecosystem points back.**
 
 ---
 
 ## the business.
 
-**Subscription.** *$10/m baseline, slider open above.* Stands alone. Break-even at 10 paying users.
+**Subscription.** *$10/month floor; users choose what they pay above that, no cap.* Stands alone. Break-even at 10 paid users.
 
-**Platform.** *Permissioned access for AI labs (alignment, personalisation), plus every service that serves a user better when it knows who they are.* Independent of user count.
+**Platform.** *Users grant other services permissioned access to their Alexandria record — opt-in, revocable.* AI labs pay for alignment and personalisation data. Consumer apps pay to know users who want to be known (meditation, therapy, dating, productivity). **The user monetises their own frame; Alexandria captures a clearing fee.** *Independent of subscription count.*
 
 | If | Then |
 |---|---:|
@@ -48,7 +50,7 @@ No technical moat — *by design.* The moats that compound in a world of infinit
 
 ## the founder.
 
-**Benjamin Mowinckel.** 26, Norwegian-American. Eton, Princeton, Norwegian military, brief stint at Verdane (Oslo growth equity — carbon-removal project, then decarb sourcing). Currently in San Francisco. **Solo, running the entire stack on AI agents at $100/month opex, full-time since March 2026.** Two months from zero to engineering-done.
+**Benjamin a. Mowinckel.** 26, Norwegian-American. Eton, Princeton, Norwegian military, brief stint at Verdane. Currently in San Francisco. **Solo, running the entire stack on AI agents at $100/month opex, full-time since March 2026.** Two months from zero to engineering-done.
 
 | | $/m |
 |---|---:|
@@ -66,8 +68,8 @@ No technical moat — *by design.* The moats that compound in a world of infinit
 - **Rung 2 — ~$200–500K.** Scales what works. First 1,000 users.
 - **Rung 3 — ~$1M+.** Platform pilot for AI labs. First public referee on the cap table.
 
-**Capital accelerates the demand experiment — the company does not need the money. The founder builds regardless. Entry price is lowest now.**
+**Capital accelerates the demand experiment — the company does not need the money. The founder builds regardless.**
 
 *The firm whose name attaches goes on the page about how humans preserved thinking through the AI transition.* **America protects the right to think. Alexandria protects the ability.** *Set the angels free.*
 
-**Benjamin Mowinckel** · mowinckel.b@gmail.com · alexandria-library.com · a.
+**Benjamin a. Mowinckel** · mowinckel.b@gmail.com · alexandria-library.com · a.

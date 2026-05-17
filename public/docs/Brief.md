@@ -2,7 +2,7 @@
 
 > *Alexandria is a tribe of people who put their minds into writing so AI thinks with them, not for them.*
 
-> **Most AI investments cannot defend their terminal value. Alexandria's compounds when a new model ships.**
+> **Most AI investments cannot defend their terminal value. Alexandria's compounds with every model release — especially post-singularity.**
 
 ---
 
@@ -16,17 +16,17 @@
 4. *The strategic prize is the canonical write path and permission layer for those records — the convention slot, shape of WordPress, GitHub, Hugging Face. Winner-takes-most.*
 5. *Technical risk is zero. Survival risk is zero. The only existential question is demand. That is the only thing capital is for.*
 
-**Capital does not keep this company alive.** It runs on ~$100/month and the founder builds regardless. *Capital accelerates the demand experiment, network density, and the first public referee for the category.* The best investor is not the largest cheque — *it is the one whose conviction creates the most leverage.* Entry price is lowest now and never returns.
+**Capital does not keep this company alive.** It runs on ~$100/month and the founder builds regardless. *Capital accelerates the demand experiment, network density, and the first public referee for the category.* The best investor is not the largest cheque — *it is the one whose conviction creates the most leverage.*
 
 ---
 
 ## the asset.
 
-A structured, machine-readable record of who each user is — worldview, values, mental models, taste, blind spots — accumulated decision by decision through daily Socratic sessions. **Sovereign to the user. Portable across every AI provider. Worth more from every better model.**
+A structured, machine-readable record of who each user is — whatever they choose to put in it: worldview, values, mental models, taste, personal thoughts, decisions, blind spots, anything. **The product is the framework; the practice is theirs.** Some users run daily Socratic sessions; others keep journals, log decisions, dump streams of consciousness, build their own ritual. **Sovereign to the user. Portable across every AI provider. Worth more from every better model.**
 
-*The record cannot be back-filled.* Inbox-scraping reaches what the user does, never what they mean. Five years of biographer-interviews cannot be compressed into a six-month rush. **The compounding is the years.**
+*The record cannot be back-filled.* Inbox-scraping reaches what the user does, never what they mean. Five years of capture cannot be compressed into a six-month rush. **The compounding is the years.**
 
-Engineering is done. *One curl command, local files on the user's own machine, two integration points fire whenever the user talks to an AI — capture and inject. Ten dollars a month, free with five referred friends, slider open above.* The only open question is whether enough people want it.
+Engineering is done. *One curl command, local files on the user's own machine, two integration points fire whenever the user talks to an AI — capture and inject. Ten dollars a month, free with five referred friends.* The only open question is whether enough people want it.
 
 ---
 
@@ -38,7 +38,7 @@ Most AI products degrade — coding assistants, productivity wrappers, content g
 
 Alexandria gets better. *Each user's record is private, accumulating, unsynthesizable from public sources. Better models extract deeper signal from the same record.* Every release is a tailwind.
 
-In April 2026 Andrej Karpathy publicly described this architecture — *"LLM Knowledge Bases… raw data compiled into structured markdown that compounds with every model release… there is room here for an incredible new product."* **Alexandria had already shipped it.** The category will exist. The open question is who owns the protocol.
+In April 2026 Andrej Karpathy publicly described this architecture — raw data compiled into structured markdown, incrementally enhanced, queries that compound back into the knowledge base — and said *"there is room here for an incredible new product."* **Alexandria had already shipped it.** The category will exist. The open question is who owns the protocol.
 
 ---
 
@@ -56,27 +56,37 @@ The deeper risk is decay. *AI removes the demand on cognition; cognition only de
 
 ## the moat.
 
-No technical moat — by design. **Technical moats dissolve as intelligence becomes a commodity.** The moats that compound are social, cultural, and infrastructural.
+*Technical moats die when intelligence commoditises. Even the data isn't a moat — **Alexandria is sovereign by design; any individual user can take their files and walk away at zero cost.** That's deliberate.*
 
-**The convention slot.** *"If you take your thinking seriously, you have one of these."* Same shape as *"build it on WordPress,"* *"push it to GitHub,"* *"host it on Hugging Face."* Winner-takes-most. *12–36 month window. Move as if 12.*
+**The defensibility is one layer up: coordination.** *Alexandria only works as the read **and** write path for personal thought — writers chase readers; readers chase writers; both terminate on the same place.* Once that's where the network gathers, individual exits don't change anything — the value lives in everyone else still being there. **Displacing Alexandria requires getting the entire network to switch simultaneously. That doesn't happen.**
 
-**The tribe.** Not a network effect — an identity. *People do not leave tribes because a bigger tribe launches. They stay because of shared philosophy, the founding lineage, the handwritten letters.* **Apple can build the tool. Apple cannot build the cathedral.**
+*This is how every durable protocol has worked.* HTTP, SMTP, GitHub, Hugging Face — open by design, technically replaceable, practically untouchable. **The scarce asset in a world of cheap intelligence is not capability; it is coordination.** Alexandria's bet is to be the coordination point for personal cognition.
 
-**The protocol's gravity.** *Every AI tool, agent, and app that reads from the user's local Alexandria directory adds switching cost. The user can leave; the ecosystem points back.*
+*Three reinforcing forms of that coordination:*
 
-**Why frontier labs won't ship this.** *Sovereignty is incompatible with their incentives — they want users in their ecosystem, not in a neutral substrate. Cross-tool credibility requires neutrality.* **Every memory feature the labs ship validates the thesis without competing with it.**
+**1. Convention.** *The canonical place where thoughtful people host their cognitive records — "build it on WordPress," "push it to GitHub," "host your mind on Alexandria."* Once the convention settles, individual exits don't shift it. **Apple can build the tool; Apple cannot build the cathedral.** *Winner-takes-most. The 12–36 month window is now.*
 
-The naive moat is *"AI cannot read inside your head."* On a trajectory toward falsification — Stanford's Willett (2025) decoded inner speech at ~62 words per minute. **The real moat is interpretation, not readability.** *Decoded neural activity is generically readable but not individually meaningful; meaning lives outside the brain and requires the user's own reference frame to interpret.* BCIs are the bridge. **Alexandria builds what crosses it.**
+**2. Network.** *Your circle being on Alexandria means your AI can read their frames when planning with or about them; their AI reads yours.* The friend's-mind primitive makes recruitment a self-interested act — *invite your circle for your own benefit.* A clone can host identical files but starts with no population.
+
+**3. Integration.** *Every AI tool, agent, and app that reads from the user's local Alexandria directory is another terminal point the coordination terminates on.* Today: Claude Code, Cursor, Codex hooks. Tomorrow: every personalised app and agent. **The user can always leave; the ecosystem points back because the coordination is here.**
 
 ---
 
+*Two objections answered:*
+
+*"Frontier labs will build this."* They won't. **Sovereignty is the opposite of their business model** — every dollar spent on neutral user-side infrastructure is a dollar not spent on the next training run. Cross-tool credibility requires a neutrality no single lab can offer. *Every memory feature labs ship validates the demand without competing with it.*
+
+*"BCI will read inner speech and kill the asset."* It won't. Decoded neural activity is **generically readable but not individually meaningful** — meaning requires the user's own reference frame to interpret. Stanford's Willett (2025) hit 62 words per minute of decoded inner speech; even at perfect readout, the signal is uninterpretable without the frame. **BCIs are the bridge; Alexandria builds what crosses it.**
+
+<!-- pagebreak -->
+
 ## the business.
 
-Two streams compound on the same users.
+*Two revenue streams compound on the same users.*
 
-**Subscription** — *$10/m baseline, slider open above. Stands alone. Break-even at 10 paying users. Prosumer comparables (Cursor, ChatGPT Pro, Notion AI) settle the slider distribution above the floor.*
+**Subscription.** *$10/month floor — and users choose what they pay above that, no cap.* Prosumer comparables (Cursor, ChatGPT Pro, Notion AI) show that people willingly pay $20–$60/month for tools they actually value. Stands alone. **Break-even at 10 paid users.**
 
-**Platform** — *permissioned access for AI labs (alignment, personalisation), plus every service that serves a user better when it knows who they are (opt-in, revocable). Enterprises per seat; agent platforms per integration depth.* **Independent of user count.**
+**Platform.** *Users grant other services permissioned access to their Alexandria record — opt-in, revocable per service.* AI labs pay for alignment and personalisation research data. Consumer apps pay to know users who knowingly want to be known (meditation, therapy, dating, productivity, healthcare). **The user monetises their own frame; Alexandria captures a clearing fee on every transaction.** *Independent of subscription count.*
 
 | If | Then |
 |---|---:|
@@ -92,7 +102,7 @@ Two streams compound on the same users.
 
 At pre-seed, the moat is the founder. **The cheque is on the person.**
 
-**Benjamin Mowinckel.** Norwegian-American, 26. Eton, Princeton, Norwegian military, brief stint at Verdane (Oslo growth equity — carbon-removal project, then decarb sourcing). Currently in San Francisco.
+**Benjamin a. Mowinckel.** Norwegian-American, 26. Eton, Princeton, Norwegian military, brief stint at Verdane. Currently in San Francisco.
 
 *No technical credentials. No previous ventures.* The pitch rests on those credentials being irrelevant — *and on the company being the proof.* **Solo, running the entire stack on AI agents at $100/month opex, full-time since March 2026.** Two months from zero to engineering-done.
 
@@ -116,7 +126,7 @@ In his own words: *"I could be wrong. I doubt it. The company costs $100 a month
 
 **Demand untested at scale.** Acknowledged. *The only open question. The only thing capital is for. Rung 1 directly answers it.*
 
-**Apple builds it.** Real risk. *Also the exit thesis — category validated; Alexandria becomes the target.*
+**Convention slot taken first.** Real risk. *A better-funded entrant could land "host your mind on X" before us.* Mitigated by move-as-if-12, public artifacts shipping continuously, and founding-cohort velocity. **Not eliminated — that's why the 12-month window is a strategic constraint, not a stylistic one.**
 
 **Pain not acutely felt.** *Frame imposition required before conversion.* Once the record compounds, leaving feels like loss. **The acquisition problem is not "convince someone this matters." It is "make not-trying feel irrational."**
 
@@ -152,13 +162,13 @@ Returns are the long call option. Legacy is the more certain payoff.
 
 ---
 
-**Benjamin Mowinckel**
+**Benjamin a. Mowinckel**
 mowinckel.b@gmail.com · +1 415 503 8178 · mowinckel.ai
 
 | | |
 |---|---|
 | Stage | Live. Taking payments. |
 | Structure | Delaware C-Corp (Stripe Atlas) |
-| Founder | Benjamin Mowinckel — San Francisco |
+| Founder | Benjamin a. Mowinckel — San Francisco |
 
 a.
